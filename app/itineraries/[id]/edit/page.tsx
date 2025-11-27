@@ -1,12 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { EditForm } from "@/components/itineraries/edit-form";
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export default async function EditItineraryPage({
     params,
@@ -22,6 +17,7 @@ export default async function EditItineraryPage({
     const { id } = await params;
 
     // Fetch itinerary from database
+    const supabase = createSupabaseAdmin();
     const { data: itinerary, error } = await supabase
         .from("itineraries")
         .select("*")
