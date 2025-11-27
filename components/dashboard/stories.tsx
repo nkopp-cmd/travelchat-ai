@@ -11,6 +11,46 @@ interface Story {
     isAdd?: boolean;
 }
 
+// City-specific Unsplash images for visual appeal
+const CITY_IMAGES: Record<string, string> = {
+    "seoul": "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=200&h=200&fit=crop",
+    "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=200&h=200&fit=crop",
+    "bangkok": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=200&h=200&fit=crop",
+    "singapore": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=200&h=200&fit=crop",
+    "osaka": "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=200&h=200&fit=crop",
+    "kyoto": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&h=200&fit=crop",
+    "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=200&h=200&fit=crop",
+    "london": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=200&h=200&fit=crop",
+    "new york": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=200&h=200&fit=crop",
+    "barcelona": "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=200&h=200&fit=crop",
+    "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=200&h=200&fit=crop",
+    "amsterdam": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=200&h=200&fit=crop",
+    "hong kong": "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=200&h=200&fit=crop",
+    "taipei": "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=200&h=200&fit=crop",
+    "bali": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=200&h=200&fit=crop",
+};
+
+// Default fallback image for unknown cities
+const DEFAULT_CITY_IMAGE = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200&h=200&fit=crop";
+
+function getCityImage(city: string): string {
+    const normalizedCity = city.toLowerCase().trim();
+
+    // Check for exact match first
+    if (CITY_IMAGES[normalizedCity]) {
+        return CITY_IMAGES[normalizedCity];
+    }
+
+    // Check for partial match (e.g., "Seoul, South Korea" -> "seoul")
+    for (const [key, url] of Object.entries(CITY_IMAGES)) {
+        if (normalizedCity.includes(key)) {
+            return url;
+        }
+    }
+
+    return DEFAULT_CITY_IMAGE;
+}
+
 async function getStories(): Promise<Story[]> {
     const supabase = createSupabaseAdmin();
     const { data: itineraries } = await supabase
@@ -21,8 +61,8 @@ async function getStories(): Promise<Story[]> {
 
     const realStories = itineraries?.map((it) => ({
         id: it.id,
-        title: it.city, // Use city as the story title for better context
-        image: "/placeholder-spot.jpg", // TODO: Use a real image from the city/itinerary
+        title: it.city,
+        image: getCityImage(it.city),
     })) || [];
 
     return [

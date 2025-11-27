@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Share2, Heart, Check } from "lucide-react";
-import { useState } from "react";
+import { Share2, Heart, Check, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SpotInteractionsProps {
@@ -13,7 +13,27 @@ interface SpotInteractionsProps {
 export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
     const [isLiked, setIsLiked] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
+
+    // Check if spot is already saved on mount
+    useEffect(() => {
+        const checkSavedStatus = async () => {
+            try {
+                const response = await fetch(`/api/spots/save?spotId=${spotId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setIsLiked(data.saved);
+                }
+            } catch (error) {
+                // Silently fail - user just won't see saved state
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        checkSavedStatus();
+    }, [spotId]);
 
     const handleShare = async () => {
         setIsSharing(true);
@@ -61,24 +81,40 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
 
     const handleLike = async () => {
         const newLikedState = !isLiked;
-        setIsLiked(newLikedState);
+        setIsSaving(true);
 
-        if (newLikedState) {
-            toast({
-                title: "Spot saved!",
-                description: `${spotName} added to your saved spots`,
+        try {
+            const response = await fetch("/api/spots/save", {
+                method: newLikedState ? "POST" : "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ spotId }),
             });
 
-            // TODO: Save to database
-            // await fetch("/api/spots/save", {
-            //   method: "POST",
-            //   body: JSON.stringify({ spotId }),
-            // });
-        } else {
+            if (!response.ok) {
+                throw new Error("Failed to update saved status");
+            }
+
+            setIsLiked(newLikedState);
+
+            if (newLikedState) {
+                toast({
+                    title: "Spot saved!",
+                    description: `${spotName} added to your saved spots`,
+                });
+            } else {
+                toast({
+                    title: "Spot removed",
+                    description: `${spotName} removed from saved spots`,
+                });
+            }
+        } catch (error) {
             toast({
-                title: "Spot removed",
-                description: `${spotName} removed from saved spots`,
+                title: "Error",
+                description: "Could not update saved status. Please try again.",
+                variant: "destructive",
             });
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -105,8 +141,13 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                         : "bg-white/10 hover:bg-white/20 text-white"
                     }`}
                 onClick={handleLike}
+                disabled={isSaving || isLoading}
             >
-                <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                {isSaving || isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                    <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                )}
             </Button>
         </div>
     );
