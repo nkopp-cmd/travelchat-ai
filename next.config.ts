@@ -21,21 +21,6 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  turbopack: {
-    resolveAlias: {
-      'mapbox-gl': 'mapbox-gl/dist/mapbox-gl.js',
-      'react-map-gl': 'react-map-gl/dist/esm/index.js',
-    },
-    resolveExtensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-  },
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'mapbox-gl': 'mapbox-gl/dist/mapbox-gl.js',
-    };
-    return config;
-  },
-  transpilePackages: ['react-map-gl', 'mapbox-gl', '@vis.gl/react-mapbox'],
 };
 
 // Sentry configuration options

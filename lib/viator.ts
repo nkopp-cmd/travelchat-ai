@@ -327,20 +327,96 @@ class ViatorClient {
         return mockData;
     }
 
-    private transformSearchResponse(_data: unknown): ViatorSearchResult {
+    private transformSearchResponse(data: Record<string, unknown>): ViatorSearchResult {
         // Transform actual Viator API response to our format
-        // This will be implemented once we have real API access
+        // Based on Viator Partner API v1 response structure
+        const products = (data.products || data.data || []) as Record<string, unknown>[];
+        const pagination = data.pagination as Record<string, unknown> | undefined;
+
+        const activities: ViatorActivity[] = products.map((product) =>
+            this.transformProductToActivity(product)
+        );
+
         return {
-            activities: [],
-            total: 0,
-            hasMore: false,
+            activities,
+            total: (pagination?.totalCount as number) || activities.length,
+            hasMore: (pagination?.totalPages as number) > (pagination?.currentPage as number) || false,
         };
     }
 
-    private transformActivityResponse(_data: unknown): ViatorActivity {
-        // Transform actual Viator API response to our format
-        // This will be implemented once we have real API access
-        return {} as ViatorActivity;
+    private transformActivityResponse(data: Record<string, unknown>): ViatorActivity {
+        // Transform actual Viator API product response to our format
+        const product = (data.product || data.data || data) as Record<string, unknown>;
+        return this.transformProductToActivity(product);
+    }
+
+    private transformProductToActivity(product: Record<string, unknown>): ViatorActivity {
+        // Map Viator API fields to our ViatorActivity interface
+        const pricing = product.pricing as Record<string, unknown> | undefined;
+        const pricingSummary = pricing?.summary as Record<string, unknown> | undefined;
+        const reviews = product.reviews as Record<string, unknown> | undefined;
+        const images = (product.images || []) as Array<{ url?: string; variants?: Array<{ url: string }> }>;
+        const itinerary = product.itinerary as Record<string, unknown> | undefined;
+        const logistics = product.logistics as Record<string, unknown> | undefined;
+        const logisticsStart = logistics?.start as Array<Record<string, unknown>> | undefined;
+        const bookingInfo = product.bookingInfo as Record<string, unknown> | undefined;
+        const cancellationPolicy = bookingInfo?.cancellationPolicy as Record<string, unknown> | undefined;
+        const destination = product.destination as Record<string, unknown> | undefined;
+        const primaryDestination = product.primaryDestination as Record<string, unknown> | undefined;
+        const productCategories = (product.productCategories || []) as Array<{ name?: string }>;
+        const languageGuides = (product.languageGuides || []) as Array<{ language?: string }>;
+
+        return {
+            id: (product.productCode || product.id || '') as string,
+            productCode: (product.productCode || '') as string,
+            title: (product.title || product.name || '') as string,
+            description: (product.description || '') as string,
+            shortDescription: (product.shortDescription || product.synopsis || '') as string,
+            destination: (destination?.name || product.destinationName || '') as string,
+            city: (primaryDestination?.name || '') as string,
+            category: (productCategories[0]?.name || product.category || 'Tours') as string,
+            subcategories: productCategories.map(c => c.name || '').filter(Boolean),
+            duration: this.formatDuration(product.duration as Record<string, unknown> | undefined),
+            durationMinutes: this.getDurationMinutes(product.duration as Record<string, unknown> | undefined),
+            priceFrom: (pricingSummary?.fromPrice || pricing?.fromPrice || 0) as number,
+            priceTo: (pricingSummary?.toPrice || pricing?.toPrice) as number | undefined,
+            currency: (pricing?.currency || 'USD') as string,
+            rating: (reviews?.combinedAverageRating || product.rating) as number | undefined,
+            reviewCount: (reviews?.totalReviews || product.reviewCount || 0) as number,
+            images: images.map(img => img.variants?.[0]?.url || img.url || '').filter(Boolean),
+            thumbnailUrl: images[0]?.variants?.[0]?.url || images[0]?.url,
+            bookingUrl: `https://www.viator.com/tours/${product.productCode}`,
+            viatorUrl: (product.productUrl || `https://www.viator.com/tours/${product.productCode}`) as string,
+            cancellationPolicy: (cancellationPolicy?.description || itinerary?.cancellationPolicy) as string | undefined,
+            included: ((itinerary?.inclusions || []) as string[]),
+            excluded: ((itinerary?.exclusions || []) as string[]),
+            meetingPoint: (logisticsStart?.[0]?.description || logistics?.meetingPoint) as string | undefined,
+            languages: languageGuides.map(l => l.language || '').filter(Boolean),
+            maxTravelers: (bookingInfo?.maxTravelersPerBooking) as number | undefined,
+            instantConfirmation: (bookingInfo?.confirmationType === 'INSTANT') || false,
+            mobileTicket: (bookingInfo?.voucherOption === 'MOBILE') || true,
+        };
+    }
+
+    private formatDuration(duration: Record<string, unknown> | undefined): string {
+        if (!duration) return 'Varies';
+
+        const fixedDuration = duration.fixedDurationInMinutes as number | undefined;
+        const variableDuration = duration.variableDurationFromMinutes as number | undefined;
+
+        const minutes = fixedDuration || variableDuration || 0;
+        if (minutes < 60) return `${minutes} minutes`;
+
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+
+        if (remainingMinutes === 0) return `${hours} hour${hours > 1 ? 's' : ''}`;
+        return `${hours}h ${remainingMinutes}m`;
+    }
+
+    private getDurationMinutes(duration: Record<string, unknown> | undefined): number | undefined {
+        if (!duration) return undefined;
+        return (duration.fixedDurationInMinutes || duration.variableDurationFromMinutes) as number | undefined;
     }
 }
 
