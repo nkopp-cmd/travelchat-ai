@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import OpenAI from "openai";
+import { addThumbnailsToItinerary } from "@/lib/activity-images";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -19,20 +20,30 @@ Your job is to take an existing itinerary and user's revision requests, then out
 
 CRITICAL: You must respond with valid JSON only. No markdown, no explanations, just pure JSON.
 
+ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
+1. Each activity MUST be a COMPLETE, REAL location (restaurant, cafe, attraction, shop, park, etc.)
+2. The "name" field MUST be the actual business/place name (e.g., "Din Tai Fung", "Elephant Mountain", "Shilin Night Market")
+3. NEVER use generic names like "Location", "What to Order", "Local Tip", "Breakfast", "Lunch", or "Dinner"
+4. Include recommendations (what to order, what to see) INSIDE the "description" field
+5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
+6. Each activity should be a distinct location - don't split one location into multiple activities
+
 The JSON structure must be:
 {
-  "title": "Updated Itinerary Title",
+  "title": "SHORT 3-5 word title (e.g., 'Seoul Hidden Gems', 'Taipei Family Trip')",
+  "subtitle": "Brief tagline describing the trip",
   "dailyPlans": [
     {
       "day": 1,
       "theme": "Day theme",
       "activities": [
         {
-          "name": "Activity name",
+          "name": "REAL spot/business name (e.g., 'Din Tai Fung' NOT 'Lunch' or 'Location')",
           "time": "09:00 AM",
           "duration": "2 hours",
-          "description": "Activity description",
-          "address": "Full address",
+          "description": "Why it's special + what to order/see/do + insider tips - all in one cohesive description",
+          "address": "Full address with district/neighborhood",
+          "category": "restaurant/cafe/bar/market/temple/park/museum/shopping/attraction/neighborhood",
           "cost": "€15-25",
           "type": "morning/afternoon/evening",
           "localleyScore": 5
@@ -153,6 +164,13 @@ Respond ONLY with valid JSON in the exact format specified.
       console.error("Failed to parse AI response:", rawContent);
       throw new Error("AI generated invalid response. Please try again.");
     }
+
+    // Add thumbnail images to activities
+    const dailyPlansWithImages = addThumbnailsToItinerary(
+      revisedItinerary.dailyPlans,
+      itinerary.city
+    );
+    revisedItinerary.dailyPlans = dailyPlansWithImages;
 
     // Update itinerary in database
     const { data: updatedItinerary, error: updateError } = await supabase

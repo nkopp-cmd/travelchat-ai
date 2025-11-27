@@ -6,6 +6,7 @@ import { Download, MapPin, Clock, DollarSign, Star, ArrowLeft, Lightbulb, Bus, S
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
 import type { Metadata } from "next";
 
@@ -18,7 +19,9 @@ interface ItineraryActivity {
     cost?: string;
     address?: string;
     type?: string;
+    category?: string;
     localleyScore?: number;
+    image?: string;
 }
 
 interface DayPlan {
@@ -48,6 +51,7 @@ async function getItinerary(id: string) {
     return {
         id: itinerary.id,
         title: itinerary.title,
+        subtitle: itinerary.subtitle,
         city: itinerary.city,
         days: itinerary.days,
         activities: itinerary.activities,
@@ -183,6 +187,9 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                         <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
                             {itinerary.title}
                         </h1>
+                        {itinerary.subtitle && (
+                            <p className="text-lg text-muted-foreground">{itinerary.subtitle}</p>
+                        )}
                         <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
                             <div className="flex items-center gap-1">
                                 <MapPin className="h-4 w-4" />
@@ -279,61 +286,83 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                                     <div className="w-4 h-4 rounded-full bg-violet-600 border-4 border-background" />
                                                 </div>
 
-                                                <div className="space-y-3 pb-6">
-                                                    {/* Activity Header */}
-                                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center gap-2 flex-wrap">
-                                                                <h3 className="font-bold text-lg">{activity.name}</h3>
-                                                                {scoreBadge && (
-                                                                    <Badge className={`${scoreBadge.color} text-white`}>
-                                                                        {scoreBadge.label}
+                                                <div className="flex gap-4 pb-6">
+                                                    {/* Activity Thumbnail */}
+                                                    {activity.image && (
+                                                        <div className="hidden sm:block flex-shrink-0">
+                                                            <div className="relative w-24 h-24 rounded-lg overflow-hidden">
+                                                                <Image
+                                                                    src={activity.image}
+                                                                    alt={activity.name}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                    sizes="96px"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="flex-1 space-y-3">
+                                                        {/* Activity Header */}
+                                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                                                            <div className="space-y-1">
+                                                                <div className="flex items-center gap-2 flex-wrap">
+                                                                    <h3 className="font-bold text-lg">{activity.name}</h3>
+                                                                    {scoreBadge && (
+                                                                        <Badge className={`${scoreBadge.color} text-white`}>
+                                                                            {scoreBadge.label}
+                                                                        </Badge>
+                                                                    )}
+                                                                    {activity.category && (
+                                                                        <Badge variant="secondary" className="text-xs">
+                                                                            {activity.category}
+                                                                        </Badge>
+                                                                    )}
+                                                                </div>
+                                                                {activity.address && (
+                                                                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                                                        <MapPin className="h-3 w-3" />
+                                                                        {activity.address}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2 text-sm">
+                                                                {activity.time && (
+                                                                    <Badge variant="outline" className="gap-1">
+                                                                        <Clock className="h-3 w-3" />
+                                                                        {activity.time}
+                                                                    </Badge>
+                                                                )}
+                                                                {activity.type && (
+                                                                    <Badge variant="outline">
+                                                                        {getTypeIcon(activity.type)} {activity.type}
                                                                     </Badge>
                                                                 )}
                                                             </div>
-                                                            {activity.address && (
-                                                                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                                                    <MapPin className="h-3 w-3" />
-                                                                    {activity.address}
-                                                                </p>
+                                                        </div>
+
+                                                        {/* Activity Description */}
+                                                        {activity.description && (
+                                                            <p className="text-muted-foreground leading-relaxed">
+                                                                {activity.description}
+                                                            </p>
+                                                        )}
+
+                                                        {/* Activity Details */}
+                                                        <div className="flex flex-wrap gap-4 text-sm">
+                                                            {activity.duration && (
+                                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                                    <Clock className="h-4 w-4" />
+                                                                    <span>{activity.duration}</span>
+                                                                </div>
+                                                            )}
+                                                            {activity.cost && (
+                                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                                    <DollarSign className="h-4 w-4" />
+                                                                    <span>{activity.cost}</span>
+                                                                </div>
                                                             )}
                                                         </div>
-                                                        <div className="flex flex-wrap gap-2 text-sm">
-                                                            {activity.time && (
-                                                                <Badge variant="outline" className="gap-1">
-                                                                    <Clock className="h-3 w-3" />
-                                                                    {activity.time}
-                                                                </Badge>
-                                                            )}
-                                                            {activity.type && (
-                                                                <Badge variant="outline">
-                                                                    {getTypeIcon(activity.type)} {activity.type}
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Activity Description */}
-                                                    {activity.description && (
-                                                        <p className="text-muted-foreground leading-relaxed">
-                                                            {activity.description}
-                                                        </p>
-                                                    )}
-
-                                                    {/* Activity Details */}
-                                                    <div className="flex flex-wrap gap-4 text-sm">
-                                                        {activity.duration && (
-                                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                                <Clock className="h-4 w-4" />
-                                                                <span>{activity.duration}</span>
-                                                            </div>
-                                                        )}
-                                                        {activity.cost && (
-                                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                                <DollarSign className="h-4 w-4" />
-                                                                <span>{activity.cost}</span>
-                                                            </div>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

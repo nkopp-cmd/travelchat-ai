@@ -2,6 +2,7 @@ import { OpenAI } from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
+import { addThumbnailsToItinerary } from '@/lib/activity-images';
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -24,16 +25,24 @@ Your personality:
 - Encouraging and celebratory when users find hidden gems
 - Knowledgeable about local culture, food, and trends
 
+ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
+1. Each activity MUST be a COMPLETE, REAL location (restaurant, cafe, attraction, shop, park, etc.)
+2. The "name" field MUST be the actual business/place name (e.g., "Din Tai Fung", "Elephant Mountain", "Shilin Night Market")
+3. NEVER use generic names like "Location", "What to Order", "Local Tip", "Breakfast", "Lunch", or "Dinner"
+4. Include recommendations (what to order, what to see) INSIDE the "description" field
+5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
+6. Each activity should be a distinct location - don't split one location into multiple activities
+
 Generate detailed itineraries that emphasize:
-- Hidden gems and local favorites
-- Authentic experiences over tourist attractions
-- Specific spot names with addresses
-- Why each place is special
-- Insider tips and local phrases
+- Hidden gems and local favorites over tourist traps
+- Authentic experiences with specific spot names and addresses
+- Why each place is special to locals
+- Insider tips embedded in descriptions
 
 You MUST return ONLY this valid JSON structure (no markdown formatting, no backticks, no extra text):
 {
-  "title": "string (catchy, e.g., '3 Days of Seoul\\'s Secret Alleys')",
+  "title": "string (SHORT 3-5 words, e.g., 'Seoul Hidden Gems', 'Tokyo Food Adventure', 'Taipei with Baby')",
+  "subtitle": "string (brief tagline, e.g., 'Exploring secret alleys and local favorites')",
   "city": "string",
   "days": number,
   "localScore": number (1-10, how local vs touristy),
@@ -47,9 +56,10 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
         {
           "time": "string (e.g., '09:00 AM')",
           "type": "morning" | "afternoon" | "evening",
-          "name": "string (spot name)",
-          "address": "string",
-          "description": "string (why it's special)",
+          "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
+          "address": "string (full address with district/neighborhood)",
+          "description": "string (why it's special + what to order/see/do + insider tips - all in one cohesive description)",
+          "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",
           "localleyScore": number (1-6),
           "duration": "string (e.g., '1-2 hours')",
           "cost": "string (e.g., '$10-20')"
@@ -59,6 +69,31 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
       "transportTips": "string (how to get around)"
     }
   ]
+}
+
+TITLE RULES:
+- Title must be SHORT (3-5 words max)
+- Use the subtitle for longer descriptions
+- Good titles: "Seoul Hidden Gems", "Tokyo Food Trail", "Taipei Family Adventure"
+- Bad titles: "7 Days of Exploring Seoul's Hidden Alleyways and Secret Food Spots"
+
+EXAMPLE of a GOOD activity:
+{
+  "time": "12:00 PM",
+  "type": "afternoon",
+  "name": "Yongkang Beef Noodle",
+  "address": "No. 17, Lane 31, Section 2, Jinshan South Road, Da'an District, Taipei",
+  "description": "This legendary shop has been serving Taiwan's best beef noodle soup since 1963. Order the half-spicy braised beef noodles - the broth is simmered for 48 hours. Go around 11:30 AM to beat the lunch rush. Baby-friendly with high chairs available.",
+  "category": "restaurant",
+  "localleyScore": 5,
+  "duration": "1 hour",
+  "cost": "$8-15"
+}
+
+EXAMPLE of a BAD activity (DO NOT DO THIS):
+{
+  "name": "Location",
+  "description": "Yongkang Street"
 }
 `;
 
@@ -144,6 +179,10 @@ Make it exciting, authentic, and full of hidden gems!
       throw new Error("AI generated invalid response format. Please try again.");
     }
 
+    // Add thumbnail images to activities
+    const dailyPlansWithImages = addThumbnailsToItinerary(itineraryData.dailyPlans, city);
+    itineraryData.dailyPlans = dailyPlansWithImages;
+
     // Save itinerary to database
     // First, get or create the user in our users table
     const { data: user, error: userError } = await supabase
@@ -182,6 +221,7 @@ Make it exciting, authentic, and full of hidden gems!
             user_id: userDbId,  // Required FK to users table
             clerk_user_id: userId,  // For direct querying
             title: itineraryData.title,
+            subtitle: itineraryData.subtitle,
             city: city,
             days: days,
             activities: itineraryData.dailyPlans,
