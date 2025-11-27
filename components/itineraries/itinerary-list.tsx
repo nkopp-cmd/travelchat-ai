@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,18 +44,16 @@ import {
     Copy,
     Trash2,
     Share2,
-    Star,
+    Gem,
     Grid3X3,
     List,
     SlidersHorizontal,
     Sparkles,
     Plus,
     Clock,
-    CheckCircle2,
-    FileEdit,
+    MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getCityThumbnail } from "@/lib/activity-images";
 
 interface Itinerary {
     id: string;
@@ -66,10 +65,6 @@ interface Itinerary {
     created_at: string;
     status?: "draft" | "completed";
     is_favorite?: boolean;
-    activities?: Array<{
-        name: string;
-        thumbnail?: string;
-    }>;
 }
 
 interface ItineraryListProps {
@@ -78,6 +73,31 @@ interface ItineraryListProps {
 
 type SortOption = "newest" | "oldest" | "score" | "alphabetical" | "days";
 type ViewMode = "grid" | "list";
+
+// Clean up title - remove AI chat-style prefixes
+function cleanTitle(title: string): string {
+    // Remove common AI chat prefixes
+    const prefixes = [
+        /^(Oh,?\s*)?[A-Za-z]+[—–-]\s*(nice pick!?\s*)?/i,
+        /^(Great choice!?\s*)/i,
+        /^(Awesome!?\s*)/i,
+        /^(Perfect!?\s*)/i,
+    ];
+    let cleaned = title;
+    for (const prefix of prefixes) {
+        cleaned = cleaned.replace(prefix, "");
+    }
+    // Capitalize first letter
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+}
+
+// Get display city - fallback for empty/unknown
+function getDisplayCity(city: string | null | undefined): string {
+    if (!city || city.toLowerCase() === "unknown city" || city.trim() === "") {
+        return "Adventure Awaits";
+    }
+    return city;
+}
 
 export function ItineraryList({ initialItineraries }: ItineraryListProps) {
     const [itineraries, setItineraries] = useState(initialItineraries);
@@ -104,7 +124,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
             result = result.filter(
                 (i) =>
                     i.title.toLowerCase().includes(query) ||
-                    i.city.toLowerCase().includes(query) ||
+                    i.city?.toLowerCase().includes(query) ||
                     i.subtitle?.toLowerCase().includes(query)
             );
         }
@@ -174,7 +194,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
             try {
                 await navigator.share({
                     title: itinerary.title,
-                    text: `Check out my ${itinerary.days}-day itinerary for ${itinerary.city}!`,
+                    text: `Check out my ${itinerary.days}-day itinerary for ${getDisplayCity(itinerary.city)}!`,
                     url,
                 });
             } catch {
@@ -182,51 +202,37 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
             }
         } else {
             await navigator.clipboard.writeText(url);
-            // Could add a toast notification here
         }
     };
 
-    const getStatusIcon = (status?: string) => {
-        switch (status) {
-            case "completed":
-                return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-            case "draft":
-                return <FileEdit className="h-4 w-4 text-amber-500" />;
-            default:
-                return null;
-        }
-    };
-
-    const LocalScoreMeter = ({ score }: { score: number }) => (
+    const LocalScoreBadge = ({ score }: { score: number }) => (
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2">
-                        <div className="flex gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={cn(
-                                        "h-3.5 w-3.5",
-                                        i < Math.round(score / 2)
-                                            ? "text-amber-400 fill-amber-400"
-                                            : "text-muted-foreground/30"
-                                    )}
-                                />
-                            ))}
-                        </div>
-                        <span className="text-xs font-medium">{score}/10</span>
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300">
+                        <Gem className="h-3 w-3" />
+                        <span className="text-xs font-semibold">{score || 0}/10</span>
                     </div>
                 </TooltipTrigger>
-                <TooltipContent>
-                    <p className="text-sm">
-                        <strong>Local Score:</strong> How &quot;off the beaten path&quot; this itinerary is.
-                        <br />
-                        Higher scores mean more hidden gems and fewer tourist traps.
+                <TooltipContent side="top" className="max-w-[200px]">
+                    <p className="text-xs">
+                        <strong>Local Score:</strong> How &quot;off the beaten path&quot; this trip is. Higher = more hidden gems!
                     </p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
+    );
+
+    // Placeholder component for missing images
+    const ImagePlaceholder = ({ city }: { city: string }) => (
+        <div className="w-full h-full bg-gradient-to-br from-violet-200 via-indigo-200 to-purple-200 dark:from-violet-900/50 dark:via-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center">
+            <div className="text-center">
+                <MapPin className="h-8 w-8 text-violet-400 dark:text-violet-500 mx-auto mb-1" />
+                <span className="text-xs text-violet-500 dark:text-violet-400 font-medium">
+                    {getDisplayCity(city).split(",")[0]}
+                </span>
+            </div>
+        </div>
     );
 
     if (itineraries.length === 0) {
@@ -325,140 +331,118 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                             : "flex flex-col gap-3"
                     )}
                 >
-                    {/* Add New Card (Grid view only) */}
+                    {filteredItineraries.map((itinerary) => {
+                        const displayCity = getDisplayCity(itinerary.city);
+                        const cleanedTitle = cleanTitle(itinerary.title);
+
+                        return (
+                            <Card
+                                key={itinerary.id}
+                                className={cn(
+                                    "group overflow-hidden transition-all hover:shadow-lg border-border/50",
+                                    viewMode === "list" ? "flex flex-row" : "flex flex-col",
+                                    viewMode === "grid" && "h-[280px]"
+                                )}
+                            >
+                                {/* Thumbnail */}
+                                <div
+                                    className={cn(
+                                        "relative overflow-hidden",
+                                        viewMode === "grid" ? "h-28 flex-shrink-0" : "w-28 h-full flex-shrink-0"
+                                    )}
+                                >
+                                    <ImagePlaceholder city={displayCity} />
+
+                                    {/* Days badge - bottom right */}
+                                    <div className="absolute bottom-2 right-2">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                                            <Calendar className="h-3 w-3" />
+                                            {itinerary.days}d
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div className={cn(
+                                    "flex-1 flex flex-col min-w-0",
+                                    viewMode === "list" ? "p-3" : "p-4"
+                                )}>
+                                    <Link href={`/itineraries/${itinerary.id}`} className="flex-1 min-h-0">
+                                        <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-violet-600 transition-colors">
+                                            {cleanedTitle}
+                                        </h3>
+
+                                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                                            <Map className="h-3 w-3 flex-shrink-0" />
+                                            <span className="truncate">{displayCity}</span>
+                                        </div>
+
+                                        <div className="mt-2">
+                                            <LocalScoreBadge score={itinerary.local_score} />
+                                        </div>
+                                    </Link>
+
+                                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/30">
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                            <Clock className="h-3 w-3" />
+                                            {new Date(itinerary.created_at).toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                            })}
+                                        </div>
+
+                                        {/* Actions Menu */}
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={(e) => e.preventDefault()}
+                                                >
+                                                    <MoreVertical className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => handleDuplicate(itinerary)}>
+                                                    <Copy className="h-4 w-4 mr-2" />
+                                                    Duplicate
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleShare(itinerary)}>
+                                                    <Share2 className="h-4 w-4 mr-2" />
+                                                    Share
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                    className="text-destructive focus:text-destructive"
+                                                    onClick={() => setDeleteId(itinerary.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                </div>
+                            </Card>
+                        );
+                    })}
+
+                    {/* Add New Card - at the end (Grid view only) */}
                     {viewMode === "grid" && (
                         <Link href="/itineraries/new">
-                            <Card className="h-full min-h-[280px] border-2 border-dashed hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 transition-all cursor-pointer flex items-center justify-center group">
-                                <div className="text-center">
-                                    <div className="h-12 w-12 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-3 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
-                                        <Plus className="h-6 w-6 text-violet-600" />
+                            <Card className="h-[280px] border border-dashed border-violet-300 dark:border-violet-700 hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 transition-all cursor-pointer flex items-center justify-center group">
+                                <div className="text-center p-4">
+                                    <div className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-2 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
+                                        <Plus className="h-5 w-5 text-violet-600" />
                                     </div>
-                                    <p className="font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
-                                        Create New Itinerary
+                                    <p className="text-sm font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
+                                        New Itinerary
                                     </p>
                                 </div>
                             </Card>
                         </Link>
                     )}
-
-                    {filteredItineraries.map((itinerary) => (
-                        <Card
-                            key={itinerary.id}
-                            className={cn(
-                                "group overflow-hidden transition-all hover:shadow-lg",
-                                viewMode === "list" ? "flex flex-row" : "flex flex-col h-full"
-                            )}
-                        >
-                            {/* Thumbnail */}
-                            <div
-                                className={cn(
-                                    "relative bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30",
-                                    viewMode === "grid" ? "h-32" : "w-32 h-24 flex-shrink-0"
-                                )}
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={getCityThumbnail(itinerary.city)}
-                                    alt={itinerary.city}
-                                    className="w-full h-full object-cover"
-                                />
-                                {/* Status badge */}
-                                {itinerary.status && (
-                                    <div className="absolute top-2 left-2">
-                                        <span
-                                            className={cn(
-                                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
-                                                itinerary.status === "completed"
-                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
-                                                    : "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300"
-                                            )}
-                                        >
-                                            {getStatusIcon(itinerary.status)}
-                                            {itinerary.status === "completed" ? "Completed" : "Draft"}
-                                        </span>
-                                    </div>
-                                )}
-                                {/* Days badge */}
-                                <div className="absolute bottom-2 right-2">
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-black/60 text-white backdrop-blur-sm">
-                                        <Calendar className="h-3 w-3" />
-                                        {itinerary.days} {itinerary.days === 1 ? "Day" : "Days"}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Content */}
-                            <div className={cn("flex-1 flex flex-col", viewMode === "list" ? "p-3" : "")}>
-                                <Link href={`/itineraries/${itinerary.id}`} className="flex-1">
-                                    <CardContent className={cn("pt-4", viewMode === "list" && "p-0 pt-0")}>
-                                        <h3 className="font-semibold line-clamp-1 group-hover:text-violet-600 transition-colors">
-                                            {itinerary.title}
-                                        </h3>
-                                        {itinerary.subtitle && (
-                                            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                                {itinerary.subtitle}
-                                            </p>
-                                        )}
-                                        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
-                                            <div className="flex items-center gap-1">
-                                                <Map className="h-3.5 w-3.5" />
-                                                <span>{itinerary.city}</span>
-                                            </div>
-                                            <LocalScoreMeter score={itinerary.local_score || 0} />
-                                        </div>
-                                    </CardContent>
-                                </Link>
-
-                                <CardFooter
-                                    className={cn(
-                                        "flex items-center justify-between pt-0",
-                                        viewMode === "list" && "p-0 pt-2"
-                                    )}
-                                >
-                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <Clock className="h-3 w-3" />
-                                        {new Date(itinerary.created_at).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric",
-                                        })}
-                                    </div>
-
-                                    {/* Actions Menu */}
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={(e) => e.preventDefault()}
-                                            >
-                                                <MoreVertical className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => handleDuplicate(itinerary)}>
-                                                <Copy className="h-4 w-4 mr-2" />
-                                                Duplicate
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleShare(itinerary)}>
-                                                <Share2 className="h-4 w-4 mr-2" />
-                                                Share
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem
-                                                className="text-destructive focus:text-destructive"
-                                                onClick={() => setDeleteId(itinerary.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </CardFooter>
-                            </div>
-                        </Card>
-                    ))}
                 </div>
             ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
