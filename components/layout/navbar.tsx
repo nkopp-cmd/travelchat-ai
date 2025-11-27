@@ -36,7 +36,7 @@ export function Navbar() {
             className={cn(
                 "sticky top-0 z-50 w-full border-b transition-all duration-300",
                 isLanding
-                    ? "border-white/10 bg-black/20 backdrop-blur-md"
+                    ? "border-white/10 bg-gradient-to-b from-black/70 via-black/50 to-black/30 backdrop-blur-md"
                     : "border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
             )}
         >
@@ -91,10 +91,10 @@ export function Navbar() {
                             key={route.href}
                             href={route.href}
                             className={cn(
-                                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-white/5",
+                                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
                                 pathname === route.href
-                                    ? isLanding ? "text-white bg-white/10" : "text-foreground bg-foreground/5"
-                                    : isLanding ? "text-gray-300 hover:text-white" : "text-muted-foreground hover:text-foreground"
+                                    ? isLanding ? "text-white bg-white/20" : "text-foreground bg-foreground/5"
+                                    : isLanding ? "text-white/90 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                             )}
                         >
                             <route.icon className="h-4 w-4" />
