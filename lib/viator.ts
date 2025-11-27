@@ -25,12 +25,6 @@ class ViatorClient {
         };
 
         this.useMock = this.config.useMockData || !this.config.apiKey;
-
-        if (this.useMock) {
-            console.log('🎭 Viator Client: Using mock data (API key not configured)');
-        } else {
-            console.log('✅ Viator Client: Connected to sandbox API');
-        }
     }
 
     /**

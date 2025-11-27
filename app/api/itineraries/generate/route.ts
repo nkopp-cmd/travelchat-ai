@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
+
 const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -116,7 +118,7 @@ Make it exciting, authentic, and full of hidden gems!
 
     const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-2024-08-06",  // Explicit version with JSON mode support
+      model: OPENAI_MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt },
@@ -193,15 +195,13 @@ Make it exciting, authentic, and full of hidden gems!
         .single();
 
       if (saveError) {
-        console.error('❌ Error saving itinerary:', saveError);
-        console.error('Save error details:', JSON.stringify(saveError, null, 2));
+        console.error('Error saving itinerary:', saveError);
         // Continue even if save fails - return the itinerary
       } else {
         savedItinerary = data;
-        console.log('✅ Itinerary saved successfully with ID:', savedItinerary?.id);
       }
     } else {
-      console.error('❌ Cannot save itinerary: no user_id found');
+      console.error('Cannot save itinerary: no user_id found');
     }
 
     // Award XP for creating itinerary (fire and forget)

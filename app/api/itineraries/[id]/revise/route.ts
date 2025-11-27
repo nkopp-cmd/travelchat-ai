@@ -3,6 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import OpenAI from "openai";
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
+
 const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -121,7 +123,7 @@ Respond ONLY with valid JSON in the exact format specified.
     // Call OpenAI to revise itinerary
     const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-2024-08-06",
+      model: OPENAI_MODEL,
       messages: [
         { role: "system", content: REVISION_SYSTEM_PROMPT },
         { role: "user", content: userPrompt },

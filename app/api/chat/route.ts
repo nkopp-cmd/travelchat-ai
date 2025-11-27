@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
+
 const getOpenAIClient = () => {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
 
         const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-2024-08-06", // Explicit version with better compatibility
+            model: OPENAI_MODEL,
             messages: [
                 { role: "system", content: ALLEY_SYSTEM_PROMPT },
                 ...messages

@@ -101,15 +101,15 @@ export default function NewItineraryPage() {
             if (data.itinerary.id) {
                 router.push(`/itineraries/${data.itinerary.id}`);
             } else {
-                // If no ID (save failed), show the itinerary data
-                console.log("Generated itinerary:", data.itinerary);
+                // If no ID (save failed), redirect to itineraries list
                 toast({
                     title: "Itinerary generated",
-                    description: "Check the console for details (save failed)",
+                    description: "There was an issue saving. Please try again.",
+                    variant: "destructive",
                 });
+                router.push('/itineraries');
             }
         } catch (error) {
-            console.error("Error:", error);
             toast({
                 title: "Generation failed",
                 description: error instanceof Error ? error.message : "Please try again",

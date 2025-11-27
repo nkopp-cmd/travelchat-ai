@@ -108,8 +108,8 @@ export function SpotActivities({ spotId, city, spotName }: SpotActivitiesProps) 
                             key={activity.id}
                             activity={activity}
                             onViewDetails={(activity) => {
-                                // TODO: Open activity detail modal
-                                console.log('View details:', activity);
+                                // Open Viator booking page in new tab
+                                window.open(activity.viatorUrl || activity.bookingUrl, '_blank');
                             }}
                         />
                     ))}
