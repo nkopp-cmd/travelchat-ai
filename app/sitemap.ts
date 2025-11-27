@@ -1,11 +1,13 @@
 import { MetadataRoute } from 'next';
-import { createSupabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Force dynamic generation to ensure env vars are available at runtime
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://localley.com';
-  const supabase = createSupabaseAdmin();
 
-  // Static routes
+  // Static routes - always available
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -38,6 +40,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
   ];
+
+  // Try to fetch dynamic routes from Supabase, but gracefully handle missing env vars
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    // Return only static routes if Supabase is not configured
+    return staticRoutes;
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   // Fetch public itineraries (shared ones)
   const { data: itineraries } = await supabase
