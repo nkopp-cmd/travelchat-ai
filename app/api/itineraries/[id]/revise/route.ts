@@ -3,9 +3,13 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const getOpenAIClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OpenAI API key is not configured');
+  }
+  return new OpenAI({ apiKey });
+};
 
 const REVISION_SYSTEM_PROMPT = `
 You are an AI assistant helping users revise their travel itineraries.
@@ -115,6 +119,7 @@ Respond ONLY with valid JSON in the exact format specified.
 `;
 
     // Call OpenAI to revise itinerary
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-2024-08-06",
       messages: [

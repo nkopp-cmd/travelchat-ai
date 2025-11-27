@@ -3,9 +3,13 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+const getOpenAIClient = () => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+        throw new Error('OpenAI API key is not configured');
+    }
+    return new OpenAI({ apiKey });
+};
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -66,6 +70,7 @@ export async function POST(req: NextRequest) {
             return new NextResponse("Messages are required", { status: 400 });
         }
 
+        const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
             model: "gpt-4o-2024-08-06", // Explicit version with better compatibility
             messages: [

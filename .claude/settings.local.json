@@ -12,7 +12,12 @@
       "Bash(npx tsc:*)",
       "Bash(node scripts/pre-deployment-check.js:*)",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(node --version:*)"
     ],
     "deny": [],
     "ask": []

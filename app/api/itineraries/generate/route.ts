@@ -3,9 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const getOpenAIClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OpenAI API key is not configured');
+  }
+  return new OpenAI({ apiKey });
+};
 
 const SYSTEM_PROMPT = `
 You are Alley, a savvy local travel guide who helps travelers discover authentic hidden gems and trendy alley spots while avoiding tourist traps.
@@ -110,6 +114,7 @@ ${templatePrompt ? `\nIMPORTANT: Follow this template style:\n${templatePrompt}`
 Make it exciting, authentic, and full of hidden gems!
     `;
 
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-2024-08-06",  // Explicit version with JSON mode support
       messages: [
