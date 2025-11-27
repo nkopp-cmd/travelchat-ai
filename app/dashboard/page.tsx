@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ChatInterface } from "@/components/chat/chat-interface";
+import { MobileChatFAB } from "@/components/chat/mobile-chat-fab";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Map, TrendingUp, LayoutTemplate } from "lucide-react";
@@ -124,17 +125,23 @@ export default async function DashboardPage({
                 )}
             </div>
 
-                {/* Right Side: Chat Interface */}
-                <div className="flex-1 min-h-0">
+                {/* Right Side: Chat Interface - Hidden on mobile, visible on lg+ */}
+                <div className="hidden lg:flex flex-1 min-h-0">
                     <ErrorBoundary>
                         <ChatInterface
-                            className="h-full"
+                            className="h-full w-full"
                             itineraryContext={itineraryContext}
                             selectedTemplate={selectedTemplate}
                         />
                     </ErrorBoundary>
                 </div>
             </div>
+
+            {/* Mobile Chat FAB + Bottom Sheet - Only visible on mobile/tablet */}
+            <MobileChatFAB
+                itineraryContext={itineraryContext}
+                selectedTemplate={selectedTemplate}
+            />
         </div>
     );
 }

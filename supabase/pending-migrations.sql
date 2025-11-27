@@ -4,12 +4,24 @@
 -- =============================================================
 
 -- ================================
--- 1. Add subtitle column to itineraries
+-- 1. Add subtitle, status, is_favorite columns to itineraries
 -- ================================
 ALTER TABLE itineraries
 ADD COLUMN IF NOT EXISTS subtitle TEXT;
 
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'completed'));
+
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false;
+
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT false;
+
 COMMENT ON COLUMN itineraries.subtitle IS 'Brief tagline/description for the itinerary';
+COMMENT ON COLUMN itineraries.status IS 'Itinerary status: draft or completed';
+COMMENT ON COLUMN itineraries.is_favorite IS 'User favorited this itinerary';
+COMMENT ON COLUMN itineraries.is_public IS 'Whether this itinerary is publicly shareable';
 
 -- ================================
 -- 2. Create saved_spots table

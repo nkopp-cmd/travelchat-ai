@@ -36,6 +36,15 @@ export function getActivityThumbnail(
 }
 
 /**
+ * Generate a thumbnail URL for a city
+ * Uses Unsplash Source for free images
+ */
+export function getCityThumbnail(city: string): string {
+  const cityKeyword = city.toLowerCase().replace(/[^a-z\s]/g, "").replace(/\s+/g, "-");
+  return `https://source.unsplash.com/featured/800x600/?${cityKeyword},city,travel`;
+}
+
+/**
  * Add thumbnail images to all activities in dailyPlans
  */
 export function addThumbnailsToItinerary(
