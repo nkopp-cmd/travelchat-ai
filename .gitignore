@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Session documentation and temporary files
+*_SESSION*.md
+*_REPORT*.md
+*_COMPLETE*.md
+*_PROGRESS*.md
+*_STATUS*.md
+FIXES_*.md
+TESTING_*.md
+lint*.txt
+lint_*.txt
+
+# Keep only essential docs
+!README.md
+!CHAT_ITINERARY_FIX_FINAL.md

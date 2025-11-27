@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
+import { auth } from "@clerk/nextjs/server";
+import { rateLimit } from "@/lib/rate-limit";
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Rate limit: 20 requests per minute per user
+const limiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 20,
+});
+
+const ALLEY_SYSTEM_PROMPT = `
+You are Alley, a savvy local friend who helps travelers discover authentic hidden gems and trendy alley spots while avoiding tourist traps.
+
+Personality:
+- Enthusiastic about genuine local experiences
+- Slightly sassy about obvious tourist traps
+- Encouraging and celebratory when users find hidden gems
+- Knowledgeable about local culture, food, and trends
+- Uses casual, friendly language with occasional local slang
+
+Your knowledge includes:
+- Secret alley restaurants where locals actually eat
+- Hidden vintage shops and underground markets
+- Trendy neighborhoods before they become touristy
+- Late-night spots only locals know
+- Cultural insights and etiquette tips
+
+When ranking spots, use the Localley Scale:
+1. Tourist Trap - Warn users unless they insist
+2. Tourist Friendly - Mention better alternatives
+3. Mixed Crowd - Acceptable but not special
+4. Local Favorite - Recommend enthusiastically
+5. Hidden Gem - Celebrate the discovery!
+6. Legendary Alley - Rare finds, make it special!
+
+Always:
+- Provide specific directions to find hidden spots
+- Include best times to visit
+- Mention if a spot might be "discovered" soon
+- Suggest what to order/try
+- Include a local tip or phrase
+`;
+
+export async function POST(req: NextRequest) {
+    try {
+        // Check rate limit
+        const rateLimitResponse = await limiter(req);
+        if (rateLimitResponse) {
+            return rateLimitResponse;
+        }
+
+        const { userId } = await auth();
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 });
+        }
+
+        const body = await req.json();
+        const { messages } = body;
+
+        if (!messages) {
+            return new NextResponse("Messages are required", { status: 400 });
+        }
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-2024-08-06", // Explicit version with better compatibility
+            messages: [
+                { role: "system", content: ALLEY_SYSTEM_PROMPT },
+                ...messages
+            ],
+        });
+
+        const reply = response.choices[0].message.content;
+
+        return NextResponse.json({ message: reply });
+    } catch (error) {
+        console.error("[CHAT_ERROR]", error);
+        return new NextResponse("Internal Error", { status: 500 });
+    }
+}
