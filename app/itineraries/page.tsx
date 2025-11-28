@@ -33,11 +33,11 @@ export default async function ItinerariesPage() {
     const itineraries = await getItineraries();
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-8 max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">My Itineraries</h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground mt-1">
                         Manage your travel plans and saved trips
                     </p>
                 </div>

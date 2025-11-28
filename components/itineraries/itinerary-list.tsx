@@ -340,24 +340,23 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 key={itinerary.id}
                                 className={cn(
                                     "group overflow-hidden transition-all hover:shadow-lg border-border/50",
-                                    viewMode === "list" ? "flex flex-row" : "flex flex-col",
-                                    viewMode === "grid" && "h-[280px]"
+                                    viewMode === "list" ? "flex flex-row" : "flex flex-col"
                                 )}
                             >
                                 {/* Thumbnail */}
                                 <div
                                     className={cn(
-                                        "relative overflow-hidden",
-                                        viewMode === "grid" ? "h-28 flex-shrink-0" : "w-28 h-full flex-shrink-0"
+                                        "relative overflow-hidden flex-shrink-0",
+                                        viewMode === "grid" ? "h-32" : "w-32 min-h-[120px]"
                                     )}
                                 >
                                     <ImagePlaceholder city={displayCity} />
 
                                     {/* Days badge - bottom right */}
                                     <div className="absolute bottom-2 right-2">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
                                             <Calendar className="h-3 w-3" />
-                                            {itinerary.days}d
+                                            {itinerary.days} {itinerary.days === 1 ? "day" : "days"}
                                         </span>
                                     </div>
                                 </div>
@@ -365,19 +364,19 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 {/* Content */}
                                 <div className={cn(
                                     "flex-1 flex flex-col min-w-0",
-                                    viewMode === "list" ? "p-3" : "p-4"
+                                    viewMode === "list" ? "p-4" : "p-4"
                                 )}>
-                                    <Link href={`/itineraries/${itinerary.id}`} className="flex-1 min-h-0">
-                                        <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-violet-600 transition-colors">
+                                    <Link href={`/itineraries/${itinerary.id}`} className="block">
+                                        <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-violet-600 transition-colors mb-2">
                                             {cleanedTitle}
                                         </h3>
 
-                                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                                            <Map className="h-3 w-3 flex-shrink-0" />
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                                            <Map className="h-4 w-4 flex-shrink-0" />
                                             <span className="truncate">{displayCity}</span>
                                         </div>
 
-                                        <div className="mt-2">
+                                        <div className="mb-3">
                                             <LocalScoreBadge score={itinerary.local_score} />
                                         </div>
                                     </Link>
@@ -431,13 +430,13 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                     {/* Add New Card - at the end (Grid view only) */}
                     {viewMode === "grid" && (
                         <Link href="/itineraries/new">
-                            <Card className="h-[280px] border border-dashed border-violet-300 dark:border-violet-700 hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 transition-all cursor-pointer flex items-center justify-center group">
-                                <div className="text-center p-4">
-                                    <div className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-2 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
-                                        <Plus className="h-5 w-5 text-violet-600" />
+                            <Card className="min-h-[200px] border border-dashed border-violet-300 dark:border-violet-700 hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 transition-all cursor-pointer flex items-center justify-center group">
+                                <div className="text-center p-6">
+                                    <div className="h-12 w-12 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-3 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
+                                        <Plus className="h-6 w-6 text-violet-600" />
                                     </div>
-                                    <p className="text-sm font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
-                                        New Itinerary
+                                    <p className="text-base font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
+                                        Create New Itinerary
                                     </p>
                                 </div>
                             </Card>
