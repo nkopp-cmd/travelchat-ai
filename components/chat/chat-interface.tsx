@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Plus, Sparkles, X } from "lucide-react";
+import { Send, Plus, Sparkles, X, Map, LayoutTemplate } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
@@ -319,6 +319,40 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
           <div ref={scrollRef} />
         </div>
       </ScrollArea>
+
+      {/* Quick Action Buttons */}
+      <div className="flex gap-2 mb-3 flex-shrink-0 overflow-x-auto pb-1">
+        <Link href="/itineraries/new">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full text-xs gap-1.5 border-violet-200 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-300 dark:border-violet-800 dark:hover:bg-violet-950 dark:hover:text-violet-300 whitespace-nowrap"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Generate Itinerary
+          </Button>
+        </Link>
+        <Link href="/templates">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full text-xs gap-1.5 whitespace-nowrap"
+          >
+            <LayoutTemplate className="h-3.5 w-3.5" />
+            Templates
+          </Button>
+        </Link>
+        <Link href="/spots">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full text-xs gap-1.5 whitespace-nowrap"
+          >
+            <Map className="h-3.5 w-3.5" />
+            Spots
+          </Button>
+        </Link>
+      </div>
 
       <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0">
         <Input

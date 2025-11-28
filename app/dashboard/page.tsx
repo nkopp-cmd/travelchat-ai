@@ -1,14 +1,10 @@
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ChatInterface } from "@/components/chat/chat-interface";
 import { MobileChatFAB } from "@/components/chat/mobile-chat-fab";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Map, TrendingUp, LayoutTemplate } from "lucide-react";
-import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { getTemplateById } from "@/lib/templates";
-import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
+import { RecentStories } from "@/components/dashboard/recent-stories";
 
 // Fetch user's recent itineraries
 async function getRecentItineraries() {
@@ -21,7 +17,7 @@ async function getRecentItineraries() {
         .select("id, title, city, days, created_at")
         .eq("clerk_user_id", userId)
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(6);
 
     return data || [];
 }
@@ -49,84 +45,17 @@ export default async function DashboardPage({
 
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-            {/* Top Banner: Recommendations */}
-            <div className="flex-shrink-0 border-b border-border/40 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20">
-                <ErrorBoundary>
-                    <RecommendationsWidget compact />
-                </ErrorBoundary>
-            </div>
+            {/* Top: Recent Itineraries Stories */}
+            {recentItineraries.length > 0 && (
+                <div className="flex-shrink-0 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 py-3">
+                    <RecentStories itineraries={recentItineraries} />
+                </div>
+            )}
 
-            {/* Main Content: Chat Interface */}
-            <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
-                {/* Left Side: Quick Actions + Recent Itineraries */}
-                <div className="lg:w-80 flex-shrink-0 space-y-4 overflow-y-auto">
-                {/* Primary CTA: Create Itinerary */}
-                <Card className="border-violet-200/50 bg-gradient-to-br from-violet-500/5 to-indigo-500/5">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            <Sparkles className="h-5 w-5 text-violet-600" />
-                            Discover Hidden Gems
-                        </CardTitle>
-                        <CardDescription>
-                            Let Alley create your perfect local itinerary
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        <Link href="/itineraries/new" className="block">
-                            <Button className="w-full h-12 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20">
-                                <Sparkles className="mr-2 h-5 w-5" />
-                                Generate Itinerary
-                            </Button>
-                        </Link>
-                        <Link href="/templates" className="block">
-                            <Button variant="outline" className="w-full">
-                                <LayoutTemplate className="mr-2 h-4 w-4" />
-                                Browse Templates
-                            </Button>
-                        </Link>
-                        <Link href="/spots" className="block">
-                            <Button variant="outline" className="w-full">
-                                <Map className="mr-2 h-4 w-4" />
-                                Browse Spots
-                            </Button>
-                        </Link>
-                    </CardContent>
-                </Card>
-
-                {/* Recent Itineraries */}
-                {recentItineraries.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <TrendingUp className="h-4 w-4 text-violet-600" />
-                                Recent Itineraries
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {recentItineraries.map((itinerary) => (
-                                <Link
-                                    key={itinerary.id}
-                                    href={`/itineraries/${itinerary.id}`}
-                                    className="block p-3 rounded-lg border border-border/40 hover:bg-accent transition-colors"
-                                >
-                                    <h4 className="font-semibold text-sm line-clamp-1">{itinerary.title}</h4>
-                                    <p className="text-xs text-muted-foreground">
-                                        {itinerary.city} • {itinerary.days} days
-                                    </p>
-                                </Link>
-                            ))}
-                            <Link href="/itineraries">
-                                <Button variant="ghost" size="sm" className="w-full mt-2">
-                                    View All Itineraries
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-
-                {/* Right Side: Chat Interface - Hidden on mobile, visible on lg+ */}
-                <div className="hidden lg:flex flex-1 min-h-0">
+            {/* Main Content: Full-width Chat Interface */}
+            <div className="flex-1 flex flex-col p-4 overflow-hidden">
+                {/* Desktop Chat - Full Width */}
+                <div className="hidden lg:flex flex-1 min-h-0 max-w-4xl mx-auto w-full">
                     <ErrorBoundary>
                         <ChatInterface
                             className="h-full w-full"
@@ -135,9 +64,20 @@ export default async function DashboardPage({
                         />
                     </ErrorBoundary>
                 </div>
+
+                {/* Mobile/Tablet - Show a welcome message, chat via FAB */}
+                <div className="flex lg:hidden flex-1 flex-col items-center justify-center text-center px-4">
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-violet-500/30">
+                        <span className="text-3xl font-bold text-white">A</span>
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Hey there!</h2>
+                    <p className="text-muted-foreground max-w-sm">
+                        Tap the chat button to start exploring hidden gems with Alley, your local guide.
+                    </p>
+                </div>
             </div>
 
-            {/* Mobile Chat FAB + Bottom Sheet - Only visible on mobile/tablet */}
+            {/* Mobile Chat FAB + Bottom Sheet */}
             <MobileChatFAB
                 itineraryContext={itineraryContext}
                 selectedTemplate={selectedTemplate}
