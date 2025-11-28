@@ -261,38 +261,42 @@ export default async function ProfilePage() {
                             </GlassCard>
 
                             {/* Display completed challenges */}
-                            {completedChallenges.slice(0, 5).map((userChallenge, index) => (
-                                <GlassCard
-                                    key={userChallenge.id}
-                                    variant="gradient"
-                                    className="group"
-                                    animated
-                                    style={{ animationDelay: `${(index + 1) * 100}ms` }}
-                                >
-                                    <GlassCardHeader className="flex flex-row items-center gap-4 pb-2">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-violet-500/30 rounded-full blur-md group-hover:blur-lg transition-all" />
-                                            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center relative shadow-lg">
-                                                <Star className="h-7 w-7 text-white" />
+                            {completedChallenges.slice(0, 5).map((userChallenge, index) => {
+                                const challenge = userChallenge.challenges;
+                                if (!challenge) return null;
+                                return (
+                                    <GlassCard
+                                        key={userChallenge.id}
+                                        variant="gradient"
+                                        className="group"
+                                        animated
+                                        style={{ animationDelay: `${(index + 1) * 100}ms` }}
+                                    >
+                                        <GlassCardHeader className="flex flex-row items-center gap-4 pb-2">
+                                            <div className="relative">
+                                                <div className="absolute inset-0 bg-violet-500/30 rounded-full blur-md group-hover:blur-lg transition-all" />
+                                                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center relative shadow-lg">
+                                                    <Star className="h-7 w-7 text-white" />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold">{userChallenge.challenges.title}</h3>
-                                            <p className="text-xs text-muted-foreground line-clamp-1">
-                                                {userChallenge.challenges.description}
-                                            </p>
-                                        </div>
-                                    </GlassCardHeader>
-                                    <GlassCardContent>
-                                        <div className="flex items-center justify-between">
-                                            <GlowBadge variant="success">Completed</GlowBadge>
-                                            <span className="text-xs font-medium text-violet-400">
-                                                +{userChallenge.challenges.xp_reward} XP
-                                            </span>
-                                        </div>
-                                    </GlassCardContent>
-                                </GlassCard>
-                            ))}
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold">{challenge.title}</h3>
+                                                <p className="text-xs text-muted-foreground line-clamp-1">
+                                                    {challenge.description}
+                                                </p>
+                                            </div>
+                                        </GlassCardHeader>
+                                        <GlassCardContent>
+                                            <div className="flex items-center justify-between">
+                                                <GlowBadge variant="success">Completed</GlowBadge>
+                                                <span className="text-xs font-medium text-violet-400">
+                                                    +{challenge.xp_reward} XP
+                                                </span>
+                                            </div>
+                                        </GlassCardContent>
+                                    </GlassCard>
+                                );
+                            })}
 
                             {/* Streak Achievement (In Progress) */}
                             {progress.streak < 7 && (
