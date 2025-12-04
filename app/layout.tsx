@@ -19,6 +19,16 @@ export const metadata: Metadata = {
     template: "%s | Localley",
   },
   description: "Discover hidden gems and trendy spots with your AI travel companion. Experience cities like a local.",
+  manifest: "/manifest.json",
+  themeColor: "#7c3aed",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Localley",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     title: "Localley - AI Travel Companion",
     description: "Your local guide to trendy alley spots & hidden gems. Plan your perfect trip with AI.",

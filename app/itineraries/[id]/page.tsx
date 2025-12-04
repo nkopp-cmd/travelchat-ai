@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
+import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
@@ -250,6 +251,14 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                             </ul>
                         </CardContent>
                     </Card>
+                )}
+
+                {/* Interactive Map */}
+                {Array.isArray(dailyPlans) && dailyPlans.length > 0 && (
+                    <ItineraryMap
+                        city={itinerary.city}
+                        dailyPlans={dailyPlans}
+                    />
                 )}
             </div>
 
