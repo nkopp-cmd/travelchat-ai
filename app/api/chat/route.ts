@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { chatSchema, validateBody } from "@/lib/validations";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -62,15 +63,15 @@ export async function POST(req: NextRequest) {
 
         const { userId } = await auth();
         if (!userId) {
-            return new NextResponse("Unauthorized", { status: 401 });
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await req.json();
-        const { messages } = body;
-
-        if (!messages) {
-            return new NextResponse("Messages are required", { status: 400 });
+        const validation = await validateBody(req, chatSchema);
+        if (!validation.success) {
+            return NextResponse.json({ error: validation.error }, { status: 400 });
         }
+
+        const { messages } = validation.data;
 
         const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
@@ -86,6 +87,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: reply });
     } catch (error) {
         console.error("[CHAT_ERROR]", error);
-        return new NextResponse("Internal Error", { status: 500 });
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

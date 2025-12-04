@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { XP_REWARDS, getLevel } from "@/lib/gamification";
+import { gamificationActionSchema, validateBody } from "@/lib/validations";
 
 export async function POST(req: Request) {
     try {
@@ -14,7 +15,12 @@ export async function POST(req: Request) {
             );
         }
 
-        const { action } = await req.json();
+        const validation = await validateBody(req, gamificationActionSchema);
+        if (!validation.success) {
+            return NextResponse.json({ error: validation.error }, { status: 400 });
+        }
+
+        const { action } = validation.data;
 
         // Determine XP amount based on action
         let amount = 0;
@@ -40,11 +46,6 @@ export async function POST(req: Request) {
             case "streak_bonus":
                 amount = XP_REWARDS.STREAK_BONUS;
                 break;
-            default:
-                return NextResponse.json(
-                    { error: "Invalid action" },
-                    { status: 400 }
-                );
         }
 
         const supabase = createSupabaseAdmin();

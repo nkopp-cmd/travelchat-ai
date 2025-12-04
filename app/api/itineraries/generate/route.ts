@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { addThumbnailsToItinerary } from '@/lib/activity-images';
+import { generateItinerarySchema, validateBody } from '@/lib/validations';
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -108,15 +109,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = await req.json();
-
-    // Validate input
-    if (!city || !days || days < 1 || days > 7) {
-      return NextResponse.json(
-        { error: 'Invalid input. Days must be between 1 and 7.' },
-        { status: 400 }
-      );
+    const validation = await validateBody(req, generateItinerarySchema);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
+
+    const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = validation.data;
 
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();

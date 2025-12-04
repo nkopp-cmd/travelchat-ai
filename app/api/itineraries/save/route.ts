@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { saveItinerarySchema, validateBody } from "@/lib/validations";
 
 export async function POST(req: Request) {
     try {
@@ -9,12 +10,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await req.json();
-        const { title, city, days, activities, localScore } = body;
-
-        if (!title || !city || !days || !activities) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        const validation = await validateBody(req, saveItinerarySchema);
+        if (!validation.success) {
+            return NextResponse.json({ error: validation.error }, { status: 400 });
         }
+
+        const { title, city, days, activities, localScore } = validation.data;
 
         // Get internal user ID from Supabase based on Clerk ID
         const supabase = createSupabaseAdmin();
