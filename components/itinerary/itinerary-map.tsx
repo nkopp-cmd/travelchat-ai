@@ -32,31 +32,50 @@ interface GeocodedLocation extends Location {
     activityIndex: number;
 }
 
+// Cache for geocoded addresses (persists across component re-renders)
+const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
+
 // Simple geocoding using Nominatim (OpenStreetMap's free geocoding service)
+// Rate limit: 1 request per second (Nominatim usage policy)
 async function geocodeAddress(address: string, city: string): Promise<{ lat: number; lng: number } | null> {
+    const cacheKey = `${address}|${city}`.toLowerCase();
+
+    // Check cache first
+    if (geocodeCache.has(cacheKey)) {
+        return geocodeCache.get(cacheKey) || null;
+    }
+
     try {
         const query = encodeURIComponent(`${address}, ${city}`);
         const response = await fetch(
             `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,
             {
                 headers: {
-                    "User-Agent": "Localley Travel App",
+                    "User-Agent": "Localley Travel App (https://localley.ai)",
                 },
             }
         );
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            geocodeCache.set(cacheKey, null);
+            return null;
+        }
 
         const data = await response.json();
         if (data.length > 0) {
-            return {
+            const result = {
                 lat: parseFloat(data[0].lat),
                 lng: parseFloat(data[0].lon),
             };
+            geocodeCache.set(cacheKey, result);
+            return result;
         }
+
+        geocodeCache.set(cacheKey, null);
         return null;
     } catch (error) {
         console.error("Geocoding error:", error);
+        geocodeCache.set(cacheKey, null);
         return null;
     }
 }
@@ -76,19 +95,29 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
             setError(null);
 
             const allLocations: GeocodedLocation[] = [];
-            let successCount = 0;
+            let apiCallCount = 0;
 
             for (const dayPlan of dailyPlans) {
                 for (let activityIndex = 0; activityIndex < dayPlan.activities.length; activityIndex++) {
                     const activity = dayPlan.activities[activityIndex];
 
                     if (activity.address) {
-                        // Rate limit: wait 1 second between requests (Nominatim requires this)
-                        if (successCount > 0) {
+                        // Check if this address is already cached
+                        const cacheKey = `${activity.address}|${city}`.toLowerCase();
+                        const isCached = geocodeCache.has(cacheKey);
+
+                        // Rate limit: wait 1 second between API requests (Nominatim requires this)
+                        // Skip delay if result is cached
+                        if (!isCached && apiCallCount > 0) {
                             await new Promise((resolve) => setTimeout(resolve, 1000));
                         }
 
                         const coords = await geocodeAddress(activity.address, city);
+
+                        if (!isCached) {
+                            apiCallCount++;
+                        }
+
                         if (coords) {
                             allLocations.push({
                                 lat: coords.lat,
@@ -100,7 +129,6 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                                 day: dayPlan.day,
                                 activityIndex,
                             });
-                            successCount++;
                         }
                     }
                 }
