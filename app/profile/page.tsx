@@ -186,12 +186,18 @@ export default async function ProfilePage() {
                         </div>
                     </div>
 
-                    {/* Leaderboard CTA */}
-                    <div className="mt-4 pt-4 border-t border-border/40">
-                        <Link href="/leaderboard">
+                    {/* CTAs */}
+                    <div className="mt-4 pt-4 border-t border-border/40 flex gap-2">
+                        <Link href="/leaderboard" className="flex-1">
                             <Button variant="outline" className="w-full gap-2 hover:bg-yellow-500/10 hover:border-yellow-500/50">
                                 <Trophy className="h-4 w-4 text-yellow-500" />
-                                View Leaderboard
+                                Leaderboard
+                            </Button>
+                        </Link>
+                        <Link href="/challenges" className="flex-1">
+                            <Button variant="outline" className="w-full gap-2 hover:bg-violet-500/10 hover:border-violet-500/50">
+                                <Star className="h-4 w-4 text-violet-500" />
+                                Challenges
                             </Button>
                         </Link>
                     </div>
