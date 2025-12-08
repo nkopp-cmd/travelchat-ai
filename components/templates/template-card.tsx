@@ -85,7 +85,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
         </div>
 
         {/* CTA Button */}
-        <Link href={`/dashboard?template=${template.id}`} className="block">
+        <Link href={`/itineraries/new?template=${template.id}`} className="block">
           <Button className="w-full group-hover:bg-violet-600 group-hover:text-white transition-colors">
             Use Template
             <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />

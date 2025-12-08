@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, MapPin, DollarSign, Users, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Sparkles, MapPin, DollarSign, Users, Zap, LayoutTemplate, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getTemplateById, ItineraryTemplate } from "@/lib/templates";
 
 const INTERESTS = [
     "Food & Dining",
@@ -25,19 +27,55 @@ const INTERESTS = [
     "Music & Entertainment"
 ];
 
-export default function NewItineraryPage() {
+function NewItineraryForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<ItineraryTemplate | null>(null);
 
     // Form state
     const [city, setCity] = useState("");
     const [days, setDays] = useState("3");
     const [budget, setBudget] = useState("moderate");
     const [localnessLevel, setLocalnessLevel] = useState([3]);
-    const [pace, setPace] = useState("moderate");
+    const [pace, setPace] = useState<"relaxed" | "moderate" | "active">("moderate");
     const [groupType, setGroupType] = useState("solo");
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+
+    // Load template from URL params on mount
+    useEffect(() => {
+        const templateId = searchParams.get("template");
+        if (templateId) {
+            const template = getTemplateById(templateId);
+            if (template) {
+                setSelectedTemplate(template);
+                setDays(template.days.toString());
+                setPace(template.pace);
+                // Pre-select interests based on template focus
+                const mappedInterests: string[] = [];
+                template.focus.forEach(focus => {
+                    const fl = focus.toLowerCase();
+                    if (fl.includes("food") || fl.includes("dining") || fl.includes("restaurant")) mappedInterests.push("Food & Dining");
+                    else if (fl.includes("cafe") || fl.includes("coffee")) mappedInterests.push("Cafes & Coffee");
+                    else if (fl.includes("nightlife") || fl.includes("bar") || fl.includes("evening")) mappedInterests.push("Nightlife & Bars");
+                    else if (fl.includes("shop") || fl.includes("market")) mappedInterests.push("Shopping");
+                    else if (fl.includes("culture") || fl.includes("art") || fl.includes("museum")) mappedInterests.push("Art & Culture");
+                    else if (fl.includes("nature") || fl.includes("park")) mappedInterests.push("Nature & Parks");
+                    else if (fl.includes("histor")) mappedInterests.push("History");
+                    else if (fl.includes("street food")) mappedInterests.push("Street Food");
+                    else if (fl.includes("vintage") || fl.includes("thrift")) mappedInterests.push("Vintage & Thrift");
+                    else if (fl.includes("music") || fl.includes("entertainment")) mappedInterests.push("Music & Entertainment");
+                });
+                setSelectedInterests([...new Set(mappedInterests)]);
+            }
+        }
+    }, [searchParams]);
+
+    const clearTemplate = () => {
+        setSelectedTemplate(null);
+        router.replace("/itineraries/new");
+    };
 
     const toggleInterest = (interest: string) => {
         setSelectedInterests(prev =>
@@ -82,6 +120,7 @@ export default function NewItineraryPage() {
                     localnessLevel: localnessLevel[0],
                     pace,
                     groupType,
+                    templatePrompt: selectedTemplate?.prompt,
                 }),
             });
 
@@ -122,13 +161,40 @@ export default function NewItineraryPage() {
 
     return (
         <div className="max-w-3xl mx-auto py-8 px-4">
+            {/* Template Banner */}
+            {selectedTemplate && (
+                <Card className="mb-6 border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30">
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="text-3xl">{selectedTemplate.emoji}</span>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <LayoutTemplate className="h-4 w-4 text-violet-600" />
+                                        <Badge variant="secondary" className="text-xs">Template</Badge>
+                                    </div>
+                                    <h3 className="font-semibold">{selectedTemplate.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
+                                </div>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={clearTemplate}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             <Card className="border-violet-200/20 shadow-xl">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                        Create Your Perfect Itinerary
+                        {selectedTemplate ? `Create ${selectedTemplate.name}` : "Create Your Perfect Itinerary"}
                     </CardTitle>
                     <CardDescription className="text-base">
-                        Tell Alley what you&apos;re looking for, and get a custom plan filled with hidden gems and local favorites
+                        {selectedTemplate
+                            ? `Just enter your destination city and customize the settings below`
+                            : "Tell Alley what you're looking for, and get a custom plan filled with hidden gems and local favorites"
+                        }
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
@@ -235,7 +301,7 @@ export default function NewItineraryPage() {
                                     <Zap className="h-4 w-4 text-violet-600" />
                                     Pace
                                 </Label>
-                                <RadioGroup value={pace} onValueChange={setPace} className="flex flex-col gap-2">
+                                <RadioGroup value={pace} onValueChange={(v) => setPace(v as "relaxed" | "moderate" | "active")} className="flex flex-col gap-2">
                                     <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-accent transition-colors">
                                         <RadioGroupItem value="relaxed" id="relaxed" />
                                         <Label htmlFor="relaxed" className="cursor-pointer flex-1">Relaxed - Take it easy</Label>
@@ -299,5 +365,27 @@ export default function NewItineraryPage() {
                 </form>
             </Card>
         </div>
+    );
+}
+
+// Wrap with Suspense for useSearchParams
+export default function NewItineraryPage() {
+    return (
+        <Suspense fallback={
+            <div className="max-w-3xl mx-auto py-8 px-4">
+                <Card className="border-violet-200/20 shadow-xl animate-pulse">
+                    <CardHeader className="space-y-1">
+                        <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                        <div className="h-12 bg-gray-200 rounded"></div>
+                        <div className="h-12 bg-gray-200 rounded"></div>
+                    </CardContent>
+                </Card>
+            </div>
+        }>
+            <NewItineraryForm />
+        </Suspense>
     );
 }

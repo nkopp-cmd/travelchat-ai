@@ -9,4 +9,6 @@ if (!apiKey) {
 // Only create Resend client if API key exists, otherwise create a dummy that will fail gracefully
 export const resend = apiKey ? new Resend(apiKey) : null;
 
-export const FROM_EMAIL = process.env.FROM_EMAIL || "Localley <noreply@localley.app>";
+// Use the Resend onboarding email for testing if no FROM_EMAIL is set
+// In production, set FROM_EMAIL to your verified domain email
+export const FROM_EMAIL = process.env.FROM_EMAIL || "Localley <onboarding@resend.dev>";
