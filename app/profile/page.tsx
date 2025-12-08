@@ -176,14 +176,24 @@ export default async function ProfilePage() {
                                 <div className="font-bold text-xl">{progress.streak || 0}</div>
                                 <div className="text-xs text-muted-foreground">Day Streak</div>
                             </div>
-                            <div className="text-center p-3 rounded-xl bg-accent/5 flex-1">
+                            <Link href="/leaderboard" className="text-center p-3 rounded-xl bg-accent/5 flex-1 hover:bg-accent/10 transition-colors">
                                 <div className="flex justify-center mb-1">
                                     <Trophy className="h-5 w-5 text-yellow-500" />
                                 </div>
                                 <div className="font-bold text-xl">{completedChallenges.length}</div>
                                 <div className="text-xs text-muted-foreground">Badges</div>
-                            </div>
+                            </Link>
                         </div>
+                    </div>
+
+                    {/* Leaderboard CTA */}
+                    <div className="mt-4 pt-4 border-t border-border/40">
+                        <Link href="/leaderboard">
+                            <Button variant="outline" className="w-full gap-2 hover:bg-yellow-500/10 hover:border-yellow-500/50">
+                                <Trophy className="h-4 w-4 text-yellow-500" />
+                                View Leaderboard
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>
