@@ -1007,6 +1007,64 @@ middleware.ts:
 
 ---
 
+## 13. Development Workflows
+
+### 13.1 UI Component Guidelines
+
+#### Itinerary Display Conciseness
+When displaying itineraries in the UI (especially in story/preview formats):
+
+**Titles:**
+- Keep itinerary titles to 3-5 words max (e.g., "Seoul Hidden Gems", "Tokyo Food Trail")
+- In story circles, show location-focused titles (max 2 words) or fall back to city name
+- Remove time prefixes like "Morning:", "Afternoon:" from activity titles
+
+**Descriptions:**
+- Activity descriptions in preview cards: max 4 words + "..."
+- Full descriptions available on detail pages
+- Location titles in compact views: max 3 words
+
+**Spacing:**
+- Use compact padding (p-2) for activity cards in previews
+- Use space-y-2 for activity lists in compact views
+- Full spacing on detail/edit pages
+
+#### Chat Interface Responsiveness
+- Desktop: Use `max-w-5xl xl:max-w-6xl` for wider screen utilization
+- Reduce horizontal padding on mobile: `px-2 sm:px-4`
+- Mobile chat uses full-screen bottom sheet (90vh)
+
+### 13.2 Key Files Reference
+
+| Feature | File Path |
+|---------|-----------|
+| Chat Interface | `components/chat/chat-interface.tsx` |
+| Itinerary Preview (in chat) | `components/chat/itinerary-preview.tsx` |
+| Story Circles | `components/dashboard/recent-stories.tsx` |
+| Dashboard Layout | `app/dashboard/page.tsx` |
+| Mobile Chat FAB | `components/chat/mobile-chat-fab.tsx` |
+| AI Chat API | `app/api/chat/route.ts` |
+| Itinerary Generation API | `app/api/itineraries/generate/route.ts` |
+
+### 13.3 Testing Workflow
+```bash
+# Type checking
+npx tsc --noEmit
+
+# Run tests
+npm run test:run
+
+# Build (requires env vars)
+npm run build
+```
+
+### 13.4 Recent Fixes (December 2025)
+- **CVE-2025-55182 (React2Shell)**: Updated to Next.js 16.0.7 and React 19.2.1
+- **Itinerary display**: Truncated titles/descriptions for compact preview
+- **Chat responsiveness**: Wider container, reduced blank space
+
+---
+
 ## The Localley Promise
 
 "Every city has its secrets. Every alley has a story. We help you find them before they're on Instagram. Because the best travel experiences aren't in guidebooks - they're in the alleys where locals laugh, eat, and live."
