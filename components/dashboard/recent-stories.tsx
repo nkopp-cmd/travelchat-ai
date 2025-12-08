@@ -36,6 +36,16 @@ function getShortCity(city: string | null | undefined): string {
     return city.split(",")[0].trim();
 }
 
+// Get short title (location-focused, max 2 words)
+function getShortTitle(title: string, city: string | null | undefined): string {
+    const shortCity = getShortCity(city);
+    // If title is already short (2 words or less), use it
+    const words = title.split(/\s+/);
+    if (words.length <= 2) return title;
+    // Otherwise use the city name
+    return shortCity;
+}
+
 // Generate a gradient based on city name for consistent colors
 function getCityGradient(city: string): string {
     const gradients = [
@@ -97,9 +107,9 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                             </div>
                         </div>
 
-                        {/* City Name */}
+                        {/* Location Name */}
                         <span className="text-xs font-medium text-foreground truncate max-w-[64px] text-center">
-                            {shortCity}
+                            {getShortTitle(itinerary.title, itinerary.city)}
                         </span>
 
                         {/* Relative Time */}

@@ -203,6 +203,24 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
         }
     };
 
+    // Truncate description to max 4 words
+    const truncateDescription = (text: string): string => {
+        if (!text) return '';
+        const words = text.split(/\s+/);
+        if (words.length <= 4) return text;
+        return words.slice(0, 4).join(' ') + '...';
+    };
+
+    // Get concise location title (extract place name)
+    const getLocationTitle = (title: string): string => {
+        // Remove time prefixes like "Morning:", "Afternoon:", etc.
+        const cleaned = title.replace(/^(Morning|Afternoon|Evening|Lunch|Dinner|Breakfast):\s*/i, '');
+        // If still too long, truncate
+        const words = cleaned.split(/\s+/);
+        if (words.length <= 3) return cleaned;
+        return words.slice(0, 3).join(' ');
+    };
+
     return (
         <Card className="p-4 space-y-4 bg-gradient-to-br from-violet-50/50 to-indigo-50/50 border-violet-200">
             {/* Header */}
@@ -247,21 +265,23 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
                         </div>
 
                         {/* Activities */}
-                        <div className="space-y-3 pl-2">
+                        <div className="space-y-2 pl-2">
                             {day.activities.map((activity, actIndex) => (
                                 <div
                                     key={actIndex}
-                                    className={`p-3 rounded-lg border ${getTypeColor(activity.type)}`}
+                                    className={`p-2 rounded-lg border ${getTypeColor(activity.type)}`}
                                 >
                                     <div className="flex items-start gap-2">
-                                        <span className="text-lg">{getTypeIcon(activity.type)}</span>
+                                        <span className="text-base">{getTypeIcon(activity.type)}</span>
                                         <div className="flex-1 min-w-0">
-                                            <h5 className="font-semibold text-sm leading-tight">
-                                                {activity.title}
+                                            <h5 className="font-semibold text-xs leading-tight">
+                                                {getLocationTitle(activity.title)}
                                             </h5>
-                                            <p className="text-xs mt-1 leading-relaxed whitespace-pre-wrap">
-                                                {activity.description}
-                                            </p>
+                                            {activity.description && (
+                                                <p className="text-[10px] mt-0.5 text-muted-foreground">
+                                                    {truncateDescription(activity.description)}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

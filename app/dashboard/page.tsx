@@ -53,9 +53,9 @@ export default async function DashboardPage({
             )}
 
             {/* Main Content: Full-width Chat Interface */}
-            <div className="flex-1 flex flex-col p-4 overflow-hidden">
-                {/* Desktop Chat - Full Width */}
-                <div className="hidden lg:flex flex-1 min-h-0 max-w-4xl mx-auto w-full">
+            <div className="flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
+                {/* Desktop Chat - Responsive Width */}
+                <div className="hidden lg:flex flex-1 min-h-0 w-full max-w-5xl xl:max-w-6xl mx-auto">
                     <ErrorBoundary>
                         <ChatInterface
                             className="h-full w-full"
