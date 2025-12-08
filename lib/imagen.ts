@@ -56,8 +56,11 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
         }
 
         return response.generatedImages.map((img) => ({
-            imageBytes: img.image?.imageBytes || "",
-            mimeType: "image/png",
+            // Note: The API returns base64 data in `data` property, not `imageBytes`
+            imageBytes: (img.image as { data?: string; imageBytes?: string })?.data
+                || (img.image as { data?: string; imageBytes?: string })?.imageBytes
+                || "",
+            mimeType: img.image?.mimeType || "image/png",
         }));
     } catch (error) {
         console.error("Imagen generation error:", error);
