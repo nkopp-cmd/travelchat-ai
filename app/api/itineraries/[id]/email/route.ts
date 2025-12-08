@@ -81,8 +81,8 @@ export async function POST(
             ? `${req.nextUrl.origin}/shared/${itinerary.share_code}`
             : `${req.nextUrl.origin}/itineraries/${id}`;
 
-        // Check if Resend API key is configured
-        if (!process.env.RESEND_API_KEY) {
+        // Check if Resend is configured
+        if (!resend) {
             return NextResponse.json(
                 { error: "Email service not configured" },
                 { status: 503 }
