@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -10,7 +10,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Camera, Download, Loader2, Instagram, CheckCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
@@ -18,6 +20,7 @@ interface StoryDialogProps {
     itineraryId: string;
     itineraryTitle: string;
     totalDays: number;
+    city?: string;
 }
 
 type SlideType = "cover" | "day" | "summary";
@@ -27,15 +30,27 @@ interface StorySlide {
     day?: number;
     label: string;
     url: string;
+    aiBackground?: string; // base64 AI-generated background
 }
 
-export function StoryDialog({ itineraryId, itineraryTitle, totalDays }: StoryDialogProps) {
+export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: StoryDialogProps) {
     const [open, setOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [slides, setSlides] = useState<StorySlide[]>([]);
     const [selectedSlide, setSelectedSlide] = useState<number>(0);
     const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
+    const [useAiBackgrounds, setUseAiBackgrounds] = useState(false);
+    const [aiAvailable, setAiAvailable] = useState(false);
+    const [generatingAi, setGeneratingAi] = useState(false);
     const { toast } = useToast();
+
+    // Check if AI image generation is available
+    useEffect(() => {
+        fetch("/api/images/generate")
+            .then((res) => res.json())
+            .then((data) => setAiAvailable(data.available))
+            .catch(() => setAiAvailable(false));
+    }, []);
 
     const generateSlides = () => {
         const generatedSlides: StorySlide[] = [
@@ -64,15 +79,59 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays }: StoryDia
         return generatedSlides;
     };
 
+    const generateAiBackground = async (theme: string): Promise<string | undefined> => {
+        if (!city) return undefined;
+        try {
+            const response = await fetch("/api/images/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "story_background",
+                    city,
+                    theme,
+                    style: "vibrant",
+                    cacheKey: `story-${itineraryId}-${theme.replace(/\s+/g, "-").toLowerCase()}`,
+                }),
+            });
+            const data = await response.json();
+            if (data.success && data.image) {
+                return `data:image/png;base64,${data.image}`;
+            }
+        } catch (error) {
+            console.error("AI background generation failed:", error);
+        }
+        return undefined;
+    };
+
     const handleGenerate = async () => {
         setIsGenerating(true);
         try {
             const generatedSlides = generateSlides();
+
+            // If AI backgrounds enabled, generate them
+            if (useAiBackgrounds && aiAvailable && city) {
+                setGeneratingAi(true);
+                toast({
+                    title: "Generating AI backgrounds...",
+                    description: "This may take a moment",
+                });
+
+                // Generate cover background
+                const coverBg = await generateAiBackground("iconic landmarks and cityscape");
+                if (coverBg) generatedSlides[0].aiBackground = coverBg;
+
+                // Generate summary background
+                const summaryBg = await generateAiBackground("beautiful travel scenery");
+                if (summaryBg) generatedSlides[generatedSlides.length - 1].aiBackground = summaryBg;
+
+                setGeneratingAi(false);
+            }
+
             setSlides(generatedSlides);
             setSelectedSlide(0);
             toast({
                 title: "Stories generated!",
-                description: `${generatedSlides.length} story slides ready to download`,
+                description: `${generatedSlides.length} story slides ready to download${useAiBackgrounds ? " with AI backgrounds" : ""}`,
             });
         } catch (error) {
             console.error("Error generating stories:", error);
@@ -83,6 +142,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays }: StoryDia
             });
         } finally {
             setIsGenerating(false);
+            setGeneratingAi(false);
         }
     };
 
@@ -155,9 +215,25 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays }: StoryDia
                                 <p className="text-xs opacity-60">Story Format</p>
                             </div>
                         </div>
-                        <p className="text-muted-foreground text-center mb-6 max-w-sm">
+                        <p className="text-muted-foreground text-center mb-4 max-w-sm">
                             Generate beautiful story slides optimized for Instagram and TikTok
                         </p>
+
+                        {/* AI Backgrounds Toggle */}
+                        {aiAvailable && city && (
+                            <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
+                                <Switch
+                                    id="ai-backgrounds"
+                                    checked={useAiBackgrounds}
+                                    onCheckedChange={setUseAiBackgrounds}
+                                />
+                                <Label htmlFor="ai-backgrounds" className="flex items-center gap-2 cursor-pointer">
+                                    <Sparkles className="h-4 w-4 text-violet-500" />
+                                    <span className="text-sm">AI-generated backgrounds</span>
+                                </Label>
+                            </div>
+                        )}
+
                         <Button
                             onClick={handleGenerate}
                             disabled={isGenerating}
@@ -166,11 +242,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays }: StoryDia
                             {isGenerating ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating...
+                                    {generatingAi ? "Generating AI backgrounds..." : "Generating..."}
                                 </>
                             ) : (
                                 <>
-                                    <Camera className="mr-2 h-4 w-4" />
+                                    {useAiBackgrounds ? (
+                                        <Sparkles className="mr-2 h-4 w-4" />
+                                    ) : (
+                                        <Camera className="mr-2 h-4 w-4" />
+                                    )}
                                     Generate {totalDays + 2} Slides
                                 </>
                             )}
