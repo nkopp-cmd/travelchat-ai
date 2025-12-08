@@ -15,9 +15,9 @@ export const generateItinerarySchema = z.object({
     city: z.string().min(1).max(100),
     days: z.number().int().min(1).max(14),
     interests: z.array(z.string().max(50)).max(10).optional(),
-    budget: z.enum(["budget", "moderate", "luxury"]).optional(),
+    budget: z.enum(["budget", "cheap", "moderate", "luxury", "splurge"]).optional(),
     localnessLevel: z.number().int().min(1).max(5).optional(),
-    pace: z.enum(["relaxed", "moderate", "active"]).optional(),
+    pace: z.enum(["relaxed", "moderate", "active", "packed"]).optional(),
     groupType: z.enum(["solo", "couple", "family", "friends", "business"]).optional(),
     templatePrompt: z.string().max(2000).optional(),
 });

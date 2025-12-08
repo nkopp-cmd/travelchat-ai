@@ -172,6 +172,19 @@ Make it exciting, authentic, and full of hidden gems!
       if (!itineraryData.title || !itineraryData.dailyPlans || !Array.isArray(itineraryData.dailyPlans)) {
         throw new Error("Invalid itinerary structure from OpenAI");
       }
+
+      // Validate that each day has activities
+      for (const day of itineraryData.dailyPlans) {
+        if (!day.activities || !Array.isArray(day.activities) || day.activities.length === 0) {
+          throw new Error(`Day ${day.day} has no activities - please try again`);
+        }
+        // Validate each activity has required fields
+        for (const activity of day.activities) {
+          if (!activity.name || activity.name === "Location" || activity.name === "Breakfast" || activity.name === "Lunch" || activity.name === "Dinner") {
+            throw new Error("Invalid activity name generated - please try again");
+          }
+        }
+      }
     } catch (parseError) {
       console.error("Failed to parse OpenAI response:", rawContent);
       throw new Error("AI generated invalid response format. Please try again.");
