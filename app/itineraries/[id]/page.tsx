@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
 import { EmailDialog } from "@/components/itineraries/email-dialog";
+import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import type { Metadata } from "next";
 
@@ -224,6 +225,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                         </Link>
                         <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
                         <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
+                        <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} />
                         <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline" className="gap-2">
                                 <Download className="h-4 w-4" />
@@ -436,6 +438,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                         <div className="flex gap-2 flex-wrap">
                             <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
                             <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
+                            <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} />
                             <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
                                 <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 gap-2">
                                     <Download className="h-4 w-4" />
