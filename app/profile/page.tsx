@@ -4,11 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Star, MapPin, Flame, Settings, Share2 } from "lucide-react";
+import { Trophy, Star, MapPin, Flame, Settings, Share2, Heart } from "lucide-react";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 
 async function getUserProgress() {
     const { userId } = await auth();
@@ -19,30 +21,76 @@ async function getUserProgress() {
 
     const supabase = createSupabaseAdmin();
 
-    // Get user progress from Supabase
-    const { data: progress } = await supabase
-        .from("user_progress")
-        .select("*")
-        .eq("clerk_user_id", userId)
+    // Get user's internal ID and XP from users table
+    const { data: userData } = await supabase
+        .from("users")
+        .select("id, xp, level")
+        .eq("clerk_id", userId)
         .single();
 
-    // Get user's completed challenges
-    const { data: completedChallenges } = await supabase
-        .from("user_challenges")
-        .select("*, challenges(*)")
-        .eq("clerk_user_id", userId)
-        .eq("completed", true);
+    // Get user progress from user_progress table (uses internal user_id)
+    let progress = null;
+    if (userData?.id) {
+        const { data: progressData } = await supabase
+            .from("user_progress")
+            .select("*")
+            .eq("user_id", userData.id)
+            .single();
+        progress = progressData;
+    }
 
-    // Get user's saved itineraries count
+    // Merge XP from users table with progress data
+    const mergedProgress = {
+        xp: userData?.xp || progress?.xp || 0,
+        level: userData?.level || 1,
+        streak: progress?.current_streak || 0,
+        discoveries: progress?.discoveries || 0,
+        spots_visited: progress?.spots_visited || 0,
+    };
+
+    // Get user's completed challenges (uses internal user_id)
+    let completedChallenges: Array<{ id: string; challenges: { title: string; description: string; xp_reward: number } }> = [];
+    if (userData?.id) {
+        const { data: challengesData } = await supabase
+            .from("user_challenges")
+            .select("*, challenges(*)")
+            .eq("user_id", userData.id)
+            .eq("completed", true);
+        completedChallenges = challengesData || [];
+    }
+
+    // Get user's saved itineraries count (uses clerk_user_id)
     const { data: itineraries } = await supabase
         .from("itineraries")
         .select("id")
         .eq("clerk_user_id", userId);
 
+    // Get user's saved spots
+    const { data: savedSpots } = await supabase
+        .from("saved_spots")
+        .select(`
+            id,
+            spot_id,
+            created_at,
+            spots (
+                id,
+                name,
+                description,
+                category,
+                localley_score,
+                photos,
+                address
+            )
+        `)
+        .eq("clerk_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(12);
+
     return {
-        progress: progress || { xp: 0, level: 1, streak: 0, discoveries: 0 },
-        completedChallenges: completedChallenges || [],
+        progress: mergedProgress,
+        completedChallenges,
         itinerariesCount: itineraries?.length || 0,
+        savedSpots: savedSpots || [],
     };
 }
 
@@ -53,7 +101,7 @@ export default async function ProfilePage() {
         redirect("/sign-in");
     }
 
-    const { progress, completedChallenges, itinerariesCount } = await getUserProgress();
+    const { progress, completedChallenges, itinerariesCount, savedSpots } = await getUserProgress();
 
     const level = getLevel(progress.xp);
     const levelProgress = getLevelProgress(progress.xp);
@@ -229,13 +277,76 @@ export default async function ProfilePage() {
                 </TabsContent>
 
                 <TabsContent value="saved">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <p className="text-muted-foreground text-center py-8">
-                                Saved spots feature coming soon!
-                            </p>
-                        </CardContent>
-                    </Card>
+                    {savedSpots.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {savedSpots.map((saved) => {
+                                const spot = saved.spots as unknown as {
+                                    id: string;
+                                    name: { en?: string } | string;
+                                    description: { en?: string } | string;
+                                    category: string;
+                                    localley_score: number;
+                                    photos: string[];
+                                    address: { en?: string } | string;
+                                } | null;
+                                if (!spot) return null;
+
+                                const spotName = typeof spot.name === 'object' ? spot.name.en : spot.name;
+                                const spotDesc = typeof spot.description === 'object' ? spot.description.en : spot.description;
+
+                                return (
+                                    <Link key={saved.id} href={`/spots/${spot.id}`}>
+                                        <Card className="overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 h-full flex flex-col border-border/40 bg-background/60 backdrop-blur-sm">
+                                            <div className="relative aspect-video w-full overflow-hidden">
+                                                <Image
+                                                    src={spot.photos?.[0] || "/placeholder-spot.jpg"}
+                                                    alt={spotName || "Spot"}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                                <div className="absolute top-2 right-2">
+                                                    <div className="bg-red-500/90 backdrop-blur-sm rounded-full p-1.5">
+                                                        <Heart className="h-3 w-3 text-white fill-white" />
+                                                    </div>
+                                                </div>
+                                                <Badge className="absolute top-2 left-2 bg-violet-600/90 backdrop-blur-sm">
+                                                    {spot.localley_score}/6
+                                                </Badge>
+                                            </div>
+                                            <CardContent className="p-3 flex-1">
+                                                <h3 className="font-semibold text-sm line-clamp-1">
+                                                    {spotName}
+                                                </h3>
+                                                <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                                    {spotDesc}
+                                                </p>
+                                                <Badge variant="secondary" className="text-xs mt-2">
+                                                    {spot.category}
+                                                </Badge>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+                            <CardContent className="pt-6">
+                                <div className="text-center py-8">
+                                    <Heart className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+                                    <p className="text-muted-foreground mb-4">
+                                        No saved spots yet
+                                    </p>
+                                    <Link href="/spots">
+                                        <Button variant="outline" size="sm">
+                                            <MapPin className="mr-2 h-4 w-4" />
+                                            Explore Spots
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                 </TabsContent>
             </Tabs>
         </div>

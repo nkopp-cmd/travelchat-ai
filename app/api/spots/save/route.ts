@@ -46,6 +46,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to save spot" }, { status: 500 });
     }
 
+    // Award XP for discovering/saving a spot (fire and forget)
+    try {
+      await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.get('cookie') || '',
+        },
+        body: JSON.stringify({
+          action: 'discover_spot',
+        }),
+      });
+    } catch (xpError) {
+      console.error('Error awarding XP:', xpError);
+    }
+
     return NextResponse.json({
       success: true,
       saved: true,

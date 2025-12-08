@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Spot } from "@/types";
 import { LocalleyScaleIndicator } from "./localley-scale";
+import { SaveSpotButton } from "./save-spot-button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock } from "lucide-react";
@@ -21,7 +22,8 @@ export function SpotCard({ spot }: SpotCardProps) {
                         fill
                         className="object-cover transition-transform hover:scale-105"
                     />
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2 flex items-center gap-1">
+                        <SaveSpotButton spotId={spot.id} />
                         <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} />
                     </div>
                     {spot.trending && (

@@ -243,18 +243,20 @@ Make it exciting, authentic, and full of hidden gems!
     }
 
     // Award XP for creating itinerary (fire and forget)
-    // Disabled for now - gamification endpoint needs proper implementation
-    // try {
-    //   await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //       action: 'create_itinerary',
-    //     }),
-    //   });
-    // } catch (xpError) {
-    //   console.error('Error awarding XP:', xpError);
-    // }
+    try {
+      await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.get('cookie') || '',
+        },
+        body: JSON.stringify({
+          action: 'create_itinerary',
+        }),
+      });
+    } catch (xpError) {
+      console.error('Error awarding XP:', xpError);
+    }
 
     return NextResponse.json({
       success: true,
