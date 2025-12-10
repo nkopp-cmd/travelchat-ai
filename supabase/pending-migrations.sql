@@ -18,10 +18,14 @@ ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false;
 ALTER TABLE itineraries
 ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT false;
 
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
+
 COMMENT ON COLUMN itineraries.subtitle IS 'Brief tagline/description for the itinerary';
 COMMENT ON COLUMN itineraries.status IS 'Itinerary status: draft or completed';
 COMMENT ON COLUMN itineraries.is_favorite IS 'User favorited this itinerary';
 COMMENT ON COLUMN itineraries.is_public IS 'Whether this itinerary is publicly shareable';
+COMMENT ON COLUMN itineraries.view_count IS 'Number of times this itinerary has been viewed';
 
 -- ================================
 -- 2. Create saved_spots table
