@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
             (challenges || []).map(async (challenge) => {
                 const requirements = challenge.requirements as ChallengeRequirements;
                 let progress = 0;
-                let total = requirements.count || requirements.days || 1;
+                const total = requirements.count || requirements.days || 1;
 
                 if (userData?.id) {
                     switch (requirements.type) {

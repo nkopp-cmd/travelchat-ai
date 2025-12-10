@@ -8,13 +8,13 @@ export async function GET(req: NextRequest) {
         const { userId } = await auth();
         const { searchParams } = new URL(req.url);
         const type = searchParams.get("type") || "global";
-        const city = searchParams.get("city");
+        const _city = searchParams.get("city"); // Reserved for future city-specific leaderboards
         const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
 
         const supabase = createSupabaseAdmin();
 
         // Base query for top users by XP
-        let query = supabase
+        const query = supabase
             .from("users")
             .select("id, clerk_id, username, xp, level")
             .order("xp", { ascending: false })

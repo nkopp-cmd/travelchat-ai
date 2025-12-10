@@ -51,11 +51,13 @@ export async function POST(req: Request) {
         const supabase = createSupabaseAdmin();
 
         // Get user's database ID from clerk_id
-        let { data: user, error: userError } = await supabase
+        const { data: existingUser, error: userError } = await supabase
             .from("users")
             .select("id, xp, level")
             .eq("clerk_id", userId)
             .single();
+
+        let user = existingUser;
 
         // User doesn't exist in our database yet, create them
         if (userError || !user) {

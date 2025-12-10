@@ -127,7 +127,7 @@ export default function TemplatesPage() {
         {/* Custom Option CTA */}
         <div className="mt-16 text-center p-8 bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl border border-violet-200 dark:border-violet-800">
           <h3 className="text-2xl font-bold mb-2">
-            Don't see what you're looking for?
+            Don&apos;t see what you&apos;re looking for?
           </h3>
           <p className="text-muted-foreground mb-6">
             Create a fully custom itinerary from scratch with Alley AI

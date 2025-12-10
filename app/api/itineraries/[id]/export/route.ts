@@ -2,12 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
-// Helper to parse multi-language fields
-function getName(field: string | Record<string, string> | null | undefined): string {
-  if (typeof field === "object" && field !== null) {
-    return field.en || Object.values(field)[0] || "";
-  }
-  return field || "";
+// Activity and Day types for export
+interface ExportActivity {
+  name?: string;
+  time?: string;
+  address?: string;
+  description?: string;
+  cost?: string | number;
+  tips?: string;
+  localley_score?: number;
+  duration?: string;
+}
+
+interface ExportDay {
+  day?: number;
+  theme?: string;
+  activities?: ExportActivity[];
+  localTip?: string;
+  transportTips?: string;
 }
 
 export async function GET(
@@ -261,7 +273,7 @@ export async function GET(
 
   ${dailyPlans
     .map(
-      (day: any) => `
+      (day: ExportDay) => `
   <div class="day">
     <div class="day-header">
       <h2>Day ${day.day || ""}</h2>
@@ -270,7 +282,7 @@ export async function GET(
     <div class="day-content">
       ${(day.activities || [])
         .map(
-          (activity: any) => `
+          (activity: ExportActivity) => `
       <div class="activity">
         <div class="activity-header">
           <div class="activity-name">${activity.name || "Activity"}</div>
