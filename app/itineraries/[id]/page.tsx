@@ -2,15 +2,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Download, MapPin, Clock, DollarSign, Star, ArrowLeft, Lightbulb, Bus, Sparkles, MessageSquare, Edit2 } from "lucide-react";
+import { Download, MapPin, Clock, Star, ArrowLeft, Lightbulb, Bus, Sparkles, MessageSquare, Edit2 } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
 import { EmailDialog } from "@/components/itineraries/email-dialog";
 import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
+import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
+import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
+import { auth } from "@clerk/nextjs/server";
+import { getUserTier } from "@/lib/usage-tracking";
+import { SubscriptionTier } from "@/lib/subscription";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
@@ -65,23 +69,16 @@ async function getItinerary(id: string) {
     };
 }
 
-// Get icon for activity type
-const getTypeIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
-        case 'morning': return '🌅';
-        case 'afternoon': return '☀️';
-        case 'evening': return '🌆';
-        default: return '📍';
+// Get user's subscription tier
+async function getUserSubscriptionTier(): Promise<SubscriptionTier> {
+    try {
+        const { userId } = await auth();
+        if (!userId) return "free";
+        return await getUserTier(userId);
+    } catch {
+        return "free";
     }
-};
-
-// Get Localley score badge
-const getScoreBadge = (score: number) => {
-    if (score >= 6) return { label: 'Legendary', color: 'bg-yellow-500' };
-    if (score >= 5) return { label: 'Hidden Gem', color: 'bg-violet-500' };
-    if (score >= 4) return { label: 'Local Favorite', color: 'bg-indigo-500' };
-    return { label: 'Mixed Crowd', color: 'bg-blue-500' };
-};
+}
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -138,7 +135,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ItineraryViewPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const itinerary = await getItinerary(id);
+    const [itinerary, userTier] = await Promise.all([
+        getItinerary(id),
+        getUserSubscriptionTier(),
+    ]);
 
     if (!itinerary) {
         notFound();
@@ -287,100 +287,17 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                             </div>
 
                             <CardContent className="p-6 space-y-6">
-                                {/* Activities Timeline */}
-                                <div className="space-y-6">
-                                    {activities.map((activity: ItineraryActivity, activityIndex: number) => {
-                                        const scoreBadge = activity.localleyScore ? getScoreBadge(activity.localleyScore) : null;
-
-                                        return (
-                                            <div key={activityIndex} className="relative pl-8 border-l-2 border-violet-200 dark:border-violet-800">
-                                                {/* Timeline Dot */}
-                                                <div className="absolute -left-[9px] top-0">
-                                                    <div className="w-4 h-4 rounded-full bg-violet-600 border-4 border-background" />
-                                                </div>
-
-                                                <div className="flex gap-4 pb-6">
-                                                    {/* Activity Thumbnail */}
-                                                    {activity.image && (
-                                                        <div className="hidden sm:block flex-shrink-0">
-                                                            <div className="relative w-24 h-24 rounded-lg overflow-hidden">
-                                                                <Image
-                                                                    src={activity.image}
-                                                                    alt={activity.name}
-                                                                    fill
-                                                                    className="object-cover"
-                                                                    sizes="96px"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    <div className="flex-1 space-y-3">
-                                                        {/* Activity Header */}
-                                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                                                            <div className="space-y-1">
-                                                                <div className="flex items-center gap-2 flex-wrap">
-                                                                    <h3 className="font-bold text-lg">{activity.name}</h3>
-                                                                    {scoreBadge && (
-                                                                        <Badge className={`${scoreBadge.color} text-white`}>
-                                                                            {scoreBadge.label}
-                                                                        </Badge>
-                                                                    )}
-                                                                    {activity.category && (
-                                                                        <Badge variant="secondary" className="text-xs">
-                                                                            {activity.category}
-                                                                        </Badge>
-                                                                    )}
-                                                                </div>
-                                                                {activity.address && (
-                                                                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                                                        <MapPin className="h-3 w-3" />
-                                                                        {activity.address}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex flex-wrap gap-2 text-sm">
-                                                                {activity.time && (
-                                                                    <Badge variant="outline" className="gap-1">
-                                                                        <Clock className="h-3 w-3" />
-                                                                        {activity.time}
-                                                                    </Badge>
-                                                                )}
-                                                                {activity.type && (
-                                                                    <Badge variant="outline">
-                                                                        {getTypeIcon(activity.type)} {activity.type}
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Activity Description */}
-                                                        {activity.description && (
-                                                            <p className="text-muted-foreground leading-relaxed">
-                                                                {activity.description}
-                                                            </p>
-                                                        )}
-
-                                                        {/* Activity Details */}
-                                                        <div className="flex flex-wrap gap-4 text-sm">
-                                                            {activity.duration && (
-                                                                <div className="flex items-center gap-1 text-muted-foreground">
-                                                                    <Clock className="h-4 w-4" />
-                                                                    <span>{activity.duration}</span>
-                                                                </div>
-                                                            )}
-                                                            {activity.cost && (
-                                                                <div className="flex items-center gap-1 text-muted-foreground">
-                                                                    <DollarSign className="h-4 w-4" />
-                                                                    <span>{activity.cost}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                                {/* Activities Timeline with Enhanced Cards */}
+                                <div className="space-y-2">
+                                    {activities.map((activity: ItineraryActivity, activityIndex: number) => (
+                                        <ItineraryActivityCard
+                                            key={activityIndex}
+                                            activity={activity}
+                                            city={itinerary.city}
+                                            userTier={userTier}
+                                            isLast={activityIndex === activities.length - 1}
+                                        />
+                                    ))}
                                 </div>
 
                                 <Separator />
@@ -426,6 +343,13 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                     </Card>
                 )}
             </div>
+
+            {/* Viator Activity Suggestions */}
+            <ViatorSuggestions
+                city={itinerary.city}
+                userTier={userTier}
+                limit={4}
+            />
 
             {/* Footer Actions */}
             <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border-violet-200/50">
