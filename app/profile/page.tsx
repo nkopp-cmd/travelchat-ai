@@ -1,16 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Star, MapPin, Flame, Settings, Share2, Heart } from "lucide-react";
+import { Trophy, Star, MapPin, Flame, Settings, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight, CreditCard } from "lucide-react";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { getUserTier } from "@/lib/usage-tracking";
+import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 
 async function getUserProgress() {
     const { userId } = await auth();
@@ -86,11 +88,60 @@ async function getUserProgress() {
         .order("created_at", { ascending: false })
         .limit(12);
 
+    // Get subscription data
+    const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("clerk_user_id", userId)
+        .single();
+
+    // Get usage data
+    const today = new Date().toISOString().split("T")[0];
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+        .toISOString()
+        .split("T")[0];
+
+    const [
+        { data: monthlyUsage },
+        { data: dailyUsage },
+    ] = await Promise.all([
+        supabase
+            .from("usage_tracking")
+            .select("usage_type, count")
+            .eq("clerk_user_id", userId)
+            .eq("period_type", "monthly")
+            .eq("period_start", monthStart),
+        supabase
+            .from("usage_tracking")
+            .select("usage_type, count")
+            .eq("clerk_user_id", userId)
+            .eq("period_type", "daily")
+            .eq("period_start", today),
+    ]);
+
+    const getUsage = (data: { usage_type: string; count: number }[] | null, type: string): number => {
+        if (!data) return 0;
+        const record = data.find((r) => r.usage_type === type);
+        return record?.count || 0;
+    };
+
     return {
         progress: mergedProgress,
         completedChallenges,
         itinerariesCount: itineraries?.length || 0,
         savedSpots: savedSpots || [],
+        subscription: subscription ? {
+            tier: (subscription.tier || "free") as SubscriptionTier,
+            status: subscription.status || "none",
+            currentPeriodEnd: subscription.current_period_end,
+            cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
+        } : { tier: "free" as SubscriptionTier, status: "none", currentPeriodEnd: null, cancelAtPeriodEnd: false },
+        usage: {
+            itinerariesThisMonth: getUsage(monthlyUsage, "itineraries_created"),
+            chatMessagesToday: getUsage(dailyUsage, "chat_messages"),
+            aiImagesThisMonth: getUsage(monthlyUsage, "ai_images_generated"),
+            savedSpots: savedSpots?.length || 0,
+        },
     };
 }
 
@@ -101,12 +152,17 @@ export default async function ProfilePage() {
         redirect("/sign-in");
     }
 
-    const { progress, completedChallenges, itinerariesCount, savedSpots } = await getUserProgress();
+    const { progress, completedChallenges, itinerariesCount, savedSpots, subscription, usage } = await getUserProgress();
 
     const level = getLevel(progress.xp);
     const levelProgress = getLevelProgress(progress.xp);
     const rank = getRankTitle(level);
     const nextLevelXp = getNextLevelXp(level);
+
+    const tierConfig = TIER_CONFIGS[subscription.tier];
+    const isActiveSub = ["active", "trialing"].includes(subscription.status);
+
+    const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
 
     // Calculate user stats
     const joinedDate = new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -202,6 +258,171 @@ export default async function ProfilePage() {
                         </Link>
                     </div>
                 </div>
+            </div>
+
+            {/* Subscription & Usage Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Subscription Status */}
+                <Card className={`border-border/40 overflow-hidden ${
+                    subscription.tier === "premium"
+                        ? "bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20"
+                        : subscription.tier === "pro"
+                        ? "bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20"
+                        : "bg-background/60 backdrop-blur-sm"
+                }`}>
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-full ${
+                                    subscription.tier === "premium"
+                                        ? "bg-amber-100 dark:bg-amber-900/30"
+                                        : subscription.tier === "pro"
+                                        ? "bg-violet-100 dark:bg-violet-900/30"
+                                        : "bg-muted"
+                                }`}>
+                                    <TierIcon className={`h-5 w-5 ${
+                                        subscription.tier === "premium"
+                                            ? "text-amber-600"
+                                            : subscription.tier === "pro"
+                                            ? "text-violet-600"
+                                            : "text-muted-foreground"
+                                    }`} />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-lg capitalize">{subscription.tier} Plan</CardTitle>
+                                    <CardDescription>
+                                        {subscription.tier === "free"
+                                            ? "Upgrade to unlock more features"
+                                            : tierConfig.price ? `$${tierConfig.price}/month` : "Free forever"}
+                                    </CardDescription>
+                                </div>
+                            </div>
+                            {subscription.tier !== "free" && isActiveSub && (
+                                <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                    Active
+                                </Badge>
+                            )}
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {subscription.tier === "free" ? (
+                            <div className="space-y-3">
+                                <p className="text-sm text-muted-foreground">
+                                    Unlock AI images, full addresses, booking deals, and unlimited features.
+                                </p>
+                                <div className="flex gap-2">
+                                    <Link href="/pricing" className="flex-1">
+                                        <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                                            <Rocket className="h-4 w-4 mr-2" />
+                                            Upgrade to Pro
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {subscription.currentPeriodEnd && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-muted-foreground">
+                                            {subscription.cancelAtPeriodEnd ? "Ends on" : "Renews on"}
+                                        </span>
+                                        <span className="font-medium">
+                                            {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
+                                {subscription.cancelAtPeriodEnd && (
+                                    <Badge variant="outline" className="text-amber-600 border-amber-300">
+                                        Cancels at period end
+                                    </Badge>
+                                )}
+                                <Link href="/settings">
+                                    <Button variant="outline" className="w-full gap-2">
+                                        <CreditCard className="h-4 w-4" />
+                                        Manage Subscription
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Usage Dashboard */}
+                <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-lg">Usage This Period</CardTitle>
+                        <CardDescription>Track your feature usage and limits</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {/* Itineraries */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-violet-500" />
+                                    <span>Itineraries</span>
+                                </div>
+                                <span className="font-medium">
+                                    {usage.itinerariesThisMonth} / {tierConfig.limits.itinerariesPerMonth === 999 ? "∞" : tierConfig.limits.itinerariesPerMonth}
+                                </span>
+                            </div>
+                            <Progress
+                                value={tierConfig.limits.itinerariesPerMonth === 999 ? 10 : (usage.itinerariesThisMonth / tierConfig.limits.itinerariesPerMonth) * 100}
+                                className="h-2"
+                            />
+                        </div>
+
+                        {/* Chat Messages */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4 text-indigo-500" />
+                                    <span>Chat Messages (Today)</span>
+                                </div>
+                                <span className="font-medium">
+                                    {usage.chatMessagesToday} / {tierConfig.limits.chatMessagesPerDay === 999 ? "∞" : tierConfig.limits.chatMessagesPerDay}
+                                </span>
+                            </div>
+                            <Progress
+                                value={tierConfig.limits.chatMessagesPerDay === 999 ? 10 : (usage.chatMessagesToday / tierConfig.limits.chatMessagesPerDay) * 100}
+                                className="h-2"
+                            />
+                        </div>
+
+                        {/* AI Images */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                    <ImageIcon className="h-4 w-4 text-emerald-500" />
+                                    <span>AI Images</span>
+                                </div>
+                                <span className="font-medium">
+                                    {usage.aiImagesThisMonth} / {tierConfig.limits.aiImagesPerMonth}
+                                </span>
+                            </div>
+                            <Progress
+                                value={(usage.aiImagesThisMonth / tierConfig.limits.aiImagesPerMonth) * 100}
+                                className="h-2"
+                            />
+                        </div>
+
+                        {/* Saved Spots */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                    <Bookmark className="h-4 w-4 text-rose-500" />
+                                    <span>Saved Spots</span>
+                                </div>
+                                <span className="font-medium">
+                                    {usage.savedSpots} / {tierConfig.limits.savedSpotsLimit === 999 ? "∞" : tierConfig.limits.savedSpotsLimit}
+                                </span>
+                            </div>
+                            <Progress
+                                value={tierConfig.limits.savedSpotsLimit === 999 ? 10 : (usage.savedSpots / tierConfig.limits.savedSpotsLimit) * 100}
+                                className="h-2"
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Content Tabs */}
