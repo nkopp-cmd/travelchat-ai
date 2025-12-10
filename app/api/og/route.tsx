@@ -9,11 +9,14 @@ export async function GET(request: NextRequest) {
     const title = searchParams.get('title') || 'Discover Hidden Gems';
     const city = searchParams.get('city') || '';
     const days = searchParams.get('days') || '';
+    const score = searchParams.get('score') || '0';
 
     // Construct subtitle
     const subtitle = city && days
       ? `${days} ${parseInt(days) === 1 ? 'Day' : 'Days'} in ${city}`
       : city || 'Travel Itinerary';
+
+    const localScore = parseInt(score);
 
     return new ImageResponse(
       (
@@ -74,11 +77,37 @@ export async function GET(request: NextRequest) {
                 style={{
                   fontSize: 36,
                   color: 'rgba(255,255,255,0.95)',
-                  marginBottom: 48,
+                  marginBottom: localScore > 0 ? 24 : 48,
                   fontWeight: 500,
                 }}
               >
                 {subtitle}
+              </div>
+            )}
+
+            {/* Local Score Badge */}
+            {localScore > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  padding: '12px 24px',
+                  borderRadius: 50,
+                  marginBottom: 24,
+                }}
+              >
+                <span style={{ fontSize: 28 }}>⭐</span>
+                <span
+                  style={{
+                    fontSize: 24,
+                    fontWeight: 600,
+                    color: 'white',
+                  }}
+                >
+                  Local Score: {localScore}/10
+                </span>
               </div>
             )}
 

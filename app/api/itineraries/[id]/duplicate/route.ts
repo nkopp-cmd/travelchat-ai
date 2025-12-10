@@ -26,8 +26,9 @@ export async function POST(
             return NextResponse.json({ error: "Itinerary not found" }, { status: 404 });
         }
 
-        // Check ownership or if it's public
-        if (original.clerk_user_id !== userId && !original.is_public) {
+        // Check ownership or if it's shared/public
+        const canDuplicate = original.clerk_user_id === userId || original.shared || original.is_public;
+        if (!canDuplicate) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
 
@@ -36,16 +37,22 @@ export async function POST(
             .from("itineraries")
             .insert({
                 clerk_user_id: userId,
-                title: `${original.title} (Copy)`,
+                title: original.clerk_user_id === userId
+                    ? `${original.title} (Copy)`
+                    : original.title,
                 subtitle: original.subtitle,
                 city: original.city,
                 days: original.days,
+                activities: original.activities,
                 daily_plans: original.daily_plans,
                 preferences: original.preferences,
                 local_score: original.local_score,
+                highlights: original.highlights,
+                estimated_cost: original.estimated_cost,
                 status: "draft",
                 is_favorite: false,
                 is_public: false,
+                shared: false,
             })
             .select()
             .single();

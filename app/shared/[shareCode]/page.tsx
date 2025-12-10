@@ -1,11 +1,67 @@
+import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Clock, DollarSign, Star, Download, Lightbulb, Bus, Sparkles, Home } from "lucide-react";
+import { MapPin, Clock, DollarSign, Star, Lightbulb, Bus, Sparkles, Home } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { SharedActions } from "./shared-actions";
+
+// Generate dynamic metadata for social sharing
+export async function generateMetadata(
+    { params }: { params: Promise<{ shareCode: string }> }
+): Promise<Metadata> {
+    const { shareCode } = await params;
+    const supabase = createSupabaseAdmin();
+
+    const { data: itinerary } = await supabase
+        .from("itineraries")
+        .select("title, city, days, highlights, local_score")
+        .eq("share_code", shareCode)
+        .eq("shared", true)
+        .single();
+
+    if (!itinerary) {
+        return {
+            title: "Itinerary Not Found | Localley",
+        };
+    }
+
+    const title = `${itinerary.title} | Localley`;
+    const description = itinerary.highlights?.length > 0
+        ? `${itinerary.days}-day ${itinerary.city} itinerary featuring: ${itinerary.highlights.slice(0, 3).join(", ")}`
+        : `Explore ${itinerary.city} with this ${itinerary.days}-day local-approved itinerary.`;
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localley.app";
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            type: "article",
+            url: `${baseUrl}/shared/${shareCode}`,
+            siteName: "Localley",
+            images: [
+                {
+                    url: `${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${itinerary.local_score || 0}`,
+                    width: 1200,
+                    height: 630,
+                    alt: itinerary.title,
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [`${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${itinerary.local_score || 0}`],
+        },
+    };
+}
 
 // Type definitions
 interface ItineraryActivity {
@@ -138,21 +194,16 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <div>
                                     <h3 className="font-semibold mb-1">Love this itinerary?</h3>
-                                    <p className="text-sm text-muted-foreground">Create your own with Localley and discover hidden gems</p>
+                                    <p className="text-sm text-muted-foreground">Save it, share it, or create your own with Localley</p>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
+                                    <SharedActions itineraryId={itinerary.id} shareCode={shareCode} />
                                     <Link href="/sign-up">
                                         <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
                                             <Sparkles className="mr-2 h-4 w-4" />
-                                            Create My Itinerary
+                                            Create My Own
                                         </Button>
                                     </Link>
-                                    <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
-                                        <Button variant="outline" className="gap-2">
-                                            <Download className="h-4 w-4" />
-                                            Download
-                                        </Button>
-                                    </a>
                                 </div>
                             </div>
                         </CardContent>

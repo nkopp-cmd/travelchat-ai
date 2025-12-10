@@ -74,9 +74,51 @@ CREATE INDEX IF NOT EXISTS idx_spots_category ON spots(category);
 CREATE INDEX IF NOT EXISTS idx_spots_localley_score ON spots(localley_score);
 
 -- ================================
+-- 5. Create saved_itineraries table for community likes/saves
+-- ================================
+CREATE TABLE IF NOT EXISTS saved_itineraries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_user_id TEXT NOT NULL,
+  itinerary_id UUID NOT NULL REFERENCES itineraries(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(clerk_user_id, itinerary_id)
+);
+
+-- Indexes for faster queries
+CREATE INDEX IF NOT EXISTS idx_saved_itineraries_user ON saved_itineraries(clerk_user_id);
+CREATE INDEX IF NOT EXISTS idx_saved_itineraries_itinerary ON saved_itineraries(itinerary_id);
+
+-- RLS Policies for saved_itineraries
+ALTER TABLE saved_itineraries ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (to avoid conflicts)
+DROP POLICY IF EXISTS "Users can view saved itineraries" ON saved_itineraries;
+DROP POLICY IF EXISTS "Users can save itineraries" ON saved_itineraries;
+DROP POLICY IF EXISTS "Users can unsave itineraries" ON saved_itineraries;
+
+-- Users can view saved itineraries (for public counts)
+CREATE POLICY "Users can view saved itineraries" ON saved_itineraries
+  FOR SELECT USING (true);
+
+-- Users can insert their own saved itineraries
+CREATE POLICY "Users can save itineraries" ON saved_itineraries
+  FOR INSERT WITH CHECK (true);
+
+-- Users can delete their own saved itineraries
+CREATE POLICY "Users can unsave itineraries" ON saved_itineraries
+  FOR DELETE USING (true);
+
+-- Add like_count column to itineraries for caching
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS like_count INTEGER DEFAULT 0;
+
+COMMENT ON COLUMN itineraries.like_count IS 'Cached count of likes/saves from other users';
+
+-- ================================
 -- VERIFICATION QUERIES
 -- Run these after migration to verify success
 -- ================================
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'itineraries';
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'saved_spots';
+-- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'saved_itineraries';
 -- SELECT count(*) FROM spots;
