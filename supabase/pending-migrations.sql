@@ -198,6 +198,38 @@ COMMENT ON COLUMN spots.review_count IS 'Cached count of reviews';
 COMMENT ON COLUMN spots.average_rating IS 'Cached average rating (1-5)';
 
 -- ================================
+-- 8. Performance optimization indexes
+-- ================================
+
+-- Itinerary indexes for common queries
+CREATE INDEX IF NOT EXISTS idx_itineraries_shared ON itineraries(shared) WHERE shared = true;
+CREATE INDEX IF NOT EXISTS idx_itineraries_is_public ON itineraries(is_public) WHERE is_public = true;
+CREATE INDEX IF NOT EXISTS idx_itineraries_created_at ON itineraries(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_itineraries_view_count ON itineraries(view_count DESC);
+CREATE INDEX IF NOT EXISTS idx_itineraries_like_count ON itineraries(like_count DESC);
+CREATE INDEX IF NOT EXISTS idx_itineraries_local_score ON itineraries(local_score DESC);
+
+-- Spots indexes for filtering and sorting
+CREATE INDEX IF NOT EXISTS idx_spots_created_at ON spots(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_spots_trending ON spots(trending_score DESC);
+CREATE INDEX IF NOT EXISTS idx_spots_review_stats ON spots(review_count DESC, average_rating DESC);
+
+-- User activity indexes
+CREATE INDEX IF NOT EXISTS idx_users_clerk_id ON users(clerk_id);
+CREATE INDEX IF NOT EXISTS idx_users_xp ON users(xp DESC);
+
+-- Conversation indexes for chat history
+CREATE INDEX IF NOT EXISTS idx_conversations_clerk_user ON conversations(clerk_user_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_updated ON conversations(updated_at DESC);
+
+-- Messages index for conversation loading
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC);
+
+-- Composite indexes for common filter combinations
+CREATE INDEX IF NOT EXISTS idx_itineraries_user_shared ON itineraries(clerk_user_id, shared);
+CREATE INDEX IF NOT EXISTS idx_spots_category_score ON spots(category, localley_score DESC);
+
+-- ================================
 -- VERIFICATION QUERIES
 -- Run these after migration to verify success
 -- ================================
@@ -206,4 +238,5 @@ COMMENT ON COLUMN spots.average_rating IS 'Cached average rating (1-5)';
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'saved_itineraries';
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'spot_reviews';
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'review_helpful_votes';
+-- SELECT indexname, tablename FROM pg_indexes WHERE schemaname = 'public';
 -- SELECT count(*) FROM spots;
