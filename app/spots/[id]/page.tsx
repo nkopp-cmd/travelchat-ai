@@ -9,6 +9,7 @@ import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
+import { ReviewList } from "@/components/spots/review-list";
 import type { Metadata } from "next";
 
 // Helper to parse multi-language fields
@@ -221,6 +222,12 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
 
                     {/* Viator Activities Section */}
                     <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />
+
+                    {/* Reviews Section */}
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-bold">Reviews</h2>
+                        <ReviewList spotId={spot.id} />
+                    </div>
                 </div>
 
                 <div className="space-y-6">

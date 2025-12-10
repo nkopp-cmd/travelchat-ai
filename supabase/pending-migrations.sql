@@ -115,10 +115,95 @@ ADD COLUMN IF NOT EXISTS like_count INTEGER DEFAULT 0;
 COMMENT ON COLUMN itineraries.like_count IS 'Cached count of likes/saves from other users';
 
 -- ================================
+-- 6. Create spot_reviews table for user reviews
+-- ================================
+CREATE TABLE IF NOT EXISTS spot_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  spot_id UUID NOT NULL REFERENCES spots(id) ON DELETE CASCADE,
+  clerk_user_id TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment TEXT,
+  visit_date DATE,
+  helpful_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(spot_id, clerk_user_id)
+);
+
+-- Indexes for faster queries
+CREATE INDEX IF NOT EXISTS idx_spot_reviews_spot ON spot_reviews(spot_id);
+CREATE INDEX IF NOT EXISTS idx_spot_reviews_user ON spot_reviews(clerk_user_id);
+CREATE INDEX IF NOT EXISTS idx_spot_reviews_rating ON spot_reviews(rating);
+
+-- RLS Policies for spot_reviews
+ALTER TABLE spot_reviews ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Anyone can view reviews" ON spot_reviews;
+DROP POLICY IF EXISTS "Users can create reviews" ON spot_reviews;
+DROP POLICY IF EXISTS "Users can update own reviews" ON spot_reviews;
+DROP POLICY IF EXISTS "Users can delete own reviews" ON spot_reviews;
+
+-- Anyone can view reviews
+CREATE POLICY "Anyone can view reviews" ON spot_reviews
+  FOR SELECT USING (true);
+
+-- Users can create reviews
+CREATE POLICY "Users can create reviews" ON spot_reviews
+  FOR INSERT WITH CHECK (true);
+
+-- Users can update their own reviews
+CREATE POLICY "Users can update own reviews" ON spot_reviews
+  FOR UPDATE USING (true);
+
+-- Users can delete their own reviews
+CREATE POLICY "Users can delete own reviews" ON spot_reviews
+  FOR DELETE USING (true);
+
+-- ================================
+-- 7. Create review_helpful_votes table
+-- ================================
+CREATE TABLE IF NOT EXISTS review_helpful_votes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  review_id UUID NOT NULL REFERENCES spot_reviews(id) ON DELETE CASCADE,
+  clerk_user_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(review_id, clerk_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_review_votes_review ON review_helpful_votes(review_id);
+CREATE INDEX IF NOT EXISTS idx_review_votes_user ON review_helpful_votes(clerk_user_id);
+
+ALTER TABLE review_helpful_votes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view votes" ON review_helpful_votes;
+DROP POLICY IF EXISTS "Users can vote" ON review_helpful_votes;
+DROP POLICY IF EXISTS "Users can remove vote" ON review_helpful_votes;
+
+CREATE POLICY "Anyone can view votes" ON review_helpful_votes
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can vote" ON review_helpful_votes
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Users can remove vote" ON review_helpful_votes
+  FOR DELETE USING (true);
+
+-- Add review stats columns to spots table for caching
+ALTER TABLE spots
+ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS average_rating NUMERIC(2,1) DEFAULT 0;
+
+COMMENT ON COLUMN spots.review_count IS 'Cached count of reviews';
+COMMENT ON COLUMN spots.average_rating IS 'Cached average rating (1-5)';
+
+-- ================================
 -- VERIFICATION QUERIES
 -- Run these after migration to verify success
 -- ================================
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'itineraries';
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'saved_spots';
 -- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'saved_itineraries';
+-- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'spot_reviews';
+-- SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'review_helpful_votes';
 -- SELECT count(*) FROM spots;
