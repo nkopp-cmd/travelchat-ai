@@ -22,7 +22,7 @@ import {
     ArrowRight,
     Check,
 } from "lucide-react";
-import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
+import { TIER_CONFIGS } from "@/lib/subscription";
 import { useSubscriptionContext } from "@/providers/subscription-provider";
 
 export type LimitType =

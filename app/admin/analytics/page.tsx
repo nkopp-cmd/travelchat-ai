@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,7 +86,7 @@ export default function AdminAnalyticsPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedPeriod, setSelectedPeriod] = useState(30);
 
-    const fetchAnalytics = async () => {
+    const fetchAnalytics = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -104,11 +104,11 @@ export default function AdminAnalyticsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedPeriod]);
 
     useEffect(() => {
         fetchAnalytics();
-    }, [selectedPeriod]);
+    }, [fetchAnalytics]);
 
     if (error) {
         return (

@@ -168,18 +168,25 @@ export function DonutChart({
     centerValue,
 }: DonutChartProps) {
     const total = data.reduce((sum, d) => sum + d.value, 0);
-    let currentOffset = 0;
     const strokeWidth = 20;
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
 
-    const segments = data.map((item) => {
+    // Calculate segments with cumulative offsets using reduce
+    const segments = data.reduce<Array<{
+        label: string;
+        value: number;
+        color: string;
+        dashLength: number;
+        offset: number;
+        percentage: number;
+    }>>((acc, item) => {
         const percentage = total > 0 ? item.value / total : 0;
         const dashLength = percentage * circumference;
-        const offset = currentOffset;
-        currentOffset += dashLength;
-        return { ...item, dashLength, offset, percentage };
-    });
+        const offset = acc.length > 0 ? acc[acc.length - 1].offset + acc[acc.length - 1].dashLength : 0;
+        acc.push({ ...item, dashLength, offset, percentage });
+        return acc;
+    }, []);
 
     return (
         <div className={cn("flex flex-col items-center gap-4", className)}>
