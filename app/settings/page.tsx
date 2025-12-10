@@ -14,6 +14,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import Link from "next/link";
 import { BillingPortalButton } from "@/components/subscription/billing-portal-button";
+import { EmailPreferencesSection } from "@/components/settings/email-preferences";
 
 async function getSubscriptionData() {
     const { userId } = await auth();
@@ -358,10 +359,21 @@ export default async function SettingsPage() {
                 </CardContent>
             </Card>
 
+            {/* Email Preferences */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Email Preferences</CardTitle>
+                    <CardDescription>Manage what emails you receive from Localley</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <EmailPreferencesSection />
+                </CardContent>
+            </Card>
+
             {/* Preferences */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Preferences</CardTitle>
+                    <CardTitle>App Preferences</CardTitle>
                     <CardDescription>Customize your Localley experience</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -373,18 +385,6 @@ export default async function SettingsPage() {
                             </p>
                         </div>
                         <Switch id="notifications" />
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="email-updates">Email Updates</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Get weekly digest of trending spots
-                            </p>
-                        </div>
-                        <Switch id="email-updates" />
                     </div>
 
                     <Separator />

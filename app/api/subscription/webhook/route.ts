@@ -3,6 +3,8 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { stripe, getTierFromPriceId, constructWebhookEvent } from "@/lib/stripe";
+import { resend, FROM_EMAIL } from "@/lib/resend";
+import { SubscriptionEmail } from "@/emails/subscription-email";
 
 // Disable body parsing for webhook
 export const runtime = "nodejs";
@@ -199,6 +201,11 @@ async function handleSubscriptionUpdate(
     );
 
     console.log(`Subscription updated for user ${clerkUserId}: ${tier} (${status})`);
+
+    // Send upgrade email if moving to a paid tier
+    if (tier !== "free" && status === "active") {
+        await sendSubscriptionEmail(supabase, clerkUserId, "upgrade", tier);
+    }
 }
 
 // Handle subscription deletion
@@ -227,6 +234,9 @@ async function handleSubscriptionDeleted(
     );
 
     console.log(`Subscription deleted for user ${clerkUserId}`);
+
+    // Send cancellation email
+    await sendSubscriptionEmail(supabase, clerkUserId, "cancelled");
 }
 
 // Handle successful payment
@@ -282,5 +292,90 @@ async function handlePaymentFailed(
 
     console.log(`Payment failed for user ${clerkUserId}`);
 
-    // TODO: Send email notification about failed payment
+    // Send payment failed email
+    await sendSubscriptionEmail(supabase, clerkUserId, "payment_failed");
+}
+
+// Helper function to send subscription emails
+async function sendSubscriptionEmail(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    clerkUserId: string,
+    eventType: "upgrade" | "downgrade" | "cancelled" | "renewed" | "trial_ending" | "payment_failed",
+    tier?: string
+) {
+    if (!resend) {
+        console.log("Resend not configured, skipping email");
+        return;
+    }
+
+    try {
+        // Get user email from database
+        const { data: user } = await supabase
+            .from("users")
+            .select("email, name")
+            .eq("clerk_id", clerkUserId)
+            .single();
+
+        if (!user?.email) {
+            console.error("No email found for user:", clerkUserId);
+            return;
+        }
+
+        // Check email preferences
+        const { data: preferences } = await supabase
+            .from("users")
+            .select("email_preferences")
+            .eq("clerk_id", clerkUserId)
+            .single();
+
+        const emailPrefs = preferences?.email_preferences as Record<string, boolean> | null;
+        if (emailPrefs && emailPrefs.product_updates === false) {
+            console.log("User has disabled product update emails");
+            return;
+        }
+
+        const manageUrl = process.env.NEXT_PUBLIC_APP_URL
+            ? `${process.env.NEXT_PUBLIC_APP_URL}/settings`
+            : "https://localley.app/settings";
+
+        const tierName = tier === "pro" ? "Pro" : tier === "premium" ? "Premium" : "Free";
+
+        await resend.emails.send({
+            from: FROM_EMAIL,
+            to: user.email,
+            subject: getSubscriptionEmailSubject(eventType, tierName),
+            react: SubscriptionEmail({
+                userName: user.name || undefined,
+                eventType,
+                newTier: tierName,
+                manageUrl,
+            }),
+        });
+
+        console.log(`Subscription email (${eventType}) sent to ${user.email}`);
+    } catch (error) {
+        console.error("Error sending subscription email:", error);
+    }
+}
+
+function getSubscriptionEmailSubject(
+    eventType: string,
+    tier: string
+): string {
+    switch (eventType) {
+        case "upgrade":
+            return `Welcome to ${tier}! 🎉`;
+        case "downgrade":
+            return "Your plan has been changed";
+        case "cancelled":
+            return "We're sad to see you go 😢";
+        case "renewed":
+            return "Your subscription has been renewed ✨";
+        case "trial_ending":
+            return "Your trial ends soon ⏰";
+        case "payment_failed":
+            return "Payment failed - Action required";
+        default:
+            return "Subscription update";
+    }
 }
