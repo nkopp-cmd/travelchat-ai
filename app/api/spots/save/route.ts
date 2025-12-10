@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { checkUsageLimit, getUserTier } from "@/lib/usage-tracking";
+import { TIER_CONFIGS } from "@/lib/subscription";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +15,33 @@ export async function POST(req: NextRequest) {
 
     if (!spotId) {
       return NextResponse.json({ error: "Spot ID is required" }, { status: 400 });
+    }
+
+    // Check saved spots limit
+    const tier = await getUserTier(userId);
+    const usage = await checkUsageLimit(userId, "spots_saved", tier);
+
+    if (!usage.allowed) {
+      return NextResponse.json(
+        {
+          error: "limit_exceeded",
+          message: `You've reached your limit of ${usage.limit} saved spots.`,
+          usage: {
+            current: usage.currentUsage,
+            limit: usage.limit,
+          },
+          upgrade: tier === "free" ? {
+            suggestion: "Upgrade to Pro for more saved spots",
+            tier: "pro",
+            price: TIER_CONFIGS.pro.price,
+          } : tier === "pro" ? {
+            suggestion: "Upgrade to Premium for unlimited saved spots",
+            tier: "premium",
+            price: TIER_CONFIGS.premium.price,
+          } : null,
+        },
+        { status: 429 }
+      );
     }
 
     const supabase = createSupabaseAdmin();

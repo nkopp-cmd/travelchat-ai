@@ -7,6 +7,7 @@ import { Map, Menu, Compass, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { SubscriptionBadge } from "@/components/subscription";
 
 const routes = [
     {
@@ -105,7 +106,10 @@ export function Navbar() {
 
                 <div className="flex items-center gap-4">
                     {isSignedIn ? (
-                        <UserButton afterSignOutUrl="/" />
+                        <>
+                            <SubscriptionBadge className="hidden sm:flex" />
+                            <UserButton afterSignOutUrl="/" />
+                        </>
                     ) : (
                         <div className="flex items-center gap-2">
                             <Link href="/sign-in">

@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { chatSchema, validateBody } from "@/lib/validations";
+import { checkAndTrackUsage, trackSuccessfulUsage } from "@/lib/usage-tracking";
+import { TIER_CONFIGS } from "@/lib/subscription";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -66,6 +68,29 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        // Check usage limits
+        const { allowed, usage, tier } = await checkAndTrackUsage(userId, "chat_messages");
+
+        if (!allowed) {
+            return NextResponse.json(
+                {
+                    error: "limit_exceeded",
+                    message: `You've reached your limit of ${usage.limit} messages today.`,
+                    usage: {
+                        current: usage.currentUsage,
+                        limit: usage.limit,
+                        resetAt: usage.periodResetAt,
+                    },
+                    upgrade: tier === "free" ? {
+                        suggestion: "Upgrade to Pro for more messages",
+                        tier: "pro",
+                        price: TIER_CONFIGS.pro.price,
+                    } : null,
+                },
+                { status: 429 }
+            );
+        }
+
         const validation = await validateBody(req, chatSchema);
         if (!validation.success) {
             return NextResponse.json({ error: validation.error }, { status: 400 });
@@ -83,6 +108,9 @@ export async function POST(req: NextRequest) {
         });
 
         const reply = response.choices[0].message.content;
+
+        // Track successful usage
+        await trackSuccessfulUsage(userId, "chat_messages");
 
         return NextResponse.json({ message: reply });
     } catch (error) {

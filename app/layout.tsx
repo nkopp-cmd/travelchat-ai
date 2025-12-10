@@ -55,6 +55,7 @@ export const metadata: Metadata = {
 
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
 import { Toaster } from "@/components/ui/toaster";
+import { Providers } from "@/providers";
 
 export default function RootLayout({
   children,
@@ -80,9 +81,11 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
-          <ConditionalNavbar />
-          <main className="flex-1">{children}</main>
-          <Toaster />
+          <Providers>
+            <ConditionalNavbar />
+            <main className="flex-1">{children}</main>
+            <Toaster />
+          </Providers>
         </body>
       </html>
     </ClerkProvider>

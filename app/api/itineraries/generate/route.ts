@@ -4,6 +4,8 @@ import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { addThumbnailsToItinerary } from '@/lib/activity-images';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
+import { checkAndTrackUsage, trackSuccessfulUsage } from '@/lib/usage-tracking';
+import { TIER_CONFIGS } from '@/lib/subscription';
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -106,6 +108,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized. Please sign in.' },
         { status: 401 }
+      );
+    }
+
+    // Check usage limits before proceeding
+    const { allowed, usage, tier } = await checkAndTrackUsage(userId, "itineraries_created");
+
+    if (!allowed) {
+      const tierConfig = TIER_CONFIGS[tier];
+      return NextResponse.json(
+        {
+          error: "limit_exceeded",
+          message: `You've reached your limit of ${usage.limit} itineraries this month.`,
+          usage: {
+            current: usage.currentUsage,
+            limit: usage.limit,
+            resetAt: usage.periodResetAt,
+          },
+          upgrade: tier === "free" ? {
+            suggestion: "Upgrade to Pro for unlimited itineraries",
+            tier: "pro",
+            price: TIER_CONFIGS.pro.price,
+          } : tier === "pro" ? {
+            suggestion: "Upgrade to Premium for priority support",
+            tier: "premium",
+            price: TIER_CONFIGS.premium.price,
+          } : null,
+        },
+        { status: 429 }
       );
     }
 
@@ -254,6 +284,9 @@ Make it exciting, authentic, and full of hidden gems!
     } else {
       console.error('Cannot save itinerary: no user_id found');
     }
+
+    // Track successful usage
+    await trackSuccessfulUsage(userId, "itineraries_created");
 
     // Award XP for creating itinerary (fire and forget)
     try {

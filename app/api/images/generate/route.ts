@@ -9,6 +9,8 @@ import {
 } from "@/lib/imagen";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
+import { checkAndTrackUsage, trackSuccessfulUsage, getUserTier } from "@/lib/usage-tracking";
+import { TIER_CONFIGS } from "@/lib/subscription";
 
 // Rate limit: 10 image generations per minute per user
 const limiter = rateLimit({
@@ -59,6 +61,48 @@ export async function POST(req: NextRequest) {
 
         const body: GenerateRequest = await req.json();
         const { type, cacheKey } = body;
+
+        // Check if user's tier allows AI image generation
+        const tier = await getUserTier(userId);
+        const tierConfig = TIER_CONFIGS[tier];
+
+        if (tierConfig.features.activityImages !== "ai-generated") {
+            return NextResponse.json(
+                {
+                    error: "feature_restricted",
+                    message: "AI image generation is a Pro feature.",
+                    upgrade: {
+                        suggestion: "Upgrade to Pro to generate AI images",
+                        tier: "pro",
+                        price: TIER_CONFIGS.pro.price,
+                    },
+                },
+                { status: 403 }
+            );
+        }
+
+        // Check usage limits
+        const { allowed, usage } = await checkAndTrackUsage(userId, "ai_images_generated");
+
+        if (!allowed) {
+            return NextResponse.json(
+                {
+                    error: "limit_exceeded",
+                    message: `You've reached your limit of ${usage.limit} AI images this month.`,
+                    usage: {
+                        current: usage.currentUsage,
+                        limit: usage.limit,
+                        resetAt: usage.periodResetAt,
+                    },
+                    upgrade: tier === "pro" ? {
+                        suggestion: "Upgrade to Premium for more AI images",
+                        tier: "premium",
+                        price: TIER_CONFIGS.premium.price,
+                    } : null,
+                },
+                { status: 429 }
+            );
+        }
 
         // Check cache first if cacheKey provided
         if (cacheKey) {
@@ -164,6 +208,9 @@ export async function POST(req: NextRequest) {
                     upsert: true,
                 });
         }
+
+        // Track successful usage
+        await trackSuccessfulUsage(userId, "ai_images_generated");
 
         return NextResponse.json({
             success: true,
