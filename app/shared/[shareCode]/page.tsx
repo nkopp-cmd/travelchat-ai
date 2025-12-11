@@ -8,6 +8,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SharedActions } from "./shared-actions";
+import { ItineraryJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 // Generate dynamic metadata for social sharing
 export async function generateMetadata(
@@ -144,19 +145,39 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
         : itinerary.activities;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50">
-            <div className="max-w-5xl mx-auto space-y-8 p-4 pb-16">
-                {/* Header with branding */}
-                <div className="flex items-center justify-between pt-4">
-                    <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        <Home className="h-4 w-4" />
-                        Back to Localley
-                    </Link>
-                    <div className="text-right">
-                        <div className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                            Localley
-                        </div>
-                        <p className="text-xs text-muted-foreground">Shared Itinerary</p>
+        <>
+            {/* JSON-LD Structured Data */}
+            <ItineraryJsonLd
+                title={itinerary.title}
+                description={itinerary.highlights?.join(". ")}
+                city={itinerary.city}
+                days={itinerary.days}
+                highlights={itinerary.highlights}
+                url={`/shared/${shareCode}`}
+                createdAt={itinerary.createdAt}
+                localScore={itinerary.localScore}
+            />
+            <BreadcrumbJsonLd
+                items={[
+                    { name: "Home", url: "/" },
+                    { name: "Explore", url: "/explore" },
+                    { name: itinerary.title, url: `/shared/${shareCode}` },
+                ]}
+            />
+
+            <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50">
+                <div className="max-w-5xl mx-auto space-y-8 p-4 pb-16">
+                    {/* Header with branding */}
+                    <div className="flex items-center justify-between pt-4">
+                        <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            <Home className="h-4 w-4" />
+                            Back to Localley
+                        </Link>
+                        <div className="text-right">
+                            <div className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                                Localley
+                            </div>
+                            <p className="text-xs text-muted-foreground">Shared Itinerary</p>
                     </div>
                 </div>
 
@@ -379,5 +400,6 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                 </Card>
             </div>
         </div>
+        </>
     );
 }

@@ -5,9 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Itinerary Templates - Localley",
-  description: "Start your trip planning with our curated itinerary templates for every travel style",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Itinerary Templates - Curated Travel Plans | Localley",
+  description: "Start your trip planning with our AI-powered itinerary templates. Curated plans for every travel style - relaxed, moderate, or active adventures.",
+  keywords: "itinerary templates, travel planning, trip templates, vacation planner, AI travel, trip itinerary",
+  openGraph: {
+    title: "Itinerary Templates | Localley",
+    description: "Jump-start your trip planning with curated templates designed for every travel style.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Itinerary Templates | Localley",
+    description: "Jump-start your trip planning with curated templates designed for every travel style.",
+  },
 };
 
 export default function TemplatesPage() {

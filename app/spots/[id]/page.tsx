@@ -10,6 +10,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
+import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import type { Metadata } from "next";
 
 // Helper to parse multi-language fields
@@ -129,11 +130,32 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     const city = spot.location.address.split(',')[0].trim();
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
-            <Link href="/dashboard" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Explore
-            </Link>
+        <>
+            {/* JSON-LD Structured Data */}
+            <SpotJsonLd
+                name={spot.name}
+                description={spot.description}
+                category={spot.category}
+                address={spot.location.address}
+                lat={spot.location.lat}
+                lng={spot.location.lng}
+                imageUrl={spot.photos[0]}
+                url={`/spots/${id}`}
+                localleyScore={spot.localleyScore}
+            />
+            <BreadcrumbJsonLd
+                items={[
+                    { name: "Home", url: "/" },
+                    { name: "Spots", url: "/spots" },
+                    { name: spot.name, url: `/spots/${id}` },
+                ]}
+            />
+
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <Link href="/dashboard" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Explore
+                </Link>
 
             <div className="relative aspect-[21/9] w-full rounded-3xl overflow-hidden shadow-2xl">
                 <Image
@@ -259,5 +281,6 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                 </div>
             </div>
         </div>
+        </>
     );
 }

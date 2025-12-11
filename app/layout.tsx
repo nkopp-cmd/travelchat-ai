@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
+import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,10 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Localley - AI Travel Companion",
+    default: "Localley - AI Travel Companion | Discover Hidden Gems",
     template: "%s | Localley",
   },
-  description: "Discover hidden gems and trendy spots with your AI travel companion. Experience cities like a local.",
+  description: "Discover hidden gems and trendy spots with your AI travel companion. Experience cities like a local with personalized itineraries for Seoul, Tokyo, Bangkok, and Singapore.",
+  keywords: "AI travel companion, hidden gems, local spots, travel itinerary, Seoul travel, Tokyo guide, Bangkok tips, Singapore attractions, trip planner",
   manifest: "/manifest.json",
   themeColor: "#7c3aed",
   appleWebApp: {
@@ -28,6 +30,17 @@ export const metadata: Metadata = {
   },
   formatDetection: {
     telephone: false,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   openGraph: {
     title: "Localley - AI Travel Companion",
@@ -39,7 +52,7 @@ export const metadata: Metadata = {
         url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop",
         width: 1200,
         height: 630,
-        alt: "Localley App Interface",
+        alt: "Localley - AI Travel Companion App",
       },
     ],
     locale: "en_US",
@@ -50,6 +63,15 @@ export const metadata: Metadata = {
     title: "Localley - AI Travel Companion",
     description: "Discover hidden gems and trendy spots with your AI travel companion.",
     images: ["https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop"],
+    creator: "@localleyapp",
+  },
+  alternates: {
+    canonical: "https://localley.ai",
+  },
+  verification: {
+    // Add verification IDs when available
+    // google: 'your-google-verification-id',
+    // yandex: 'your-yandex-verification-id',
   },
 };
 
@@ -78,6 +100,10 @@ export default function RootLayout({
       afterSignUpUrl="/dashboard"
     >
       <html lang="en">
+        <head>
+          <OrganizationJsonLd />
+          <WebsiteJsonLd />
+        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >

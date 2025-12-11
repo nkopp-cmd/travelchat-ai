@@ -3,9 +3,22 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { ExploreContent } from "./explore-content";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const metadata = {
-    title: "Explore Itineraries | Localley",
-    description: "Discover community-created travel itineraries. Browse hidden gems and local favorites from travelers around the world.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Explore Itineraries - Community Travel Plans | Localley",
+    description: "Discover community-created travel itineraries. Browse hidden gems, local favorites, and insider travel plans from travelers around the world.",
+    keywords: "travel itineraries, trip plans, hidden gems, local spots, community travel, travel inspiration",
+    openGraph: {
+        title: "Explore Community Itineraries | Localley",
+        description: "Browse travel itineraries created by our community. Find inspiration for your next adventure.",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Explore Community Itineraries | Localley",
+        description: "Browse travel itineraries created by our community. Find inspiration for your next adventure.",
+    },
 };
 
 interface PublicItinerary {

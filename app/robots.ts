@@ -7,16 +7,22 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: [
+          '/',
+          '/explore',
+          '/spots/',
+          '/shared/',
+          '/templates',
+          '/pricing',
+        ],
         disallow: [
           '/api/',
           '/dashboard',
-          '/itineraries/new',
-          '/itineraries/*/edit',
+          '/itineraries/',
           '/profile',
           '/settings',
-          '/sign-in',
-          '/sign-up',
+          '/challenges',
+          '/leaderboard',
         ],
       },
       {
@@ -25,6 +31,14 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'ChatGPT-User',
+        disallow: '/',
+      },
+      {
+        userAgent: 'CCBot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'anthropic-ai',
         disallow: '/',
       },
     ],
