@@ -171,36 +171,40 @@ export default async function ProfilePage() {
     });
 
     return (
-        <div className="max-w-4xl mx-auto p-4 space-y-8 animate-in fade-in duration-500">
+        <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in fade-in duration-500">
             {/* Profile Header */}
-            <div className="relative rounded-3xl overflow-hidden border border-border/40 bg-background/60 backdrop-blur-sm shadow-xl">
-                <div className="h-32 bg-gradient-to-r from-violet-600 to-indigo-600" />
-                <div className="px-8 pb-8">
-                    <div className="relative flex flex-col md:flex-row justify-between items-start md:items-end -mt-12 mb-6 gap-4">
-                        <div className="flex items-end gap-6">
-                            <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-border/40 bg-background/60 backdrop-blur-sm shadow-xl">
+                <div className="h-24 sm:h-32 bg-gradient-to-r from-violet-600 to-indigo-600" />
+                <div className="px-4 sm:px-8 pb-6 sm:pb-8">
+                    <div className="relative flex flex-col md:flex-row justify-between items-start md:items-end -mt-10 sm:-mt-12 mb-4 sm:mb-6 gap-4">
+                        <div className="flex items-end gap-4 sm:gap-6">
+                            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-background shadow-lg">
                                 <AvatarImage src={user.imageUrl} />
-                                <AvatarFallback className="text-2xl bg-slate-200 dark:bg-slate-800">
+                                <AvatarFallback className="text-xl sm:text-2xl bg-slate-200 dark:bg-slate-800">
                                     {user.firstName?.[0]}{user.lastName?.[0]}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="mb-1">
-                                <h1 className="text-2xl font-bold">
+                                <h1 className="text-xl sm:text-2xl font-bold">
                                     {user.firstName} {user.lastName}
                                 </h1>
-                                <p className="text-muted-foreground">
+                                <p className="text-sm sm:text-base text-muted-foreground">
                                     @{user.username || user.emailAddresses[0].emailAddress.split("@")[0]}
                                 </p>
                             </div>
                         </div>
                         <div className="flex gap-2 mb-1">
-                            <Button variant="outline" size="sm">
-                                <Settings className="mr-2 h-4 w-4" />
-                                Edit Profile
-                            </Button>
+                            <Link href="/settings">
+                                <Button variant="outline" size="sm">
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">Edit Profile</span>
+                                    <span className="sm:hidden">Edit</span>
+                                </Button>
+                            </Link>
                             <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
                                 <Share2 className="mr-2 h-4 w-4" />
-                                Share Profile
+                                <span className="hidden sm:inline">Share Profile</span>
+                                <span className="sm:hidden">Share</span>
                             </Button>
                         </div>
                     </div>
