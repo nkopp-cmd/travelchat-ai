@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { SubscriptionBadge } from "@/components/subscription";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 
 const routes = [
     {
@@ -104,10 +105,11 @@ export function Navbar() {
                     ))}
                 </nav>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     {isSignedIn ? (
                         <>
                             <SubscriptionBadge className="hidden sm:flex" />
+                            <NotificationCenter />
                             <UserButton afterSignOutUrl="/" />
                         </>
                     ) : (

@@ -15,6 +15,7 @@ import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import Link from "next/link";
 import { BillingPortalButton } from "@/components/subscription/billing-portal-button";
 import { EmailPreferencesSection } from "@/components/settings/email-preferences";
+import { NotificationPreferencesSection } from "@/components/settings/notification-preferences";
 
 async function getSubscriptionData() {
     const { userId } = await auth();
@@ -370,25 +371,24 @@ export default async function SettingsPage() {
                 </CardContent>
             </Card>
 
-            {/* Preferences */}
+            {/* Notification Preferences */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Notification Preferences</CardTitle>
+                    <CardDescription>Control how and when you receive notifications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <NotificationPreferencesSection />
+                </CardContent>
+            </Card>
+
+            {/* App Preferences */}
             <Card>
                 <CardHeader>
                     <CardTitle>App Preferences</CardTitle>
                     <CardDescription>Customize your Localley experience</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="notifications">Push Notifications</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Receive updates about new spots and itineraries
-                            </p>
-                        </div>
-                        <Switch id="notifications" />
-                    </div>
-
-                    <Separator />
-
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                             <Label htmlFor="location">Auto-detect Location</Label>
