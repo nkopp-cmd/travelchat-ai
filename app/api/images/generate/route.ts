@@ -66,7 +66,10 @@ export async function POST(req: NextRequest) {
         const tier = await getUserTier(userId);
         const tierConfig = TIER_CONFIGS[tier];
 
-        if (tierConfig.features.activityImages !== "ai-generated") {
+        // Allow bypass in development/testing with env variable
+        const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
+
+        if (!bypassTierCheck && tierConfig.features.activityImages !== "ai-generated") {
             return NextResponse.json(
                 {
                     error: "feature_restricted",
@@ -81,27 +84,29 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check usage limits
-        const { allowed, usage } = await checkAndTrackUsage(userId, "ai_images_generated");
+        // Check usage limits (skip if bypassing tier checks for testing)
+        if (!bypassTierCheck) {
+            const { allowed, usage } = await checkAndTrackUsage(userId, "ai_images_generated");
 
-        if (!allowed) {
-            return NextResponse.json(
-                {
-                    error: "limit_exceeded",
-                    message: `You've reached your limit of ${usage.limit} AI images this month.`,
-                    usage: {
-                        current: usage.currentUsage,
-                        limit: usage.limit,
-                        resetAt: usage.periodResetAt,
+            if (!allowed) {
+                return NextResponse.json(
+                    {
+                        error: "limit_exceeded",
+                        message: `You've reached your limit of ${usage.limit} AI images this month.`,
+                        usage: {
+                            current: usage.currentUsage,
+                            limit: usage.limit,
+                            resetAt: usage.periodResetAt,
+                        },
+                        upgrade: tier === "pro" ? {
+                            suggestion: "Upgrade to Premium for more AI images",
+                            tier: "premium",
+                            price: TIER_CONFIGS.premium.price,
+                        } : null,
                     },
-                    upgrade: tier === "pro" ? {
-                        suggestion: "Upgrade to Premium for more AI images",
-                        tier: "premium",
-                        price: TIER_CONFIGS.premium.price,
-                    } : null,
-                },
-                { status: 429 }
-            );
+                    { status: 429 }
+                );
+            }
         }
 
         // Check cache first if cacheKey provided
