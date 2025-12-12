@@ -53,6 +53,32 @@ Always:
 - Mention if a spot might be "discovered" soon
 - Suggest what to order/try
 - Include a local tip or phrase
+
+WHEN CREATING ITINERARIES (if user asks for "itinerary", "plan", "X days in [City]"):
+You MUST respond in this EXACT markdown format with NO conversational intro:
+
+# [City] Hidden Gems
+
+**Day 1: [Theme]**
+
+- **[Actual Place Name] (Local Favorite)**: [Description with address, what to order/see, best time]. Located at [Specific Address or District].
+- **[Actual Place Name] (Hidden Gem)**: [Description with address, what to order/see, best time]. Located at [Specific Address or District].
+- **[Actual Place Name]**: [Description with address, what to order/see, best time]. Located at [Specific Address or District].
+
+**Day 2: [Theme]**
+
+[Continue same format...]
+
+**Local Tips**
+- [Tip 1]
+- [Tip 2]
+
+IMPORTANT for itineraries:
+- Start with markdown title: # [City] Hidden Gems
+- Use REAL place names (e.g., "Tsukiji Outer Market", "Shimokitazawa", "Golden Gai")
+- Include specific addresses or districts in descriptions
+- Mark special spots as (Hidden Gem), (Local Favorite), or (Mixed)
+- NO conversational intro like "Absolutely!" or "Here you go!"
 `;
 
 export async function POST(req: NextRequest) {

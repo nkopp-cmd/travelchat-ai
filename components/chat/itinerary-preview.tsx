@@ -165,15 +165,26 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
                 day: index + 1,
                 theme: day.day,
                 activities: day.activities.map((act, actIndex) => {
-                    // Try to extract address from description if it contains location info
-                    const addressMatch = act.description.match(/(?:at|located|address:|@)\s+([^.]+(?:Street|Road|Ave|Avenue|District|Building)[^.]*)/i);
-                    const extractedAddress = addressMatch ? addressMatch[1].trim() : "";
+                    // Try to extract address from description (multiple patterns)
+                    let extractedAddress = "";
+
+                    // Pattern 1: "Located at [address]"
+                    const locatedAtMatch = act.description.match(/Located at ([^.]+)/i);
+                    if (locatedAtMatch) {
+                        extractedAddress = locatedAtMatch[1].trim();
+                    } else {
+                        // Pattern 2: Address with Street/Road/District/Building
+                        const addressMatch = act.description.match(/(?:at|in|address:|@)\s+([^.]+(?:Street|Road|Ave|Avenue|District|Building|Ward|Area)[^.]*)/i);
+                        if (addressMatch) {
+                            extractedAddress = addressMatch[1].trim();
+                        }
+                    }
 
                     return {
                         time: `${9 + actIndex * 2}:00 AM`, // Generate approximate times
                         type: actIndex < 2 ? "morning" : actIndex < 4 ? "afternoon" : "evening",
                         name: act.title,
-                        address: extractedAddress || `${city}`, // Use city as fallback for geocoding
+                        address: extractedAddress || `${act.title}, ${city}`, // Use place name + city for better geocoding
                         description: act.description,
                         category: "attraction", // Default category
                         localleyScore: act.type === 'hidden-gem' ? 6 : act.type === 'local-favorite' ? 5 : 4,
