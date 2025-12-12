@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.GOOGLE_AI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
-    console.warn("GOOGLE_AI_API_KEY is not set. Image generation will be disabled.");
+    console.warn("GEMINI_API_KEY is not set. Image generation will be disabled.");
 }
 
 // Imagen 3 model for high-quality image generation
@@ -37,7 +37,7 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
     const { prompt, numberOfImages = 1 } = options;
 
     if (!apiKey) {
-        throw new Error("Image generation is not configured. Please add GOOGLE_AI_API_KEY.");
+        throw new Error("Image generation is not configured. Please add GEMINI_API_KEY.");
     }
 
     const ai = getGoogleAI();

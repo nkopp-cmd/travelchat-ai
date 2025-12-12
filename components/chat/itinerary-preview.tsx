@@ -24,9 +24,38 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
     const { toast } = useToast();
 
     // Parse the itinerary content
-    const parseItinerary = (): { title: string; days: ParsedDay[] } => {
+    const parseItinerary = (): { title: string; city: string; days: ParsedDay[] } => {
         const lines = content.split('\n');
-        const title = lines[0]?.replace(/^[#*]+\s*|\*+$/g, '').trim() || "Your Itinerary";
+        const fullTitle = lines[0]?.replace(/^[#*]+\s*|\*+$/g, '').trim() || "Your Itinerary";
+
+        // Extract city from title (multiple patterns)
+        // Pattern 1: "X Days in [City]" or "in [City]"
+        // Pattern 2: "[City] Adventure" or "[City]:" at start
+        let city = "";
+        const inCityMatch = fullTitle.match(/in\s+([A-Za-z\s]+?)(?:\s*[:\-,]|$)/i);
+        const cityFirstMatch = fullTitle.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:Adventure|Guide|Trip|Experience|Itinerary)/i);
+        const cityColonMatch = fullTitle.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?):\s+/);
+
+        if (inCityMatch) {
+            city = inCityMatch[1].trim();
+        } else if (cityFirstMatch) {
+            city = cityFirstMatch[1].trim();
+        } else if (cityColonMatch) {
+            city = cityColonMatch[1].trim();
+        }
+
+        // Create SHORT title (3-5 words max) following form itinerary format
+        let title = fullTitle;
+        const words = fullTitle.split(/\s+/);
+        if (words.length > 5) {
+            // Try to extract meaningful short title
+            if (city) {
+                title = `${city} Hidden Gems`;
+            } else {
+                title = words.slice(0, 4).join(' ');
+            }
+        }
+
         const days: ParsedDay[] = [];
         let currentDay: ParsedDay | null = null;
 
@@ -124,31 +153,34 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
         });
 
         if (currentDay) days.push(currentDay);
-        return { title, days };
+        return { title, city: city || "Unknown City", days };
     };
 
-    const { title, days } = parseItinerary();
+    const { title, city, days } = parseItinerary();
 
     const handleSave = async () => {
         try {
-            // Extract city from title (assumes format like "X Days in [City]")
-            const cityMatch = title.match(/in\s+([^,]+)/i);
-            const city = cityMatch ? cityMatch[1].trim() : "Unknown City";
-
             // Convert parsed days to API format
             const activities = days.map((day, index) => ({
                 day: index + 1,
                 theme: day.day,
-                activities: day.activities.map((act, actIndex) => ({
-                    time: `${9 + actIndex * 2}:00 AM`, // Generate approximate times
-                    type: actIndex < 2 ? "morning" : actIndex < 4 ? "afternoon" : "evening",
-                    name: act.title,
-                    address: "", // Not available from chat format
-                    description: act.description,
-                    localleyScore: act.type === 'hidden-gem' ? 6 : act.type === 'local-favorite' ? 5 : 4,
-                    duration: "1-2 hours",
-                    cost: "$10-30"
-                }))
+                activities: day.activities.map((act, actIndex) => {
+                    // Try to extract address from description if it contains location info
+                    const addressMatch = act.description.match(/(?:at|located|address:|@)\s+([^.]+(?:Street|Road|Ave|Avenue|District|Building)[^.]*)/i);
+                    const extractedAddress = addressMatch ? addressMatch[1].trim() : "";
+
+                    return {
+                        time: `${9 + actIndex * 2}:00 AM`, // Generate approximate times
+                        type: actIndex < 2 ? "morning" : actIndex < 4 ? "afternoon" : "evening",
+                        name: act.title,
+                        address: extractedAddress || `${city}`, // Use city as fallback for geocoding
+                        description: act.description,
+                        category: "attraction", // Default category
+                        localleyScore: act.type === 'hidden-gem' ? 6 : act.type === 'local-favorite' ? 5 : 4,
+                        duration: "1-2 hours",
+                        cost: "$10-30"
+                    };
+                })
             }));
 
             // Save to database via API
