@@ -52,12 +52,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
             .catch(() => setAiAvailable(false));
     }, []);
 
-    const generateSlides = () => {
+    const generateSlides = (aiBackgrounds?: { cover?: string; summary?: string }) => {
         const generatedSlides: StorySlide[] = [
             {
                 type: "cover",
                 label: "Cover",
-                url: `/api/itineraries/${itineraryId}/story?slide=cover`,
+                url: `/api/itineraries/${itineraryId}/story?slide=cover${aiBackgrounds?.cover ? `&bg=${encodeURIComponent(aiBackgrounds.cover)}` : ""}`,
+                aiBackground: aiBackgrounds?.cover,
             },
         ];
 
@@ -73,7 +74,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
         generatedSlides.push({
             type: "summary",
             label: "Summary",
-            url: `/api/itineraries/${itineraryId}/story?slide=summary`,
+            url: `/api/itineraries/${itineraryId}/story?slide=summary${aiBackgrounds?.summary ? `&bg=${encodeURIComponent(aiBackgrounds.summary)}` : ""}`,
+            aiBackground: aiBackgrounds?.summary,
         });
 
         return generatedSlides;
@@ -116,9 +118,9 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
     const handleGenerate = async () => {
         setIsGenerating(true);
         try {
-            const generatedSlides = generateSlides();
+            let aiBackgrounds: { cover?: string; summary?: string } = {};
 
-            // If AI backgrounds enabled, generate them
+            // If AI backgrounds enabled, generate them first
             if (useAiBackgrounds && aiAvailable && city) {
                 setGeneratingAi(true);
                 toast({
@@ -128,14 +130,24 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
 
                 // Generate cover background
                 const coverBg = await generateAiBackground("iconic landmarks and cityscape");
-                if (coverBg) generatedSlides[0].aiBackground = coverBg;
+                if (coverBg) {
+                    aiBackgrounds.cover = coverBg;
+                    console.log("[STORY] Cover background set, length:", coverBg.length);
+                }
 
                 // Generate summary background
                 const summaryBg = await generateAiBackground("beautiful travel scenery");
-                if (summaryBg) generatedSlides[generatedSlides.length - 1].aiBackground = summaryBg;
+                if (summaryBg) {
+                    aiBackgrounds.summary = summaryBg;
+                    console.log("[STORY] Summary background set, length:", summaryBg.length);
+                }
 
                 setGeneratingAi(false);
             }
+
+            // Generate slides with AI backgrounds embedded in URLs
+            const generatedSlides = generateSlides(aiBackgrounds);
+            console.log("[STORY] Generated slides:", generatedSlides.map(s => ({ label: s.label, hasAiBg: !!s.aiBackground, urlLength: s.url.length })));
 
             setSlides(generatedSlides);
             setSelectedSlide(0);

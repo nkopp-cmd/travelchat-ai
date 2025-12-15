@@ -22,7 +22,17 @@ interface DayPlan {
 }
 
 // Cover slide template
-function CoverSlide({ title, city, days }: { title: string; city: string; days: number }) {
+function CoverSlide({ title, city, days, backgroundImage }: { title: string; city: string; days: number; backgroundImage?: string }) {
+    const backgroundStyle = backgroundImage
+        ? {
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+        }
+        : {
+            background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+        };
+
     return (
         <div
             style={{
@@ -32,7 +42,7 @@ function CoverSlide({ title, city, days }: { title: string; city: string; days: 
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                ...backgroundStyle,
                 padding: 80,
             }}
         >
@@ -244,7 +254,17 @@ function DaySlide({ dayPlan, dayNumber, totalDays }: { dayPlan: DayPlan; dayNumb
 }
 
 // Summary slide template
-function SummarySlide({ title, city, highlights }: { title: string; city: string; highlights: string[] }) {
+function SummarySlide({ title, city, highlights, backgroundImage }: { title: string; city: string; highlights: string[]; backgroundImage?: string }) {
+    const backgroundStyle = backgroundImage
+        ? {
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+        }
+        : {
+            background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
+        };
+
     return (
         <div
             style={{
@@ -254,7 +274,7 @@ function SummarySlide({ title, city, highlights }: { title: string; city: string
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
+                ...backgroundStyle,
                 padding: 80,
             }}
         >
@@ -347,6 +367,7 @@ export async function GET(
         const { searchParams } = new URL(req.url);
         const slide = searchParams.get("slide") || "cover";
         const dayIndex = parseInt(searchParams.get("day") || "1", 10) - 1;
+        const aiBackground = searchParams.get("bg"); // AI-generated background (base64 data URL)
 
         const supabase = createSupabaseAdmin();
 
@@ -373,6 +394,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         days={itinerary.days}
+                        backgroundImage={aiBackground || undefined}
                     />
                 );
                 break;
@@ -397,6 +419,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         highlights={itinerary.highlights || []}
+                        backgroundImage={aiBackground || undefined}
                     />
                 );
                 break;
