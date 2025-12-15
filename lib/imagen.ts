@@ -45,15 +45,24 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
     try {
         // Use generateContent with responseModalities for image generation
+        // IMPORTANT: aspectRatio must be passed correctly to ensure proper image dimensions
+        const config: any = {
+            responseModalities: ['IMAGE'], // Only return images, no text
+        };
+
+        // Always set imageConfig with aspectRatio to ensure proper dimensions
+        if (aspectRatio) {
+            config.imageConfig = {
+                aspectRatio: aspectRatio
+            };
+        }
+
+        console.log("[IMAGEN] Generating image with config:", JSON.stringify(config));
+
         const response = await ai.models.generateContent({
             model: IMAGE_MODEL,
             contents: [prompt],
-            config: {
-                responseModalities: ['IMAGE'], // Only return images, no text
-                imageConfig: aspectRatio ? {
-                    aspectRatio: aspectRatio
-                } : undefined
-            },
+            config: config,
         });
 
         const images: GeneratedImage[] = [];
@@ -65,8 +74,14 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
                 if (candidate.content && candidate.content.parts) {
                     for (const part of candidate.content.parts) {
                         if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
+                            const imageData = part.inlineData.data || "";
+                            console.log("[IMAGEN] Generated image:", {
+                                mimeType: part.inlineData.mimeType,
+                                dataLength: imageData.length,
+                                requestedAspectRatio: aspectRatio
+                            });
                             images.push({
-                                imageBytes: part.inlineData.data || "",
+                                imageBytes: imageData,
                                 mimeType: part.inlineData.mimeType || "image/png",
                             });
                         }
