@@ -89,6 +89,7 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
 /**
  * Generate a travel/city themed background image for stories
+ * Optimized for 9:16 aspect ratio (1080x1920 Instagram/TikTok stories)
  */
 export async function generateStoryBackground(
     city: string,
@@ -96,14 +97,25 @@ export async function generateStoryBackground(
     style: "vibrant" | "minimal" | "artistic" = "vibrant"
 ): Promise<string> {
     const styleDescriptions = {
-        vibrant: "vibrant colors, high contrast, eye-catching",
-        minimal: "minimalist, soft colors, clean aesthetic",
-        artistic: "artistic, painterly, dreamy atmosphere",
+        vibrant: "vibrant saturated colors, dramatic lighting, cinematic composition",
+        minimal: "minimalist clean design, soft pastel colors, serene atmosphere",
+        artistic: "artistic painterly style, dreamy ethereal atmosphere, impressionist",
     };
 
-    const prompt = `A beautiful ${styleDescriptions[style]} travel background image of ${city}, featuring ${theme}. Perfect for a social media story. No text, no people, just stunning scenery. Professional travel photography style, Instagram-worthy.`;
+    // Enhanced prompt for vertical story format with proper composition
+    const prompt = `A stunning vertical photograph of ${city} featuring ${theme}.
+Composition: vertical 9:16 portrait orientation, shot with professional camera.
+Style: ${styleDescriptions[style]}, professional travel photography, award-winning composition.
+Features: iconic recognizable landmarks of ${city}, ${theme}, atmospheric depth, golden hour lighting.
+Quality: ultra high resolution, sharp focus, National Geographic quality, Instagram-worthy.
+Important: NO text, NO people, NO watermarks, NO logos. Pure scenic photography only.
+Framing: full frame vertical composition perfect for mobile story format.`;
 
-    const images = await generateImage({ prompt, numberOfImages: 1 });
+    const images = await generateImage({
+        prompt,
+        numberOfImages: 1,
+        aspectRatio: "9:16" // Explicit 9:16 for story format
+    });
     return images[0]?.imageBytes || "";
 }
 
