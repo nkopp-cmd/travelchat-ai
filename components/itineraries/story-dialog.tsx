@@ -141,20 +141,35 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
                 }
 
                 // Save AI backgrounds to database
-                if (aiBackgrounds.cover || aiBackgrounds.summary) {
-                    console.log("[STORY] Saving AI backgrounds to database...");
-                    const saveResponse = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                // Split into separate requests to avoid 4.5MB Vercel limit
+                if (aiBackgrounds.cover) {
+                    console.log("[STORY] Saving cover background to database...");
+                    const coverResponse = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(aiBackgrounds),
+                        body: JSON.stringify({ cover: aiBackgrounds.cover }),
                     });
 
-                    if (!saveResponse.ok) {
-                        console.error("[STORY] Failed to save AI backgrounds:", await saveResponse.text());
-                        throw new Error("Failed to save AI backgrounds");
+                    if (!coverResponse.ok) {
+                        console.error("[STORY] Failed to save cover background:", await coverResponse.text());
+                        throw new Error("Failed to save cover background");
                     }
+                    console.log("[STORY] Cover background saved successfully");
+                }
 
-                    console.log("[STORY] AI backgrounds saved successfully");
+                if (aiBackgrounds.summary) {
+                    console.log("[STORY] Saving summary background to database...");
+                    const summaryResponse = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ summary: aiBackgrounds.summary }),
+                    });
+
+                    if (!summaryResponse.ok) {
+                        console.error("[STORY] Failed to save summary background:", await summaryResponse.text());
+                        throw new Error("Failed to save summary background");
+                    }
+                    console.log("[STORY] Summary background saved successfully");
                 }
 
                 setGeneratingAi(false);

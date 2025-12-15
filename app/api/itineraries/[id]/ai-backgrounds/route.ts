@@ -51,10 +51,27 @@ export async function PATCH(
             );
         }
 
-        // Build the ai_backgrounds object
-        const aiBackgrounds: { cover?: string; summary?: string } = {};
+        // Fetch existing backgrounds to merge with new ones
+        const { data: existing } = await supabase
+            .from("itineraries")
+            .select("ai_backgrounds")
+            .eq("id", id)
+            .single();
+
+        // Merge new backgrounds with existing ones
+        const existingBackgrounds = (existing?.ai_backgrounds as { cover?: string; summary?: string }) || {};
+        const aiBackgrounds: { cover?: string; summary?: string } = {
+            ...existingBackgrounds,
+        };
         if (cover) aiBackgrounds.cover = cover;
         if (summary) aiBackgrounds.summary = summary;
+
+        console.log("[AI_BACKGROUNDS] Updating with:", {
+            hasCover: !!aiBackgrounds.cover,
+            hasSummary: !!aiBackgrounds.summary,
+            coverLength: aiBackgrounds.cover?.length,
+            summaryLength: aiBackgrounds.summary?.length,
+        });
 
         // Update the itinerary with AI backgrounds
         const { data, error: updateError } = await supabase
