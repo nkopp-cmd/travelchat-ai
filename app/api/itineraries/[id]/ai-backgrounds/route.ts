@@ -3,6 +3,35 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
 /**
+ * Validate that a string is a valid base64-encoded data URL for an image
+ */
+function validateBase64Image(data: string): boolean {
+    // Check it's a data URL with image mime type
+    if (!data.startsWith('data:image/')) return false;
+
+    // Check it has base64 encoding
+    if (!data.includes(';base64,')) return false;
+
+    // Extract and validate base64 content
+    const base64Part = data.split(',')[1];
+    if (!base64Part) return false;
+
+    // Check length is reasonable (not empty, not too large)
+    // Min: 100 chars (~75 bytes), Max: 10MB (~7.5MB base64)
+    if (base64Part.length < 100 || base64Part.length > 10_000_000) {
+        return false;
+    }
+
+    // Validate base64 characters (optional but recommended)
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+    if (!base64Regex.test(base64Part)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * PATCH /api/itineraries/[id]/ai-backgrounds
  * Update AI-generated backgrounds for an itinerary's story slides
  */
@@ -24,6 +53,24 @@ export async function PATCH(
         if (!cover && !summary) {
             return NextResponse.json(
                 { error: "At least one background (cover or summary) is required" },
+                { status: 400 }
+            );
+        }
+
+        // Validate cover image format if provided
+        if (cover && !validateBase64Image(cover)) {
+            console.error("[AI_BACKGROUNDS] Invalid cover image format");
+            return NextResponse.json(
+                { error: "Invalid cover image format. Must be a valid base64-encoded data URL." },
+                { status: 400 }
+            );
+        }
+
+        // Validate summary image format if provided
+        if (summary && !validateBase64Image(summary)) {
+            console.error("[AI_BACKGROUNDS] Invalid summary image format");
+            return NextResponse.json(
+                { error: "Invalid summary image format. Must be a valid base64-encoded data URL." },
                 { status: 400 }
             );
         }
@@ -58,9 +105,18 @@ export async function PATCH(
             .eq("id", id)
             .single();
 
-        // Merge new backgrounds with existing ones
-        const existingBackgrounds = (existing?.ai_backgrounds as { cover?: string; summary?: string }) || {};
-        const aiBackgrounds: { cover?: string; summary?: string } = {
+        // Merge new backgrounds with existing ones (with safer type handling)
+        interface AiBackgrounds {
+            cover?: string;
+            summary?: string;
+        }
+
+        const existingBackgrounds: AiBackgrounds =
+            (existing?.ai_backgrounds && typeof existing.ai_backgrounds === 'object')
+                ? existing.ai_backgrounds as AiBackgrounds
+                : {};
+
+        const aiBackgrounds: AiBackgrounds = {
             ...existingBackgrounds,
         };
         if (cover) aiBackgrounds.cover = cover;

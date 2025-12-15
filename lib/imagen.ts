@@ -21,7 +21,6 @@ const getGoogleAI = () => {
 
 export interface ImageGenerationOptions {
     prompt: string;
-    numberOfImages?: number; // 1-4, default 1
     aspectRatio?: "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
 }
 
@@ -113,7 +112,6 @@ Framing: full frame vertical composition perfect for mobile story format.`;
 
     const images = await generateImage({
         prompt,
-        numberOfImages: 1,
         aspectRatio: "9:16" // Explicit 9:16 for story format
     });
     return images[0]?.imageBytes || "";
@@ -142,9 +140,17 @@ export async function generateActivityThumbnail(
 
     const categoryContext = categoryPrompts[category] || "interesting location, travel destination";
 
-    const prompt = `A beautiful photograph of ${activityName} in ${city}, showing ${categoryContext}. Professional travel photography, high quality, vibrant but natural colors. No text overlays.`;
+    // Enhanced prompt with composition guidance for consistent quality
+    const prompt = `A beautiful photograph of ${activityName} in ${city}, showing ${categoryContext}.
+Composition: square 1:1 format, shot with professional camera, centered subject.
+Style: professional travel photography, vibrant but natural colors, inviting atmosphere.
+Quality: high resolution, sharp focus, Instagram-worthy.
+Important: NO text overlays, NO watermarks, NO logos. Pure photography only.`;
 
-    const images = await generateImage({ prompt, numberOfImages: 1 });
+    const images = await generateImage({
+        prompt,
+        aspectRatio: "1:1" // Square thumbnails for cards
+    });
     return images[0]?.imageBytes || "";
 }
 
@@ -160,7 +166,10 @@ export async function generateItineraryCover(
 
     const prompt = `A stunning travel cover image for a ${days}-day trip to ${city}. The image should evoke ${highlightText}. Beautiful landscape or cityscape, professional travel photography, Instagram-worthy, vibrant colors, no text or people.`;
 
-    const images = await generateImage({ prompt, numberOfImages: 1 });
+    const images = await generateImage({
+        prompt,
+        aspectRatio: "9:16" // Match story format for consistency
+    });
     return images[0]?.imageBytes || "";
 }
 

@@ -256,6 +256,6 @@ export async function POST(req: NextRequest) {
 export async function GET() {
     return NextResponse.json({
         available: isImagenAvailable(),
-        model: "imagen-3.0-generate-002",
+        model: "gemini-2.5-flash-image",
     });
 }
