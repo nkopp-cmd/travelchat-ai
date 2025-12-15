@@ -159,16 +159,29 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
 
                 if (aiBackgrounds.summary) {
                     console.log("[STORY] Saving summary background to database...");
-                    const summaryResponse = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ summary: aiBackgrounds.summary }),
-                    });
 
-                    if (!summaryResponse.ok) {
-                        console.error("[STORY] Failed to save summary background:", await summaryResponse.text());
-                        throw new Error("Failed to save summary background");
+                    // Retry logic for 405 errors (Vercel edge function issue)
+                    let summaryResponse;
+                    let retries = 0;
+                    while (retries < 3) {
+                        summaryResponse = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ summary: aiBackgrounds.summary }),
+                        });
+
+                        if (summaryResponse.ok) break;
+
+                        if (summaryResponse.status === 405 && retries < 2) {
+                            console.warn(`[STORY] Got 405, retrying... (${retries + 1}/3)`);
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s
+                            retries++;
+                        } else {
+                            console.error("[STORY] Failed to save summary background:", await summaryResponse.text());
+                            throw new Error("Failed to save summary background");
+                        }
                     }
+
                     console.log("[STORY] Summary background saved successfully");
                 }
 
