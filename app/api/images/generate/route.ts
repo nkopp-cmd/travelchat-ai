@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
 
         // Check if Imagen is available
         if (!isImagenAvailable()) {
+            console.error("[IMAGE_GEN] Imagen not available - API key not configured");
             return NextResponse.json(
                 { error: "Image generation is not configured" },
                 { status: 503 }
@@ -68,6 +69,15 @@ export async function POST(req: NextRequest) {
 
         // Allow bypass in development/testing with env variable
         const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
+
+        console.log("[IMAGE_GEN] Request details:", {
+            userId,
+            tier,
+            type,
+            bypassTierCheck,
+            hasApiKey: !!process.env.GEMINI_API_KEY || !!process.env.GOOGLE_AI_API_KEY,
+            activityImagesFeature: tierConfig.features.activityImages
+        });
 
         if (!bypassTierCheck && tierConfig.features.activityImages !== "ai-generated") {
             return NextResponse.json(
@@ -129,6 +139,8 @@ export async function POST(req: NextRequest) {
 
         let imageBase64: string;
 
+        console.log("[IMAGE_GEN] Starting image generation for type:", type);
+
         switch (type) {
             case "story_background": {
                 if (!body.city || !body.theme) {
@@ -137,11 +149,13 @@ export async function POST(req: NextRequest) {
                         { status: 400 }
                     );
                 }
+                console.log("[IMAGE_GEN] Generating story background:", body.city, body.theme);
                 imageBase64 = await generateStoryBackground(
                     body.city,
                     body.theme,
                     body.style || "vibrant"
                 );
+                console.log("[IMAGE_GEN] Story background generated, length:", imageBase64.length);
                 break;
             }
 
@@ -223,10 +237,15 @@ export async function POST(req: NextRequest) {
             cached: false,
         });
     } catch (error) {
-        console.error("Image generation error:", error);
+        console.error("[IMAGE_GEN] Error details:", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            name: error instanceof Error ? error.name : undefined
+        });
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : "Failed to generate image",
+                details: error instanceof Error ? error.stack : String(error)
             },
             { status: 500 }
         );

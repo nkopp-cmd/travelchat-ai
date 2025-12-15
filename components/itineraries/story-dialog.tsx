@@ -81,24 +81,34 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
 
     const generateAiBackground = async (theme: string): Promise<string | undefined> => {
         if (!city) return undefined;
+        console.log("[STORY] Generating AI background for:", { city, theme });
         try {
+            const requestBody = {
+                type: "story_background",
+                city,
+                theme,
+                style: "vibrant",
+                cacheKey: `story-${itineraryId}-${theme.replace(/\s+/g, "-").toLowerCase()}`,
+            };
+            console.log("[STORY] Sending request to /api/images/generate:", requestBody);
+
             const response = await fetch("/api/images/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type: "story_background",
-                    city,
-                    theme,
-                    style: "vibrant",
-                    cacheKey: `story-${itineraryId}-${theme.replace(/\s+/g, "-").toLowerCase()}`,
-                }),
+                body: JSON.stringify(requestBody),
             });
+
+            console.log("[STORY] Response status:", response.status);
             const data = await response.json();
+            console.log("[STORY] Response data:", { success: data.success, hasImage: !!data.image, error: data.error });
+
             if (data.success && data.image) {
                 return `data:image/png;base64,${data.image}`;
+            } else if (data.error) {
+                console.error("[STORY] API returned error:", data.error, data.details);
             }
         } catch (error) {
-            console.error("AI background generation failed:", error);
+            console.error("[STORY] AI background generation failed:", error);
         }
         return undefined;
     };
