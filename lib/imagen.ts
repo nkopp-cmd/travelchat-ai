@@ -45,14 +45,14 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
     const ai = getGoogleAI();
 
     try {
-        // Use generateContent with response_modalities for image generation
+        // Use generateContent with responseModalities for image generation
         const response = await ai.models.generateContent({
             model: IMAGE_MODEL,
             contents: [prompt],
             config: {
-                response_modalities: ['IMAGE'], // Only return images, no text
-                image_config: aspectRatio ? {
-                    aspect_ratio: aspectRatio
+                responseModalities: ['IMAGE'], // Only return images, no text
+                imageConfig: aspectRatio ? {
+                    aspectRatio: aspectRatio
                 } : undefined
             },
         });
@@ -61,10 +61,10 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
         // Extract images from response parts
         for (const part of response.parts || []) {
-            if (part.inline_data && part.inline_data.mime_type?.startsWith('image/')) {
+            if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
                 images.push({
-                    imageBytes: part.inline_data.data || "",
-                    mimeType: part.inline_data.mime_type || "image/png",
+                    imageBytes: part.inlineData.data || "",
+                    mimeType: part.inlineData.mimeType || "image/png",
                 });
             }
         }
