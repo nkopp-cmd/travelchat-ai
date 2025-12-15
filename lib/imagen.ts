@@ -7,20 +7,16 @@ if (!apiKey) {
     console.warn("GEMINI_API_KEY or GOOGLE_AI_API_KEY is not set. Image generation will be disabled.");
 }
 
-// Imagen model for image generation
-// Using v1 API version which supports Imagen models
-const IMAGEN_MODEL = "imagen-3.0-generate-001";
+// Gemini model with native image generation (aka Nano Banana)
+// Fast model optimized for image generation
+const IMAGE_MODEL = "gemini-2.5-flash-image";
 
-// Create Google GenAI client with proper API version for Imagen
+// Create Google GenAI client
 const getGoogleAI = () => {
     if (!apiKey) {
         throw new Error("Google AI API key is not configured");
     }
-    // Imagen requires v1 API version, not v1beta
-    return new GoogleGenAI({
-        apiKey,
-        apiVersion: 'v1'
-    });
+    return new GoogleGenAI({ apiKey });
 };
 
 export interface ImageGenerationOptions {
@@ -35,12 +31,12 @@ export interface GeneratedImage {
 }
 
 /**
- * Generate images using Google Imagen 3
+ * Generate images using Gemini's native image generation (Nano Banana)
  * @param options - Image generation options
  * @returns Array of generated images as base64
  */
 export async function generateImage(options: ImageGenerationOptions): Promise<GeneratedImage[]> {
-    const { prompt, numberOfImages = 1 } = options;
+    const { prompt, aspectRatio } = options;
 
     if (!apiKey) {
         throw new Error("Image generation is not configured. Please add GEMINI_API_KEY or GOOGLE_AI_API_KEY.");
@@ -49,27 +45,37 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
     const ai = getGoogleAI();
 
     try {
-        const response = await ai.models.generateImages({
-            model: IMAGEN_MODEL,
-            prompt,
+        // Use generateContent with response_modalities for image generation
+        const response = await ai.models.generateContent({
+            model: IMAGE_MODEL,
+            contents: [prompt],
             config: {
-                numberOfImages: Math.min(Math.max(numberOfImages, 1), 4),
+                response_modalities: ['IMAGE'], // Only return images, no text
+                image_config: aspectRatio ? {
+                    aspect_ratio: aspectRatio
+                } : undefined
             },
         });
 
-        if (!response.generatedImages || response.generatedImages.length === 0) {
+        const images: GeneratedImage[] = [];
+
+        // Extract images from response parts
+        for (const part of response.parts || []) {
+            if (part.inline_data && part.inline_data.mime_type?.startsWith('image/')) {
+                images.push({
+                    imageBytes: part.inline_data.data || "",
+                    mimeType: part.inline_data.mime_type || "image/png",
+                });
+            }
+        }
+
+        if (images.length === 0) {
             throw new Error("No images were generated");
         }
 
-        return response.generatedImages.map((img) => ({
-            // Note: The API returns base64 data in `data` property, not `imageBytes`
-            imageBytes: (img.image as { data?: string; imageBytes?: string })?.data
-                || (img.image as { data?: string; imageBytes?: string })?.imageBytes
-                || "",
-            mimeType: img.image?.mimeType || "image/png",
-        }));
+        return images;
     } catch (error) {
-        console.error("Imagen generation error:", error);
+        console.error("Image generation error:", error);
         throw error;
     }
 }
