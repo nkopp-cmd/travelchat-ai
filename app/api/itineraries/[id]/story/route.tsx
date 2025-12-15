@@ -23,70 +23,30 @@ interface DayPlan {
 
 // Cover slide template
 function CoverSlide({ title, city, days, backgroundImage }: { title: string; city: string; days: number; backgroundImage?: string }) {
+    // Use backgroundImage CSS property (supported by Satori/Vercel OG)
+    const backgroundStyle = backgroundImage
+        ? {
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+        }
+        : {
+            background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+        };
+
     return (
         <div
             style={{
                 width: STORY_WIDTH,
                 height: STORY_HEIGHT,
                 display: "flex",
-                position: "relative",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                ...backgroundStyle,
+                padding: 80,
             }}
         >
-            {/* Background layer */}
-            {backgroundImage ? (
-                <>
-                    {/* AI-generated background image */}
-                    <img
-                        src={backgroundImage}
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            objectPosition: "center",
-                        }}
-                    />
-                    {/* Dark overlay for text readability */}
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            background: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4))",
-                        }}
-                    />
-                </>
-            ) : (
-                /* Gradient fallback */
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
-                    }}
-                />
-            )}
-
-            {/* Content layer */}
-            <div
-                style={{
-                    position: "relative",
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: 80,
-                }}
-            >
             {/* Logo */}
             <div
                 style={{
@@ -162,7 +122,6 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                 <span style={{ fontSize: 24, color: "rgba(255,255,255,0.7)" }}>
                     Swipe to explore →
                 </span>
-            </div>
             </div>
         </div>
     );
@@ -297,70 +256,30 @@ function DaySlide({ dayPlan, dayNumber, totalDays }: { dayPlan: DayPlan; dayNumb
 
 // Summary slide template
 function SummarySlide({ title, city, highlights, backgroundImage }: { title: string; city: string; highlights: string[]; backgroundImage?: string }) {
+    // Use backgroundImage CSS property (supported by Satori/Vercel OG)
+    const backgroundStyle = backgroundImage
+        ? {
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+        }
+        : {
+            background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
+        };
+
     return (
         <div
             style={{
                 width: STORY_WIDTH,
                 height: STORY_HEIGHT,
                 display: "flex",
-                position: "relative",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                ...backgroundStyle,
+                padding: 80,
             }}
         >
-            {/* Background layer */}
-            {backgroundImage ? (
-                <>
-                    {/* AI-generated background image */}
-                    <img
-                        src={backgroundImage}
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            objectPosition: "center",
-                        }}
-                    />
-                    {/* Dark overlay for text readability */}
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            background: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4))",
-                        }}
-                    />
-                </>
-            ) : (
-                /* Gradient fallback */
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
-                    }}
-                />
-            )}
-
-            {/* Content layer */}
-            <div
-                style={{
-                    position: "relative",
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: 80,
-                }}
-            >
             {/* Title */}
             <span
                 style={{
@@ -436,7 +355,6 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                 <span style={{ fontSize: 24, color: "rgba(255,255,255,0.7)" }}>
                     📍 {city}
                 </span>
-            </div>
             </div>
         </div>
     );
