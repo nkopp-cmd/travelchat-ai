@@ -367,7 +367,6 @@ export async function GET(
         const { searchParams } = new URL(req.url);
         const slide = searchParams.get("slide") || "cover";
         const dayIndex = parseInt(searchParams.get("day") || "1", 10) - 1;
-        const aiBackground = searchParams.get("bg"); // AI-generated background (base64 data URL)
 
         const supabase = createSupabaseAdmin();
 
@@ -379,6 +378,18 @@ export async function GET(
 
         if (error || !itinerary) {
             return new Response("Itinerary not found", { status: 404 });
+        }
+
+        // Extract AI backgrounds from database
+        const aiBackgrounds = itinerary.ai_backgrounds as { cover?: string; summary?: string } | null;
+        let aiBackground: string | undefined;
+
+        if (aiBackgrounds) {
+            if (slide === "cover" && aiBackgrounds.cover) {
+                aiBackground = aiBackgrounds.cover;
+            } else if (slide === "summary" && aiBackgrounds.summary) {
+                aiBackground = aiBackgrounds.summary;
+            }
         }
 
         const dailyPlans: DayPlan[] = typeof itinerary.activities === "string"

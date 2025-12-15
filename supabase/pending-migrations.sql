@@ -234,6 +234,17 @@ CREATE INDEX IF NOT EXISTS idx_itineraries_user_shared ON itineraries(clerk_user
 CREATE INDEX IF NOT EXISTS idx_spots_category_score ON spots(category, localley_score DESC);
 
 -- ================================
+-- 9. Add AI-generated backgrounds for story slides
+-- ================================
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS ai_backgrounds JSONB;
+
+COMMENT ON COLUMN itineraries.ai_backgrounds IS 'AI-generated background images for story slides (base64 encoded). Format: {"cover": "data:image/png;base64,...", "summary": "data:image/png;base64,..."}';
+
+-- Index for querying itineraries with AI backgrounds
+CREATE INDEX IF NOT EXISTS idx_itineraries_ai_backgrounds ON itineraries((ai_backgrounds IS NOT NULL));
+
+-- ================================
 -- VERIFICATION QUERIES
 -- Run these after migration to verify success
 -- ================================

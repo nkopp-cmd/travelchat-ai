@@ -52,13 +52,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
             .catch(() => setAiAvailable(false));
     }, []);
 
-    const generateSlides = (aiBackgrounds?: { cover?: string; summary?: string }) => {
+    const generateSlides = () => {
         const generatedSlides: StorySlide[] = [
             {
                 type: "cover",
                 label: "Cover",
-                url: `/api/itineraries/${itineraryId}/story?slide=cover${aiBackgrounds?.cover ? `&bg=${encodeURIComponent(aiBackgrounds.cover)}` : ""}`,
-                aiBackground: aiBackgrounds?.cover,
+                url: `/api/itineraries/${itineraryId}/story?slide=cover`,
             },
         ];
 
@@ -74,8 +73,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
         generatedSlides.push({
             type: "summary",
             label: "Summary",
-            url: `/api/itineraries/${itineraryId}/story?slide=summary${aiBackgrounds?.summary ? `&bg=${encodeURIComponent(aiBackgrounds.summary)}` : ""}`,
-            aiBackground: aiBackgrounds?.summary,
+            url: `/api/itineraries/${itineraryId}/story?slide=summary`,
         });
 
         return generatedSlides;
@@ -118,9 +116,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
     const handleGenerate = async () => {
         setIsGenerating(true);
         try {
-            let aiBackgrounds: { cover?: string; summary?: string } = {};
-
-            // If AI backgrounds enabled, generate them first
+            // If AI backgrounds enabled, generate and save them to database
             if (useAiBackgrounds && aiAvailable && city) {
                 setGeneratingAi(true);
                 toast({
@@ -128,26 +124,45 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city }: St
                     description: "This may take a moment",
                 });
 
+                const aiBackgrounds: { cover?: string; summary?: string } = {};
+
                 // Generate cover background
                 const coverBg = await generateAiBackground("iconic landmarks and cityscape");
                 if (coverBg) {
                     aiBackgrounds.cover = coverBg;
-                    console.log("[STORY] Cover background set, length:", coverBg.length);
+                    console.log("[STORY] Cover background generated, length:", coverBg.length);
                 }
 
                 // Generate summary background
                 const summaryBg = await generateAiBackground("beautiful travel scenery");
                 if (summaryBg) {
                     aiBackgrounds.summary = summaryBg;
-                    console.log("[STORY] Summary background set, length:", summaryBg.length);
+                    console.log("[STORY] Summary background generated, length:", summaryBg.length);
+                }
+
+                // Save AI backgrounds to database
+                if (aiBackgrounds.cover || aiBackgrounds.summary) {
+                    console.log("[STORY] Saving AI backgrounds to database...");
+                    const saveResponse = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(aiBackgrounds),
+                    });
+
+                    if (!saveResponse.ok) {
+                        console.error("[STORY] Failed to save AI backgrounds:", await saveResponse.text());
+                        throw new Error("Failed to save AI backgrounds");
+                    }
+
+                    console.log("[STORY] AI backgrounds saved successfully");
                 }
 
                 setGeneratingAi(false);
             }
 
-            // Generate slides with AI backgrounds embedded in URLs
-            const generatedSlides = generateSlides(aiBackgrounds);
-            console.log("[STORY] Generated slides:", generatedSlides.map(s => ({ label: s.label, hasAiBg: !!s.aiBackground, urlLength: s.url.length })));
+            // Generate slides (backgrounds will be fetched from database by story API)
+            const generatedSlides = generateSlides();
+            console.log("[STORY] Generated slides:", generatedSlides.map(s => ({ label: s.label, url: s.url })));
 
             setSlides(generatedSlides);
             setSelectedSlide(0);
