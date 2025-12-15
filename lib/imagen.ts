@@ -7,15 +7,20 @@ if (!apiKey) {
     console.warn("GEMINI_API_KEY or GOOGLE_AI_API_KEY is not set. Image generation will be disabled.");
 }
 
-// Imagen 3 model for high-quality image generation
-const IMAGEN_MODEL = "imagen-3.0-generate-002";
+// Imagen model for image generation
+// Using v1 API version which supports Imagen models
+const IMAGEN_MODEL = "imagen-3.0-generate-001";
 
-// Create Google GenAI client
+// Create Google GenAI client with proper API version for Imagen
 const getGoogleAI = () => {
     if (!apiKey) {
         throw new Error("Google AI API key is not configured");
     }
-    return new GoogleGenAI({ apiKey });
+    // Imagen requires v1 API version, not v1beta
+    return new GoogleGenAI({
+        apiKey,
+        apiVersion: 'v1'
+    });
 };
 
 export interface ImageGenerationOptions {
