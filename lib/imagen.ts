@@ -59,13 +59,20 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
         const images: GeneratedImage[] = [];
 
-        // Extract images from response parts
-        for (const part of response.parts || []) {
-            if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
-                images.push({
-                    imageBytes: part.inlineData.data || "",
-                    mimeType: part.inlineData.mimeType || "image/png",
-                });
+        // Extract images from response
+        // The response structure has candidates array with content.parts
+        if (response.candidates && response.candidates.length > 0) {
+            for (const candidate of response.candidates) {
+                if (candidate.content && candidate.content.parts) {
+                    for (const part of candidate.content.parts) {
+                        if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
+                            images.push({
+                                imageBytes: part.inlineData.data || "",
+                                mimeType: part.inlineData.mimeType || "image/png",
+                            });
+                        }
+                    }
+                }
             }
         }
 
