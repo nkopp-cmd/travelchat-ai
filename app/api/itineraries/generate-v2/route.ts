@@ -15,7 +15,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
-import { addThumbnailsToItinerary } from '@/lib/activity-images';
+import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
+import { hasFeature } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndTrackUsage, trackSuccessfulUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
@@ -104,11 +105,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Add thumbnail images to activities (Unsplash placeholders for non-AI images)
+    // Add thumbnail images to activities
     const itineraryData = result.data;
-    // Cast to the expected type for addThumbnailsToItinerary
     const dailyPlansForThumbnails = itineraryData.dailyPlans as unknown as Parameters<typeof addThumbnailsToItinerary>[0];
-    const dailyPlansWithImages = addThumbnailsToItinerary(dailyPlansForThumbnails, params.city);
+
+    // Use AI-generated images for Pro/Premium users, Unsplash for Free
+    const useAIImages = hasFeature(tier, 'activityImages') === 'ai-generated';
+
+    let dailyPlansWithImages;
+    if (useAIImages) {
+      // Pro/Premium: Generate AI thumbnails (max 6 to avoid long wait times)
+      dailyPlansWithImages = await addAIThumbnailsToItinerary(
+        dailyPlansForThumbnails,
+        params.city,
+        6 // Generate up to 6 AI images, rest use Unsplash
+      );
+    } else {
+      // Free tier: Use Unsplash placeholders
+      dailyPlansWithImages = addThumbnailsToItinerary(dailyPlansForThumbnails, params.city);
+    }
+
     itineraryData.dailyPlans = dailyPlansWithImages as unknown as typeof itineraryData.dailyPlans;
 
     // Save itinerary to database

@@ -2,7 +2,8 @@ import { OpenAI } from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
-import { addThumbnailsToItinerary } from '@/lib/activity-images';
+import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
+import { hasFeature } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndTrackUsage, trackSuccessfulUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
@@ -221,7 +222,22 @@ Make it exciting, authentic, and full of hidden gems!
     }
 
     // Add thumbnail images to activities
-    const dailyPlansWithImages = addThumbnailsToItinerary(itineraryData.dailyPlans, city);
+    // Use AI-generated images for Pro/Premium users, Unsplash for Free
+    const useAIImages = hasFeature(tier, 'activityImages') === 'ai-generated';
+
+    let dailyPlansWithImages;
+    if (useAIImages) {
+      // Pro/Premium: Generate AI thumbnails (max 6 to avoid long wait times)
+      dailyPlansWithImages = await addAIThumbnailsToItinerary(
+        itineraryData.dailyPlans,
+        city,
+        6 // Generate up to 6 AI images, rest use Unsplash
+      );
+    } else {
+      // Free tier: Use Unsplash placeholders
+      dailyPlansWithImages = addThumbnailsToItinerary(itineraryData.dailyPlans, city);
+    }
+
     itineraryData.dailyPlans = dailyPlansWithImages;
 
     // Save itinerary to database
