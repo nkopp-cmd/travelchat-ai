@@ -24,6 +24,11 @@ export interface SubscriptionStatus {
         aiImagesThisMonth: number;
         savedSpots: number;
     };
+    // Early adopter / beta info
+    isBetaMode?: boolean;
+    isEarlyAdopter?: boolean;
+    earlyAdopterPosition?: number;
+    earlyAdopterSlotsRemaining?: number;
 }
 
 interface UseSubscriptionReturn {
@@ -34,6 +39,9 @@ interface UseSubscriptionReturn {
     isActive: boolean;
     isPro: boolean;
     isPremium: boolean;
+    isBetaMode: boolean;
+    isEarlyAdopter: boolean;
+    earlyAdopterPosition?: number;
     canUseFeature: (feature: keyof typeof TIER_CONFIGS.free.features) => boolean;
     isWithinLimit: (limitType: keyof typeof TIER_CONFIGS.free.limits) => boolean;
     refetch: () => Promise<void>;
@@ -91,6 +99,9 @@ export function useSubscription(): UseSubscriptionReturn {
     const isActive = subscription?.isActive || false;
     const isPro = tier === "pro" || tier === "premium";
     const isPremium = tier === "premium";
+    const isBetaMode = subscription?.isBetaMode || false;
+    const isEarlyAdopter = subscription?.isEarlyAdopter || false;
+    const earlyAdopterPosition = subscription?.earlyAdopterPosition;
 
     const canUseFeature = useCallback(
         (feature: keyof typeof TIER_CONFIGS.free.features) => {
@@ -167,6 +178,9 @@ export function useSubscription(): UseSubscriptionReturn {
         isActive,
         isPro,
         isPremium,
+        isBetaMode,
+        isEarlyAdopter,
+        earlyAdopterPosition,
         canUseFeature,
         isWithinLimit: checkIsWithinLimit,
         refetch: fetchSubscription,

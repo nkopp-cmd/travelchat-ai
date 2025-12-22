@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
+import { isBetaMode, isEarlyAdopter, getEarlyAdopterStatus } from "@/lib/early-adopters";
 
 export interface SubscriptionStatusResponse {
     tier: SubscriptionTier;
@@ -24,6 +25,11 @@ export interface SubscriptionStatusResponse {
         aiImagesThisMonth: number;
         savedSpots: number;
     };
+    // Early adopter / beta info
+    isBetaMode?: boolean;
+    isEarlyAdopter?: boolean;
+    earlyAdopterPosition?: number;
+    earlyAdopterSlotsRemaining?: number;
 }
 
 export async function GET() {
@@ -46,10 +52,24 @@ export async function GET() {
             .eq("clerk_user_id", userId)
             .single();
 
-        // Default to free tier if no subscription
-        const tier: SubscriptionTier = subscription?.tier || "free";
+        // Get base tier from subscription
+        const baseTier: SubscriptionTier = subscription?.tier || "free";
         const status = subscription?.status || "none";
-        const isActive = ["active", "trialing"].includes(status);
+
+        // Check beta mode and early adopter status
+        const betaMode = isBetaMode();
+        const earlyAdopterStatus = await getEarlyAdopterStatus(userId);
+
+        // Determine effective tier
+        // Priority: Beta mode > Early adopter > Actual subscription
+        let tier: SubscriptionTier = baseTier;
+        if (betaMode) {
+            tier = "premium";
+        } else if (earlyAdopterStatus.isEarlyAdopter) {
+            tier = "premium";
+        }
+
+        const isActive = betaMode || earlyAdopterStatus.isEarlyAdopter || ["active", "trialing"].includes(status);
 
         // Get usage data
         const today = new Date().toISOString().split("T")[0];
@@ -101,7 +121,7 @@ export async function GET() {
 
         const response: SubscriptionStatusResponse = {
             tier,
-            status,
+            status: betaMode ? "beta" : (earlyAdopterStatus.isEarlyAdopter ? "early_adopter" : status),
             isActive,
             currentPeriodEnd: subscription?.current_period_end || null,
             cancelAtPeriodEnd: subscription?.cancel_at_period_end || false,
@@ -114,6 +134,11 @@ export async function GET() {
                 aiImagesThisMonth: getUsage(monthlyUsage, "ai_images_generated"),
                 savedSpots: savedSpotsCount || 0,
             },
+            // Early adopter / beta info
+            isBetaMode: betaMode,
+            isEarlyAdopter: earlyAdopterStatus.isEarlyAdopter,
+            earlyAdopterPosition: earlyAdopterStatus.position,
+            earlyAdopterSlotsRemaining: earlyAdopterStatus.slotsRemaining,
         };
 
         return NextResponse.json(response);
