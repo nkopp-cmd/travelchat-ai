@@ -1,5 +1,6 @@
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
+import { isBetaMode, isEarlyAdopter } from "@/lib/early-adopters";
 
 export type UsageType =
     | "itineraries_created"
@@ -160,7 +161,20 @@ export async function incrementUsage(
 }
 
 // Get user's subscription tier from database
+// Respects beta mode and early adopter status
 export async function getUserTier(clerkUserId: string): Promise<SubscriptionTier> {
+    // Beta mode - everyone gets premium
+    if (isBetaMode()) {
+        return "premium";
+    }
+
+    // Check if user is an early adopter (first 100 users get premium)
+    const earlyAdopter = await isEarlyAdopter(clerkUserId);
+    if (earlyAdopter) {
+        return "premium";
+    }
+
+    // Fall back to checking subscription in database
     const supabase = createSupabaseAdmin();
 
     const { data } = await supabase
