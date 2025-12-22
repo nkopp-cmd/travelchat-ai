@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import {
     generateImage,
     generateStoryBackground,
+    generateDayBackground,
     generateActivityThumbnail,
     generateItineraryCover,
     isImagenAvailable,
@@ -18,16 +19,19 @@ const limiter = rateLimit({
     maxRequests: 10,
 });
 
-type ImageType = "custom" | "story_background" | "activity_thumbnail" | "itinerary_cover";
+type ImageType = "custom" | "story_background" | "day_background" | "activity_thumbnail" | "itinerary_cover";
 
 interface GenerateRequest {
     type: ImageType;
     // For custom prompts
     prompt?: string;
-    // For story backgrounds
+    // For story/day backgrounds
     city?: string;
     theme?: string;
     style?: "vibrant" | "minimal" | "artistic";
+    // For day backgrounds
+    dayNumber?: number;
+    activities?: string[];
     // For activity thumbnails
     activityName?: string;
     category?: string;
@@ -156,6 +160,24 @@ export async function POST(req: NextRequest) {
                     body.style || "vibrant"
                 );
                 console.log("[IMAGE_GEN] Story background generated, length:", imageBase64.length);
+                break;
+            }
+
+            case "day_background": {
+                if (!body.city || !body.dayNumber || !body.theme) {
+                    return NextResponse.json(
+                        { error: "city, dayNumber, and theme are required for day_background" },
+                        { status: 400 }
+                    );
+                }
+                console.log("[IMAGE_GEN] Generating day background:", body.city, body.dayNumber, body.theme);
+                imageBase64 = await generateDayBackground(
+                    body.city,
+                    body.dayNumber,
+                    body.theme,
+                    body.activities || []
+                );
+                console.log("[IMAGE_GEN] Day background generated, length:", imageBase64.length);
                 break;
             }
 

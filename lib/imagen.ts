@@ -111,23 +111,66 @@ export async function generateStoryBackground(
     style: "vibrant" | "minimal" | "artistic" = "vibrant"
 ): Promise<string> {
     const styleDescriptions = {
-        vibrant: "vibrant saturated colors, dramatic lighting, cinematic composition",
-        minimal: "minimalist clean design, soft pastel colors, serene atmosphere",
-        artistic: "artistic painterly style, dreamy ethereal atmosphere, impressionist",
+        vibrant: "rich saturated colors, golden hour warm lighting, professional DSLR quality",
+        minimal: "clean elegant composition, soft natural lighting, modern aesthetic",
+        artistic: "cinematic color grading, dramatic atmosphere, editorial photography style",
     };
 
-    // Enhanced prompt for vertical story format with proper composition
-    const prompt = `A stunning vertical photograph of ${city} featuring ${theme}.
-Composition: vertical 9:16 portrait orientation, shot with professional camera.
-Style: ${styleDescriptions[style]}, professional travel photography, award-winning composition.
-Features: iconic recognizable landmarks of ${city}, ${theme}, atmospheric depth, golden hour lighting.
-Quality: ultra high resolution, sharp focus, National Geographic quality, Instagram-worthy.
-Important: NO text, NO people, NO watermarks, NO logos. Pure scenic photography only.
-Framing: full frame vertical composition perfect for mobile story format.`;
+    // Enhanced prompt optimized for Gemini image generation
+    const prompt = `Professional travel photograph of ${city}: ${theme}.
+
+Scene: Breathtaking view of ${city}'s most iconic and recognizable landmark or scenery.
+Mood: ${styleDescriptions[style]}, inviting wanderlust feeling.
+Technical: Shot on Sony A7R IV, 24mm wide angle lens, f/8 aperture, perfect exposure.
+Composition: Vertical portrait orientation 9:16, rule of thirds, strong leading lines.
+Lighting: Golden hour natural light, warm tones, soft shadows, atmospheric haze.
+Quality: 8K resolution, tack sharp focus, vibrant but realistic colors, HDR dynamic range.
+
+STRICT REQUIREMENTS:
+- NO text, words, letters, or watermarks anywhere
+- NO people or crowds visible
+- NO logos or brand names
+- Pure landscape/cityscape photography only
+- Must be instantly recognizable as ${city}`;
 
     const images = await generateImage({
         prompt,
-        aspectRatio: "9:16" // Explicit 9:16 for story format
+        aspectRatio: "9:16"
+    });
+    return images[0]?.imageBytes || "";
+}
+
+/**
+ * Generate a day-specific background for story slides
+ * Shows activities and atmosphere for that day's theme
+ */
+export async function generateDayBackground(
+    city: string,
+    dayNumber: number,
+    theme: string,
+    activities: string[]
+): Promise<string> {
+    const activityContext = activities.slice(0, 3).join(", ");
+
+    const prompt = `Professional travel photograph showcasing Day ${dayNumber} in ${city}: ${theme}.
+
+Scene: Beautiful atmospheric shot representing ${activityContext} in ${city}.
+Style: Warm inviting travel photography, Instagram-worthy composition, editorial quality.
+Mood: Exciting adventure feeling, discovery and exploration vibes.
+Technical: Shot on professional camera, perfect exposure, sharp details.
+Composition: Vertical 9:16 portrait, balanced framing, depth and layers.
+Lighting: Natural ambient light, warm color temperature, subtle vignette.
+
+STRICT REQUIREMENTS:
+- NO text, words, letters, or watermarks
+- NO people or crowds visible
+- NO logos or brand names
+- Pure scenic/architectural photography
+- Evokes the feeling of ${theme}`;
+
+    const images = await generateImage({
+        prompt,
+        aspectRatio: "9:16"
     });
     return images[0]?.imageBytes || "";
 }

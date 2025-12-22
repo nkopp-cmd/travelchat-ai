@@ -128,8 +128,19 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
 }
 
 // Day slide template
-function DaySlide({ dayPlan, dayNumber, totalDays }: { dayPlan: DayPlan; dayNumber: number; totalDays: number }) {
+function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan: DayPlan; dayNumber: number; totalDays: number; backgroundImage?: string }) {
     const activities = dayPlan.activities?.slice(0, 4) || [];
+
+    // Use backgroundImage CSS property if AI background is available
+    const backgroundStyle = backgroundImage
+        ? {
+            backgroundImage: `linear-gradient(rgba(30, 27, 75, 0.85), rgba(49, 46, 129, 0.9)), url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+        }
+        : {
+            background: "linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)",
+        };
 
     return (
         <div
@@ -138,7 +149,7 @@ function DaySlide({ dayPlan, dayNumber, totalDays }: { dayPlan: DayPlan; dayNumb
                 height: STORY_HEIGHT,
                 display: "flex",
                 flexDirection: "column",
-                background: "linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)",
+                ...backgroundStyle,
                 padding: 60,
             }}
         >
@@ -383,7 +394,7 @@ export async function GET(
         }
 
         // Extract AI backgrounds from database
-        const aiBackgrounds = itinerary.ai_backgrounds as { cover?: string; summary?: string } | null;
+        const aiBackgrounds = itinerary.ai_backgrounds as Record<string, string> | null;
         let aiBackground: string | undefined;
 
         if (aiBackgrounds) {
@@ -391,6 +402,12 @@ export async function GET(
                 aiBackground = aiBackgrounds.cover;
             } else if (slide === "summary" && aiBackgrounds.summary) {
                 aiBackground = aiBackgrounds.summary;
+            } else if (slide === "day") {
+                // Check for day-specific background
+                const dayBgKey = `day${dayIndex + 1}`;
+                if (aiBackgrounds[dayBgKey]) {
+                    aiBackground = aiBackgrounds[dayBgKey];
+                }
             }
         }
 
@@ -422,6 +439,7 @@ export async function GET(
                         dayPlan={dayPlan}
                         dayNumber={dayIndex + 1}
                         totalDays={dailyPlans.length}
+                        backgroundImage={aiBackground || undefined}
                     />
                 );
                 break;
