@@ -298,26 +298,63 @@ export async function getPexelsThemedImage(city: string, theme: string): Promise
 }
 
 /**
- * Get an Unsplash image URL for a city (no API key needed)
- * Uses the Unsplash Source API which provides random photos by keyword
+ * Curated high-quality travel images for each supported city
+ * Using direct Unsplash URLs (the Source API was deprecated)
  */
-export function getUnsplashCityImage(city: string, width: number = 1080, height: number = 1920): string {
-    const cityKeyword = city.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, '-');
-    return `https://source.unsplash.com/${width}x${height}/?${cityKeyword},travel,landmark`;
+const CITY_IMAGES: Record<string, string[]> = {
+    'seoul': [
+        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1546874177-9e664107314e?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1080&h=1920&fit=crop',
+    ],
+    'tokyo': [
+        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1549693578-d683be217e58?w=1080&h=1920&fit=crop',
+    ],
+    'bangkok': [
+        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1080&h=1920&fit=crop',
+    ],
+    'singapore': [
+        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1565967511849-76a60a516170?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1508964942454-1a56651d54ac?w=1080&h=1920&fit=crop',
+    ],
+};
+
+// Default images for unknown cities
+const DEFAULT_TRAVEL_IMAGES = [
+    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1080&h=1920&fit=crop',
+    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1080&h=1920&fit=crop',
+    'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1080&h=1920&fit=crop',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1080&h=1920&fit=crop',
+];
+
+/**
+ * Get an Unsplash image URL for a city
+ * Uses curated direct URLs instead of deprecated Source API
+ */
+export function getUnsplashCityImage(city: string): string {
+    const normalizedCity = city.toLowerCase().trim();
+    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
+    const randomIndex = Math.floor(Math.random() * images.length);
+    return images[randomIndex];
 }
 
 /**
  * Get an Unsplash image for a specific theme
+ * Falls back to city image if no theme-specific image available
  */
-export function getUnsplashThemedImage(
-    city: string,
-    theme: string,
-    width: number = 1080,
-    height: number = 1920
-): string {
-    const cityKeyword = city.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, '-');
-    const themeKeyword = theme.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, '-');
-    return `https://source.unsplash.com/${width}x${height}/?${cityKeyword},${themeKeyword}`;
+export function getUnsplashThemedImage(city: string, _theme: string): string {
+    // For now, just return a random city image
+    // Theme-based selection could be added later with more curated images
+    return getUnsplashCityImage(city);
 }
 
 /**
