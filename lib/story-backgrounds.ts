@@ -3,11 +3,13 @@
  *
  * Provides multiple image source options for story backgrounds:
  * 1. AI-generated via Gemini (Pro/Premium) - Best quality, unique images
- * 2. Pexels API - High quality curated photos (requires API key)
- * 3. Unsplash Source - Free fallback (no API key needed)
+ * 2. TripAdvisor Content API - Real location photos with reviews
+ * 3. Pexels API - High quality curated photos (requires API key)
+ * 4. Unsplash Source - Free fallback (no API key needed)
  */
 
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
+const TRIPADVISOR_API_KEY = process.env.TRIPADVISOR_API_KEY;
 
 interface PexelsPhoto {
     id: number;
@@ -29,6 +31,181 @@ interface PexelsResponse {
     photos: PexelsPhoto[];
     total_results: number;
 }
+
+// TripAdvisor API types
+interface TripAdvisorLocation {
+    location_id: string;
+    name: string;
+    address_obj?: {
+        city?: string;
+        country?: string;
+    };
+}
+
+interface TripAdvisorPhoto {
+    id: number;
+    is_blessed: boolean;
+    caption: string;
+    published_date: string;
+    images: {
+        thumbnail?: { url: string; width: number; height: number };
+        small?: { url: string; width: number; height: number };
+        medium?: { url: string; width: number; height: number };
+        large?: { url: string; width: number; height: number };
+        original?: { url: string; width: number; height: number };
+    };
+    source?: {
+        name: string;
+        localized_name: string;
+    };
+}
+
+interface TripAdvisorSearchResponse {
+    data: TripAdvisorLocation[];
+}
+
+interface TripAdvisorPhotosResponse {
+    data: TripAdvisorPhoto[];
+}
+
+// =============================================================================
+// TripAdvisor API Functions
+// =============================================================================
+
+/**
+ * Search for a location on TripAdvisor
+ * Returns the location_id needed for fetching photos
+ */
+export async function searchTripAdvisorLocation(
+    query: string,
+    category: 'geos' | 'attractions' | 'restaurants' | 'hotels' = 'geos'
+): Promise<string | null> {
+    if (!TRIPADVISOR_API_KEY) {
+        console.log('[story-backgrounds] TripAdvisor API key not configured');
+        return null;
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.content.tripadvisor.com/api/v1/location/search?key=${TRIPADVISOR_API_KEY}&searchQuery=${encodeURIComponent(query)}&category=${category}&language=en`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            console.error('[story-backgrounds] TripAdvisor search error:', response.status);
+            return null;
+        }
+
+        const data: TripAdvisorSearchResponse = await response.json();
+
+        if (data.data && data.data.length > 0) {
+            return data.data[0].location_id;
+        }
+
+        return null;
+    } catch (error) {
+        console.error('[story-backgrounds] TripAdvisor search failed:', error);
+        return null;
+    }
+}
+
+/**
+ * Get photos for a TripAdvisor location
+ * Returns up to 5 high-quality photos per the API limits
+ */
+export async function getTripAdvisorPhotos(locationId: string): Promise<string[]> {
+    if (!TRIPADVISOR_API_KEY) {
+        return [];
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.content.tripadvisor.com/api/v1/location/${locationId}/photos?key=${TRIPADVISOR_API_KEY}&language=en`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            console.error('[story-backgrounds] TripAdvisor photos error:', response.status);
+            return [];
+        }
+
+        const data: TripAdvisorPhotosResponse = await response.json();
+
+        if (data.data && data.data.length > 0) {
+            // Get the largest available image for each photo
+            return data.data
+                .map(photo => {
+                    // Prefer original or large size for best quality
+                    return photo.images.original?.url ||
+                           photo.images.large?.url ||
+                           photo.images.medium?.url ||
+                           null;
+                })
+                .filter((url): url is string => url !== null);
+        }
+
+        return [];
+    } catch (error) {
+        console.error('[story-backgrounds] TripAdvisor photos failed:', error);
+        return [];
+    }
+}
+
+/**
+ * Get a city photo from TripAdvisor
+ * Searches for the city and returns a random photo from results
+ */
+export async function getTripAdvisorCityImage(city: string): Promise<string | null> {
+    const locationId = await searchTripAdvisorLocation(city, 'geos');
+    if (!locationId) {
+        return null;
+    }
+
+    const photos = await getTripAdvisorPhotos(locationId);
+    if (photos.length > 0) {
+        // Pick a random photo for variety
+        const randomIndex = Math.floor(Math.random() * Math.min(photos.length, 5));
+        return photos[randomIndex];
+    }
+
+    return null;
+}
+
+/**
+ * Get a themed photo from TripAdvisor
+ * Searches for attractions matching the theme
+ */
+export async function getTripAdvisorThemedImage(
+    city: string,
+    theme: string
+): Promise<string | null> {
+    // First try searching for the theme as an attraction in the city
+    const query = `${theme} ${city}`;
+    const locationId = await searchTripAdvisorLocation(query, 'attractions');
+
+    if (locationId) {
+        const photos = await getTripAdvisorPhotos(locationId);
+        if (photos.length > 0) {
+            const randomIndex = Math.floor(Math.random() * Math.min(photos.length, 5));
+            return photos[randomIndex];
+        }
+    }
+
+    // Fall back to city photos
+    return getTripAdvisorCityImage(city);
+}
+
+// =============================================================================
+// Pexels API Functions
+// =============================================================================
 
 /**
  * Search for travel photos on Pexels
@@ -200,13 +377,13 @@ export function getThemeKeywords(theme: string): string[] {
 
 /**
  * Get the best available story background image
- * Tries sources in order: AI (if available), Pexels, Unsplash
+ * Tries sources in order: AI (if available), TripAdvisor, Pexels, Unsplash
  */
 export async function getStoryBackground(
     city: string,
     theme: string,
     aiGenerator?: () => Promise<string | null>
-): Promise<{ url: string; source: 'ai' | 'pexels' | 'unsplash' }> {
+): Promise<{ url: string; source: 'ai' | 'tripadvisor' | 'pexels' | 'unsplash' }> {
     // Try AI generation first if available
     if (aiGenerator) {
         try {
@@ -216,6 +393,14 @@ export async function getStoryBackground(
             }
         } catch (error) {
             console.error('[story-backgrounds] AI generation failed:', error);
+        }
+    }
+
+    // Try TripAdvisor for real location photos
+    if (isTripAdvisorAvailable()) {
+        const tripAdvisorUrl = await getTripAdvisorThemedImage(city, theme);
+        if (tripAdvisorUrl) {
+            return { url: tripAdvisorUrl, source: 'tripadvisor' };
         }
     }
 
@@ -231,8 +416,32 @@ export async function getStoryBackground(
 }
 
 /**
+ * Check if TripAdvisor API is available
+ */
+export function isTripAdvisorAvailable(): boolean {
+    return !!TRIPADVISOR_API_KEY;
+}
+
+/**
  * Check if Pexels API is available
  */
 export function isPexelsAvailable(): boolean {
     return !!PEXELS_API_KEY;
+}
+
+/**
+ * Get available image sources for diagnostics
+ */
+export function getAvailableSources(): {
+    ai: boolean;
+    tripadvisor: boolean;
+    pexels: boolean;
+    unsplash: boolean;
+} {
+    return {
+        ai: false, // Set by caller based on Gemini availability
+        tripadvisor: isTripAdvisorAvailable(),
+        pexels: isPexelsAvailable(),
+        unsplash: true, // Always available
+    };
 }

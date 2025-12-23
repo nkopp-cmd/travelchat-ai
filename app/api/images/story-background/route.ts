@@ -5,9 +5,11 @@ import {
     getStoryBackground,
     getPexelsCityImage,
     getPexelsThemedImage,
+    getTripAdvisorThemedImage,
     getUnsplashCityImage,
     getUnsplashThemedImage,
     isPexelsAvailable,
+    isTripAdvisorAvailable,
 } from "@/lib/story-backgrounds";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
@@ -67,6 +69,7 @@ export async function POST(req: NextRequest) {
             canUseAI,
             tier,
             hasGeminiKey: isImagenAvailable(),
+            hasTripAdvisorKey: isTripAdvisorAvailable(),
             hasPexelsKey: isPexelsAvailable(),
         });
 
@@ -91,7 +94,7 @@ export async function POST(req: NextRequest) {
         }
 
         let imageUrl: string | null = null;
-        let source: "ai" | "pexels" | "unsplash" = "unsplash";
+        let source: "ai" | "tripadvisor" | "pexels" | "unsplash" = "unsplash";
 
         // Try AI generation if allowed
         if (canUseAI) {
@@ -138,7 +141,19 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Fall back to Pexels if AI not available or failed
+        // Fall back to TripAdvisor for real location photos
+        if (!imageUrl && isTripAdvisorAvailable()) {
+            console.log("[STORY_BG] Trying TripAdvisor...");
+            const searchTheme = theme || (type === "cover" ? "landmark" : type === "summary" ? "scenery" : "travel");
+
+            imageUrl = await getTripAdvisorThemedImage(city, searchTheme);
+            if (imageUrl) {
+                source = "tripadvisor";
+                console.log("[STORY_BG] TripAdvisor image found");
+            }
+        }
+
+        // Fall back to Pexels if TripAdvisor not available or failed
         if (!imageUrl && isPexelsAvailable()) {
             console.log("[STORY_BG] Trying Pexels...");
             const searchTheme = theme || (type === "cover" ? "cityscape" : type === "summary" ? "travel scenery" : "travel");
@@ -180,6 +195,7 @@ export async function GET() {
     return NextResponse.json({
         sources: {
             ai: isImagenAvailable(),
+            tripadvisor: isTripAdvisorAvailable(),
             pexels: isPexelsAvailable(),
             unsplash: true, // Always available
         },

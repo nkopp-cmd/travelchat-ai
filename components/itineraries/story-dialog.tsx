@@ -48,6 +48,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
     const [useAiBackgrounds, setUseAiBackgrounds] = useState(false);
     const [aiAvailable, setAiAvailable] = useState(false);
+    const [tripAdvisorAvailable, setTripAdvisorAvailable] = useState(false);
     const [pexelsAvailable, setPexelsAvailable] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
@@ -59,10 +60,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             .then((res) => res.json())
             .then((data) => {
                 setAiAvailable(data.sources?.ai ?? false);
+                setTripAdvisorAvailable(data.sources?.tripadvisor ?? false);
                 setPexelsAvailable(data.sources?.pexels ?? false);
             })
             .catch(() => {
                 setAiAvailable(false);
+                setTripAdvisorAvailable(false);
                 setPexelsAvailable(false);
             });
     }, []);
@@ -375,9 +378,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             <p className="text-xs text-muted-foreground text-center mb-4">
                                 {useAiBackgrounds && aiAvailable
                                     ? "Using AI-generated images"
-                                    : pexelsAvailable
-                                        ? "Using high-quality photos from Pexels"
-                                        : "Using photos from Unsplash"}
+                                    : tripAdvisorAvailable
+                                        ? "Using real location photos from TripAdvisor"
+                                        : pexelsAvailable
+                                            ? "Using high-quality photos from Pexels"
+                                            : "Using photos from Unsplash"}
                             </p>
                         )}
 
