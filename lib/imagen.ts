@@ -7,9 +7,12 @@ if (!apiKey) {
     console.warn("GEMINI_API_KEY or GOOGLE_AI_API_KEY is not set. Image generation will be disabled.");
 }
 
-// Gemini model with native image generation (aka Nano Banana)
-// Fast model optimized for image generation
-const IMAGE_MODEL = "gemini-2.5-flash-image";
+// Gemini model with native image generation
+// Options:
+// - "gemini-2.0-flash-exp" - stable experimental model
+// - "gemini-2.5-flash-preview-05-20" - newer preview (if available)
+// Using the experimental model which is more widely available
+const IMAGE_MODEL = "gemini-2.0-flash-exp";
 
 // Create Google GenAI client
 const getGoogleAI = () => {
@@ -45,19 +48,12 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
     try {
         // Use generateContent with responseModalities for image generation
-        // IMPORTANT: aspectRatio must be passed correctly to ensure proper image dimensions
-        const config: any = {
-            responseModalities: ['IMAGE'], // Only return images, no text
+        // Per docs: responseModalities should be ['Text', 'Image'] for gemini-2.0-flash-exp
+        const config: Record<string, unknown> = {
+            responseModalities: ['Text', 'Image'], // Enable both text and image output
         };
 
-        // Always set imageConfig with aspectRatio to ensure proper dimensions
-        if (aspectRatio) {
-            config.imageConfig = {
-                aspectRatio: aspectRatio
-            };
-        }
-
-        console.log("[IMAGEN] Generating image with config:", JSON.stringify(config));
+        console.log("[IMAGEN] Generating image with model:", IMAGE_MODEL, "config:", JSON.stringify(config));
 
         const response = await ai.models.generateContent({
             model: IMAGE_MODEL,
