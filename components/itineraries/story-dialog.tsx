@@ -48,16 +48,23 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
     const [useAiBackgrounds, setUseAiBackgrounds] = useState(false);
     const [aiAvailable, setAiAvailable] = useState(false);
+    const [pexelsAvailable, setPexelsAvailable] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
     const { toast } = useToast();
 
-    // Check if AI image generation is available
+    // Check available image sources
     useEffect(() => {
-        fetch("/api/images/generate")
+        fetch("/api/images/story-background")
             .then((res) => res.json())
-            .then((data) => setAiAvailable(data.available))
-            .catch(() => setAiAvailable(false));
+            .then((data) => {
+                setAiAvailable(data.sources?.ai ?? false);
+                setPexelsAvailable(data.sources?.pexels ?? false);
+            })
+            .catch(() => {
+                setAiAvailable(false);
+                setPexelsAvailable(false);
+            });
     }, []);
 
     const generateSlides = () => {
@@ -87,41 +94,30 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         return generatedSlides;
     };
 
-    const generateAiBackground = async (
+    const generateBackground = async (
         slideType: "cover" | "day" | "summary",
         options: { theme: string; dayNumber?: number; activities?: string[] }
-    ): Promise<string | undefined> => {
+    ): Promise<{ image: string; source: string } | undefined> => {
         if (!city) return undefined;
-        console.log("[STORY] Generating AI background for:", { city, slideType, ...options });
+        console.log("[STORY] Generating background for:", { city, slideType, ...options });
 
         try {
-            let requestBody;
+            // Use the new story-background endpoint with fallback support
+            const requestBody = {
+                type: slideType,
+                city,
+                theme: options.theme,
+                dayNumber: options.dayNumber,
+                activities: options.activities || [],
+                preferAI: useAiBackgrounds,
+                cacheKey: slideType === "day"
+                    ? `${itineraryId}-day-${options.dayNumber}`
+                    : `${itineraryId}-${slideType}`,
+            };
 
-            if (slideType === "day" && options.dayNumber) {
-                // Generate day-specific background
-                requestBody = {
-                    type: "day_background",
-                    city,
-                    dayNumber: options.dayNumber,
-                    theme: options.theme,
-                    activities: options.activities || [],
-                    style: "vibrant",
-                    cacheKey: `story-${itineraryId}-day-${options.dayNumber}`,
-                };
-            } else {
-                // Generate cover or summary background
-                requestBody = {
-                    type: "story_background",
-                    city,
-                    theme: options.theme,
-                    style: "vibrant",
-                    cacheKey: `story-${itineraryId}-${slideType}`,
-                };
-            }
+            console.log("[STORY] Sending request to /api/images/story-background:", requestBody);
 
-            console.log("[STORY] Sending request to /api/images/generate:", requestBody);
-
-            const response = await fetch("/api/images/generate", {
+            const response = await fetch("/api/images/story-background", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestBody),
@@ -129,42 +125,50 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
             console.log("[STORY] Response status:", response.status);
             const data = await response.json();
-            console.log("[STORY] Response data:", { success: data.success, hasImage: !!data.image, error: data.error });
+            console.log("[STORY] Response data:", {
+                success: data.success,
+                hasImage: !!data.image,
+                source: data.source,
+                error: data.error,
+            });
 
             if (data.success && data.image) {
-                return `data:image/png;base64,${data.image}`;
+                return { image: data.image, source: data.source };
             } else if (data.error) {
-                console.error("[STORY] API returned error:", data.error, data.details);
+                console.error("[STORY] API returned error:", data.error);
             }
         } catch (error) {
-            console.error("[STORY] AI background generation failed:", error);
+            console.error("[STORY] Background generation failed:", error);
         }
         return undefined;
     };
 
     const handleGenerate = async () => {
         setIsGenerating(true);
+        const imageSources: string[] = [];
+
         try {
-            // If AI backgrounds enabled, generate and save them to database
-            if (useAiBackgrounds && aiAvailable && city) {
+            // Generate backgrounds (AI, Pexels, or Unsplash depending on availability)
+            if (city) {
                 setGeneratingAi(true);
 
-                const aiBackgrounds: Record<string, string> = {};
+                const backgrounds: Record<string, string> = {};
                 const totalSlides = 2 + totalDays; // cover + days + summary
 
                 // Generate cover background
                 setGenerationProgress(`Generating cover (1/${totalSlides})...`);
                 toast({
-                    title: "Generating AI backgrounds...",
+                    title: "Generating backgrounds...",
                     description: `Creating cover image (1/${totalSlides})`,
                 });
 
-                const coverBg = await generateAiBackground("cover", {
+                const coverResult = await generateBackground("cover", {
                     theme: "iconic landmarks and stunning cityscape view",
                 });
-                if (coverBg) {
-                    aiBackgrounds.cover = coverBg;
-                    console.log("[STORY] Cover background generated, length:", coverBg.length);
+                if (coverResult) {
+                    backgrounds.cover = coverResult.image;
+                    imageSources.push(coverResult.source);
+                    console.log("[STORY] Cover background generated from:", coverResult.source);
                 }
 
                 // Generate day backgrounds (in parallel batches of 2 to avoid rate limits)
@@ -180,14 +184,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         setGenerationProgress(`Generating Day ${dayNumber} (${j + 2}/${totalSlides})...`);
 
                         batch.push(
-                            generateAiBackground("day", {
+                            generateBackground("day", {
                                 theme,
                                 dayNumber,
                                 activities,
-                            }).then(bg => {
-                                if (bg) {
-                                    aiBackgrounds[`day${dayNumber}`] = bg;
-                                    console.log(`[STORY] Day ${dayNumber} background generated`);
+                            }).then(result => {
+                                if (result) {
+                                    backgrounds[`day${dayNumber}`] = result.image;
+                                    imageSources.push(result.source);
+                                    console.log(`[STORY] Day ${dayNumber} background from:`, result.source);
                                 }
                             })
                         );
@@ -198,45 +203,46 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                 // Generate summary background
                 setGenerationProgress(`Generating summary (${totalSlides}/${totalSlides})...`);
-                const summaryBg = await generateAiBackground("summary", {
+                const summaryResult = await generateBackground("summary", {
                     theme: "beautiful panoramic travel scenery at sunset",
                 });
-                if (summaryBg) {
-                    aiBackgrounds.summary = summaryBg;
-                    console.log("[STORY] Summary background generated, length:", summaryBg.length);
+                if (summaryResult) {
+                    backgrounds.summary = summaryResult.image;
+                    imageSources.push(summaryResult.source);
+                    console.log("[STORY] Summary background from:", summaryResult.source);
                 }
 
-                // Save AI backgrounds to database (split into chunks to avoid size limits)
+                // Save backgrounds to database (split into chunks to avoid size limits)
                 setGenerationProgress("Saving backgrounds...");
 
                 // Save cover and summary first
-                if (aiBackgrounds.cover) {
+                if (backgrounds.cover) {
                     console.log("[STORY] Saving cover background to database...");
                     await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ cover: aiBackgrounds.cover }),
+                        body: JSON.stringify({ cover: backgrounds.cover }),
                     });
                 }
 
-                if (aiBackgrounds.summary) {
+                if (backgrounds.summary) {
                     console.log("[STORY] Saving summary background to database...");
                     await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ summary: aiBackgrounds.summary }),
+                        body: JSON.stringify({ summary: backgrounds.summary }),
                     });
                 }
 
                 // Save day backgrounds (one at a time to avoid payload size limits)
                 for (let i = 1; i <= totalDays; i++) {
                     const dayKey = `day${i}`;
-                    if (aiBackgrounds[dayKey]) {
+                    if (backgrounds[dayKey]) {
                         console.log(`[STORY] Saving ${dayKey} background to database...`);
                         await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ [dayKey]: aiBackgrounds[dayKey] }),
+                            body: JSON.stringify({ [dayKey]: backgrounds[dayKey] }),
                         });
                     }
                 }
@@ -251,9 +257,16 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
             setSlides(generatedSlides);
             setSelectedSlide(0);
+
+            // Show source summary in toast
+            const uniqueSources = [...new Set(imageSources)];
+            const sourceText = uniqueSources.length > 0
+                ? ` (${uniqueSources.join(", ")})`
+                : "";
+
             toast({
                 title: "Stories generated!",
-                description: `${generatedSlides.length} story slides ready to download${useAiBackgrounds ? " with AI backgrounds" : ""}`,
+                description: `${generatedSlides.length} story slides ready${sourceText}`,
             });
         } catch (error) {
             console.error("Error generating stories:", error);
@@ -342,7 +355,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             Generate beautiful story slides optimized for Instagram and TikTok
                         </p>
 
-                        {/* AI Backgrounds Toggle */}
+                        {/* AI Backgrounds Toggle (only show if AI is available) */}
                         {aiAvailable && city && (
                             <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
                                 <Switch
@@ -352,9 +365,20 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 />
                                 <Label htmlFor="ai-backgrounds" className="flex items-center gap-2 cursor-pointer">
                                     <Sparkles className="h-4 w-4 text-violet-500" />
-                                    <span className="text-sm">AI-generated backgrounds</span>
+                                    <span className="text-sm">Use AI-generated backgrounds (Pro)</span>
                                 </Label>
                             </div>
+                        )}
+
+                        {/* Image source info */}
+                        {city && (
+                            <p className="text-xs text-muted-foreground text-center mb-4">
+                                {useAiBackgrounds && aiAvailable
+                                    ? "Using AI-generated images"
+                                    : pexelsAvailable
+                                        ? "Using high-quality photos from Pexels"
+                                        : "Using photos from Unsplash"}
+                            </p>
                         )}
 
                         <Button
