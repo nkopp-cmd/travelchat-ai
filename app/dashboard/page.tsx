@@ -5,6 +5,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { getTemplateById } from "@/lib/templates";
 import { RecentStories } from "@/components/dashboard/recent-stories";
+import { MobileDashboardContent } from "@/components/dashboard/mobile-dashboard-content";
 
 // Fetch user's recent itineraries
 async function getRecentItineraries() {
@@ -65,15 +66,9 @@ export default async function DashboardPage({
                     </ErrorBoundary>
                 </div>
 
-                {/* Mobile/Tablet - Show a welcome message, chat via FAB */}
-                <div className="flex lg:hidden flex-1 flex-col items-center justify-center text-center px-4">
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-violet-500/30">
-                        <span className="text-3xl font-bold text-white">A</span>
-                    </div>
-                    <h2 className="text-xl font-semibold mb-2">Hey there!</h2>
-                    <p className="text-muted-foreground max-w-sm">
-                        Tap the chat button to start exploring hidden gems with Alley, your local guide.
-                    </p>
+                {/* Mobile/Tablet - Show useful content */}
+                <div className="flex lg:hidden flex-1 min-h-0 overflow-y-auto">
+                    <MobileDashboardContent itineraries={recentItineraries} />
                 </div>
             </div>
 

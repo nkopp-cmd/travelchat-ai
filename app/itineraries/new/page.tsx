@@ -10,9 +10,11 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, MapPin, DollarSign, Users, Zap, LayoutTemplate, X } from "lucide-react";
+import { Loader2, Sparkles, MapPin, DollarSign, Users, Zap, LayoutTemplate, X, AlertCircle, CheckCircle2, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getTemplateById, ItineraryTemplate } from "@/lib/templates";
+import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
 
 const INTERESTS = [
     "Food & Dining",
@@ -27,12 +29,48 @@ const INTERESTS = [
     "Music & Entertainment"
 ];
 
+// Supported cities for validation
+const SUPPORTED_CITIES = ["Seoul", "Tokyo", "Bangkok", "Singapore"];
+
+// City validation helper
+function isCitySupported(input: string): string | null {
+    const normalizedInput = input.toLowerCase().trim();
+    for (const city of SUPPORTED_CITIES) {
+        if (city.toLowerCase() === normalizedInput || normalizedInput.includes(city.toLowerCase())) {
+            return city;
+        }
+    }
+    return null;
+}
+
+// Progress messages for generation
+const PROGRESS_MESSAGES = [
+    "Finding hidden gems...",
+    "Discovering local favorites...",
+    "Mapping the best routes...",
+    "Adding insider tips...",
+    "Curating your perfect trip...",
+    "Almost there...",
+];
+
 function NewItineraryForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { toast } = useToast();
+    const { isSignedIn, isLoaded } = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<ItineraryTemplate | null>(null);
+    const [progressMessage, setProgressMessage] = useState("");
+    const [cityError, setCityError] = useState<string | null>(null);
+    const [generatedItinerary, setGeneratedItinerary] = useState<{
+        itinerary: unknown;
+        isAnonymous: boolean;
+        signupPrompt?: {
+            message: string;
+            benefits: string[];
+            signupUrl: string;
+        };
+    } | null>(null);
 
     // Form state
     const [city, setCity] = useState("");
@@ -72,6 +110,34 @@ function NewItineraryForm() {
         }
     }, [searchParams]);
 
+    // Progress message animation during loading
+    useEffect(() => {
+        if (!isLoading) {
+            setProgressMessage("");
+            return;
+        }
+
+        let index = 0;
+        setProgressMessage(PROGRESS_MESSAGES[0]);
+
+        const interval = setInterval(() => {
+            index = (index + 1) % PROGRESS_MESSAGES.length;
+            setProgressMessage(PROGRESS_MESSAGES[index]);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [isLoading]);
+
+    // Validate city on change
+    const handleCityChange = (value: string) => {
+        setCity(value);
+        setCityError(null);
+
+        if (value.trim() && !isCitySupported(value)) {
+            setCityError(`We don't have spots for "${value}" yet. Try: ${SUPPORTED_CITIES.join(", ")}`);
+        }
+    };
+
     const clearTemplate = () => {
         setSelectedTemplate(null);
         router.replace("/itineraries/new");
@@ -97,6 +163,17 @@ function NewItineraryForm() {
             return;
         }
 
+        // Validate city before submitting
+        const validCity = isCitySupported(city);
+        if (!validCity) {
+            toast({
+                title: "City not supported yet",
+                description: `We have curated spots in: ${SUPPORTED_CITIES.join(", ")}`,
+                variant: "destructive",
+            });
+            return;
+        }
+
         if (selectedInterests.length === 0) {
             toast({
                 title: "Select interests",
@@ -107,6 +184,7 @@ function NewItineraryForm() {
         }
 
         setIsLoading(true);
+        setGeneratedItinerary(null);
 
         try {
             const response = await fetch("/api/itineraries/generate", {
@@ -124,29 +202,57 @@ function NewItineraryForm() {
                 }),
             });
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Failed to generate itinerary");
-            }
-
             const data = await response.json();
 
-            toast({
-                title: "Itinerary created! 🎉",
-                description: `${data.itinerary.title} is ready to explore`,
-            });
+            if (!response.ok) {
+                // Handle specific error types
+                if (data.error === "signup_required") {
+                    toast({
+                        title: "Sign up to continue",
+                        description: data.message,
+                    });
+                    router.push("/sign-up?redirect=/itineraries/new");
+                    return;
+                }
 
-            // Redirect to the new itinerary
-            if (data.itinerary.id) {
-                router.push(`/itineraries/${data.itinerary.id}`);
-            } else {
-                // If no ID (save failed), redirect to itineraries list
+                if (data.error === "unsupported_city") {
+                    setCityError(data.suggestion);
+                    throw new Error(data.message);
+                }
+
+                if (data.error === "limit_exceeded") {
+                    toast({
+                        title: "Limit reached",
+                        description: data.message,
+                    });
+                    if (data.upgrade) {
+                        router.push("/pricing");
+                    }
+                    return;
+                }
+
+                throw new Error(data.error || data.message || "Failed to generate itinerary");
+            }
+
+            // Handle anonymous user - show itinerary with signup prompt
+            if (data.isAnonymous) {
+                setGeneratedItinerary(data);
                 toast({
-                    title: "Itinerary generated",
-                    description: "There was an issue saving. Please try again.",
-                    variant: "destructive",
+                    title: "Itinerary created!",
+                    description: "Sign up to save it and create more",
                 });
-                router.push('/itineraries');
+            } else {
+                // Authenticated user - redirect to saved itinerary
+                toast({
+                    title: "Itinerary created!",
+                    description: `${data.itinerary.title} is ready to explore`,
+                });
+
+                if (data.itinerary.id) {
+                    router.push(`/itineraries/${data.itinerary.id}`);
+                } else {
+                    router.push('/itineraries');
+                }
             }
         } catch (error) {
             toast({
@@ -159,8 +265,146 @@ function NewItineraryForm() {
         }
     };
 
+    // Show generated itinerary for anonymous users
+    if (generatedItinerary) {
+        const itinerary = generatedItinerary.itinerary as {
+            title: string;
+            subtitle?: string;
+            city: string;
+            days: number;
+            highlights?: string[];
+            dailyPlans?: Array<{ day: number; theme: string; activities: Array<{ name: string }> }>;
+        };
+
+        return (
+            <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
+                {/* Success Banner */}
+                <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
+                    <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
+                            <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0">
+                                <CheckCircle2 className="h-6 w-6 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-xl font-bold text-green-800 dark:text-green-200">
+                                    Your itinerary is ready!
+                                </h2>
+                                <p className="text-green-700 dark:text-green-300 mt-1">
+                                    {itinerary.title} - {itinerary.days} days in {itinerary.city}
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Itinerary Preview */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{itinerary.title}</CardTitle>
+                        {itinerary.subtitle && (
+                            <CardDescription>{itinerary.subtitle}</CardDescription>
+                        )}
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {itinerary.highlights && itinerary.highlights.length > 0 && (
+                            <div>
+                                <h4 className="font-semibold mb-2">Highlights</h4>
+                                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                                    {itinerary.highlights.map((h, i) => (
+                                        <li key={i}>{h}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {itinerary.dailyPlans && (
+                            <div>
+                                <h4 className="font-semibold mb-2">Your Days</h4>
+                                <div className="space-y-2">
+                                    {itinerary.dailyPlans.slice(0, 3).map((day) => (
+                                        <div key={day.day} className="p-3 rounded-lg bg-muted/50">
+                                            <p className="font-medium">Day {day.day}: {day.theme}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {day.activities.slice(0, 3).map(a => a.name).join(" → ")}
+                                                {day.activities.length > 3 && ` + ${day.activities.length - 3} more`}
+                                            </p>
+                                        </div>
+                                    ))}
+                                    {itinerary.dailyPlans.length > 3 && (
+                                        <p className="text-sm text-muted-foreground pl-3">
+                                            + {itinerary.dailyPlans.length - 3} more days...
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Sign Up Prompt */}
+                {generatedItinerary.signupPrompt && (
+                    <Card className="border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30">
+                        <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                                <div className="h-12 w-12 rounded-full bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center flex-shrink-0">
+                                    <Gift className="h-6 w-6 text-violet-600" />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-bold text-violet-800 dark:text-violet-200">
+                                        {generatedItinerary.signupPrompt.message}
+                                    </h3>
+                                    <ul className="mt-3 space-y-2">
+                                        {generatedItinerary.signupPrompt.benefits.map((benefit, i) => (
+                                            <li key={i} className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
+                                                <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                                                <span>{benefit}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <div className="flex gap-3 mt-4">
+                                        <Link href="/sign-up" className="flex-1">
+                                            <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                                                <Sparkles className="mr-2 h-4 w-4" />
+                                                Sign Up Free
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setGeneratedItinerary(null)}
+                                        >
+                                            Create Another
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-3xl mx-auto py-8 px-4">
+            {/* Anonymous User Banner */}
+            {isLoaded && !isSignedIn && (
+                <Card className="mb-6 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                    <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                            <Gift className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="font-medium text-amber-800 dark:text-amber-200">
+                                    Try it free! Create 1 itinerary without signing up.
+                                </p>
+                                <p className="text-sm text-amber-700 dark:text-amber-300">
+                                    <Link href="/sign-up" className="underline hover:no-underline">Sign up</Link> to save and create more.
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             {/* Template Banner */}
             {selectedTemplate && (
                 <Card className="mb-6 border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30">
@@ -205,17 +449,35 @@ function NewItineraryForm() {
                                 <MapPin className="h-4 w-4 text-violet-600" />
                                 Where are you going?
                             </Label>
-                            <Input
-                                id="city"
-                                placeholder="e.g. Seoul, Tokyo, Bangkok, Singapore"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                className="text-lg h-12"
-                                required
-                            />
-                            <p className="text-xs text-muted-foreground">
-                                We have spots in Seoul, Tokyo, Bangkok, and Singapore
-                            </p>
+                            <div className="relative">
+                                <Input
+                                    id="city"
+                                    placeholder="Seoul, Tokyo, Bangkok, or Singapore"
+                                    value={city}
+                                    onChange={(e) => handleCityChange(e.target.value)}
+                                    className={`text-lg h-12 ${cityError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                    required
+                                />
+                            </div>
+                            {cityError ? (
+                                <p className="text-sm text-red-500 flex items-center gap-1">
+                                    <AlertCircle className="h-4 w-4" />
+                                    {cityError}
+                                </p>
+                            ) : (
+                                <div className="flex gap-2 flex-wrap">
+                                    {SUPPORTED_CITIES.map((c) => (
+                                        <button
+                                            key={c}
+                                            type="button"
+                                            onClick={() => { setCity(c); setCityError(null); }}
+                                            className="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300 transition-colors"
+                                        >
+                                            {c}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* Days and Budget */}
@@ -343,17 +605,19 @@ function NewItineraryForm() {
                             </div>
                         </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex-col gap-4">
                         <Button
                             type="submit"
-                            className="w-full h-14 text-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20"
-                            disabled={isLoading}
+                            className="w-full h-14 text-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20 disabled:opacity-70"
+                            disabled={isLoading || !!cityError}
                         >
                             {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Generating Your Perfect Trip...
-                                </>
+                                <div className="flex flex-col items-center">
+                                    <div className="flex items-center">
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        <span>{progressMessage || "Generating..."}</span>
+                                    </div>
+                                </div>
                             ) : (
                                 <>
                                     <Sparkles className="mr-2 h-5 w-5" />
@@ -361,6 +625,11 @@ function NewItineraryForm() {
                                 </>
                             )}
                         </Button>
+                        {isLoading && (
+                            <p className="text-sm text-muted-foreground text-center">
+                                This usually takes 20-30 seconds. We&apos;re finding the best spots for you!
+                            </p>
+                        )}
                     </CardFooter>
                 </form>
             </Card>

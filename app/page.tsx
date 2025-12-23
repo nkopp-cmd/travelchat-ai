@@ -2,9 +2,54 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Sparkles, Users, Search } from "lucide-react";
+import { ArrowRight, MapPin, Sparkles, Users, Search, Clock, Star, Coffee, Utensils, Camera, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { SUPPORTED_CITIES } from "@/lib/supported-cities";
+
+// Demo itinerary data to show on landing page
+const DEMO_ITINERARY = {
+  title: "Seoul Hidden Gems",
+  subtitle: "3 days of local favorites and secret spots",
+  city: "Seoul",
+  localScore: 8,
+  days: [
+    {
+      day: 1,
+      theme: "Vintage Alleys & Coffee Culture",
+      activities: [
+        {
+          time: "09:00 AM",
+          name: "Onion Cafe Anguk",
+          category: "cafe",
+          description: "Artisan bread cafe in a renovated hanok. Try the cream cheese garlic bread - locals line up for it!",
+          localleyScore: 5,
+        },
+        {
+          time: "12:00 PM",
+          name: "Gwangjang Market",
+          category: "market",
+          description: "Skip the tourist stalls. Head to the back for grandma-run bindaetteok (mung bean pancakes).",
+          localleyScore: 6,
+        },
+        {
+          time: "03:00 PM",
+          name: "Ikseon-dong Hanok Village",
+          category: "neighborhood",
+          description: "Trendy cafes and boutiques hidden in traditional alleyways. Perfect for golden hour photos.",
+          localleyScore: 4,
+        },
+        {
+          time: "07:00 PM",
+          name: "Euljiro Alley Bars",
+          category: "bar",
+          description: "Industrial-chic speakeasies. Look for the unmarked doors - that's where the magic happens.",
+          localleyScore: 6,
+        },
+      ],
+    },
+  ],
+};
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,6 +181,153 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Demo Itinerary Section */}
+      <section className="w-full py-24 lg:py-32 bg-gradient-to-b from-black via-violet-950/20 to-black relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 w-[800px] h-[800px] bg-violet-900/10 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
+
+        <div className="container px-4 md:px-6 relative z-10 max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium backdrop-blur-md mb-4">
+              <Star className="mr-2 h-4 w-4 text-violet-400" />
+              <span className="text-violet-200">Try it Free - No Login Required</span>
+            </div>
+            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl text-white mb-4">
+              See What You'll Get
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Real local recommendations, not tourist traps. Here's a preview of our Seoul itinerary.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-start">
+            {/* Demo Itinerary Card */}
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">{DEMO_ITINERARY.title}</h3>
+                  <p className="text-gray-400">{DEMO_ITINERARY.subtitle}</p>
+                </div>
+                <div className="flex items-center gap-2 bg-violet-500/20 px-3 py-1.5 rounded-full">
+                  <Star className="h-4 w-4 text-violet-400" />
+                  <span className="text-violet-300 font-medium">{DEMO_ITINERARY.localScore}/10 Local</span>
+                </div>
+              </div>
+
+              {/* Day Theme */}
+              <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
+                <span className="bg-violet-500/30 text-violet-300 px-2 py-0.5 rounded-full font-medium">
+                  Day 1
+                </span>
+                <span>{DEMO_ITINERARY.days[0].theme}</span>
+              </div>
+
+              {/* Activities */}
+              <div className="space-y-3">
+                {DEMO_ITINERARY.days[0].activities.map((activity, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors group"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
+                        {activity.category === "cafe" && <Coffee className="h-5 w-5 text-white" />}
+                        {activity.category === "market" && <Utensils className="h-5 w-5 text-white" />}
+                        {activity.category === "neighborhood" && <Camera className="h-5 w-5 text-white" />}
+                        {activity.category === "bar" && <Sparkles className="h-5 w-5 text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500 font-medium">{activity.time}</span>
+                          <span className="text-xs text-violet-400 bg-violet-500/20 px-1.5 py-0.5 rounded">
+                            {activity.localleyScore}/6
+                          </span>
+                        </div>
+                        <h4 className="text-white font-semibold group-hover:text-violet-300 transition-colors">
+                          {activity.name}
+                        </h4>
+                        <p className="text-sm text-gray-400 mt-1">{activity.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* More Days Indicator */}
+              <div className="mt-4 text-center text-gray-500 text-sm">
+                + 2 more days of hidden gems...
+              </div>
+            </div>
+
+            {/* CTA Side */}
+            <div className="flex flex-col items-center lg:items-start justify-center space-y-6 lg:pl-8">
+              <div className="space-y-4">
+                <h3 className="text-3xl font-bold text-white text-center lg:text-left">
+                  Create Your Own Itinerary
+                </h3>
+                <p className="text-gray-400 text-lg text-center lg:text-left">
+                  Get a personalized travel plan in under a minute. Choose your city and let our AI guide you to the best local spots.
+                </p>
+              </div>
+
+              {/* City Quick Select */}
+              <div className="w-full max-w-sm">
+                <p className="text-sm text-gray-500 mb-3">Available cities:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {SUPPORTED_CITIES.map((city) => (
+                    <Link
+                      key={city.name}
+                      href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
+                      className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-3 hover:bg-white/10 hover:border-violet-500/30 transition-all group"
+                    >
+                      <span className="text-xl">{city.emoji}</span>
+                      <div className="flex-1">
+                        <div className="text-white font-medium group-hover:text-violet-300 transition-colors">
+                          {city.name}
+                        </div>
+                        <div className="text-xs text-gray-500">{city.country}</div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-gray-500 group-hover:text-violet-400 transition-colors" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <Link href="/itineraries/new" className="w-full max-w-sm">
+                <Button
+                  size="lg"
+                  className="w-full h-14 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-lg font-semibold shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)] transition-all hover:scale-[1.02]"
+                >
+                  Create Free Itinerary
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+
+              <p className="text-sm text-gray-500 text-center lg:text-left">
+                No account required for your first itinerary
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full py-8 border-t border-white/10">
+        <div className="container px-4 md:px-6 max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">L</span>
+              </div>
+              <span className="text-lg font-bold text-white">Localley</span>
+            </div>
+            <p className="text-sm text-gray-500">
+              Your local friend in every city
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

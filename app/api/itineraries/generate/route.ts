@@ -3,10 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
-import { hasFeature } from '@/lib/subscription';
+import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndTrackUsage, trackSuccessfulUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
+import { isCitySupported, getSupportedCityNames } from '@/lib/supported-cities';
+import { cookies } from 'next/headers';
+
+// Anonymous usage tracking via cookies
+const ANON_COOKIE_NAME = 'localley_anon_usage';
+const ANON_LIMIT = 1; // 1 free itinerary without signup
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -101,43 +107,67 @@ EXAMPLE of a BAD activity (DO NOT DO THIS):
 }
 `;
 
+// Helper to get/set anonymous usage cookie
+async function getAnonymousUsage(): Promise<number> {
+  const cookieStore = await cookies();
+  const usage = cookieStore.get(ANON_COOKIE_NAME);
+  return usage ? parseInt(usage.value, 10) : 0;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
+    let isAnonymous = !userId;
+    let tier: SubscriptionTier = "free";
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please sign in.' },
-        { status: 401 }
-      );
-    }
+    // Handle anonymous users
+    if (isAnonymous) {
+      const anonUsage = await getAnonymousUsage();
 
-    // Check usage limits before proceeding
-    const { allowed, usage, tier } = await checkAndTrackUsage(userId, "itineraries_created");
-
-    if (!allowed) {
-      const tierConfig = TIER_CONFIGS[tier];
-      return NextResponse.json(
-        {
-          error: "limit_exceeded",
-          message: `You've reached your limit of ${usage.limit} itineraries this month.`,
-          usage: {
-            current: usage.currentUsage,
-            limit: usage.limit,
-            resetAt: usage.periodResetAt,
+      if (anonUsage >= ANON_LIMIT) {
+        return NextResponse.json(
+          {
+            error: "signup_required",
+            message: "You've used your free trial! Sign up to create more itineraries.",
+            benefits: [
+              "Save and access all your itineraries",
+              "3 free itineraries per month",
+              "Chat with Alley for personalized recommendations",
+              "Export and share your trips",
+            ],
+            signupUrl: "/sign-up",
           },
-          upgrade: tier === "free" ? {
-            suggestion: "Upgrade to Pro for unlimited itineraries",
-            tier: "pro",
-            price: TIER_CONFIGS.pro.price,
-          } : tier === "pro" ? {
-            suggestion: "Upgrade to Premium for priority support",
-            tier: "premium",
-            price: TIER_CONFIGS.premium.price,
-          } : null,
-        },
-        { status: 429 }
-      );
+          { status: 401 }
+        );
+      }
+    } else {
+      // Check usage limits for authenticated users
+      const { allowed, usage, tier: userTier } = await checkAndTrackUsage(userId!, "itineraries_created");
+      tier = userTier;
+
+      if (!allowed) {
+        return NextResponse.json(
+          {
+            error: "limit_exceeded",
+            message: `You've reached your limit of ${usage.limit} itineraries this month.`,
+            usage: {
+              current: usage.currentUsage,
+              limit: usage.limit,
+              resetAt: usage.periodResetAt,
+            },
+            upgrade: tier === "free" ? {
+              suggestion: "Upgrade to Pro for unlimited itineraries",
+              tier: "pro",
+              price: TIER_CONFIGS.pro.price,
+            } : tier === "pro" ? {
+              suggestion: "Upgrade to Premium for priority support",
+              tier: "premium",
+              price: TIER_CONFIGS.premium.price,
+            } : null,
+          },
+          { status: 429 }
+        );
+      }
     }
 
     const validation = await validateBody(req, generateItinerarySchema);
@@ -147,17 +177,33 @@ export async function POST(req: NextRequest) {
 
     const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = validation.data;
 
+    // Validate city is supported
+    const normalizedCity = isCitySupported(city);
+    if (!normalizedCity) {
+      const supportedCities = getSupportedCityNames();
+      return NextResponse.json(
+        {
+          error: "unsupported_city",
+          message: `We don't have curated local spots for "${city}" yet.`,
+          supportedCities,
+          suggestion: `Try one of our supported cities: ${supportedCities.join(", ")}`,
+          comingSoon: "We're adding new cities every month! Sign up to get notified.",
+        },
+        { status: 400 }
+      );
+    }
+
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();
     const { data: spots } = await supabase
       .from('spots')
       .select('*')
-      .ilike('address->>en', `%${city}%`)
+      .ilike('address->>en', `%${normalizedCity}%`)
       .gte('localley_score', localnessLevel || 3)
       .limit(15);
 
     const spotsContext = spots && spots.length > 0
-      ? `\n\nHere are some verified local spots in ${city} that you SHOULD include:
+      ? `\n\nHere are some verified local spots in ${normalizedCity} that you SHOULD include:
 ${spots.map(spot => {
         const name = typeof spot.name === 'object' ? spot.name.en : spot.name;
         const desc = typeof spot.description === 'object' ? spot.description.en : spot.description;
@@ -167,7 +213,7 @@ ${spots.map(spot => {
       : '';
 
     const userPrompt = `
-Create a ${days}-day itinerary for ${city} with these preferences:
+Create a ${days}-day itinerary for ${normalizedCity} with these preferences:
 - Interests: ${interests?.join(', ') || 'general exploration'}
 - Budget: ${budget || 'moderate'}
 - Localness Level: ${localnessLevel || 3}/5 (5 = maximum local authenticity)
@@ -222,111 +268,143 @@ Make it exciting, authentic, and full of hidden gems!
     }
 
     // Add thumbnail images to activities
-    // Use AI-generated images for Pro/Premium users, Unsplash for Free
-    const useAIImages = hasFeature(tier, 'activityImages') === 'ai-generated';
+    // Use AI-generated images for Pro/Premium users, Unsplash for Free/Anonymous
+    const useAIImages = !isAnonymous && hasFeature(tier, 'activityImages') === 'ai-generated';
 
     let dailyPlansWithImages;
     if (useAIImages) {
       // Pro/Premium: Generate AI thumbnails (max 6 to avoid long wait times)
       dailyPlansWithImages = await addAIThumbnailsToItinerary(
         itineraryData.dailyPlans,
-        city,
+        normalizedCity,
         6 // Generate up to 6 AI images, rest use Unsplash
       );
     } else {
-      // Free tier: Use Unsplash placeholders
-      dailyPlansWithImages = addThumbnailsToItinerary(itineraryData.dailyPlans, city);
+      // Free tier / Anonymous: Use Unsplash placeholders
+      dailyPlansWithImages = addThumbnailsToItinerary(itineraryData.dailyPlans, normalizedCity);
     }
 
     itineraryData.dailyPlans = dailyPlansWithImages;
 
-    // Save itinerary to database
-    // First, get or create the user in our users table
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('clerk_id', userId)
-      .single();
-
-    let userDbId = user?.id;
-
-    // If user doesn't exist, create them
-    if (userError || !user) {
-      // Let Supabase generate the UUID automatically
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert([{
-          clerk_id: userId
-        }])
-        .select('id')
-        .single();
-
-      if (createError) {
-        console.error('Error creating user:', createError);
-      } else {
-        userDbId = newUser?.id;
-      }
-    }
-
-    // Only try to save if we have a valid user ID
     let savedItinerary = null;
-    if (userDbId) {
-      const { data, error: saveError } = await supabase
-        .from('itineraries')
-        .insert([
-          {
-            user_id: userDbId,  // Required FK to users table
-            clerk_user_id: userId,  // For direct querying
-            title: itineraryData.title,
-            subtitle: itineraryData.subtitle,
-            city: city,
-            days: days,
-            activities: itineraryData.dailyPlans,
-            local_score: itineraryData.localScore,
-            shared: false,
-            highlights: itineraryData.highlights,
-            estimated_cost: itineraryData.estimatedCost,
-          },
-        ])
-        .select()
+
+    // Only save to database for authenticated users
+    if (!isAnonymous && userId) {
+      // Save itinerary to database
+      // First, get or create the user in our users table
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_id', userId)
         .single();
 
-      if (saveError) {
-        console.error('Error saving itinerary:', saveError);
-        // Continue even if save fails - return the itinerary
-      } else {
-        savedItinerary = data;
+      let userDbId = user?.id;
+
+      // If user doesn't exist, create them
+      if (userError || !user) {
+        // Let Supabase generate the UUID automatically
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert([{
+            clerk_id: userId
+          }])
+          .select('id')
+          .single();
+
+        if (createError) {
+          console.error('Error creating user:', createError);
+        } else {
+          userDbId = newUser?.id;
+        }
       }
-    } else {
-      console.error('Cannot save itinerary: no user_id found');
+
+      // Only try to save if we have a valid user ID
+      if (userDbId) {
+        const { data, error: saveError } = await supabase
+          .from('itineraries')
+          .insert([
+            {
+              user_id: userDbId,  // Required FK to users table
+              clerk_user_id: userId,  // For direct querying
+              title: itineraryData.title,
+              subtitle: itineraryData.subtitle,
+              city: normalizedCity,
+              days: days,
+              activities: itineraryData.dailyPlans,
+              local_score: itineraryData.localScore,
+              shared: false,
+              highlights: itineraryData.highlights,
+              estimated_cost: itineraryData.estimatedCost,
+            },
+          ])
+          .select()
+          .single();
+
+        if (saveError) {
+          console.error('Error saving itinerary:', saveError);
+          // Continue even if save fails - return the itinerary
+        } else {
+          savedItinerary = data;
+        }
+      } else {
+        console.error('Cannot save itinerary: no user_id found');
+      }
+
+      // Track successful usage for authenticated users
+      await trackSuccessfulUsage(userId, "itineraries_created");
+
+      // Award XP for creating itinerary (fire and forget)
+      try {
+        await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': req.headers.get('cookie') || '',
+          },
+          body: JSON.stringify({
+            action: 'create_itinerary',
+          }),
+        });
+      } catch (xpError) {
+        console.error('Error awarding XP:', xpError);
+      }
     }
 
-    // Track successful usage
-    await trackSuccessfulUsage(userId, "itineraries_created");
-
-    // Award XP for creating itinerary (fire and forget)
-    try {
-      await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': req.headers.get('cookie') || '',
-        },
-        body: JSON.stringify({
-          action: 'create_itinerary',
-        }),
-      });
-    } catch (xpError) {
-      console.error('Error awarding XP:', xpError);
-    }
-
-    return NextResponse.json({
+    // Build response
+    const response = NextResponse.json({
       success: true,
+      isAnonymous,
       itinerary: {
         id: savedItinerary?.id,
         ...itineraryData,
       },
+      // For anonymous users, prompt them to sign up to save
+      ...(isAnonymous && {
+        signupPrompt: {
+          message: "Sign up to save this itinerary and create more!",
+          benefits: [
+            "Save and access your itineraries anytime",
+            "Get 3 free itineraries per month",
+            "Chat with Alley for personalized tips",
+            "Export to PDF and share with friends",
+          ],
+          signupUrl: "/sign-up",
+        },
+      }),
     });
+
+    // Set anonymous usage cookie for anonymous users
+    if (isAnonymous) {
+      const currentUsage = await getAnonymousUsage();
+      response.cookies.set(ANON_COOKIE_NAME, String(currentUsage + 1), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("Error generating itinerary:", error);
     return NextResponse.json(

@@ -6,6 +6,11 @@ const isPublicRoute = createRouteMatcher([
     '/sign-in(.*)',
     '/sign-up(.*)',
     '/api/webhooks(.*)',
+    '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
+    '/api/itineraries/generate',  // Allow anonymous generation API
+    '/api/itineraries/demo',  // Demo itinerary endpoint
+    '/spots(.*)',  // Allow browsing spots without login
+    '/templates(.*)',  // Allow browsing templates
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
