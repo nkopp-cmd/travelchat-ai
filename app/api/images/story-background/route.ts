@@ -57,8 +57,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user can use AI images
+        // Pro tier has activityImages: "ai-generated", Premium has "hd"
+        // Use aiBackgrounds feature flag which is true for both Pro and Premium
         const tier = await getUserTier(userId);
-        const canUseAI = preferAI && isImagenAvailable() && hasFeature(tier, 'activityImages') === 'ai-generated';
+        const canUseAI = preferAI && isImagenAvailable() && hasFeature(tier, 'aiBackgrounds');
 
         console.log("[STORY_BG] Request:", {
             type,

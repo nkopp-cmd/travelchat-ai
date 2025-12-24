@@ -266,7 +266,7 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                                         {dayPlan.activities.length === 0 && (
                                             <div className="text-center py-8 text-muted-foreground">
                                                 <p>No activities yet.</p>
-                                                <p className="text-sm">Click "Add Activity" to get started.</p>
+                                                <p className="text-sm">Click &quot;Add Activity&quot; to get started.</p>
                                             </div>
                                         )}
                                     </div>

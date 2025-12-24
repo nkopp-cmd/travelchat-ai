@@ -341,7 +341,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         Generate Story Slides
                     </DialogTitle>
                     <DialogDescription>
-                        Create Instagram/TikTok-ready story slides for "{itineraryTitle}"
+                        Create Instagram/TikTok-ready story slides for &quot;{itineraryTitle}&quot;
                     </DialogDescription>
                 </DialogHeader>
 

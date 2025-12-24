@@ -83,7 +83,10 @@ export async function POST(req: NextRequest) {
             activityImagesFeature: tierConfig.features.activityImages
         });
 
-        if (!bypassTierCheck && tierConfig.features.activityImages !== "ai-generated") {
+        // Check if user can use AI images
+        // Pro tier has activityImages: "ai-generated", Premium has "hd"
+        // Use aiBackgrounds feature flag which is true for both Pro and Premium
+        if (!bypassTierCheck && !tierConfig.features.aiBackgrounds) {
             return NextResponse.json(
                 {
                     error: "feature_restricted",
@@ -278,6 +281,6 @@ export async function POST(req: NextRequest) {
 export async function GET() {
     return NextResponse.json({
         available: isImagenAvailable(),
-        model: "gemini-2.5-flash-image",
+        model: "gemini-2.0-flash-exp",
     });
 }

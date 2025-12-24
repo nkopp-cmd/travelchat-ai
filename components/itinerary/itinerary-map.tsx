@@ -82,7 +82,8 @@ async function geocodeAddress(address: string, city: string): Promise<{ lat: num
 
 export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps) {
     const [locations, setLocations] = useState<GeocodedLocation[]>([]);
-    const [loading, setLoading] = useState(true);
+    // Initialize loading based on whether we have plans to process
+    const [loading, setLoading] = useState(dailyPlans.length > 0);
     const [error, setError] = useState<string | null>(null);
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [isExpanded, setIsExpanded] = useState(true);
@@ -90,6 +91,11 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
 
     // Geocode all activities
     useEffect(() => {
+        // Skip if no plans to process
+        if (dailyPlans.length === 0) {
+            return;
+        }
+
         const geocodeActivities = async () => {
             setLoading(true);
             setError(null);
@@ -142,11 +148,7 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
             setLoading(false);
         };
 
-        if (dailyPlans.length > 0) {
-            geocodeActivities();
-        } else {
-            setLoading(false);
-        }
+        geocodeActivities();
     }, [dailyPlans, city]);
 
     // Filter locations by selected day

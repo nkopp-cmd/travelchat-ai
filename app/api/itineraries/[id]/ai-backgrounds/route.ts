@@ -3,32 +3,47 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
 /**
- * Validate that a string is a valid base64-encoded data URL for an image
+ * Validate that a string is a valid image source (base64 data URL or external URL)
  */
-function validateBase64Image(data: string): boolean {
-    // Check it's a data URL with image mime type
-    if (!data.startsWith('data:image/')) return false;
-
-    // Check it has base64 encoding
-    if (!data.includes(';base64,')) return false;
-
-    // Extract and validate base64 content
-    const base64Part = data.split(',')[1];
-    if (!base64Part) return false;
-
-    // Check length is reasonable (not empty, not too large)
-    // Min: 100 chars (~75 bytes), Max: 10MB (~7.5MB base64)
-    if (base64Part.length < 100 || base64Part.length > 10_000_000) {
-        return false;
+function validateImageSource(data: string): boolean {
+    // Accept external image URLs (Unsplash, Pexels, TripAdvisor, etc.)
+    if (data.startsWith('https://images.unsplash.com/') ||
+        data.startsWith('https://images.pexels.com/') ||
+        data.startsWith('https://media-cdn.tripadvisor.com/') ||
+        data.startsWith('https://')) {
+        // Basic URL validation - check it looks like an image URL
+        const url = data.toLowerCase();
+        const hasImageExtension = url.includes('.jpg') || url.includes('.jpeg') ||
+                                  url.includes('.png') || url.includes('.webp') ||
+                                  url.includes('fit=crop') || url.includes('/photo');
+        return hasImageExtension || url.includes('unsplash') || url.includes('pexels');
     }
 
-    // Validate base64 characters (optional but recommended)
-    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
-    if (!base64Regex.test(base64Part)) {
-        return false;
+    // Accept base64-encoded data URLs
+    if (data.startsWith('data:image/')) {
+        // Check it has base64 encoding
+        if (!data.includes(';base64,')) return false;
+
+        // Extract and validate base64 content
+        const base64Part = data.split(',')[1];
+        if (!base64Part) return false;
+
+        // Check length is reasonable (not empty, not too large)
+        // Min: 100 chars (~75 bytes), Max: 10MB (~7.5MB base64)
+        if (base64Part.length < 100 || base64Part.length > 10_000_000) {
+            return false;
+        }
+
+        // Validate base64 characters
+        const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+        if (!base64Regex.test(base64Part)) {
+            return false;
+        }
+
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /**
@@ -47,32 +62,54 @@ export async function PATCH(
 
         const { id } = await params;
         const body = await req.json();
-        const { cover, summary } = body;
+
+        // Extract known fields and any day backgrounds (day1, day2, etc.)
+        const { cover, summary, ...rest } = body;
+
+        // Collect day backgrounds from rest
+        const dayBackgrounds: Record<string, string> = {};
+        for (const key of Object.keys(rest)) {
+            if (key.match(/^day\d+$/) && typeof rest[key] === 'string') {
+                dayBackgrounds[key] = rest[key];
+            }
+        }
 
         // Validate that at least one background is provided
-        if (!cover && !summary) {
+        const hasAnyBackground = cover || summary || Object.keys(dayBackgrounds).length > 0;
+        if (!hasAnyBackground) {
             return NextResponse.json(
-                { error: "At least one background (cover or summary) is required" },
+                { error: "At least one background is required" },
                 { status: 400 }
             );
         }
 
         // Validate cover image format if provided
-        if (cover && !validateBase64Image(cover)) {
-            console.error("[AI_BACKGROUNDS] Invalid cover image format");
+        if (cover && !validateImageSource(cover)) {
+            console.error("[AI_BACKGROUNDS] Invalid cover image format:", cover.substring(0, 100));
             return NextResponse.json(
-                { error: "Invalid cover image format. Must be a valid base64-encoded data URL." },
+                { error: "Invalid cover image format. Must be a valid image URL or base64-encoded data URL." },
                 { status: 400 }
             );
         }
 
         // Validate summary image format if provided
-        if (summary && !validateBase64Image(summary)) {
-            console.error("[AI_BACKGROUNDS] Invalid summary image format");
+        if (summary && !validateImageSource(summary)) {
+            console.error("[AI_BACKGROUNDS] Invalid summary image format:", summary.substring(0, 100));
             return NextResponse.json(
-                { error: "Invalid summary image format. Must be a valid base64-encoded data URL." },
+                { error: "Invalid summary image format. Must be a valid image URL or base64-encoded data URL." },
                 { status: 400 }
             );
+        }
+
+        // Validate day background formats
+        for (const [key, value] of Object.entries(dayBackgrounds)) {
+            if (!validateImageSource(value)) {
+                console.error(`[AI_BACKGROUNDS] Invalid ${key} image format:`, value.substring(0, 100));
+                return NextResponse.json(
+                    { error: `Invalid ${key} image format. Must be a valid image URL or base64-encoded data URL.` },
+                    { status: 400 }
+                );
+            }
         }
 
         const supabase = createSupabaseAdmin();
@@ -106,10 +143,8 @@ export async function PATCH(
             .single();
 
         // Merge new backgrounds with existing ones (with safer type handling)
-        interface AiBackgrounds {
-            cover?: string;
-            summary?: string;
-        }
+        // Allow cover, summary, and day1, day2, etc.
+        type AiBackgrounds = Record<string, string>;
 
         const existingBackgrounds: AiBackgrounds =
             (existing?.ai_backgrounds && typeof existing.ai_backgrounds === 'object')
@@ -118,6 +153,7 @@ export async function PATCH(
 
         const aiBackgrounds: AiBackgrounds = {
             ...existingBackgrounds,
+            ...dayBackgrounds, // Include day1, day2, etc.
         };
         if (cover) aiBackgrounds.cover = cover;
         if (summary) aiBackgrounds.summary = summary;
@@ -125,8 +161,8 @@ export async function PATCH(
         console.log("[AI_BACKGROUNDS] Updating with:", {
             hasCover: !!aiBackgrounds.cover,
             hasSummary: !!aiBackgrounds.summary,
-            coverLength: aiBackgrounds.cover?.length,
-            summaryLength: aiBackgrounds.summary?.length,
+            dayCount: Object.keys(dayBackgrounds).length,
+            allKeys: Object.keys(aiBackgrounds),
         });
 
         // Update the itinerary with AI backgrounds

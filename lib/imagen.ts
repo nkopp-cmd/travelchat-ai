@@ -51,6 +51,9 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
         // Per docs: responseModalities should be ['Text', 'Image'] for gemini-2.0-flash-exp
         const config: Record<string, unknown> = {
             responseModalities: ['Text', 'Image'], // Enable both text and image output
+            imageConfig: {
+                aspectRatio: aspectRatio || '9:16', // Default to story format
+            },
         };
 
         console.log("[IMAGEN] Generating image with model:", IMAGE_MODEL, "config:", JSON.stringify(config));

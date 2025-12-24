@@ -4,6 +4,38 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "edge";
 
+// Curated Unsplash images for fallback (when no ai_backgrounds in database)
+const CITY_IMAGES: Record<string, string[]> = {
+    'seoul': [
+        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1080&h=1920&fit=crop',
+    ],
+    'tokyo': [
+        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1080&h=1920&fit=crop',
+    ],
+    'bangkok': [
+        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1080&h=1920&fit=crop',
+    ],
+    'singapore': [
+        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=1080&h=1920&fit=crop',
+    ],
+};
+
+const DEFAULT_TRAVEL_IMAGES = [
+    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1080&h=1920&fit=crop',
+    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1080&h=1920&fit=crop',
+];
+
+function getFallbackImage(city: string): string {
+    const normalizedCity = city.toLowerCase().trim();
+    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
+    const randomIndex = Math.floor(Math.random() * images.length);
+    return images[randomIndex];
+}
+
 // Story dimensions (9:16 aspect ratio for Instagram/TikTok)
 const STORY_WIDTH = 1080;
 const STORY_HEIGHT = 1920;
@@ -451,18 +483,38 @@ export async function GET(
         const aiBackgrounds = itinerary.ai_backgrounds as Record<string, string> | null;
         let aiBackground: string | undefined;
 
+        console.log("[STORY_ROUTE] Rendering slide:", {
+            slide,
+            dayIndex,
+            hasAiBackgrounds: !!aiBackgrounds,
+            backgroundKeys: aiBackgrounds ? Object.keys(aiBackgrounds) : [],
+        });
+
         if (aiBackgrounds) {
             if (slide === "cover" && aiBackgrounds.cover) {
                 aiBackground = aiBackgrounds.cover;
+                console.log("[STORY_ROUTE] Using cover background, length:", aiBackground.length);
             } else if (slide === "summary" && aiBackgrounds.summary) {
                 aiBackground = aiBackgrounds.summary;
+                console.log("[STORY_ROUTE] Using summary background, length:", aiBackground.length);
             } else if (slide === "day") {
                 // Check for day-specific background
                 const dayBgKey = `day${dayIndex + 1}`;
                 if (aiBackgrounds[dayBgKey]) {
                     aiBackground = aiBackgrounds[dayBgKey];
+                    console.log("[STORY_ROUTE] Using", dayBgKey, "background, length:", aiBackground.length);
+                } else {
+                    console.log("[STORY_ROUTE] No background for", dayBgKey, "- using fallback");
                 }
             }
+        } else {
+            console.log("[STORY_ROUTE] No ai_backgrounds in database for itinerary:", id);
+        }
+
+        // Use fallback image if no background was found
+        if (!aiBackground && itinerary.city) {
+            aiBackground = getFallbackImage(itinerary.city);
+            console.log("[STORY_ROUTE] Using fallback image for", itinerary.city, ":", aiBackground);
         }
 
         const dailyPlans: DayPlan[] = typeof itinerary.activities === "string"

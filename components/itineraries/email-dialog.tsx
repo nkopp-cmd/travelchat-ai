@@ -104,7 +104,7 @@ export function EmailDialog({ itineraryId, itineraryTitle }: EmailDialogProps) {
                 <DialogHeader>
                     <DialogTitle>Email Itinerary</DialogTitle>
                     <DialogDescription>
-                        Send "{itineraryTitle}" to your inbox or share with a friend.
+                        Send &quot;{itineraryTitle}&quot; to your inbox or share with a friend.
                     </DialogDescription>
                 </DialogHeader>
 

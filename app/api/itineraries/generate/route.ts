@@ -117,7 +117,7 @@ async function getAnonymousUsage(): Promise<number> {
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
-    let isAnonymous = !userId;
+    const isAnonymous = !userId;
     let tier: SubscriptionTier = "free";
 
     // Handle anonymous users

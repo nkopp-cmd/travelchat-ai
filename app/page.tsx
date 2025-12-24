@@ -193,10 +193,10 @@ export default function LandingPage() {
               <span className="text-violet-200">Try it Free - No Login Required</span>
             </div>
             <h2 className="text-4xl font-bold tracking-tight sm:text-5xl text-white mb-4">
-              See What You'll Get
+              See What You&apos;ll Get
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Real local recommendations, not tourist traps. Here's a preview of our Seoul itinerary.
+              Real local recommendations, not tourist traps. Here&apos;s a preview of our Seoul itinerary.
             </p>
           </div>
 
