@@ -65,12 +65,11 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                 justifyContent: "center",
                 alignItems: "center",
                 position: "relative",
-                background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
-                padding: 80,
+                overflow: "hidden",
             }}
         >
-            {/* Background image layer */}
-            {backgroundImage && (
+            {/* Background image layer - always show, use gradient as fallback */}
+            {backgroundImage ? (
                 <img
                     src={backgroundImage}
                     alt=""
@@ -78,14 +77,12 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         position: "absolute",
                         top: 0,
                         left: 0,
-                        width: "100%",
-                        height: "100%",
+                        width: STORY_WIDTH,
+                        height: STORY_HEIGHT,
                         objectFit: "cover",
                     }}
                 />
-            )}
-            {/* Dark overlay */}
-            {backgroundImage && (
+            ) : (
                 <div
                     style={{
                         position: "absolute",
@@ -93,11 +90,23 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "rgba(0,0,0,0.4)",
+                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
                     }}
                 />
             )}
-            {/* Logo */}
+            {/* Gradient overlay for text readability */}
+            <div
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.5) 100%)",
+                }}
+            />
+
+            {/* Logo - Glassmorphism style */}
             <div
                 style={{
                     position: "absolute",
@@ -105,57 +114,77 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                    padding: "12px 28px",
+                    borderRadius: 100,
+                    border: "1px solid rgba(255,255,255,0.2)",
                 }}
             >
-                <span style={{ fontSize: 48, color: "white", fontWeight: "bold" }}>
+                <span style={{ fontSize: 36, color: "white", fontWeight: "bold" }}>
                     Localley
                 </span>
             </div>
 
-            {/* City Badge */}
+            {/* Main content card - Glassmorphism */}
             <div
                 style={{
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
-                    gap: 12,
-                    backgroundColor: "rgba(255,255,255,0.2)",
-                    padding: "16px 32px",
-                    borderRadius: 100,
-                    marginBottom: 40,
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    padding: "48px 56px",
+                    borderRadius: 32,
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    maxWidth: 900,
                 }}
             >
-                <span style={{ fontSize: 36, color: "white" }}>📍 {city}</span>
-            </div>
+                {/* City Badge */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                        padding: "14px 28px",
+                        borderRadius: 100,
+                        marginBottom: 32,
+                        border: "1px solid rgba(255,255,255,0.15)",
+                    }}
+                >
+                    <span style={{ fontSize: 32, color: "white" }}>📍 {city}</span>
+                </div>
 
-            {/* Title */}
-            <h1
-                style={{
-                    fontSize: 72,
-                    fontWeight: "bold",
-                    color: "white",
-                    textAlign: "center",
-                    lineHeight: 1.2,
-                    margin: "0 0 40px 0",
-                    textShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                }}
-            >
-                {title}
-            </h1>
+                {/* Title */}
+                <h1
+                    style={{
+                        fontSize: 64,
+                        fontWeight: "bold",
+                        color: "white",
+                        textAlign: "center",
+                        lineHeight: 1.2,
+                        margin: "0 0 32px 0",
+                        textShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                    }}
+                >
+                    {title}
+                </h1>
 
-            {/* Days info */}
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 16,
-                    backgroundColor: "rgba(255,255,255,0.15)",
-                    padding: "24px 48px",
-                    borderRadius: 24,
-                }}
-            >
-                <span style={{ fontSize: 32, color: "white" }}>
-                    🗓️ {days} {days === 1 ? "Day" : "Days"} of Adventure
-                </span>
+                {/* Days info */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
+                        backgroundColor: "rgba(255,255,255,0.15)",
+                        padding: "18px 36px",
+                        borderRadius: 20,
+                        border: "1px solid rgba(255,255,255,0.1)",
+                    }}
+                >
+                    <span style={{ fontSize: 28, color: "white" }}>
+                        🗓️ {days} {days === 1 ? "Day" : "Days"} of Adventure
+                    </span>
+                </div>
             </div>
 
             {/* Swipe indicator */}
@@ -169,7 +198,7 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                     gap: 8,
                 }}
             >
-                <span style={{ fontSize: 24, color: "rgba(255,255,255,0.7)" }}>
+                <span style={{ fontSize: 24, color: "rgba(255,255,255,0.8)" }}>
                     Swipe to explore →
                 </span>
             </div>
@@ -189,12 +218,11 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
-                background: "linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)",
-                padding: 60,
+                overflow: "hidden",
             }}
         >
-            {/* Background image layer */}
-            {backgroundImage && (
+            {/* Background image layer - always show full size */}
+            {backgroundImage ? (
                 <img
                     src={backgroundImage}
                     alt=""
@@ -202,14 +230,12 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                         position: "absolute",
                         top: 0,
                         left: 0,
-                        width: "100%",
-                        height: "100%",
+                        width: STORY_WIDTH,
+                        height: STORY_HEIGHT,
                         objectFit: "cover",
                     }}
                 />
-            )}
-            {/* Dark overlay for readability */}
-            {backgroundImage && (
+            ) : (
                 <div
                     style={{
                         position: "absolute",
@@ -217,117 +243,169 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(rgba(30, 27, 75, 0.85), rgba(49, 46, 129, 0.9))",
+                        background: "linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)",
                     }}
                 />
             )}
-            {/* Header */}
+            {/* Gradient overlay for readability */}
             <div
                 style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 40,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "linear-gradient(180deg, rgba(30,27,75,0.7) 0%, rgba(49,46,129,0.8) 50%, rgba(30,27,75,0.9) 100%)",
                 }}
-            >
-                <span style={{ fontSize: 32, color: "rgba(255,255,255,0.6)" }}>
-                    Localley
-                </span>
-                <span style={{ fontSize: 28, color: "rgba(255,255,255,0.6)" }}>
-                    {dayNumber}/{totalDays}
-                </span>
-            </div>
+            />
 
-            {/* Day Title */}
+            {/* Content container with padding */}
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    marginBottom: 48,
-                }}
-            >
-                <span
-                    style={{
-                        fontSize: 64,
-                        fontWeight: "bold",
-                        color: "#a78bfa",
-                    }}
-                >
-                    Day {dayPlan.day || dayNumber}
-                </span>
-                {dayPlan.theme && (
-                    <span style={{ fontSize: 36, color: "white", marginTop: 8 }}>
-                        {dayPlan.theme}
-                    </span>
-                )}
-            </div>
-
-            {/* Activities */}
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 24,
+                    position: "relative",
+                    padding: 60,
                     flex: 1,
                 }}
             >
-                {activities.map((activity, index) => (
+                {/* Header - Glassmorphism */}
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 40,
+                    }}
+                >
                     <div
-                        key={index}
                         style={{
                             display: "flex",
-                            flexDirection: "column",
+                            alignItems: "center",
                             backgroundColor: "rgba(255,255,255,0.1)",
-                            borderRadius: 24,
-                            padding: 32,
-                            borderLeft: "4px solid #a78bfa",
+                            padding: "10px 24px",
+                            borderRadius: 100,
+                            border: "1px solid rgba(255,255,255,0.15)",
                         }}
                     >
+                        <span style={{ fontSize: 28, color: "white", fontWeight: "bold" }}>
+                            Localley
+                        </span>
+                    </div>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            backgroundColor: "rgba(255,255,255,0.1)",
+                            padding: "10px 24px",
+                            borderRadius: 100,
+                            border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                    >
+                        <span style={{ fontSize: 24, color: "white" }}>
+                            {dayNumber}/{totalDays}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Day Title - Glassmorphism card */}
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                        padding: "32px 40px",
+                        borderRadius: 24,
+                        border: "1px solid rgba(255,255,255,0.2)",
+                        marginBottom: 32,
+                    }}
+                >
+                    <span
+                        style={{
+                            fontSize: 56,
+                            fontWeight: "bold",
+                            color: "#c4b5fd",
+                            textShadow: "0 2px 10px rgba(167,139,250,0.3)",
+                        }}
+                    >
+                        Day {dayPlan.day || dayNumber}
+                    </span>
+                    {dayPlan.theme && (
+                        <span style={{ fontSize: 32, color: "white", marginTop: 8 }}>
+                            {dayPlan.theme}
+                        </span>
+                    )}
+                </div>
+
+                {/* Activities - Glassmorphism cards */}
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 20,
+                        flex: 1,
+                    }}
+                >
+                    {activities.map((activity, index) => (
                         <div
+                            key={index}
                             style={{
                                 display: "flex",
-                                alignItems: "center",
-                                gap: 16,
-                                marginBottom: 12,
+                                flexDirection: "column",
+                                backgroundColor: "rgba(255,255,255,0.1)",
+                                borderRadius: 20,
+                                padding: 28,
+                                border: "1px solid rgba(255,255,255,0.15)",
+                                borderLeft: "4px solid #a78bfa",
                             }}
                         >
-                            <span style={{ fontSize: 32 }}>
-                                {activity.localleyScore && activity.localleyScore >= 5
-                                    ? "💎"
-                                    : activity.localleyScore && activity.localleyScore >= 4
-                                        ? "⭐"
-                                        : "📍"}
-                            </span>
-                            <span
+                            <div
                                 style={{
-                                    fontSize: 36,
-                                    fontWeight: "bold",
-                                    color: "white",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 16,
+                                    marginBottom: 8,
                                 }}
                             >
-                                {activity.name}
-                            </span>
+                                <span style={{ fontSize: 28 }}>
+                                    {activity.localleyScore && activity.localleyScore >= 5
+                                        ? "💎"
+                                        : activity.localleyScore && activity.localleyScore >= 4
+                                            ? "⭐"
+                                            : "📍"}
+                                </span>
+                                <span
+                                    style={{
+                                        fontSize: 32,
+                                        fontWeight: "bold",
+                                        color: "white",
+                                        textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                                    }}
+                                >
+                                    {activity.name}
+                                </span>
+                            </div>
+                            {activity.time && (
+                                <span style={{ fontSize: 22, color: "rgba(255,255,255,0.7)" }}>
+                                    🕐 {activity.time}
+                                </span>
+                            )}
                         </div>
-                        {activity.time && (
-                            <span style={{ fontSize: 24, color: "rgba(255,255,255,0.6)" }}>
-                                🕐 {activity.time}
-                            </span>
-                        )}
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
 
-            {/* Footer */}
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    paddingTop: 32,
-                }}
-            >
-                <span style={{ fontSize: 24, color: "rgba(255,255,255,0.5)" }}>
-                    Generated by Localley
-                </span>
+                {/* Footer */}
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        paddingTop: 24,
+                    }}
+                >
+                    <span style={{ fontSize: 22, color: "rgba(255,255,255,0.5)" }}>
+                        Generated by Localley
+                    </span>
+                </div>
             </div>
         </div>
     );
@@ -345,12 +423,11 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                 justifyContent: "center",
                 alignItems: "center",
                 position: "relative",
-                background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
-                padding: 80,
+                overflow: "hidden",
             }}
         >
-            {/* Background image layer */}
-            {backgroundImage && (
+            {/* Background image layer - always show full size */}
+            {backgroundImage ? (
                 <img
                     src={backgroundImage}
                     alt=""
@@ -358,14 +435,12 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                         position: "absolute",
                         top: 0,
                         left: 0,
-                        width: "100%",
-                        height: "100%",
+                        width: STORY_WIDTH,
+                        height: STORY_HEIGHT,
                         objectFit: "cover",
                     }}
                 />
-            )}
-            {/* Dark overlay */}
-            {backgroundImage && (
+            ) : (
                 <div
                     style={{
                         position: "absolute",
@@ -373,65 +448,113 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "rgba(0,0,0,0.4)",
+                        background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
                     }}
                 />
             )}
-            {/* Title */}
-            <span
+            {/* Gradient overlay for text readability */}
+            <div
                 style={{
-                    fontSize: 48,
-                    color: "rgba(255,255,255,0.8)",
-                    marginBottom: 24,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "linear-gradient(180deg, rgba(5,150,105,0.7) 0%, rgba(13,148,136,0.6) 50%, rgba(8,145,178,0.8) 100%)",
+                }}
+            />
+
+            {/* Logo - Glassmorphism style */}
+            <div
+                style={{
+                    position: "absolute",
+                    top: 60,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                    padding: "12px 28px",
+                    borderRadius: 100,
+                    border: "1px solid rgba(255,255,255,0.2)",
                 }}
             >
-                ✨ Trip Highlights
-            </span>
+                <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>
+                    Localley
+                </span>
+            </div>
 
-            <h2
-                style={{
-                    fontSize: 56,
-                    fontWeight: "bold",
-                    color: "white",
-                    textAlign: "center",
-                    marginBottom: 48,
-                }}
-            >
-                {title}
-            </h2>
-
-            {/* Highlights */}
+            {/* Main content card - Glassmorphism */}
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 24,
-                    width: "100%",
+                    alignItems: "center",
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    padding: "40px 48px",
+                    borderRadius: 32,
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    maxWidth: 920,
+                    marginTop: 40,
                 }}
             >
-                {highlights.slice(0, 5).map((highlight, index) => (
-                    <div
-                        key={index}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 20,
-                            backgroundColor: "rgba(255,255,255,0.15)",
-                            padding: "24px 32px",
-                            borderRadius: 20,
-                        }}
-                    >
-                        <span style={{ fontSize: 32 }}>✓</span>
-                        <span style={{ fontSize: 32, color: "white" }}>{highlight}</span>
-                    </div>
-                ))}
+                {/* Title */}
+                <span
+                    style={{
+                        fontSize: 44,
+                        color: "rgba(255,255,255,0.9)",
+                        marginBottom: 20,
+                    }}
+                >
+                    ✨ Trip Highlights
+                </span>
+
+                <h2
+                    style={{
+                        fontSize: 48,
+                        fontWeight: "bold",
+                        color: "white",
+                        textAlign: "center",
+                        marginBottom: 36,
+                        textShadow: "0 4px 16px rgba(0,0,0,0.3)",
+                    }}
+                >
+                    {title}
+                </h2>
+
+                {/* Highlights - Glassmorphism cards */}
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 16,
+                        width: "100%",
+                    }}
+                >
+                    {highlights.slice(0, 5).map((highlight, index) => (
+                        <div
+                            key={index}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 16,
+                                backgroundColor: "rgba(255,255,255,0.1)",
+                                padding: "20px 28px",
+                                borderRadius: 16,
+                                border: "1px solid rgba(255,255,255,0.15)",
+                            }}
+                        >
+                            <span style={{ fontSize: 28, color: "#6ee7b7" }}>✓</span>
+                            <span style={{ fontSize: 28, color: "white" }}>{highlight}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            {/* CTA */}
+            {/* CTA - Glassmorphism */}
             <div
                 style={{
                     position: "absolute",
-                    bottom: 100,
+                    bottom: 80,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -440,18 +563,31 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
             >
                 <div
                     style={{
-                        backgroundColor: "white",
-                        padding: "20px 48px",
+                        backgroundColor: "rgba(255,255,255,0.95)",
+                        padding: "18px 44px",
                         borderRadius: 100,
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
                     }}
                 >
-                    <span style={{ fontSize: 28, fontWeight: "bold", color: "#059669" }}>
-                        Plan yours at localley.app
+                    <span style={{ fontSize: 26, fontWeight: "bold", color: "#059669" }}>
+                        Plan yours at localley.io
                     </span>
                 </div>
-                <span style={{ fontSize: 24, color: "rgba(255,255,255,0.7)" }}>
-                    📍 {city}
-                </span>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                        padding: "10px 24px",
+                        borderRadius: 100,
+                        border: "1px solid rgba(255,255,255,0.15)",
+                    }}
+                >
+                    <span style={{ fontSize: 22, color: "rgba(255,255,255,0.9)" }}>
+                        📍 {city}
+                    </span>
+                </div>
             </div>
         </div>
     );
