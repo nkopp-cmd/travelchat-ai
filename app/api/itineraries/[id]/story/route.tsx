@@ -136,7 +136,7 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         display: "flex",
                         alignItems: "center",
                         gap: 12,
-                        backgroundColor: "rgba(255,255,255,0.15)",
+                        backgroundColor: "rgba(0,0,0,0.3)",
                         padding: "12px 28px",
                         borderRadius: 100,
                         border: "1px solid rgba(255,255,255,0.2)",
@@ -153,10 +153,10 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        backgroundColor: "rgba(255,255,255,0.1)",
+                        backgroundColor: "rgba(0,0,0,0.35)",
                         padding: "44px 52px",
                         borderRadius: 32,
-                        border: "1px solid rgba(255,255,255,0.2)",
+                        border: "1px solid rgba(255,255,255,0.15)",
                         maxWidth: STORY_WIDTH - SAFE_ZONE.LEFT - SAFE_ZONE.RIGHT - 60,
                     }}
                 >
@@ -166,11 +166,11 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             display: "flex",
                             alignItems: "center",
                             gap: 12,
-                            backgroundColor: "rgba(255,255,255,0.2)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
                             padding: "12px 24px",
                             borderRadius: 100,
                             marginBottom: 28,
-                            border: "1px solid rgba(255,255,255,0.15)",
+                            border: "1px solid rgba(255,255,255,0.2)",
                         }}
                     >
                         <span style={{ fontSize: 28, color: "white" }}>📍 {city}</span>
@@ -185,7 +185,7 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             textAlign: "center",
                             lineHeight: 1.2,
                             margin: "0 0 28px 0",
-                            textShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                            textShadow: "0 4px 20px rgba(0,0,0,0.5)",
                         }}
                     >
                         {title}
@@ -197,10 +197,10 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             display: "flex",
                             alignItems: "center",
                             gap: 16,
-                            backgroundColor: "rgba(255,255,255,0.15)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
                             padding: "16px 32px",
                             borderRadius: 20,
-                            border: "1px solid rgba(255,255,255,0.1)",
+                            border: "1px solid rgba(255,255,255,0.15)",
                         }}
                     >
                         <span style={{ fontSize: 26, color: "white" }}>
@@ -270,7 +270,7 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                     }}
                 />
             )}
-            {/* Gradient overlay for readability */}
+            {/* Subtle gradient overlay for readability - lets background show through */}
             <div
                 style={{
                     position: "absolute",
@@ -278,7 +278,7 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(30,27,75,0.75) 0%, rgba(49,46,129,0.7) 50%, rgba(30,27,75,0.85) 100%)",
+                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)",
                 }}
             />
 
@@ -308,10 +308,10 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            backgroundColor: "rgba(255,255,255,0.12)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
                             padding: "10px 22px",
                             borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.18)",
+                            border: "1px solid rgba(255,255,255,0.2)",
                         }}
                     >
                         <span style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
@@ -322,10 +322,10 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            backgroundColor: "rgba(255,255,255,0.12)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
                             padding: "10px 22px",
                             borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.18)",
+                            border: "1px solid rgba(255,255,255,0.2)",
                         }}
                     >
                         <span style={{ fontSize: 22, color: "white" }}>
@@ -339,10 +339,10 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                     style={{
                         display: "flex",
                         flexDirection: "column",
-                        backgroundColor: "rgba(255,255,255,0.1)",
+                        backgroundColor: "rgba(0,0,0,0.35)",
                         padding: "28px 36px",
                         borderRadius: 24,
-                        border: "1px solid rgba(255,255,255,0.2)",
+                        border: "1px solid rgba(255,255,255,0.15)",
                         marginBottom: 24,
                     }}
                 >
@@ -350,14 +350,14 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                         style={{
                             fontSize: 48,
                             fontWeight: "bold",
-                            color: "#c4b5fd",
-                            textShadow: "0 2px 10px rgba(167,139,250,0.3)",
+                            color: "white",
+                            textShadow: "0 2px 12px rgba(0,0,0,0.5)",
                         }}
                     >
                         Day {dayPlan.day || dayNumber}
                     </span>
                     {dayPlan.theme && (
-                        <span style={{ fontSize: 28, color: "white", marginTop: 8 }}>
+                        <span style={{ fontSize: 28, color: "rgba(255,255,255,0.9)", marginTop: 8 }}>
                             {dayPlan.theme}
                         </span>
                     )}
@@ -378,11 +378,10 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                             style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                backgroundColor: "rgba(255,255,255,0.1)",
+                                backgroundColor: "rgba(0,0,0,0.35)",
                                 borderRadius: 20,
                                 padding: 24,
                                 border: "1px solid rgba(255,255,255,0.15)",
-                                borderLeft: "4px solid #a78bfa",
                             }}
                         >
                             <div
@@ -405,14 +404,14 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                                         fontSize: 28,
                                         fontWeight: "bold",
                                         color: "white",
-                                        textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                                        textShadow: "0 2px 8px rgba(0,0,0,0.4)",
                                     }}
                                 >
                                     {activity.name}
                                 </span>
                             </div>
                             {activity.time && (
-                                <span style={{ fontSize: 20, color: "rgba(255,255,255,0.7)" }}>
+                                <span style={{ fontSize: 20, color: "rgba(255,255,255,0.8)" }}>
                                     🕐 {activity.time}
                                 </span>
                             )}
@@ -428,7 +427,7 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                         paddingTop: 16,
                     }}
                 >
-                    <span style={{ fontSize: 20, color: "rgba(255,255,255,0.5)" }}>
+                    <span style={{ fontSize: 20, color: "rgba(255,255,255,0.6)" }}>
                         localley.io
                     </span>
                 </div>
@@ -439,6 +438,11 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
 
 // Summary slide template
 function SummarySlide({ title, city, highlights, backgroundImage }: { title: string; city: string; highlights: string[]; backgroundImage?: string }) {
+    // Ensure highlights is an array and has content
+    const safeHighlights = Array.isArray(highlights) && highlights.length > 0
+        ? highlights
+        : [`Explore ${city}`, "Discover local gems", "Create memories", "Experience culture"];
+
     return (
         <div
             style={{
@@ -476,7 +480,7 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                     }}
                 />
             )}
-            {/* Gradient overlay for text readability */}
+            {/* Subtle gradient overlay for readability - lets background show through */}
             <div
                 style={{
                     position: "absolute",
@@ -484,7 +488,7 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(5,150,105,0.75) 0%, rgba(13,148,136,0.65) 50%, rgba(8,145,178,0.8) 100%)",
+                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)",
                 }}
             />
 
@@ -511,7 +515,7 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                         display: "flex",
                         alignItems: "center",
                         gap: 12,
-                        backgroundColor: "rgba(255,255,255,0.15)",
+                        backgroundColor: "rgba(0,0,0,0.3)",
                         padding: "10px 24px",
                         borderRadius: 100,
                         border: "1px solid rgba(255,255,255,0.2)",
@@ -528,10 +532,10 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        backgroundColor: "rgba(255,255,255,0.1)",
+                        backgroundColor: "rgba(0,0,0,0.35)",
                         padding: "32px 40px",
                         borderRadius: 28,
-                        border: "1px solid rgba(255,255,255,0.2)",
+                        border: "1px solid rgba(255,255,255,0.15)",
                         maxWidth: STORY_WIDTH - SAFE_ZONE.LEFT - SAFE_ZONE.RIGHT - 40,
                         width: "100%",
                     }}
@@ -554,7 +558,7 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                             color: "white",
                             textAlign: "center",
                             marginBottom: 28,
-                            textShadow: "0 4px 16px rgba(0,0,0,0.3)",
+                            textShadow: "0 4px 16px rgba(0,0,0,0.4)",
                         }}
                     >
                         {title}
@@ -569,14 +573,14 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                             width: "100%",
                         }}
                     >
-                        {highlights.slice(0, 4).map((highlight, index) => (
+                        {safeHighlights.slice(0, 4).map((highlight, index) => (
                             <div
                                 key={index}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 14,
-                                    backgroundColor: "rgba(255,255,255,0.1)",
+                                    backgroundColor: "rgba(0,0,0,0.3)",
                                     padding: "16px 24px",
                                     borderRadius: 14,
                                     border: "1px solid rgba(255,255,255,0.15)",
@@ -617,10 +621,10 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                             display: "flex",
                             alignItems: "center",
                             gap: 8,
-                            backgroundColor: "rgba(255,255,255,0.12)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
                             padding: "8px 20px",
                             borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.18)",
+                            border: "1px solid rgba(255,255,255,0.2)",
                         }}
                     >
                         <span style={{ fontSize: 18, color: "rgba(255,255,255,0.9)" }}>
