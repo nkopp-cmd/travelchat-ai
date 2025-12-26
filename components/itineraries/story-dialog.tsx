@@ -52,9 +52,10 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [pexelsAvailable, setPexelsAvailable] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
+    const [isPaidUser, setIsPaidUser] = useState(false);
     const { toast } = useToast();
 
-    // Check available image sources
+    // Check available image sources and user tier
     useEffect(() => {
         fetch("/api/images/story-background")
             .then((res) => res.json())
@@ -68,14 +69,28 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setTripAdvisorAvailable(false);
                 setPexelsAvailable(false);
             });
+
+        // Check if user is on a paid tier (Pro or Premium)
+        fetch("/api/user/tier")
+            .then((res) => res.json())
+            .then((data) => {
+                const tier = data.tier || "free";
+                setIsPaidUser(tier === "pro" || tier === "premium");
+            })
+            .catch(() => {
+                setIsPaidUser(false);
+            });
     }, []);
 
     const generateSlides = () => {
+        // Add paid=true query param for paid users to remove CTA
+        const paidParam = isPaidUser ? "&paid=true" : "";
+
         const generatedSlides: StorySlide[] = [
             {
                 type: "cover",
                 label: "Cover",
-                url: `/api/itineraries/${itineraryId}/story?slide=cover`,
+                url: `/api/itineraries/${itineraryId}/story?slide=cover${paidParam}`,
             },
         ];
 
@@ -84,14 +99,14 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 type: "day",
                 day: i,
                 label: `Day ${i}`,
-                url: `/api/itineraries/${itineraryId}/story?slide=day&day=${i}`,
+                url: `/api/itineraries/${itineraryId}/story?slide=day&day=${i}${paidParam}`,
             });
         }
 
         generatedSlides.push({
             type: "summary",
             label: "Summary",
-            url: `/api/itineraries/${itineraryId}/story?slide=summary`,
+            url: `/api/itineraries/${itineraryId}/story?slide=summary${paidParam}`,
         });
 
         return generatedSlides;

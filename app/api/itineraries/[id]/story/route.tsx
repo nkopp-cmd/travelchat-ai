@@ -230,7 +230,7 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
 }
 
 // Day slide template
-function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan: DayPlan; dayNumber: number; totalDays: number; backgroundImage?: string }) {
+function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan: DayPlan; dayNumber: number; backgroundImage?: string; isPaidUser?: boolean }) {
     const activities = dayPlan.activities?.slice(0, 3) || []; // Limit to 3 activities to fit within safe zones
 
     return (
@@ -295,11 +295,11 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                     flex: 1,
                 }}
             >
-                {/* Header - Glassmorphism */}
+                {/* Header - Logo only, no page numbers */}
                 <div
                     style={{
                         display: "flex",
-                        justifyContent: "space-between",
+                        justifyContent: "flex-start",
                         alignItems: "center",
                         marginBottom: 24,
                     }}
@@ -316,20 +316,6 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                     >
                         <span style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
                             Localley
-                        </span>
-                    </div>
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            backgroundColor: "rgba(0,0,0,0.3)",
-                            padding: "10px 22px",
-                            borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.2)",
-                        }}
-                    >
-                        <span style={{ fontSize: 22, color: "white" }}>
-                            {dayNumber}/{totalDays}
                         </span>
                     </div>
                 </div>
@@ -419,25 +405,27 @@ function DaySlide({ dayPlan, dayNumber, totalDays, backgroundImage }: { dayPlan:
                     ))}
                 </div>
 
-                {/* Footer - inside safe zone */}
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        paddingTop: 16,
-                    }}
-                >
-                    <span style={{ fontSize: 20, color: "rgba(255,255,255,0.6)" }}>
-                        localley.io
-                    </span>
-                </div>
+                {/* Footer - only show CTA for free users */}
+                {!isPaidUser && (
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            paddingTop: 16,
+                        }}
+                    >
+                        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.6)" }}>
+                            localley.io
+                        </span>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
 
 // Summary slide template
-function SummarySlide({ title, city, highlights, backgroundImage }: { title: string; city: string; highlights: string[]; backgroundImage?: string }) {
+function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: { title: string; city: string; highlights: string[]; backgroundImage?: string; isPaidUser?: boolean }) {
     // Ensure highlights is an array and has content
     const safeHighlights = Array.isArray(highlights) && highlights.length > 0
         ? highlights
@@ -593,45 +581,47 @@ function SummarySlide({ title, city, highlights, backgroundImage }: { title: str
                     </div>
                 </div>
 
-                {/* CTA - Glassmorphism - positioned above bottom safe zone */}
-                <div
-                    style={{
-                        position: "absolute",
-                        bottom: 40,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 12,
-                    }}
-                >
+                {/* CTA - only show for free users */}
+                {!isPaidUser && (
                     <div
                         style={{
-                            backgroundColor: "rgba(255,255,255,0.95)",
-                            padding: "14px 36px",
-                            borderRadius: 100,
-                            boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-                        }}
-                    >
-                        <span style={{ fontSize: 22, fontWeight: "bold", color: "#059669" }}>
-                            Plan yours at localley.io
-                        </span>
-                    </div>
-                    <div
-                        style={{
+                            position: "absolute",
+                            bottom: 40,
                             display: "flex",
+                            flexDirection: "column",
                             alignItems: "center",
-                            gap: 8,
-                            backgroundColor: "rgba(0,0,0,0.3)",
-                            padding: "8px 20px",
-                            borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.2)",
+                            gap: 12,
                         }}
                     >
-                        <span style={{ fontSize: 18, color: "rgba(255,255,255,0.9)" }}>
-                            📍 {city}
-                        </span>
+                        <div
+                            style={{
+                                backgroundColor: "rgba(255,255,255,0.95)",
+                                padding: "14px 36px",
+                                borderRadius: 100,
+                                boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                            }}
+                        >
+                            <span style={{ fontSize: 22, fontWeight: "bold", color: "#059669" }}>
+                                Plan yours at localley.io
+                            </span>
+                        </div>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                padding: "8px 20px",
+                                borderRadius: 100,
+                                border: "1px solid rgba(255,255,255,0.2)",
+                            }}
+                        >
+                            <span style={{ fontSize: 18, color: "rgba(255,255,255,0.9)" }}>
+                                📍 {city}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
@@ -646,6 +636,8 @@ export async function GET(
         const { searchParams } = new URL(req.url);
         const slide = searchParams.get("slide") || "cover";
         const dayIndex = parseInt(searchParams.get("day") || "1", 10) - 1;
+        // Check if user is paid (passed from client that knows the tier)
+        const isPaidUser = searchParams.get("paid") === "true";
 
         const supabase = createSupabaseAdmin();
 
@@ -724,8 +716,8 @@ export async function GET(
                     <DaySlide
                         dayPlan={dayPlan}
                         dayNumber={dayIndex + 1}
-                        totalDays={dailyPlans.length}
                         backgroundImage={aiBackground || undefined}
+                        isPaidUser={isPaidUser}
                     />
                 );
                 break;
@@ -737,6 +729,7 @@ export async function GET(
                         city={itinerary.city}
                         highlights={itinerary.highlights || []}
                         backgroundImage={aiBackground || undefined}
+                        isPaidUser={isPaidUser}
                     />
                 );
                 break;
