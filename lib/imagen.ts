@@ -9,10 +9,10 @@ if (!apiKey) {
 
 // Gemini model with native image generation
 // Options:
-// - "gemini-2.0-flash-exp" - stable experimental model
-// - "gemini-2.5-flash-preview-05-20" - newer preview (if available)
-// Using the experimental model which is more widely available
-const IMAGE_MODEL = "gemini-2.0-flash-exp";
+// - "gemini-2.5-flash-image" - Current recommended model for image generation
+// - "gemini-3-pro-image-preview" - Advanced model (higher quality, higher cost)
+// Using the flash image model which is optimized for image generation
+const IMAGE_MODEL = "gemini-2.5-flash-image";
 
 // Create Google GenAI client
 const getGoogleAI = () => {
@@ -48,12 +48,9 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
     try {
         // Use generateContent with responseModalities for image generation
-        // Per docs: responseModalities should be ['Text', 'Image'] for gemini-2.0-flash-exp
+        // Per docs: responseModalities should be ['TEXT', 'IMAGE'] (uppercase)
         const config: Record<string, unknown> = {
-            responseModalities: ['Text', 'Image'], // Enable both text and image output
-            imageConfig: {
-                aspectRatio: aspectRatio || '9:16', // Default to story format
-            },
+            responseModalities: ['TEXT', 'IMAGE'], // Enable both text and image output
         };
 
         console.log("[IMAGEN] Generating image with model:", IMAGE_MODEL, "config:", JSON.stringify(config));
@@ -90,12 +87,21 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
         }
 
         if (images.length === 0) {
-            throw new Error("No images were generated");
+            // Log the full response for debugging
+            console.error("[IMAGEN] No images in response. Full response:", JSON.stringify(response, null, 2));
+            throw new Error("No images were generated - check model response format");
         }
 
         return images;
     } catch (error) {
-        console.error("Image generation error:", error);
+        // Enhanced error logging
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorDetails = error instanceof Error && 'cause' in error ? (error as Error & { cause?: unknown }).cause : null;
+        console.error("[IMAGEN] Image generation failed:", {
+            error: errorMessage,
+            cause: errorDetails,
+            model: IMAGE_MODEL,
+        });
         throw error;
     }
 }
