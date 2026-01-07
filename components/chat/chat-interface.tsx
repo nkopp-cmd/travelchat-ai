@@ -12,6 +12,7 @@ import { FormattedMessage } from "./formatted-message";
 import { ChatMessageSkeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { useLiveAnnouncer } from "@/components/accessibility/live-region";
 
 interface Message {
   role: "user" | "assistant";
@@ -64,7 +65,9 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
   const [showItineraryPrompt, setShowItineraryPrompt] = useState(false);
   const [activeItinerary, setActiveItinerary] = useState<ItineraryContext | undefined>(itineraryContext);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { announce, LiveRegionPortal } = useLiveAnnouncer();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -167,6 +170,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
 
         setMessages((prev) => [...prev, { role: "assistant", content: assistantMessage }]);
         await saveMessage("assistant", assistantMessage);
+        announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
 
         toast({
           title: "Itinerary updated!",
@@ -193,6 +197,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
 
         setMessages((prev) => [...prev, { role: "assistant", content: assistantMessage }]);
         await saveMessage("assistant", assistantMessage);
+        announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -201,13 +206,17 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         ...prev,
         { role: "assistant", content: errorMessage },
       ]);
+      announce(`Error: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={cn("flex flex-col h-full min-h-0", className)}>
+    <div className={cn("flex flex-col h-full min-h-0", className)} role="region" aria-label="Chat with Alley">
+      {/* Live region for screen reader announcements */}
+      <LiveRegionPortal />
+
       {/* Active Itinerary Context Banner */}
       {activeItinerary && (
         <Card className="mb-4 border-violet-200/50 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0">
@@ -230,6 +239,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
                   createNewConversation();
                 }}
                 className="flex-shrink-0"
+                aria-label="Stop editing itinerary and start new chat"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -263,6 +273,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
                 size="sm"
                 onClick={() => setShowItineraryPrompt(false)}
                 className="flex-shrink-0"
+                aria-label="Dismiss itinerary suggestion"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -354,18 +365,30 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0">
+      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0" role="search">
+        <label htmlFor="chat-input" className="sr-only">
+          Message to Alley
+        </label>
         <Input
+          id="chat-input"
+          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask Alley..."
           disabled={isLoading}
+          aria-describedby={isLoading ? "chat-loading" : undefined}
           className="flex-1 rounded-full border-border/40 bg-background/60 backdrop-blur-sm focus-visible:ring-violet-500"
         />
+        {isLoading && (
+          <span id="chat-loading" className="sr-only">
+            Alley is typing a response
+          </span>
+        )}
         <Button
           type="submit"
           size="icon"
           disabled={isLoading || !input.trim()}
+          aria-label="Send message"
           className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20"
         >
           <Send className="h-4 w-4" />

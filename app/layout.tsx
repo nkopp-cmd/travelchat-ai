@@ -78,6 +78,7 @@ export const metadata: Metadata = {
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/providers";
+import { SkipLink } from "@/components/accessibility/skip-link";
 
 export default function RootLayout({
   children,
@@ -107,9 +108,12 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
+          <SkipLink />
           <Providers>
             <ConditionalNavbar />
-            <main className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1" tabIndex={-1}>
+              {children}
+            </main>
             <Toaster />
           </Providers>
         </body>

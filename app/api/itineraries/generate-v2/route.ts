@@ -14,57 +14,40 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
-import { createSupabaseAdmin } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/supabase';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
 import { hasFeature } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
-import { checkAndTrackUsage, trackSuccessfulUsage } from '@/lib/usage-tracking';
+import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
 import { getOrchestrator, featureFlags } from '@/lib/llm';
 import type { UserTier, GeneratedItinerary } from '@/lib/llm';
+import { Errors, handleApiError } from '@/lib/api-errors';
 
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please sign in.' },
-        { status: 401 }
-      );
+      return Errors.unauthorized();
     }
 
-    // Check usage limits before proceeding
-    const { allowed, usage, tier } = await checkAndTrackUsage(userId, "itineraries_created");
-
-    if (!allowed) {
-      return NextResponse.json(
-        {
-          error: "limit_exceeded",
-          message: `You've reached your limit of ${usage.limit} itineraries this month.`,
-          usage: {
-            current: usage.currentUsage,
-            limit: usage.limit,
-            resetAt: usage.periodResetAt,
-          },
-          upgrade: tier === "free" ? {
-            suggestion: "Upgrade to Pro for unlimited itineraries",
-            tier: "pro",
-            price: TIER_CONFIGS.pro.price,
-          } : tier === "pro" ? {
-            suggestion: "Upgrade to Premium for priority support",
-            tier: "premium",
-            price: TIER_CONFIGS.premium.price,
-          } : null,
-        },
-        { status: 429 }
-      );
-    }
-
-    // Validate request body
+    // Validate request body first (before incrementing usage)
     const validation = await validateBody(req, generateItinerarySchema);
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return Errors.validationError(validation.error || "Invalid request body");
+    }
+
+    // Atomic check and increment - prevents race conditions
+    const { allowed, usage, tier } = await checkAndIncrementUsage(userId, "itineraries_created");
+
+    if (!allowed) {
+      return Errors.limitExceeded(
+        "itineraries",
+        usage.currentUsage,
+        usage.limit,
+        usage.periodResetAt
+      );
     }
 
     const params = validation.data;
@@ -95,14 +78,7 @@ export async function POST(req: NextRequest) {
 
     if (!result.success || !result.data) {
       console.error('[generate-v2] Orchestration failed:', result.error);
-      return NextResponse.json(
-        {
-          error: 'Failed to generate itinerary. Please try again.',
-          fallbackUsed: result.fallbackUsed,
-          metrics: result.metrics,
-        },
-        { status: 500 }
-      );
+      return Errors.externalServiceError("LLM orchestration");
     }
 
     // Add thumbnail images to activities
@@ -134,9 +110,7 @@ export async function POST(req: NextRequest) {
       params
     );
 
-    // Track successful usage
-    await trackSuccessfulUsage(userId, "itineraries_created");
-
+    // Usage already tracked atomically - no need for separate call
     // Award XP for creating itinerary (fire and forget)
     awardXP(req, userId).catch(console.error);
 
@@ -166,10 +140,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     console.error("[generate-v2] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate itinerary. Please try again." },
-      { status: 500 }
-    );
+    return handleApiError(error, "itinerary-generate-v2");
   }
 }
 
@@ -181,7 +152,7 @@ async function saveItineraryToDatabase(
   itineraryData: GeneratedItinerary,
   params: { city: string; days: number }
 ): Promise<{ id: string } | null> {
-  const supabase = createSupabaseAdmin();
+  const supabase = await createSupabaseServerClient();
 
   // Get or create user
   const { data: user, error: userError } = await supabase
@@ -274,9 +245,6 @@ export async function GET() {
       ...health,
     });
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: String(error) },
-      { status: 500 }
-    );
+    return handleApiError(error, "itinerary-generate-v2-health");
   }
 }

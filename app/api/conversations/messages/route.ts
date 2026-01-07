@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // POST - Add a message to a conversation
 export async function POST(req: NextRequest) {
@@ -8,20 +9,17 @@ export async function POST(req: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return new NextResponse("Unauthorized", { status: 401 });
+            return Errors.unauthorized();
         }
 
         const body = await req.json();
         const { conversationId, role, content } = body;
 
         if (!conversationId || !role || !content) {
-            return NextResponse.json(
-                { error: "Missing required fields" },
-                { status: 400 }
-            );
+            return Errors.validationError("Missing required fields", ["conversationId", "role", "content"]);
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Verify conversation belongs to user
         const { data: conversation } = await supabase
@@ -32,10 +30,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (!conversation) {
-            return NextResponse.json(
-                { error: "Conversation not found" },
-                { status: 404 }
-            );
+            return Errors.notFound("Conversation");
         }
 
         // Insert message
@@ -51,15 +46,11 @@ export async function POST(req: NextRequest) {
 
         if (error) {
             console.error("Error creating message:", error);
-            return NextResponse.json(
-                { error: "Failed to create message" },
-                { status: 500 }
-            );
+            return Errors.databaseError();
         }
 
         return NextResponse.json({ message });
     } catch (error) {
-        console.error("[MESSAGES_POST]", error);
-        return new NextResponse("Internal Error", { status: 500 });
+        return handleApiError(error, "messages-post");
     }
 }

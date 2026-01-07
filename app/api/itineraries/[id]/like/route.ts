@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // GET - Check if user has liked an itinerary
 export async function GET(
@@ -14,7 +15,7 @@ export async function GET(
         }
 
         const { id } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Check if user has liked this itinerary
         const { data: saved } = await supabase
@@ -48,11 +49,11 @@ export async function POST(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Verify itinerary exists and is public/shared
         const { data: itinerary, error: fetchError } = await supabase
@@ -62,17 +63,17 @@ export async function POST(
             .single();
 
         if (fetchError || !itinerary) {
-            return NextResponse.json({ error: "Itinerary not found" }, { status: 404 });
+            return Errors.notFound("Itinerary");
         }
 
         // Can't like your own itinerary
         if (itinerary.clerk_user_id === userId) {
-            return NextResponse.json({ error: "Cannot like your own itinerary" }, { status: 400 });
+            return Errors.validationError("Cannot like your own itinerary");
         }
 
         // Must be shared or public
         if (!itinerary.shared && !itinerary.is_public) {
-            return NextResponse.json({ error: "Itinerary is not public" }, { status: 403 });
+            return Errors.forbidden("Itinerary is not public.");
         }
 
         // Add the like
@@ -89,7 +90,7 @@ export async function POST(
                 return NextResponse.json({ liked: true, message: "Already liked" });
             }
             console.error("Error liking itinerary:", insertError);
-            return NextResponse.json({ error: "Failed to like" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update cached like count
@@ -105,8 +106,7 @@ export async function POST(
 
         return NextResponse.json({ liked: true, likeCount: count || 0 });
     } catch (error) {
-        console.error("Like error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "itinerary-like");
     }
 }
 
@@ -118,11 +118,11 @@ export async function DELETE(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Remove the like
         const { error: deleteError } = await supabase
@@ -133,7 +133,7 @@ export async function DELETE(
 
         if (deleteError) {
             console.error("Error unliking itinerary:", deleteError);
-            return NextResponse.json({ error: "Failed to unlike" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update cached like count
@@ -149,7 +149,6 @@ export async function DELETE(
 
         return NextResponse.json({ liked: false, likeCount: count || 0 });
     } catch (error) {
-        console.error("Unlike error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "itinerary-unlike");
     }
 }

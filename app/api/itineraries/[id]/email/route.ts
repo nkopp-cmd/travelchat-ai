@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { ItineraryEmail } from "@/emails/itinerary-email";
+import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 export async function POST(
     req: NextRequest,
@@ -11,29 +12,23 @@ export async function POST(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id } = await params;
         const { recipientEmail, recipientName } = await req.json();
 
         if (!recipientEmail) {
-            return NextResponse.json(
-                { error: "Recipient email is required" },
-                { status: 400 }
-            );
+            return Errors.validationError("Recipient email is required");
         }
 
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(recipientEmail)) {
-            return NextResponse.json(
-                { error: "Invalid email format" },
-                { status: 400 }
-            );
+            return Errors.validationError("Invalid email format");
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Fetch the itinerary
         const { data: itinerary, error } = await supabase
@@ -44,10 +39,7 @@ export async function POST(
             .single();
 
         if (error || !itinerary) {
-            return NextResponse.json(
-                { error: "Itinerary not found" },
-                { status: 404 }
-            );
+            return Errors.notFound("Itinerary");
         }
 
         // Transform activities to email format
@@ -83,10 +75,7 @@ export async function POST(
 
         // Check if Resend is configured
         if (!resend) {
-            return NextResponse.json(
-                { error: "Email service not configured" },
-                { status: 503 }
-            );
+            return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Email service not configured");
         }
 
         // Send the email
@@ -106,10 +95,7 @@ export async function POST(
 
         if (emailError) {
             console.error("Email send error:", emailError);
-            return NextResponse.json(
-                { error: "Failed to send email" },
-                { status: 500 }
-            );
+            return Errors.externalServiceError("email");
         }
 
         // Award XP for sharing (fire and forget)
@@ -134,10 +120,6 @@ export async function POST(
             emailId: emailData?.id,
         });
     } catch (error) {
-        console.error("Email itinerary error:", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return handleApiError(error, "itinerary-email");
     }
 }

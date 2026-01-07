@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 
 export interface SubscriptionStatus {
@@ -49,108 +50,93 @@ interface UseSubscriptionReturn {
     openBillingPortal: () => Promise<void>;
 }
 
+// Query key for subscription status
+const SUBSCRIPTION_QUERY_KEY = ["subscription", "status"] as const;
+
+// Default subscription for error/loading states
+const DEFAULT_SUBSCRIPTION: SubscriptionStatus = {
+    tier: "free",
+    status: "none",
+    isActive: false,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    trialEnd: null,
+    limits: TIER_CONFIGS.free.limits,
+    usage: {
+        itinerariesThisMonth: 0,
+        chatMessagesToday: 0,
+        storiesThisWeek: 0,
+        aiImagesThisMonth: 0,
+        savedSpots: 0,
+    },
+};
+
+/**
+ * Fetch subscription status from API
+ */
+async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
+    const response = await fetch("/api/subscription/status");
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch subscription");
+    }
+
+    return response.json();
+}
+
 export function useSubscription(): UseSubscriptionReturn {
-    const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<Error | null>(null);
+    const queryClient = useQueryClient();
 
-    const fetchSubscription = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            setError(null);
+    // Use React Query for subscription data with caching
+    // staleTime: 2 minutes - subscription rarely changes
+    // This prevents re-fetching on every navigation
+    const {
+        data: subscription,
+        isLoading,
+        error,
+        refetch: queryRefetch,
+    } = useQuery({
+        queryKey: SUBSCRIPTION_QUERY_KEY,
+        queryFn: fetchSubscriptionStatus,
+        staleTime: 2 * 60 * 1000, // 2 minutes
+        gcTime: 5 * 60 * 1000, // 5 minutes
+        retry: 1,
+        // Return default on error to prevent UI breaking
+        placeholderData: DEFAULT_SUBSCRIPTION,
+    });
 
-            const response = await fetch("/api/subscription/status");
+    // Checkout mutation
+    const checkoutMutation = useMutation({
+        mutationFn: async ({
+            tier,
+            billingCycle,
+        }: {
+            tier: "pro" | "premium";
+            billingCycle: "monthly" | "yearly";
+        }) => {
+            const response = await fetch("/api/subscription/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tier, billingCycle }),
+            });
 
             if (!response.ok) {
-                throw new Error("Failed to fetch subscription");
+                const error = await response.json();
+                throw new Error(error.error || "Failed to create checkout session");
             }
 
-            const data = await response.json();
-            setSubscription(data);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error("Unknown error"));
-            // Default to free tier on error
-            setSubscription({
-                tier: "free",
-                status: "none",
-                isActive: false,
-                currentPeriodEnd: null,
-                cancelAtPeriodEnd: false,
-                trialEnd: null,
-                limits: TIER_CONFIGS.free.limits,
-                usage: {
-                    itinerariesThisMonth: 0,
-                    chatMessagesToday: 0,
-                    storiesThisWeek: 0,
-                    aiImagesThisMonth: 0,
-                    savedSpots: 0,
-                },
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchSubscription();
-    }, [fetchSubscription]);
-
-    const tier = subscription?.tier || "free";
-    const isActive = subscription?.isActive || false;
-    const isPro = tier === "pro" || tier === "premium";
-    const isPremium = tier === "premium";
-    const isBetaMode = subscription?.isBetaMode || false;
-    const isEarlyAdopter = subscription?.isEarlyAdopter || false;
-    const earlyAdopterPosition = subscription?.earlyAdopterPosition;
-
-    const canUseFeature = useCallback(
-        (feature: keyof typeof TIER_CONFIGS.free.features) => {
-            const value = hasFeature(tier, feature);
-            // For boolean features, return the value directly
-            if (typeof value === "boolean") return value;
-            // For string features (like image quality), return true if not "placeholder"
-            return value !== "placeholder" && value !== "area-only" && value !== "watermarked";
+            return response.json();
         },
-        [tier]
-    );
-
-    const checkIsWithinLimit = useCallback(
-        (limitType: keyof typeof TIER_CONFIGS.free.limits) => {
-            if (!subscription) return true; // Allow if we don't have data yet
-            const currentUsage = getCurrentUsage(subscription.usage, limitType);
-            return isWithinLimit(tier, limitType, currentUsage);
-        },
-        [tier, subscription]
-    );
-
-    const openCheckout = useCallback(
-        async (checkoutTier: "pro" | "premium", billingCycle: "monthly" | "yearly" = "monthly") => {
-            try {
-                const response = await fetch("/api/subscription/checkout", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ tier: checkoutTier, billingCycle }),
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || "Failed to create checkout session");
-                }
-
-                const { url } = await response.json();
-                if (url) {
-                    window.location.href = url;
-                }
-            } catch (err) {
-                console.error("Checkout error:", err);
-                throw err;
+        onSuccess: (data) => {
+            if (data.url) {
+                window.location.href = data.url;
             }
         },
-        []
-    );
+    });
 
-    const openBillingPortal = useCallback(async () => {
-        try {
+    // Portal mutation
+    const portalMutation = useMutation({
+        mutationFn: async () => {
             const response = await fetch("/api/subscription/portal", {
                 method: "POST",
             });
@@ -160,33 +146,84 @@ export function useSubscription(): UseSubscriptionReturn {
                 throw new Error(error.error || "Failed to open billing portal");
             }
 
-            const { url } = await response.json();
-            if (url) {
-                window.location.href = url;
+            return response.json();
+        },
+        onSuccess: (data) => {
+            if (data.url) {
+                window.location.href = data.url;
             }
-        } catch (err) {
-            console.error("Portal error:", err);
-            throw err;
-        }
-    }, []);
+        },
+    });
+
+    // Derived values - memoized to prevent recalculation
+    const derivedValues = useMemo(() => {
+        const tier = subscription?.tier || "free";
+        return {
+            tier,
+            isActive: subscription?.isActive || false,
+            isPro: tier === "pro" || tier === "premium",
+            isPremium: tier === "premium",
+            isBetaMode: subscription?.isBetaMode || false,
+            isEarlyAdopter: subscription?.isEarlyAdopter || false,
+            earlyAdopterPosition: subscription?.earlyAdopterPosition,
+        };
+    }, [subscription]);
+
+    const canUseFeature = useCallback(
+        (feature: keyof typeof TIER_CONFIGS.free.features) => {
+            const value = hasFeature(derivedValues.tier, feature);
+            if (typeof value === "boolean") return value;
+            return value !== "placeholder" && value !== "area-only" && value !== "watermarked";
+        },
+        [derivedValues.tier]
+    );
+
+    const checkIsWithinLimit = useCallback(
+        (limitType: keyof typeof TIER_CONFIGS.free.limits) => {
+            if (!subscription) return true;
+            const currentUsage = getCurrentUsage(subscription.usage, limitType);
+            return isWithinLimit(derivedValues.tier, limitType, currentUsage);
+        },
+        [derivedValues.tier, subscription]
+    );
+
+    const refetch = useCallback(async () => {
+        await queryRefetch();
+    }, [queryRefetch]);
+
+    const openCheckout = useCallback(
+        async (checkoutTier: "pro" | "premium", billingCycle: "monthly" | "yearly" = "monthly") => {
+            await checkoutMutation.mutateAsync({ tier: checkoutTier, billingCycle });
+        },
+        [checkoutMutation]
+    );
+
+    const openBillingPortal = useCallback(async () => {
+        await portalMutation.mutateAsync();
+    }, [portalMutation]);
 
     return {
-        subscription,
+        subscription: subscription ?? null,
         isLoading,
-        error,
-        tier,
-        isActive,
-        isPro,
-        isPremium,
-        isBetaMode,
-        isEarlyAdopter,
-        earlyAdopterPosition,
+        error: error as Error | null,
+        ...derivedValues,
         canUseFeature,
         isWithinLimit: checkIsWithinLimit,
-        refetch: fetchSubscription,
+        refetch,
         openCheckout,
         openBillingPortal,
     };
+}
+
+/**
+ * Invalidate subscription cache - call after checkout return
+ */
+export function useInvalidateSubscription() {
+    const queryClient = useQueryClient();
+
+    return useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_QUERY_KEY });
+    }, [queryClient]);
 }
 
 // Helper to map limit type to usage field

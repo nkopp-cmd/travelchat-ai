@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { getRankTitle } from "@/lib/gamification";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // GET - List followers/following
 export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { searchParams } = new URL(req.url);
-        const type = searchParams.get("type") || "following"; // "following" or "followers"
+        const type = searchParams.get("type") || "following";
         const targetUserId = searchParams.get("userId") || userId;
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         if (type === "followers") {
             // Get users who follow the target user
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
 
             if (error) {
                 console.error("Error fetching followers:", error);
-                return NextResponse.json({ error: "Failed to fetch followers" }, { status: 500 });
+                return Errors.databaseError();
             }
 
             // Get user details for each follower
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
 
             if (error) {
                 console.error("Error fetching following:", error);
-                return NextResponse.json({ error: "Failed to fetch following" }, { status: 500 });
+                return Errors.databaseError();
             }
 
             // Get user details
@@ -99,8 +100,7 @@ export async function GET(req: NextRequest) {
             });
         }
     } catch (error) {
-        console.error("Friends API error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "friends-get");
     }
 }
 
@@ -109,20 +109,20 @@ export async function POST(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { targetUserId } = await req.json();
 
         if (!targetUserId) {
-            return NextResponse.json({ error: "Target user ID required" }, { status: 400 });
+            return Errors.validationError("Target user ID required");
         }
 
         if (targetUserId === userId) {
-            return NextResponse.json({ error: "Cannot follow yourself" }, { status: 400 });
+            return Errors.validationError("Cannot follow yourself");
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Check if already following
         const { data: existing } = await supabase
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
 
         if (error) {
             console.error("Error following user:", error);
-            return NextResponse.json({ error: "Failed to follow user" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Award XP for social activity (fire and forget)
@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
                     "Content-Type": "application/json",
                     "Cookie": req.headers.get("cookie") || "",
                 },
-                body: JSON.stringify({ action: "share_spot" }), // Reusing share action for social XP
+                body: JSON.stringify({ action: "share_spot" }),
             });
         } catch (xpError) {
             console.error("Error awarding XP:", xpError);
@@ -171,8 +171,7 @@ export async function POST(req: NextRequest) {
             message: "Now following user",
         });
     } catch (error) {
-        console.error("Follow error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "friends-follow");
     }
 }
 
@@ -181,16 +180,16 @@ export async function DELETE(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { targetUserId } = await req.json();
 
         if (!targetUserId) {
-            return NextResponse.json({ error: "Target user ID required" }, { status: 400 });
+            return Errors.validationError("Target user ID required");
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         const { error } = await supabase
             .from("follows")
@@ -200,7 +199,7 @@ export async function DELETE(req: NextRequest) {
 
         if (error) {
             console.error("Error unfollowing user:", error);
-            return NextResponse.json({ error: "Failed to unfollow user" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         return NextResponse.json({
@@ -209,7 +208,6 @@ export async function DELETE(req: NextRequest) {
             message: "Unfollowed user",
         });
     } catch (error) {
-        console.error("Unfollow error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "friends-unfollow");
     }
 }

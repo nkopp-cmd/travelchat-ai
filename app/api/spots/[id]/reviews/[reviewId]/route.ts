@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // PUT - Update a review
 export async function PUT(
@@ -10,7 +12,7 @@ export async function PUT(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id: spotId, reviewId } = await params;
@@ -19,15 +21,15 @@ export async function PUT(
 
         // Validate rating
         if (rating && (rating < 1 || rating > 5)) {
-            return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 });
+            return Errors.validationError("Rating must be between 1 and 5");
         }
 
         // Validate comment length
         if (comment && comment.length > 1000) {
-            return NextResponse.json({ error: "Comment must be under 1000 characters" }, { status: 400 });
+            return Errors.validationError("Comment must be under 1000 characters");
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Verify ownership
         const { data: existing } = await supabase
@@ -37,11 +39,11 @@ export async function PUT(
             .single();
 
         if (!existing) {
-            return NextResponse.json({ error: "Review not found" }, { status: 404 });
+            return Errors.notFound("Review");
         }
 
         if (existing.clerk_user_id !== userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+            return Errors.forbidden();
         }
 
         // Update review
@@ -59,7 +61,7 @@ export async function PUT(
 
         if (error) {
             console.error("Error updating review:", error);
-            return NextResponse.json({ error: "Failed to update review" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update spot stats
@@ -67,8 +69,7 @@ export async function PUT(
 
         return NextResponse.json(review);
     } catch (error) {
-        console.error("Review update error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "review-update");
     }
 }
 
@@ -80,11 +81,11 @@ export async function DELETE(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id: spotId, reviewId } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Verify ownership
         const { data: existing } = await supabase
@@ -94,11 +95,11 @@ export async function DELETE(
             .single();
 
         if (!existing) {
-            return NextResponse.json({ error: "Review not found" }, { status: 404 });
+            return Errors.notFound("Review");
         }
 
         if (existing.clerk_user_id !== userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+            return Errors.forbidden();
         }
 
         // Delete review
@@ -109,7 +110,7 @@ export async function DELETE(
 
         if (error) {
             console.error("Error deleting review:", error);
-            return NextResponse.json({ error: "Failed to delete review" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update spot stats
@@ -117,13 +118,12 @@ export async function DELETE(
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Review delete error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "review-delete");
     }
 }
 
 // Helper function to update spot stats
-async function updateSpotStats(supabase: ReturnType<typeof createSupabaseAdmin>, spotId: string) {
+async function updateSpotStats(supabase: SupabaseClient, spotId: string) {
     const { data: stats } = await supabase
         .from("spot_reviews")
         .select("rating")

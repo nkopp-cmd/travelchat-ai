@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // GET - Get user's saved/liked itineraries
 export async function GET() {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Get saved itinerary IDs
         const { data: saved, error: savedError } = await supabase
@@ -21,7 +22,7 @@ export async function GET() {
 
         if (savedError) {
             console.error("Error fetching saved itineraries:", savedError);
-            return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         if (!saved || saved.length === 0) {
@@ -49,7 +50,7 @@ export async function GET() {
 
         if (itinerariesError) {
             console.error("Error fetching itinerary details:", itinerariesError);
-            return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Get creator info
@@ -92,7 +93,6 @@ export async function GET() {
 
         return NextResponse.json({ itineraries: result });
     } catch (error) {
-        console.error("Saved itineraries error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "saved-itineraries");
     }
 }

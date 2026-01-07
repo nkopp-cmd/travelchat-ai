@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
 
@@ -13,12 +13,12 @@ async function getItineraries() {
         redirect("/sign-in");
     }
 
-    const supabase = createSupabaseAdmin();
+    // Use RLS-respecting client - filters by user automatically via RLS policy
+    const supabase = await createSupabaseServerClient();
 
     const { data: itineraries, error } = await supabase
         .from("itineraries")
         .select("id, title, subtitle, city, days, local_score, created_at, status, is_favorite")
-        .eq("clerk_user_id", userId)
         .order("created_at", { ascending: false });
 
     if (error) {

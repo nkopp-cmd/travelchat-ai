@@ -12,6 +12,7 @@ import {
   registerEarlyAdopter,
   isBetaMode,
 } from "@/lib/early-adopters";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 /**
  * Get early adopter status
@@ -21,7 +22,7 @@ export async function GET() {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return Errors.unauthorized();
     }
 
     const status = await getEarlyAdopterStatus(userId);
@@ -32,11 +33,7 @@ export async function GET() {
       ...status,
     });
   } catch (error) {
-    console.error("[early-adopter] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to get early adopter status" },
-      { status: 500 }
-    );
+    return handleApiError(error, "early-adopter-get");
   }
 }
 
@@ -48,7 +45,7 @@ export async function POST() {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return Errors.unauthorized();
     }
 
     // Get user email from Clerk
@@ -58,10 +55,7 @@ export async function POST() {
     const result = await registerEarlyAdopter(userId, email);
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, message: result.message },
-        { status: 400 }
-      );
+      return Errors.validationError(result.message || "Registration failed");
     }
 
     return NextResponse.json({
@@ -70,10 +64,6 @@ export async function POST() {
       message: result.message,
     });
   } catch (error) {
-    console.error("[early-adopter] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to register as early adopter" },
-      { status: 500 }
-    );
+    return handleApiError(error, "early-adopter-register");
   }
 }

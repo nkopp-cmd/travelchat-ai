@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // Activity and Day types for export
 interface ExportActivity {
@@ -28,7 +29,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
 
     // Fetch itinerary
     const { data: itinerary, error } = await supabase
@@ -38,10 +39,7 @@ export async function GET(
       .single();
 
     if (error || !itinerary) {
-      return NextResponse.json(
-        { error: "Itinerary not found" },
-        { status: 404 }
-      );
+      return Errors.notFound("Itinerary");
     }
 
     // Check if user has access (either owner or itinerary is shared)
@@ -50,10 +48,7 @@ export async function GET(
     const isShared = itinerary.shared;
 
     if (!isOwner && !isShared) {
-      return NextResponse.json(
-        { error: "You don't have permission to export this itinerary" },
-        { status: 403 }
-      );
+      return Errors.forbidden();
     }
 
     // Parse activities
@@ -350,10 +345,6 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Error exporting itinerary:", error);
-    return NextResponse.json(
-      { error: "Failed to export itinerary" },
-      { status: 500 }
-    );
+    return handleApiError(error, "itinerary-export");
   }
 }

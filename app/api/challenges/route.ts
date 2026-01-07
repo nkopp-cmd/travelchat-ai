@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 interface ChallengeRequirements {
     type: string;
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const supabase = createSupabaseAdmin();
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
 
         if (challengesError) {
             console.error("Error fetching challenges:", challengesError);
-            return NextResponse.json({ error: "Failed to fetch challenges" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Get user's completed challenges
@@ -126,8 +127,7 @@ export async function GET(req: NextRequest) {
             totalCount: challenges?.length || 0,
         });
     } catch (error) {
-        console.error("Challenges API error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "challenges-get");
     }
 }
 
@@ -136,13 +136,13 @@ export async function POST(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { challengeId } = await req.json();
 
         if (!challengeId) {
-            return NextResponse.json({ error: "Challenge ID required" }, { status: 400 });
+            return Errors.validationError("Challenge ID required");
         }
 
         const supabase = createSupabaseAdmin();
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (!userData?.id) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return Errors.notFound("User");
         }
 
         // Check if already claimed
@@ -168,10 +168,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (existing) {
-            return NextResponse.json({
-                success: false,
-                error: "Challenge already claimed",
-            });
+            return Errors.validationError("Challenge already claimed");
         }
 
         // Get challenge details
@@ -182,7 +179,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (!challenge) {
-            return NextResponse.json({ error: "Challenge not found" }, { status: 404 });
+            return Errors.notFound("Challenge");
         }
 
         // Mark challenge as completed
@@ -214,7 +211,6 @@ export async function POST(req: NextRequest) {
             message: `Challenge completed! +${challenge.xp_reward} XP`,
         });
     } catch (error) {
-        console.error("Claim challenge error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "challenges-claim");
     }
 }

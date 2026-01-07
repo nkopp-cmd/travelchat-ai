@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { QueryProvider } from "@/lib/query-client";
 import { SubscriptionProvider } from "./subscription-provider";
 
 interface ProvidersProps {
@@ -9,8 +10,10 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
     return (
-        <SubscriptionProvider>
-            {children}
-        </SubscriptionProvider>
+        <QueryProvider>
+            <SubscriptionProvider>
+                {children}
+            </SubscriptionProvider>
+        </QueryProvider>
     );
 }

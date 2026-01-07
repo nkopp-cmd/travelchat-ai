@@ -1,29 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { createBillingPortalSession, isStripeConfigured } from "@/lib/stripe";
+import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 export async function POST(req: NextRequest) {
     try {
         // Check if Stripe is configured
         if (!isStripeConfigured()) {
-            return NextResponse.json(
-                { error: "Payment system is not configured" },
-                { status: 503 }
-            );
+            return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Payment system is not configured");
         }
 
         // Verify authentication
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return Errors.unauthorized();
         }
 
         // Get the user's subscription from Supabase
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
         const { data: subscription, error } = await supabase
             .from("subscriptions")
             .select("stripe_customer_id")
@@ -31,10 +26,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (error || !subscription?.stripe_customer_id) {
-            return NextResponse.json(
-                { error: "No subscription found" },
-                { status: 404 }
-            );
+            return Errors.notFound("Subscription");
         }
 
         // Build return URL
@@ -48,20 +40,13 @@ export async function POST(req: NextRequest) {
         );
 
         if (!session) {
-            return NextResponse.json(
-                { error: "Failed to create portal session" },
-                { status: 500 }
-            );
+            return Errors.externalServiceError("Stripe");
         }
 
         return NextResponse.json({
             url: session.url,
         });
     } catch (error) {
-        console.error("Portal error:", error);
-        return NextResponse.json(
-            { error: "Failed to create portal session" },
-            { status: 500 }
-        );
+        return handleApiError(error, "subscription-portal");
     }
 }

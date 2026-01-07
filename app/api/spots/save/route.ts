@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { checkUsageLimit, getUserTier } from "@/lib/usage-tracking";
 import { TIER_CONFIGS } from "@/lib/subscription";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return Errors.unauthorized();
     }
 
     const { spotId } = await req.json();
 
     if (!spotId) {
-      return NextResponse.json({ error: "Spot ID is required" }, { status: 400 });
+      return Errors.validationError("Spot ID is required");
     }
 
     // Check saved spots limit
@@ -22,29 +23,15 @@ export async function POST(req: NextRequest) {
     const usage = await checkUsageLimit(userId, "spots_saved", tier);
 
     if (!usage.allowed) {
-      return NextResponse.json(
-        {
-          error: "limit_exceeded",
-          message: `You've reached your limit of ${usage.limit} saved spots.`,
-          usage: {
-            current: usage.currentUsage,
-            limit: usage.limit,
-          },
-          upgrade: tier === "free" ? {
-            suggestion: "Upgrade to Pro for more saved spots",
-            tier: "pro",
-            price: TIER_CONFIGS.pro.price,
-          } : tier === "pro" ? {
-            suggestion: "Upgrade to Premium for unlimited saved spots",
-            tier: "premium",
-            price: TIER_CONFIGS.premium.price,
-          } : null,
-        },
-        { status: 429 }
+      return Errors.limitExceeded(
+        "saved spots",
+        usage.currentUsage,
+        usage.limit,
+        usage.periodResetAt
       );
     }
 
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
 
     // Check if already saved
     const { data: existing } = await supabase
@@ -72,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("Error saving spot:", error);
-      return NextResponse.json({ error: "Failed to save spot" }, { status: 500 });
+      return Errors.databaseError();
     }
 
     // Award XP for discovering/saving a spot (fire and forget)
@@ -97,8 +84,7 @@ export async function POST(req: NextRequest) {
       message: "Spot saved successfully"
     });
   } catch (error) {
-    console.error("Save spot error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, "spots-save");
   }
 }
 
@@ -106,16 +92,16 @@ export async function DELETE(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return Errors.unauthorized();
     }
 
     const { spotId } = await req.json();
 
     if (!spotId) {
-      return NextResponse.json({ error: "Spot ID is required" }, { status: 400 });
+      return Errors.validationError("Spot ID is required");
     }
 
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
       .from("saved_spots")
@@ -125,7 +111,7 @@ export async function DELETE(req: NextRequest) {
 
     if (error) {
       console.error("Error removing saved spot:", error);
-      return NextResponse.json({ error: "Failed to remove spot" }, { status: 500 });
+      return Errors.databaseError();
     }
 
     return NextResponse.json({
@@ -134,8 +120,7 @@ export async function DELETE(req: NextRequest) {
       message: "Spot removed from saved"
     });
   } catch (error) {
-    console.error("Remove spot error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, "spots-unsave");
   }
 }
 
@@ -143,13 +128,13 @@ export async function GET(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return Errors.unauthorized();
     }
 
     const { searchParams } = new URL(req.url);
     const spotId = searchParams.get("spotId");
 
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
 
     // If spotId provided, check if specific spot is saved
     if (spotId) {
@@ -186,7 +171,7 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error("Error fetching saved spots:", error);
-      return NextResponse.json({ error: "Failed to fetch saved spots" }, { status: 500 });
+      return Errors.databaseError();
     }
 
     return NextResponse.json({
@@ -194,7 +179,6 @@ export async function GET(req: NextRequest) {
       spots: savedSpots
     });
   } catch (error) {
-    console.error("Get saved spots error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, "spots-get-saved");
   }
 }

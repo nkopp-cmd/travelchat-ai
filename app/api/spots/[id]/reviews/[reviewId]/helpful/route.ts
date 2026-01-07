@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 // POST - Mark review as helpful
 export async function POST(
@@ -10,11 +11,11 @@ export async function POST(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { reviewId } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Check if review exists
         const { data: review } = await supabase
@@ -24,12 +25,12 @@ export async function POST(
             .single();
 
         if (!review) {
-            return NextResponse.json({ error: "Review not found" }, { status: 404 });
+            return Errors.notFound("Review");
         }
 
         // Can't vote on own review
         if (review.clerk_user_id === userId) {
-            return NextResponse.json({ error: "Cannot vote on your own review" }, { status: 400 });
+            return Errors.validationError("Cannot vote on your own review");
         }
 
         // Add vote
@@ -43,10 +44,10 @@ export async function POST(
         if (voteError) {
             // Duplicate vote
             if (voteError.code === "23505") {
-                return NextResponse.json({ error: "Already voted" }, { status: 409 });
+                return apiError(ErrorCodes.CONFLICT, "Already voted");
             }
             console.error("Error adding vote:", voteError);
-            return NextResponse.json({ error: "Failed to vote" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update helpful count
@@ -58,8 +59,7 @@ export async function POST(
 
         return NextResponse.json({ helpful_count: newCount, voted: true });
     } catch (error) {
-        console.error("Helpful vote error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "review-helpful-add");
     }
 }
 
@@ -71,11 +71,11 @@ export async function DELETE(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { reviewId } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Check if review exists
         const { data: review } = await supabase
@@ -85,7 +85,7 @@ export async function DELETE(
             .single();
 
         if (!review) {
-            return NextResponse.json({ error: "Review not found" }, { status: 404 });
+            return Errors.notFound("Review");
         }
 
         // Remove vote
@@ -97,7 +97,7 @@ export async function DELETE(
 
         if (deleteError) {
             console.error("Error removing vote:", deleteError);
-            return NextResponse.json({ error: "Failed to remove vote" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update helpful count
@@ -109,7 +109,6 @@ export async function DELETE(
 
         return NextResponse.json({ helpful_count: newCount, voted: false });
     } catch (error) {
-        console.error("Remove vote error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "review-helpful-remove");
     }
 }

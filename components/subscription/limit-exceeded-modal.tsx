@@ -8,6 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { useFocusReturn } from "@/hooks/use-focus-trap";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +92,9 @@ export function LimitExceededModal({
     const config = limitTypeConfig[limitType];
     const { openCheckout, tier } = useSubscriptionContext();
 
+    // Ensure focus returns to trigger element when modal closes
+    useFocusReturn(open);
+
     const progressPercent = Math.min((currentUsage / limit) * 100, 100);
 
     const handleUpgrade = async (targetTier: "pro" | "premium") => {
@@ -138,7 +142,11 @@ export function LimitExceededModal({
                                 {currentUsage} / {limit}
                             </span>
                         </div>
-                        <Progress value={progressPercent} className="h-2" />
+                        <Progress
+                            value={progressPercent}
+                            className="h-2"
+                            aria-label={`Usage: ${currentUsage} out of ${limit}`}
+                        />
                         {resetAt && (
                             <p className="text-xs text-muted-foreground text-center">
                                 Resets on {formatResetDate(resetAt)}

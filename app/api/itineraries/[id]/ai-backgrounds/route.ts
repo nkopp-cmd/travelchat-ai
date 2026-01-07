@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 /**
  * Validate that a string is a valid image source (base64 data URL or external URL)
@@ -57,7 +58,7 @@ export async function PATCH(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id } = await params;
@@ -77,42 +78,30 @@ export async function PATCH(
         // Validate that at least one background is provided
         const hasAnyBackground = cover || summary || Object.keys(dayBackgrounds).length > 0;
         if (!hasAnyBackground) {
-            return NextResponse.json(
-                { error: "At least one background is required" },
-                { status: 400 }
-            );
+            return Errors.validationError("At least one background is required");
         }
 
         // Validate cover image format if provided
         if (cover && !validateImageSource(cover)) {
             console.error("[AI_BACKGROUNDS] Invalid cover image format:", cover.substring(0, 100));
-            return NextResponse.json(
-                { error: "Invalid cover image format. Must be a valid image URL or base64-encoded data URL." },
-                { status: 400 }
-            );
+            return Errors.validationError("Invalid cover image format. Must be a valid image URL or base64-encoded data URL.");
         }
 
         // Validate summary image format if provided
         if (summary && !validateImageSource(summary)) {
             console.error("[AI_BACKGROUNDS] Invalid summary image format:", summary.substring(0, 100));
-            return NextResponse.json(
-                { error: "Invalid summary image format. Must be a valid image URL or base64-encoded data URL." },
-                { status: 400 }
-            );
+            return Errors.validationError("Invalid summary image format. Must be a valid image URL or base64-encoded data URL.");
         }
 
         // Validate day background formats
         for (const [key, value] of Object.entries(dayBackgrounds)) {
             if (!validateImageSource(value)) {
                 console.error(`[AI_BACKGROUNDS] Invalid ${key} image format:`, value.substring(0, 100));
-                return NextResponse.json(
-                    { error: `Invalid ${key} image format. Must be a valid image URL or base64-encoded data URL.` },
-                    { status: 400 }
-                );
+                return Errors.validationError(`Invalid ${key} image format. Must be a valid image URL or base64-encoded data URL.`);
             }
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // First verify the itinerary belongs to the user
         const { data: itinerary, error: fetchError } = await supabase
@@ -122,17 +111,11 @@ export async function PATCH(
             .single();
 
         if (fetchError || !itinerary) {
-            return NextResponse.json(
-                { error: "Itinerary not found" },
-                { status: 404 }
-            );
+            return Errors.notFound("Itinerary");
         }
 
         if (itinerary.clerk_user_id !== userId) {
-            return NextResponse.json(
-                { error: "You don't have permission to modify this itinerary" },
-                { status: 403 }
-            );
+            return Errors.forbidden();
         }
 
         // Fetch existing backgrounds to merge with new ones
@@ -175,10 +158,7 @@ export async function PATCH(
 
         if (updateError) {
             console.error("[AI_BACKGROUNDS_UPDATE_ERROR]", updateError);
-            return NextResponse.json(
-                { error: "Failed to update AI backgrounds" },
-                { status: 500 }
-            );
+            return Errors.databaseError();
         }
 
         return NextResponse.json({
@@ -187,10 +167,7 @@ export async function PATCH(
         });
     } catch (error) {
         console.error("[AI_BACKGROUNDS_ERROR]", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return handleApiError(error, "ai-backgrounds-update");
     }
 }
 
@@ -204,7 +181,7 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")
@@ -213,10 +190,7 @@ export async function GET(
             .single();
 
         if (error || !itinerary) {
-            return NextResponse.json(
-                { error: "Itinerary not found" },
-                { status: 404 }
-            );
+            return Errors.notFound("Itinerary");
         }
 
         return NextResponse.json({
@@ -225,9 +199,6 @@ export async function GET(
         });
     } catch (error) {
         console.error("[AI_BACKGROUNDS_GET_ERROR]", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return handleApiError(error, "ai-backgrounds-get");
     }
 }

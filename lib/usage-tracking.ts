@@ -1,6 +1,8 @@
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { isBetaMode, isEarlyAdopter } from "@/lib/early-adopters";
+import { unstable_cache } from "next/cache";
+import { cacheConfig, cacheKeys } from "@/lib/cache";
 
 export type UsageType =
     | "itineraries_created"
@@ -18,6 +20,15 @@ interface UsageCheckResult {
     remaining: number;
     periodType: PeriodType;
     periodResetAt: string;
+}
+
+/**
+ * Result from atomic check-and-increment operation
+ */
+interface AtomicUsageResult {
+    allowed: boolean;
+    newCount: number;
+    wasAtLimit: boolean;
 }
 
 // Map usage type to limit key and period
@@ -105,70 +116,83 @@ export async function checkUsageLimit(
     };
 }
 
-// Increment usage counter
+/**
+ * Atomically check limit and increment usage in a single database transaction.
+ * Uses advisory lock in the DB to prevent race conditions.
+ *
+ * This is the SAFE way to enforce usage limits - concurrent requests
+ * cannot bypass limits because the check and increment happen atomically.
+ */
+export async function atomicCheckAndIncrement(
+    clerkUserId: string,
+    usageType: UsageType,
+    limit: number
+): Promise<AtomicUsageResult> {
+    const config = usageTypeConfig[usageType];
+    const supabase = createSupabaseAdmin();
+
+    const { data, error } = await supabase.rpc("check_and_increment_usage", {
+        p_clerk_user_id: clerkUserId,
+        p_usage_type: usageType,
+        p_period_type: config.periodType,
+        p_limit: limit,
+    });
+
+    if (error) {
+        console.error("[usage-tracking] Atomic increment failed:", error);
+        // On error, deny the request (fail safe)
+        return { allowed: false, newCount: 0, wasAtLimit: true };
+    }
+
+    // RPC returns array with single row
+    const result = Array.isArray(data) ? data[0] : data;
+
+    return {
+        allowed: result?.allowed ?? false,
+        newCount: result?.new_count ?? 0,
+        wasAtLimit: result?.was_at_limit ?? true,
+    };
+}
+
+/**
+ * Increment usage counter (legacy - prefer atomicCheckAndIncrement)
+ * Uses the atomic DB function to prevent race conditions.
+ */
 export async function incrementUsage(
     clerkUserId: string,
     usageType: UsageType,
-    amount: number = 1
+    _amount: number = 1  // Ignored - DB function always increments by 1
 ): Promise<{ success: boolean; newCount: number }> {
     const config = usageTypeConfig[usageType];
-    const periodStart = getPeriodStart(config.periodType);
-
     const supabase = createSupabaseAdmin();
 
-    // Try to update existing record
-    const { data: existing } = await supabase
-        .from("usage_tracking")
-        .select("id, count")
-        .eq("clerk_user_id", clerkUserId)
-        .eq("usage_type", usageType)
-        .eq("period_type", config.periodType)
-        .eq("period_start", periodStart)
-        .single();
-
-    if (existing) {
-        const newCount = existing.count + amount;
-        const { error } = await supabase
-            .from("usage_tracking")
-            .update({ count: newCount, updated_at: new Date().toISOString() })
-            .eq("id", existing.id);
-
-        if (error) {
-            console.error("Error updating usage:", error);
-            return { success: false, newCount: existing.count };
-        }
-
-        return { success: true, newCount };
-    }
-
-    // Insert new record
-    const { error } = await supabase
-        .from("usage_tracking")
-        .insert({
-            clerk_user_id: clerkUserId,
-            usage_type: usageType,
-            period_type: config.periodType,
-            period_start: periodStart,
-            count: amount,
-        });
+    // Use the atomic DB function
+    const { data, error } = await supabase.rpc("increment_usage", {
+        p_clerk_user_id: clerkUserId,
+        p_usage_type: usageType,
+        p_period_type: config.periodType,
+    });
 
     if (error) {
-        console.error("Error inserting usage:", error);
+        console.error("Error incrementing usage:", error);
         return { success: false, newCount: 0 };
     }
 
-    return { success: true, newCount: amount };
+    return { success: true, newCount: data || 0 };
 }
 
-// Get user's subscription tier from database
-// Respects beta mode and early adopter status
-export async function getUserTier(clerkUserId: string): Promise<SubscriptionTier> {
+/**
+ * Get user's subscription tier from database (uncached - for internal use)
+ * Respects beta mode and early adopter status
+ */
+async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
     // Beta mode - everyone gets premium
     if (isBetaMode()) {
         return "premium";
     }
 
     // Check if user is an early adopter (first 100 users get premium)
+    // Note: isEarlyAdopter is already cached separately
     const earlyAdopter = await isEarlyAdopter(clerkUserId);
     if (earlyAdopter) {
         return "premium";
@@ -191,7 +215,32 @@ export async function getUserTier(clerkUserId: string): Promise<SubscriptionTier
     return "free";
 }
 
-// Combined check and increment for API endpoints
+/**
+ * Get user's subscription tier (cached)
+ * Uses Next.js unstable_cache with 1 minute TTL
+ *
+ * Cache is invalidated when:
+ * - Subscription changes (via webhook calling invalidateUserCache)
+ * - Early adopter status changes
+ * - TTL expires
+ */
+export async function getUserTier(clerkUserId: string): Promise<SubscriptionTier> {
+    const cachedFetch = unstable_cache(
+        () => fetchUserTier(clerkUserId),
+        cacheKeys.userTier(clerkUserId),
+        {
+            revalidate: cacheConfig.userTier.revalidate,
+            tags: [...cacheConfig.userTier.tags, `user-tier:${clerkUserId}`],
+        }
+    );
+    return cachedFetch();
+}
+
+/**
+ * Combined check and track for API endpoints.
+ * NOTE: This only CHECKS usage, it does NOT increment.
+ * Use checkAndIncrementUsage() for the atomic check+increment pattern.
+ */
 export async function checkAndTrackUsage(
     clerkUserId: string,
     usageType: UsageType
@@ -210,7 +259,48 @@ export async function checkAndTrackUsage(
     };
 }
 
-// Track usage after successful operation
+/**
+ * ATOMIC check AND increment for API endpoints.
+ * This is the preferred method - it prevents race conditions by doing
+ * the limit check and increment in a single database transaction.
+ *
+ * Use this instead of checkAndTrackUsage() + trackSuccessfulUsage().
+ */
+export async function checkAndIncrementUsage(
+    clerkUserId: string,
+    usageType: UsageType
+): Promise<{
+    allowed: boolean;
+    usage: UsageCheckResult;
+    tier: SubscriptionTier;
+}> {
+    const tier = await getUserTier(clerkUserId);
+    const config = usageTypeConfig[usageType];
+    const limit = TIER_CONFIGS[tier].limits[config.limitKey];
+
+    // Atomic check and increment in one DB transaction
+    const result = await atomicCheckAndIncrement(clerkUserId, usageType, limit);
+
+    const usage: UsageCheckResult = {
+        allowed: result.allowed,
+        currentUsage: result.newCount,
+        limit,
+        remaining: Math.max(0, limit - result.newCount),
+        periodType: config.periodType,
+        periodResetAt: getPeriodEnd(config.periodType),
+    };
+
+    return {
+        allowed: result.allowed,
+        usage,
+        tier,
+    };
+}
+
+/**
+ * Track usage after successful operation (legacy pattern).
+ * Prefer using checkAndIncrementUsage() which does this atomically.
+ */
 export async function trackSuccessfulUsage(
     clerkUserId: string,
     usageType: UsageType

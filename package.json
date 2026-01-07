@@ -40,6 +40,7 @@
     "@sentry/nextjs": "^10.29.0",
     "@stripe/stripe-js": "^8.5.3",
     "@supabase/supabase-js": "^2.83.0",
+    "@tanstack/react-query": "^5.90.15",
     "@types/leaflet": "^1.9.21",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.7",

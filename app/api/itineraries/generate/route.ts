@@ -1,14 +1,15 @@
 import { OpenAI } from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
-import { createSupabaseAdmin } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/supabase';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
 import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
-import { checkAndTrackUsage, trackSuccessfulUsage } from '@/lib/usage-tracking';
+import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
 import { isCitySupported, getSupportedCityNames } from '@/lib/supported-cities';
 import { cookies } from 'next/headers';
+import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -125,54 +126,37 @@ export async function POST(req: NextRequest) {
       const anonUsage = await getAnonymousUsage();
 
       if (anonUsage >= ANON_LIMIT) {
-        return NextResponse.json(
-          {
-            error: "signup_required",
-            message: "You've used your free trial! Sign up to create more itineraries.",
-            benefits: [
-              "Save and access all your itineraries",
-              "3 free itineraries per month",
-              "Chat with Alley for personalized recommendations",
-              "Export and share your trips",
-            ],
-            signupUrl: "/sign-up",
-          },
-          { status: 401 }
-        );
-      }
-    } else {
-      // Check usage limits for authenticated users
-      const { allowed, usage, tier: userTier } = await checkAndTrackUsage(userId!, "itineraries_created");
-      tier = userTier;
-
-      if (!allowed) {
-        return NextResponse.json(
-          {
-            error: "limit_exceeded",
-            message: `You've reached your limit of ${usage.limit} itineraries this month.`,
-            usage: {
-              current: usage.currentUsage,
-              limit: usage.limit,
-              resetAt: usage.periodResetAt,
-            },
-            upgrade: tier === "free" ? {
-              suggestion: "Upgrade to Pro for unlimited itineraries",
-              tier: "pro",
-              price: TIER_CONFIGS.pro.price,
-            } : tier === "pro" ? {
-              suggestion: "Upgrade to Premium for priority support",
-              tier: "premium",
-              price: TIER_CONFIGS.premium.price,
-            } : null,
-          },
-          { status: 429 }
-        );
+        return apiError(ErrorCodes.UNAUTHORIZED, "You've used your free trial! Sign up to create more itineraries.", {
+          benefits: [
+            "Save and access all your itineraries",
+            "3 free itineraries per month",
+            "Chat with Alley for personalized recommendations",
+            "Export and share your trips",
+          ],
+          signupUrl: "/sign-up",
+        });
       }
     }
 
+    // Validate request body first (before incrementing usage)
     const validation = await validateBody(req, generateItinerarySchema);
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return Errors.validationError(validation.error || "Invalid request body");
+    }
+
+    // For authenticated users, use atomic check and increment
+    if (!isAnonymous) {
+      const { allowed, usage, tier: userTier } = await checkAndIncrementUsage(userId!, "itineraries_created");
+      tier = userTier;
+
+      if (!allowed) {
+        return Errors.limitExceeded(
+          "itineraries",
+          usage.currentUsage,
+          usage.limit,
+          usage.periodResetAt
+        );
+      }
     }
 
     const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = validation.data;
@@ -181,20 +165,11 @@ export async function POST(req: NextRequest) {
     const normalizedCity = isCitySupported(city);
     if (!normalizedCity) {
       const supportedCities = getSupportedCityNames();
-      return NextResponse.json(
-        {
-          error: "unsupported_city",
-          message: `We don't have curated local spots for "${city}" yet.`,
-          supportedCities,
-          suggestion: `Try one of our supported cities: ${supportedCities.join(", ")}`,
-          comingSoon: "We're adding new cities every month! Sign up to get notified.",
-        },
-        { status: 400 }
-      );
+      return Errors.validationError(`We don't have curated local spots for "${city}" yet. Try one of our supported cities: ${supportedCities.join(", ")}`);
     }
 
     // Fetch spots from the city to include in recommendations
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
     const { data: spots } = await supabase
       .from('spots')
       .select('*')
@@ -350,9 +325,7 @@ Make it exciting, authentic, and full of hidden gems!
         console.error('Cannot save itinerary: no user_id found');
       }
 
-      // Track successful usage for authenticated users
-      await trackSuccessfulUsage(userId, "itineraries_created");
-
+      // Usage already tracked atomically - no need for separate call
       // Award XP for creating itinerary (fire and forget)
       try {
         await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
@@ -407,9 +380,6 @@ Make it exciting, authentic, and full of hidden gems!
     return response;
   } catch (error) {
     console.error("Error generating itinerary:", error);
-    return NextResponse.json(
-      { error: "Failed to generate itinerary. Please try again." },
-      { status: 500 }
-    );
+    return handleApiError(error, "itinerary-generate");
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 export async function POST(
     request: Request,
@@ -9,11 +10,11 @@ export async function POST(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id } = await params;
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Fetch the original itinerary
         const { data: original, error: fetchError } = await supabase
@@ -23,13 +24,13 @@ export async function POST(
             .single();
 
         if (fetchError || !original) {
-            return NextResponse.json({ error: "Itinerary not found" }, { status: 404 });
+            return Errors.notFound("Itinerary");
         }
 
         // Check ownership or if it's shared/public
         const canDuplicate = original.clerk_user_id === userId || original.shared || original.is_public;
         if (!canDuplicate) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+            return Errors.forbidden();
         }
 
         // Create a copy with new ID and timestamps
@@ -59,12 +60,11 @@ export async function POST(
 
         if (insertError) {
             console.error("Error duplicating itinerary:", insertError);
-            return NextResponse.json({ error: "Failed to duplicate" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         return NextResponse.json(newItinerary);
     } catch (error) {
-        console.error("Duplicate error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "itinerary-duplicate");
     }
 }

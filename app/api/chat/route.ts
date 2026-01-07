@@ -3,8 +3,8 @@ import OpenAI from "openai";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { chatSchema, validateBody } from "@/lib/validations";
-import { checkAndTrackUsage, trackSuccessfulUsage } from "@/lib/usage-tracking";
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { checkAndIncrementUsage } from "@/lib/usage-tracking";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -91,38 +91,29 @@ export async function POST(req: NextRequest) {
 
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
-        // Check usage limits
-        const { allowed, usage, tier } = await checkAndTrackUsage(userId, "chat_messages");
-
-        if (!allowed) {
-            return NextResponse.json(
-                {
-                    error: "limit_exceeded",
-                    message: `You've reached your limit of ${usage.limit} messages today.`,
-                    usage: {
-                        current: usage.currentUsage,
-                        limit: usage.limit,
-                        resetAt: usage.periodResetAt,
-                    },
-                    upgrade: tier === "free" ? {
-                        suggestion: "Upgrade to Pro for more messages",
-                        tier: "pro",
-                        price: TIER_CONFIGS.pro.price,
-                    } : null,
-                },
-                { status: 429 }
-            );
-        }
-
+        // Validate request body first (before incrementing usage)
         const validation = await validateBody(req, chatSchema);
         if (!validation.success) {
-            return NextResponse.json({ error: validation.error }, { status: 400 });
+            return Errors.validationError(validation.error || "Invalid request");
         }
 
         const { messages } = validation.data;
+
+        // Atomic check and increment - prevents race conditions
+        // If limit exceeded, returns allowed=false without incrementing
+        const { allowed, usage, tier } = await checkAndIncrementUsage(userId, "chat_messages");
+
+        if (!allowed) {
+            return Errors.limitExceeded(
+                "chat messages",
+                usage.currentUsage,
+                usage.limit,
+                usage.periodResetAt
+            );
+        }
 
         const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
@@ -135,12 +126,9 @@ export async function POST(req: NextRequest) {
 
         const reply = response.choices[0].message.content;
 
-        // Track successful usage
-        await trackSuccessfulUsage(userId, "chat_messages");
-
+        // Usage already tracked atomically - no need for separate call
         return NextResponse.json({ message: reply });
     } catch (error) {
-        console.error("[CHAT_ERROR]", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "[CHAT_ERROR]");
     }
 }

@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
+import { SubscriptionSuccessHandler } from "@/components/subscription/subscription-success-handler";
 
 export default function SettingsLayout({
     children,
@@ -8,7 +10,13 @@ export default function SettingsLayout({
     return (
         <div className="flex">
             <Sidebar />
-            <div className="flex-1">{children}</div>
+            <div className="flex-1">
+                {/* Handle post-checkout cache invalidation */}
+                <Suspense fallback={null}>
+                    <SubscriptionSuccessHandler />
+                </Suspense>
+                {children}
+            </div>
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 export interface EmailPreferences {
     marketing: boolean;
@@ -22,13 +23,10 @@ export async function GET() {
         const { userId } = await auth();
 
         if (!userId) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return Errors.unauthorized();
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         const { data: user } = await supabase
             .from("users")
@@ -45,11 +43,7 @@ export async function GET() {
             },
         });
     } catch (error) {
-        console.error("Error fetching email preferences:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch preferences" },
-            { status: 500 }
-        );
+        return handleApiError(error, "email-preferences-get");
     }
 }
 
@@ -59,23 +53,17 @@ export async function PUT(req: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return Errors.unauthorized();
         }
 
         const body = await req.json();
         const { preferences } = body as { preferences: Partial<EmailPreferences> };
 
         if (!preferences) {
-            return NextResponse.json(
-                { error: "Missing preferences" },
-                { status: 400 }
-            );
+            return Errors.validationError("Missing preferences");
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Get existing preferences
         const { data: user } = await supabase
@@ -101,10 +89,7 @@ export async function PUT(req: NextRequest) {
 
         if (error) {
             console.error("Error updating email preferences:", error);
-            return NextResponse.json(
-                { error: "Failed to update preferences" },
-                { status: 500 }
-            );
+            return Errors.databaseError();
         }
 
         return NextResponse.json({
@@ -112,10 +97,6 @@ export async function PUT(req: NextRequest) {
             preferences: updatedPrefs,
         });
     } catch (error) {
-        console.error("Error updating email preferences:", error);
-        return NextResponse.json(
-            { error: "Failed to update preferences" },
-            { status: 500 }
-        );
+        return handleApiError(error, "email-preferences-update");
     }
 }

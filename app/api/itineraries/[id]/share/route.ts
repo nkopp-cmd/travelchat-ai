@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // Generate a unique share code
 function generateShareCode(): string {
@@ -20,14 +21,11 @@ export async function POST(
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized. Please sign in." },
-        { status: 401 }
-      );
+      return Errors.unauthorized();
     }
 
     const { id } = await params;
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
 
     // Check if itinerary belongs to user
     const { data: itinerary, error: fetchError } = await supabase
@@ -37,18 +35,12 @@ export async function POST(
       .single();
 
     if (fetchError || !itinerary) {
-      return NextResponse.json(
-        { error: "Itinerary not found" },
-        { status: 404 }
-      );
+      return Errors.notFound("Itinerary");
     }
 
     // Verify ownership
     if (itinerary.clerk_user_id !== userId) {
-      return NextResponse.json(
-        { error: "You don't have permission to share this itinerary" },
-        { status: 403 }
-      );
+      return Errors.forbidden("You don't have permission to share this itinerary.");
     }
 
     // If already shared, return existing share code
@@ -81,10 +73,7 @@ export async function POST(
     }
 
     if (attempts === maxAttempts) {
-      return NextResponse.json(
-        { error: "Failed to generate unique share code. Please try again." },
-        { status: 500 }
-      );
+      return Errors.internalError("Failed to generate unique share code. Please try again.");
     }
 
     // Update itinerary with share code
@@ -98,10 +87,7 @@ export async function POST(
 
     if (updateError) {
       console.error("Error updating itinerary:", updateError);
-      return NextResponse.json(
-        { error: "Failed to enable sharing" },
-        { status: 500 }
-      );
+      return Errors.databaseError();
     }
 
     const shareUrl = `${req.nextUrl.origin}/shared/${shareCode}`;
@@ -112,11 +98,7 @@ export async function POST(
       shareUrl,
     });
   } catch (error) {
-    console.error("Error sharing itinerary:", error);
-    return NextResponse.json(
-      { error: "Failed to share itinerary" },
-      { status: 500 }
-    );
+    return handleApiError(error, "itinerary-share");
   }
 }
 
@@ -129,14 +111,11 @@ export async function DELETE(
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized. Please sign in." },
-        { status: 401 }
-      );
+      return Errors.unauthorized();
     }
 
     const { id } = await params;
-    const supabase = createSupabaseAdmin();
+    const supabase = await createSupabaseServerClient();
 
     // Check if itinerary belongs to user
     const { data: itinerary, error: fetchError } = await supabase
@@ -146,18 +125,12 @@ export async function DELETE(
       .single();
 
     if (fetchError || !itinerary) {
-      return NextResponse.json(
-        { error: "Itinerary not found" },
-        { status: 404 }
-      );
+      return Errors.notFound("Itinerary");
     }
 
     // Verify ownership
     if (itinerary.clerk_user_id !== userId) {
-      return NextResponse.json(
-        { error: "You don't have permission to modify this itinerary" },
-        { status: 403 }
-      );
+      return Errors.forbidden("You don't have permission to modify this itinerary.");
     }
 
     // Disable sharing
@@ -171,10 +144,7 @@ export async function DELETE(
 
     if (updateError) {
       console.error("Error updating itinerary:", updateError);
-      return NextResponse.json(
-        { error: "Failed to disable sharing" },
-        { status: 500 }
-      );
+      return Errors.databaseError();
     }
 
     return NextResponse.json({
@@ -182,10 +152,6 @@ export async function DELETE(
       message: "Sharing disabled",
     });
   } catch (error) {
-    console.error("Error unsharing itinerary:", error);
-    return NextResponse.json(
-      { error: "Failed to disable sharing" },
-      { status: 500 }
-    );
+    return handleApiError(error, "itinerary-unshare");
   }
 }

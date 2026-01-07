@@ -21,6 +21,8 @@
  */
 
 import { createSupabaseAdmin } from '@/lib/supabase';
+import { unstable_cache } from 'next/cache';
+import { cacheConfig, cacheKeys } from '@/lib/cache';
 
 // Maximum number of early adopters
 const MAX_EARLY_ADOPTERS = 100;
@@ -57,9 +59,9 @@ export async function getEffectiveTier(
 }
 
 /**
- * Check if a user is an early adopter
+ * Check if a user is an early adopter (uncached - for internal use)
  */
-export async function isEarlyAdopter(userId: string): Promise<boolean> {
+async function checkEarlyAdopterStatus(userId: string): Promise<boolean> {
   try {
     const supabase = createSupabaseAdmin();
 
@@ -79,6 +81,22 @@ export async function isEarlyAdopter(userId: string): Promise<boolean> {
     console.error('[early-adopters] Error:', error);
     return false;
   }
+}
+
+/**
+ * Check if a user is an early adopter (cached)
+ * Uses Next.js unstable_cache with 5 minute TTL
+ */
+export async function isEarlyAdopter(userId: string): Promise<boolean> {
+  const cachedCheck = unstable_cache(
+    () => checkEarlyAdopterStatus(userId),
+    cacheKeys.earlyAdopter(userId),
+    {
+      revalidate: cacheConfig.earlyAdopter.revalidate,
+      tags: [...cacheConfig.earlyAdopter.tags, `early-adopter:${userId}`],
+    }
+  );
+  return cachedCheck();
 }
 
 /**

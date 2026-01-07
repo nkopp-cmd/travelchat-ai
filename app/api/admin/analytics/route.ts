@@ -1,27 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
-
-// Admin user IDs - in production, use a proper admin role system
-const ADMIN_USER_IDS = (process.env.ADMIN_USER_IDS || "").split(",").filter(Boolean);
-
-async function isAdmin(userId: string | null): Promise<boolean> {
-    if (!userId) return false;
-    // Allow all users in development, or check against admin list
-    if (process.env.NODE_ENV === "development") return true;
-    return ADMIN_USER_IDS.includes(userId);
-}
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function GET(req: NextRequest) {
     try {
-        const { userId } = await auth();
-
-        if (!await isAdmin(userId)) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 403 }
-            );
-        }
+        const { response, userId } = await requireAdmin("/api/admin/analytics", "GET");
+        if (response) return response;
 
         const supabase = createSupabaseAdmin();
         const { searchParams } = new URL(req.url);

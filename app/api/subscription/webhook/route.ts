@@ -5,6 +5,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { stripe, getTierFromPriceId, constructWebhookEvent } from "@/lib/stripe";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { SubscriptionEmail } from "@/emails/subscription-email";
+import { invalidateUserCache } from "@/lib/cache";
 
 // Disable body parsing for webhook
 export const runtime = "nodejs";
@@ -202,6 +203,10 @@ async function handleSubscriptionUpdate(
 
     console.log(`Subscription updated for user ${clerkUserId}: ${tier} (${status})`);
 
+    // Invalidate user tier cache so changes take effect immediately
+    invalidateUserCache(clerkUserId, "user-tier");
+    invalidateUserCache(clerkUserId, "subscription");
+
     // Send upgrade email if moving to a paid tier
     if (tier !== "free" && status === "active") {
         await sendSubscriptionEmail(supabase, clerkUserId, "upgrade", tier);
@@ -235,6 +240,10 @@ async function handleSubscriptionDeleted(
 
     console.log(`Subscription deleted for user ${clerkUserId}`);
 
+    // Invalidate user tier cache so changes take effect immediately
+    invalidateUserCache(clerkUserId, "user-tier");
+    invalidateUserCache(clerkUserId, "subscription");
+
     // Send cancellation email
     await sendSubscriptionEmail(supabase, clerkUserId, "cancelled");
 }
@@ -263,6 +272,10 @@ async function handlePaymentSucceeded(
         updated_at: new Date().toISOString(),
     }).eq("clerk_user_id", clerkUserId);
 
+    // Invalidate user tier cache
+    invalidateUserCache(clerkUserId, "user-tier");
+    invalidateUserCache(clerkUserId, "subscription");
+
     console.log(`Payment succeeded for user ${clerkUserId}`);
 }
 
@@ -289,6 +302,10 @@ async function handlePaymentFailed(
         status: "past_due",
         updated_at: new Date().toISOString(),
     }).eq("clerk_user_id", clerkUserId);
+
+    // Invalidate user tier cache
+    invalidateUserCache(clerkUserId, "user-tier");
+    invalidateUserCache(clerkUserId, "subscription");
 
     console.log(`Payment failed for user ${clerkUserId}`);
 

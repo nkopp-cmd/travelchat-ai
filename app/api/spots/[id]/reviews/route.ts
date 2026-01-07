@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface ReviewWithUser {
     id: string;
@@ -25,7 +27,7 @@ export async function GET(
     try {
         const { id: spotId } = await params;
         const { userId } = await auth();
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         const url = new URL(request.url);
         const sortBy = url.searchParams.get("sort") || "recent";
@@ -73,7 +75,7 @@ export async function GET(
 
         if (error) {
             console.error("Error fetching reviews:", error);
-            return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Get user's votes if authenticated
@@ -141,8 +143,7 @@ export async function GET(
             ratingDistribution,
         });
     } catch (error) {
-        console.error("Reviews fetch error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "reviews-get");
     }
 }
 
@@ -154,7 +155,7 @@ export async function POST(
     try {
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const { id: spotId } = await params;
@@ -163,15 +164,15 @@ export async function POST(
 
         // Validate rating
         if (!rating || rating < 1 || rating > 5) {
-            return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 });
+            return Errors.validationError("Rating must be between 1 and 5");
         }
 
         // Validate comment length
         if (comment && comment.length > 1000) {
-            return NextResponse.json({ error: "Comment must be under 1000 characters" }, { status: 400 });
+            return Errors.validationError("Comment must be under 1000 characters");
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Check if user already reviewed this spot
         const { data: existing } = await supabase
@@ -182,7 +183,7 @@ export async function POST(
             .single();
 
         if (existing) {
-            return NextResponse.json({ error: "You already reviewed this spot" }, { status: 409 });
+            return apiError(ErrorCodes.CONFLICT, "You already reviewed this spot");
         }
 
         // Create review
@@ -200,7 +201,7 @@ export async function POST(
 
         if (error) {
             console.error("Error creating review:", error);
-            return NextResponse.json({ error: "Failed to create review" }, { status: 500 });
+            return Errors.databaseError();
         }
 
         // Update spot stats
@@ -208,13 +209,12 @@ export async function POST(
 
         return NextResponse.json(review, { status: 201 });
     } catch (error) {
-        console.error("Review creation error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return handleApiError(error, "reviews-create");
     }
 }
 
 // Helper function to update spot stats
-async function updateSpotStats(supabase: ReturnType<typeof createSupabaseAdmin>, spotId: string) {
+async function updateSpotStats(supabase: SupabaseClient, spotId: string) {
     const { data: stats } = await supabase
         .from("spot_reviews")
         .select("rating")

@@ -11,10 +11,11 @@ import {
     isPexelsAvailable,
     isTripAdvisorAvailable,
 } from "@/lib/story-backgrounds";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // Rate limit: 20 story backgrounds per minute per user
 const limiter = rateLimit({
@@ -46,14 +47,14 @@ export async function POST(req: NextRequest) {
 
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         const body: StoryBackgroundRequest = await req.json();
         const { type, city, theme, dayNumber, activities, preferAI = true, cacheKey } = body;
 
         if (!city) {
-            return NextResponse.json({ error: "city is required" }, { status: 400 });
+            return Errors.validationError("city is required");
         }
 
         // Check if user can use AI images
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
 
         // Check cache first if cacheKey provided
         if (cacheKey) {
-            const supabase = createSupabaseAdmin();
+            const supabase = await createSupabaseServerClient();
             const { data: cached } = await supabase.storage
                 .from("generated-images")
                 .download(`story-backgrounds/${cacheKey}.png`);
@@ -128,7 +129,7 @@ export async function POST(req: NextRequest) {
 
                     // Cache the AI-generated image if cacheKey provided
                     if (cacheKey) {
-                        const supabase = createSupabaseAdmin();
+                        const supabase = await createSupabaseServerClient();
                         const buffer = Buffer.from(aiImage, "base64");
                         await supabase.storage
                             .from("generated-images")
@@ -185,10 +186,7 @@ export async function POST(req: NextRequest) {
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);
-        return NextResponse.json(
-            { error: error instanceof Error ? error.message : "Failed to get story background" },
-            { status: 500 }
-        );
+        return handleApiError(error, "story-background");
     }
 }
 

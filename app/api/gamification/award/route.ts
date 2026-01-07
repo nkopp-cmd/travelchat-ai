@@ -1,23 +1,21 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { XP_REWARDS, getLevel } from "@/lib/gamification";
 import { gamificationActionSchema, validateBody } from "@/lib/validations";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 export async function POST(req: Request) {
     try {
         const { userId } = await auth();
 
         if (!userId) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return Errors.unauthorized();
         }
 
         const validation = await validateBody(req, gamificationActionSchema);
         if (!validation.success) {
-            return NextResponse.json({ error: validation.error }, { status: 400 });
+            return Errors.validationError(validation.error || "Invalid request");
         }
 
         const { action } = validation.data;
@@ -48,7 +46,7 @@ export async function POST(req: Request) {
                 break;
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Get user's database ID from clerk_id
         const { data: existingUser, error: userError } = await supabase
@@ -69,10 +67,7 @@ export async function POST(req: Request) {
 
             if (createError) {
                 console.error("Error creating user:", createError);
-                return NextResponse.json(
-                    { error: "Failed to create user record" },
-                    { status: 500 }
-                );
+                return Errors.databaseError();
             }
 
             user = newUser;
@@ -84,10 +79,7 @@ export async function POST(req: Request) {
         }
 
         if (!user) {
-            return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
-            );
+            return Errors.notFound("User");
         }
 
         const currentXp = user.xp || 0;
@@ -107,10 +99,7 @@ export async function POST(req: Request) {
 
         if (updateUserError) {
             console.error("Error updating user XP:", updateUserError);
-            return NextResponse.json(
-                { error: "Failed to update XP" },
-                { status: 500 }
-            );
+            return Errors.databaseError();
         }
 
         // Update progress stats based on action type
@@ -149,10 +138,6 @@ export async function POST(req: Request) {
                 : `You earned ${amount} XP!`
         });
     } catch (error) {
-        console.error("Error awarding XP:", error);
-        return NextResponse.json(
-            { error: "Failed to award XP" },
-            { status: 500 }
-        );
+        return handleApiError(error, "gamification-award");
     }
 }

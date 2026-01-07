@@ -1,5 +1,16 @@
 -- Row Level Security Policies for Localley App
 -- This ensures users can only access their own data
+--
+-- IMPORTANT: Column name mapping:
+-- - users table: uses `clerk_id` (not clerk_user_id)
+-- - user_progress: uses `clerk_user_id` (added via migration)
+-- - user_challenges: uses `clerk_user_id` (added via migration)
+-- - itineraries: uses `clerk_user_id`
+-- - conversations: uses `clerk_user_id`
+-- - subscriptions: uses `clerk_user_id`
+-- - usage_tracking: uses `clerk_user_id`
+--
+-- All policies use auth.jwt() ->> 'sub' to get the Clerk user ID from the JWT.
 
 -- Enable RLS on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -9,20 +20,20 @@ ALTER TABLE user_challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- Users table policies
+-- Users table policies (NOTE: column is clerk_id, not clerk_user_id)
 CREATE POLICY "Users can view their own profile"
     ON users FOR SELECT
-    USING (clerk_user_id = auth.jwt() ->> 'sub');
+    USING (clerk_id = auth.jwt() ->> 'sub');
 
 CREATE POLICY "Users can update their own profile"
     ON users FOR UPDATE
-    USING (clerk_user_id = auth.jwt() ->> 'sub');
+    USING (clerk_id = auth.jwt() ->> 'sub');
 
 CREATE POLICY "Users can insert their own profile"
     ON users FOR INSERT
-    WITH CHECK (clerk_user_id = auth.jwt() ->> 'sub');
+    WITH CHECK (clerk_id = auth.jwt() ->> 'sub');
 
--- User progress policies
+-- User progress policies (clerk_user_id added via migration)
 CREATE POLICY "Users can view their own progress"
     ON user_progress FOR SELECT
     USING (clerk_user_id = auth.jwt() ->> 'sub');
@@ -52,7 +63,7 @@ CREATE POLICY "Users can delete their own itineraries"
     ON itineraries FOR DELETE
     USING (clerk_user_id = auth.jwt() ->> 'sub');
 
--- User challenges policies
+-- User challenges policies (clerk_user_id added via migration)
 CREATE POLICY "Users can view their own challenges"
     ON user_challenges FOR SELECT
     USING (clerk_user_id = auth.jwt() ->> 'sub');

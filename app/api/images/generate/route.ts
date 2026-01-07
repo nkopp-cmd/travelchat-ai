@@ -8,10 +8,11 @@ import {
     generateItineraryCover,
     isImagenAvailable,
 } from "@/lib/imagen";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
-import { checkAndTrackUsage, trackSuccessfulUsage, getUserTier } from "@/lib/usage-tracking";
+import { checkAndIncrementUsage, getUserTier } from "@/lib/usage-tracking";
 import { TIER_CONFIGS } from "@/lib/subscription";
+import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 // Rate limit: 10 image generations per minute per user
 const limiter = rateLimit({
@@ -52,16 +53,13 @@ export async function POST(req: NextRequest) {
 
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return Errors.unauthorized();
         }
 
         // Check if Imagen is available
         if (!isImagenAvailable()) {
             console.error("[IMAGE_GEN] Imagen not available - API key not configured");
-            return NextResponse.json(
-                { error: "Image generation is not configured" },
-                { status: 503 }
-            );
+            return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Image generation is not configured");
         }
 
         const body: GenerateRequest = await req.json();
@@ -84,51 +82,27 @@ export async function POST(req: NextRequest) {
         });
 
         // Check if user can use AI images
-        // Pro tier has activityImages: "ai-generated", Premium has "hd"
-        // Use aiBackgrounds feature flag which is true for both Pro and Premium
         if (!bypassTierCheck && !tierConfig.features.aiBackgrounds) {
-            return NextResponse.json(
-                {
-                    error: "feature_restricted",
-                    message: "AI image generation is a Pro feature.",
-                    upgrade: {
-                        suggestion: "Upgrade to Pro to generate AI images",
-                        tier: "pro",
-                        price: TIER_CONFIGS.pro.price,
-                    },
-                },
-                { status: 403 }
-            );
+            return Errors.featureRestricted("AI image generation", "pro");
         }
 
-        // Check usage limits (skip if bypassing tier checks for testing)
+        // Atomic check and increment (skip if bypassing tier checks for testing)
         if (!bypassTierCheck) {
-            const { allowed, usage } = await checkAndTrackUsage(userId, "ai_images_generated");
+            const { allowed, usage } = await checkAndIncrementUsage(userId, "ai_images_generated");
 
             if (!allowed) {
-                return NextResponse.json(
-                    {
-                        error: "limit_exceeded",
-                        message: `You've reached your limit of ${usage.limit} AI images this month.`,
-                        usage: {
-                            current: usage.currentUsage,
-                            limit: usage.limit,
-                            resetAt: usage.periodResetAt,
-                        },
-                        upgrade: tier === "pro" ? {
-                            suggestion: "Upgrade to Premium for more AI images",
-                            tier: "premium",
-                            price: TIER_CONFIGS.premium.price,
-                        } : null,
-                    },
-                    { status: 429 }
+                return Errors.limitExceeded(
+                    "AI images",
+                    usage.currentUsage,
+                    usage.limit,
+                    usage.periodResetAt
                 );
             }
         }
 
         // Check cache first if cacheKey provided
         if (cacheKey) {
-            const supabase = createSupabaseAdmin();
+            const supabase = await createSupabaseServerClient();
             const { data: cached } = await supabase.storage
                 .from("generated-images")
                 .download(`${userId}/${cacheKey}.png`);
@@ -151,10 +125,7 @@ export async function POST(req: NextRequest) {
         switch (type) {
             case "story_background": {
                 if (!body.city || !body.theme) {
-                    return NextResponse.json(
-                        { error: "city and theme are required for story_background" },
-                        { status: 400 }
-                    );
+                    return Errors.validationError("city and theme are required for story_background");
                 }
                 console.log("[IMAGE_GEN] Generating story background:", body.city, body.theme);
                 imageBase64 = await generateStoryBackground(
@@ -168,10 +139,7 @@ export async function POST(req: NextRequest) {
 
             case "day_background": {
                 if (!body.city || !body.dayNumber || !body.theme) {
-                    return NextResponse.json(
-                        { error: "city, dayNumber, and theme are required for day_background" },
-                        { status: 400 }
-                    );
+                    return Errors.validationError("city, dayNumber, and theme are required for day_background");
                 }
                 console.log("[IMAGE_GEN] Generating day background:", body.city, body.dayNumber, body.theme);
                 imageBase64 = await generateDayBackground(
@@ -186,10 +154,7 @@ export async function POST(req: NextRequest) {
 
             case "activity_thumbnail": {
                 if (!body.activityName || !body.category || !body.city) {
-                    return NextResponse.json(
-                        { error: "activityName, category, and city are required for activity_thumbnail" },
-                        { status: 400 }
-                    );
+                    return Errors.validationError("activityName, category, and city are required for activity_thumbnail");
                 }
                 imageBase64 = await generateActivityThumbnail(
                     body.activityName,
@@ -201,10 +166,7 @@ export async function POST(req: NextRequest) {
 
             case "itinerary_cover": {
                 if (!body.city || !body.highlights || !body.days) {
-                    return NextResponse.json(
-                        { error: "city, highlights, and days are required for itinerary_cover" },
-                        { status: 400 }
-                    );
+                    return Errors.validationError("city, highlights, and days are required for itinerary_cover");
                 }
                 imageBase64 = await generateItineraryCover(
                     body.city,
@@ -216,10 +178,7 @@ export async function POST(req: NextRequest) {
 
             case "custom": {
                 if (!body.prompt) {
-                    return NextResponse.json(
-                        { error: "prompt is required for custom image generation" },
-                        { status: 400 }
-                    );
+                    return Errors.validationError("prompt is required for custom image generation");
                 }
                 const images = await generateImage({ prompt: body.prompt });
                 imageBase64 = images[0]?.imageBytes || "";
@@ -227,22 +186,16 @@ export async function POST(req: NextRequest) {
             }
 
             default:
-                return NextResponse.json(
-                    { error: "Invalid image type" },
-                    { status: 400 }
-                );
+                return Errors.validationError("Invalid image type");
         }
 
         if (!imageBase64) {
-            return NextResponse.json(
-                { error: "Failed to generate image" },
-                { status: 500 }
-            );
+            return Errors.externalServiceError("image generation");
         }
 
         // Cache the image if cacheKey provided
         if (cacheKey) {
-            const supabase = createSupabaseAdmin();
+            const supabase = await createSupabaseServerClient();
             const buffer = Buffer.from(imageBase64, "base64");
 
             await supabase.storage
@@ -252,9 +205,6 @@ export async function POST(req: NextRequest) {
                     upsert: true,
                 });
         }
-
-        // Track successful usage
-        await trackSuccessfulUsage(userId, "ai_images_generated");
 
         return NextResponse.json({
             success: true,
@@ -267,13 +217,7 @@ export async function POST(req: NextRequest) {
             stack: error instanceof Error ? error.stack : undefined,
             name: error instanceof Error ? error.name : undefined
         });
-        return NextResponse.json(
-            {
-                error: error instanceof Error ? error.message : "Failed to generate image",
-                details: error instanceof Error ? error.stack : String(error)
-            },
-            { status: 500 }
-        );
+        return handleApiError(error, "image-generate");
     }
 }
 

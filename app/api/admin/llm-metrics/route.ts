@@ -6,26 +6,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { getMetricsCollector, getOrchestrator, estimateOrchestrationCost } from '@/lib/llm';
-
-// Admin user IDs (should be in env or database)
-const ADMIN_USER_IDS = (process.env.ADMIN_USER_IDS || '').split(',').filter(Boolean);
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    // Check authentication
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin access (skip in development)
-    const isDev = process.env.NODE_ENV === 'development';
-    if (!isDev && !ADMIN_USER_IDS.includes(userId)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const { response, userId } = await requireAdmin('/api/admin/llm-metrics', 'GET');
+    if (response) return response;
 
     // Get metrics
     const collector = getMetricsCollector();
@@ -63,16 +50,8 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const isDev = process.env.NODE_ENV === 'development';
-    if (!isDev && !ADMIN_USER_IDS.includes(userId)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const { response } = await requireAdmin('/api/admin/llm-metrics', 'POST:clear');
+    if (response) return response;
 
     const body = await req.json();
 

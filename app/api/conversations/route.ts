@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 // GET - Fetch all conversations for the current user
 export async function GET(req: NextRequest) {
@@ -8,10 +9,10 @@ export async function GET(req: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return new NextResponse("Unauthorized", { status: 401 });
+            return Errors.unauthorized();
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         const { data: conversations, error } = await supabase
             .from("conversations")
@@ -32,16 +33,12 @@ export async function GET(req: NextRequest) {
 
         if (error) {
             console.error("Error fetching conversations:", error);
-            return NextResponse.json(
-                { error: "Failed to fetch conversations" },
-                { status: 500 }
-            );
+            return Errors.databaseError();
         }
 
         return NextResponse.json({ conversations });
     } catch (error) {
-        console.error("[CONVERSATIONS_GET]", error);
-        return new NextResponse("Internal Error", { status: 500 });
+        return handleApiError(error, "conversations-get");
     }
 }
 
@@ -51,13 +48,13 @@ export async function POST(req: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return new NextResponse("Unauthorized", { status: 401 });
+            return Errors.unauthorized();
         }
 
         const body = await req.json();
         const { title } = body;
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         const { data: conversation, error } = await supabase
             .from("conversations")
@@ -70,15 +67,11 @@ export async function POST(req: NextRequest) {
 
         if (error) {
             console.error("Error creating conversation:", error);
-            return NextResponse.json(
-                { error: "Failed to create conversation" },
-                { status: 500 }
-            );
+            return Errors.databaseError();
         }
 
         return NextResponse.json({ conversation });
     } catch (error) {
-        console.error("[CONVERSATIONS_POST]", error);
-        return new NextResponse("Internal Error", { status: 500 });
+        return handleApiError(error, "conversations-post");
     }
 }

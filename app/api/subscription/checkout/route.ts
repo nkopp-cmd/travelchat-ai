@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import {
     stripe,
     getOrCreateStripeCustomer,
@@ -8,33 +8,25 @@ import {
     getPriceId,
     isStripeConfigured,
 } from "@/lib/stripe";
+import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 export async function POST(req: NextRequest) {
     try {
         // Check if Stripe is configured
         if (!isStripeConfigured() || !stripe) {
-            return NextResponse.json(
-                { error: "Payment system is not configured" },
-                { status: 503 }
-            );
+            return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Payment system is not configured");
         }
 
         // Verify authentication
         const { userId } = await auth();
         if (!userId) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return Errors.unauthorized();
         }
 
         // Get user details from Clerk
         const user = await currentUser();
         if (!user) {
-            return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
-            );
+            return Errors.notFound("User");
         }
 
         // Parse request body
@@ -43,36 +35,24 @@ export async function POST(req: NextRequest) {
 
         // Validate tier
         if (!tier || !["pro", "premium"].includes(tier)) {
-            return NextResponse.json(
-                { error: "Invalid subscription tier" },
-                { status: 400 }
-            );
+            return Errors.validationError("Invalid subscription tier");
         }
 
         // Validate billing cycle
         if (!["monthly", "yearly"].includes(billingCycle)) {
-            return NextResponse.json(
-                { error: "Invalid billing cycle" },
-                { status: 400 }
-            );
+            return Errors.validationError("Invalid billing cycle");
         }
 
         // Get price ID
         const priceId = getPriceId(tier as "pro" | "premium", billingCycle as "monthly" | "yearly");
         if (!priceId) {
-            return NextResponse.json(
-                { error: "Price not configured for this tier" },
-                { status: 400 }
-            );
+            return Errors.validationError("Price not configured for this tier");
         }
 
         // Get or create Stripe customer
         const email = user.emailAddresses[0]?.emailAddress;
         if (!email) {
-            return NextResponse.json(
-                { error: "User email not found" },
-                { status: 400 }
-            );
+            return Errors.validationError("User email not found");
         }
 
         const customerId = await getOrCreateStripeCustomer(
@@ -82,19 +62,16 @@ export async function POST(req: NextRequest) {
         );
 
         if (!customerId) {
-            return NextResponse.json(
-                { error: "Failed to create customer" },
-                { status: 500 }
-            );
+            return Errors.externalServiceError("Stripe");
         }
 
         // Update or create subscription record in Supabase
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
         await supabase.from("subscriptions").upsert(
             {
                 clerk_user_id: userId,
                 stripe_customer_id: customerId,
-                tier: "free", // Will be updated by webhook when payment succeeds
+                tier: "free",
                 status: "pending",
                 updated_at: new Date().toISOString(),
             },
@@ -115,14 +92,11 @@ export async function POST(req: NextRequest) {
             clerkUserId: userId,
             successUrl,
             cancelUrl,
-            trialDays: tier === "pro" ? 7 : 0, // 7-day trial for Pro
+            trialDays: tier === "pro" ? 7 : 0,
         });
 
         if (!session) {
-            return NextResponse.json(
-                { error: "Failed to create checkout session" },
-                { status: 500 }
-            );
+            return Errors.externalServiceError("Stripe");
         }
 
         return NextResponse.json({
@@ -130,10 +104,6 @@ export async function POST(req: NextRequest) {
             sessionId: session.id,
         });
     } catch (error) {
-        console.error("Checkout error:", error);
-        return NextResponse.json(
-            { error: "Failed to create checkout session" },
-            { status: 500 }
-        );
+        return handleApiError(error, "subscription-checkout");
     }
 }

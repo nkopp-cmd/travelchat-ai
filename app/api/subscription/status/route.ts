@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { isBetaMode, isEarlyAdopter, getEarlyAdopterStatus } from "@/lib/early-adopters";
+import { Errors, handleApiError } from "@/lib/api-errors";
 
 export interface SubscriptionStatusResponse {
     tier: SubscriptionTier;
@@ -37,13 +38,10 @@ export async function GET() {
         const { userId } = await auth();
 
         if (!userId) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return Errors.unauthorized();
         }
 
-        const supabase = createSupabaseAdmin();
+        const supabase = await createSupabaseServerClient();
 
         // Get subscription
         const { data: subscription } = await supabase
@@ -143,11 +141,7 @@ export async function GET() {
 
         return NextResponse.json(response);
     } catch (error) {
-        console.error("Subscription status error:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch subscription status" },
-            { status: 500 }
-        );
+        return handleApiError(error, "subscription-status");
     }
 }
 
