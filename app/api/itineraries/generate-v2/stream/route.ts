@@ -17,7 +17,7 @@
 
 import { NextRequest } from "next/server";
 import { auth } from '@clerk/nextjs/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { addThumbnailsToItinerary } from '@/lib/activity-images';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';

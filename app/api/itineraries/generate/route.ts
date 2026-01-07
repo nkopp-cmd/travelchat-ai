@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
 import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';

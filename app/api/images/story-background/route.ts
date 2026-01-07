@@ -11,7 +11,7 @@ import {
     isPexelsAvailable,
     isTripAdvisorAvailable,
 } from "@/lib/story-backgrounds";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";

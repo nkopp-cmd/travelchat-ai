@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { checkUsageLimit, getUserTier } from "@/lib/usage-tracking";
 import { TIER_CONFIGS } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";

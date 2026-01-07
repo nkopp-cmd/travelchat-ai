@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { isBetaMode, isEarlyAdopter, getEarlyAdopterStatus } from "@/lib/early-adopters";
 import { Errors, handleApiError } from "@/lib/api-errors";

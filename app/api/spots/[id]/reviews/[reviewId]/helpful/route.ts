@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 // POST - Mark review as helpful

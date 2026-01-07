@@ -8,7 +8,7 @@ import {
     generateItineraryCover,
     isImagenAvailable,
 } from "@/lib/imagen";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { checkAndIncrementUsage, getUserTier } from "@/lib/usage-tracking";
 import { TIER_CONFIGS } from "@/lib/subscription";
