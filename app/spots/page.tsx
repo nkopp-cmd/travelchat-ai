@@ -3,6 +3,9 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { Spot, MultiLanguageField } from "@/types";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
+import { getCitySpotCounts } from "@/lib/city-stats";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -118,6 +121,39 @@ async function SpotsContent() {
 }
 
 /**
+ * City Coverage Stats Component
+ */
+async function CityCoverageStats() {
+    const cityCounts = await getCitySpotCounts();
+    const totalSpots = cityCounts.reduce((sum, c) => sum + c.spotCount, 0);
+
+    return (
+        <div className="flex flex-wrap items-center gap-3">
+            {cityCounts.map((city) => (
+                <Badge
+                    key={city.slug}
+                    variant="secondary"
+                    className="px-3 py-1.5 text-sm bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-100 dark:border-violet-800/30"
+                >
+                    <span className="mr-1.5">{city.emoji}</span>
+                    <span className="font-medium">{city.name}</span>
+                    <span className="ml-1.5 text-muted-foreground">
+                        {city.spotCount} spots
+                    </span>
+                </Badge>
+            ))}
+            <Badge
+                variant="outline"
+                className="px-3 py-1.5 text-sm border-dashed"
+            >
+                <Sparkles className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
+                {totalSpots} total curated spots
+            </Badge>
+        </div>
+    );
+}
+
+/**
  * Spots Page - Server Component
  *
  * Fetches initial spots data on the server for faster initial load and SEO.
@@ -127,13 +163,30 @@ export default function SpotsPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                    Discover Hidden Gems
-                </h1>
-                <p className="text-muted-foreground">
-                    Local favorites across Seoul, Tokyo, Bangkok, and Singapore
-                </p>
+            <div className="mb-8 space-y-4">
+                <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 text-sm font-medium mb-3">
+                        <MapPin className="h-4 w-4" />
+                        Asia-First Discovery
+                    </div>
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                        Discover Hidden Gems
+                    </h1>
+                    <p className="text-muted-foreground">
+                        Curated local favorites where neighborhood culture matters most
+                    </p>
+                </div>
+
+                {/* City Coverage Stats */}
+                <Suspense fallback={
+                    <div className="flex gap-2">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-8 w-32 bg-muted animate-pulse rounded-full" />
+                        ))}
+                    </div>
+                }>
+                    <CityCoverageStats />
+                </Suspense>
             </div>
 
             <Suspense fallback={<SpotsLoading />}>
