@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { useDuplicateItinerary, useDeleteItinerary } from "@/hooks/use-queries";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -38,7 +39,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
     Search,
-    Map,
     Calendar,
     MoreVertical,
     Copy,
@@ -51,7 +51,6 @@ import {
     Sparkles,
     Plus,
     Clock,
-    MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -102,11 +101,15 @@ function getDisplayCity(city: string | null | undefined): string {
 export function ItineraryList({ initialItineraries }: ItineraryListProps) {
     const [itineraries, setItineraries] = useState(initialItineraries);
     const [searchQuery, setSearchQuery] = useState("");
+    const deferredSearchQuery = useDeferredValue(searchQuery);
     const [sortBy, setSortBy] = useState<SortOption>("newest");
     const [filterDays, setFilterDays] = useState<string>("all");
     const [viewMode, setViewMode] = useState<ViewMode>("grid");
     const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const { toast } = useToast();
+
+    const duplicateMutation = useDuplicateItinerary();
+    const deleteMutation = useDeleteItinerary();
 
     // Get unique day counts for filter
     const dayOptions = useMemo(() => {
@@ -114,13 +117,13 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         return days;
     }, [itineraries]);
 
-    // Filter and sort itineraries
+    // Filter and sort itineraries (use deferred search for performance)
     const filteredItineraries = useMemo(() => {
         let result = [...itineraries];
 
-        // Search filter
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
+        // Search filter (using deferred value to avoid jank)
+        if (deferredSearchQuery) {
+            const query = deferredSearchQuery.toLowerCase();
             result = result.filter(
                 (i) =>
                     i.title.toLowerCase().includes(query) ||
@@ -154,38 +157,48 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         }
 
         return result;
-    }, [itineraries, searchQuery, sortBy, filterDays]);
+    }, [itineraries, deferredSearchQuery, sortBy, filterDays]);
 
     const handleDuplicate = async (itinerary: Itinerary) => {
-        try {
-            const response = await fetch(`/api/itineraries/${itinerary.id}/duplicate`, {
-                method: "POST",
-            });
-            if (response.ok) {
-                const newItinerary = await response.json();
-                setItineraries((prev) => [newItinerary, ...prev]);
-            }
-        } catch (error) {
-            console.error("Failed to duplicate:", error);
-        }
+        duplicateMutation.mutate(itinerary.id, {
+            onSuccess: (newItinerary) => {
+                // Optimistically add to local state
+                setItineraries((prev) => [{ ...newItinerary, local_score: newItinerary.localScore ?? 0, created_at: newItinerary.createdAt ?? new Date().toISOString() } as Itinerary, ...prev]);
+                toast({
+                    title: "Itinerary duplicated",
+                    description: `"${itinerary.title}" has been duplicated.`,
+                });
+            },
+            onError: (error) => {
+                toast({
+                    title: "Failed to duplicate",
+                    description: error.message || "Please try again.",
+                    variant: "destructive",
+                });
+            },
+        });
     };
 
     const handleDelete = async () => {
         if (!deleteId) return;
-        setIsDeleting(true);
-        try {
-            const response = await fetch(`/api/itineraries/${deleteId}`, {
-                method: "DELETE",
-            });
-            if (response.ok) {
+        deleteMutation.mutate(deleteId, {
+            onSuccess: () => {
                 setItineraries((prev) => prev.filter((i) => i.id !== deleteId));
-            }
-        } catch (error) {
-            console.error("Failed to delete:", error);
-        } finally {
-            setIsDeleting(false);
-            setDeleteId(null);
-        }
+                setDeleteId(null);
+                toast({
+                    title: "Itinerary deleted",
+                    description: "Your itinerary has been deleted.",
+                });
+            },
+            onError: (error) => {
+                setDeleteId(null);
+                toast({
+                    title: "Failed to delete",
+                    description: error.message || "Please try again.",
+                    variant: "destructive",
+                });
+            },
+        });
     };
 
     const handleShare = async (itinerary: Itinerary) => {
@@ -223,17 +236,66 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         </TooltipProvider>
     );
 
-    // Placeholder component for missing images
-    const ImagePlaceholder = ({ city }: { city: string }) => (
-        <div className="w-full h-full bg-gradient-to-br from-violet-200 via-indigo-200 to-purple-200 dark:from-violet-900/50 dark:via-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center">
-            <div className="text-center">
-                <MapPin className="h-8 w-8 text-violet-400 dark:text-violet-500 mx-auto mb-1" />
-                <span className="text-xs text-violet-500 dark:text-violet-400 font-medium">
-                    {getDisplayCity(city).split(",")[0]}
-                </span>
+    // City-specific gradient colors for visual variety
+    const getCityGradient = (city: string): string => {
+        const gradients = [
+            "from-rose-500/80 via-orange-400/60 to-amber-300/40",
+            "from-violet-500/80 via-purple-400/60 to-fuchsia-300/40",
+            "from-cyan-500/80 via-blue-400/60 to-indigo-300/40",
+            "from-emerald-500/80 via-teal-400/60 to-green-300/40",
+            "from-amber-500/80 via-yellow-400/60 to-lime-300/40",
+            "from-pink-500/80 via-rose-400/60 to-red-300/40",
+            "from-indigo-500/80 via-violet-400/60 to-purple-300/40",
+            "from-teal-500/80 via-emerald-400/60 to-green-300/40",
+        ];
+        const hash = city.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return gradients[hash % gradients.length];
+    };
+
+    // Enhanced card header with city visual and overlay
+    const CardHeader = ({ city, days }: { city: string; days: number }) => {
+        const gradient = getCityGradient(city);
+        const cityInitial = city.charAt(0).toUpperCase();
+
+        return (
+            <div className={cn("w-full h-full bg-gradient-to-br", gradient, "relative overflow-hidden")}>
+                {/* Decorative map pattern overlay */}
+                <div className="absolute inset-0 opacity-10">
+                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                        <defs>
+                            <pattern id={`map-${city}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <circle cx="2" cy="2" r="1" fill="currentColor" />
+                                <circle cx="10" cy="10" r="1.5" fill="currentColor" />
+                                <path d="M2 2 L10 10" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill={`url(#map-${city})`} className="text-white" />
+                    </svg>
+                </div>
+
+                {/* City initial as large background element */}
+                <div className="absolute -right-4 -bottom-4 text-8xl font-bold text-white/10 select-none">
+                    {cityInitial}
+                </div>
+
+                {/* Overlay with city name */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-2 left-3 right-12">
+                    <span className="text-white text-sm font-medium drop-shadow-lg truncate block">
+                        {getDisplayCity(city).split(",")[0]}
+                    </span>
+                </div>
+
+                {/* Days badge */}
+                <div className="absolute bottom-2 right-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                        <Calendar className="h-3 w-3" />
+                        {days}d
+                    </span>
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     if (itineraries.length === 0) {
         return (
@@ -257,64 +319,149 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
 
     return (
         <div className="space-y-6">
-            {/* Search and Filters Bar */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Simplified Search and Controls Bar */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                {/* Search - standalone and prominent */}
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder="Search by name or destination..."
+                        placeholder="Search itineraries..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10"
                     />
                 </div>
-                <div className="flex gap-2">
-                    <Select value={filterDays} onValueChange={setFilterDays}>
-                        <SelectTrigger className="w-[130px]">
-                            <SlidersHorizontal className="h-4 w-4 mr-2" />
-                            <SelectValue placeholder="Duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Durations</SelectItem>
-                            {dayOptions.map((days) => (
-                                <SelectItem key={days} value={days.toString()}>
-                                    {days} {days === 1 ? "Day" : "Days"}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-                        <SelectTrigger className="w-[140px]">
-                            <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="newest">Newest First</SelectItem>
-                            <SelectItem value="oldest">Oldest First</SelectItem>
-                            <SelectItem value="score">Highest Score</SelectItem>
-                            <SelectItem value="alphabetical">A-Z</SelectItem>
-                            <SelectItem value="days">Duration</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <div className="flex border rounded-md">
+
+                {/* Compact Controls Group */}
+                <div className="flex items-center gap-2">
+                    {/* Filters Dropdown - combines duration filter and sort */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="gap-2">
+                                <SlidersHorizontal className="h-4 w-4" />
+                                <span className="hidden sm:inline">Filters</span>
+                                {(filterDays !== "all" || sortBy !== "newest") && (
+                                    <span className="h-2 w-2 rounded-full bg-violet-500" />
+                                )}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            {/* Duration Filter */}
+                            <div className="px-2 py-1.5">
+                                <p className="text-xs font-medium text-muted-foreground mb-2">Duration</p>
+                                <Select value={filterDays} onValueChange={setFilterDays}>
+                                    <SelectTrigger className="w-full h-8 text-sm">
+                                        <SelectValue placeholder="All durations" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All durations</SelectItem>
+                                        {dayOptions.map((days) => (
+                                            <SelectItem key={days} value={days.toString()}>
+                                                {days} {days === 1 ? "day" : "days"}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <DropdownMenuSeparator />
+                            {/* Sort */}
+                            <div className="px-2 py-1.5">
+                                <p className="text-xs font-medium text-muted-foreground mb-2">Sort by</p>
+                                <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                                    <SelectTrigger className="w-full h-8 text-sm">
+                                        <SelectValue placeholder="Sort" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="newest">Newest first</SelectItem>
+                                        <SelectItem value="oldest">Oldest first</SelectItem>
+                                        <SelectItem value="score">Highest score</SelectItem>
+                                        <SelectItem value="alphabetical">A-Z</SelectItem>
+                                        <SelectItem value="days">Duration</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {/* Clear Filters */}
+                            {(filterDays !== "all" || sortBy !== "newest") && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            setFilterDays("all");
+                                            setSortBy("newest");
+                                        }}
+                                        className="text-violet-600 focus:text-violet-600"
+                                    >
+                                        Clear filters
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* View Mode Toggle */}
+                    <div className="flex border rounded-md" role="group" aria-label="View mode">
                         <Button
                             variant={viewMode === "grid" ? "secondary" : "ghost"}
                             size="icon"
-                            className="rounded-r-none"
+                            className="h-9 w-9 rounded-r-none"
                             onClick={() => setViewMode("grid")}
+                            aria-label="Grid view"
+                            aria-pressed={viewMode === "grid"}
                         >
                             <Grid3X3 className="h-4 w-4" />
                         </Button>
                         <Button
                             variant={viewMode === "list" ? "secondary" : "ghost"}
                             size="icon"
-                            className="rounded-l-none"
+                            className="h-9 w-9 rounded-l-none"
                             onClick={() => setViewMode("list")}
+                            aria-label="List view"
+                            aria-pressed={viewMode === "list"}
                         >
                             <List className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
             </div>
+
+            {/* Featured "Continue" Module - Most Recent Itinerary */}
+            {filteredItineraries.length > 0 && !searchQuery && filterDays === "all" && (
+                <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="h-4 w-4 text-violet-500" />
+                        <span className="text-sm font-medium text-muted-foreground">Continue where you left off</span>
+                    </div>
+                    <Link href={`/itineraries/${filteredItineraries[0].id}`}>
+                        <Card className="overflow-hidden border-violet-200 dark:border-violet-800/50 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20 hover:shadow-lg hover:border-violet-300 dark:hover:border-violet-700 transition-all group">
+                            <div className="flex items-center gap-4 p-4">
+                                {/* Mini thumbnail */}
+                                <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-violet-200 dark:ring-violet-800">
+                                    <div className={cn("w-full h-full bg-gradient-to-br relative", getCityGradient(filteredItineraries[0].city || "Trip"))}>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-2xl font-bold text-white/80">
+                                                {(filteredItineraries[0].city || "T").charAt(0).toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-base truncate group-hover:text-violet-600 transition-colors">
+                                        {cleanTitle(filteredItineraries[0].title)}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {getDisplayCity(filteredItineraries[0].city)} • {filteredItineraries[0].days} days
+                                    </p>
+                                </div>
+                                {/* Continue button */}
+                                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 flex-shrink-0">
+                                    Continue
+                                </Button>
+                            </div>
+                        </Card>
+                    </Link>
+                </div>
+            )}
 
             {/* Results count */}
             <p className="text-sm text-muted-foreground">
@@ -343,45 +490,32 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                     viewMode === "list" ? "flex flex-row" : "flex flex-col"
                                 )}
                             >
-                                {/* Thumbnail */}
+                                {/* Enhanced Thumbnail with City Visual */}
                                 <div
                                     className={cn(
                                         "relative overflow-hidden flex-shrink-0",
-                                        viewMode === "grid" ? "h-32" : "w-32 min-h-[120px]"
+                                        viewMode === "grid" ? "h-36" : "w-36 min-h-[120px]"
                                     )}
                                 >
-                                    <ImagePlaceholder city={displayCity} />
-
-                                    {/* Days badge - bottom right */}
-                                    <div className="absolute bottom-2 right-2">
-                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                                            <Calendar className="h-3 w-3" />
-                                            {itinerary.days} {itinerary.days === 1 ? "day" : "days"}
-                                        </span>
-                                    </div>
+                                    <CardHeader city={displayCity} days={itinerary.days} />
                                 </div>
 
-                                {/* Content */}
+                                {/* Content - streamlined since city is in header */}
                                 <div className={cn(
                                     "flex-1 flex flex-col min-w-0",
                                     viewMode === "list" ? "p-4" : "p-4"
                                 )}>
-                                    <Link href={`/itineraries/${itinerary.id}`} className="block">
+                                    <Link href={`/itineraries/${itinerary.id}`} className="block flex-1">
                                         <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-violet-600 transition-colors mb-2">
                                             {cleanedTitle}
                                         </h3>
 
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                                            <Map className="h-4 w-4 flex-shrink-0" />
-                                            <span className="truncate">{displayCity}</span>
-                                        </div>
-
-                                        <div className="mb-3">
+                                        <div className="flex items-center gap-2 mb-2">
                                             <LocalScoreBadge score={itinerary.local_score} />
                                         </div>
                                     </Link>
 
-                                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/30">
+                                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
                                             {new Date(itinerary.created_at).toLocaleDateString("en-US", {
@@ -398,14 +532,18 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                                     size="icon"
                                                     className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
                                                     onClick={(e) => e.preventDefault()}
+                                                    aria-label={`Actions for ${cleanedTitle}`}
                                                 >
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleDuplicate(itinerary)}>
+                                                <DropdownMenuItem
+                                                    onClick={() => handleDuplicate(itinerary)}
+                                                    disabled={duplicateMutation.isPending}
+                                                >
                                                     <Copy className="h-4 w-4 mr-2" />
-                                                    Duplicate
+                                                    {duplicateMutation.isPending ? "Duplicating..." : "Duplicate"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleShare(itinerary)}>
                                                     <Share2 className="h-4 w-4 mr-2" />
@@ -473,13 +611,13 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            disabled={isDeleting}
+                            disabled={deleteMutation.isPending}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                            {isDeleting ? "Deleting..." : "Delete"}
+                            {deleteMutation.isPending ? "Deleting..." : "Delete"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

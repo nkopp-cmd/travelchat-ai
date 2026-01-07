@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Crown, Rocket, Sparkles, CreditCard, ExternalLink, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "lucide-react";
+import { Crown, Rocket, Sparkles, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "lucide-react";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -116,13 +116,21 @@ export default async function SettingsPage() {
             </div>
 
             {/* Subscription Management */}
-            <Card className={`overflow-hidden ${
+            <Card className={`overflow-hidden relative ${
                 subscription.tier === "premium"
-                    ? "border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20"
+                    ? "border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 shadow-lg shadow-amber-200/50 dark:shadow-amber-900/20"
                     : subscription.tier === "pro"
-                    ? "border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20"
+                    ? "border-violet-300 bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 shadow-lg shadow-violet-200/50 dark:shadow-violet-900/20"
                     : ""
             }`}>
+                {/* Premium glow effect */}
+                {subscription.tier !== "free" && (
+                    <div className={`absolute inset-0 pointer-events-none ${
+                        subscription.tier === "premium"
+                            ? "bg-gradient-to-br from-amber-400/5 via-transparent to-yellow-400/5"
+                            : "bg-gradient-to-br from-violet-400/5 via-transparent to-indigo-400/5"
+                    }`} />
+                )}
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -389,14 +397,14 @@ export default async function SettingsPage() {
                     <CardDescription>Customize your Localley experience</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between p-3 -m-3 rounded-lg hover:bg-muted/50 transition-colors group">
                         <div className="space-y-0.5">
-                            <Label htmlFor="location">Auto-detect Location</Label>
+                            <Label htmlFor="location" className="cursor-pointer group-hover:text-foreground transition-colors">Auto-detect Location</Label>
                             <p className="text-sm text-muted-foreground">
-                                Automatically show spots near you
+                                Show spots near you automatically when browsing
                             </p>
                         </div>
-                        <Switch id="location" defaultChecked />
+                        <Switch id="location" defaultChecked className="data-[state=checked]:bg-violet-600" />
                     </div>
                 </CardContent>
             </Card>
@@ -445,27 +453,25 @@ export default async function SettingsPage() {
                     <CardTitle>Privacy & Data</CardTitle>
                     <CardDescription>Control your data and privacy settings</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between">
+                <CardContent className="space-y-2">
+                    <div className="flex items-center justify-between p-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors group">
                         <div className="space-y-0.5">
-                            <Label htmlFor="analytics">Usage Analytics</Label>
+                            <Label htmlFor="analytics" className="cursor-pointer group-hover:text-foreground transition-colors">Usage Analytics</Label>
                             <p className="text-sm text-muted-foreground">
-                                Help us improve by sharing anonymous usage data
+                                Help us improve Localley with anonymous usage insights
                             </p>
                         </div>
-                        <Switch id="analytics" defaultChecked />
+                        <Switch id="analytics" defaultChecked className="data-[state=checked]:bg-violet-600" />
                     </div>
 
-                    <Separator />
-
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between p-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors group">
                         <div className="space-y-0.5">
-                            <Label htmlFor="personalization">Personalized Recommendations</Label>
+                            <Label htmlFor="personalization" className="cursor-pointer group-hover:text-foreground transition-colors">Personalized Recommendations</Label>
                             <p className="text-sm text-muted-foreground">
-                                Get spot suggestions based on your preferences
+                                Get smarter spot suggestions based on your travel style
                             </p>
                         </div>
-                        <Switch id="personalization" defaultChecked />
+                        <Switch id="personalization" defaultChecked className="data-[state=checked]:bg-violet-600" />
                     </div>
                 </CardContent>
             </Card>

@@ -10,7 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, MapPin, DollarSign, Users, Zap, LayoutTemplate, X, AlertCircle, CheckCircle2, Gift } from "lucide-react";
+import { Loader2, Sparkles, DollarSign, Users, Zap, LayoutTemplate, X, AlertCircle, CheckCircle2, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getTemplateById, ItineraryTemplate } from "@/lib/templates";
 import { useUser } from "@clerk/nextjs";
@@ -29,8 +29,14 @@ const INTERESTS = [
     "Music & Entertainment"
 ];
 
-// Supported cities for validation
-const SUPPORTED_CITIES = ["Seoul", "Tokyo", "Bangkok", "Singapore"];
+// Supported cities with metadata for visual upgrade
+const SUPPORTED_CITIES_DATA = [
+    { name: "Seoul", emoji: "🇰🇷", vibe: "K-culture & nightlife" },
+    { name: "Tokyo", emoji: "🇯🇵", vibe: "Tradition meets tech" },
+    { name: "Bangkok", emoji: "🇹🇭", vibe: "Street food paradise" },
+    { name: "Singapore", emoji: "🇸🇬", vibe: "Modern melting pot" },
+];
+const SUPPORTED_CITIES = SUPPORTED_CITIES_DATA.map(c => c.name);
 
 // City validation helper
 function isCitySupported(input: string): string | null {
@@ -443,21 +449,24 @@ function NewItineraryForm() {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-8">
-                        {/* City Input */}
-                        <div className="space-y-2">
+                        {/* City Input - Enhanced with city cards */}
+                        <div className="space-y-4">
                             <Label htmlFor="city" className="text-base font-semibold flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-violet-600" />
+                                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 text-xs font-bold">1</span>
                                 Where are you going?
                             </Label>
                             <div className="relative">
                                 <Input
                                     id="city"
-                                    placeholder="Seoul, Tokyo, Bangkok, or Singapore"
+                                    placeholder="Start typing a city..."
                                     value={city}
                                     onChange={(e) => handleCityChange(e.target.value)}
-                                    className={`text-lg h-12 ${cityError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                    className={`text-lg h-12 ${cityError ? 'border-red-500 focus-visible:ring-red-500' : ''} ${city && !cityError ? 'border-green-500 focus-visible:ring-green-500' : ''}`}
                                     required
                                 />
+                                {city && !cityError && (
+                                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+                                )}
                             </div>
                             {cityError ? (
                                 <p className="text-sm text-red-500 flex items-center gap-1">
@@ -465,15 +474,32 @@ function NewItineraryForm() {
                                     {cityError}
                                 </p>
                             ) : (
-                                <div className="flex gap-2 flex-wrap">
-                                    {SUPPORTED_CITIES.map((c) => (
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    {SUPPORTED_CITIES_DATA.map((cityData) => (
                                         <button
-                                            key={c}
+                                            key={cityData.name}
                                             type="button"
-                                            onClick={() => { setCity(c); setCityError(null); }}
-                                            className="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300 transition-colors"
+                                            onClick={() => { setCity(cityData.name); setCityError(null); }}
+                                            className={`group relative p-3 rounded-xl border transition-all text-left ${
+                                                city === cityData.name
+                                                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/30 ring-2 ring-violet-500/20'
+                                                    : 'border-border hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-950/20'
+                                            }`}
                                         >
-                                            {c}
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xl">{cityData.emoji}</span>
+                                                <span className={`font-medium ${city === cityData.name ? 'text-violet-700 dark:text-violet-300' : ''}`}>
+                                                    {cityData.name}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground group-hover:text-foreground/70 transition-colors">
+                                                {cityData.vibe}
+                                            </p>
+                                            {city === cityData.name && (
+                                                <div className="absolute top-2 right-2">
+                                                    <CheckCircle2 className="h-4 w-4 text-violet-600" />
+                                                </div>
+                                            )}
                                         </button>
                                     ))}
                                 </div>
@@ -483,7 +509,10 @@ function NewItineraryForm() {
                         {/* Days and Budget */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="days" className="text-base font-semibold">Duration</Label>
+                                <Label htmlFor="days" className="text-base font-semibold flex items-center gap-2">
+                                    <span className="flex items-center justify-center h-6 w-6 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 text-xs font-bold">2</span>
+                                    Duration
+                                </Label>
                                 <Select value={days} onValueChange={setDays}>
                                     <SelectTrigger className="h-12">
                                         <SelectValue placeholder="Select days" />
@@ -518,7 +547,10 @@ function NewItineraryForm() {
 
                         {/* Interests */}
                         <div className="space-y-3">
-                            <Label className="text-base font-semibold">What interests you?</Label>
+                            <Label className="text-base font-semibold flex items-center gap-2">
+                                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 text-xs font-bold">3</span>
+                                What interests you?
+                            </Label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                 {INTERESTS.map((interest) => (
                                     <button
@@ -536,10 +568,13 @@ function NewItineraryForm() {
                             </div>
                         </div>
 
-                        {/* Localness Level */}
+                        {/* Localness Level - Enhanced with contextual descriptions */}
                         <div className="space-y-4">
-                            <Label className="text-base font-semibold">How &quot;Local&quot; do you want to go?</Label>
-                            <div className="pt-2">
+                            <Label className="text-base font-semibold flex items-center gap-2">
+                                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 text-xs font-bold">4</span>
+                                How &quot;Local&quot; do you want to go?
+                            </Label>
+                            <div className="pt-2 space-y-4">
                                 <Slider
                                     value={localnessLevel}
                                     onValueChange={setLocalnessLevel}
@@ -548,10 +583,39 @@ function NewItineraryForm() {
                                     step={1}
                                     className="w-full"
                                 />
-                                <div className="flex justify-between text-xs text-muted-foreground mt-3">
+                                <div className="flex justify-between text-xs text-muted-foreground">
                                     <span>Tourist Highlights</span>
-                                    <span className="font-semibold text-violet-600">Level {localnessLevel[0]}</span>
                                     <span>Deep Local Only</span>
+                                </div>
+                                {/* Contextual feedback based on level */}
+                                <div className={`p-3 rounded-lg border transition-all ${
+                                    localnessLevel[0] >= 4
+                                        ? 'bg-violet-50 border-violet-200 dark:bg-violet-950/30 dark:border-violet-800'
+                                        : 'bg-muted/50 border-border'
+                                }`}>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-medium text-sm">
+                                            Level {localnessLevel[0]}: {
+                                                localnessLevel[0] === 1 ? "Tourist Classics" :
+                                                localnessLevel[0] === 2 ? "Popular Picks" :
+                                                localnessLevel[0] === 3 ? "Balanced Mix" :
+                                                localnessLevel[0] === 4 ? "Off the Beaten Path" :
+                                                "True Local Secrets"
+                                            }
+                                        </span>
+                                        {localnessLevel[0] >= 4 && (
+                                            <Badge variant="secondary" className="text-xs bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300">
+                                                Recommended
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        {localnessLevel[0] === 1 && "Famous landmarks and must-see attractions that everyone visits"}
+                                        {localnessLevel[0] === 2 && "Well-known spots with some local favorites mixed in"}
+                                        {localnessLevel[0] === 3 && "A nice balance of popular spots and hidden gems"}
+                                        {localnessLevel[0] === 4 && "Mainly local hangouts with a few notable highlights"}
+                                        {localnessLevel[0] === 5 && "Where locals actually go — no tourist crowds here"}
+                                    </p>
                                 </div>
                             </div>
                         </div>

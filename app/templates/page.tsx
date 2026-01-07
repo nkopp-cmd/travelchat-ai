@@ -70,70 +70,84 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        {/* All Templates Grid */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-6">All Templates</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {templates.map((template) => (
-              <TemplateCard key={template.id} template={template} />
-            ))}
-          </div>
-        </div>
-
-        {/* By Pace Section */}
-        <div className="space-y-12">
+        {/* Browse by Pace - Primary Sections */}
+        <div className="space-y-16">
           {/* Relaxed Pace */}
           {paceGroups.relaxed.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full" />
-                <h2 className="text-2xl font-bold">Relaxed Pace 🌊</h2>
+            <section className="relative">
+              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-400 to-teal-400 rounded-full hidden lg:block" />
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 text-2xl">
+                  🌊
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Relaxed Pace</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Take it easy with leisurely itineraries perfect for unwinding
+                  </p>
+                </div>
+                <Badge className="ml-auto bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0">
+                  {paceGroups.relaxed.length} templates
+                </Badge>
               </div>
-              <p className="text-muted-foreground mb-6">
-                Take it easy with leisurely itineraries perfect for unwinding
-              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paceGroups.relaxed.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {/* Moderate Pace */}
           {paceGroups.moderate.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full" />
-                <h2 className="text-2xl font-bold">Moderate Pace 🚶</h2>
+            <section className="relative">
+              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-400 rounded-full hidden lg:block" />
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-2xl">
+                  🚶
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Moderate Pace</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Balanced itineraries with a mix of activities and downtime
+                  </p>
+                </div>
+                <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-0">
+                  {paceGroups.moderate.length} templates
+                </Badge>
               </div>
-              <p className="text-muted-foreground mb-6">
-                Balanced itineraries with a mix of activities and downtime
-              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paceGroups.moderate.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {/* Active Pace */}
           {paceGroups.active.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-orange-400 to-red-400 rounded-full" />
-                <h2 className="text-2xl font-bold">Active Pace ⚡</h2>
+            <section className="relative">
+              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-red-400 rounded-full hidden lg:block" />
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 text-2xl">
+                  ⚡
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Active Pace</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Packed itineraries for travelers who want to see and do it all
+                  </p>
+                </div>
+                <Badge className="ml-auto bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-0">
+                  {paceGroups.active.length} templates
+                </Badge>
               </div>
-              <p className="text-muted-foreground mb-6">
-                Packed itineraries for travelers who want to see and do it all
-              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paceGroups.active.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
               </div>
-            </div>
+            </section>
           )}
         </div>
 

@@ -4,14 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Star, MapPin, Flame, Settings, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight, CreditCard } from "lucide-react";
+import { Trophy, Star, MapPin, Flame, Settings, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "lucide-react";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 
 async function getUserProgress() {
@@ -170,15 +169,39 @@ export default async function ProfilePage() {
         year: "numeric",
     });
 
+    // Get tier-specific ring color for avatar
+    const tierRingColor = subscription.tier === "premium"
+        ? "ring-amber-400"
+        : subscription.tier === "pro"
+        ? "ring-violet-400"
+        : "ring-violet-200 dark:ring-violet-800";
+
     return (
         <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in fade-in duration-500">
             {/* Profile Header */}
             <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-border/40 bg-background/60 backdrop-blur-sm shadow-xl">
-                <div className="h-24 sm:h-32 bg-gradient-to-r from-violet-600 to-indigo-600" />
+                {/* Enhanced header with pattern overlay */}
+                <div className="h-24 sm:h-32 bg-gradient-to-r from-violet-600 to-indigo-600 relative overflow-hidden">
+                    {/* Decorative pattern overlay */}
+                    <div className="absolute inset-0 opacity-10">
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                            <defs>
+                                <pattern id="profile-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <circle cx="2" cy="2" r="1" fill="currentColor" />
+                                    <circle cx="12" cy="8" r="1.5" fill="currentColor" />
+                                    <path d="M2 2 L12 8" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2" />
+                                </pattern>
+                            </defs>
+                            <rect width="100" height="100" fill="url(#profile-pattern)" className="text-white" />
+                        </svg>
+                    </div>
+                    {/* Gradient fade at bottom */}
+                    <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/20 to-transparent" />
+                </div>
                 <div className="px-4 sm:px-8 pb-6 sm:pb-8">
                     <div className="relative flex flex-col md:flex-row justify-between items-start md:items-end -mt-10 sm:-mt-12 mb-4 sm:mb-6 gap-4">
                         <div className="flex items-end gap-4 sm:gap-6">
-                            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-background shadow-lg">
+                            <Avatar className={`h-20 w-20 sm:h-24 sm:w-24 border-4 border-background shadow-lg ring-2 ${tierRingColor} ring-offset-2 ring-offset-background`}>
                                 <AvatarImage src={user.imageUrl} />
                                 <AvatarFallback className="text-xl sm:text-2xl bg-slate-200 dark:bg-slate-800">
                                     {user.firstName?.[0]}{user.lastName?.[0]}
@@ -210,38 +233,43 @@ export default async function ProfilePage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Explorer Rank - warmer gamification language */}
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm font-medium">
-                                <span>Level {level}: {rank}</span>
-                                <span className="text-muted-foreground">{progress.xp} / {nextLevelXp} XP</span>
+                                <div className="flex items-center gap-2">
+                                    <Star className="h-4 w-4 text-violet-500" />
+                                    <span>{rank}</span>
+                                </div>
+                                <span className="text-muted-foreground">{nextLevelXp - progress.xp} XP to go</span>
                             </div>
                             <Progress value={levelProgress} className="h-3 bg-secondary" />
-                            <p className="text-xs text-muted-foreground text-right">
-                                {nextLevelXp - progress.xp} XP to next level
+                            <p className="text-xs text-muted-foreground">
+                                Keep exploring to reach the next rank!
                             </p>
                         </div>
 
+                        {/* Stats with friendlier labels */}
                         <div className="flex justify-between items-center gap-4">
                             <div className="text-center p-3 rounded-xl bg-accent/5 flex-1">
                                 <div className="flex justify-center mb-1">
                                     <MapPin className="h-5 w-5 text-violet-500" />
                                 </div>
                                 <div className="font-bold text-xl">{progress.discoveries || 0}</div>
-                                <div className="text-xs text-muted-foreground">Discoveries</div>
+                                <div className="text-xs text-muted-foreground">Places found</div>
                             </div>
                             <div className="text-center p-3 rounded-xl bg-accent/5 flex-1">
                                 <div className="flex justify-center mb-1">
                                     <Flame className="h-5 w-5 text-orange-500" />
                                 </div>
                                 <div className="font-bold text-xl">{progress.streak || 0}</div>
-                                <div className="text-xs text-muted-foreground">Day Streak</div>
+                                <div className="text-xs text-muted-foreground">{progress.streak === 1 ? "Day" : "Days"} exploring</div>
                             </div>
                             <Link href="/leaderboard" className="text-center p-3 rounded-xl bg-accent/5 flex-1 hover:bg-accent/10 transition-colors">
                                 <div className="flex justify-center mb-1">
                                     <Trophy className="h-5 w-5 text-yellow-500" />
                                 </div>
                                 <div className="font-bold text-xl">{completedChallenges.length}</div>
-                                <div className="text-xs text-muted-foreground">Badges</div>
+                                <div className="text-xs text-muted-foreground">{completedChallenges.length === 1 ? "Badge" : "Badges"} earned</div>
                             </Link>
                         </div>
                     </div>
@@ -351,23 +379,29 @@ export default async function ProfilePage() {
                     </CardContent>
                 </Card>
 
-                {/* Usage Dashboard */}
+                {/* Usage Dashboard - Humanized */}
                 <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">Usage This Period</CardTitle>
-                        <CardDescription>Track your feature usage and limits</CardDescription>
+                        <CardTitle className="text-lg">Your Activity</CardTitle>
+                        <CardDescription>Here&apos;s what you&apos;ve been up to</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {/* Itineraries */}
+                        {/* Itineraries - contextual messaging */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-violet-500" />
-                                    <span>Itineraries</span>
+                                    <span>
+                                        {usage.itinerariesThisMonth === 0
+                                            ? "No trips planned yet this month"
+                                            : `${usage.itinerariesThisMonth} ${usage.itinerariesThisMonth === 1 ? "trip" : "trips"} planned this month`}
+                                    </span>
                                 </div>
-                                <span className="font-medium">
-                                    {usage.itinerariesThisMonth} / {tierConfig.limits.itinerariesPerMonth === 999 ? "∞" : tierConfig.limits.itinerariesPerMonth}
-                                </span>
+                                {tierConfig.limits.itinerariesPerMonth !== 999 && (
+                                    <span className="text-xs text-muted-foreground">
+                                        {tierConfig.limits.itinerariesPerMonth - usage.itinerariesThisMonth} left
+                                    </span>
+                                )}
                             </div>
                             <Progress
                                 value={tierConfig.limits.itinerariesPerMonth === 999 ? 10 : (usage.itinerariesThisMonth / tierConfig.limits.itinerariesPerMonth) * 100}
@@ -375,16 +409,22 @@ export default async function ProfilePage() {
                             />
                         </div>
 
-                        {/* Chat Messages */}
+                        {/* Chat Messages - conversational */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                     <MessageSquare className="h-4 w-4 text-indigo-500" />
-                                    <span>Chat Messages (Today)</span>
+                                    <span>
+                                        {usage.chatMessagesToday === 0
+                                            ? "Chat with Alley anytime"
+                                            : `${usage.chatMessagesToday} ${usage.chatMessagesToday === 1 ? "chat" : "chats"} today`}
+                                    </span>
                                 </div>
-                                <span className="font-medium">
-                                    {usage.chatMessagesToday} / {tierConfig.limits.chatMessagesPerDay === 999 ? "∞" : tierConfig.limits.chatMessagesPerDay}
-                                </span>
+                                {tierConfig.limits.chatMessagesPerDay !== 999 && (
+                                    <span className="text-xs text-muted-foreground">
+                                        {tierConfig.limits.chatMessagesPerDay - usage.chatMessagesToday} left today
+                                    </span>
+                                )}
                             </div>
                             <Progress
                                 value={tierConfig.limits.chatMessagesPerDay === 999 ? 10 : (usage.chatMessagesToday / tierConfig.limits.chatMessagesPerDay) * 100}
@@ -392,15 +432,19 @@ export default async function ProfilePage() {
                             />
                         </div>
 
-                        {/* AI Images */}
+                        {/* AI Images - achievement framing */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                     <ImageIcon className="h-4 w-4 text-emerald-500" />
-                                    <span>AI Images</span>
+                                    <span>
+                                        {usage.aiImagesThisMonth === 0
+                                            ? "Create AI images of your trips"
+                                            : `${usage.aiImagesThisMonth} ${usage.aiImagesThisMonth === 1 ? "image" : "images"} created`}
+                                    </span>
                                 </div>
-                                <span className="font-medium">
-                                    {usage.aiImagesThisMonth} / {tierConfig.limits.aiImagesPerMonth}
+                                <span className="text-xs text-muted-foreground">
+                                    {tierConfig.limits.aiImagesPerMonth - usage.aiImagesThisMonth} left
                                 </span>
                             </div>
                             <Progress
@@ -409,16 +453,22 @@ export default async function ProfilePage() {
                             />
                         </div>
 
-                        {/* Saved Spots */}
+                        {/* Saved Spots - collection framing */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                     <Bookmark className="h-4 w-4 text-rose-500" />
-                                    <span>Saved Spots</span>
+                                    <span>
+                                        {usage.savedSpots === 0
+                                            ? "Save spots you want to visit"
+                                            : `${usage.savedSpots} ${usage.savedSpots === 1 ? "spot" : "spots"} in your collection`}
+                                    </span>
                                 </div>
-                                <span className="font-medium">
-                                    {usage.savedSpots} / {tierConfig.limits.savedSpotsLimit === 999 ? "∞" : tierConfig.limits.savedSpotsLimit}
-                                </span>
+                                {tierConfig.limits.savedSpotsLimit !== 999 && (
+                                    <span className="text-xs text-muted-foreground">
+                                        {tierConfig.limits.savedSpotsLimit - usage.savedSpots} slots left
+                                    </span>
+                                )}
                             </div>
                             <Progress
                                 value={tierConfig.limits.savedSpotsLimit === 999 ? 10 : (usage.savedSpots / tierConfig.limits.savedSpotsLimit) * 100}

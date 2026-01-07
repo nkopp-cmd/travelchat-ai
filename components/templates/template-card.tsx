@@ -25,9 +25,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
   };
 
   return (
-    <Card className="group hover:shadow-xl transition-all duration-300 border-border/40 overflow-hidden">
+    <Card className="group hover:shadow-xl hover:shadow-violet-200/50 dark:hover:shadow-violet-900/20 hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 border-border/40 overflow-hidden cursor-pointer">
       {/* Gradient Header */}
-      <div className={`h-2 bg-gradient-to-r ${template.color}`} />
+      <div className={`h-3 bg-gradient-to-r ${template.color} group-hover:h-4 transition-all duration-300`} />
 
       <CardHeader className="space-y-3">
         {/* Icon & Title */}
@@ -76,12 +76,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
         </div>
 
-        {/* Target Audience */}
-        <div className="flex items-start gap-2 text-sm">
-          <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <span className="text-muted-foreground">
-            Perfect for: <span className="text-foreground font-medium">{template.targetAudience}</span>
-          </span>
+        {/* Target Audience - Best For Section */}
+        <div className="p-3 rounded-lg bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/10 dark:to-indigo-900/10 border border-violet-100 dark:border-violet-800/30">
+          <div className="flex items-start gap-2 text-sm">
+            <Users className="h-4 w-4 text-violet-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-violet-600 dark:text-violet-400">Best for:</span>
+              <span className="text-foreground ml-1">{template.targetAudience}</span>
+            </div>
+          </div>
         </div>
 
         {/* CTA Button */}
