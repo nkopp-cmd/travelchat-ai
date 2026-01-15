@@ -231,6 +231,251 @@ class ApiClient {
       body: JSON.stringify({ messages }),
     });
   }
+
+  // ============================================
+  // Itinerary Mutations
+  // ============================================
+
+  async updateItinerary(
+    id: string,
+    data: { title?: string; days?: unknown }
+  ): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>(`/api/itineraries/${id}/update`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async shareItinerary(
+    id: string,
+    action: "create" | "revoke"
+  ): Promise<ApiResult<{ shareCode?: string; shareUrl?: string; success?: boolean }>> {
+    return this.request<{ shareCode?: string; shareUrl?: string; success?: boolean }>(
+      `/api/itineraries/${id}/share`,
+      {
+        method: "POST",
+        body: JSON.stringify({ action }),
+      }
+    );
+  }
+
+  async emailItinerary(
+    id: string,
+    email: string
+  ): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>(`/api/itineraries/${id}/email`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async likeItinerary(id: string): Promise<ApiResult<{ liked: boolean; likeCount: number }>> {
+    return this.request<{ liked: boolean; likeCount: number }>(`/api/itineraries/${id}/like`, {
+      method: "POST",
+    });
+  }
+
+  async getLikeStatus(id: string): Promise<ApiResult<{ liked: boolean; likeCount: number }>> {
+    return this.request<{ liked: boolean; likeCount: number }>(`/api/itineraries/${id}/like`);
+  }
+
+  async saveItinerary(data: {
+    title: string;
+    city: string;
+    days: number;
+    activities: unknown;
+    highlights?: string[];
+    localScore?: number;
+    estimatedCost?: string;
+  }): Promise<ApiResult<{ itinerary: Itinerary }>> {
+    return this.request<{ itinerary: Itinerary }>("/api/itineraries/save", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async reviseItinerary(
+    id: string,
+    revisionRequest: string
+  ): Promise<ApiResult<{ itinerary: Itinerary }>> {
+    return this.request<{ itinerary: Itinerary }>(`/api/itineraries/${id}/revise`, {
+      method: "POST",
+      body: JSON.stringify({ revisionRequest }),
+    });
+  }
+
+  // ============================================
+  // Spots Endpoints
+  // ============================================
+
+  async getSavedSpotStatus(spotId: string): Promise<ApiResult<{ isSaved: boolean }>> {
+    return this.request<{ isSaved: boolean }>(`/api/spots/save?spotId=${spotId}`);
+  }
+
+  async toggleSaveSpot(
+    spotId: string,
+    spotData?: { name: string; city: string }
+  ): Promise<ApiResult<{ saved: boolean }>> {
+    return this.request<{ saved: boolean }>("/api/spots/save", {
+      method: "POST",
+      body: JSON.stringify({ spotId, ...spotData }),
+    });
+  }
+
+  async getSpotReviews(
+    spotId: string,
+    sort?: string
+  ): Promise<ApiResult<{ reviews: unknown[]; averageRating: number; totalReviews: number }>> {
+    const url = sort ? `/api/spots/${spotId}/reviews?sort=${sort}` : `/api/spots/${spotId}/reviews`;
+    return this.request<{ reviews: unknown[]; averageRating: number; totalReviews: number }>(url);
+  }
+
+  async submitSpotReview(
+    spotId: string,
+    data: { rating: number; text?: string; visitDate?: string }
+  ): Promise<ApiResult<{ review: unknown }>> {
+    return this.request<{ review: unknown }>(`/api/spots/${spotId}/reviews`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSpotReview(
+    spotId: string,
+    reviewId: string
+  ): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>(`/api/spots/${spotId}/reviews/${reviewId}`, {
+      method: "DELETE",
+    });
+  }
+
+  async markReviewHelpful(
+    spotId: string,
+    reviewId: string
+  ): Promise<ApiResult<{ helpfulCount: number }>> {
+    return this.request<{ helpfulCount: number }>(
+      `/api/spots/${spotId}/reviews/${reviewId}/helpful`,
+      { method: "POST" }
+    );
+  }
+
+  // ============================================
+  // User Preferences
+  // ============================================
+
+  async getEmailPreferences(): Promise<ApiResult<{ preferences: Record<string, boolean> }>> {
+    return this.request<{ preferences: Record<string, boolean> }>("/api/user/email-preferences");
+  }
+
+  async updateEmailPreferences(
+    preferences: Record<string, boolean>
+  ): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>("/api/user/email-preferences", {
+      method: "POST",
+      body: JSON.stringify(preferences),
+    });
+  }
+
+  // ============================================
+  // Recommendations
+  // ============================================
+
+  async getRecommendations(limit?: number): Promise<ApiResult<{ recommendations: unknown[] }>> {
+    const url = limit ? `/api/recommendations?limit=${limit}` : "/api/recommendations";
+    return this.request<{ recommendations: unknown[] }>(url);
+  }
+
+  // ============================================
+  // Viator Activities
+  // ============================================
+
+  async searchViatorActivities(params: {
+    city: string;
+    query?: string;
+    limit?: number;
+  }): Promise<ApiResult<{ activities: unknown[] }>> {
+    const searchParams = new URLSearchParams({ city: params.city });
+    if (params.query) searchParams.set("query", params.query);
+    if (params.limit) searchParams.set("limit", params.limit.toString());
+    return this.request<{ activities: unknown[] }>(`/api/viator/search?${searchParams}`);
+  }
+
+  async trackAffiliateClick(data: {
+    provider: string;
+    productId: string;
+    productName: string;
+    city?: string;
+  }): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>("/api/affiliates/track", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // ============================================
+  // Gamification
+  // ============================================
+
+  async awardPoints(data: {
+    action: string;
+    amount: number;
+    metadata?: Record<string, unknown>;
+  }): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>("/api/gamification/award", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // ============================================
+  // Geocoding
+  // ============================================
+
+  async geocodeAddress(address: string): Promise<ApiResult<{ lat: number; lng: number }>> {
+    return this.request<{ lat: number; lng: number }>(
+      `/api/geocode?address=${encodeURIComponent(address)}`
+    );
+  }
+
+  // ============================================
+  // Story Images
+  // ============================================
+
+  async getStoryBackgrounds(): Promise<ApiResult<{ backgrounds: string[] }>> {
+    return this.request<{ backgrounds: string[] }>("/api/images/story-background");
+  }
+
+  async generateStoryBackground(prompt: string): Promise<ApiResult<{ url: string }>> {
+    return this.request<{ url: string }>("/api/images/story-background", {
+      method: "POST",
+      body: JSON.stringify({ prompt }),
+    });
+  }
+
+  async saveAiBackgrounds(
+    itineraryId: string,
+    backgrounds: string[]
+  ): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+      method: "POST",
+      body: JSON.stringify({ backgrounds }),
+    });
+  }
+
+  // ============================================
+  // Conversations - Save Messages
+  // ============================================
+
+  async saveMessage(
+    conversationId: string,
+    role: string,
+    content: string
+  ): Promise<ApiResult<{ message: Message }>> {
+    return this.request<{ message: Message }>("/api/conversations/messages", {
+      method: "POST",
+      body: JSON.stringify({ conversationId, role, content }),
+    });
+  }
 }
 
 // Export singleton instance

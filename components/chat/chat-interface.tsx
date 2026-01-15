@@ -13,8 +13,15 @@ import { ChatMessageSkeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useLiveAnnouncer } from "@/components/accessibility/live-region";
+import {
+  useCreateConversation,
+  useSaveMessage,
+  useSendChatMessage,
+  useReviseItinerary,
+} from "@/hooks/use-queries";
 
 interface Message {
+  id: string; // Stable key for React
   role: "user" | "assistant";
   content: string;
 }
@@ -42,6 +49,9 @@ interface ChatInterfaceProps {
   selectedTemplate?: ItineraryTemplate;
 }
 
+// Helper to generate stable IDs
+const generateMessageId = () => crypto.randomUUID();
+
 export function ChatInterface({ className, itineraryContext, selectedTemplate }: ChatInterfaceProps) {
   const getInitialMessage = () => {
     if (itineraryContext) {
@@ -55,19 +65,28 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
 
   const [messages, setMessages] = useState<Message[]>([
     {
+      id: generateMessageId(),
       role: "assistant",
       content: getInitialMessage(),
     },
   ]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [showItineraryPrompt, setShowItineraryPrompt] = useState(false);
   const [activeItinerary, setActiveItinerary] = useState<ItineraryContext | undefined>(itineraryContext);
+  const [chatError, setChatError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { announce, LiveRegionPortal } = useLiveAnnouncer();
+
+  // React Query mutations
+  const createConversationMutation = useCreateConversation();
+  const saveMessageMutation = useSaveMessage();
+  const sendChatMutation = useSendChatMessage();
+  const reviseItineraryMutation = useReviseItinerary();
+
+  const isLoading = sendChatMutation.isPending || reviseItineraryMutation.isPending;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -76,10 +95,12 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
   }, [messages]);
 
 
-  const createNewConversation = async () => {
+  const createNewConversation = () => {
     setCurrentConversationId(null);
+    setChatError(null);
     setMessages([
       {
+        id: generateMessageId(),
         role: "assistant",
         content: "Hey there! I'm Alley, your local guide. Looking for some hidden gems or tasty eats? Let me know what you're in the mood for!",
       },
@@ -93,35 +114,24 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
 
   const saveMessage = async (role: string, content: string) => {
     if (!currentConversationId) {
-      const response = await fetch("/api/conversations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: content.substring(0, 50) }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentConversationId(data.conversation.id);
-
-        await fetch("/api/conversations/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            conversationId: data.conversation.id,
+      // Create new conversation first
+      createConversationMutation.mutate(content.substring(0, 50), {
+        onSuccess: (conversation) => {
+          setCurrentConversationId(conversation.id);
+          // Save the message to the new conversation
+          saveMessageMutation.mutate({
+            conversationId: conversation.id,
             role,
             content,
-          }),
-        });
-      }
+          });
+        },
+      });
     } else {
-      await fetch("/api/conversations/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: currentConversationId,
-          role,
-          content,
-        }),
+      // Save to existing conversation
+      saveMessageMutation.mutate({
+        conversationId: currentConversationId,
+        role,
+        content,
       });
     }
   };
@@ -132,6 +142,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
 
     const userMessage = input.trim();
     setInput("");
+    setChatError(null);
 
     // Check if user is asking for itinerary/trip planning (only if no active itinerary)
     if (!activeItinerary) {
@@ -143,72 +154,54 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
       }
     }
 
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
-    setIsLoading(true);
+    // Add user message with stable ID
+    const userMessageObj: Message = { id: generateMessageId(), role: "user", content: userMessage };
+    setMessages((prev) => [...prev, userMessageObj]);
 
-    await saveMessage("user", userMessage);
+    // Save user message (fire and forget)
+    saveMessage("user", userMessage);
 
-    try {
-      // If there's an active itinerary, use revision API
-      if (activeItinerary) {
-        const response = await fetch(`/api/itineraries/${activeItinerary.id}/revise`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+    // If there's an active itinerary, use revision API
+    if (activeItinerary) {
+      reviseItineraryMutation.mutate(
+        { id: activeItinerary.id, revisionRequest: userMessage },
+        {
+          onSuccess: () => {
+            const assistantMessage = `Great! I've updated "${activeItinerary.title}" based on your request. The changes have been saved. Would you like to make any other changes?`;
+            setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
+            saveMessage("assistant", assistantMessage);
+            announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
+            toast({
+              title: "Itinerary updated!",
+              description: "Your changes have been saved successfully.",
+            });
           },
-          body: JSON.stringify({
-            revisionRequest: userMessage,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to revise itinerary");
-        }
-
-        const data = await response.json();
-        const assistantMessage = `Great! I've updated "${activeItinerary.title}" based on your request. The changes have been saved. Would you like to make any other changes?`;
-
-        setMessages((prev) => [...prev, { role: "assistant", content: assistantMessage }]);
-        await saveMessage("assistant", assistantMessage);
-        announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
-
-        toast({
-          title: "Itinerary updated!",
-          description: "Your changes have been saved successfully.",
-        });
-      } else {
-        // Normal chat flow
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+          onError: (error) => {
+            const errorMessage = "Oops! I couldn't update the itinerary. Can you try again?";
+            setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: errorMessage }]);
+            setChatError(error.message || "Failed to update itinerary");
+            announce(`Error: ${errorMessage}`);
           },
-          body: JSON.stringify({
-            messages: [...messages, { role: "user", content: userMessage }],
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch response");
         }
+      );
+    } else {
+      // Normal chat flow - prepare messages for API (without id field)
+      const apiMessages = [...messages, userMessageObj].map(({ role, content }) => ({ role, content }));
 
-        const data = await response.json();
-        const assistantMessage = data.message;
-
-        setMessages((prev) => [...prev, { role: "assistant", content: assistantMessage }]);
-        await saveMessage("assistant", assistantMessage);
-        announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      const errorMessage = "Oops! I tripped over a cobblestone. Can you say that again?";
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: errorMessage },
-      ]);
-      announce(`Error: ${errorMessage}`);
-    } finally {
-      setIsLoading(false);
+      sendChatMutation.mutate(apiMessages, {
+        onSuccess: (data) => {
+          const assistantMessage = data.message;
+          setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
+          saveMessage("assistant", assistantMessage);
+          announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
+        },
+        onError: (error) => {
+          const errorMessage = "Oops! I tripped over a cobblestone. Can you say that again?";
+          setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: errorMessage }]);
+          setChatError(error.message || "Failed to send message");
+          announce(`Error: ${errorMessage}`);
+        },
+      });
     }
   };
 
@@ -297,9 +290,9 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
 
       <ScrollArea className="flex-1 min-h-0 p-4 rounded-2xl border border-border/40 bg-background/60 backdrop-blur-sm shadow-sm mb-4">
         <div className="space-y-6 pb-4">
-          {messages.map((message, index) => (
+          {messages.map((message) => (
             <div
-              key={index}
+              key={message.id}
               className={cn(
                 "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
                 message.role === "user" ? "flex-row-reverse" : "flex-row"
@@ -331,39 +324,50 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         </div>
       </ScrollArea>
 
-      {/* Quick Action Buttons */}
-      <div className="flex gap-2 mb-3 flex-shrink-0 overflow-x-auto pb-1">
-        <Link href="/itineraries/new">
+      {/* Quick Action Buttons - Primary action prominent, secondary grouped */}
+      <div className="flex items-center gap-2 mb-3 flex-shrink-0">
+        {/* Primary CTA */}
+        <Link href="/itineraries/new" className="flex-shrink-0">
           <Button
-            variant="outline"
             size="sm"
-            className="rounded-full text-xs gap-1.5 border-violet-200 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-300 dark:border-violet-800 dark:hover:bg-violet-950 dark:hover:text-violet-300 whitespace-nowrap"
+            className="rounded-full text-xs gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20 whitespace-nowrap"
           >
             <Sparkles className="h-3.5 w-3.5" />
             Generate Itinerary
           </Button>
         </Link>
-        <Link href="/templates">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full text-xs gap-1.5 whitespace-nowrap"
-          >
-            <LayoutTemplate className="h-3.5 w-3.5" />
-            Templates
-          </Button>
-        </Link>
-        <Link href="/spots">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full text-xs gap-1.5 whitespace-nowrap"
-          >
-            <Map className="h-3.5 w-3.5" />
-            Spots
-          </Button>
-        </Link>
+
+        {/* Secondary Actions */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          <Link href="/templates">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
+            >
+              <LayoutTemplate className="h-3.5 w-3.5" />
+              Templates
+            </Button>
+          </Link>
+          <Link href="/spots">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
+            >
+              <Map className="h-3.5 w-3.5" />
+              Spots
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      {/* Error display region */}
+      {chatError && (
+        <div role="alert" className="mb-2 px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-sm flex-shrink-0">
+          {chatError}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0" role="search">
         <label htmlFor="chat-input" className="sr-only">
@@ -376,12 +380,18 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask Alley..."
           disabled={isLoading}
-          aria-describedby={isLoading ? "chat-loading" : undefined}
+          aria-describedby={chatError ? "chat-error" : isLoading ? "chat-loading" : undefined}
+          aria-invalid={!!chatError}
           className="flex-1 rounded-full border-border/40 bg-background/60 backdrop-blur-sm focus-visible:ring-violet-500"
         />
         {isLoading && (
           <span id="chat-loading" className="sr-only">
             Alley is typing a response
+          </span>
+        )}
+        {chatError && (
+          <span id="chat-error" className="sr-only">
+            {chatError}
           </span>
         )}
         <Button

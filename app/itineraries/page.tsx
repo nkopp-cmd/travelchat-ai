@@ -6,31 +6,56 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
 
-async function getItineraries() {
-    const { userId } = await auth();
+async function getItineraries(): Promise<{ itineraries: Array<{
+    id: string;
+    title: string;
+    subtitle?: string;
+    city: string;
+    days: number;
+    local_score: number;
+    created_at: string;
+    status?: "draft" | "completed";
+    is_favorite?: boolean;
+}>; error: string | null }> {
+    try {
+        const { userId } = await auth();
 
-    if (!userId) {
+        if (!userId) {
+            redirect("/sign-in");
+        }
+
+        // Use RLS-respecting client - filters by user automatically via RLS policy
+        const supabase = await createSupabaseServerClient();
+
+        const { data: itineraries, error } = await supabase
+            .from("itineraries")
+            .select("id, title, subtitle, city, days, local_score, created_at, status, is_favorite")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("[itineraries] Error fetching:", error);
+            return { itineraries: [], error: "Failed to load itineraries" };
+        }
+
+        // Transform null values to undefined/defaults for component compatibility
+        const transformed = (itineraries || []).map(it => ({
+            ...it,
+            subtitle: it.subtitle ?? undefined,
+            local_score: it.local_score ?? 0,
+            status: (it.status as "draft" | "completed" | null) ?? undefined,
+            is_favorite: it.is_favorite ?? undefined,
+        }));
+        return { itineraries: transformed, error: null };
+    } catch (err) {
+        // Handle Clerk auth failures gracefully
+        console.error("[itineraries] Auth or fetch error:", err);
+        // If auth fails with network error, redirect to sign-in
         redirect("/sign-in");
     }
-
-    // Use RLS-respecting client - filters by user automatically via RLS policy
-    const supabase = await createSupabaseServerClient();
-
-    const { data: itineraries, error } = await supabase
-        .from("itineraries")
-        .select("id, title, subtitle, city, days, local_score, created_at, status, is_favorite")
-        .order("created_at", { ascending: false });
-
-    if (error) {
-        console.error("Error fetching itineraries:", error);
-        return [];
-    }
-
-    return itineraries || [];
 }
 
 export default async function ItinerariesPage() {
-    const itineraries = await getItineraries();
+    const { itineraries, error } = await getItineraries();
 
     return (
         <div className="space-y-8 max-w-7xl mx-auto">
@@ -48,6 +73,12 @@ export default async function ItinerariesPage() {
                     </Button>
                 </Link>
             </div>
+
+            {error && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                    <p>{error}. Please try refreshing the page.</p>
+                </div>
+            )}
 
             <ItineraryList initialItineraries={itineraries} />
         </div>

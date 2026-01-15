@@ -122,6 +122,8 @@ export async function checkUsageLimit(
  *
  * This is the SAFE way to enforce usage limits - concurrent requests
  * cannot bypass limits because the check and increment happen atomically.
+ *
+ * Falls back to legacy check-then-increment if the RPC function is missing.
  */
 export async function atomicCheckAndIncrement(
     clerkUserId: string,
@@ -139,6 +141,11 @@ export async function atomicCheckAndIncrement(
     });
 
     if (error) {
+        // PGRST202 = function not found - fall back to legacy behavior
+        if (error.code === "PGRST202") {
+            console.warn("[usage-tracking] RPC function missing, using fallback");
+            return legacyCheckAndIncrement(clerkUserId, usageType, limit, config.periodType);
+        }
         console.error("[usage-tracking] Atomic increment failed:", error);
         // On error, deny the request (fail safe)
         return { allowed: false, newCount: 0, wasAtLimit: true };
@@ -152,6 +159,69 @@ export async function atomicCheckAndIncrement(
         newCount: result?.new_count ?? 0,
         wasAtLimit: result?.was_at_limit ?? true,
     };
+}
+
+/**
+ * Fallback for when the atomic RPC function doesn't exist.
+ * Uses separate check and increment - less safe but functional.
+ */
+async function legacyCheckAndIncrement(
+    clerkUserId: string,
+    usageType: UsageType,
+    limit: number,
+    periodType: PeriodType
+): Promise<AtomicUsageResult> {
+    const supabase = createSupabaseAdmin();
+    const periodStart = getPeriodStart(periodType);
+
+    // Get current usage
+    const { data: current } = await supabase
+        .from("usage_tracking")
+        .select("count")
+        .eq("clerk_user_id", clerkUserId)
+        .eq("usage_type", usageType)
+        .eq("period_type", periodType)
+        .eq("period_start", periodStart)
+        .single();
+
+    const currentCount = current?.count || 0;
+
+    // Check limit
+    if (currentCount >= limit) {
+        return { allowed: false, newCount: currentCount, wasAtLimit: true };
+    }
+
+    // Increment using legacy RPC or direct upsert
+    const { data: newData, error: incError } = await supabase.rpc("increment_usage", {
+        p_clerk_user_id: clerkUserId,
+        p_usage_type: usageType,
+        p_period_type: periodType,
+    });
+
+    if (incError) {
+        // If increment_usage RPC also missing, do direct upsert
+        if (incError.code === "PGRST202") {
+            const { data: upsertData } = await supabase
+                .from("usage_tracking")
+                .upsert(
+                    {
+                        clerk_user_id: clerkUserId,
+                        usage_type: usageType,
+                        period_start: periodStart,
+                        period_type: periodType,
+                        count: currentCount + 1,
+                    },
+                    { onConflict: "clerk_user_id,usage_type,period_start,period_type" }
+                )
+                .select("count")
+                .single();
+            return { allowed: true, newCount: upsertData?.count || currentCount + 1, wasAtLimit: false };
+        }
+        console.error("[usage-tracking] Legacy increment failed:", incError);
+        return { allowed: false, newCount: currentCount, wasAtLimit: false };
+    }
+
+    return { allowed: true, newCount: newData || currentCount + 1, wasAtLimit: false };
 }
 
 /**

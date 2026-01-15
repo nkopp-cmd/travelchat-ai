@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useSubscription, SubscriptionStatus } from "@/hooks/use-subscription";
+import { useSubscription, SubscriptionStatus, getCurrentUsage } from "@/hooks/use-subscription";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 
 interface SubscriptionContextValue {
@@ -29,7 +29,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     const getRemainingUsage = (limitType: keyof typeof TIER_CONFIGS.free.limits): number => {
         if (!subscriptionData.subscription) return 0;
         const limit = TIER_CONFIGS[subscriptionData.tier].limits[limitType];
-        const usage = getCurrentUsageForType(subscriptionData.subscription.usage, limitType);
+        const usage = getCurrentUsage(subscriptionData.subscription.usage, limitType);
         return Math.max(0, limit - usage);
     };
 
@@ -57,25 +57,4 @@ export function useSubscriptionContext() {
 // Optional hook that doesn't throw - useful for components that may be outside provider
 export function useSubscriptionOptional() {
     return useContext(SubscriptionContext);
-}
-
-// Helper to map limit type to usage field
-function getCurrentUsageForType(
-    usage: SubscriptionStatus["usage"],
-    limitType: keyof typeof TIER_CONFIGS.free.limits
-): number {
-    switch (limitType) {
-        case "itinerariesPerMonth":
-            return usage.itinerariesThisMonth;
-        case "chatMessagesPerDay":
-            return usage.chatMessagesToday;
-        case "storiesPerWeek":
-            return usage.storiesThisWeek;
-        case "aiImagesPerMonth":
-            return usage.aiImagesThisMonth;
-        case "savedSpotsLimit":
-            return usage.savedSpots;
-        default:
-            return 0;
-    }
 }

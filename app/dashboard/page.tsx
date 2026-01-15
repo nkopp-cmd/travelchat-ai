@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getTemplateById } from "@/lib/templates";
 import { RecentStories } from "@/components/dashboard/recent-stories";
 import { MobileDashboardContent } from "@/components/dashboard/mobile-dashboard-content";
+import { OnboardingPanel } from "@/components/dashboard/onboarding-panel";
 
 // Fetch user's recent itineraries
 async function getRecentItineraries() {
@@ -55,15 +56,23 @@ export default async function DashboardPage({
 
             {/* Main Content: Full-width Chat Interface */}
             <div className="flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
-                {/* Desktop Chat - Responsive Width */}
+                {/* Desktop - Chat or Onboarding */}
                 <div className="hidden lg:flex flex-1 min-h-0 w-full max-w-5xl xl:max-w-6xl mx-auto">
-                    <ErrorBoundary>
-                        <ChatInterface
-                            className="h-full w-full"
-                            itineraryContext={itineraryContext}
-                            selectedTemplate={selectedTemplate}
-                        />
-                    </ErrorBoundary>
+                    {recentItineraries.length === 0 && !itineraryContext && !selectedTemplate ? (
+                        // Show onboarding panel for new users
+                        <div className="flex-1 flex items-center justify-center p-8">
+                            <OnboardingPanel className="max-w-2xl w-full" />
+                        </div>
+                    ) : (
+                        // Show chat interface for returning users
+                        <ErrorBoundary>
+                            <ChatInterface
+                                className="h-full w-full"
+                                itineraryContext={itineraryContext}
+                                selectedTemplate={selectedTemplate}
+                            />
+                        </ErrorBoundary>
+                    )}
                 </div>
 
                 {/* Mobile/Tablet - Show useful content */}

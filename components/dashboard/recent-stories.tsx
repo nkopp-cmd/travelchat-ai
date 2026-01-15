@@ -68,9 +68,18 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
     }
 
     return (
-        <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {/* Recent Itineraries */}
-            {itineraries.map((itinerary) => {
+        <div className="space-y-2">
+            {/* Section Label for Clarity */}
+            <div className="flex items-center gap-2 px-1">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Recent Itineraries
+                </span>
+            </div>
+
+            <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                {/* Recent Itineraries */}
+                {itineraries.map((itinerary) => {
                 const shortCity = getShortCity(itinerary.city);
                 const gradient = getCityGradient(itinerary.city || "default");
 
@@ -120,39 +129,40 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                 );
             })}
 
-            {/* New Itinerary Button */}
-            <Link
-                href="/itineraries/new"
-                className="flex flex-col items-center gap-1 flex-shrink-0 group"
-            >
-                <div className="w-16 h-16 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center group-hover:border-violet-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-950/20 transition-all">
-                    <Plus className="h-6 w-6 text-muted-foreground group-hover:text-violet-600 transition-colors" />
-                </div>
-                <span className="text-xs font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
-                    New
-                </span>
-                <span className="text-[10px] text-transparent">
-                    &nbsp;
-                </span>
-            </Link>
-
-            {/* View All Link */}
-            {itineraries.length >= 3 && (
+                {/* New Itinerary Button */}
                 <Link
-                    href="/itineraries"
+                    href="/itineraries/new"
                     className="flex flex-col items-center gap-1 flex-shrink-0 group"
                 >
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-muted transition-colors">
-                        <MapPin className="h-5 w-5 text-muted-foreground" />
+                    <div className="w-16 h-16 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center group-hover:border-violet-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-950/20 transition-all">
+                        <Plus className="h-6 w-6 text-muted-foreground group-hover:text-violet-600 transition-colors" />
                     </div>
-                    <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                        View All
+                    <span className="text-xs font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
+                        New
                     </span>
                     <span className="text-[10px] text-transparent">
                         &nbsp;
                     </span>
                 </Link>
-            )}
+
+                {/* View All Link */}
+                {itineraries.length >= 3 && (
+                    <Link
+                        href="/itineraries"
+                        className="flex flex-col items-center gap-1 flex-shrink-0 group"
+                    >
+                        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-muted transition-colors">
+                            <MapPin className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                            View All
+                        </span>
+                        <span className="text-[10px] text-transparent">
+                            &nbsp;
+                        </span>
+                    </Link>
+                )}
+            </div>
         </div>
     );
 }

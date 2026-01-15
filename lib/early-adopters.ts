@@ -27,6 +27,12 @@ import { cacheConfig, cacheKeys } from '@/lib/cache';
 // Maximum number of early adopters
 const MAX_EARLY_ADOPTERS = 100;
 
+// Check if error is a table-not-found error
+function isTableMissing(error: { code?: string; message?: string }): boolean {
+  return error.code === 'PGRST205' || error.code === '42P01' ||
+    (error.message?.includes('does not exist') ?? false);
+}
+
 /**
  * Check if beta mode is enabled
  * When enabled, all users get premium features for testing
@@ -73,7 +79,10 @@ async function checkEarlyAdopterStatus(userId: string): Promise<boolean> {
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows found, which is expected for non-early-adopters
-      console.error('[early-adopters] Error checking status:', error);
+      // Table missing is also expected during early setup
+      if (!isTableMissing(error)) {
+        console.error('[early-adopters] Error checking status:', error);
+      }
     }
 
     return !!data;
@@ -111,7 +120,9 @@ export async function getEarlyAdopterCount(): Promise<number> {
       .select('*', { count: 'exact', head: true });
 
     if (error) {
-      console.error('[early-adopters] Error getting count:', error);
+      if (!isTableMissing(error)) {
+        console.error('[early-adopters] Error getting count:', error);
+      }
       return 0;
     }
 
@@ -166,6 +177,10 @@ export async function registerEarlyAdopter(
       // Handle race condition (duplicate)
       if (error.code === '23505') {
         return { success: true, message: 'Already registered as early adopter' };
+      }
+      // Table doesn't exist - silently fail
+      if (isTableMissing(error)) {
+        return { success: false, message: 'Early adopter registration unavailable' };
       }
       console.error('[early-adopters] Error registering:', error);
       return { success: false, message: 'Failed to register' };
@@ -241,7 +256,9 @@ export async function listEarlyAdopters(): Promise<
       .order('position', { ascending: true });
 
     if (error) {
-      console.error('[early-adopters] Error listing:', error);
+      if (!isTableMissing(error)) {
+        console.error('[early-adopters] Error listing:', error);
+      }
       return [];
     }
 

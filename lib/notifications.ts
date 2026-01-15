@@ -127,6 +127,12 @@ export function getNotificationUrl(notification: Notification): string {
 
 // ============== Server-side functions ==============
 
+// Check if error is a table-not-found error
+function isTableMissing(error: { code?: string; message?: string }): boolean {
+    return error.code === 'PGRST205' || error.code === '42P01' ||
+        (error.message?.includes('does not exist') ?? false);
+}
+
 // Create a new notification
 export async function createNotification({
     clerkUserId,
@@ -156,7 +162,12 @@ export async function createNotification({
         .single();
 
     if (error) {
-        console.error('Error creating notification:', error);
+        // Don't spam logs if table doesn't exist - expected during early setup
+        if (isTableMissing(error)) {
+            console.warn('[notifications] Table not found, skipping notification');
+        } else {
+            console.error('[notifications] Error creating:', error);
+        }
         return null;
     }
 
@@ -192,7 +203,10 @@ export async function getUserNotifications(
     ]);
 
     if (error) {
-        console.error('Error fetching notifications:', error);
+        // Silently handle missing table - expected during early setup
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error fetching:', error);
+        }
         return { notifications: [], unreadCount: 0 };
     }
 
@@ -216,7 +230,9 @@ export async function markNotificationRead(
         .eq('clerk_user_id', clerkUserId);
 
     if (error) {
-        console.error('Error marking notification as read:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error marking as read:', error);
+        }
         return false;
     }
 
@@ -234,7 +250,9 @@ export async function markAllNotificationsRead(clerkUserId: string): Promise<boo
         .eq('read', false);
 
     if (error) {
-        console.error('Error marking all notifications as read:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error marking all as read:', error);
+        }
         return false;
     }
 
@@ -255,7 +273,9 @@ export async function deleteNotification(
         .eq('clerk_user_id', clerkUserId);
 
     if (error) {
-        console.error('Error deleting notification:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error deleting:', error);
+        }
         return false;
     }
 
@@ -275,6 +295,10 @@ export async function getNotificationPreferences(
         .single();
 
     if (error) {
+        // Table doesn't exist - return null silently
+        if (isTableMissing(error)) {
+            return null;
+        }
         // If no preferences exist, create default ones
         if (error.code === 'PGRST116') {
             const { data: newData, error: insertError } = await supabase
@@ -284,14 +308,16 @@ export async function getNotificationPreferences(
                 .single();
 
             if (insertError) {
-                console.error('Error creating notification preferences:', insertError);
+                if (!isTableMissing(insertError)) {
+                    console.error('[notifications] Error creating preferences:', insertError);
+                }
                 return null;
             }
 
             return toPreferences(newData);
         }
 
-        console.error('Error fetching notification preferences:', error);
+        console.error('[notifications] Error fetching preferences:', error);
         return null;
     }
 
@@ -329,7 +355,9 @@ export async function updateNotificationPreferences(
         .single();
 
     if (error) {
-        console.error('Error updating notification preferences:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error updating preferences:', error);
+        }
         return null;
     }
 
@@ -363,7 +391,9 @@ export async function savePushSubscription(
         );
 
     if (error) {
-        console.error('Error saving push subscription:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error saving push subscription:', error);
+        }
         return false;
     }
 
@@ -384,7 +414,9 @@ export async function removePushSubscription(
         .eq('endpoint', endpoint);
 
     if (error) {
-        console.error('Error removing push subscription:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error removing push subscription:', error);
+        }
         return false;
     }
 
@@ -407,7 +439,9 @@ export async function getUserPushSubscriptions(clerkUserId: string): Promise<
         .eq('clerk_user_id', clerkUserId);
 
     if (error) {
-        console.error('Error fetching push subscriptions:', error);
+        if (!isTableMissing(error)) {
+            console.error('[notifications] Error fetching push subscriptions:', error);
+        }
         return [];
     }
 

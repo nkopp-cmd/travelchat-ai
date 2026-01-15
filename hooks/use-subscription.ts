@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
+import { queryKeys } from "@/hooks/use-queries";
 
 export interface SubscriptionStatus {
     tier: SubscriptionTier;
@@ -50,8 +51,6 @@ interface UseSubscriptionReturn {
     openBillingPortal: () => Promise<void>;
 }
 
-// Query key for subscription status
-const SUBSCRIPTION_QUERY_KEY = ["subscription", "status"] as const;
 
 // Default subscription for error/loading states
 const DEFAULT_SUBSCRIPTION: SubscriptionStatus = {
@@ -85,8 +84,6 @@ async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
 }
 
 export function useSubscription(): UseSubscriptionReturn {
-    const queryClient = useQueryClient();
-
     // Use React Query for subscription data with caching
     // staleTime: 2 minutes - subscription rarely changes
     // This prevents re-fetching on every navigation
@@ -96,7 +93,7 @@ export function useSubscription(): UseSubscriptionReturn {
         error,
         refetch: queryRefetch,
     } = useQuery({
-        queryKey: SUBSCRIPTION_QUERY_KEY,
+        queryKey: queryKeys.subscription,
         queryFn: fetchSubscriptionStatus,
         staleTime: 2 * 60 * 1000, // 2 minutes
         gcTime: 5 * 60 * 1000, // 5 minutes
@@ -222,12 +219,15 @@ export function useInvalidateSubscription() {
     const queryClient = useQueryClient();
 
     return useCallback(() => {
-        queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_QUERY_KEY });
+        queryClient.invalidateQueries({ queryKey: queryKeys.subscription });
     }, [queryClient]);
 }
 
-// Helper to map limit type to usage field
-function getCurrentUsage(
+/**
+ * Helper to map limit type to usage field.
+ * Exported for use in subscription provider and other components.
+ */
+export function getCurrentUsage(
     usage: SubscriptionStatus["usage"],
     limitType: keyof typeof TIER_CONFIGS.free.limits
 ): number {
