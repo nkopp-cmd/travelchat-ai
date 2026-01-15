@@ -15,7 +15,7 @@ import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 const ANON_COOKIE_NAME = 'localley_anon_usage';
 const ANON_LIMIT = 1; // 1 free itinerary without signup
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o";
 
 const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
