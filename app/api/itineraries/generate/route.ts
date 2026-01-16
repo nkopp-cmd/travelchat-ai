@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from '@clerk/nextjs/server';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { createSupabaseAdmin } from '@/lib/supabase';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
 import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch spots from the city to include in recommendations
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabaseAdmin();
     const { data: spots } = await supabase
       .from('spots')
       .select('*')
