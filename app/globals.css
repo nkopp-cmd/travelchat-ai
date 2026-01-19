@@ -85,4 +85,61 @@
   .animation-delay-4000 {
     animation-delay: 4s;
   }
+
+  /* Premium shimmer animation for loading states */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  /* Subtle pulse for trending badges */
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  /* Gradient text utility */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600;
+  }
+
+  /* Premium glow effects */
+  .glow-violet {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+
+  .glow-emerald {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Glassmorphism utility */
+  .glass {
+    @apply bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/20;
+  }
+
+  /* Premium card hover state */
+  .card-premium {
+    @apply transition-all duration-300 ease-out;
+    @apply hover:shadow-2xl hover:shadow-violet-500/20;
+    @apply hover:border-violet-400/60 dark:hover:border-violet-500/60;
+    @apply hover:-translate-y-2;
+  }
 }

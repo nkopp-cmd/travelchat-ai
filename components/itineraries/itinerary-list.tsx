@@ -541,27 +541,40 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                             <Card
                                 key={itinerary.id}
                                 className={cn(
-                                    "group overflow-hidden transition-all hover:shadow-lg border-border/50",
+                                    "group overflow-hidden relative",
+                                    "bg-card/95 backdrop-blur-sm",
+                                    "border border-border/50",
+                                    "transition-all duration-300 ease-out",
+                                    "hover:shadow-2xl hover:shadow-violet-500/15",
+                                    "hover:border-violet-400/60 dark:hover:border-violet-500/60",
+                                    "hover:-translate-y-1",
                                     viewMode === "list" ? "flex flex-row" : "flex flex-col"
                                 )}
                             >
+                                {/* Gradient glow effect on hover */}
+                                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                                    <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-indigo-500/10 blur-sm" />
+                                </div>
+
                                 {/* Enhanced Thumbnail with City Visual */}
                                 <div
                                     className={cn(
                                         "relative overflow-hidden flex-shrink-0",
-                                        viewMode === "grid" ? "h-36" : "w-36 min-h-[120px]"
+                                        viewMode === "grid" ? "h-40" : "w-40 min-h-[130px]"
                                     )}
                                 >
                                     <CardHeader city={displayCity} days={itinerary.days} />
+                                    {/* Image hover zoom effect */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 </div>
 
                                 {/* Content - streamlined since city is in header */}
                                 <div className={cn(
-                                    "flex-1 flex flex-col min-w-0",
+                                    "flex-1 flex flex-col min-w-0 relative z-10",
                                     viewMode === "list" ? "p-4" : "p-4"
                                 )}>
                                     <Link href={`/itineraries/${itinerary.id}`} className="block flex-1">
-                                        <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-violet-600 transition-colors mb-2">
+                                        <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200 mb-2">
                                             {cleanedTitle}
                                         </h3>
 
@@ -570,8 +583,8 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                         </div>
                                     </Link>
 
-                                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/30">
-                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/30">
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
                                             {new Date(itinerary.created_at).toLocaleDateString("en-US", {
                                                 month: "short",
@@ -579,37 +592,43 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                             })}
                                         </div>
 
+                                        {/* View details hint on hover */}
+                                        <span className="text-xs text-violet-600 dark:text-violet-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 mr-8">
+                                            View →
+                                        </span>
+
                                         {/* Actions Menu */}
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-all duration-200 absolute right-3 bottom-3 hover:bg-violet-100 dark:hover:bg-violet-900/30"
                                                     onClick={(e) => e.preventDefault()}
                                                     aria-label={`Actions for ${cleanedTitle}`}
                                                 >
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
+                                            <DropdownMenuContent align="end" className="w-48">
                                                 <DropdownMenuItem
                                                     onClick={() => handleDuplicate(itinerary)}
                                                     disabled={duplicateMutation.isPending}
+                                                    className="gap-2"
                                                 >
-                                                    <Copy className="h-4 w-4 mr-2" />
+                                                    <Copy className="h-4 w-4" />
                                                     {duplicateMutation.isPending ? "Duplicating..." : "Duplicate"}
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleShare(itinerary)}>
-                                                    <Share2 className="h-4 w-4 mr-2" />
+                                                <DropdownMenuItem onClick={() => handleShare(itinerary)} className="gap-2">
+                                                    <Share2 className="h-4 w-4" />
                                                     Share
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
-                                                    className="text-destructive focus:text-destructive"
+                                                    className="text-destructive focus:text-destructive gap-2"
                                                     onClick={() => setDeleteId(itinerary.id)}
                                                 >
-                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                    <Trash2 className="h-4 w-4" />
                                                     Delete
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
@@ -620,16 +639,40 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         );
                     })}
 
-                    {/* Add New Card - at the end (Grid view only) */}
+                    {/* Add New Card - Premium style */}
                     {viewMode === "grid" && (
                         <Link href="/itineraries/new">
-                            <Card className="min-h-[200px] border border-dashed border-violet-300 dark:border-violet-700 hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 transition-all cursor-pointer flex items-center justify-center group">
-                                <div className="text-center p-6">
-                                    <div className="h-12 w-12 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-3 group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
-                                        <Plus className="h-6 w-6 text-violet-600" />
+                            <Card className={cn(
+                                "min-h-[240px] relative overflow-hidden",
+                                "border-2 border-dashed border-violet-300/70 dark:border-violet-700/70",
+                                "bg-gradient-to-br from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20",
+                                "hover:border-violet-400 dark:hover:border-violet-500",
+                                "hover:shadow-xl hover:shadow-violet-500/10",
+                                "transition-all duration-300 cursor-pointer",
+                                "flex items-center justify-center group"
+                            )}>
+                                {/* Background pattern */}
+                                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+                                     style={{
+                                       backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                                     }} />
+
+                                <div className="text-center p-6 relative z-10">
+                                    <div className={cn(
+                                        "h-14 w-14 rounded-2xl mx-auto mb-4",
+                                        "bg-gradient-to-br from-violet-500 to-indigo-600",
+                                        "flex items-center justify-center",
+                                        "shadow-lg shadow-violet-500/30",
+                                        "group-hover:scale-110 group-hover:shadow-violet-500/40",
+                                        "transition-all duration-300"
+                                    )}>
+                                        <Plus className="h-7 w-7 text-white" />
                                     </div>
-                                    <p className="text-base font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
+                                    <p className="text-base font-semibold text-foreground/80 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors mb-1">
                                         Create New Itinerary
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Plan your next adventure
                                     </p>
                                 </div>
                             </Card>

@@ -54,3 +54,6 @@ lint_*.txt
 # Keep only essential docs
 !README.md
 !CHAT_ITINERARY_FIX_FINAL.md
+
+# clerk configuration (can include secrets)
+/.clerk/
