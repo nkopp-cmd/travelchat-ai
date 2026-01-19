@@ -60,11 +60,13 @@ async function getUserProgress() {
         completedChallenges = challengesData || [];
     }
 
-    // Get user's saved itineraries count (uses clerk_user_id)
+    // Get user's saved itineraries with details (uses clerk_user_id)
     const { data: itineraries } = await supabase
         .from("itineraries")
-        .select("id")
-        .eq("clerk_user_id", userId);
+        .select("id, title, city, days, created_at, metadata")
+        .eq("clerk_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(12);
 
     // Get user's saved spots
     const { data: savedSpots } = await supabase
@@ -127,6 +129,7 @@ async function getUserProgress() {
     return {
         progress: mergedProgress,
         completedChallenges,
+        itineraries: itineraries || [],
         itinerariesCount: itineraries?.length || 0,
         savedSpots: savedSpots || [],
         subscription: subscription ? {
@@ -151,7 +154,7 @@ export default async function ProfilePage() {
         redirect("/sign-in");
     }
 
-    const { progress, completedChallenges, itinerariesCount, savedSpots, subscription, usage } = await getUserProgress();
+    const { progress, completedChallenges, itineraries, itinerariesCount, savedSpots, subscription, usage } = await getUserProgress();
 
     const level = getLevel(progress.xp);
     const levelProgress = getLevelProgress(progress.xp);
@@ -556,15 +559,75 @@ export default async function ProfilePage() {
                 </TabsContent>
 
                 <TabsContent value="history">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <p className="text-muted-foreground text-center py-8">
-                                {itinerariesCount > 0
-                                    ? `You have ${itinerariesCount} saved ${itinerariesCount === 1 ? "itinerary" : "itineraries"}`
-                                    : "No history yet. Start exploring!"}
-                            </p>
-                        </CardContent>
-                    </Card>
+                    {itineraries.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {itineraries.map((itinerary) => {
+                                const createdDate = new Date(itinerary.created_at).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                });
+                                const metadata = itinerary.metadata as { pace?: string; focus?: string[] } | null;
+
+                                return (
+                                    <Link key={itinerary.id} href={`/itineraries/${itinerary.id}`}>
+                                        <Card className="overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 h-full flex flex-col border-border/40 bg-background/60 backdrop-blur-sm">
+                                            {/* Gradient Header */}
+                                            <div className="h-20 bg-gradient-to-r from-violet-500 to-indigo-500 relative">
+                                                <div className="absolute inset-0 opacity-20">
+                                                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                                                        <defs>
+                                                            <pattern id={`pattern-${itinerary.id}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                                                <circle cx="2" cy="2" r="1" fill="currentColor" />
+                                                            </pattern>
+                                                        </defs>
+                                                        <rect width="100" height="100" fill={`url(#pattern-${itinerary.id})`} className="text-white" />
+                                                    </svg>
+                                                </div>
+                                                <div className="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                                                    <Badge className="bg-white/90 text-violet-700 hover:bg-white">
+                                                        {itinerary.city}
+                                                    </Badge>
+                                                    <span className="text-white/90 text-xs">{itinerary.days} days</span>
+                                                </div>
+                                            </div>
+                                            <CardContent className="p-3 flex-1 flex flex-col">
+                                                <h3 className="font-semibold text-sm line-clamp-1">
+                                                    {itinerary.title || `${itinerary.city} Adventure`}
+                                                </h3>
+                                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                                    <Calendar className="h-3 w-3" />
+                                                    <span>{createdDate}</span>
+                                                </div>
+                                                {metadata?.pace && (
+                                                    <Badge variant="secondary" className="text-xs mt-2 w-fit capitalize">
+                                                        {metadata.pace}
+                                                    </Badge>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+                            <CardContent className="pt-6">
+                                <div className="text-center py-8">
+                                    <Calendar className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+                                    <p className="text-muted-foreground mb-4">
+                                        No itineraries yet
+                                    </p>
+                                    <Link href="/chat">
+                                        <Button variant="outline" size="sm">
+                                            <Sparkles className="mr-2 h-4 w-4" />
+                                            Plan Your First Trip
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                 </TabsContent>
 
                 <TabsContent value="saved">
