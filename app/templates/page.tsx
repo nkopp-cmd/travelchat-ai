@@ -90,7 +90,7 @@ export default function TemplatesPage() {
                   {paceGroups.relaxed.length} templates
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paceGroups.relaxed.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
@@ -116,7 +116,7 @@ export default function TemplatesPage() {
                   {paceGroups.moderate.length} templates
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paceGroups.moderate.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
@@ -142,7 +142,7 @@ export default function TemplatesPage() {
                   {paceGroups.active.length} templates
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paceGroups.active.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
