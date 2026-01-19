@@ -53,6 +53,7 @@ import {
     Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface Itinerary {
     id: string;
@@ -236,7 +237,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         </TooltipProvider>
     );
 
-    // City-specific gradient colors for visual variety
+    // City-specific gradient colors for visual variety (fallback)
     const getCityGradient = (city: string): string => {
         const gradients = [
             "from-rose-500/80 via-orange-400/60 to-amber-300/40",
@@ -252,34 +253,78 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         return gradients[hash % gradients.length];
     };
 
-    // Enhanced card header with city visual and overlay
+    // Get city image URL - uses curated Unsplash images for known cities
+    const getCityImageUrl = (city: string): string | null => {
+        const cityLower = city.toLowerCase().trim();
+
+        // Map of cities to their Unsplash photo IDs (curated for quality)
+        const cityImages: Record<string, string> = {
+            // Asia
+            "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
+            "seoul": "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800&q=80",
+            "bangkok": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&q=80",
+            "singapore": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&q=80",
+            "hong kong": "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=800&q=80",
+            "osaka": "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=800&q=80",
+            "kyoto": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80",
+            "taipei": "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=800&q=80",
+            "bali": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80",
+            "hanoi": "https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=800&q=80",
+            "ho chi minh": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80",
+            "kuala lumpur": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80",
+            "manila": "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80",
+            // Europe
+            "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
+            "london": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80",
+            "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80",
+            "barcelona": "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800&q=80",
+            "amsterdam": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=800&q=80",
+            "berlin": "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&q=80",
+            // Americas
+            "new york": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80",
+            "los angeles": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=800&q=80",
+            "san francisco": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80",
+            "miami": "https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=800&q=80",
+            // Oceania
+            "sydney": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=80",
+            "melbourne": "https://images.unsplash.com/photo-1514395462725-fb4566210144?w=800&q=80",
+        };
+
+        // Check for exact match or partial match
+        for (const [key, url] of Object.entries(cityImages)) {
+            if (cityLower.includes(key) || key.includes(cityLower)) {
+                return url;
+            }
+        }
+
+        return null;
+    };
+
+    // Enhanced card header with city image or gradient fallback
     const CardHeader = ({ city, days }: { city: string; days: number }) => {
         const gradient = getCityGradient(city);
-        const cityInitial = city.charAt(0).toUpperCase();
+        const imageUrl = getCityImageUrl(city);
 
         return (
-            <div className={cn("w-full h-full bg-gradient-to-br", gradient, "relative overflow-hidden")}>
-                {/* Decorative map pattern overlay */}
-                <div className="absolute inset-0 opacity-10">
-                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-                        <defs>
-                            <pattern id={`map-${city}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                                <circle cx="2" cy="2" r="1" fill="currentColor" />
-                                <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-                                <path d="M2 2 L10 10" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2" />
-                            </pattern>
-                        </defs>
-                        <rect width="100" height="100" fill={`url(#map-${city})`} className="text-white" />
-                    </svg>
-                </div>
+            <div className="w-full h-full relative overflow-hidden bg-muted">
+                {imageUrl ? (
+                    // City image
+                    <Image
+                        src={imageUrl}
+                        alt={city}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 400px"
+                    />
+                ) : (
+                    // Gradient fallback for unknown cities
+                    <div className={cn("w-full h-full bg-gradient-to-br", gradient)} />
+                )}
 
-                {/* City initial as large background element */}
-                <div className="absolute -right-4 -bottom-4 text-8xl font-bold text-white/10 select-none">
-                    {cityInitial}
-                </div>
+                {/* Dark overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                {/* Overlay with city name */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                {/* City name */}
                 <div className="absolute bottom-2 left-3 right-12">
                     <span className="text-white text-sm font-medium drop-shadow-lg truncate block">
                         {getDisplayCity(city).split(",")[0]}
@@ -288,7 +333,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
 
                 {/* Days badge */}
                 <div className="absolute bottom-2 right-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/60 text-white backdrop-blur-sm">
                         <Calendar className="h-3 w-3" />
                         {days}d
                     </span>
@@ -434,15 +479,25 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                     <Link href={`/itineraries/${filteredItineraries[0].id}`}>
                         <Card className="overflow-hidden border-violet-200 dark:border-violet-800/50 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20 hover:shadow-lg hover:border-violet-300 dark:hover:border-violet-700 transition-all group">
                             <div className="flex items-center gap-4 p-4">
-                                {/* Mini thumbnail */}
-                                <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-violet-200 dark:ring-violet-800">
-                                    <div className={cn("w-full h-full bg-gradient-to-br relative", getCityGradient(filteredItineraries[0].city || "Trip"))}>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-2xl font-bold text-white/80">
-                                                {(filteredItineraries[0].city || "T").charAt(0).toUpperCase()}
-                                            </span>
+                                {/* Mini thumbnail with city image */}
+                                <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-violet-200 dark:ring-violet-800 relative">
+                                    {getCityImageUrl(filteredItineraries[0].city || "") ? (
+                                        <Image
+                                            src={getCityImageUrl(filteredItineraries[0].city || "")!}
+                                            alt={filteredItineraries[0].city || "Trip"}
+                                            fill
+                                            className="object-cover"
+                                            sizes="64px"
+                                        />
+                                    ) : (
+                                        <div className={cn("w-full h-full bg-gradient-to-br relative", getCityGradient(filteredItineraries[0].city || "Trip"))}>
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <span className="text-2xl font-bold text-white/80">
+                                                    {(filteredItineraries[0].city || "T").charAt(0).toUpperCase()}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
