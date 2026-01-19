@@ -143,3 +143,46 @@
     @apply hover:-translate-y-2;
   }
 }
+
+/* Accessibility: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable specific animations */
+  .animate-shimmer,
+  .animate-pulse,
+  .animate-pulse-subtle,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+
+  /* Disable transforms on hover */
+  .hover\:-translate-y-1:hover,
+  .hover\:-translate-y-2:hover,
+  .hover\:translate-x-0\.5:hover,
+  .group-hover\:scale-105,
+  .group-hover\:scale-110 {
+    transform: none !important;
+  }
+}
+
+/* Accessibility: Focus visible styles */
+@layer base {
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-violet-500;
+  }
+
+  /* Skip link for keyboard navigation */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4;
+    @apply bg-violet-600 text-white px-4 py-2 rounded-lg z-50;
+  }
+}
