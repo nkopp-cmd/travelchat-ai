@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { SpotCard } from "@/components/spots/spot-card";
 import { Spot } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, MapPin, Star, Grid3X3, List, Utensils, Coffee, Moon, ShoppingBag, Trees, Store, Flame } from "lucide-react";
+import { Search, Filter, X, MapPin, Star, Grid3X3, List, Utensils, Coffee, Moon, ShoppingBag, Trees, Store, Flame, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { cn } from "@/lib/utils";
 
 const CATEGORIES = ["All", "Food", "Cafe", "Nightlife", "Shopping", "Outdoor", "Market"];
 const CITIES = ["All", "Seoul", "Tokyo", "Bangkok", "Singapore"];
@@ -41,6 +42,9 @@ interface SpotsExplorerProps {
  * Handles filtering, sorting, and search functionality.
  */
 export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) {
+    // Use transition for non-blocking UI updates during filtering
+    const [isPending, startTransition] = useTransition();
+
     // Filter states
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -49,6 +53,37 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
     const [sortBy, setSortBy] = useState("score");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [quickFilter, setQuickFilter] = useState<string | null>(null);
+
+    // Wrap filter state changes in transitions for smoother UI
+    const handleSearchChange = (value: string) => {
+        startTransition(() => {
+            setSearchQuery(value);
+        });
+    };
+
+    const handleCategoryChange = (value: string) => {
+        startTransition(() => {
+            setSelectedCategory(value);
+        });
+    };
+
+    const handleCityChange = (value: string) => {
+        startTransition(() => {
+            setSelectedCity(value);
+        });
+    };
+
+    const handleScoreChange = (value: string) => {
+        startTransition(() => {
+            setSelectedScore(value);
+        });
+    };
+
+    const handleSortChange = (value: string) => {
+        startTransition(() => {
+            setSortBy(value);
+        });
+    };
 
     // Filter and sort spots
     const filteredSpots = useMemo(() => {
@@ -109,20 +144,24 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
     }, [initialSpots, searchQuery, selectedCategory, selectedCity, selectedScore, sortBy, quickFilter]);
 
     const clearFilters = () => {
-        setSearchQuery("");
-        setSelectedCategory("All");
-        setSelectedCity("All");
-        setSelectedScore("All");
-        setSortBy("score");
-        setQuickFilter(null);
+        startTransition(() => {
+            setSearchQuery("");
+            setSelectedCategory("All");
+            setSelectedCity("All");
+            setSelectedScore("All");
+            setSortBy("score");
+            setQuickFilter(null);
+        });
     };
 
     const handleQuickFilter = (filterId: string) => {
-        setQuickFilter(quickFilter === filterId ? null : filterId);
-        // Clear category dropdown when using quick filter
-        if (quickFilter !== filterId) {
-            setSelectedCategory("All");
-        }
+        startTransition(() => {
+            setQuickFilter(quickFilter === filterId ? null : filterId);
+            // Clear category dropdown when using quick filter
+            if (quickFilter !== filterId) {
+                setSelectedCategory("All");
+            }
+        });
     };
 
     const hasActiveFilters = searchQuery || selectedCategory !== "All" || selectedCity !== "All" || selectedScore !== "All" || quickFilter !== null;
@@ -138,7 +177,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                         <Input
                             placeholder="Search spots, neighborhoods, or cuisines..."
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             className="pl-10 h-11"
                             aria-label="Search spots"
                         />
@@ -199,7 +238,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                     </div>
 
                     {/* Category Filter */}
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                         <SelectTrigger className="w-[160px]" aria-label="Select category">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
@@ -211,7 +250,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                     </Select>
 
                     {/* City Filter */}
-                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                    <Select value={selectedCity} onValueChange={handleCityChange}>
                         <SelectTrigger className="w-[160px]" aria-label="Select city">
                             <SelectValue placeholder="City" />
                         </SelectTrigger>
@@ -228,7 +267,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                     </Select>
 
                     {/* Score Filter */}
-                    <Select value={selectedScore} onValueChange={setSelectedScore}>
+                    <Select value={selectedScore} onValueChange={handleScoreChange}>
                         <SelectTrigger className="w-[180px]" aria-label="Select Localley score">
                             <SelectValue placeholder="Localley Score" />
                         </SelectTrigger>
@@ -245,7 +284,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                     </Select>
 
                     {/* Sort By */}
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select value={sortBy} onValueChange={handleSortChange}>
                         <SelectTrigger className="w-[160px]" aria-label="Sort by">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
@@ -327,22 +366,33 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                 )}
             </div>
 
-            {/* Results Count */}
-            <div className="mb-4 text-sm text-muted-foreground" aria-live="polite">
-                Showing {filteredSpots.length} of {totalCount} spots
+            {/* Results Count with Loading Indicator */}
+            <div className="mb-4 text-sm text-muted-foreground flex items-center gap-2" aria-live="polite">
+                {isPending && (
+                    <Loader2 className="h-4 w-4 animate-spin text-violet-500" aria-hidden="true" />
+                )}
+                <span>
+                    {isPending ? "Filtering..." : `Showing ${filteredSpots.length} of ${totalCount} spots`}
+                </span>
             </div>
 
-            {/* Spots Grid/List */}
+            {/* Spots Grid/List with transition effect */}
             <ErrorBoundary>
                 {filteredSpots.length > 0 ? (
                     viewMode === "grid" ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className={cn(
+                            "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200",
+                            isPending && "opacity-60"
+                        )}>
                             {filteredSpots.map((spot) => (
                                 <SpotCard key={spot.id} spot={spot} />
                             ))}
                         </div>
                     ) : (
-                        <div className="space-y-3">
+                        <div className={cn(
+                            "space-y-3 transition-opacity duration-200",
+                            isPending && "opacity-60"
+                        )}>
                             {filteredSpots.map((spot) => (
                                 <SpotCard key={spot.id} spot={spot} compact />
                             ))}

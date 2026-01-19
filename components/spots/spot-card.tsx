@@ -10,6 +10,8 @@ import { Card } from "@/components/ui/card";
 import { MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const PLACEHOLDER_IMAGE = "/placeholder-spot.svg";
+
 interface SpotCardProps {
     spot: Spot;
     compact?: boolean;
@@ -17,6 +19,12 @@ interface SpotCardProps {
 
 export function SpotCard({ spot, compact = false }: SpotCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageSrc, setImageSrc] = useState(spot.photos[0] || PLACEHOLDER_IMAGE);
+
+    const handleImageError = () => {
+        setImageSrc(PLACEHOLDER_IMAGE);
+        setImageLoaded(true);
+    };
 
     if (compact) {
         // Premium compact horizontal card for list view
@@ -37,15 +45,17 @@ export function SpotCard({ spot, compact = false }: SpotCardProps) {
                             <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/80 to-muted animate-pulse" />
                         )}
                         <Image
-                            src={spot.photos[0] || "/placeholder-spot.jpg"}
+                            src={imageSrc}
                             alt={spot.name}
                             fill
+                            sizes="(max-width: 640px) 128px, 176px"
                             className={cn(
                                 "object-cover transition-all duration-500",
                                 "group-hover:scale-110",
                                 imageLoaded ? "opacity-100" : "opacity-0"
                             )}
                             onLoad={() => setImageLoaded(true)}
+                            onError={handleImageError}
                         />
                         {/* Gradient overlay for depth */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -122,15 +132,17 @@ export function SpotCard({ spot, compact = false }: SpotCardProps) {
                     )}
 
                     <Image
-                        src={spot.photos[0] || "/placeholder-spot.jpg"}
+                        src={imageSrc}
                         alt={spot.name}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className={cn(
                             "object-cover transition-all duration-700 ease-out",
                             "group-hover:scale-110",
                             imageLoaded ? "opacity-100" : "opacity-0"
                         )}
                         onLoad={() => setImageLoaded(true)}
+                        onError={handleImageError}
                     />
 
                     {/* Premium gradient overlay */}
