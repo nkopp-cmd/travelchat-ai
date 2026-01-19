@@ -26,11 +26,11 @@ export async function getCitySpotCounts(): Promise<CitySpotCount[]> {
     const results: CitySpotCount[] = [];
 
     for (const city of ENABLED_CITIES) {
-        // Query spots that match this city's name in address
+        // Query spots that match this city's name in address (PostgREST filter syntax)
         const { count } = await supabase
             .from("spots")
             .select("*", { count: "exact", head: true })
-            .or(`address->>'en'.ilike.%${city.name}%`);
+            .or(`address->>'en'.ilike.%${city.name}%,address->>'en'.ilike.%${city.slug}%`);
 
         const spotCount = count || 0;
         const coverage = getCoverageMessage(city, spotCount, 8); // Assume 8 templates for now
@@ -60,7 +60,7 @@ export async function getCitySpotCount(citySlug: string): Promise<CitySpotCount 
     const { count } = await supabase
         .from("spots")
         .select("*", { count: "exact", head: true })
-        .or(`address->>'en'.ilike.%${city.name}%`);
+        .or(`address->>'en'.ilike.%${city.name}%,address->>'en'.ilike.%${city.slug}%`);
 
     const spotCount = count || 0;
     const coverage = getCoverageMessage(city, spotCount, 8);
@@ -100,7 +100,7 @@ export async function getSpotsByCity(citySlug: string, limit: number = 50) {
     const { data, count, error } = await supabase
         .from("spots")
         .select("*", { count: "exact" })
-        .or(`address->>'en'.ilike.%${city.name}%`)
+        .or(`address->>'en'.ilike.%${city.name}%,address->>'en'.ilike.%${city.slug}%`)
         .order("localley_score", { ascending: false })
         .limit(limit);
 
