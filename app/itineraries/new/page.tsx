@@ -83,7 +83,7 @@ function NewItineraryForm() {
     const [days, setDays] = useState("3");
     const [budget, setBudget] = useState("moderate");
     const [localnessLevel, setLocalnessLevel] = useState([3]);
-    const [pace, setPace] = useState<"relaxed" | "moderate" | "active">("moderate");
+    const [pace, setPace] = useState<"relaxed" | "moderate" | "active" | "packed">("moderate");
     const [groupType, setGroupType] = useState("solo");
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
@@ -627,7 +627,7 @@ function NewItineraryForm() {
                                     <Zap className="h-4 w-4 text-violet-600" />
                                     Pace
                                 </Label>
-                                <RadioGroup value={pace} onValueChange={(v) => setPace(v as "relaxed" | "moderate" | "active")} className="flex flex-col gap-2">
+                                <RadioGroup value={pace} onValueChange={(v) => setPace(v as "relaxed" | "moderate" | "active" | "packed")} className="flex flex-col gap-2">
                                     <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-accent transition-colors">
                                         <RadioGroupItem value="relaxed" id="relaxed" />
                                         <Label htmlFor="relaxed" className="cursor-pointer flex-1">Relaxed - Take it easy</Label>
@@ -635,6 +635,10 @@ function NewItineraryForm() {
                                     <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-accent transition-colors">
                                         <RadioGroupItem value="moderate" id="moderate" />
                                         <Label htmlFor="moderate" className="cursor-pointer flex-1">Moderate - Balanced</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-accent transition-colors">
+                                        <RadioGroupItem value="active" id="active" />
+                                        <Label htmlFor="active" className="cursor-pointer flex-1">Active - Explore more</Label>
                                     </div>
                                     <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-accent transition-colors">
                                         <RadioGroupItem value="packed" id="packed" />
