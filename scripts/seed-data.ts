@@ -28,7 +28,7 @@ async function seed() {
         localley_score: 5, // Hidden Gem
         local_percentage: 85,
         best_times: { en: "9:00 PM - 11:00 PM" },
-        photos: ["/placeholder-spot.jpg"],
+        photos: ["/placeholder-spot.svg"],
         tips: { en: ["Look for the red vending machine in the alley.", "Order the 'Blue Note' cocktail.", "Quiet conversation only."] },
         verified: true,
         trending_score: 0.95

@@ -590,7 +590,7 @@ export default async function ProfilePage() {
                                         <Card className="overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 h-full flex flex-col border-border/40 bg-background/60 backdrop-blur-sm">
                                             <div className="relative aspect-video w-full overflow-hidden">
                                                 <Image
-                                                    src={spot.photos?.[0] || "/placeholder-spot.jpg"}
+                                                    src={spot.photos?.[0] || "/placeholder-spot.svg"}
                                                     alt={spotName || "Spot"}
                                                     fill
                                                     className="object-cover"

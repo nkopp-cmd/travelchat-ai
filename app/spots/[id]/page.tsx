@@ -50,7 +50,7 @@ async function getSpot(id: string) {
         localleyScore: spot.localley_score as LocalleyScale,
         localPercentage: spot.local_percentage,
         bestTime: spot.best_times?.en || "Anytime",
-        photos: spot.photos || ["/placeholder-spot.jpg"],
+        photos: spot.photos || ["/placeholder-spot.svg"],
         tips: spot.tips?.en || [],
         verified: spot.verified,
         trending: spot.trending_score > 0.8,
@@ -102,7 +102,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             siteName: 'Localley',
             images: [
                 {
-                    url: spot.photos[0] || '/placeholder-spot.jpg',
+                    url: spot.photos[0] || '/placeholder-spot.svg',
                     width: 1200,
                     height: 630,
                     alt: spot.name,
@@ -113,7 +113,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             card: 'summary_large_image',
             title: spot.name,
             description: `${scoreLabel} - ${spot.description.slice(0, 150)}`,
-            images: [spot.photos[0] || '/placeholder-spot.jpg'],
+            images: [spot.photos[0] || '/placeholder-spot.svg'],
         },
     };
 }
@@ -159,7 +159,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
 
             <div className="relative aspect-[21/9] w-full rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                    src={spot.photos[0] || "/placeholder-spot.jpg"}
+                    src={spot.photos[0] || "/placeholder-spot.svg"}
                     alt={spot.name}
                     fill
                     className="object-cover"

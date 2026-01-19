@@ -65,7 +65,7 @@ function transformSpot(spot: RawSpot): Spot {
         localleyScore: spot.localley_score || 3,
         localPercentage: spot.local_percentage || 50,
         bestTime: spot.best_time || "Anytime",
-        photos: spot.photos || [spot.image_url || "/placeholder-spot.jpg"],
+        photos: spot.photos || [spot.image_url || "/placeholder-spot.svg"],
         tips: spot.tips || [],
         verified: spot.verified || false,
         trending: spot.trending_score > 0.7 || false
