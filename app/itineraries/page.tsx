@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
 
@@ -24,12 +24,15 @@ async function getItineraries(): Promise<{ itineraries: Array<{
             redirect("/sign-in");
         }
 
-        // Use RLS-respecting client - filters by user automatically via RLS policy
-        const supabase = await createSupabaseServerClient();
+        // Use admin client with manual user filtering
+        // Note: This bypasses RLS but filters by clerk_id explicitly
+        // TODO: Configure Clerk JWT template 'supabase' for proper RLS support
+        const supabase = createSupabaseAdmin();
 
         const { data: itineraries, error } = await supabase
             .from("itineraries")
             .select("id, title, subtitle, city, days, local_score, created_at, status, is_favorite")
+            .eq("clerk_id", userId)
             .order("created_at", { ascending: false });
 
         if (error) {

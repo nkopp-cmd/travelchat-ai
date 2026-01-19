@@ -9,11 +9,14 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 /**
  * Create an authenticated Supabase client for server components/API routes.
  *
- * This client respects RLS policies and should be used for user-specific
- * data operations in server contexts.
+ * This client attempts to use Clerk JWT template for RLS-based authentication.
+ * If the JWT template is not configured, it falls back to an unauthenticated client.
+ *
+ * IMPORTANT: The 'supabase' JWT template must be configured in Clerk dashboard
+ * for RLS policies to work correctly. Without it, this returns an anon client.
  *
  * @returns Supabase client authenticated with the current user's Clerk token,
- *          or an unauthenticated client if no user is logged in.
+ *          or an unauthenticated client if no user/token is available.
  *
  * @example
  * ```ts
@@ -28,16 +31,22 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient> {
     throw new Error('Supabase environment variables are not configured');
   }
 
-  // Get the Clerk session token for Supabase
-  const { getToken } = await auth();
-  const token = await getToken({ template: 'supabase' });
+  try {
+    // Get the Clerk session token for Supabase
+    const { getToken } = await auth();
+    const token = await getToken({ template: 'supabase' });
 
-  if (token) {
-    return createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
+    if (token) {
+      return createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+      });
+    }
+  } catch (error) {
+    // JWT template 'supabase' may not be configured in Clerk
+    // Log warning but don't fail - fall through to anon client
+    console.warn('[supabase-server] Failed to get Clerk JWT token:', error instanceof Error ? error.message : 'Unknown error');
   }
 
-  // Return unauthenticated client if no token
+  // Return unauthenticated client if no token or on error
   return createClient(supabaseUrl, supabaseAnonKey);
 }
