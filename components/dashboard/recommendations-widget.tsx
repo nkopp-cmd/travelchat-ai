@@ -8,6 +8,7 @@ import { Star, TrendingUp, MapPin, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 interface RecommendedSpot {
   id: string;
@@ -49,6 +50,11 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
       } catch (err) {
         console.error('Error fetching recommendations:', err);
         setError('Failed to load recommendations');
+        toast({
+          variant: "destructive",
+          title: "Failed to load recommendations",
+          description: "We couldn't fetch personalized recommendations. Please try again later.",
+        });
       } finally {
         setLoading(false);
       }

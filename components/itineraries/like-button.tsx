@@ -129,6 +129,8 @@ export function LikeButton({
             )}
             onClick={handleClick}
             disabled={loading || initialFetch}
+            aria-label={liked ? "Remove from saved itineraries" : "Save itinerary"}
+            aria-pressed={liked}
         >
             {loading ? (
                 <Loader2 className={cn(iconSizes[size], "animate-spin")} />

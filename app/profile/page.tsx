@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Star, MapPin, Flame, Settings, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "lucide-react";
+import { Trophy, Star, MapPin, Flame, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "lucide-react";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
+import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 
 async function getUserProgress() {
     const { userId } = await auth();
@@ -217,16 +218,17 @@ export default async function ProfilePage() {
                                 <p className="text-sm sm:text-base text-muted-foreground">
                                     @{user.username || user.emailAddresses[0].emailAddress.split("@")[0]}
                                 </p>
+                                {user.unsafeMetadata?.bio && (
+                                    <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                                        {user.unsafeMetadata.bio as string}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <div className="flex gap-2 mb-1">
-                            <Link href="/settings">
-                                <Button variant="outline" size="sm">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    <span className="hidden sm:inline">Edit Profile</span>
-                                    <span className="sm:hidden">Edit</span>
-                                </Button>
-                            </Link>
+                            <EditProfileDialog
+                                initialBio={(user.unsafeMetadata?.bio as string) || ""}
+                            />
                             <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
                                 <Share2 className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Share Profile</span>

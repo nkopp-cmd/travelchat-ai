@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useCallback } from "react";
 import { SpotCard } from "@/components/spots/spot-card";
 import { Spot } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, MapPin, Star, Grid3X3, List, Utensils, Coffee, Moon, ShoppingBag, Trees, Store, Flame, Loader2 } from "lucide-react";
+import { Search, Filter, X, MapPin, Star, Grid3X3, List, Utensils, Coffee, Moon, ShoppingBag, Trees, Store, Flame, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { cn } from "@/lib/utils";
+
+const ITEMS_PER_PAGE = 12;
 
 const CATEGORIES = ["All", "Food", "Cafe", "Nightlife", "Shopping", "Outdoor", "Market"];
 const CITIES = ["All", "Seoul", "Tokyo", "Bangkok", "Singapore"];
@@ -53,35 +55,42 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
     const [sortBy, setSortBy] = useState("score");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [quickFilter, setQuickFilter] = useState<string | null>(null);
+    const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
 
     // Wrap filter state changes in transitions for smoother UI
+    // Reset display count when filters change to show fresh results
     const handleSearchChange = (value: string) => {
         startTransition(() => {
             setSearchQuery(value);
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
 
     const handleCategoryChange = (value: string) => {
         startTransition(() => {
             setSelectedCategory(value);
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
 
     const handleCityChange = (value: string) => {
         startTransition(() => {
             setSelectedCity(value);
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
 
     const handleScoreChange = (value: string) => {
         startTransition(() => {
             setSelectedScore(value);
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
 
     const handleSortChange = (value: string) => {
         startTransition(() => {
             setSortBy(value);
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
 
@@ -151,8 +160,23 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
             setSelectedScore("All");
             setSortBy("score");
             setQuickFilter(null);
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
+
+    // Load more spots
+    const handleLoadMore = useCallback(() => {
+        startTransition(() => {
+            setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+        });
+    }, []);
+
+    // Get the spots to display (paginated)
+    const displayedSpots = useMemo(() => {
+        return filteredSpots.slice(0, displayCount);
+    }, [filteredSpots, displayCount]);
+
+    const hasMoreSpots = displayCount < filteredSpots.length;
 
     const handleQuickFilter = (filterId: string) => {
         startTransition(() => {
@@ -161,6 +185,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
             if (quickFilter !== filterId) {
                 setSelectedCategory("All");
             }
+            setDisplayCount(ITEMS_PER_PAGE);
         });
     };
 
@@ -372,32 +397,60 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                     <Loader2 className="h-4 w-4 animate-spin text-violet-500" aria-hidden="true" />
                 )}
                 <span>
-                    {isPending ? "Filtering..." : `Showing ${filteredSpots.length} of ${totalCount} spots`}
+                    {isPending ? "Filtering..." : `Showing ${displayedSpots.length} of ${filteredSpots.length} spots`}
+                    {filteredSpots.length < totalCount && ` (${totalCount} total)`}
                 </span>
             </div>
 
             {/* Spots Grid/List with transition effect */}
             <ErrorBoundary>
-                {filteredSpots.length > 0 ? (
-                    viewMode === "grid" ? (
-                        <div className={cn(
-                            "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200",
-                            isPending && "opacity-60"
-                        )}>
-                            {filteredSpots.map((spot) => (
-                                <SpotCard key={spot.id} spot={spot} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className={cn(
-                            "space-y-3 transition-opacity duration-200",
-                            isPending && "opacity-60"
-                        )}>
-                            {filteredSpots.map((spot) => (
-                                <SpotCard key={spot.id} spot={spot} compact />
-                            ))}
-                        </div>
-                    )
+                {displayedSpots.length > 0 ? (
+                    <>
+                        {viewMode === "grid" ? (
+                            <div className={cn(
+                                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200",
+                                isPending && "opacity-60"
+                            )}>
+                                {displayedSpots.map((spot, index) => (
+                                    <SpotCard key={spot.id} spot={spot} priority={index < 6} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={cn(
+                                "space-y-3 transition-opacity duration-200",
+                                isPending && "opacity-60"
+                            )}>
+                                {displayedSpots.map((spot, index) => (
+                                    <SpotCard key={spot.id} spot={spot} compact priority={index < 3} />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Load More Button */}
+                        {hasMoreSpots && (
+                            <div className="flex justify-center mt-8">
+                                <Button
+                                    onClick={handleLoadMore}
+                                    variant="outline"
+                                    size="lg"
+                                    disabled={isPending}
+                                    className={cn(
+                                        "gap-2 px-8",
+                                        "hover:bg-violet-50 hover:border-violet-300 hover:text-violet-700",
+                                        "dark:hover:bg-violet-950/30 dark:hover:border-violet-700 dark:hover:text-violet-300",
+                                        "transition-all duration-200"
+                                    )}
+                                >
+                                    {isPending ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <ChevronDown className="h-4 w-4" />
+                                    )}
+                                    Load More ({filteredSpots.length - displayCount} remaining)
+                                </Button>
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="text-center py-16">
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-900/20 mb-4">

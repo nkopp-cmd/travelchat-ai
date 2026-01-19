@@ -15,9 +15,11 @@ const PLACEHOLDER_IMAGE = "/placeholder-spot.svg";
 interface SpotCardProps {
     spot: Spot;
     compact?: boolean;
+    /** Set to true for above-the-fold images (first 6 cards) */
+    priority?: boolean;
 }
 
-export function SpotCard({ spot, compact = false }: SpotCardProps) {
+export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageSrc, setImageSrc] = useState(spot.photos[0] || PLACEHOLDER_IMAGE);
 
@@ -49,6 +51,8 @@ export function SpotCard({ spot, compact = false }: SpotCardProps) {
                             alt={spot.name}
                             fill
                             sizes="(max-width: 640px) 128px, 176px"
+                            quality={75}
+                            priority={priority}
                             className={cn(
                                 "object-cover transition-all duration-500",
                                 "group-hover:scale-110",
@@ -136,6 +140,8 @@ export function SpotCard({ spot, compact = false }: SpotCardProps) {
                         alt={spot.name}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        quality={75}
+                        priority={priority}
                         className={cn(
                             "object-cover transition-all duration-700 ease-out",
                             "group-hover:scale-110",

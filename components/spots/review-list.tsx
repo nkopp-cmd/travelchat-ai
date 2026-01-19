@@ -73,10 +73,15 @@ export function ReviewList({ spotId }: ReviewListProps) {
             }
         } catch (error) {
             console.error("Error fetching reviews:", error);
+            toast({
+                title: "Failed to load reviews",
+                description: "Please try refreshing the page",
+                variant: "destructive",
+            });
         } finally {
             setLoading(false);
         }
-    }, [spotId, sortBy]);
+    }, [spotId, sortBy, toast]);
 
     useEffect(() => {
         fetchReviews();

@@ -137,18 +137,11 @@ export function TemplateCard({ template }: TemplateCardProps) {
             </span>
           </div>
 
-          {/* Target Audience with icon */}
-          <div className="flex items-center gap-2 mt-4 p-3 rounded-xl bg-muted/50 border border-border/30">
-            <div className="h-8 w-8 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center flex-shrink-0">
-              <Users className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs text-muted-foreground">Perfect for</span>
-              <p className="text-sm font-medium text-foreground truncate">
-                {template.targetAudience}
-              </p>
-            </div>
-          </div>
+          {/* Target Audience - simplified inline */}
+          <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1.5">
+            <Users className="h-3 w-3 text-violet-500" />
+            Perfect for {template.targetAudience.toLowerCase()}
+          </p>
 
           {/* Spacer */}
           <div className="flex-1 min-h-3" />
