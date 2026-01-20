@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, DollarSign, ExternalLink } from "lucide-react";
+import { MapPin, Clock, DollarSign, ExternalLink, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, canSeeFullAddress, hasFeature } from "@/lib/subscription";
 import { getActivityBookingLinks, getHotelBookingLinks } from "@/lib/affiliates";
@@ -170,37 +170,46 @@ export function ItineraryActivityCard({
                     </div>
 
                     {/* Booking Links */}
-                    <div className="flex flex-wrap gap-2 pt-2">
-                        {bookingLinks.slice(0, 2).map((link) => (
-                            <BookingButton
-                                key={link.partner}
-                                link={link}
-                                showDeal={showDeals}
-                                activityName={activity.name}
-                                size="sm"
-                            />
-                        ))}
-                        {hotelLinks.slice(0, 1).map((link) => (
-                            <BookingButton
-                                key={link.partner}
-                                link={link}
-                                showDeal={showDeals}
-                                activityName={`Hotels near ${activity.name}`}
-                                variant="outline"
-                                size="sm"
-                            />
-                        ))}
-                        {canShowFullAddress && activity.address && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="gap-1"
-                                onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(activity.address || "")}`, "_blank")}
-                            >
-                                <ExternalLink className="h-3 w-3" />
-                                Maps
-                            </Button>
+                    <div className="pt-2 space-y-2">
+                        {/* Deal indicator - shown once above all buttons */}
+                        {showDeals && (
+                            <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                <Sparkles className="h-3 w-3" />
+                                <span className="font-medium">Exclusive deals available</span>
+                            </div>
                         )}
+                        <div className="flex flex-wrap gap-2">
+                            {bookingLinks.slice(0, 2).map((link) => (
+                                <BookingButton
+                                    key={link.partner}
+                                    link={link}
+                                    showDeal={false}
+                                    activityName={activity.name}
+                                    size="sm"
+                                />
+                            ))}
+                            {hotelLinks.slice(0, 1).map((link) => (
+                                <BookingButton
+                                    key={link.partner}
+                                    link={link}
+                                    showDeal={false}
+                                    activityName={`Hotels near ${activity.name}`}
+                                    variant="outline"
+                                    size="sm"
+                                />
+                            ))}
+                            {canShowFullAddress && activity.address && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="gap-1"
+                                    onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(activity.address || "")}`, "_blank")}
+                                >
+                                    <ExternalLink className="h-3 w-3" />
+                                    Maps
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
