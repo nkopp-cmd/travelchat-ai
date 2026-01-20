@@ -218,9 +218,9 @@ export default async function ProfilePage() {
                                 <p className="text-sm sm:text-base text-muted-foreground">
                                     @{user.username || user.emailAddresses[0].emailAddress.split("@")[0]}
                                 </p>
-                                {user.unsafeMetadata?.bio && (
+                                {typeof user.unsafeMetadata?.bio === "string" && user.unsafeMetadata.bio && (
                                     <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                                        {user.unsafeMetadata.bio as string}
+                                        {user.unsafeMetadata.bio}
                                     </p>
                                 )}
                             </div>
