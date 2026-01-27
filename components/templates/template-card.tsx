@@ -71,13 +71,13 @@ export function TemplateCard({ template }: TemplateCardProps) {
     <Link href={`/itineraries/new?template=${template.id}`}>
       <Card className={cn(
         "group overflow-hidden h-full flex flex-col cursor-pointer relative",
-        "bg-card/95 backdrop-blur-sm",
-        "border border-border/50",
+        "bg-white/70 dark:bg-white/5 backdrop-blur-md",
+        "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
-        "hover:shadow-2xl",
+        "hover:shadow-xl hover:shadow-violet-500/10",
         accent.glow,
-        "hover:border-violet-400/60 dark:hover:border-violet-500/60",
-        "hover:-translate-y-2"
+        "hover:border-violet-400/50 dark:hover:border-violet-500/40",
+        "hover:-translate-y-1"
       )}>
         {/* Animated gradient background */}
         <div className={cn(
@@ -117,21 +117,21 @@ export function TemplateCard({ template }: TemplateCardProps) {
           {/* Stats Pills Row */}
           <div className="flex flex-wrap items-center gap-2 mt-5">
             {/* Days pill */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
               <Clock className="h-3 w-3" />
               {template.days} {template.days === 1 ? 'day' : 'days'}
             </span>
 
             {/* Pace pill */}
             <span className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border",
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm",
               accent.bg, accent.text, accent.border
             )}>
               {pace.icon} {pace.label}
             </span>
 
             {/* Activities pill */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border/50">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/50 dark:bg-white/5 text-muted-foreground border border-black/5 dark:border-white/10 backdrop-blur-sm">
               <Zap className="h-3 w-3" />
               {template.activitiesPerDay}/day
             </span>
@@ -147,7 +147,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <div className="flex-1 min-h-3" />
 
           {/* Premium CTA */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/30">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/10">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Sparkles className="h-3 w-3 text-amber-500" />
               AI-powered
