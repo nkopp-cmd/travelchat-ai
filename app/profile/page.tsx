@@ -13,6 +13,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
+import { AppBackground } from "@/components/layout/app-background";
 
 async function getUserProgress() {
     const { userId } = await auth();
@@ -181,9 +182,10 @@ export default async function ProfilePage() {
         : "ring-violet-200 dark:ring-violet-800";
 
     return (
+        <AppBackground ambient className="min-h-screen">
         <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in fade-in duration-500">
             {/* Profile Header */}
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-border/40 bg-background/60 backdrop-blur-sm shadow-xl">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md shadow-xl">
                 {/* Enhanced header with pattern overlay */}
                 <div className="h-24 sm:h-32 bg-gradient-to-r from-violet-600 to-indigo-600 relative overflow-hidden">
                     {/* Decorative pattern overlay */}
@@ -300,12 +302,12 @@ export default async function ProfilePage() {
             {/* Subscription & Usage Card */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Subscription Status */}
-                <Card className={`border-border/40 overflow-hidden ${
+                <Card className={`border-black/5 dark:border-white/10 overflow-hidden ${
                     subscription.tier === "premium"
-                        ? "bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20"
+                        ? "bg-gradient-to-br from-amber-50/80 to-yellow-50/80 dark:from-amber-950/20 dark:to-yellow-950/20 backdrop-blur-md"
                         : subscription.tier === "pro"
-                        ? "bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20"
-                        : "bg-background/60 backdrop-blur-sm"
+                        ? "bg-gradient-to-br from-violet-50/80 to-indigo-50/80 dark:from-violet-950/20 dark:to-indigo-950/20 backdrop-blur-md"
+                        : "bg-white/70 dark:bg-white/5 backdrop-blur-md"
                 }`}>
                     <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
@@ -385,7 +387,7 @@ export default async function ProfilePage() {
                 </Card>
 
                 {/* Usage Dashboard - Humanized */}
-                <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+                <Card className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg">Your Activity</CardTitle>
                         <CardDescription>Here&apos;s what you&apos;ve been up to</CardDescription>
@@ -486,7 +488,7 @@ export default async function ProfilePage() {
 
             {/* Content Tabs */}
             <Tabs defaultValue="achievements" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 lg:w-[400px] bg-background/60 backdrop-blur-sm border border-border/40">
+                <TabsList className="grid w-full grid-cols-3 lg:w-[400px] bg-white/70 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10">
                     <TabsTrigger value="achievements">Achievements</TabsTrigger>
                     <TabsTrigger value="history">History</TabsTrigger>
                     <TabsTrigger value="saved">Saved</TabsTrigger>
@@ -495,7 +497,7 @@ export default async function ProfilePage() {
                 <TabsContent value="achievements" className="mt-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* First Steps Achievement */}
-                        <Card className="border-border/40 bg-background/60 backdrop-blur-sm hover:bg-accent/5 transition-all">
+                        <Card className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md hover:bg-accent/5 transition-all">
                             <CardHeader className="flex flex-row items-center gap-4 pb-2">
                                 <div className="h-12 w-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
                                     <Trophy className="h-6 w-6 text-yellow-500" />
@@ -517,7 +519,7 @@ export default async function ProfilePage() {
                         {completedChallenges.slice(0, 5).map((userChallenge) => (
                             <Card
                                 key={userChallenge.id}
-                                className="border-border/40 bg-background/60 backdrop-blur-sm hover:bg-accent/5 transition-all"
+                                className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md hover:bg-accent/5 transition-all"
                             >
                                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                                     <div className="h-12 w-12 rounded-full bg-violet-500/10 flex items-center justify-center">
@@ -541,7 +543,7 @@ export default async function ProfilePage() {
 
                         {/* Streak Achievement (In Progress) */}
                         {progress.streak < 7 && (
-                            <Card className="border-border/40 bg-background/40 backdrop-blur-sm opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                            <Card className="border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
                                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                                     <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                         <Flame className="h-6 w-6 text-muted-foreground" />
@@ -573,7 +575,7 @@ export default async function ProfilePage() {
 
                                 return (
                                     <Link key={itinerary.id} href={`/itineraries/${itinerary.id}`}>
-                                        <Card className="overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 h-full flex flex-col border-border/40 bg-background/60 backdrop-blur-sm">
+                                        <Card className="overflow-hidden transition-all hover:shadow-lg hover:shadow-violet-500/10 hover:-translate-y-1 h-full flex flex-col border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md">
                                             {/* Gradient Header */}
                                             <div className="h-20 bg-gradient-to-r from-violet-500 to-indigo-500 relative">
                                                 <div className="absolute inset-0 opacity-20">
@@ -613,7 +615,7 @@ export default async function ProfilePage() {
                             })}
                         </div>
                     ) : (
-                        <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+                        <Card className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md">
                             <CardContent className="pt-6">
                                 <div className="text-center py-8">
                                     <Calendar className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
@@ -652,7 +654,7 @@ export default async function ProfilePage() {
 
                                 return (
                                     <Link key={saved.id} href={`/spots/${spot.id}`}>
-                                        <Card className="overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 h-full flex flex-col border-border/40 bg-background/60 backdrop-blur-sm">
+                                        <Card className="overflow-hidden transition-all hover:shadow-lg hover:shadow-violet-500/10 hover:-translate-y-1 h-full flex flex-col border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md">
                                             <div className="relative aspect-video w-full overflow-hidden">
                                                 <Image
                                                     src={spot.photos?.[0] || "/placeholder-spot.svg"}
@@ -686,7 +688,7 @@ export default async function ProfilePage() {
                             })}
                         </div>
                     ) : (
-                        <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+                        <Card className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md">
                             <CardContent className="pt-6">
                                 <div className="text-center py-8">
                                     <Heart className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
@@ -706,5 +708,6 @@ export default async function ProfilePage() {
                 </TabsContent>
             </Tabs>
         </div>
+        </AppBackground>
     );
 }
