@@ -84,7 +84,8 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                 onClick={() => onPromptClick?.(prompt.text)}
                                 className={cn(
                                     "flex items-center gap-3 p-4 rounded-xl",
-                                    "border border-border/50 bg-card/80 backdrop-blur-sm",
+                                    "border border-black/5 dark:border-white/10",
+                                    "bg-white/60 dark:bg-white/5 backdrop-blur-md",
                                     "hover:shadow-lg hover:shadow-violet-500/10",
                                     "hover:border-violet-400/50 hover:-translate-y-1",
                                     "transition-all duration-300 text-left group",
@@ -189,7 +190,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
 
                 {/* Available Cities with premium styling */}
                 <div className="text-center">
-                    <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-muted/50 border border-border/50">
+                    <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10">
                         <Globe className="h-4 w-4 text-violet-500" />
                         <span className="text-sm text-muted-foreground">
                             Available in <span className="font-semibold text-foreground">{SUPPORTED_CITIES.length}</span> cities
@@ -202,7 +203,8 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                 href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                                 className={cn(
                                     "inline-flex items-center gap-1.5 px-4 py-2 rounded-full",
-                                    "border border-border/50 bg-card/80 backdrop-blur-sm",
+                                    "border border-black/5 dark:border-white/10",
+                                    "bg-white/60 dark:bg-white/5 backdrop-blur-sm",
                                     "hover:border-violet-400/50 hover:shadow-lg hover:shadow-violet-500/10",
                                     "hover:-translate-y-0.5 hover:bg-violet-50 dark:hover:bg-violet-950/30",
                                     "transition-all duration-200 text-sm group"

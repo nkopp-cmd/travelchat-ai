@@ -7,6 +7,7 @@ import { getTemplateById } from "@/lib/templates";
 import { RecentStories } from "@/components/dashboard/recent-stories";
 import { MobileDashboardContent } from "@/components/dashboard/mobile-dashboard-content";
 import { OnboardingPanel } from "@/components/dashboard/onboarding-panel";
+import { AppBackground } from "@/components/layout/app-background";
 
 // Fetch user's recent itineraries
 async function getRecentItineraries() {
@@ -46,46 +47,48 @@ export default async function DashboardPage({
         : undefined;
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-            {/* Top: Recent Itineraries Stories */}
-            {recentItineraries.length > 0 && (
-                <div className="flex-shrink-0 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 py-3">
-                    <RecentStories itineraries={recentItineraries} />
-                </div>
-            )}
+        <AppBackground ambient className="h-[calc(100vh-4rem)]" contentClassName="h-full">
+            <div className="flex flex-col h-full overflow-hidden">
+                {/* Top: Recent Itineraries Stories */}
+                {recentItineraries.length > 0 && (
+                    <div className="flex-shrink-0 border-b border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm px-4 py-3">
+                        <RecentStories itineraries={recentItineraries} />
+                    </div>
+                )}
 
-            {/* Main Content: Full-width Chat Interface */}
-            <div className="flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
-                {/* Desktop - Chat or Onboarding */}
-                <div className="hidden lg:flex flex-1 min-h-0 w-full max-w-5xl xl:max-w-6xl mx-auto">
-                    {recentItineraries.length === 0 && !itineraryContext && !selectedTemplate ? (
-                        // Show onboarding panel for new users
-                        <div className="flex-1 flex items-center justify-center p-8">
-                            <OnboardingPanel className="max-w-2xl w-full" />
-                        </div>
-                    ) : (
-                        // Show chat interface for returning users
-                        <ErrorBoundary>
-                            <ChatInterface
-                                className="h-full w-full"
-                                itineraryContext={itineraryContext}
-                                selectedTemplate={selectedTemplate}
-                            />
-                        </ErrorBoundary>
-                    )}
+                {/* Main Content: Full-width Chat Interface */}
+                <div className="flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
+                    {/* Desktop - Chat or Onboarding */}
+                    <div className="hidden lg:flex flex-1 min-h-0 w-full max-w-5xl xl:max-w-6xl mx-auto">
+                        {recentItineraries.length === 0 && !itineraryContext && !selectedTemplate ? (
+                            // Show onboarding panel for new users
+                            <div className="flex-1 flex items-center justify-center p-8">
+                                <OnboardingPanel className="max-w-2xl w-full" />
+                            </div>
+                        ) : (
+                            // Show chat interface for returning users
+                            <ErrorBoundary>
+                                <ChatInterface
+                                    className="h-full w-full"
+                                    itineraryContext={itineraryContext}
+                                    selectedTemplate={selectedTemplate}
+                                />
+                            </ErrorBoundary>
+                        )}
+                    </div>
+
+                    {/* Mobile/Tablet - Show useful content */}
+                    <div className="flex lg:hidden flex-1 min-h-0 overflow-y-auto">
+                        <MobileDashboardContent itineraries={recentItineraries} />
+                    </div>
                 </div>
 
-                {/* Mobile/Tablet - Show useful content */}
-                <div className="flex lg:hidden flex-1 min-h-0 overflow-y-auto">
-                    <MobileDashboardContent itineraries={recentItineraries} />
-                </div>
+                {/* Mobile Chat FAB + Bottom Sheet */}
+                <MobileChatFAB
+                    itineraryContext={itineraryContext}
+                    selectedTemplate={selectedTemplate}
+                />
             </div>
-
-            {/* Mobile Chat FAB + Bottom Sheet */}
-            <MobileChatFAB
-                itineraryContext={itineraryContext}
-                selectedTemplate={selectedTemplate}
-            />
-        </div>
+        </AppBackground>
     );
 }

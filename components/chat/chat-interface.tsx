@@ -288,7 +288,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 min-h-0 p-4 rounded-2xl border border-border/40 bg-background/60 backdrop-blur-sm shadow-sm mb-4">
+      <ScrollArea className="flex-1 min-h-0 p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-4">
         <div className="space-y-6 pb-4">
           {messages.map((message) => (
             <div
@@ -382,7 +382,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
           disabled={isLoading}
           aria-describedby={chatError ? "chat-error" : isLoading ? "chat-loading" : undefined}
           aria-invalid={!!chatError}
-          className="flex-1 rounded-full border-border/40 bg-background/60 backdrop-blur-sm focus-visible:ring-violet-500"
+          className="flex-1 rounded-full border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md focus-visible:ring-violet-500"
         />
         {isLoading && (
           <span id="chat-loading" className="sr-only">

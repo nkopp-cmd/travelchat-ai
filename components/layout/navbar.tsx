@@ -36,10 +36,16 @@ export function Navbar() {
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full border-b transition-all duration-300",
+                "sticky top-0 z-50 w-full transition-all duration-300",
                 isLanding
-                    ? "border-white/10 bg-gradient-to-b from-black/70 via-black/50 to-black/30 backdrop-blur-md"
-                    : "border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+                    ? "border-b border-white/10 bg-gradient-to-b from-black/70 via-black/50 to-black/30 backdrop-blur-md"
+                    : [
+                        // Premium glassmorphism for app pages
+                        "border-b border-black/5 dark:border-white/10",
+                        "bg-white/70 dark:bg-black/50",
+                        "backdrop-blur-xl",
+                        "shadow-sm shadow-violet-500/5",
+                    ]
             )}
         >
             <div className="container flex h-16 items-center justify-between px-4">
