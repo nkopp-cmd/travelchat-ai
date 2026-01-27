@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { SubscriptionBadge } from "@/components/subscription";
 import { NotificationCenter } from "@/components/notifications/notification-center";
+import { Logo } from "@/components/brand/logo";
+import { useScrollDirection } from "@/hooks/use-scroll-direction";
 
 const routes = [
     {
@@ -32,6 +34,10 @@ export function Navbar() {
     const pathname = usePathname();
     const { isSignedIn } = useUser();
     const isLanding = pathname === "/";
+    const scrollDirection = useScrollDirection({ threshold: 20 });
+
+    // Hide header on scroll down on mobile (not on landing page)
+    const isHidden = !isLanding && scrollDirection === "down";
 
     return (
         <header
@@ -45,14 +51,17 @@ export function Navbar() {
                         "bg-white/70 dark:bg-black/50",
                         "backdrop-blur-xl",
                         "shadow-sm shadow-violet-500/5",
-                    ]
+                    ],
+                // Hide on scroll down on mobile
+                isHidden && "md:translate-y-0 -translate-y-full"
             )}
         >
-            <div className="container flex h-16 items-center justify-between px-4">
+            <div className="container flex h-14 md:h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-2">
+                    {/* Mobile menu - hidden since we have bottom nav now */}
                     <Sheet>
                         <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="md:hidden text-foreground/80 hover:text-foreground">
+                            <Button variant="ghost" size="icon" className="hidden text-foreground/80 hover:text-foreground">
                                 <Menu className="h-5 w-5" />
                                 <span className="sr-only">Toggle menu</span>
                             </Button>
@@ -77,20 +86,7 @@ export function Navbar() {
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/30 transition-all group-hover:scale-110 group-hover:shadow-violet-500/40">
-                            L
-                        </div>
-                        <span className={cn(
-                            "text-xl font-bold transition-colors",
-                            isLanding
-                                ? "text-white"
-                                : "bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600",
-                            "hidden sm:inline-block"
-                        )}>
-                            Localley
-                        </span>
-                    </Link>
+                    <Logo size="md" isLanding={isLanding} />
                 </div>
 
                 <nav className="hidden md:flex items-center gap-1">
@@ -128,7 +124,8 @@ export function Navbar() {
                                     Sign In
                                 </Button>
                             </Link>
-                            <Link href="/sign-up">
+                            {/* Hide Get Started on mobile - use bottom nav instead */}
+                            <Link href="/sign-up" className="hidden sm:block">
                                 <Button size="sm" className="bg-violet-600 hover:bg-violet-700 rounded-full px-6 shadow-lg shadow-violet-500/20">
                                     Get Started
                                 </Button>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, Compass, DollarSign } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Logo } from "@/components/brand/logo";
 
 /**
  * Marketing-specific navbar for landing and public pages.
@@ -63,14 +64,7 @@ export function MarketingNavbar() {
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/30 transition-all group-hover:scale-110 group-hover:shadow-violet-500/40">
-                            L
-                        </div>
-                        <span className="text-xl font-bold text-white hidden sm:inline-block">
-                            Localley
-                        </span>
-                    </Link>
+                    <Logo size="md" isLanding={true} />
                 </div>
 
                 <nav className="hidden md:flex items-center gap-1">

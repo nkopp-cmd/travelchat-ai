@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   themeColor: "#7c3aed",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Localley",
   },
   formatDetection: {
@@ -76,6 +76,7 @@ export const metadata: Metadata = {
 };
 
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/providers";
 import { SkipLink } from "@/components/accessibility/skip-link";
@@ -91,8 +92,10 @@ export default function RootLayout({
         baseTheme: undefined,
         variables: {
           colorPrimary: "#7c3aed", // violet-600
-          colorBackground: "#ffffff",
-          colorText: "#0f172a",
+          colorBackground: "#0f0f1a",
+          colorText: "#ffffff",
+          colorInputBackground: "#1a1a2e",
+          colorInputText: "#ffffff",
         },
       }}
       signInUrl="/sign-in"
@@ -100,8 +103,13 @@ export default function RootLayout({
       signInFallbackRedirectUrl="/dashboard"
       signUpFallbackRedirectUrl="/dashboard"
     >
-      <html lang="en">
+      <html lang="en" className="dark">
         <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+          <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta name="apple-mobile-web-app-title" content="Localley" />
           <OrganizationJsonLd />
           <WebsiteJsonLd />
         </head>
@@ -111,9 +119,10 @@ export default function RootLayout({
           <SkipLink />
           <Providers>
             <ConditionalNavbar />
-            <main id="main-content" className="flex-1" tabIndex={-1}>
+            <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
               {children}
             </main>
+            <MobileBottomNav />
             <Toaster />
           </Providers>
         </body>
