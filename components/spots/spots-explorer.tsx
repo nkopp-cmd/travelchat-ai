@@ -194,7 +194,7 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
     return (
         <>
             {/* Search and Filters */}
-            <div className="mb-6 space-y-4">
+            <div className="mb-6 space-y-4 p-4 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10">
                 {/* Search Bar with View Toggle */}
                 <div className="flex gap-3">
                     <div className="relative flex-1">
@@ -203,12 +203,12 @@ export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) 
                             placeholder="Search spots, neighborhoods, or cuisines..."
                             value={searchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
-                            className="pl-10 h-11"
+                            className="pl-10 h-11 bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10"
                             aria-label="Search spots"
                         />
                     </div>
                     {/* View Mode Toggle */}
-                    <div className="flex border rounded-lg overflow-hidden" role="group" aria-label="View mode">
+                    <div className="flex border border-black/5 dark:border-white/10 rounded-lg overflow-hidden bg-white/50 dark:bg-white/5" role="group" aria-label="View mode">
                         <Button
                             variant={viewMode === "grid" ? "secondary" : "ghost"}
                             size="icon"

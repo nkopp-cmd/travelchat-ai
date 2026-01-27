@@ -6,6 +6,8 @@ import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { getCitySpotCounts } from "@/lib/city-stats";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Sparkles } from "lucide-react";
+import { AppBackground } from "@/components/layout/app-background";
+import { GradientText } from "@/components/ui/gradient-text";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -133,7 +135,7 @@ async function CityCoverageStats() {
                 <Badge
                     key={city.slug}
                     variant="secondary"
-                    className="px-3 py-1.5 text-sm bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-100 dark:border-violet-800/30"
+                    className="px-3 py-1.5 text-sm bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 hover:border-violet-300/50 dark:hover:border-violet-500/30 transition-colors"
                 >
                     <span className="mr-1.5">{city.emoji}</span>
                     <span className="font-medium">{city.name}</span>
@@ -144,7 +146,7 @@ async function CityCoverageStats() {
             ))}
             <Badge
                 variant="outline"
-                className="px-3 py-1.5 text-sm border-dashed"
+                className="px-3 py-1.5 text-sm border-dashed bg-white/50 dark:bg-white/5 backdrop-blur-sm"
             >
                 <Sparkles className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
                 {totalSpots} total curated spots
@@ -161,37 +163,41 @@ async function CityCoverageStats() {
  */
 export default function SpotsPage() {
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Header */}
-            <div className="mb-8 space-y-4">
-                <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 text-sm font-medium mb-3">
-                        <MapPin className="h-4 w-4" />
-                        Asia-First Discovery
+        <AppBackground ambient className="min-h-screen">
+            <div className="container mx-auto px-4 py-8">
+                {/* Header */}
+                <div className="mb-8 space-y-4">
+                    <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 text-violet-700 dark:text-violet-400 text-sm font-medium mb-3">
+                            <MapPin className="h-4 w-4" />
+                            Asia-First Discovery
+                        </div>
+                        <h1 className="text-4xl font-bold mb-2">
+                            <GradientText variant="violet">
+                                Discover Hidden Gems
+                            </GradientText>
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Curated local favorites where neighborhood culture matters most
+                        </p>
                     </div>
-                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                        Discover Hidden Gems
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Curated local favorites where neighborhood culture matters most
-                    </p>
+
+                    {/* City Coverage Stats */}
+                    <Suspense fallback={
+                        <div className="flex gap-2">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="h-8 w-32 bg-white/50 dark:bg-white/5 backdrop-blur-sm animate-pulse rounded-full" />
+                            ))}
+                        </div>
+                    }>
+                        <CityCoverageStats />
+                    </Suspense>
                 </div>
 
-                {/* City Coverage Stats */}
-                <Suspense fallback={
-                    <div className="flex gap-2">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-8 w-32 bg-muted animate-pulse rounded-full" />
-                        ))}
-                    </div>
-                }>
-                    <CityCoverageStats />
+                <Suspense fallback={<SpotsLoading />}>
+                    <SpotsContent />
                 </Suspense>
             </div>
-
-            <Suspense fallback={<SpotsLoading />}>
-                <SpotsContent />
-            </Suspense>
-        </div>
+        </AppBackground>
     );
 }
