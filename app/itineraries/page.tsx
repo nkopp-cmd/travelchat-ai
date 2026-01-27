@@ -5,6 +5,8 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
+import { AppBackground } from "@/components/layout/app-background";
+import { GradientText } from "@/components/ui/gradient-text";
 
 async function getItineraries(): Promise<{ itineraries: Array<{
     id: string;
@@ -61,29 +63,33 @@ export default async function ItinerariesPage() {
     const { itineraries, error } = await getItineraries();
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">My Itineraries</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Manage your travel plans and saved trips
-                    </p>
+        <AppBackground ambient className="min-h-screen">
+            <div className="space-y-8 max-w-7xl mx-auto px-4 py-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            <GradientText variant="violet">My Itineraries</GradientText>
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Manage your travel plans and saved trips
+                        </p>
+                    </div>
+                    <Link href="/itineraries/new">
+                        <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20">
+                            <Plus className="mr-2 h-4 w-4" />
+                            New Itinerary
+                        </Button>
+                    </Link>
                 </div>
-                <Link href="/itineraries/new">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Itinerary
-                    </Button>
-                </Link>
+
+                {error && (
+                    <div className="rounded-xl border border-amber-200/50 bg-amber-50/80 dark:bg-amber-950/20 backdrop-blur-sm p-4 text-amber-800 dark:border-amber-800/30 dark:text-amber-200">
+                        <p>{error}. Please try refreshing the page.</p>
+                    </div>
+                )}
+
+                <ItineraryList initialItineraries={itineraries} />
             </div>
-
-            {error && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-                    <p>{error}. Please try refreshing the page.</p>
-                </div>
-            )}
-
-            <ItineraryList initialItineraries={itineraries} />
-        </div>
+        </AppBackground>
     );
 }

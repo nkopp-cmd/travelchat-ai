@@ -344,7 +344,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
 
     if (itineraries.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-xl bg-muted/20">
+            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-sm border-black/10 dark:border-white/10">
                 <div className="h-16 w-16 rounded-full bg-violet-100 dark:bg-violet-900/20 flex items-center justify-center mb-4">
                     <Sparkles className="h-8 w-8 text-violet-600" />
                 </div>
@@ -373,7 +373,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         placeholder="Search itineraries..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10"
                     />
                 </div>
 
@@ -477,7 +477,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         <span className="text-sm font-medium text-muted-foreground">Continue where you left off</span>
                     </div>
                     <Link href={`/itineraries/${filteredItineraries[0].id}`}>
-                        <Card className="overflow-hidden border-violet-200 dark:border-violet-800/50 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20 hover:shadow-lg hover:border-violet-300 dark:hover:border-violet-700 transition-all group">
+                        <Card className="overflow-hidden border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-300/50 dark:hover:border-violet-700/50 transition-all group">
                             <div className="flex items-center gap-4 p-4">
                                 {/* Mini thumbnail with city image */}
                                 <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-violet-200 dark:ring-violet-800 relative">
@@ -542,11 +542,11 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 key={itinerary.id}
                                 className={cn(
                                     "group overflow-hidden relative",
-                                    "bg-card/95 backdrop-blur-sm",
-                                    "border border-border/50",
+                                    "bg-white/70 dark:bg-white/5 backdrop-blur-md",
+                                    "border border-black/5 dark:border-white/10",
                                     "transition-all duration-300 ease-out",
-                                    "hover:shadow-2xl hover:shadow-violet-500/15",
-                                    "hover:border-violet-400/60 dark:hover:border-violet-500/60",
+                                    "hover:shadow-xl hover:shadow-violet-500/10",
+                                    "hover:border-violet-400/50 dark:hover:border-violet-500/40",
                                     "hover:-translate-y-1",
                                     viewMode === "list" ? "flex flex-row" : "flex flex-col"
                                 )}
@@ -644,9 +644,9 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         <Link href="/itineraries/new">
                             <Card className={cn(
                                 "min-h-[240px] relative overflow-hidden",
-                                "border-2 border-dashed border-violet-300/70 dark:border-violet-700/70",
-                                "bg-gradient-to-br from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20",
-                                "hover:border-violet-400 dark:hover:border-violet-500",
+                                "border-2 border-dashed border-violet-300/50 dark:border-violet-700/50",
+                                "bg-white/50 dark:bg-white/5 backdrop-blur-md",
+                                "hover:border-violet-400/70 dark:hover:border-violet-500/70",
                                 "hover:shadow-xl hover:shadow-violet-500/10",
                                 "transition-all duration-300 cursor-pointer",
                                 "flex items-center justify-center group"

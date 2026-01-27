@@ -12,6 +12,8 @@ import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
+import { AppBackground } from "@/components/layout/app-background";
+import { GradientText } from "@/components/ui/gradient-text";
 import { auth } from "@clerk/nextjs/server";
 import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
@@ -197,6 +199,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
+            <AppBackground ambient className="min-h-screen">
             <div className="max-w-5xl mx-auto space-y-8 p-4 pb-16">
                 {/* Back Button */}
                 <Link
@@ -211,8 +214,10 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             <div className="space-y-4">
                 <div className="flex flex-col md:flex-row justify-between gap-4">
                     <div className="space-y-2">
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                            {itinerary.title}
+                        <h1 className="text-4xl font-bold">
+                            <GradientText variant="violet">
+                                {itinerary.title}
+                            </GradientText>
                         </h1>
                         {itinerary.subtitle && (
                             <p className="text-lg text-muted-foreground">{itinerary.subtitle}</p>
@@ -261,7 +266,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
 
                 {/* Highlights Section */}
                 {itinerary.highlights && Array.isArray(itinerary.highlights) && itinerary.highlights.length > 0 && (
-                    <Card className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border-violet-200/50">
+                    <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
                                 <Sparkles className="h-5 w-5 text-violet-600" />
@@ -296,7 +301,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                     const activities = dayPlan.activities || [];
 
                     return (
-                        <Card key={dayIndex} className="overflow-hidden border-border/40 shadow-lg">
+                        <Card key={dayIndex} className="overflow-hidden border-black/5 dark:border-white/10 shadow-lg bg-white/70 dark:bg-white/5 backdrop-blur-md">
                             {/* Day Header */}
                             <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-6">
                                 <div className="flex items-center justify-between mb-2">
@@ -347,7 +352,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                 {/* Day Tips */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {dayPlan.localTip && (
-                                        <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/50">
+                                        <div className="p-4 rounded-xl bg-yellow-50/80 dark:bg-yellow-950/20 border border-yellow-200/50 dark:border-yellow-900/30 backdrop-blur-sm">
                                             <div className="flex items-start gap-3">
                                                 <Lightbulb className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                                                 <div>
@@ -358,7 +363,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                         </div>
                                     )}
                                     {dayPlan.transportTips && (
-                                        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50">
+                                        <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/30 backdrop-blur-sm">
                                             <div className="flex items-start gap-3">
                                                 <Bus className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                                 <div>
@@ -376,7 +381,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
 
                 {/* Fallback if no activities */}
                 {(!Array.isArray(dailyPlans) || dailyPlans.length === 0) && (
-                    <Card>
+                    <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10">
                         <CardContent className="pt-6">
                             <p className="text-muted-foreground text-center py-8">
                                 No activities planned yet. Start exploring!
@@ -394,7 +399,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             />
 
             {/* Footer Actions */}
-            <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border-violet-200/50">
+            <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10 shadow-lg shadow-violet-500/5">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div>
@@ -416,6 +421,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                 </CardContent>
             </Card>
         </div>
+        </AppBackground>
         </>
     );
 }
