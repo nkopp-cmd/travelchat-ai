@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { PlaceAutocomplete } from "@/components/ui/place-autocomplete";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -188,12 +189,13 @@ export function ActivityEditor({
 
                         <div className="md:col-span-2">
                             <label className="text-sm font-medium mb-1 block">Address</label>
-                            <Input
+                            <PlaceAutocomplete
                                 value={editedActivity.address || ""}
-                                onChange={(e) =>
-                                    setEditedActivity({ ...editedActivity, address: e.target.value })
+                                onChange={(value) =>
+                                    setEditedActivity({ ...editedActivity, address: value })
                                 }
-                                placeholder="e.g., 123 Main St, Seoul"
+                                types={["address", "establishment"]}
+                                placeholder="Search for address or place..."
                             />
                         </div>
 

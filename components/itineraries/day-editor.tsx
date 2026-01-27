@@ -5,6 +5,7 @@ import { ActivityEditor } from "./activity-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PlaceAutocomplete } from "@/components/ui/place-autocomplete";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
@@ -188,12 +189,13 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                                             }
                                             placeholder="Cost (e.g., $10-20)"
                                         />
-                                        <Input
+                                        <PlaceAutocomplete
                                             value={newActivity.address || ""}
-                                            onChange={(e) =>
-                                                setNewActivity({ ...newActivity, address: e.target.value })
+                                            onChange={(value) =>
+                                                setNewActivity({ ...newActivity, address: value })
                                             }
-                                            placeholder="Address"
+                                            types={["address", "establishment"]}
+                                            placeholder="Search for address..."
                                         />
                                         <div className="md:col-span-2">
                                             <Textarea
