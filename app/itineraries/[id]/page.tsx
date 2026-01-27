@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Download, MapPin, Clock, Star, ArrowLeft, Lightbulb, Bus, Sparkles, MessageSquare, Edit2 } from "lucide-react";
+import { Download, MapPin, Clock, Star, ArrowLeft, Lightbulb, Bus, Sparkles, MessageSquare, Edit2, Navigation } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -38,6 +38,30 @@ interface DayPlan {
     localTip?: string;
     transportTips?: string;
     highlights?: string[];
+}
+
+// Generate Google Maps route URL for a day's activities
+function getDayRouteUrl(activities: ItineraryActivity[], city: string): string {
+    const waypoints = activities
+        .filter(a => a.address)
+        .map(a => encodeURIComponent(`${a.address}, ${city}`));
+
+    if (waypoints.length === 0) return "";
+    if (waypoints.length === 1) {
+        return `https://www.google.com/maps/search/?api=1&query=${waypoints[0]}`;
+    }
+
+    const origin = waypoints[0];
+    const destination = waypoints[waypoints.length - 1];
+    const middleWaypoints = waypoints.slice(1, -1);
+
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    if (middleWaypoints.length > 0) {
+        url += `&waypoints=${middleWaypoints.join("|")}`;
+    }
+    url += "&travelmode=walking";
+
+    return url;
 }
 
 // Fetch itinerary from Supabase
@@ -277,9 +301,27 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                             <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-6">
                                 <div className="flex items-center justify-between mb-2">
                                     <h2 className="text-2xl font-bold">Day {dayPlan.day || dayIndex + 1}</h2>
-                                    <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                                        {activities.length} Activities
-                                    </Badge>
+                                    <div className="flex items-center gap-2">
+                                        {getDayRouteUrl(activities, itinerary.city) && (
+                                            <a
+                                                href={getDayRouteUrl(activities, itinerary.city)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="bg-white/20 text-white hover:bg-white/30 border-0 gap-1.5"
+                                                >
+                                                    <Navigation className="h-4 w-4" />
+                                                    View Route
+                                                </Button>
+                                            </a>
+                                        )}
+                                        <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
+                                            {activities.length} Activities
+                                        </Badge>
+                                    </div>
                                 </div>
                                 {dayPlan.theme && (
                                     <p className="text-violet-100 text-lg">{dayPlan.theme}</p>
