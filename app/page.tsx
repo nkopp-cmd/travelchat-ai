@@ -105,7 +105,7 @@ export default function LandingPage() {
             </div>
             <h1 className="text-6xl font-bold tracking-tight sm:text-7xl md:text-8xl lg:text-9xl text-white drop-shadow-2xl">
               Discover the <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-violet-300 to-indigo-400">Hidden World</span>
+              <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-violet-300 to-indigo-400 font-bold">Hidden World</span>
             </h1>
             {/* Enhanced subheadline with better contrast */}
             <p className="mx-auto max-w-[650px] text-white/90 md:text-xl lg:text-2xl font-light leading-relaxed drop-shadow-lg">
@@ -177,7 +177,7 @@ export default function LandingPage() {
         <div className="container px-4 md:px-6 relative z-10 max-w-7xl mx-auto">
           {/* Section header */}
           <div className="text-center mb-16">
-            <p className="text-violet-400 text-base md:text-lg font-semibold tracking-[0.2em] uppercase mb-4">Why Localley</p>
+            <p className="text-violet-400 text-lg md:text-xl font-bold tracking-[0.25em] uppercase mb-6">Why Localley</p>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Travel Like a Local, Not a Tourist</h2>
             <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">Powered by AI and verified by real locals</p>
           </div>
