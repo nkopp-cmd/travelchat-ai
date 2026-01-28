@@ -26,11 +26,12 @@ export async function getCitySpotCounts(): Promise<CitySpotCount[]> {
     const results: CitySpotCount[] = [];
 
     for (const city of ENABLED_CITIES) {
-        // Query spots that match this city's name in address (PostgREST filter syntax)
+        // Query spots that match this city's name in address
+        // Using separate ilike calls since .or() with JSONB can be tricky
         const { count } = await supabase
             .from("spots")
             .select("*", { count: "exact", head: true })
-            .or(`address->>'en'.ilike.%${city.name}%,address->>'en'.ilike.%${city.slug}%`);
+            .ilike("address->en", `%${city.name}%`);
 
         const spotCount = count || 0;
         const coverage = getCoverageMessage(city, spotCount, 8); // Assume 8 templates for now
@@ -60,7 +61,7 @@ export async function getCitySpotCount(citySlug: string): Promise<CitySpotCount 
     const { count } = await supabase
         .from("spots")
         .select("*", { count: "exact", head: true })
-        .or(`address->>'en'.ilike.%${city.name}%,address->>'en'.ilike.%${city.slug}%`);
+        .ilike("address->en", `%${city.name}%`);
 
     const spotCount = count || 0;
     const coverage = getCoverageMessage(city, spotCount, 8);
@@ -100,7 +101,7 @@ export async function getSpotsByCity(citySlug: string, limit: number = 50) {
     const { data, count, error } = await supabase
         .from("spots")
         .select("*", { count: "exact" })
-        .or(`address->>'en'.ilike.%${city.name}%,address->>'en'.ilike.%${city.slug}%`)
+        .ilike("address->en", `%${city.name}%`)
         .order("localley_score", { ascending: false })
         .limit(limit);
 
