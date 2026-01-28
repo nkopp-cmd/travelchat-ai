@@ -240,6 +240,7 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                         <MapComponent
                             markers={filteredLocations}
                             onMarkerClick={handleMarkerClick}
+                            city={city}
                         />
                     </div>
 
