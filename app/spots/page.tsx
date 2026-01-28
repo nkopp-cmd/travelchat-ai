@@ -1,13 +1,16 @@
 import { Suspense } from "react";
-import { createSupabaseAdmin } from "@/lib/supabase";
-import { Spot, MultiLanguageField } from "@/types";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
-import { getCitySpotCounts } from "@/lib/city-stats";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Sparkles } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
+import {
+    fetchFilteredSpots,
+    fetchFilterOptions,
+    parseFilterParams,
+    SpotsFilterParams,
+} from "@/lib/spots";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,110 +18,35 @@ export const metadata: Metadata = {
     description: "Find local favorites across Seoul, Tokyo, Bangkok, and Singapore. Curated spots rated by locals.",
 };
 
-// Supabase spot raw type
-interface RawSpot {
-    id: string;
-    name: MultiLanguageField;
-    description: MultiLanguageField;
-    address: MultiLanguageField;
-    category: string | null;
-    subcategories: string[] | null;
-    location: {
-        coordinates: [number, number];
-    } | null;
-    localley_score: number | null;
-    local_percentage: number | null;
-    best_time: string | null;
-    photos: string[] | null;
-    image_url: string | null;
-    tips: string[] | null;
-    verified: boolean | null;
-    trending_score: number;
+// Enable dynamic rendering for URL-based filtering
+export const dynamic = "force-dynamic";
+
+interface SpotsPageProps {
+    searchParams: Promise<SpotsFilterParams>;
 }
 
 /**
- * Parse multi-language field to string
- */
-function getLocalizedText(field: MultiLanguageField): string {
-    if (typeof field === "object" && field !== null) {
-        return field.en || Object.values(field)[0] || "";
-    }
-    return field || "";
-}
-
-/**
- * Transform raw Supabase spot to application Spot type
- */
-function transformSpot(spot: RawSpot): Spot {
-    const lat = spot.location?.coordinates?.[1] || 0;
-    const lng = spot.location?.coordinates?.[0] || 0;
-
-    return {
-        id: spot.id,
-        name: getLocalizedText(spot.name),
-        description: getLocalizedText(spot.description),
-        category: spot.category || "Uncategorized",
-        subcategories: spot.subcategories || [],
-        location: {
-            lat,
-            lng,
-            address: getLocalizedText(spot.address)
-        },
-        localleyScore: spot.localley_score || 3,
-        localPercentage: spot.local_percentage || 50,
-        bestTime: spot.best_time || "Anytime",
-        photos: spot.photos || [spot.image_url || "/placeholder-spot.svg"],
-        tips: spot.tips || [],
-        verified: spot.verified || false,
-        trending: spot.trending_score > 0.7 || false
-    };
-}
-
-/**
- * Fetch spots from database (server-side)
- */
-async function getSpots(): Promise<{ spots: Spot[]; count: number }> {
-    const supabase = createSupabaseAdmin();
-
-    const { data: spotsData, error, count } = await supabase
-        .from("spots")
-        .select("*", { count: "exact" })
-        .order("localley_score", { ascending: false })
-        .limit(50);
-
-    if (error || !spotsData) {
-        console.error("[spots/page] Error fetching spots:", error);
-        return { spots: [], count: 0 };
-    }
-
-    const spots = spotsData.map((spot: RawSpot) => transformSpot(spot));
-    return { spots, count: count || spots.length };
-}
-
-/**
- * Loading skeleton for spots
+ * Loading skeleton for spots grid
  */
 function SpotsLoading() {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {[...Array(6)].map((_, i) => (
-                <SpotCardSkeleton key={i} />
-            ))}
+        <div className="space-y-6">
+            {/* Filter bar skeleton */}
+            <div className="p-4 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10">
+                <div className="h-11 bg-white/50 dark:bg-white/5 rounded-lg animate-pulse mb-4" />
+                <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="h-8 w-20 bg-white/50 dark:bg-white/5 rounded-full animate-pulse" />
+                    ))}
+                </div>
+            </div>
+            {/* Grid skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                    <SpotCardSkeleton key={i} />
+                ))}
+            </div>
         </div>
-    );
-}
-
-/**
- * Server component for spots page content
- */
-async function SpotsContent() {
-    const { spots, count } = await getSpots();
-
-    return (
-        <SpotsExplorer
-            initialSpots={spots}
-            totalCount={count}
-        />
     );
 }
 
@@ -126,12 +54,12 @@ async function SpotsContent() {
  * City Coverage Stats Component
  */
 async function CityCoverageStats() {
-    const cityCounts = await getCitySpotCounts();
-    const totalSpots = cityCounts.reduce((sum, c) => sum + c.spotCount, 0);
+    const filterOptions = await fetchFilterOptions();
+    const totalSpots = filterOptions.cities.reduce((sum, c) => sum + c.count, 0);
 
     return (
         <div className="flex flex-wrap items-center gap-3">
-            {cityCounts.map((city) => (
+            {filterOptions.cities.map((city) => (
                 <Badge
                     key={city.slug}
                     variant="secondary"
@@ -140,7 +68,7 @@ async function CityCoverageStats() {
                     <span className="mr-1.5">{city.emoji}</span>
                     <span className="font-medium">{city.name}</span>
                     <span className="ml-1.5 text-muted-foreground">
-                        {city.spotCount} spots
+                        {city.count} spots
                     </span>
                 </Badge>
             ))}
@@ -156,12 +84,49 @@ async function CityCoverageStats() {
 }
 
 /**
- * Spots Page - Server Component
- *
- * Fetches initial spots data on the server for faster initial load and SEO.
- * Filtering and sorting is handled client-side for interactivity.
+ * Server component that fetches spots based on URL filters
  */
-export default function SpotsPage() {
+async function SpotsContent({
+    searchParams,
+}: {
+    searchParams: SpotsFilterParams;
+}) {
+    const filters = parseFilterParams(searchParams);
+
+    const [spotsData, filterOptions] = await Promise.all([
+        fetchFilteredSpots(filters),
+        fetchFilterOptions(),
+    ]);
+
+    return (
+        <SpotsExplorer
+            initialSpots={spotsData.spots}
+            totalCount={spotsData.total}
+            currentPage={spotsData.page}
+            pageSize={spotsData.pageSize}
+            hasMore={spotsData.hasMore}
+            filterOptions={filterOptions}
+            currentFilters={filters}
+        />
+    );
+}
+
+/**
+ * Spots Page - Server Component with URL-based filtering
+ *
+ * Supports these URL parameters:
+ * - city: "seoul", "tokyo", "bangkok", "singapore"
+ * - category: "Food", "Cafe", "Nightlife", "Shopping", "Outdoor", "Market"
+ * - score: "6", "5", "4", "3"
+ * - sort: "score", "trending", "local"
+ * - search: free text search
+ * - page: pagination
+ *
+ * Example: /spots?city=seoul&category=Food&page=2
+ */
+export default async function SpotsPage({ searchParams }: SpotsPageProps) {
+    const params = await searchParams;
+
     return (
         <AppBackground ambient className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
@@ -183,19 +148,25 @@ export default function SpotsPage() {
                     </div>
 
                     {/* City Coverage Stats */}
-                    <Suspense fallback={
-                        <div className="flex gap-2">
-                            {[1, 2, 3, 4].map(i => (
-                                <div key={i} className="h-8 w-32 bg-white/50 dark:bg-white/5 backdrop-blur-sm animate-pulse rounded-full" />
-                            ))}
-                        </div>
-                    }>
+                    <Suspense
+                        fallback={
+                            <div className="flex gap-2">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="h-8 w-32 bg-white/50 dark:bg-white/5 backdrop-blur-sm animate-pulse rounded-full"
+                                    />
+                                ))}
+                            </div>
+                        }
+                    >
                         <CityCoverageStats />
                     </Suspense>
                 </div>
 
-                <Suspense fallback={<SpotsLoading />}>
-                    <SpotsContent />
+                {/* Main Content - Re-mount on filter change via key */}
+                <Suspense key={JSON.stringify(params)} fallback={<SpotsLoading />}>
+                    <SpotsContent searchParams={params} />
                 </Suspense>
             </div>
         </AppBackground>

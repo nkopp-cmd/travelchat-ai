@@ -1,468 +1,251 @@
 "use client";
 
-import { useState, useMemo, useTransition, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SpotCard } from "@/components/spots/spot-card";
+import { SpotsFilterBar } from "./spots-filter-bar";
+import { SpotsPagination } from "./spots-pagination";
 import { Spot } from "@/types";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, MapPin, Star, Grid3X3, List, Utensils, Coffee, Moon, ShoppingBag, Trees, Store, Flame, Loader2, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SpotsFilterState, FilterOptions } from "@/lib/spots/types";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { Button } from "@/components/ui/button";
+import { Loader2, Search, Grid3X3, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ITEMS_PER_PAGE = 12;
-
-const CATEGORIES = ["All", "Food", "Cafe", "Nightlife", "Shopping", "Outdoor", "Market"];
-const CITIES = ["All", "Seoul", "Tokyo", "Bangkok", "Singapore"];
-const SCORES = ["All", "6 - Legendary", "5 - Hidden Gem", "4 - Local Favorite", "3 - Mixed Crowd"];
-
-// Quick filter chips with icons and colors
-const QUICK_FILTERS = [
-    { id: "trending", label: "Trending", icon: Flame, color: "bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-400" },
-    { id: "Food", label: "Food", icon: Utensils, color: "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400" },
-    { id: "Cafe", label: "Cafes", icon: Coffee, color: "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400" },
-    { id: "Nightlife", label: "Nightlife", icon: Moon, color: "bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-400" },
-    { id: "Shopping", label: "Shopping", icon: ShoppingBag, color: "bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-400" },
-    { id: "Outdoor", label: "Outdoor", icon: Trees, color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400" },
-    { id: "Market", label: "Markets", icon: Store, color: "bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400" },
-];
-
 interface SpotsExplorerProps {
-    /**
-     * Initial spots data fetched from the server
-     */
     initialSpots: Spot[];
-    /**
-     * Total number of spots available
-     */
     totalCount: number;
+    currentPage: number;
+    pageSize: number;
+    hasMore: boolean;
+    filterOptions: FilterOptions;
+    currentFilters: SpotsFilterState;
 }
 
 /**
- * Client component for interactive spots exploration.
- * Handles filtering, sorting, and search functionality.
+ * Client component for interactive spots exploration
+ * Manages filter UI and URL state synchronization
  */
-export function SpotsExplorer({ initialSpots, totalCount }: SpotsExplorerProps) {
-    // Use transition for non-blocking UI updates during filtering
+export function SpotsExplorer({
+    initialSpots,
+    totalCount,
+    currentPage,
+    pageSize,
+    hasMore,
+    filterOptions,
+    currentFilters,
+}: SpotsExplorerProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
 
-    // Filter states
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [selectedCity, setSelectedCity] = useState("All");
-    const [selectedScore, setSelectedScore] = useState("All");
-    const [sortBy, setSortBy] = useState("score");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-    const [quickFilter, setQuickFilter] = useState<string | null>(null);
-    const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
 
-    // Wrap filter state changes in transitions for smoother UI
-    // Reset display count when filters change to show fresh results
-    const handleSearchChange = (value: string) => {
-        startTransition(() => {
-            setSearchQuery(value);
-            setDisplayCount(ITEMS_PER_PAGE);
-        });
-    };
+    /**
+     * Update URL with new filter values
+     * Uses startTransition for non-blocking navigation
+     */
+    const updateFilters = useCallback(
+        (updates: Partial<SpotsFilterState>) => {
+            const params = new URLSearchParams(searchParams.toString());
 
-    const handleCategoryChange = (value: string) => {
-        startTransition(() => {
-            setSelectedCategory(value);
-            setDisplayCount(ITEMS_PER_PAGE);
-        });
-    };
+            // Update each filter param
+            Object.entries(updates).forEach(([key, value]) => {
+                if (value === null || value === undefined || value === "" || value === "All") {
+                    params.delete(key);
+                } else if (key === "page" && value === 1) {
+                    params.delete("page");
+                } else if (key === "sortBy" && value === "score") {
+                    // Don't include default sort in URL
+                    params.delete("sort");
+                } else if (key === "sortBy") {
+                    params.set("sort", String(value));
+                } else {
+                    params.set(key, String(value));
+                }
+            });
 
-    const handleCityChange = (value: string) => {
-        startTransition(() => {
-            setSelectedCity(value);
-            setDisplayCount(ITEMS_PER_PAGE);
-        });
-    };
-
-    const handleScoreChange = (value: string) => {
-        startTransition(() => {
-            setSelectedScore(value);
-            setDisplayCount(ITEMS_PER_PAGE);
-        });
-    };
-
-    const handleSortChange = (value: string) => {
-        startTransition(() => {
-            setSortBy(value);
-            setDisplayCount(ITEMS_PER_PAGE);
-        });
-    };
-
-    // Filter and sort spots
-    const filteredSpots = useMemo(() => {
-        let filtered = [...initialSpots];
-
-        // Quick filter (trending or category)
-        if (quickFilter) {
-            if (quickFilter === "trending") {
-                filtered = filtered.filter(spot => spot.trending);
-            } else {
-                filtered = filtered.filter(spot => spot.category === quickFilter);
+            // Reset to page 1 when filters change (except for page changes)
+            if (!("page" in updates)) {
+                params.delete("page");
             }
-        }
 
-        // Search filter
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(spot =>
-                spot.name.toLowerCase().includes(query) ||
-                spot.description.toLowerCase().includes(query) ||
-                spot.location.address.toLowerCase().includes(query)
-            );
-        }
+            startTransition(() => {
+                const queryString = params.toString();
+                router.push(queryString ? `${pathname}?${queryString}` : pathname, {
+                    scroll: false,
+                });
+            });
+        },
+        [router, pathname, searchParams]
+    );
 
-        // Category filter (from dropdown, only if no quick filter)
-        if (selectedCategory !== "All" && !quickFilter) {
-            filtered = filtered.filter(spot => spot.category === selectedCategory);
-        }
+    /**
+     * Handle filter changes from FilterBar
+     */
+    const handleFilterChange = useCallback(
+        (key: keyof SpotsFilterState, value: string | number | null) => {
+            updateFilters({ [key]: value });
+        },
+        [updateFilters]
+    );
 
-        // City filter
-        if (selectedCity !== "All") {
-            filtered = filtered.filter(spot =>
-                spot.location.address.toLowerCase().includes(selectedCity.toLowerCase())
-            );
-        }
+    /**
+     * Handle pagination
+     */
+    const handlePageChange = useCallback(
+        (page: number) => {
+            updateFilters({ page });
+            // Scroll to top of results
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        },
+        [updateFilters]
+    );
 
-        // Score filter
-        if (selectedScore !== "All") {
-            const scoreValue = parseInt(selectedScore.split(" ")[0]);
-            filtered = filtered.filter(spot => spot.localleyScore === scoreValue);
-        }
-
-        // Sort
-        filtered.sort((a, b) => {
-            switch (sortBy) {
-                case "score":
-                    return b.localleyScore - a.localleyScore;
-                case "trending":
-                    return (b.trending ? 1 : 0) - (a.trending ? 1 : 0);
-                case "local":
-                    return b.localPercentage - a.localPercentage;
-                default:
-                    return 0;
-            }
-        });
-
-        return filtered;
-    }, [initialSpots, searchQuery, selectedCategory, selectedCity, selectedScore, sortBy, quickFilter]);
-
-    const clearFilters = () => {
+    /**
+     * Clear all filters
+     */
+    const clearFilters = useCallback(() => {
         startTransition(() => {
-            setSearchQuery("");
-            setSelectedCategory("All");
-            setSelectedCity("All");
-            setSelectedScore("All");
-            setSortBy("score");
-            setQuickFilter(null);
-            setDisplayCount(ITEMS_PER_PAGE);
+            router.push(pathname);
         });
-    };
+    }, [router, pathname]);
 
-    // Load more spots
-    const handleLoadMore = useCallback(() => {
-        startTransition(() => {
-            setDisplayCount(prev => prev + ITEMS_PER_PAGE);
-        });
-    }, []);
+    const hasActiveFilters =
+        currentFilters.city ||
+        currentFilters.category ||
+        currentFilters.score ||
+        currentFilters.search;
 
-    // Get the spots to display (paginated)
-    const displayedSpots = useMemo(() => {
-        return filteredSpots.slice(0, displayCount);
-    }, [filteredSpots, displayCount]);
-
-    const hasMoreSpots = displayCount < filteredSpots.length;
-
-    const handleQuickFilter = (filterId: string) => {
-        startTransition(() => {
-            setQuickFilter(quickFilter === filterId ? null : filterId);
-            // Clear category dropdown when using quick filter
-            if (quickFilter !== filterId) {
-                setSelectedCategory("All");
-            }
-            setDisplayCount(ITEMS_PER_PAGE);
-        });
-    };
-
-    const hasActiveFilters = searchQuery || selectedCategory !== "All" || selectedCity !== "All" || selectedScore !== "All" || quickFilter !== null;
+    const startIndex = (currentPage - 1) * pageSize + 1;
+    const endIndex = Math.min(currentPage * pageSize, totalCount);
 
     return (
         <>
-            {/* Search and Filters */}
-            <div className="mb-6 space-y-4 p-4 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10">
-                {/* Search Bar with View Toggle */}
-                <div className="flex gap-3">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            placeholder="Search spots, neighborhoods, or cuisines..."
-                            value={searchQuery}
-                            onChange={(e) => handleSearchChange(e.target.value)}
-                            className="pl-10 h-11 bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10"
-                            aria-label="Search spots"
+            {/* Filter Bar */}
+            <SpotsFilterBar
+                filterOptions={filterOptions}
+                currentFilters={currentFilters}
+                onFilterChange={handleFilterChange}
+                onClearFilters={clearFilters}
+                isPending={isPending}
+            />
+
+            {/* Results Header */}
+            <div className="mb-4 flex items-center justify-between">
+                <div
+                    className="text-sm text-muted-foreground flex items-center gap-2"
+                    aria-live="polite"
+                >
+                    {isPending && (
+                        <Loader2
+                            className="h-4 w-4 animate-spin text-violet-500"
+                            aria-hidden="true"
                         />
-                    </div>
-                    {/* View Mode Toggle */}
-                    <div className="flex border border-black/5 dark:border-white/10 rounded-lg overflow-hidden bg-white/50 dark:bg-white/5" role="group" aria-label="View mode">
-                        <Button
-                            variant={viewMode === "grid" ? "secondary" : "ghost"}
-                            size="icon"
-                            className="h-11 w-11 rounded-none"
-                            onClick={() => setViewMode("grid")}
-                            aria-label="Grid view"
-                            aria-pressed={viewMode === "grid"}
-                        >
-                            <Grid3X3 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                            variant={viewMode === "list" ? "secondary" : "ghost"}
-                            size="icon"
-                            className="h-11 w-11 rounded-none"
-                            onClick={() => setViewMode("list")}
-                            aria-label="List view"
-                            aria-pressed={viewMode === "list"}
-                        >
-                            <List className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Quick Filter Chips */}
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" role="group" aria-label="Quick filters">
-                    {QUICK_FILTERS.map((filter) => {
-                        const Icon = filter.icon;
-                        const isActive = quickFilter === filter.id;
-                        return (
-                            <button
-                                key={filter.id}
-                                onClick={() => handleQuickFilter(filter.id)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                                    isActive
-                                        ? `${filter.color} ring-2 ring-offset-1 ring-current`
-                                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                                }`}
-                                aria-pressed={isActive}
-                            >
-                                <Icon className="h-3.5 w-3.5" />
-                                {filter.label}
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {/* Advanced Filters Row */}
-                <div className="flex flex-wrap gap-3 items-center" role="group" aria-label="Filter options">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        <Filter className="h-4 w-4" aria-hidden="true" />
-                        More:
-                    </div>
-
-                    {/* Category Filter */}
-                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                        <SelectTrigger className="w-[160px]" aria-label="Select category">
-                            <SelectValue placeholder="Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {CATEGORIES.map(cat => (
-                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    {/* City Filter */}
-                    <Select value={selectedCity} onValueChange={handleCityChange}>
-                        <SelectTrigger className="w-[160px]" aria-label="Select city">
-                            <SelectValue placeholder="City" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {CITIES.map(city => (
-                                <SelectItem key={city} value={city}>
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="h-3 w-3" aria-hidden="true" />
-                                        {city}
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    {/* Score Filter */}
-                    <Select value={selectedScore} onValueChange={handleScoreChange}>
-                        <SelectTrigger className="w-[180px]" aria-label="Select Localley score">
-                            <SelectValue placeholder="Localley Score" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {SCORES.map(score => (
-                                <SelectItem key={score} value={score}>
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-3 w-3" aria-hidden="true" />
-                                        {score}
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    {/* Sort By */}
-                    <Select value={sortBy} onValueChange={handleSortChange}>
-                        <SelectTrigger className="w-[160px]" aria-label="Sort by">
-                            <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="score">Highest Score</SelectItem>
-                            <SelectItem value="trending">Trending</SelectItem>
-                            <SelectItem value="local">Most Local</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    {/* Clear Filters */}
-                    {hasActiveFilters && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={clearFilters}
-                            className="text-muted-foreground hover:text-foreground"
-                        >
-                            <X className="h-4 w-4 mr-1" aria-hidden="true" />
-                            Clear
-                        </Button>
                     )}
+                    <span>
+                        {isPending
+                            ? "Loading..."
+                            : totalCount > 0
+                                ? `Showing ${startIndex}-${endIndex} of ${totalCount} spots`
+                                : "No spots found"}
+                    </span>
                 </div>
 
-                {/* Active Filters Display */}
-                {hasActiveFilters && (
-                    <div className="flex flex-wrap gap-2" role="list" aria-label="Active filters">
-                        {searchQuery && (
-                            <Badge variant="secondary" className="gap-1">
-                                Search: &quot;{searchQuery}&quot;
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    aria-label="Remove search filter"
-                                    className="ml-1 hover:bg-muted rounded-full"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </Badge>
-                        )}
-                        {selectedCategory !== "All" && (
-                            <Badge variant="secondary" className="gap-1">
-                                {selectedCategory}
-                                <button
-                                    onClick={() => setSelectedCategory("All")}
-                                    aria-label={`Remove ${selectedCategory} filter`}
-                                    className="ml-1 hover:bg-muted rounded-full"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </Badge>
-                        )}
-                        {selectedCity !== "All" && (
-                            <Badge variant="secondary" className="gap-1">
-                                <MapPin className="h-3 w-3" aria-hidden="true" />
-                                {selectedCity}
-                                <button
-                                    onClick={() => setSelectedCity("All")}
-                                    aria-label={`Remove ${selectedCity} filter`}
-                                    className="ml-1 hover:bg-muted rounded-full"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </Badge>
-                        )}
-                        {selectedScore !== "All" && (
-                            <Badge variant="secondary" className="gap-1">
-                                <Star className="h-3 w-3" aria-hidden="true" />
-                                {selectedScore}
-                                <button
-                                    onClick={() => setSelectedScore("All")}
-                                    aria-label={`Remove ${selectedScore} filter`}
-                                    className="ml-1 hover:bg-muted rounded-full"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </Badge>
-                        )}
-                    </div>
-                )}
+                {/* View Mode Toggle */}
+                <div
+                    className="flex border border-black/5 dark:border-white/10 rounded-lg overflow-hidden bg-white/50 dark:bg-white/5"
+                    role="group"
+                    aria-label="View mode"
+                >
+                    <Button
+                        variant={viewMode === "grid" ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-9 w-9 rounded-none"
+                        onClick={() => setViewMode("grid")}
+                        aria-label="Grid view"
+                        aria-pressed={viewMode === "grid"}
+                    >
+                        <Grid3X3 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant={viewMode === "list" ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-9 w-9 rounded-none"
+                        onClick={() => setViewMode("list")}
+                        aria-label="List view"
+                        aria-pressed={viewMode === "list"}
+                    >
+                        <List className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
 
-            {/* Results Count with Loading Indicator */}
-            <div className="mb-4 text-sm text-muted-foreground flex items-center gap-2" aria-live="polite">
-                {isPending && (
-                    <Loader2 className="h-4 w-4 animate-spin text-violet-500" aria-hidden="true" />
-                )}
-                <span>
-                    {isPending ? "Filtering..." : `Showing ${displayedSpots.length} of ${filteredSpots.length} spots`}
-                    {filteredSpots.length < totalCount && ` (${totalCount} total)`}
-                </span>
-            </div>
-
-            {/* Spots Grid/List with transition effect */}
+            {/* Spots Grid/List */}
             <ErrorBoundary>
-                {displayedSpots.length > 0 ? (
+                {initialSpots.length > 0 ? (
                     <>
                         {viewMode === "grid" ? (
-                            <div className={cn(
-                                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200",
-                                isPending && "opacity-60"
-                            )}>
-                                {displayedSpots.map((spot, index) => (
-                                    <SpotCard key={spot.id} spot={spot} priority={index < 6} />
+                            <div
+                                className={cn(
+                                    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
+                                    "transition-opacity duration-200",
+                                    isPending && "opacity-60"
+                                )}
+                            >
+                                {initialSpots.map((spot, index) => (
+                                    <SpotCard
+                                        key={spot.id}
+                                        spot={spot}
+                                        priority={index < 6}
+                                    />
                                 ))}
                             </div>
                         ) : (
-                            <div className={cn(
-                                "space-y-3 transition-opacity duration-200",
-                                isPending && "opacity-60"
-                            )}>
-                                {displayedSpots.map((spot, index) => (
-                                    <SpotCard key={spot.id} spot={spot} compact priority={index < 3} />
+                            <div
+                                className={cn(
+                                    "space-y-3 transition-opacity duration-200",
+                                    isPending && "opacity-60"
+                                )}
+                            >
+                                {initialSpots.map((spot, index) => (
+                                    <SpotCard
+                                        key={spot.id}
+                                        spot={spot}
+                                        compact
+                                        priority={index < 3}
+                                    />
                                 ))}
                             </div>
                         )}
 
-                        {/* Load More Button */}
-                        {hasMoreSpots && (
-                            <div className="flex justify-center mt-8">
-                                <Button
-                                    onClick={handleLoadMore}
-                                    variant="outline"
-                                    size="lg"
-                                    disabled={isPending}
-                                    className={cn(
-                                        "gap-2 px-8",
-                                        "hover:bg-violet-50 hover:border-violet-300 hover:text-violet-700",
-                                        "dark:hover:bg-violet-950/30 dark:hover:border-violet-700 dark:hover:text-violet-300",
-                                        "transition-all duration-200"
-                                    )}
-                                >
-                                    {isPending ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <ChevronDown className="h-4 w-4" />
-                                    )}
-                                    Load More ({filteredSpots.length - displayCount} remaining)
-                                </Button>
-                            </div>
-                        )}
+                        {/* Pagination */}
+                        <SpotsPagination
+                            currentPage={currentPage}
+                            totalCount={totalCount}
+                            pageSize={pageSize}
+                            onPageChange={handlePageChange}
+                            isPending={isPending}
+                        />
                     </>
                 ) : (
                     <div className="text-center py-16">
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-900/20 mb-4">
-                            <Search className="h-8 w-8 text-violet-600" aria-hidden="true" />
+                            <Search
+                                className="h-8 w-8 text-violet-600"
+                                aria-hidden="true"
+                            />
                         </div>
                         <h3 className="text-xl font-semibold mb-2">No spots found</h3>
                         <p className="text-muted-foreground mb-4">
                             Try adjusting your filters or search query
                         </p>
-                        <Button onClick={clearFilters} variant="outline">
-                            Clear all filters
-                        </Button>
+                        {hasActiveFilters && (
+                            <Button onClick={clearFilters} variant="outline">
+                                Clear all filters
+                            </Button>
+                        )}
                     </div>
                 )}
             </ErrorBoundary>
