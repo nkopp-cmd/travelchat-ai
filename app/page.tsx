@@ -103,7 +103,7 @@ export default function LandingPage() {
               <Sparkles className="mr-2 h-4 w-4 text-violet-400" />
               <span className="text-violet-200">AI-Powered Travel Companion</span>
             </div>
-            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl text-white drop-shadow-2xl">
+            <h1 className="text-6xl font-bold tracking-tight sm:text-7xl md:text-8xl lg:text-9xl text-white drop-shadow-2xl">
               Discover the <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-violet-300 to-indigo-400">Hidden World</span>
             </h1>
@@ -177,7 +177,7 @@ export default function LandingPage() {
         <div className="container px-4 md:px-6 relative z-10 max-w-7xl mx-auto">
           {/* Section header */}
           <div className="text-center mb-16">
-            <p className="text-violet-400 text-sm font-semibold tracking-[0.2em] uppercase mb-3">Why Localley</p>
+            <p className="text-violet-400 text-base md:text-lg font-semibold tracking-[0.2em] uppercase mb-4">Why Localley</p>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Travel Like a Local, Not a Tourist</h2>
             <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">Powered by AI and verified by real locals</p>
           </div>
