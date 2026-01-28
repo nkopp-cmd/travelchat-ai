@@ -31,7 +31,7 @@ export function Logo({
     <div className={cn("flex items-center gap-2 group", className)}>
       <div
         className={cn(
-          "relative flex-shrink-0 rounded-xl overflow-hidden",
+          "relative flex-shrink-0 rounded-full overflow-hidden",
           "shadow-lg shadow-violet-500/30",
           "transition-all group-hover:scale-110 group-hover:shadow-violet-500/40"
         )}

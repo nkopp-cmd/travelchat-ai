@@ -114,16 +114,16 @@ export function ViatorSuggestions({
 
     return (
         <Card className={cn("overflow-hidden", className)}>
-            <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+            <CardHeader className="bg-gradient-to-r from-violet-600 to-purple-700 text-white">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <Sparkles className="h-5 w-5" />
                     Book Tours & Activities in {city}
                 </CardTitle>
-                <p className="text-sm text-emerald-100">
+                <p className="text-sm text-violet-100">
                     Curated experiences from our travel partners
                 </p>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-6">
                 {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[...Array(limit)].map((_, i) => (
@@ -143,7 +143,7 @@ export function ViatorSuggestions({
                         {activities.map((activity) => (
                             <div
                                 key={activity.id}
-                                className="group relative rounded-lg border bg-card hover:shadow-md transition-all overflow-hidden"
+                                className="group relative rounded-xl border border-border/50 bg-card hover:shadow-md transition-all overflow-hidden"
                             >
                                 {/* Activity Image */}
                                 <div className="relative h-32 bg-muted">
@@ -156,8 +156,8 @@ export function ViatorSuggestions({
                                             sizes="(max-width: 640px) 100vw, 50vw"
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-100 to-teal-100">
-                                            <Sparkles className="h-8 w-8 text-emerald-500" />
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-100">
+                                            <Sparkles className="h-8 w-8 text-violet-500" />
                                         </div>
                                     )}
 
@@ -189,7 +189,7 @@ export function ViatorSuggestions({
 
                                 {/* Activity Details */}
                                 <div className="p-3 space-y-2">
-                                    <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                                    <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-violet-600 transition-colors">
                                         {activity.title}
                                     </h4>
 
@@ -210,7 +210,7 @@ export function ViatorSuggestions({
 
                                     <div className="flex items-center justify-between pt-2">
                                         <div className="flex items-center gap-1">
-                                            <span className="text-lg font-bold text-emerald-600">
+                                            <span className="text-lg font-bold text-violet-600">
                                                 ${activity.priceFrom}
                                             </span>
                                             <span className="text-xs text-muted-foreground">
@@ -219,7 +219,7 @@ export function ViatorSuggestions({
                                             {showDeals && (
                                                 <Badge
                                                     variant="outline"
-                                                    className="ml-2 text-xs border-emerald-500 text-emerald-600"
+                                                    className="ml-2 text-xs border-violet-500 text-violet-600"
                                                 >
                                                     <Tag className="h-2.5 w-2.5 mr-1" />
                                                     Best Price
@@ -228,7 +228,7 @@ export function ViatorSuggestions({
                                         </div>
                                         <Button
                                             size="sm"
-                                            className="bg-emerald-600 hover:bg-emerald-700 text-xs px-3"
+                                            className="bg-violet-600 hover:bg-violet-700 text-xs px-3"
                                             onClick={() => handleBookClick(activity)}
                                         >
                                             Book
@@ -246,7 +246,7 @@ export function ViatorSuggestions({
                     <div className="mt-4 pt-4 border-t text-center">
                         <Button
                             variant="ghost"
-                            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                            className="text-violet-500 hover:text-violet-600 hover:bg-violet-50"
                             onClick={() => {
                                 const viatorUrl = `https://www.viator.com/searchResults/all?text=${encodeURIComponent(city)}&pid=localley`;
                                 window.open(viatorUrl, "_blank");

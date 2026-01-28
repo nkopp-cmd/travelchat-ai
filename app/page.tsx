@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Sparkles, Users, Search, Star, Coffee, Utensils, Camera, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SUPPORTED_CITIES } from "@/lib/supported-cities";
 import { MarketingNavbar } from "@/components/layout/marketing-navbar";
+import { Logo } from "@/components/brand/logo";
 
 // Demo itinerary data to show on landing page
 const DEMO_ITINERARY = {
@@ -54,7 +55,15 @@ const DEMO_ITINERARY = {
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,22 +142,23 @@ export default function LandingPage() {
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black to-transparent pointer-events-none" />
 
         <div className="container relative z-20 px-4 -mt-24">
-          <div className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-zinc-900/80 p-2 backdrop-blur-xl shadow-2xl shadow-black/50 hover:shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/20">
-            <form onSubmit={handleSearch} className="flex items-center gap-3 rounded-xl bg-white/5 px-5 py-4 focus-within:bg-white/10 transition-colors">
+          <div className="mx-auto w-[calc(100%-32px)] sm:w-auto sm:max-w-3xl rounded-2xl border border-white/10 bg-zinc-900/80 p-2 backdrop-blur-xl shadow-2xl shadow-black/50 hover:shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/20">
+            <form onSubmit={handleSearch} className="flex items-center gap-2 sm:gap-3 rounded-xl bg-white/5 px-3 sm:px-5 py-3 sm:py-4 focus-within:bg-white/10 transition-colors">
               <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Where do you want to go? (e.g. Tokyo, Seoul, Bangkok)"
-                className="flex-1 bg-transparent text-lg text-white outline-none placeholder:text-gray-500 focus:placeholder:text-gray-400"
+                placeholder={isMobile ? "Where to?" : "Where do you want to go? (e.g. Tokyo, Seoul, Bangkok)"}
+                className="flex-1 bg-transparent text-base sm:text-lg text-white outline-none placeholder:text-gray-500 focus:placeholder:text-gray-400"
               />
               <Button
                 type="submit"
                 size="sm"
-                className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white px-6 transition-all hover:scale-105 shadow-lg shadow-violet-500/20"
+                className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white px-3 sm:px-6 transition-all hover:scale-105 shadow-lg shadow-violet-500/20"
               >
-                Search
+                <span className="hidden sm:inline">Search</span>
+                <Search className="h-4 w-4 sm:hidden" />
               </Button>
             </form>
           </div>
@@ -156,7 +166,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section - Branded with unique Localley elements */}
-      <section className="w-full py-24 lg:py-32 bg-zinc-950 relative overflow-hidden">
+      <section className="w-full py-32 lg:py-40 bg-zinc-950 relative overflow-hidden">
         {/* Background Gradients - More subtle and professional */}
         <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-violet-900/15 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-indigo-900/15 rounded-full blur-[150px] translate-x-1/2 translate-y-1/2" />
@@ -167,14 +177,14 @@ export default function LandingPage() {
         <div className="container px-4 md:px-6 relative z-10 max-w-7xl mx-auto">
           {/* Section header */}
           <div className="text-center mb-16">
-            <p className="text-violet-400 text-sm font-semibold tracking-wider uppercase mb-3">Why Localley</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Travel Like a Local, Not a Tourist</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">Powered by AI and verified by real locals</p>
+            <p className="text-violet-400 text-sm font-semibold tracking-[0.2em] uppercase mb-3">Why Localley</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Travel Like a Local, Not a Tourist</h2>
+            <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">Powered by AI and verified by real locals</p>
           </div>
 
           <div className="grid gap-8 lg:grid-cols-3 place-items-center lg:place-items-stretch">
             {/* Card 1: Hidden Gems - with unique pattern */}
-            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-violet-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/10 cursor-pointer overflow-hidden">
+            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-violet-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/10 cursor-pointer overflow-hidden">
               {/* Unique decorative element - map pattern */}
               <div className="absolute top-0 right-0 w-32 h-32 opacity-5 group-hover:opacity-10 transition-opacity">
                 <svg viewBox="0 0 100 100" fill="currentColor" className="text-violet-400">
@@ -190,7 +200,7 @@ export default function LandingPage() {
               <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/20 text-violet-400 group-hover:bg-violet-500/30 group-hover:scale-110 transition-all duration-300 ring-1 ring-violet-500/20">
                 <Sparkles className="h-8 w-8" />
               </div>
-              <h2 className="mb-4 text-2xl font-bold text-white group-hover:text-violet-300 transition-colors">Hidden Gems</h2>
+              <h2 className="mb-4 text-xl md:text-2xl font-bold text-white group-hover:text-violet-300 transition-colors">Hidden Gems</h2>
               <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
                 Escape the tourist traps. Our AI analyzes millions of data points to find the secret spots where locals actually hang out.
               </p>
@@ -199,7 +209,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 2: Community Verified - with unique pattern */}
-            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-indigo-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden">
+            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-indigo-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden">
               {/* Unique decorative element - connection nodes */}
               <div className="absolute top-0 right-0 w-32 h-32 opacity-5 group-hover:opacity-10 transition-opacity">
                 <svg viewBox="0 0 100 100" fill="currentColor" className="text-indigo-400">
@@ -212,7 +222,7 @@ export default function LandingPage() {
               <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:scale-110 transition-all duration-300 ring-1 ring-indigo-500/20">
                 <Users className="h-8 w-8" />
               </div>
-              <h2 className="mb-4 text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">Community Verified</h2>
+              <h2 className="mb-4 text-xl md:text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">Community Verified</h2>
               <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
                 Real-time vibe checks. Know if a spot is &quot;chill&quot;, &quot;packed&quot;, or &quot;trending&quot; before you even leave your hotel.
               </p>
@@ -221,7 +231,7 @@ export default function LandingPage() {
             </div>
 
             {/* Card 3: Smart Itineraries - with unique pattern */}
-            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-pink-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-pink-500/10 cursor-pointer overflow-hidden">
+            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-pink-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-pink-500/10 cursor-pointer overflow-hidden">
               {/* Unique decorative element - route path */}
               <div className="absolute top-0 right-0 w-32 h-32 opacity-5 group-hover:opacity-10 transition-opacity">
                 <svg viewBox="0 0 100 100" fill="currentColor" className="text-pink-400">
@@ -235,7 +245,7 @@ export default function LandingPage() {
               <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-500/20 text-pink-400 group-hover:bg-pink-500/30 group-hover:scale-110 transition-all duration-300 ring-1 ring-pink-500/20">
                 <MapPin className="h-8 w-8" />
               </div>
-              <h2 className="mb-4 text-2xl font-bold text-white group-hover:text-pink-300 transition-colors">Smart Itineraries</h2>
+              <h2 className="mb-4 text-xl md:text-2xl font-bold text-white group-hover:text-pink-300 transition-colors">Smart Itineraries</h2>
               <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
                 Get a perfectly curated day plan in seconds. Customized to your vibe, budget, and travel style.
               </p>
@@ -380,12 +390,7 @@ export default function LandingPage() {
       <footer className="w-full py-8 border-t border-white/10">
         <div className="container px-4 md:px-6 max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">L</span>
-              </div>
-              <span className="text-lg font-bold text-white">Localley</span>
-            </div>
+            <Logo size="md" isLanding={true} />
             <p className="text-sm text-gray-500">
               Your local friend in every city
             </p>
