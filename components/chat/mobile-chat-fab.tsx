@@ -79,7 +79,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
       <Button
         onClick={handleOpen}
         className={cn(
-          "fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-violet-500/30",
+          "fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-violet-500/30",
           "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700",
           "transition-all duration-300 lg:hidden",
           isOpen && "scale-0 opacity-0",
