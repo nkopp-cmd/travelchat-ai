@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useMapProvider, type MapProvider } from "@/hooks/use-map-provider";
 
@@ -58,6 +58,7 @@ export default function MapComponent({
     forceProvider,
 }: MapComponentProps) {
     const [mounted, setMounted] = useState(false);
+    const [kakaoFailed, setKakaoFailed] = useState(false);
 
     // Calculate center from markers if not provided
     const center = useMemo(() => {
@@ -84,6 +85,12 @@ export default function MapComponent({
         setMounted(true);
     }, []);
 
+    // Handle Kakao map error - fallback to OpenStreetMap
+    const handleKakaoError = useCallback((error: string) => {
+        console.warn("Kakao Maps failed, falling back to OpenStreetMap:", error);
+        setKakaoFailed(true);
+    }, []);
+
     const zoom = initialViewState?.zoom || (markers.length > 1 ? 13 : 15);
 
     if (!mounted) {
@@ -95,21 +102,36 @@ export default function MapComponent({
     }
 
     // Choose the appropriate map component based on provider
-    const MapImpl = provider === "kakao" ? KakaoMap : LeafletMap;
+    // Fall back to Leaflet if Kakao fails
+    const useKakao = provider === "kakao" && !kakaoFailed;
+    const MapImpl = useKakao ? KakaoMap : LeafletMap;
 
     return (
         <div className={`relative w-full h-full rounded-xl overflow-hidden ${className}`}>
-            <MapImpl
-                center={center}
-                zoom={zoom}
-                markers={markers}
-                onMarkerClick={onMarkerClick}
-            />
+            {useKakao ? (
+                <KakaoMap
+                    center={center}
+                    zoom={zoom}
+                    markers={markers}
+                    onMarkerClick={onMarkerClick}
+                    onError={handleKakaoError}
+                />
+            ) : (
+                <LeafletMap
+                    center={center}
+                    zoom={zoom}
+                    markers={markers}
+                    onMarkerClick={onMarkerClick}
+                />
+            )}
             {markers.length > 0 && (
                 <div className="absolute bottom-4 right-4 px-3 py-2 bg-black/60 backdrop-blur-sm text-white text-xs rounded-lg z-[1000]">
                     {markers.length} location{markers.length !== 1 ? "s" : ""}
-                    {isKorea && (
+                    {isKorea && !kakaoFailed && (
                         <span className="ml-2 opacity-75">via Kakao</span>
+                    )}
+                    {kakaoFailed && (
+                        <span className="ml-2 opacity-75">via OpenStreetMap</span>
                     )}
                 </div>
             )}
