@@ -44,7 +44,6 @@ export interface RawSpot {
     local_percentage: number | null;
     best_time: string | null;
     photos: string[] | null;
-    image_url: string | null;
     tips: string[] | null;
     verified: boolean | null;
     trending_score: number;
@@ -70,12 +69,10 @@ export function transformSpot(spot: RawSpot): Spot {
     const lng = spot.location?.coordinates?.[0] || 0;
 
     // Build photos array, ensuring at least one image
-    // Priority: real photos > image_url > category placeholder > default placeholder
+    // Priority: real photos > category placeholder
     const photos = spot.photos?.length
         ? spot.photos
-        : spot.image_url
-            ? [spot.image_url]
-            : [getCategoryPlaceholder(spot.category)];
+        : [getCategoryPlaceholder(spot.category)];
 
     return {
         id: spot.id,
