@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Sparkles } from "lucide-react";
+import { CityQuickFilters } from "@/components/spots/city-quick-filters";
+import { MapPin } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 import {
@@ -51,35 +51,18 @@ function SpotsLoading() {
 }
 
 /**
- * City Coverage Stats Component
+ * City Coverage Stats Component - Server wrapper for client CityQuickFilters
+ * Fetches filter options on server, passes to interactive client component
  */
 async function CityCoverageStats() {
     const filterOptions = await fetchFilterOptions();
     const totalSpots = filterOptions.cities.reduce((sum, c) => sum + c.count, 0);
 
     return (
-        <div className="flex flex-wrap items-center gap-3">
-            {filterOptions.cities.map((city) => (
-                <Badge
-                    key={city.slug}
-                    variant="secondary"
-                    className="px-3 py-1.5 text-sm bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 hover:border-violet-300/50 dark:hover:border-violet-500/30 transition-colors"
-                >
-                    <span className="mr-1.5">{city.emoji}</span>
-                    <span className="font-medium">{city.name}</span>
-                    <span className="ml-1.5 text-muted-foreground">
-                        {city.count} spots
-                    </span>
-                </Badge>
-            ))}
-            <Badge
-                variant="outline"
-                className="px-3 py-1.5 text-sm border-dashed bg-white/50 dark:bg-white/5 backdrop-blur-sm"
-            >
-                <Sparkles className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
-                {totalSpots} total curated spots
-            </Badge>
-        </div>
+        <CityQuickFilters
+            cities={filterOptions.cities}
+            totalSpots={totalSpots}
+        />
     );
 }
 

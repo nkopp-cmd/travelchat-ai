@@ -21,6 +21,66 @@ function getName(field: string | Record<string, string> | null | undefined): str
     return field || "";
 }
 
+// Helper to determine if location is in Korea
+function isKoreanLocation(address: string): boolean {
+    const koreanIndicators = [
+        "Korea", "Seoul", "Busan", "Incheon", "Daegu", "Daejeon",
+        "Gwangju", "Ulsan", "Gyeonggi", "Gangwon", "Jeju",
+        "대한민국", "서울", "부산", "인천", "대구", "대전", "광주", "울산", "제주"
+    ];
+    return koreanIndicators.some(indicator =>
+        address.toLowerCase().includes(indicator.toLowerCase())
+    );
+}
+
+// Helper to build directions URL (Kakao Maps for Korea, Google Maps for others)
+function getDirectionsUrl(
+    name: string,
+    lat: number,
+    lng: number,
+    address: string
+): string {
+    const hasValidCoords = lat !== 0 && lng !== 0;
+    const isKorea = isKoreanLocation(address);
+
+    if (isKorea) {
+        // Kakao Maps - better coverage in Korea
+        return hasValidCoords
+            ? `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`
+            : `https://map.kakao.com/link/search/${encodeURIComponent(address)}`;
+    } else {
+        // Google Maps - better for rest of the world
+        return hasValidCoords
+            ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+            : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+    }
+}
+
+// Get Directions button component
+function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<typeof getSpot>>> }) {
+    const directionsUrl = getDirectionsUrl(
+        spot.name,
+        spot.location.lat,
+        spot.location.lng,
+        spot.location.address
+    );
+    const isKorea = isKoreanLocation(spot.location.address);
+
+    return (
+        <Link
+            href={directionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full"
+        >
+            <Button className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 rounded-xl" size="lg">
+                <Navigation className="mr-2 h-5 w-5" />
+                {isKorea ? "Open in Kakao Maps" : "Get Directions"}
+            </Button>
+        </Link>
+    );
+}
+
 // Fetch spot data from Supabase
 async function getSpot(id: string) {
     const supabase = createSupabaseAdmin();
@@ -266,17 +326,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             </p>
                         </div>
 
-                        <Link
-                            href={`https://www.google.com/maps/dir/?api=1&destination=${spot.location.lat},${spot.location.lng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full"
-                        >
-                            <Button className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 rounded-xl" size="lg">
-                                <Navigation className="mr-2 h-5 w-5" />
-                                Get Directions
-                            </Button>
-                        </Link>
+                        <GetDirectionsButton spot={spot} />
                     </div>
                 </div>
             </div>

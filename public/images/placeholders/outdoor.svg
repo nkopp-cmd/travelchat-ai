@@ -1,0 +1,23 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ecfdf5"/>
+      <stop offset="100%" style="stop-color:#d1fae5"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="3" cy="3" r="1.5" fill="#059669" opacity="0.1"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#dots)"/>
+  <!-- Tree icon -->
+  <g transform="translate(400, 280)">
+    <!-- Tree trunk -->
+    <rect x="-12" y="30" width="24" height="50" fill="none" stroke="#047857" stroke-width="5"/>
+    <!-- Tree foliage -->
+    <path d="M0,-80 L-50,10 L-30,10 L-60,60 L-35,60 L-70,100 L70,100 L35,60 L60,60 L30,10 L50,10 Z" stroke="#047857" stroke-width="4" fill="none" stroke-linejoin="round"/>
+  </g>
+  <text x="400" y="430" text-anchor="middle" fill="#047857" font-family="system-ui, sans-serif" font-size="20" font-weight="500" opacity="0.7">Outdoor Spot</text>
+  <circle cx="100" cy="100" r="50" fill="#059669" opacity="0.05"/>
+  <circle cx="700" cy="500" r="70" fill="#047857" opacity="0.05"/>
+</svg>

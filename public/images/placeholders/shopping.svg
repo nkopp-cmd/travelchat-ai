@@ -1,0 +1,23 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdf2f8"/>
+      <stop offset="100%" style="stop-color:#fce7f3"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="3" cy="3" r="1.5" fill="#db2777" opacity="0.1"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#dots)"/>
+  <!-- Shopping bag icon -->
+  <g transform="translate(400, 265)">
+    <!-- Bag body -->
+    <rect x="-55" y="-30" width="110" height="110" rx="10" stroke="#be185d" stroke-width="5" fill="none"/>
+    <!-- Handles -->
+    <path d="M-30,-30 L-30,-55 Q-30,-75 0,-75 Q30,-75 30,-55 L30,-30" stroke="#be185d" stroke-width="5" fill="none"/>
+  </g>
+  <text x="400" y="420" text-anchor="middle" fill="#be185d" font-family="system-ui, sans-serif" font-size="20" font-weight="500" opacity="0.7">Shopping Spot</text>
+  <circle cx="100" cy="100" r="50" fill="#db2777" opacity="0.05"/>
+  <circle cx="700" cy="500" r="70" fill="#be185d" opacity="0.05"/>
+</svg>

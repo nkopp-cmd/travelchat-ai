@@ -1,0 +1,28 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdf4ff"/>
+      <stop offset="100%" style="stop-color:#fae8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="3" cy="3" r="1.5" fill="#a855f7" opacity="0.1"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#dots)"/>
+  <!-- Music note / Entertainment icon -->
+  <g transform="translate(400, 260)">
+    <!-- First note -->
+    <ellipse cx="-35" cy="50" rx="20" ry="15" stroke="#9333ea" stroke-width="5" fill="none" transform="rotate(-15 -35 50)"/>
+    <line x1="-20" y1="45" x2="-20" y2="-50" stroke="#9333ea" stroke-width="5"/>
+    <!-- Second note -->
+    <ellipse cx="35" cy="35" rx="20" ry="15" stroke="#9333ea" stroke-width="5" fill="none" transform="rotate(-15 35 35)"/>
+    <line x1="50" y1="30" x2="50" y2="-65" stroke="#9333ea" stroke-width="5"/>
+    <!-- Beam -->
+    <line x1="-20" y1="-50" x2="50" y2="-65" stroke="#9333ea" stroke-width="8"/>
+    <line x1="-20" y1="-35" x2="50" y2="-50" stroke="#9333ea" stroke-width="6"/>
+  </g>
+  <text x="400" y="410" text-anchor="middle" fill="#9333ea" font-family="system-ui, sans-serif" font-size="20" font-weight="500" opacity="0.7">Entertainment</text>
+  <circle cx="100" cy="100" r="50" fill="#a855f7" opacity="0.05"/>
+  <circle cx="700" cy="500" r="70" fill="#9333ea" opacity="0.05"/>
+</svg>
