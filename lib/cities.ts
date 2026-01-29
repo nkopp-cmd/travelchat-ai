@@ -168,7 +168,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -188,7 +188,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -209,7 +209,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "TW",
         emoji: "🇹🇼",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -230,7 +230,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "HK",
         emoji: "🇭🇰",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -251,7 +251,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "KR",
         emoji: "🇰🇷",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -271,7 +271,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "KR",
         emoji: "🇰🇷",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -292,7 +292,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "VN",
         emoji: "🇻🇳",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -311,7 +311,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "VN",
         emoji: "🇻🇳",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -332,7 +332,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "MY",
         emoji: "🇲🇾",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -353,7 +353,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "ID",
         emoji: "🇮🇩",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 120, ideal: 200 },
             templates: { min: 6, ideal: 10 },
@@ -373,7 +373,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "ID",
         emoji: "🇮🇩",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 120, ideal: 200 },
             templates: { min: 6, ideal: 10 },
@@ -398,7 +398,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "TH",
         emoji: "🇹🇭",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -418,7 +418,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "VN",
         emoji: "🇻🇳",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -437,7 +437,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "MY",
         emoji: "🇲🇾",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -456,7 +456,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -475,7 +475,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -494,7 +494,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "KR",
         emoji: "🇰🇷",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -513,7 +513,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -532,7 +532,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },

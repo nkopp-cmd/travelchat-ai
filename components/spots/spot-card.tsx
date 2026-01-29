@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLACEHOLDER_IMAGE = "/placeholder-spot.svg";
+const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
 interface SpotCardProps {
     spot: Spot;
