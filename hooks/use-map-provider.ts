@@ -102,12 +102,10 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         }
 
         // Check by city name first (most reliable)
-        // TEMPORARY: Using OpenStreetMap for Korea until Kakao domain registration is fixed
-        // To re-enable Kakao: change 'openstreetmap' back to 'kakao' and needsKakaoSdk to true
         if (city && isKoreanCity(city)) {
             return {
-                provider: 'openstreetmap',
-                needsKakaoSdk: false,
+                provider: 'kakao',
+                needsKakaoSdk: true,
                 isKorea: true,
             };
         }
@@ -115,8 +113,8 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         // Check by coordinates as fallback
         if (lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng)) {
             return {
-                provider: 'openstreetmap',
-                needsKakaoSdk: false,
+                provider: 'kakao',
+                needsKakaoSdk: true,
                 isKorea: true,
             };
         }
