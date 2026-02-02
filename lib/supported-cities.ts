@@ -1,99 +1,50 @@
 /**
- * Supported cities configuration for Localley
- * These are cities where we have curated local spots and verified data
+ * @deprecated Use lib/cities.ts instead
+ * This file is kept for backward compatibility only.
+ * All new code should import from lib/cities.ts
  */
 
+import { ENABLED_CITIES, validateCityForItinerary, CityConfig } from './cities';
+
+/**
+ * @deprecated Use CityConfig from lib/cities instead
+ */
 export interface SupportedCity {
     name: string;
     country: string;
     emoji: string;
-    aliases: string[]; // Alternative names/spellings
+    aliases: string[];
     comingSoon?: boolean;
 }
 
-export const SUPPORTED_CITIES: SupportedCity[] = [
-    {
-        name: "Seoul",
-        country: "South Korea",
-        emoji: "🇰🇷",
-        aliases: ["서울", "seul", "korea", "south korea"],
-    },
-    {
-        name: "Tokyo",
-        country: "Japan",
-        emoji: "🇯🇵",
-        aliases: ["東京", "とうきょう", "japan"],
-    },
-    {
-        name: "Bangkok",
-        country: "Thailand",
-        emoji: "🇹🇭",
-        aliases: ["กรุงเทพ", "krungthep", "thailand"],
-    },
-    {
-        name: "Singapore",
-        country: "Singapore",
-        emoji: "🇸🇬",
-        aliases: ["新加坡", "singapura"],
-    },
-];
-
-// Cities coming soon (for display purposes)
-export const COMING_SOON_CITIES: SupportedCity[] = [
-    {
-        name: "Taipei",
-        country: "Taiwan",
-        emoji: "🇹🇼",
-        aliases: ["taipei", "台北"],
-        comingSoon: true,
-    },
-    {
-        name: "Osaka",
-        country: "Japan",
-        emoji: "🇯🇵",
-        aliases: ["大阪", "おおさか"],
-        comingSoon: true,
-    },
-    {
-        name: "Hong Kong",
-        country: "Hong Kong",
-        emoji: "🇭🇰",
-        aliases: ["香港", "hk"],
-        comingSoon: true,
-    },
-];
+/**
+ * @deprecated Use ENABLED_CITIES from lib/cities instead
+ * Only kept for backward compatibility
+ */
+export const SUPPORTED_CITIES: SupportedCity[] = ENABLED_CITIES.map(c => ({
+    name: c.name,
+    country: c.country,
+    emoji: c.emoji,
+    aliases: [], // Aliases were only used in the old system
+}));
 
 /**
- * Check if a city is supported
- * Returns the normalized city name if found, null otherwise
+ * @deprecated Use ENABLED_CITIES from lib/cities instead
+ */
+export const COMING_SOON_CITIES: SupportedCity[] = [];
+
+/**
+ * @deprecated Use validateCityForItinerary from lib/cities instead
+ * Check if a city is supported.
+ * Returns the normalized city name if found, null otherwise.
  */
 export function isCitySupported(input: string): string | null {
-    const normalizedInput = input.toLowerCase().trim();
-
-    for (const city of SUPPORTED_CITIES) {
-        // Check exact name match
-        if (city.name.toLowerCase() === normalizedInput) {
-            return city.name;
-        }
-
-        // Check aliases
-        for (const alias of city.aliases) {
-            if (alias.toLowerCase() === normalizedInput) {
-                return city.name;
-            }
-        }
-
-        // Check if input contains the city name
-        if (normalizedInput.includes(city.name.toLowerCase())) {
-            return city.name;
-        }
-    }
-
-    return null;
+    const result = validateCityForItinerary(input);
+    return result.valid ? result.city!.name : null;
 }
 
 /**
- * Get city info by name
+ * @deprecated Use getCityByName from lib/cities instead
  */
 export function getCityInfo(cityName: string): SupportedCity | null {
     const normalizedName = isCitySupported(cityName);
@@ -103,36 +54,30 @@ export function getCityInfo(cityName: string): SupportedCity | null {
 }
 
 /**
- * Get list of supported city names
+ * @deprecated Use ENABLED_CITIES.map(c => c.name) from lib/cities instead
  */
 export function getSupportedCityNames(): string[] {
-    return SUPPORTED_CITIES.map(c => c.name);
+    return ENABLED_CITIES.map(c => c.name);
 }
 
 /**
- * Get formatted string of supported cities for display
+ * @deprecated Use ENABLED_CITIES from lib/cities instead
  */
 export function getSupportedCitiesDisplay(): string {
-    return SUPPORTED_CITIES.map(c => `${c.emoji} ${c.name}`).join(", ");
+    return ENABLED_CITIES.map(c => `${c.emoji} ${c.name}`).join(", ");
 }
 
 /**
- * Suggest a city based on partial input
+ * @deprecated Use validateCityForItinerary from lib/cities instead
  */
 export function suggestCity(input: string): SupportedCity | null {
-    const normalizedInput = input.toLowerCase().trim();
+    const result = validateCityForItinerary(input);
+    if (!result.valid || !result.city) return null;
 
-    // Find best match
-    for (const city of SUPPORTED_CITIES) {
-        if (city.name.toLowerCase().startsWith(normalizedInput)) {
-            return city;
-        }
-        for (const alias of city.aliases) {
-            if (alias.toLowerCase().startsWith(normalizedInput)) {
-                return city;
-            }
-        }
-    }
-
-    return null;
+    return {
+        name: result.city.name,
+        country: result.city.country,
+        emoji: result.city.emoji,
+        aliases: [],
+    };
 }

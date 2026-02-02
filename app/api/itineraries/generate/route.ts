@@ -7,7 +7,7 @@ import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
-import { isCitySupported, getSupportedCityNames } from '@/lib/supported-cities';
+import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 
@@ -162,11 +162,12 @@ export async function POST(req: NextRequest) {
     const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = validation.data;
 
     // Validate city is supported
-    const normalizedCity = isCitySupported(city);
-    if (!normalizedCity) {
-      const supportedCities = getSupportedCityNames();
-      return Errors.validationError(`We don't have curated local spots for "${city}" yet. Try one of our supported cities: ${supportedCities.join(", ")}`);
+    const cityValidation = validateCityForItinerary(city);
+    if (!cityValidation.valid) {
+      return Errors.validationError(cityValidation.error!);
     }
+    const cityConfig = cityValidation.city!;
+    const normalizedCity = cityConfig.name;
 
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();

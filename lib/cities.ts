@@ -24,6 +24,9 @@ export interface CityConfig {
     timezone: string;
     languages: string[];
     currency: string;
+    // UI metadata
+    vibe?: string;
+    heroImage?: string;
 }
 
 export interface CityStats {
@@ -90,6 +93,8 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        vibe: "K-culture & nightlife",
+        heroImage: "https://images.unsplash.com/photo-1583833008338-31a6657917ab?w=400",
     },
     {
         slug: "tokyo",
@@ -111,6 +116,8 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        vibe: "Tradition meets tech",
+        heroImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400",
     },
     {
         slug: "bangkok",
@@ -132,6 +139,8 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Bangkok",
         languages: ["th", "en"],
         currency: "THB",
+        vibe: "Street food paradise",
+        heroImage: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400",
     },
     {
         slug: "singapore",
@@ -153,6 +162,8 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Singapore",
         languages: ["en", "zh", "ms", "ta"],
         currency: "SGD",
+        vibe: "Modern melting pot",
+        heroImage: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400",
     },
 ];
 
@@ -180,6 +191,8 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        vibe: "Food & fun capital",
+        heroImage: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=400",
     },
     {
         slug: "kyoto",
@@ -200,6 +213,8 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        vibe: "Ancient temples & tea",
+        heroImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400",
     },
     // Taiwan
     {
@@ -221,6 +236,8 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Taipei",
         languages: ["zh", "en"],
         currency: "TWD",
+        vibe: "Night markets & bubble tea",
+        heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=400",
     },
     // Hong Kong
     {
@@ -242,6 +259,8 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Hong_Kong",
         languages: ["zh", "en"],
         currency: "HKD",
+        vibe: "Dim sum & skyline views",
+        heroImage: "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=400",
     },
     // Korea
     {
@@ -263,6 +282,8 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        vibe: "Beaches & seafood",
+        heroImage: "https://images.unsplash.com/photo-1538485399081-7c8ed7e694d0?w=400",
     },
     {
         slug: "jeju",
@@ -344,6 +365,8 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Kuala_Lumpur",
         languages: ["ms", "en", "zh"],
         currency: "MYR",
+        vibe: "Towers & hawker stalls",
+        heroImage: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=400",
     },
     // Indonesia (Bali split)
     {
@@ -410,6 +433,8 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Bangkok",
         languages: ["th", "en"],
         currency: "THB",
+        vibe: "Temples & digital nomads",
+        heroImage: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=400",
     },
     {
         slug: "da-nang",
@@ -643,4 +668,43 @@ export function getCoverageMessage(
             message: `Exploring ${city.name} - new city, expanding weekly`,
         };
     }
+}
+
+/**
+ * Validate city for itinerary generation
+ * Supports exact match, slug match, and partial match
+ */
+export function validateCityForItinerary(input: string): {
+    valid: boolean;
+    city?: CityConfig;
+    error?: string;
+} {
+    const normalized = input.toLowerCase().trim();
+
+    // Try exact name match
+    let city = ENABLED_CITIES.find(c => c.name.toLowerCase() === normalized);
+
+    // Try slug match
+    if (!city) {
+        city = ENABLED_CITIES.find(c => c.slug === normalized);
+    }
+
+    // Try partial match (input contains city name or city name contains input)
+    if (!city) {
+        city = ENABLED_CITIES.find(c =>
+            normalized.includes(c.name.toLowerCase()) ||
+            c.name.toLowerCase().includes(normalized)
+        );
+    }
+
+    if (!city) {
+        const suggestions = ENABLED_CITIES.slice(0, 5).map(c => c.name).join(", ");
+        return { valid: false, error: `City "${input}" not supported. Try: ${suggestions}...` };
+    }
+
+    if (!city.isEnabled) {
+        return { valid: false, error: `${city.name} is coming soon!` };
+    }
+
+    return { valid: true, city };
 }
