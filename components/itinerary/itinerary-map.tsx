@@ -236,7 +236,7 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                     )}
 
                     {/* Map */}
-                    <div className="h-[400px]">
+                    <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
                         <MapComponent
                             markers={filteredLocations}
                             onMarkerClick={handleMarkerClick}

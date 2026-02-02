@@ -85,6 +85,41 @@ export default function LeafletMap({
         };
     }, []);
 
+    // Handle container resize (for orientation changes and dynamic containers)
+    useEffect(() => {
+        if (!containerRef.current || !mapRef.current) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            // Delay to ensure container has finished resizing
+            setTimeout(() => {
+                mapRef.current?.invalidateSize();
+            }, 100);
+        });
+
+        resizeObserver.observe(containerRef.current);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, []);
+
+    // Handle orientation change on mobile
+    useEffect(() => {
+        const handleOrientationChange = () => {
+            setTimeout(() => {
+                mapRef.current?.invalidateSize();
+            }, 150);
+        };
+
+        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', handleOrientationChange);
+
+        return () => {
+            window.removeEventListener('orientationchange', handleOrientationChange);
+            window.removeEventListener('resize', handleOrientationChange);
+        };
+    }, []);
+
     // Update map center and zoom when props change
     useEffect(() => {
         if (!mapRef.current) return;

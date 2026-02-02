@@ -114,12 +114,12 @@ export default function RootLayout({
           <WebsiteJsonLd />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-dvh flex flex-col overflow-hidden`}
         >
           <SkipLink />
           <Providers>
             <ConditionalNavbar />
-            <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
+            <main id="main-content" className="flex-1 min-h-0 pb-16 md:pb-0 overflow-y-auto" tabIndex={-1}>
               {children}
             </main>
             <MobileBottomNav />
