@@ -70,10 +70,11 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
       }
     };
 
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportResize);
+    const visualViewport = window.visualViewport;
+    if (visualViewport) {
+      visualViewport.addEventListener('resize', handleViewportResize);
       return () => {
-        window.visualViewport.removeEventListener('resize', handleViewportResize);
+        visualViewport.removeEventListener('resize', handleViewportResize);
       };
     }
   }, [isOpen]);
