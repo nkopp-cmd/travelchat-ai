@@ -42,16 +42,40 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Prevent body scroll when chat is open
+  // Prevent body scroll when chat is open (use touch-action for better mobile support)
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+      document.body.style.overscrollBehavior = "none";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      document.body.style.overscrollBehavior = "";
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      document.body.style.overscrollBehavior = "";
     };
+  }, [isOpen]);
+
+  // Handle viewport resize when mobile keyboard opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleViewportResize = () => {
+      const input = document.getElementById('chat-input');
+      if (input && document.activeElement === input) {
+        setTimeout(() => {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportResize);
+      return () => {
+        window.visualViewport.removeEventListener('resize', handleViewportResize);
+      };
+    }
   }, [isOpen]);
 
   // Show notification dot after a delay (to indicate Alley is ready)
@@ -67,6 +91,13 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
   const handleOpen = () => {
     setIsOpen(true);
     setHasUnread(false);
+    // Focus input after animation completes
+    setTimeout(() => {
+      const input = document.getElementById('chat-input');
+      if (input) {
+        input.focus();
+      }
+    }, 350);
   };
 
   const handleClose = () => {
@@ -113,7 +144,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
-        <div className="bg-background rounded-t-3xl shadow-2xl h-[90vh] flex flex-col">
+        <div className="bg-background rounded-t-3xl shadow-2xl h-[90dvh] max-h-[90dvh] flex flex-col">
           {/* Drag Handle */}
           <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
             <div className="w-12 h-1.5 rounded-full bg-muted-foreground/30" />
@@ -141,7 +172,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
           </div>
 
           {/* Chat Content */}
-          <div className="flex-1 min-h-0 p-4">
+          <div className="flex-1 min-h-0 overflow-hidden px-4">
             <ChatInterface
               className="h-full"
               itineraryContext={itineraryContext}

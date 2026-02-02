@@ -369,7 +369,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0" role="search">
+      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0 pb-safe" role="search">
         <label htmlFor="chat-input" className="sr-only">
           Message to Alley
         </label>
