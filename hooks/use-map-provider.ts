@@ -102,10 +102,11 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         }
 
         // Check by city name first (most reliable)
+        // Using OpenStreetMap for Korea - Kakao SDK has domain validation issues
         if (city && isKoreanCity(city)) {
             return {
-                provider: 'kakao',
-                needsKakaoSdk: true,
+                provider: 'openstreetmap',
+                needsKakaoSdk: false,
                 isKorea: true,
             };
         }
@@ -113,8 +114,8 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         // Check by coordinates as fallback
         if (lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng)) {
             return {
-                provider: 'kakao',
-                needsKakaoSdk: true,
+                provider: 'openstreetmap',
+                needsKakaoSdk: false,
                 isKorea: true,
             };
         }

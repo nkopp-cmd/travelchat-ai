@@ -38,8 +38,8 @@ export function Sidebar() {
 
     return (
         <div className="hidden border-r border-border/40 bg-background/60 backdrop-blur-xl md:block w-[240px] lg:w-[280px] h-[calc(100vh-4rem)] sticky top-16">
-            <div className="flex h-full max-h-screen flex-col gap-2">
-                <div className="flex-1 overflow-auto py-4">
+            <div className="flex h-full max-h-screen flex-col justify-between">
+                <div className="overflow-auto py-4">
                     <nav className="grid items-start px-2 text-sm font-medium lg:px-4 gap-1">
                         {routes.map((route) => (
                             <Link
