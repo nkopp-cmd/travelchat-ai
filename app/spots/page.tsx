@@ -111,7 +111,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
     const params = await searchParams;
 
     return (
-        <AppBackground ambient className="min-h-screen">
+        <AppBackground ambient fitParent>
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="mb-8 space-y-4">

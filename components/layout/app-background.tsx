@@ -11,6 +11,8 @@ interface AppBackgroundProps {
     grid?: boolean;
     /** Use premium gradient background */
     gradient?: boolean;
+    /** Fill parent height instead of using min-h-screen (for sidebar layouts) */
+    fitParent?: boolean;
     /** Additional className for the container */
     className?: string;
     /** Additional className for the content wrapper */
@@ -28,13 +30,15 @@ export function AppBackground({
     ambient = true,
     grid = false,
     gradient = true,
+    fitParent = false,
     className,
     contentClassName,
 }: AppBackgroundProps) {
     return (
         <div
             className={cn(
-                "min-h-screen relative overflow-hidden",
+                "relative overflow-hidden",
+                !fitParent && "min-h-screen",
                 gradient && "page-premium",
                 className
             )}

@@ -199,7 +199,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            <AppBackground ambient className="min-h-screen">
+            <AppBackground ambient fitParent>
             <div className="max-w-5xl mx-auto space-y-8 p-4 pb-16">
                 {/* Back Button */}
                 <Link

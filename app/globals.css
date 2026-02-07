@@ -323,7 +323,7 @@
 
   /* Premium page background */
   .page-premium {
-    @apply min-h-screen relative;
+    @apply relative;
     background: linear-gradient(180deg,
       hsl(var(--background)) 0%,
       hsl(var(--background)) 50%,

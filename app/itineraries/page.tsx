@@ -63,7 +63,7 @@ export default async function ItinerariesPage() {
     const { itineraries, error } = await getItineraries();
 
     return (
-        <AppBackground ambient className="min-h-screen">
+        <AppBackground ambient fitParent>
             <div className="space-y-8 max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
