@@ -252,8 +252,6 @@ export default function KakaoMap({
 
     // Initialize map
     useEffect(() => {
-        if (!containerRef.current) return;
-
         let mounted = true;
 
         loadKakaoScript()
@@ -382,36 +380,37 @@ export default function KakaoMap({
         }
     }, [markers, handleMarkerClick]);
 
-    // Error state
-    if (error) {
-        return (
-            <div className="w-full h-full flex items-center justify-center bg-muted/30 rounded-xl p-6" style={{ minHeight: "300px" }}>
-                <div className="text-center max-w-md">
-                    <AlertCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
-                    <p className="font-medium text-foreground">Map failed to load</p>
-                    <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">{error}</p>
-                </div>
-            </div>
-        );
-    }
-
-    // Loading state
-    if (isLoading) {
-        return (
-            <div className="w-full h-full flex items-center justify-center bg-muted/30 rounded-xl" style={{ minHeight: "300px" }}>
-                <div className="flex flex-col items-center gap-2">
-                    <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
-                    <p className="text-muted-foreground text-sm">Loading Kakao Maps...</p>
-                </div>
-            </div>
-        );
-    }
-
+    // Always render the container so containerRef is available for useEffect.
+    // Overlay loading/error states on top with position: absolute.
     return (
-        <div
-            ref={containerRef}
-            className="w-full h-full"
-            style={{ minHeight: "300px" }}
-        />
+        <div className="relative w-full h-full" style={{ minHeight: "300px" }}>
+            {/* Map container — always mounted so ref is never null */}
+            <div
+                ref={containerRef}
+                className="w-full h-full"
+                style={{ minHeight: "300px" }}
+            />
+
+            {/* Loading overlay */}
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/30 rounded-xl z-10">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                        <p className="text-muted-foreground text-sm">Loading Kakao Maps...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Error overlay */}
+            {error && !isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/30 rounded-xl z-10 p-6">
+                    <div className="text-center max-w-md">
+                        <AlertCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+                        <p className="font-medium text-foreground">Map failed to load</p>
+                        <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">{error}</p>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
