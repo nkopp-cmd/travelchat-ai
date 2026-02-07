@@ -24,6 +24,8 @@ export interface CityConfig {
     timezone: string;
     languages: string[];
     currency: string;
+    // Geocoding - city center for map fallback & geocoder bias
+    center: { lat: number; lng: number };
     // UI metadata
     vibe?: string;
     heroImage?: string;
@@ -93,6 +95,7 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 37.5665, lng: 126.9780 },
         vibe: "K-culture & nightlife",
         heroImage: "https://images.unsplash.com/photo-1583833008338-31a6657917ab?w=400",
     },
@@ -116,6 +119,7 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 35.6762, lng: 139.6503 },
         vibe: "Tradition meets tech",
         heroImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400",
     },
@@ -139,6 +143,7 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Bangkok",
         languages: ["th", "en"],
         currency: "THB",
+        center: { lat: 13.7563, lng: 100.5018 },
         vibe: "Street food paradise",
         heroImage: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400",
     },
@@ -162,6 +167,7 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Singapore",
         languages: ["en", "zh", "ms", "ta"],
         currency: "SGD",
+        center: { lat: 1.3521, lng: 103.8198 },
         vibe: "Modern melting pot",
         heroImage: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400",
     },
@@ -191,6 +197,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 34.6937, lng: 135.5023 },
         vibe: "Food & fun capital",
         heroImage: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=400",
     },
@@ -213,6 +220,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 35.0116, lng: 135.7681 },
         vibe: "Ancient temples & tea",
         heroImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400",
     },
@@ -236,6 +244,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Taipei",
         languages: ["zh", "en"],
         currency: "TWD",
+        center: { lat: 25.0330, lng: 121.5654 },
         vibe: "Night markets & bubble tea",
         heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=400",
     },
@@ -259,6 +268,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Hong_Kong",
         languages: ["zh", "en"],
         currency: "HKD",
+        center: { lat: 22.3193, lng: 114.1694 },
         vibe: "Dim sum & skyline views",
         heroImage: "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=400",
     },
@@ -282,6 +292,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 35.1796, lng: 129.0756 },
         vibe: "Beaches & seafood",
         heroImage: "https://images.unsplash.com/photo-1538485399081-7c8ed7e694d0?w=400",
     },
@@ -304,6 +315,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 33.4996, lng: 126.5312 },
     },
     // Vietnam
     {
@@ -324,6 +336,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Ho_Chi_Minh",
         languages: ["vi", "en"],
         currency: "VND",
+        center: { lat: 21.0278, lng: 105.8342 },
     },
     {
         slug: "ho-chi-minh",
@@ -344,6 +357,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Ho_Chi_Minh",
         languages: ["vi", "en"],
         currency: "VND",
+        center: { lat: 10.8231, lng: 106.6297 },
     },
     // Malaysia
     {
@@ -365,6 +379,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Kuala_Lumpur",
         languages: ["ms", "en", "zh"],
         currency: "MYR",
+        center: { lat: 3.1390, lng: 101.6869 },
         vibe: "Towers & hawker stalls",
         heroImage: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=400",
     },
@@ -388,6 +403,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Makassar",
         languages: ["id", "en"],
         currency: "IDR",
+        center: { lat: -8.5069, lng: 115.2625 },
     },
     {
         slug: "bali-canggu",
@@ -407,6 +423,7 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Makassar",
         languages: ["id", "en"],
         currency: "IDR",
+        center: { lat: -8.6478, lng: 115.1385 },
     },
 ];
 
@@ -433,6 +450,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Bangkok",
         languages: ["th", "en"],
         currency: "THB",
+        center: { lat: 18.7883, lng: 98.9853 },
         vibe: "Temples & digital nomads",
         heroImage: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=400",
     },
@@ -454,6 +472,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Ho_Chi_Minh",
         languages: ["vi", "en"],
         currency: "VND",
+        center: { lat: 16.0544, lng: 108.2022 },
     },
     {
         slug: "penang",
@@ -473,6 +492,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Kuala_Lumpur",
         languages: ["ms", "en", "zh"],
         currency: "MYR",
+        center: { lat: 5.4164, lng: 100.3327 },
     },
     {
         slug: "nara",
@@ -492,6 +512,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 34.6851, lng: 135.8048 },
     },
     {
         slug: "kanazawa",
@@ -511,6 +532,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 36.5613, lng: 136.6562 },
     },
     {
         slug: "gyeongju",
@@ -530,6 +552,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 35.8562, lng: 129.2247 },
     },
     {
         slug: "sapporo",
@@ -549,6 +572,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 43.0618, lng: 141.3545 },
     },
     {
         slug: "okinawa",
@@ -568,6 +592,7 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 26.3344, lng: 127.8056 },
     },
 ];
 

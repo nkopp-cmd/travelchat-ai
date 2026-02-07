@@ -102,11 +102,11 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         }
 
         // Check by city name first (most reliable)
-        // Using OpenStreetMap for Korea - Kakao SDK has domain validation issues
+        // Re-enabled Kakao SDK for Korea — map.tsx has auto-fallback to Leaflet if domain validation fails
         if (city && isKoreanCity(city)) {
             return {
-                provider: 'openstreetmap',
-                needsKakaoSdk: false,
+                provider: 'kakao',
+                needsKakaoSdk: true,
                 isKorea: true,
             };
         }
@@ -114,8 +114,8 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         // Check by coordinates as fallback
         if (lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng)) {
             return {
-                provider: 'openstreetmap',
-                needsKakaoSdk: false,
+                provider: 'kakao',
+                needsKakaoSdk: true,
                 isKorea: true,
             };
         }

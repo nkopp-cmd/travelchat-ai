@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { saveItinerarySchema, validateBody } from "@/lib/validations";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { geocodeItineraryActivities } from "@/lib/geocoding";
 
 export async function POST(req: Request) {
     try {
@@ -31,6 +32,16 @@ export async function POST(req: Request) {
             return Errors.notFound("User");
         }
 
+        // Geocode activities before saving (critical for chat-saved itineraries)
+        // activities comes from validation as unknown[] — cast for geocoding
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let geocodedActivities: any = activities;
+        try {
+            geocodedActivities = await geocodeItineraryActivities(activities as any, city);
+        } catch (geoError) {
+            console.error("[itinerary-save] Geocoding failed (non-fatal):", geoError);
+        }
+
         const { data: itinerary, error } = await supabase
             .from("itineraries")
             .insert({
@@ -39,7 +50,7 @@ export async function POST(req: Request) {
                 title,
                 city,
                 days,
-                activities,
+                activities: geocodedActivities,
                 local_score: localScore || 50,
             })
             .select()
