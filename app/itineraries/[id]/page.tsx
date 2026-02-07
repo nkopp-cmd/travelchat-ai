@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Download, MapPin, Clock, Star, ArrowLeft, Lightbulb, Bus, Sparkles, MessageSquare, Edit2, Navigation } from "lucide-react";
+import { Download, ArrowLeft, Lightbulb, Bus, MessageSquare, Edit2, Navigation } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -13,10 +13,12 @@ import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
 import { AppBackground } from "@/components/layout/app-background";
-import { GradientText } from "@/components/ui/gradient-text";
+import { HeroSection } from "@/components/itinerary/hero-section";
 import { auth } from "@clerk/nextjs/server";
 import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
+import { validateCityForItinerary } from "@/lib/cities";
+import { getDisplayCity } from "@/lib/city-images";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
@@ -40,6 +42,20 @@ interface DayPlan {
     localTip?: string;
     transportTips?: string;
     highlights?: string[];
+}
+
+/**
+ * Resolve city name — handles "Unknown City" from chat-saved itineraries
+ * by trying to extract city from the title using known cities list.
+ */
+function resolveCity(itinerary: { city: string; title: string }): string {
+    if (itinerary.city && itinerary.city.toLowerCase() !== "unknown city" && itinerary.city.trim() !== "") {
+        return itinerary.city;
+    }
+    // Try extracting from title
+    const validation = validateCityForItinerary(itinerary.title);
+    if (validation.valid && validation.city) return validation.city.name;
+    return getDisplayCity(itinerary.city);
 }
 
 // Generate Google Maps route URL for a day's activities
@@ -170,6 +186,9 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
         notFound();
     }
 
+    // Resolve city name (handles "Unknown City" from chat-saved itineraries)
+    const displayCity = resolveCity(itinerary);
+
     // Parse activities if they're stored as JSON
     const dailyPlans = typeof itinerary.activities === 'string'
         ? JSON.parse(itinerary.activities)
@@ -210,86 +229,47 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                     Back to Itineraries
                 </Link>
 
-            {/* Header */}
+            {/* Hero Section */}
+            <HeroSection
+                title={itinerary.title}
+                subtitle={itinerary.subtitle}
+                city={displayCity}
+                days={itinerary.days}
+                localScore={itinerary.localScore ? itinerary.localScore * 10 : undefined}
+                highlights={itinerary.highlights}
+                className="rounded-2xl overflow-hidden"
+            />
+
+            {/* Action Bar */}
+            <div className="flex items-center gap-2 flex-wrap">
+                <Link href={`/itineraries/${itinerary.id}/edit`}>
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Edit2 className="h-4 w-4" />
+                        Edit
+                    </Button>
+                </Link>
+                <Link href={`/dashboard?itinerary=${itinerary.id}&title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(displayCity)}&days=${itinerary.days}`}>
+                    <Button size="sm" className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                        <MessageSquare className="h-4 w-4" />
+                        Revise with Alley
+                    </Button>
+                </Link>
+                <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Download className="h-4 w-4" />
+                        Export
+                    </Button>
+                </a>
+                <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
+                <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
+                <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlans} />
+            </div>
+
+            {/* Interactive Map */}
             <div className="space-y-4">
-                <div className="flex flex-col md:flex-row justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-bold">
-                            <GradientText variant="violet">
-                                {itinerary.title}
-                            </GradientText>
-                        </h1>
-                        {itinerary.subtitle && (
-                            <p className="text-lg text-muted-foreground">{itinerary.subtitle}</p>
-                        )}
-                        <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
-                                <span>{itinerary.city}</span>
-                            </div>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                <span>{itinerary.days} {itinerary.days === 1 ? 'Day' : 'Days'}</span>
-                            </div>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                                <span>Local Score: {itinerary.localScore}/10</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 h-fit flex-wrap">
-                        <Link href={`/itineraries/${itinerary.id}/edit`}>
-                            <Button variant="outline" className="gap-2">
-                                <Edit2 className="h-4 w-4" />
-                                Edit
-                            </Button>
-                        </Link>
-                        <Link href={`/dashboard?itinerary=${itinerary.id}&title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}`}>
-                            <Button className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
-                                <MessageSquare className="h-4 w-4" />
-                                Revise with Alley
-                            </Button>
-                        </Link>
-                        <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                        <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                        <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={itinerary.city} dailyPlans={dailyPlans} />
-                        <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" className="gap-2">
-                                <Download className="h-4 w-4" />
-                                Export
-                            </Button>
-                        </a>
-                    </div>
-                </div>
-
-                {/* Highlights Section */}
-                {itinerary.highlights && Array.isArray(itinerary.highlights) && itinerary.highlights.length > 0 && (
-                    <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Sparkles className="h-5 w-5 text-violet-600" />
-                                Trip Highlights
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                {itinerary.highlights.map((highlight: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm">
-                                        <span className="text-violet-600 mt-0.5">✓</span>
-                                        <span>{highlight}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Interactive Map */}
                 {Array.isArray(dailyPlans) && dailyPlans.length > 0 && (
                     <ItineraryMap
-                        city={itinerary.city}
+                        city={displayCity}
                         dailyPlans={dailyPlans}
                     />
                 )}
@@ -307,9 +287,9 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                 <div className="flex items-center justify-between mb-2">
                                     <h2 className="text-2xl font-bold">Day {dayPlan.day || dayIndex + 1}</h2>
                                     <div className="flex items-center gap-2">
-                                        {getDayRouteUrl(activities, itinerary.city) && (
+                                        {getDayRouteUrl(activities, displayCity) && (
                                             <a
-                                                href={getDayRouteUrl(activities, itinerary.city)}
+                                                href={getDayRouteUrl(activities, displayCity)}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
@@ -340,7 +320,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                         <ItineraryActivityCard
                                             key={activityIndex}
                                             activity={activity}
-                                            city={itinerary.city}
+                                            city={displayCity}
                                             userTier={userTier}
                                             isLast={activityIndex === activities.length - 1}
                                         />
@@ -393,7 +373,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
 
             {/* Viator Activity Suggestions */}
             <ViatorSuggestions
-                city={itinerary.city}
+                city={displayCity}
                 userTier={userTier}
                 limit={4}
             />
@@ -409,7 +389,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                         <div className="flex gap-2 flex-wrap">
                             <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
                             <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                            <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={itinerary.city} dailyPlans={dailyPlans} />
+                            <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlans} />
                             <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
                                 <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 gap-2">
                                     <Download className="h-4 w-4" />

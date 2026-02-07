@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import MapComponent, { type Location } from "@/components/ui/map";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X } from "lucide-react";
 import { isKoreanCity } from "@/hooks/use-map-provider";
 
 interface Activity {
@@ -60,6 +60,7 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [isExpanded, setIsExpanded] = useState(true);
     const [selectedLocation, setSelectedLocation] = useState<GeocodedLocation | null>(null);
+    const [errorDismissed, setErrorDismissed] = useState(false);
 
     useEffect(() => {
         if (dailyPlans.length === 0) return;
@@ -215,51 +216,34 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
         );
     }
 
-    // Total failure: zero pins resolved
+    // Total failure: zero pins resolved — compact dismissible banner
     if (error || locations.length === 0) {
+        if (errorDismissed) return null;
+
         return (
-            <Card className={`p-6 ${className}`}>
-                <div className="flex flex-col items-center justify-center gap-4 h-[300px] text-center">
-                    <MapPin className="h-10 w-10 text-violet-400" />
-                    <div>
-                        <p className="font-medium">Map pins couldn&apos;t be loaded</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            We couldn&apos;t resolve the addresses for this itinerary.
-                        </p>
-                    </div>
+            <div className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 ${className}`}>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 flex-shrink-0" />
+                    <span>Map unavailable — addresses couldn&apos;t be resolved.</span>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
                     <a
                         href={getRouteUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 transition-colors"
+                        className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 flex items-center gap-1 whitespace-nowrap"
                     >
-                        View route on Google Maps
-                        <ExternalLink className="h-4 w-4" />
+                        View on Google Maps
+                        <ExternalLink className="h-3 w-3" />
                     </a>
-
-                    {/* Show unmapped activities with search links */}
-                    {unmappedActivities.length > 0 && (
-                        <div className="w-full max-w-md text-left mt-2">
-                            <p className="text-xs text-muted-foreground mb-2">Search individually:</p>
-                            <div className="space-y-1">
-                                {unmappedActivities.slice(0, 8).map((item, i) => (
-                                    <a
-                                        key={i}
-                                        href={getMapSearchUrl(item.name, city)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-800 hover:underline"
-                                    >
-                                        <MapPin className="h-3 w-3 flex-shrink-0" />
-                                        <span className="truncate">{item.name}</span>
-                                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    <button
+                        onClick={() => setErrorDismissed(true)}
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
                 </div>
-            </Card>
+            </div>
         );
     }
 
@@ -316,30 +300,12 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
 
                     {/* Unmapped activities warning (partial success) */}
                     {unmappedActivities.length > 0 && (
-                        <div className="px-4 py-3 border-t bg-amber-50/80 dark:bg-amber-950/20">
-                            <div className="flex items-start gap-2">
-                                <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                                        {unmappedActivities.length} location{unmappedActivities.length > 1 ? "s" : ""} couldn&apos;t be mapped
-                                    </p>
-                                    <div className="mt-1 space-y-0.5">
-                                        {unmappedActivities.slice(0, 5).map((item, i) => (
-                                            <a
-                                                key={i}
-                                                href={getMapSearchUrl(item.name, city)}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center gap-1 text-xs text-amber-700 dark:text-amber-300 hover:underline"
-                                            >
-                                                <span className="truncate">{item.name}</span>
-                                                <span className="text-amber-500">
-                                                    — Search on {isKoreanCity(city) ? "Kakao Maps" : "Google Maps"} ↗
-                                                </span>
-                                            </a>
-                                        ))}
-                                    </div>
-                                </div>
+                        <div className="px-4 py-2.5 border-t bg-amber-50/80 dark:bg-amber-950/20">
+                            <div className="flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                                <p className="text-sm text-amber-800 dark:text-amber-200">
+                                    {unmappedActivities.length} location{unmappedActivities.length > 1 ? "s" : ""} couldn&apos;t be mapped — check activity cards for map links.
+                                </p>
                             </div>
                         </div>
                     )}

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Calendar, Bookmark, Check } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { validateCityForItinerary } from "@/lib/cities";
 
 interface ItineraryPreviewProps {
     content: string;
@@ -42,6 +43,14 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
             city = cityFirstMatch[1].trim();
         } else if (cityColonMatch) {
             city = cityColonMatch[1].trim();
+        }
+
+        // Validate against known cities — catches cases regex missed
+        if (!city || city === "Unknown City") {
+            const validation = validateCityForItinerary(fullTitle);
+            if (validation.valid && validation.city) {
+                city = validation.city.name;
+            }
         }
 
         // Create SHORT title (3-5 words max) following form itinerary format

@@ -3,14 +3,7 @@
 import { cn } from "@/lib/utils";
 import { MapPin, Calendar, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-// City images for hero backgrounds
-const CITY_IMAGES: Record<string, string> = {
-  Seoul: "https://images.unsplash.com/photo-1583833008338-31a6657917ab?w=1200",
-  Tokyo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200",
-  Bangkok: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200",
-  Singapore: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200",
-};
+import { getCityImageUrl, getCityGradient } from "@/lib/city-images";
 
 interface HeroSectionProps {
   title: string;
@@ -31,32 +24,38 @@ export function HeroSection({
   highlights,
   className,
 }: HeroSectionProps) {
-  const backgroundImage = CITY_IMAGES[city] || CITY_IMAGES.Tokyo;
+  const backgroundImage = getCityImageUrl(city, { width: 1200, quality: 80 });
 
   return (
-    <div className={cn("relative w-full", className)}>
-      {/* Background image */}
+    <div className={cn("relative w-full rounded-2xl overflow-hidden", className)}>
+      {/* Background image or gradient fallback */}
       <div className="relative h-[280px] sm:h-[320px] md:h-[400px] w-full overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
-        />
+        {backgroundImage ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${backgroundImage})` }}
+          />
+        ) : (
+          <div className={cn("absolute inset-0 bg-gradient-to-br", getCityGradient(city))} />
+        )}
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
 
-        {/* Content overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-          {/* Local score badge */}
-          {localScore !== undefined && (
+        {/* Local score badge */}
+        {localScore !== undefined && (
+          <div className="absolute top-4 right-4">
             <Badge
               variant="secondary"
-              className="mb-3 bg-violet-600/90 text-white border-0"
+              className="bg-violet-600/90 text-white border-0 px-3 py-1"
             >
-              <Star className="w-3 h-3 mr-1 fill-current" />
+              <Star className="w-3.5 h-3.5 mr-1.5 fill-current" />
               {localScore}% Local
             </Badge>
-          )}
+          </div>
+        )}
 
+        {/* Content overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
           {/* Title */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 line-clamp-2">
             {title}
@@ -68,10 +67,12 @@ export function HeroSection({
 
           {/* Meta info */}
           <div className="flex flex-wrap items-center gap-4 text-gray-300">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-violet-400" />
-              <span className="text-sm font-medium">{city}</span>
-            </div>
+            {city && city !== "Adventure Awaits" && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-violet-400" />
+                <span className="text-sm font-medium">{city}</span>
+              </div>
+            )}
             <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-violet-400" />
               <span className="text-sm font-medium">
@@ -84,13 +85,13 @@ export function HeroSection({
 
       {/* Highlights pills - horizontal scroll */}
       {highlights && highlights.length > 0 && (
-        <div className="px-4 py-3 overflow-x-auto scrollbar-hide">
+        <div className="px-4 py-3 overflow-x-auto scrollbar-hide bg-white/70 dark:bg-white/5 backdrop-blur-md">
           <div className="flex gap-2">
             {highlights.map((highlight, index) => (
               <Badge
                 key={index}
                 variant="outline"
-                className="whitespace-nowrap bg-white/5 border-white/10 text-gray-300"
+                className="whitespace-nowrap bg-violet-50/50 dark:bg-white/5 border-violet-200/50 dark:border-white/10 text-foreground"
               >
                 {highlight}
               </Badge>
