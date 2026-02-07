@@ -87,6 +87,7 @@ interface KakaoMapProps {
 // Track script loading state globally
 let kakaoScriptLoaded = false;
 let kakaoScriptLoading = false;
+let kakaoMapsDisabled = false; // Session-level flag: once Kakao fails, don't retry
 const loadCallbacks: Array<{ resolve: () => void; reject: (err: Error) => void }> = [];
 
 // Timeout for SDK initialization (10 seconds)
@@ -94,6 +95,12 @@ const INIT_TIMEOUT = 10000;
 
 function loadKakaoScript(): Promise<void> {
     return new Promise((resolve, reject) => {
+        // If Kakao Maps previously failed this session, fail fast — don't spam their servers
+        if (kakaoMapsDisabled) {
+            reject(new Error("Kakao Maps is disabled for this session (previous load failed)."));
+            return;
+        }
+
         // Already loaded successfully
         if (kakaoScriptLoaded && window.kakao?.maps) {
             resolve();
@@ -110,6 +117,7 @@ function loadKakaoScript(): Promise<void> {
 
         const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAPS_APP_KEY;
         if (!apiKey) {
+            kakaoMapsDisabled = true;
             const error = new Error("Kakao Maps API key not configured. Set NEXT_PUBLIC_KAKAO_MAPS_APP_KEY in your environment.");
             loadCallbacks.forEach((cb) => cb.reject(error));
             loadCallbacks.length = 0;
@@ -122,10 +130,12 @@ function loadKakaoScript(): Promise<void> {
         const timeoutId = setTimeout(() => {
             if (!kakaoScriptLoaded) {
                 kakaoScriptLoading = false;
+                kakaoMapsDisabled = true; // Don't retry after timeout
                 const error = new Error(
                     "Kakao Maps SDK timed out. Please verify:\n" +
-                    "1. Your domain is registered at https://developers.kakao.com\n" +
-                    "2. You're using the JavaScript key (not REST API key)"
+                    "1. '카카오맵' feature is ON at https://developers.kakao.com/console\n" +
+                    "2. Your domain is registered in the app platform settings\n" +
+                    "3. You're using the JavaScript key (not REST API key)"
                 );
                 loadCallbacks.forEach((cb) => cb.reject(error));
                 loadCallbacks.length = 0;
@@ -137,11 +147,17 @@ function loadKakaoScript(): Promise<void> {
         script.async = true;
 
         script.onload = () => {
-            // Check if kakao object exists
+            // Check if kakao maps module is available
+            // If '카카오맵' feature is not enabled in Kakao Developer Console,
+            // the script loads but maps.load() won't be available
             if (!window.kakao?.maps?.load) {
                 clearTimeout(timeoutId);
                 kakaoScriptLoading = false;
-                const error = new Error("Kakao Maps SDK loaded but maps.load() not available");
+                kakaoMapsDisabled = true; // Don't retry — feature is not enabled
+                const error = new Error(
+                    "Kakao Maps SDK loaded but maps API not available.\n" +
+                    "Enable '카카오맵' feature at: https://developers.kakao.com/console → App → 카카오맵 → ON"
+                );
                 loadCallbacks.forEach((cb) => cb.reject(error));
                 loadCallbacks.length = 0;
                 return;
@@ -159,6 +175,7 @@ function loadKakaoScript(): Promise<void> {
         script.onerror = () => {
             clearTimeout(timeoutId);
             kakaoScriptLoading = false;
+            kakaoMapsDisabled = true; // Don't retry after network error
             const error = new Error("Failed to load Kakao Maps SDK. Check your network connection.");
             loadCallbacks.forEach((cb) => cb.reject(error));
             loadCallbacks.length = 0;

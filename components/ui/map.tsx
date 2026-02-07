@@ -87,7 +87,11 @@ export default function MapComponent({
 
     // Handle Kakao map error - fallback to OpenStreetMap
     const handleKakaoError = useCallback((error: string) => {
-        console.warn("Kakao Maps failed, falling back to OpenStreetMap:", error);
+        console.warn(
+            "[map] Kakao Maps failed, falling back to OpenStreetMap.",
+            "\n  → If this persists, ensure '카카오맵' is enabled at https://developers.kakao.com/console",
+            "\n  → Error:", error
+        );
         setKakaoFailed(true);
     }, []);
 
