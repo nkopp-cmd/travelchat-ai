@@ -130,7 +130,7 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
                     "bg-gradient-to-br",
                     gradient,
                     "opacity-80 group-hover:opacity-100",
-                    "group-hover:scale-110 transition-all duration-300",
+                    "group-hover:scale-105 transition-all duration-300",
                     "blur-[2px] group-hover:blur-[3px]"
                 )} />
 
@@ -216,7 +216,7 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
     }
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-3 py-2">
             {/* Section Label with premium styling */}
             <div className="flex items-center gap-2 px-1">
                 <div className="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
@@ -228,7 +228,7 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                 <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
             </div>
 
-            <div className="flex items-center gap-5 overflow-x-auto pb-3 scrollbar-hide">
+            <div className="flex items-center gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 {/* Recent Itineraries using StoryBubble component */}
                 {itineraries.map((itinerary) => (
                     <StoryBubble key={itinerary.id} itinerary={itinerary} />

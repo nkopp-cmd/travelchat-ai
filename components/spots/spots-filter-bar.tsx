@@ -161,7 +161,7 @@ export function SpotsFilterBar({
 
             {/* Quick Filter Chips */}
             <div
-                className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+                className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide"
                 role="group"
                 aria-label="Quick filters"
             >
@@ -177,9 +177,9 @@ export function SpotsFilterBar({
                             key={filter.id}
                             onClick={() => handleQuickFilter(filter.id)}
                             className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                                "flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
                                 isActive
-                                    ? `${filter.color} ring-2 ring-offset-1 ring-current`
+                                    ? `${filter.color} ring-2 ring-offset-2 ring-current dark:ring-offset-background`
                                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                             )}
                             aria-pressed={isActive}
@@ -300,7 +300,7 @@ export function SpotsFilterBar({
 
             {/* Active Filters Display */}
             {hasActiveFilters && (
-                <div className="flex flex-wrap gap-2" role="list" aria-label="Active filters">
+                <div className="flex flex-wrap gap-2.5" role="list" aria-label="Active filters">
                     {currentFilters.search && (
                         <Badge variant="secondary" className="gap-1">
                             Search: &quot;{currentFilters.search}&quot;

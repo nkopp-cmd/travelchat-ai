@@ -316,6 +316,8 @@ const RING_2_CITIES: CityConfig[] = [
         languages: ["ko", "en"],
         currency: "KRW",
         center: { lat: 33.4996, lng: 126.5312 },
+        vibe: "Island paradise",
+        heroImage: "https://images.unsplash.com/photo-1616798249081-30877e213b16?w=400",
     },
     // Vietnam
     {
@@ -337,6 +339,8 @@ const RING_2_CITIES: CityConfig[] = [
         languages: ["vi", "en"],
         currency: "VND",
         center: { lat: 21.0278, lng: 105.8342 },
+        vibe: "Old Quarter charm",
+        heroImage: "https://images.unsplash.com/photo-1506236506587-53051b4197be?w=400",
     },
     {
         slug: "ho-chi-minh",
@@ -358,6 +362,8 @@ const RING_2_CITIES: CityConfig[] = [
         languages: ["vi", "en"],
         currency: "VND",
         center: { lat: 10.8231, lng: 106.6297 },
+        vibe: "Saigon hustle & buzz",
+        heroImage: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400",
     },
     // Malaysia
     {
@@ -404,6 +410,8 @@ const RING_2_CITIES: CityConfig[] = [
         languages: ["id", "en"],
         currency: "IDR",
         center: { lat: -8.5069, lng: 115.2625 },
+        vibe: "Rice terraces & yoga",
+        heroImage: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400",
     },
     {
         slug: "bali-canggu",
@@ -424,6 +432,8 @@ const RING_2_CITIES: CityConfig[] = [
         languages: ["id", "en"],
         currency: "IDR",
         center: { lat: -8.6478, lng: 115.1385 },
+        vibe: "Surf & beach vibes",
+        heroImage: "https://images.unsplash.com/photo-1724568834710-d5db3faab7e8?w=400",
     },
 ];
 
@@ -473,6 +483,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["vi", "en"],
         currency: "VND",
         center: { lat: 16.0544, lng: 108.2022 },
+        vibe: "Dragon Bridge & beaches",
+        heroImage: "https://images.unsplash.com/photo-1701396173275-835886dd72ce?w=400",
     },
     {
         slug: "penang",
@@ -493,6 +505,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["ms", "en", "zh"],
         currency: "MYR",
         center: { lat: 5.4164, lng: 100.3327 },
+        vibe: "Street art & hawker food",
+        heroImage: "https://images.unsplash.com/photo-1650163410135-e5355b4ff33e?w=400",
     },
     {
         slug: "nara",
@@ -513,6 +527,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["ja", "en"],
         currency: "JPY",
         center: { lat: 34.6851, lng: 135.8048 },
+        vibe: "Deer park & ancient temples",
+        heroImage: "https://images.unsplash.com/photo-1720573166278-4ac6ba745a2a?w=400",
     },
     {
         slug: "kanazawa",
@@ -533,6 +549,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["ja", "en"],
         currency: "JPY",
         center: { lat: 36.5613, lng: 136.6562 },
+        vibe: "Samurai gardens",
+        heroImage: "https://images.unsplash.com/photo-1627304827615-3a05fafaed7a?w=400",
     },
     {
         slug: "gyeongju",
@@ -553,6 +571,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["ko", "en"],
         currency: "KRW",
         center: { lat: 35.8562, lng: 129.2247 },
+        vibe: "Ancient kingdom ruins",
+        heroImage: "https://images.unsplash.com/photo-1684134549350-be5fd0d8feaa?w=400",
     },
     {
         slug: "sapporo",
@@ -573,6 +593,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["ja", "en"],
         currency: "JPY",
         center: { lat: 43.0618, lng: 141.3545 },
+        vibe: "Snow & ramen paradise",
+        heroImage: "https://images.unsplash.com/photo-1736156725121-027231636f9d?w=400",
     },
     {
         slug: "okinawa",
@@ -593,6 +615,8 @@ const RING_3_CITIES: CityConfig[] = [
         languages: ["ja", "en"],
         currency: "JPY",
         center: { lat: 26.3344, lng: 127.8056 },
+        vibe: "Tropical island escape",
+        heroImage: "https://images.unsplash.com/photo-1664888882993-5bc4b906db5e?w=400",
     },
 ];
 

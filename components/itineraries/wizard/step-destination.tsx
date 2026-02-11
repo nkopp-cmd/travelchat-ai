@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { MapPin, Check, Sparkles, RefreshCw } from "lucide-react";
+import { MapPin, Check, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface CityOption {
@@ -39,9 +39,6 @@ export function StepDestination() {
 
   const hasError = citiesError || (citiesData && !citiesData.success);
   const cities = citiesData?.cities || [];
-  const recommendedCities = cities.filter(c => c.status === "recommended");
-  const availableCities = cities.filter(c => c.status === "available");
-  const betaCities = cities.filter(c => c.status === "beta");
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -58,46 +55,17 @@ export function StepDestination() {
         <p className="text-gray-400">Pick a city to explore like a local</p>
       </div>
 
-      {/* Recommended Cities - Large Cards */}
-      {recommendedCities.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-violet-400" />
-            <span className="text-sm font-medium text-gray-400">Recommended</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {recommendedCities.map((city) => (
-              <CityCard key={city.slug} city={city} isSelected={data.city === city.name} onSelect={() => setData({ city: city.name })} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Available Cities - Medium Cards */}
-      {availableCities.length > 0 && (
-        <div className="mb-6">
-          <span className="text-sm font-medium text-gray-400 mb-3 block">
-            More Cities
-          </span>
-          <div className="grid grid-cols-2 gap-3">
-            {availableCities.map((city) => (
-              <CityCard key={city.slug} city={city} isSelected={data.city === city.name} onSelect={() => setData({ city: city.name })} compact />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Beta Cities - Chips */}
-      {betaCities.length > 0 && (
-        <div>
-          <span className="text-xs text-gray-500 mb-2 block">
-            Beta (limited spots)
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {betaCities.map((city) => (
-              <CityChip key={city.slug} city={city} isSelected={data.city === city.name} onSelect={() => setData({ city: city.name })} />
-            ))}
-          </div>
+      {/* Unified City Grid */}
+      {cities.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {cities.map((city) => (
+            <CityCard
+              key={city.slug}
+              city={city}
+              isSelected={data.city === city.name}
+              onSelect={() => setData({ city: city.name })}
+            />
+          ))}
         </div>
       )}
 
@@ -136,26 +104,23 @@ function CityCard({
   city,
   isSelected,
   onSelect,
-  compact = false
 }: {
   city: CityOption;
   isSelected: boolean;
   onSelect: () => void;
-  compact?: boolean
 }) {
   return (
     <button
       onClick={onSelect}
       className={cn(
-        "relative rounded-2xl overflow-hidden transition-all",
-        compact ? "aspect-[3/2]" : "aspect-[4/5]",
+        "relative rounded-xl overflow-hidden transition-all aspect-[3/2]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
         isSelected && "ring-2 ring-violet-500"
       )}
     >
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-transform group-hover:scale-110"
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
         style={{
           backgroundImage: city.heroImage ? `url(${city.heroImage})` : undefined,
           backgroundColor: "#374151"
@@ -165,53 +130,41 @@ function CityCard({
       {/* Gradient overlay */}
       <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent",
-          isSelected && "from-violet-900/90 via-violet-900/40"
+          "absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent",
+          isSelected && "from-violet-900/80 via-violet-900/30"
         )}
       />
 
+      {/* Status badge */}
+      {city.status === "recommended" && (
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-violet-600/90 text-[10px] font-semibold text-white backdrop-blur-sm">
+          Popular
+        </div>
+      )}
+      {city.status === "beta" && (
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-semibold text-white/80 backdrop-blur-sm border border-white/10">
+          Beta
+        </div>
+      )}
+
       {/* Selected checkmark */}
       {isSelected && (
-        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center">
-          <Check className="w-5 h-5 text-white" />
+        <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-violet-600 flex items-center justify-center">
+          <Check className="w-4 h-4 text-white" />
         </div>
       )}
 
       {/* City info */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-2xl">{city.emoji}</span>
-          <span className={cn("font-bold text-white", compact ? "text-lg" : "text-xl")}>{city.name}</span>
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="text-lg">{city.emoji}</span>
+          <span className="font-bold text-white text-sm leading-tight">{city.name}</span>
         </div>
-        {city.vibe && !compact && <p className="text-sm text-gray-300">{city.vibe}</p>}
-        <p className="text-xs text-gray-400 mt-1">{city.spotCount} spots</p>
+        {city.vibe && (
+          <p className="text-[11px] text-gray-300 leading-tight">{city.vibe}</p>
+        )}
+        <p className="text-[10px] text-gray-400 mt-0.5">{city.spotCount} spots</p>
       </div>
-    </button>
-  );
-}
-
-function CityChip({
-  city,
-  isSelected,
-  onSelect
-}: {
-  city: CityOption;
-  isSelected: boolean;
-  onSelect: () => void
-}) {
-  return (
-    <button
-      onClick={onSelect}
-      className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-full border transition-all",
-        isSelected
-          ? "bg-violet-600/20 border-violet-500 text-white"
-          : "bg-gray-800/50 border-gray-700 text-gray-300 hover:border-gray-500"
-      )}
-    >
-      <span>{city.emoji}</span>
-      <span className="text-sm font-medium">{city.name}</span>
-      <span className="text-xs text-gray-500">{city.spotCount}</span>
     </button>
   );
 }
@@ -224,9 +177,9 @@ function LoadingSkeleton() {
         <Skeleton className="h-8 w-32 mx-auto mb-2" />
         <Skeleton className="h-4 w-48 mx-auto" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {[1, 2, 3, 4].map(i => (
-          <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <Skeleton key={i} className="aspect-[3/2] rounded-xl" />
         ))}
       </div>
     </div>
