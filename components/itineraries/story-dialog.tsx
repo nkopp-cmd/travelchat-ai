@@ -172,101 +172,107 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                 const backgrounds: Record<string, string> = {};
                 const totalSlides = 2 + totalDays; // cover + days + summary
+                let completedCount = 0;
 
-                // Generate cover background
-                setGenerationProgress(`Generating cover (1/${totalSlides})...`);
+                setGenerationProgress(`Generating all ${totalSlides} backgrounds...`);
                 toast({
                     title: "Generating backgrounds...",
-                    description: `Creating cover image (1/${totalSlides})`,
+                    description: `Creating ${totalSlides} images in parallel`,
                 });
 
-                const coverResult = await generateBackground("cover", {
-                    theme: "iconic landmarks and stunning cityscape view",
-                });
-                if (coverResult) {
-                    backgrounds.cover = coverResult.image;
-                    imageSources.push(coverResult.source);
-                    console.log("[STORY] Cover background generated from:", coverResult.source);
+                // Generate ALL backgrounds in parallel for maximum speed
+                const allPromises: Promise<void>[] = [];
+
+                // Cover background
+                allPromises.push(
+                    generateBackground("cover", {
+                        theme: "iconic landmarks and stunning cityscape view",
+                    }).then(result => {
+                        completedCount++;
+                        setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                        if (result) {
+                            backgrounds.cover = result.image;
+                            imageSources.push(result.source);
+                            console.log("[STORY] Cover background from:", result.source);
+                        }
+                    })
+                );
+
+                // Day backgrounds - all in parallel
+                for (let j = 0; j < totalDays; j++) {
+                    const dayNumber = j + 1;
+                    const dayPlan = dailyPlans?.[j];
+                    const theme = dayPlan?.theme || `Day ${dayNumber} adventures`;
+                    const activities = dayPlan?.activities?.map(a => a.name) || [];
+
+                    allPromises.push(
+                        generateBackground("day", {
+                            theme,
+                            dayNumber,
+                            activities,
+                        }).then(result => {
+                            completedCount++;
+                            setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                            if (result) {
+                                backgrounds[`day${dayNumber}`] = result.image;
+                                imageSources.push(result.source);
+                                console.log(`[STORY] Day ${dayNumber} background from:`, result.source);
+                            }
+                        })
+                    );
                 }
 
-                // Generate day backgrounds (in parallel batches of 2 to avoid rate limits)
-                for (let i = 0; i < totalDays; i += 2) {
-                    const batch = [];
+                // Summary background
+                allPromises.push(
+                    generateBackground("summary", {
+                        theme: "beautiful panoramic travel scenery at sunset",
+                    }).then(result => {
+                        completedCount++;
+                        setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                        if (result) {
+                            backgrounds.summary = result.image;
+                            imageSources.push(result.source);
+                            console.log("[STORY] Summary background from:", result.source);
+                        }
+                    })
+                );
 
-                    for (let j = i; j < Math.min(i + 2, totalDays); j++) {
-                        const dayNumber = j + 1;
-                        const dayPlan = dailyPlans?.[j];
-                        const theme = dayPlan?.theme || `Day ${dayNumber} adventures`;
-                        const activities = dayPlan?.activities?.map(a => a.name) || [];
+                // Wait for all to complete (using allSettled so one failure doesn't block others)
+                await Promise.allSettled(allPromises);
 
-                        setGenerationProgress(`Generating Day ${dayNumber} (${j + 2}/${totalSlides})...`);
-
-                        batch.push(
-                            generateBackground("day", {
-                                theme,
-                                dayNumber,
-                                activities,
-                            }).then(result => {
-                                if (result) {
-                                    backgrounds[`day${dayNumber}`] = result.image;
-                                    imageSources.push(result.source);
-                                    console.log(`[STORY] Day ${dayNumber} background from:`, result.source);
-                                }
-                            })
-                        );
-                    }
-
-                    await Promise.all(batch);
-                }
-
-                // Generate summary background
-                setGenerationProgress(`Generating summary (${totalSlides}/${totalSlides})...`);
-                const summaryResult = await generateBackground("summary", {
-                    theme: "beautiful panoramic travel scenery at sunset",
-                });
-                if (summaryResult) {
-                    backgrounds.summary = summaryResult.image;
-                    imageSources.push(summaryResult.source);
-                    console.log("[STORY] Summary background from:", summaryResult.source);
-                }
-
-                // Save backgrounds to database (split into chunks to avoid size limits)
+                // Save backgrounds to database in parallel (URLs are small now)
                 setGenerationProgress("Saving backgrounds...");
+                const savePromises: Promise<Response>[] = [];
 
-                // Save cover and summary first
-                if (backgrounds.cover) {
-                    console.log("[STORY] Saving cover background to database...");
-                    await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ cover: backgrounds.cover }),
-                    });
-                }
-
-                if (backgrounds.summary) {
-                    console.log("[STORY] Saving summary background to database...");
-                    await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ summary: backgrounds.summary }),
-                    });
-                }
-
-                // Save day backgrounds (one at a time to avoid payload size limits)
+                // Save all backgrounds at once - they're URLs now, not base64
+                const bgToSave: Record<string, string> = {};
+                if (backgrounds.cover) bgToSave.cover = backgrounds.cover;
+                if (backgrounds.summary) bgToSave.summary = backgrounds.summary;
                 for (let i = 1; i <= totalDays; i++) {
                     const dayKey = `day${i}`;
-                    if (backgrounds[dayKey]) {
-                        console.log(`[STORY] Saving ${dayKey} background to database...`);
-                        await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ [dayKey]: backgrounds[dayKey] }),
-                        });
-                    }
+                    if (backgrounds[dayKey]) bgToSave[dayKey] = backgrounds[dayKey];
+                }
+
+                if (Object.keys(bgToSave).length > 0) {
+                    console.log("[STORY] Saving all backgrounds to database...");
+                    await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(bgToSave),
+                    });
                 }
 
                 setGeneratingAi(false);
                 setGenerationProgress("");
+
+                // Send email notification (fire and forget)
+                if (isPaidUser) {
+                    fetch(`/api/itineraries/${itineraryId}/notify-story-ready`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ city }),
+                    }).catch(err => console.log("[STORY] Email notification failed (non-blocking):", err));
+                }
             }
 
             // Generate slides (backgrounds will be fetched from database by story API)

@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { generateStoryBackground, generateDayBackground, isImagenAvailable } from "@/lib/imagen";
+import { isImagenAvailable } from "@/lib/imagen";
+import { isSeedreamAvailable } from "@/lib/seedream";
+import {
+    getImageProvider,
+    isAnyProviderAvailable,
+    generateStoryBackground,
+    generateDayBackground,
+} from "@/lib/image-provider";
 
-// AI image generation via Gemini can take 10-20s per image
+// AI image generation can take 10-20s per image
 export const maxDuration = 60;
 import {
     getStoryBackground,
@@ -61,10 +68,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user can use AI images
-        // Pro tier has activityImages: "ai-generated", Premium has "hd"
-        // Use aiBackgrounds feature flag which is true for both Pro and Premium
+        // Pro tier uses Seedream (cheaper), Premium uses Gemini (higher quality)
         const tier = await getUserTier(userId);
-        const canUseAI = preferAI && isImagenAvailable() && hasFeature(tier, 'aiBackgrounds');
+        const canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
+        const imageProvider = canUseAI ? getImageProvider(tier) : null;
 
         console.log("[STORY_BG] Request:", {
             type,
@@ -73,8 +80,10 @@ export async function POST(req: NextRequest) {
             dayNumber,
             preferAI,
             canUseAI,
+            imageProvider,
             tier,
             hasGeminiKey: isImagenAvailable(),
+            hasSeedreamKey: isSeedreamAvailable(),
             hasTripAdvisorKey: isTripAdvisorAvailable(),
             hasPexelsKey: isPexelsAvailable(),
         });
@@ -112,13 +121,14 @@ export async function POST(req: NextRequest) {
         let source: "ai" | "tripadvisor" | "pexels" | "unsplash" = "unsplash";
 
         // Try AI generation if allowed
-        if (canUseAI) {
+        if (canUseAI && imageProvider) {
             try {
-                console.log("[STORY_BG] Attempting AI generation...");
+                console.log(`[STORY_BG] Attempting AI generation with ${imageProvider}...`);
                 let aiImage: string | null = null;
 
                 if (type === "day" && dayNumber) {
                     aiImage = await generateDayBackground(
+                        imageProvider,
                         city,
                         dayNumber,
                         theme || `Day ${dayNumber} adventures`,
@@ -131,7 +141,7 @@ export async function POST(req: NextRequest) {
                             ? "beautiful travel scenery"
                             : theme || "travel destination";
 
-                    aiImage = await generateStoryBackground(city, bgTheme, "vibrant");
+                    aiImage = await generateStoryBackground(imageProvider, city, bgTheme, "vibrant");
                 }
 
                 if (aiImage) {
@@ -205,6 +215,7 @@ export async function POST(req: NextRequest) {
             success: true,
             image: imageUrl,
             source,
+            provider: imageProvider,
             cached: false,
             aiAvailable: canUseAI,
             pexelsAvailable: isPexelsAvailable(),
@@ -219,7 +230,9 @@ export async function POST(req: NextRequest) {
 export async function GET() {
     return NextResponse.json({
         sources: {
-            ai: isImagenAvailable(),
+            ai: isAnyProviderAvailable(),
+            gemini: isImagenAvailable(),
+            seedream: isSeedreamAvailable(),
             tripadvisor: isTripAdvisorAvailable(),
             pexels: isPexelsAvailable(),
             unsplash: true, // Always available
