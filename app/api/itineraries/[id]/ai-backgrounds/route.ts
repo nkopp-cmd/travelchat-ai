@@ -17,7 +17,7 @@ function validateImageSource(data: string): boolean {
         const hasImageExtension = url.includes('.jpg') || url.includes('.jpeg') ||
                                   url.includes('.png') || url.includes('.webp') ||
                                   url.includes('fit=crop') || url.includes('/photo');
-        return hasImageExtension || url.includes('unsplash') || url.includes('pexels');
+        return hasImageExtension || url.includes('unsplash') || url.includes('pexels') || url.includes('supabase');
     }
 
     // Accept base64-encoded data URLs

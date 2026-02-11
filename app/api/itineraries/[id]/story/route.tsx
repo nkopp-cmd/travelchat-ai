@@ -643,7 +643,7 @@ export async function GET(
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")
-            .select("*")
+            .select("title, city, days, activities, highlights, ai_backgrounds")
             .eq("id", id)
             .single();
 

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { generateStoryBackground, generateDayBackground, isImagenAvailable } from "@/lib/imagen";
+
+// AI image generation via Gemini can take 10-20s per image
+export const maxDuration = 60;
 import {
     getStoryBackground,
     getPexelsCityImage,
@@ -76,23 +79,32 @@ export async function POST(req: NextRequest) {
             hasPexelsKey: isPexelsAvailable(),
         });
 
+        // Generate a storage key for this background
+        const storageKey = cacheKey
+            ? `story-backgrounds/${cacheKey}.png`
+            : `story-backgrounds/${userId}/${type}${dayNumber ? `-day${dayNumber}` : ''}-${Date.now()}.png`;
+
         // Check cache first if cacheKey provided
         if (cacheKey) {
             const supabase = await createSupabaseServerClient();
             const { data: cached } = await supabase.storage
                 .from("generated-images")
-                .download(`story-backgrounds/${cacheKey}.png`);
+                .list("story-backgrounds", { search: `${cacheKey}.png` });
 
-            if (cached) {
-                const buffer = await cached.arrayBuffer();
-                const base64 = Buffer.from(buffer).toString("base64");
-                console.log("[STORY_BG] Returning cached image");
-                return NextResponse.json({
-                    success: true,
-                    image: `data:image/png;base64,${base64}`,
-                    source: "cache",
-                    cached: true,
-                });
+            if (cached && cached.length > 0) {
+                const { data: urlData } = supabase.storage
+                    .from("generated-images")
+                    .getPublicUrl(`story-backgrounds/${cacheKey}.png`);
+
+                if (urlData?.publicUrl) {
+                    console.log("[STORY_BG] Returning cached image URL");
+                    return NextResponse.json({
+                        success: true,
+                        image: urlData.publicUrl,
+                        source: "cache",
+                        cached: true,
+                    });
+                }
             }
         }
 
@@ -123,20 +135,33 @@ export async function POST(req: NextRequest) {
                 }
 
                 if (aiImage) {
-                    imageUrl = `data:image/png;base64,${aiImage}`;
                     source = "ai";
-                    console.log("[STORY_BG] AI generation successful");
+                    console.log("[STORY_BG] AI generation successful, uploading to storage...");
 
-                    // Cache the AI-generated image if cacheKey provided
-                    if (cacheKey) {
-                        const supabase = await createSupabaseServerClient();
-                        const buffer = Buffer.from(aiImage, "base64");
-                        await supabase.storage
+                    // Always upload AI images to Supabase Storage and return URL
+                    // This avoids passing huge base64 strings through the database
+                    const supabase = await createSupabaseServerClient();
+                    const buffer = Buffer.from(aiImage, "base64");
+                    const { error: uploadError } = await supabase.storage
+                        .from("generated-images")
+                        .upload(storageKey, buffer, {
+                            contentType: "image/png",
+                            upsert: true,
+                        });
+
+                    if (!uploadError) {
+                        const { data: urlData } = supabase.storage
                             .from("generated-images")
-                            .upload(`story-backgrounds/${cacheKey}.png`, buffer, {
-                                contentType: "image/png",
-                                upsert: true,
-                            });
+                            .getPublicUrl(storageKey);
+
+                        if (urlData?.publicUrl) {
+                            imageUrl = urlData.publicUrl;
+                            console.log("[STORY_BG] AI image stored, URL:", imageUrl);
+                        }
+                    } else {
+                        console.error("[STORY_BG] Storage upload failed:", uploadError);
+                        // Fallback to base64 if upload fails
+                        imageUrl = `data:image/png;base64,${aiImage}`;
                     }
                 }
             } catch (error) {
