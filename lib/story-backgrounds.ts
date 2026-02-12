@@ -185,7 +185,8 @@ export async function getTripAdvisorCityImage(city: string): Promise<string | nu
  */
 export async function getTripAdvisorThemedImage(
     city: string,
-    theme: string
+    theme: string,
+    excludeUrls: string[] = []
 ): Promise<string | null> {
     // First try searching for the theme as an attraction in the city
     const query = `${theme} ${city}`;
@@ -193,9 +194,13 @@ export async function getTripAdvisorThemedImage(
 
     if (locationId) {
         const photos = await getTripAdvisorPhotos(locationId);
-        if (photos.length > 0) {
-            const randomIndex = Math.floor(Math.random() * Math.min(photos.length, 5));
-            return photos[randomIndex];
+        // Filter out already-used URLs to prevent duplicates across slides
+        const available = excludeUrls.length > 0
+            ? photos.filter(url => !excludeUrls.includes(url))
+            : photos;
+        if (available.length > 0) {
+            const randomIndex = Math.floor(Math.random() * Math.min(available.length, 5));
+            return available[randomIndex];
         }
     }
 
@@ -213,7 +218,8 @@ export async function getTripAdvisorThemedImage(
  */
 export async function searchPexelsImage(
     query: string,
-    orientation: 'portrait' | 'landscape' | 'square' = 'portrait'
+    orientation: 'portrait' | 'landscape' | 'square' = 'portrait',
+    excludeUrls: string[] = []
 ): Promise<string | null> {
     if (!PEXELS_API_KEY) {
         console.log('[story-backgrounds] Pexels API key not configured');
@@ -238,9 +244,19 @@ export async function searchPexelsImage(
         const data: PexelsResponse = await response.json();
 
         if (data.photos && data.photos.length > 0) {
-            // Pick a random photo from the results for variety
-            const randomIndex = Math.floor(Math.random() * Math.min(data.photos.length, 5));
-            const photo = data.photos[randomIndex];
+            // Filter out already-used URLs to prevent duplicates across slides
+            const candidates = excludeUrls.length > 0
+                ? data.photos.filter(p => {
+                    const url = orientation === 'portrait' ? p.src.portrait : p.src.large2x;
+                    return !excludeUrls.includes(url);
+                })
+                : data.photos;
+
+            if (candidates.length === 0) return null;
+
+            // Pick a random photo from the candidates for variety
+            const randomIndex = Math.floor(Math.random() * Math.min(candidates.length, 5));
+            const photo = candidates[randomIndex];
 
             // Use portrait size for stories (1080x1920 compatible)
             // or large2x for best quality
@@ -279,7 +295,11 @@ export async function getPexelsCityImage(city: string): Promise<string | null> {
 /**
  * Get a themed travel photo from Pexels
  */
-export async function getPexelsThemedImage(city: string, theme: string): Promise<string | null> {
+export async function getPexelsThemedImage(
+    city: string,
+    theme: string,
+    excludeUrls: string[] = []
+): Promise<string | null> {
     // Combine city and theme for more relevant results
     const queries = [
         `${city} ${theme}`,
@@ -288,7 +308,7 @@ export async function getPexelsThemedImage(city: string, theme: string): Promise
     ];
 
     for (const query of queries) {
-        const imageUrl = await searchPexelsImage(query, 'portrait');
+        const imageUrl = await searchPexelsImage(query, 'portrait', excludeUrls);
         if (imageUrl) {
             return imageUrl;
         }

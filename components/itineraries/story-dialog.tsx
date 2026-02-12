@@ -86,6 +86,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
     const [isPaidUser, setIsPaidUser] = useState(false);
+    const [aiQuota, setAiQuota] = useState<{ used: number; limit: number } | null>(null);
     const { toast } = useToast();
 
     // Check available image sources and user tier
@@ -113,14 +114,32 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             .catch(() => {
                 setIsPaidUser(false);
             });
+
+        // Fetch AI image quota for display
+        fetch("/api/subscription/status")
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.limits && data.usage) {
+                    setAiQuota({
+                        used: data.usage.aiImagesThisMonth || 0,
+                        limit: data.limits.aiImagesPerMonth || 0,
+                    });
+                }
+            })
+            .catch(() => setAiQuota(null));
     }, []);
 
-    // Auto-enable AI backgrounds when available and user has access
+    // Auto-enable AI backgrounds when available and user has access (with quota remaining)
     useEffect(() => {
         if (aiAvailable && isPaidUser) {
-            setUseAiBackgrounds(true);
+            // Disable if quota exhausted
+            if (aiQuota && aiQuota.limit > 0 && aiQuota.used >= aiQuota.limit) {
+                setUseAiBackgrounds(false);
+            } else {
+                setUseAiBackgrounds(true);
+            }
         }
-    }, [aiAvailable, isPaidUser]);
+    }, [aiAvailable, isPaidUser, aiQuota]);
 
     const generateSlides = () => {
         // Add paid=true query param for paid users to remove CTA
@@ -154,7 +173,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     const generateBackground = async (
         slideType: "cover" | "day" | "summary",
-        options: { theme: string; dayNumber?: number; activities?: string[] }
+        options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[] }
     ): Promise<{ image: string; source: string } | undefined> => {
         if (!city) return undefined;
         console.log("[STORY] Generating background for:", { city, slideType, ...options });
@@ -171,6 +190,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 cacheKey: slideType === "day"
                     ? `${itineraryId}-day-${options.dayNumber}`
                     : `${itineraryId}-${slideType}`,
+                excludeUrls: options.excludeUrls || [],
             };
 
             console.log("[STORY] Sending request to /api/images/story-background:", requestBody);
@@ -213,6 +233,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const backgrounds: Record<string, string> = {};
                 const totalSlides = 2 + totalDays; // cover + days + summary
                 let completedCount = 0;
+                // Track used image URLs to prevent duplicates across slides
+                const usedUrls: string[] = [];
 
                 setGenerationProgress(`Generating all ${totalSlides} backgrounds...`);
                 toast({
@@ -221,17 +243,20 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 });
 
                 // Generate ALL backgrounds in parallel for maximum speed
+                // Each request gets the current usedUrls snapshot for best-effort dedup
                 const allPromises: Promise<void>[] = [];
 
                 // Cover background
                 allPromises.push(
                     generateBackground("cover", {
                         theme: "iconic landmarks and stunning cityscape view",
+                        excludeUrls: [...usedUrls],
                     }).then(result => {
                         completedCount++;
                         setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
                         if (result) {
                             backgrounds.cover = result.image;
+                            usedUrls.push(result.image);
                             imageSources.push(result.source);
                             console.log("[STORY] Cover background from:", result.source);
                         }
@@ -250,11 +275,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             theme,
                             dayNumber,
                             activities,
+                            excludeUrls: [...usedUrls],
                         }).then(result => {
                             completedCount++;
                             setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
                             if (result) {
                                 backgrounds[`day${dayNumber}`] = result.image;
+                                usedUrls.push(result.image);
                                 imageSources.push(result.source);
                                 console.log(`[STORY] Day ${dayNumber} background from:`, result.source);
                             }
@@ -266,11 +293,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 allPromises.push(
                     generateBackground("summary", {
                         theme: "beautiful panoramic travel scenery at sunset",
+                        excludeUrls: [...usedUrls],
                     }).then(result => {
                         completedCount++;
                         setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
                         if (result) {
                             backgrounds.summary = result.image;
+                            usedUrls.push(result.image);
                             imageSources.push(result.source);
                             console.log("[STORY] Summary background from:", result.source);
                         }
@@ -465,16 +494,27 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                         {/* AI Backgrounds Toggle (only show if AI is available) */}
                         {aiAvailable && city && (
-                            <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
-                                <Switch
-                                    id="ai-backgrounds"
-                                    checked={useAiBackgrounds}
-                                    onCheckedChange={setUseAiBackgrounds}
-                                />
-                                <Label htmlFor="ai-backgrounds" className="flex items-center gap-2 cursor-pointer">
-                                    <Sparkles className="h-4 w-4 text-violet-500" />
-                                    <span className="text-sm">Use AI-generated backgrounds (Pro)</span>
-                                </Label>
+                            <div className="flex flex-col items-center gap-2 mb-6">
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
+                                    <Switch
+                                        id="ai-backgrounds"
+                                        checked={useAiBackgrounds}
+                                        onCheckedChange={setUseAiBackgrounds}
+                                        disabled={aiQuota !== null && aiQuota.limit > 0 && aiQuota.used >= aiQuota.limit}
+                                    />
+                                    <Label htmlFor="ai-backgrounds" className="flex items-center gap-2 cursor-pointer">
+                                        <Sparkles className="h-4 w-4 text-violet-500" />
+                                        <span className="text-sm">Use AI-generated backgrounds (Pro)</span>
+                                    </Label>
+                                </div>
+                                {/* Quota display */}
+                                {aiQuota && isPaidUser && (
+                                    <p className="text-xs text-muted-foreground">
+                                        {aiQuota.limit - aiQuota.used > 0
+                                            ? `${aiQuota.limit - aiQuota.used} AI images remaining this month`
+                                            : "AI quota reached — using photo sources instead"}
+                                    </p>
+                                )}
                             </div>
                         )}
 

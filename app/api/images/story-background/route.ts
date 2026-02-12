@@ -23,7 +23,7 @@ import {
 } from "@/lib/story-backgrounds";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
-import { getUserTier } from "@/lib/usage-tracking";
+import { getUserTier, checkAndIncrementUsage } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
@@ -45,6 +45,8 @@ interface StoryBackgroundRequest {
     preferAI?: boolean;
     // Cache key for storing/retrieving from storage
     cacheKey?: string;
+    // URLs to exclude (for duplicate prevention across slides)
+    excludeUrls?: string[];
 }
 
 export async function POST(req: NextRequest) {
@@ -61,7 +63,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, cacheKey } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, cacheKey, excludeUrls = [] } = body;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -70,7 +72,20 @@ export async function POST(req: NextRequest) {
         // Check if user can use AI images
         // Pro tier uses Seedream (cheaper), Premium uses Gemini (higher quality)
         const tier = await getUserTier(userId);
-        const canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
+        let canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
+
+        // Check AI usage quota before attempting generation (graceful degradation)
+        if (canUseAI) {
+            const { allowed, usage } = await checkAndIncrementUsage(userId, "ai_images_generated");
+            if (!allowed) {
+                console.log("[STORY_BG] AI quota exceeded, falling through to non-AI sources", {
+                    current: usage.currentUsage,
+                    limit: usage.limit,
+                });
+                canUseAI = false;
+            }
+        }
+
         const imageProvider = canUseAI ? getImageProvider(tier) : null;
 
         console.log("[STORY_BG] Request:", {
@@ -179,12 +194,12 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Fall back to TripAdvisor for real location photos
-        if (!imageUrl && isTripAdvisorAvailable()) {
+        // Fall back to TripAdvisor for real location photos (paid tiers only)
+        if (!imageUrl && tier !== "free" && isTripAdvisorAvailable()) {
             console.log("[STORY_BG] Trying TripAdvisor...");
             const searchTheme = theme || (type === "cover" ? "landmark" : type === "summary" ? "scenery" : "travel");
 
-            imageUrl = await getTripAdvisorThemedImage(city, searchTheme);
+            imageUrl = await getTripAdvisorThemedImage(city, searchTheme, excludeUrls);
             if (imageUrl) {
                 source = "tripadvisor";
                 console.log("[STORY_BG] TripAdvisor image found:", imageUrl.substring(0, 80));
@@ -192,7 +207,7 @@ export async function POST(req: NextRequest) {
                 console.log("[STORY_BG] TripAdvisor returned no image for:", { city, searchTheme });
             }
         } else if (!imageUrl) {
-            console.log("[STORY_BG] Skipping TripAdvisor (key not available)");
+            console.log("[STORY_BG] Skipping TripAdvisor:", tier === "free" ? "(free tier)" : "(key not available)");
         }
 
         // Fall back to Pexels if TripAdvisor not available or failed
@@ -200,7 +215,7 @@ export async function POST(req: NextRequest) {
             console.log("[STORY_BG] Trying Pexels...");
             const searchTheme = theme || (type === "cover" ? "cityscape" : type === "summary" ? "travel scenery" : "travel");
 
-            imageUrl = await getPexelsThemedImage(city, searchTheme);
+            imageUrl = await getPexelsThemedImage(city, searchTheme, excludeUrls);
             if (imageUrl) {
                 source = "pexels";
                 console.log("[STORY_BG] Pexels image found:", imageUrl.substring(0, 80));
@@ -217,6 +232,12 @@ export async function POST(req: NextRequest) {
             const searchTheme = theme || "travel landmark";
             imageUrl = getUnsplashThemedImage(city, searchTheme);
             source = "unsplash";
+        }
+
+        // Absolute last resort: static placeholder
+        if (!imageUrl) {
+            console.log("[STORY_BG] All sources failed, using static placeholder");
+            imageUrl = "/images/placeholders/story-placeholder.svg";
         }
 
         console.log("[STORY_BG] Final result:", { source, type, city, imageUrl: imageUrl?.substring(0, 80) });
