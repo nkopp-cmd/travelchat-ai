@@ -184,9 +184,14 @@ export async function POST(req: NextRequest) {
                             console.log("[STORY_BG] AI image stored, URL:", imageUrl);
                         }
                     } else {
-                        console.error("[STORY_BG] Storage upload failed:", uploadError);
-                        // Don't fallback to base64 — let code fall through to stock photo providers
-                        // Base64 fallback caused 413 errors when client tried to save to database
+                        console.error("[STORY_BG] Storage upload failed:", {
+                            message: uploadError.message,
+                            name: uploadError.name,
+                            storageKey,
+                            bufferSize: buffer.length,
+                            bucket: "generated-images",
+                        });
+                        // Fall through to stock photo providers
                     }
                 }
             } catch (error) {

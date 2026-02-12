@@ -4,25 +4,36 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
 /**
- * Validate that a string is a valid image source (base64 data URL or external URL)
+ * Validate that a string is a valid image source (HTTPS URL or local path)
  */
 function validateImageSource(data: string): boolean {
-    // Accept external image URLs (Unsplash, Pexels, TripAdvisor, etc.)
-    if (data.startsWith('https://images.unsplash.com/') ||
-        data.startsWith('https://images.pexels.com/') ||
-        data.startsWith('https://media-cdn.tripadvisor.com/') ||
-        data.startsWith('https://')) {
-        // Basic URL validation - check it looks like an image URL
-        const url = data.toLowerCase();
-        const hasImageExtension = url.includes('.jpg') || url.includes('.jpeg') ||
-                                  url.includes('.png') || url.includes('.webp') ||
-                                  url.includes('fit=crop') || url.includes('/photo');
-        return hasImageExtension || url.includes('unsplash') || url.includes('pexels') || url.includes('supabase');
+    // Accept local placeholder paths
+    if (data.startsWith('/images/')) {
+        return true;
     }
 
-    // Reject base64 data URLs — all images should be HTTPS URLs now
-    // (from Supabase storage, Unsplash, Pexels, TripAdvisor, or placeholder)
-    // Base64 was previously accepted but caused 413 Payload Too Large errors
+    // Accept HTTPS URLs from known image providers
+    if (data.startsWith('https://')) {
+        const url = data.toLowerCase();
+        // Known trusted image domains
+        const trustedDomains = [
+            'unsplash.com', 'pexels.com', 'supabase.co',
+            'tripadvisor.com', 'fal.media', 'fal.run',
+            'googleusercontent.com', 'googleapis.com',
+        ];
+        if (trustedDomains.some(domain => url.includes(domain))) {
+            return true;
+        }
+        // Generic HTTPS image URL — check for image indicators
+        const hasImageIndicator = url.includes('.jpg') || url.includes('.jpeg') ||
+                                  url.includes('.png') || url.includes('.webp') ||
+                                  url.includes('.svg') || url.includes('fit=crop') ||
+                                  url.includes('/photo') || url.includes('/image');
+        return hasImageIndicator;
+    }
+
+    // Reject base64 data URLs and anything else
+    // Base64 caused 413 Payload Too Large errors
     return false;
 }
 

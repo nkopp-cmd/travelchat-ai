@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X } from "lucide-react";
 import { isKoreanCity } from "@/hooks/use-map-provider";
+import { getCityBySlug, getCityByName } from "@/lib/cities";
+import { distanceKm } from "@/lib/geocoding";
 
 interface Activity {
     name: string;
@@ -99,8 +101,22 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
 
             // If all activities were pre-geocoded, we're done instantly
             if (needsGeocoding.length === 0) {
-                setLocations(preGeocoded);
-                if (preGeocoded.length === 0) {
+                // Filter out-of-bounds pre-geocoded locations
+                const cityConfig = getCityByName(city) || getCityBySlug(city.toLowerCase().replace(/\s+/g, '-'));
+                const cityCenter = cityConfig?.center;
+                let validPreGeocoded = preGeocoded;
+                if (cityCenter) {
+                    validPreGeocoded = preGeocoded.filter(loc => {
+                        const dist = distanceKm(loc.lat, loc.lng, cityCenter.lat, cityCenter.lng);
+                        if (dist > 50) {
+                            console.warn(`[MAP] Filtering out-of-bounds: "${loc.title}" at (${loc.lat}, ${loc.lng}) — ${dist.toFixed(0)}km from ${city}`);
+                            return false;
+                        }
+                        return true;
+                    });
+                }
+                setLocations(validPreGeocoded);
+                if (validPreGeocoded.length === 0) {
                     setError("No mappable locations found in this itinerary.");
                 }
                 setLoading(false);
@@ -161,8 +177,26 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                 }
             }
 
-            // Phase 3: Set state
-            setLocations(batchLocations);
+            // Phase 3: Filter out-of-bounds locations (rejects pins in wrong country)
+            const cityConfig = getCityByName(city) || getCityBySlug(city.toLowerCase().replace(/\s+/g, '-'));
+            const cityCenter = cityConfig?.center;
+            let validLocations = batchLocations;
+            if (cityCenter) {
+                validLocations = batchLocations.filter(loc => {
+                    const dist = distanceKm(loc.lat, loc.lng, cityCenter.lat, cityCenter.lng);
+                    if (dist > 50) {
+                        console.warn(`[MAP] Filtering out-of-bounds: "${loc.title}" at (${loc.lat}, ${loc.lng}) — ${dist.toFixed(0)}km from ${city}`);
+                        return false;
+                    }
+                    return true;
+                });
+                if (validLocations.length < batchLocations.length) {
+                    console.log(`[MAP] Filtered ${batchLocations.length - validLocations.length} out-of-bounds locations for ${city}`);
+                }
+            }
+
+            // Set state
+            setLocations(validLocations);
             setUnmappedActivities(unmapped);
 
             if (batchLocations.length === 0) {
