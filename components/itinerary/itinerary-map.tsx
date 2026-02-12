@@ -248,7 +248,7 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
     }
 
     return (
-        <Card className={`overflow-hidden relative z-0 ${className}`}>
+        <Card className={`!py-0 !gap-0 overflow-hidden relative z-0 ${className}`}>
             {/* Header */}
             <div
                 className="flex items-center justify-between p-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white cursor-pointer"

@@ -439,7 +439,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     Stories
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Camera className="h-5 w-5" />
@@ -451,8 +451,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 </DialogHeader>
 
                 {slides.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <div className="w-48 h-80 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-6 shadow-xl">
+                    <div className="flex flex-col items-center justify-center py-6 sm:py-12">
+                        <div className="w-32 h-56 sm:w-48 sm:h-80 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-4 sm:mb-6 shadow-xl">
                             <div className="text-white text-center px-4">
                                 <Instagram className="h-12 w-12 mx-auto mb-4 opacity-80" />
                                 <p className="text-sm opacity-80">1080 × 1920</p>

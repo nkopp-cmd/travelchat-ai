@@ -367,7 +367,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
       )}
 
       {/* INPUT ANCHOR - Always visible at bottom */}
-      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0 pt-2 pb-4 bg-background/95 backdrop-blur-sm" role="search">
+      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0 pt-2 pb-0" role="search">
         <label htmlFor="chat-input" className="sr-only">
           Message to Alley
         </label>

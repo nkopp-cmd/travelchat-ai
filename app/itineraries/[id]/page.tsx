@@ -291,7 +291,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                     const activities = dayPlan.activities || [];
 
                     return (
-                        <Card key={dayIndex} className="overflow-hidden border-black/5 dark:border-white/10 shadow-lg bg-white/70 dark:bg-white/5 backdrop-blur-md">
+                        <Card key={dayIndex} className="!py-0 !gap-0 overflow-hidden border-black/5 dark:border-white/10 shadow-lg bg-white/70 dark:bg-white/5 backdrop-blur-md">
                             {/* Day Header */}
                             <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-6">
                                 <div className="flex items-center justify-between mb-2">
