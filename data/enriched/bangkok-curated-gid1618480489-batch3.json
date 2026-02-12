@@ -1,0 +1,159 @@
+{
+  "city": "Bangkok",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:45:01.859Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Rung Rueang Pork Noodle"
+      },
+      "description": {
+        "en": "Bib Gourmand-recommended spot for quality pork noodles."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Khlong Tan",
+      "address": {
+        "en": "10/3 Sukhumvit 26, Khwaeng Khlong Tan, Khet Khlong Toei, Krung Thep Maha Nakhon 10110, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.728437099999999,
+      "longitude": 100.57067239999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJMwKZPwGf4jARkgykQtmIoM8"
+    },
+    {
+      "name": {
+        "en": "Piccolo Vicolo Cafe"
+      },
+      "description": {
+        "en": "Vintage-style spot near walking street."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Thanon Phetchaburi",
+      "address": {
+        "en": "535 31 ตรอก Rama VI Soi 17, Khwaeng Thanon Phetchaburi, Khet Ratchathewi, Krung Thep Maha Nakhon 10400, Thailand"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.751354599999999,
+      "longitude": 100.5263866,
+      "price_tier": "$$",
+      "google_place_id": "ChIJL9DOr2KZ4jAR--KZokj__o0"
+    },
+    {
+      "name": {
+        "en": "Bangkok Reflection Interactive"
+      },
+      "description": {
+        "en": "Helium balloons and light shows."
+      },
+      "city": "Bangkok",
+      "neighborhood": "แขวงลุมพินี",
+      "address": {
+        "en": "548 One City Centre, 58fl.-61fl, ถนน เพลินจิต แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.742032499999999,
+      "longitude": 100.54625150000001,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJkxdwWiyf4jARdUV1zHHjqlo"
+    },
+    {
+      "name": {
+        "en": "One Bangkok X Cat Radio"
+      },
+      "description": {
+        "en": "Music zones in retail areas."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Lumphini",
+      "address": {
+        "en": "Thanon Witthayu, Khwaeng Lumphini, Pathum Wan, Krung Thep Maha Nakhon 10330, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7270531,
+      "longitude": 100.54725450000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJo-KudiSf4jARuHpmM504kW4"
+    },
+    {
+      "name": {
+        "en": "Khlong Ong Ang Walking Street",
+        "th": "ถนนคนเดินคลององอาง"
+      },
+      "description": {
+        "en": "Revamped promenade with live music and possible rafting."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Wang Burapha Phirom",
+      "address": {
+        "en": "PGV3+Q4M, Wang Burapha Phirom, Phra Nakhon, Bangkok 10200, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7444559,
+      "longitude": 100.5028107,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-_8N6myZ4jARef57vPkJ2ls"
+    }
+  ]
+}

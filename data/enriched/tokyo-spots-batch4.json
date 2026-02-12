@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 4,
+  "spots": [
+    {
+      "name": {
+        "en": "Tsukiji Hongwanji Temple",
+        "ja": "築地本願寺"
+      },
+      "description": {
+        "en": "Unique Buddhist temple with Indian architectural influence. The morning service and temple breakfast cafe attract local devotees.",
+        "ja": "インド建築の影響を受けたユニークな仏教寺院。朝のお勤めと寺カフェの朝食が地元の信者を引き付ける。"
+      },
+      "address": {
+        "en": "Tsukiji, Chuo-ku, Tokyo",
+        "ja": "東京都中央区築地"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Architecture",
+        "Buddhist"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Early morning",
+      "tips": [
+        "Morning service open to all",
+        "Temple cafe serves breakfast",
+        "Organ concerts occasionally"
+      ],
+      "neighborhood": "Tsukiji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 35.6666,
+      "longitude": 139.7721
+    },
+    {
+      "name": {
+        "en": "Monzen-Nakacho Deep Tokyo",
+        "ja": "門前仲町ディープ東京"
+      },
+      "description": {
+        "en": "Old downtown neighborhood with temple, shrine, and traditional drinking culture. Sake bars and izakayas cluster near Fukagawa Fudoson.",
+        "ja": "寺社と伝統的な飲み文化がある下町。深川不動尊の近くに酒バーや居酒屋が集まる。"
+      },
+      "address": {
+        "en": "Monzen-Nakacho, Koto-ku, Tokyo",
+        "ja": "東京都江東区門前仲町"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Sake",
+        "Traditional",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Deep Fukagawa charm",
+        "Many standing sake bars",
+        "Temple grounds atmospheric at night"
+      ],
+      "neighborhood": "Monzen-Nakacho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6726,
+      "longitude": 139.7949
+    },
+    {
+      "name": {
+        "en": "Komazawa Olympic Park",
+        "ja": "駒沢オリンピック公園"
+      },
+      "description": {
+        "en": "1964 Olympics venue now a beloved sports park. Joggers, cyclists, and families enjoy the retro modernist architecture.",
+        "ja": "1964年オリンピック会場が今や愛されるスポーツ公園。ジョガー、サイクリスト、家族がレトロモダニズム建築を楽しむ。"
+      },
+      "address": {
+        "en": "Komazawa Olympic Park, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区駒沢オリンピック公園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Sports",
+        "Olympic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Great for running",
+        "Dog park popular",
+        "Retro Olympic architecture"
+      ],
+      "neighborhood": "Komazawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6256,
+      "longitude": 139.6636
+    },
+    {
+      "name": {
+        "en": "Asakusa Underground Shopping",
+        "ja": "浅草地下街"
+      },
+      "description": {
+        "en": "Japan's first underground shopping street, frozen in 1950s time. Tiny shops and eateries serving older local residents.",
+        "ja": "1950年代で時が止まった日本初の地下街。高齢の地元住民を相手にする小さな店や食堂。"
+      },
+      "address": {
+        "en": "Asakusa Underground, Taito-ku, Tokyo",
+        "ja": "東京都台東区浅草地下街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retro",
+        "Underground",
+        "Time Capsule"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Genuinely retro, not themed",
+        "Some shops quite old",
+        "Interesting counterpoint to Senso-ji"
+      ],
+      "neighborhood": "Asakusa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7111,
+      "longitude": 139.7979
+    },
+    {
+      "name": {
+        "en": "Ebisu Garden Place",
+        "ja": "恵比寿ガーデンプレイス"
+      },
+      "description": {
+        "en": "Upscale complex built on old Sapporo brewery site. Good restaurants, museum, and winter illuminations draw local crowds.",
+        "ja": "旧サッポロビール工場跡地に建てられた高級複合施設。良いレストラン、美術館、冬のイルミネーションが地元の人を引き付ける。"
+      },
+      "address": {
+        "en": "Ebisu Garden Place, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区恵比寿ガーデンプレイス"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Complex",
+        "Dining",
+        "Illumination"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Beer museum on site",
+        "Christmas market famous",
+        "Moving walkway from station"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.642,
+      "longitude": 139.7136
+    },
+    {
+      "name": {
+        "en": "Iidabashi Canal Cafe",
+        "ja": "飯田橋カナルカフェ"
+      },
+      "description": {
+        "en": "Waterside dining on the moat near Kagurazaka. One of Tokyo's few outdoor dining spots with actual water views.",
+        "ja": "神楽坂近くの堀端ダイニング。実際の水辺の景色がある東京数少ない屋外ダイニングスポットの一つ。"
+      },
+      "address": {
+        "en": "Iidabashi, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区飯田橋"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Waterside",
+        "Outdoor",
+        "Romantic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Reservations recommended",
+        "Best in warm weather",
+        "Cherry blossoms overhead in spring"
+      ],
+      "neighborhood": "Iidabashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.7017,
+      "longitude": 139.746
+    },
+    {
+      "name": {
+        "en": "Rikugien Garden",
+        "ja": "六義園"
+      },
+      "description": {
+        "en": "Exquisite Edo-period strolling garden, considered one of Tokyo's finest. Weeping cherry tree illumination is legendary.",
+        "ja": "東京最高峰と言われる江戸時代の回遊式庭園。しだれ桜のライトアップは伝説的。"
+      },
+      "address": {
+        "en": "Rikugien, Bunkyo-ku, Tokyo",
+        "ja": "東京都文京区六義園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Traditional",
+        "Cherry Blossoms"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Spring for cherry, autumn for leaves",
+      "tips": [
+        "Evening illumination events",
+        "Less crowded than Shinjuku Gyoen",
+        "Teahouse on grounds"
+      ],
+      "neighborhood": "Komagome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Spring for cherry, autumn for leaves"
+      },
+      "latitude": 35.7334,
+      "longitude": 139.7463
+    },
+    {
+      "name": {
+        "en": "Nishi-Azabu Dark Dining",
+        "ja": "西麻布ダークダイニング"
+      },
+      "description": {
+        "en": "Sophisticated dining district where Tokyo's elite eat. Hidden entrances and no-sign restaurants are the norm.",
+        "ja": "東京のエリートが食事をする洗練されたダイニング地区。隠れた入り口と看板のないレストランが普通。"
+      },
+      "address": {
+        "en": "Nishi-Azabu, Minato-ku, Tokyo",
+        "ja": "東京都港区西麻布"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Upscale",
+        "Hidden",
+        "Elite"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Reservations essential",
+        "Dress appropriately",
+        "Many Michelin stars in area"
+      ],
+      "neighborhood": "Nishi-Azabu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.66,
+      "longitude": 139.7238
+    },
+    {
+      "name": {
+        "en": "Ikejiri-Ohashi Setagaya Line",
+        "ja": "池尻大橋世田谷線沿い"
+      },
+      "description": {
+        "en": "Hip area along the Meguro River with cafes and vintage shops. Young creative professionals call this home.",
+        "ja": "目黒川沿いのカフェやヴィンテージショップがあるヒップなエリア。若いクリエイティブな専門職が住む。"
+      },
+      "address": {
+        "en": "Ikejiri-Ohashi, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区池尻大橋"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Trendy",
+        "Creative",
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Less famous than Nakameguro",
+        "Good coffee scene",
+        "Nice for walking"
+      ],
+      "neighborhood": "Ikejiri-Ohashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6508,
+      "longitude": 139.6847
+    },
+    {
+      "name": {
+        "en": "Takadanobaba Ramen Street",
+        "ja": "高田馬場ラーメン激戦区"
+      },
+      "description": {
+        "en": "University area famous for fierce ramen competition. Student budgets mean great value bowls.",
+        "ja": "激しいラーメン競争で有名な大学街。学生予算のためコスパの良い一杯が食べられる。"
+      },
+      "address": {
+        "en": "Takadanobaba, Shinjuku-ku, Tokyo",
+        "ja": "東京都新宿区高田馬場"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Ramen",
+        "Student",
+        "Value"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch or late night",
+      "tips": [
+        "Many famous shops compete here",
+        "Lines at popular spots",
+        "Student-friendly prices"
+      ],
+      "neighborhood": "Takadanobaba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Lunch or late night"
+      },
+      "latitude": 35.7127,
+      "longitude": 139.704
+    },
+    {
+      "name": {
+        "en": "Kiyosumi Garden",
+        "ja": "清澄庭園"
+      },
+      "description": {
+        "en": "Meiji-era garden famous for its stepping stones. Peaceful escape in increasingly trendy Kiyosumi-Shirakawa.",
+        "ja": "飛び石で有名な明治時代の庭園。トレンディになりつつある清澄白河の平和な逃避場所。"
+      },
+      "address": {
+        "en": "Kiyosumi Garden, Koto-ku, Tokyo",
+        "ja": "東京都江東区清澄庭園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Traditional",
+        "Peaceful"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Less crowded than other gardens",
+        "Famous stepping stones",
+        "Near Blue Bottle Coffee"
+      ],
+      "neighborhood": "Kiyosumi-Shirakawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.68,
+      "longitude": 139.7978
+    },
+    {
+      "name": {
+        "en": "Kiyosumi-Shirakawa Coffee Scene",
+        "ja": "清澄白河コーヒーシーン"
+      },
+      "description": {
+        "en": "Tokyo's specialty coffee capital where Blue Bottle Japan started. Roasters and cafes in converted warehouses.",
+        "ja": "ブルーボトル日本の発祥地である東京のスペシャルティコーヒーの聖地。倉庫を改装したロースターやカフェ。"
+      },
+      "address": {
+        "en": "Kiyosumi-Shirakawa, Koto-ku, Tokyo",
+        "ja": "東京都江東区清澄白河"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Roasters",
+        "Warehouse"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Blue Bottle flagship",
+        "Multiple roasters to visit",
+        "Former warehouse district"
+      ],
+      "neighborhood": "Kiyosumi-Shirakawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6821,
+      "longitude": 139.7988
+    },
+    {
+      "name": {
+        "en": "Shinjuku Gyoen",
+        "ja": "新宿御苑"
+      },
+      "description": {
+        "en": "Massive garden combining Japanese, French, and English landscaping styles. Tokyo's premier cherry blossom and autumn leaves destination.",
+        "ja": "日本、フランス、イギリスの造園様式を組み合わせた広大な庭園。東京随一の桜と紅葉の名所。"
+      },
+      "address": {
+        "en": "Shinjuku Gyoen, Shinjuku-ku, Tokyo",
+        "ja": "東京都新宿区新宿御苑"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Cherry Blossoms",
+        "Picnic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Spring and autumn",
+      "tips": [
+        "No alcohol allowed",
+        "Closes early",
+        "Multiple gates - check which is closest"
+      ],
+      "neighborhood": "Shinjuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Spring and autumn"
+      },
+      "latitude": 35.6851,
+      "longitude": 139.7095
+    },
+    {
+      "name": {
+        "en": "Tokyo Tower",
+        "ja": "東京タワー"
+      },
+      "description": {
+        "en": "Iconic 1958 tower that's been eclipsed by Skytree but retains nostalgic charm. Night views of the city are romantic.",
+        "ja": "スカイツリーに抜かれたがノスタルジックな魅力を保つ1958年の象徴的タワー。夜の街の眺めはロマンチック。"
+      },
+      "address": {
+        "en": "Tokyo Tower, Minato-ku, Tokyo",
+        "ja": "東京都港区東京タワー"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Landmark",
+        "Views",
+        "Nostalgic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Retro charm vs Skytree's modernity",
+        "Night illumination beautiful",
+        "Aquarium at base"
+      ],
+      "neighborhood": "Shiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6584,
+      "longitude": 139.7455
+    },
+    {
+      "name": {
+        "en": "Daikanyama Hillside Terrace",
+        "ja": "代官山ヒルサイドテラス"
+      },
+      "description": {
+        "en": "Architectural landmark complex that defined Daikanyama's upscale character. Galleries, boutiques, and cafes in modernist design.",
+        "ja": "代官山の高級な性格を定義した建築的ランドマーク複合施設。モダニズムデザインにギャラリー、ブティック、カフェ。"
+      },
+      "address": {
+        "en": "Daikanyama Hillside Terrace, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区代官山ヒルサイドテラス"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Architecture",
+        "Design",
+        "Boutiques"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Architectural significance",
+        "Quiet compared to T-Site",
+        "Gallery events frequent"
+      ],
+      "neighborhood": "Daikanyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6482,
+      "longitude": 139.7032
+    },
+    {
+      "name": {
+        "en": "Hamarikyu Gardens",
+        "ja": "浜離宮恩賜庭園"
+      },
+      "description": {
+        "en": "Former shogun's gardens with tidal pond, surrounded by modern skyscrapers. Tea house serves matcha with a unique view.",
+        "ja": "現代の高層ビルに囲まれた将軍の旧庭園と潮入りの池。茶室がユニークな眺めと共に抹茶を提供。"
+      },
+      "address": {
+        "en": "Hamarikyu Gardens, Chuo-ku, Tokyo",
+        "ja": "東京都中央区浜離宮恩賜庭園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Tea House",
+        "Contrast"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Water bus stops here",
+        "Skyscrapers create unique backdrop",
+        "Tea in the tea house recommended"
+      ],
+      "neighborhood": "Shiodome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6642,
+      "longitude": 139.764
+    },
+    {
+      "name": {
+        "en": "Ryogoku Sumo District",
+        "ja": "両国相撲地区"
+      },
+      "description": {
+        "en": "Sumo wrestling's spiritual home with arena, museum, and chanko-nabe restaurants. See wrestlers walking the streets.",
+        "ja": "相撲の聖地で、アリーナ、博物館、ちゃんこ鍋レストランがある。街を歩く力士を見かけることも。"
+      },
+      "address": {
+        "en": "Ryogoku, Sumida-ku, Tokyo",
+        "ja": "東京都墨田区両国"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Sumo",
+        "Traditional",
+        "Sports"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning (to spot wrestlers)",
+      "tips": [
+        "Tournament months are best",
+        "Chanko-nabe is sumo hot pot",
+        "Wrestlers shop nearby"
+      ],
+      "neighborhood": "Ryogoku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Morning (to spot wrestlers)"
+      },
+      "latitude": 35.6968,
+      "longitude": 139.7974
+    },
+    {
+      "name": {
+        "en": "Asakusa Taiko Drum Festival Area",
+        "ja": "浅草太鼓祭りエリア"
+      },
+      "description": {
+        "en": "Traditional craftsmen selling taiko drums, festival supplies, and matsuri gear. Suppliers to festivals across Japan.",
+        "ja": "太鼓、祭り用品、祭り装備を売る伝統的な職人たち。日本中の祭りへの供給者。"
+      },
+      "address": {
+        "en": "Asakusa, Taito-ku, Tokyo",
+        "ja": "東京都台東区浅草"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Traditional Crafts",
+        "Drums",
+        "Festival"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Real craftsmen's shops",
+        "Not tourist souvenirs",
+        "Drums can be shipped"
+      ],
+      "neighborhood": "Asakusa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7176,
+      "longitude": 139.7976
+    },
+    {
+      "name": {
+        "en": "Ginza Kabuki-za Theater",
+        "ja": "銀座歌舞伎座"
+      },
+      "description": {
+        "en": "Japan's principal kabuki theater with ornate traditional architecture. Single-act tickets let you experience without full commitment.",
+        "ja": "華やかな伝統建築の日本の主要な歌舞伎劇場。一幕見席で気軽に体験できる。"
+      },
+      "address": {
+        "en": "Kabuki-za, Chuo-ku, Tokyo",
+        "ja": "東京都中央区歌舞伎座"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Kabuki",
+        "Theater",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Check performance schedule",
+      "tips": [
+        "Single-act tickets available",
+        "English audio guide available",
+        "Building has rooftop garden"
+      ],
+      "neighborhood": "Ginza",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Check performance schedule"
+      },
+      "latitude": 35.6697,
+      "longitude": 139.7681
+    },
+    {
+      "name": {
+        "en": "Sugamo Jizo-dori",
+        "ja": "巣鴨地蔵通り商店街"
+      },
+      "description": {
+        "en": "Tokyo's 'Harajuku for grandmas' - shopping street beloved by elderly locals. Red underwear supposedly brings good health.",
+        "ja": "東京の「おばあちゃんの原宿」 - 高齢の地元民に愛される商店街。赤い下着は健康に良いとされる。"
+      },
+      "address": {
+        "en": "Sugamo, Toshima-ku, Tokyo",
+        "ja": "東京都豊島区巣鴨"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Elderly",
+        "Traditional",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "4, 14, 24 of each month are festival days",
+        "Try shio-daifuku",
+        "Very local atmosphere"
+      ],
+      "neighborhood": "Sugamo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.7357,
+      "longitude": 139.7348
+    }
+  ]
+}

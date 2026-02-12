@@ -1,0 +1,746 @@
+{
+  "city": "seoul",
+  "batch": 14,
+  "spots": [
+    {
+      "name": {
+        "en": "Sadang BBQ Alley",
+        "ko": "사당 고기골목"
+      },
+      "description": {
+        "en": "BBQ restaurants serving Dongjak and Gwanak residents. Late-night meat and soju sessions in this working-class neighborhood.",
+        "ko": "동작구와 관악구 주민들을 위한 고깃집들. 이 서민 동네에서 심야 고기와 소주 세션."
+      },
+      "address": {
+        "en": "Sadang, Dongjak-gu, Seoul",
+        "ko": "서울 동작구 사당"
+      },
+      "category": "Food",
+      "subcategories": [
+        "BBQ",
+        "Late Night",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Local BBQ scene",
+        "Late-night dining",
+        "Working-class area"
+      ],
+      "neighborhood": "Sadang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.4766,
+      "longitude": 126.9817
+    },
+    {
+      "name": {
+        "en": "Dangsan Station Food",
+        "ko": "당산역 먹자골목"
+      },
+      "description": {
+        "en": "Restaurant street near Dangsan Station serving office workers from Yeouido overflow. Diverse lunch and dinner options.",
+        "ko": "여의도 인근 직장인들을 위한 당산역 근처 식당가. 다양한 점심과 저녁 옵션."
+      },
+      "address": {
+        "en": "Dangsan Station, Yeongdeungpo-gu, Seoul",
+        "ko": "서울 영등포구 당산역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Office Workers",
+        "Lunch",
+        "Diverse"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch or dinner",
+      "tips": [
+        "Yeouido overflow crowd",
+        "Good variety",
+        "Less expensive than Yeouido"
+      ],
+      "neighborhood": "Dangsan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Lunch or dinner"
+      },
+      "latitude": 37.5348,
+      "longitude": 126.9026
+    },
+    {
+      "name": {
+        "en": "Yeomni-dong Vietnamese",
+        "ko": "염리동 베트남요리"
+      },
+      "description": {
+        "en": "Vietnamese restaurants serving Seoul's growing Southeast Asian community. Authentic pho and banh mi at neighborhood prices.",
+        "ko": "서울의 성장하는 동남아시아 커뮤니티를 위한 베트남 식당들. 동네 가격에 정통 포와 반미."
+      },
+      "address": {
+        "en": "Yeomni-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 염리동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Vietnamese",
+        "International",
+        "Community"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Lunch or dinner",
+      "tips": [
+        "Authentic Vietnamese cooking",
+        "Budget-friendly",
+        "Community hub"
+      ],
+      "neighborhood": "Yeomni",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Lunch or dinner"
+      },
+      "latitude": 37.5502,
+      "longitude": 126.9479
+    },
+    {
+      "name": {
+        "en": "Seongsu Handmade Shoes",
+        "ko": "성수 수제화거리"
+      },
+      "description": {
+        "en": "Artisan shoe workshops that made Seongsu famous before the cafes arrived. Custom leather shoes made by master craftsmen.",
+        "ko": "카페가 들어오기 전에 성수를 유명하게 만든 수제화 공방들. 장인이 만드는 맞춤 가죽 신발."
+      },
+      "address": {
+        "en": "Seongsu-dong, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 성수동"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Artisan",
+        "Shoes",
+        "Craft"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Custom shoes available",
+        "Original Seongsu industry",
+        "Quality craftsmanship"
+      ],
+      "neighborhood": "Seongsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5442,
+      "longitude": 127.0634
+    },
+    {
+      "name": {
+        "en": "Dunchon-dong Jungle Gym",
+        "ko": "둔촌동 정글짐"
+      },
+      "description": {
+        "en": "Famous playground equipment in Dunchon that's become a local landmark. Families bring kids to play on the unique structures.",
+        "ko": "지역 랜드마크가 된 둔촌의 유명한 놀이기구. 가족들이 아이들을 독특한 구조물에서 놀리러 데려온다."
+      },
+      "address": {
+        "en": "Dunchon-dong, Gangdong-gu, Seoul",
+        "ko": "서울 강동구 둔촌동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Playground",
+        "Family",
+        "Local Landmark"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Unique playground equipment",
+        "Family destination",
+        "Local landmark"
+      ],
+      "neighborhood": "Dunchon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5278,
+      "longitude": 127.1362
+    },
+    {
+      "name": {
+        "en": "Gil-dong Ecological Park",
+        "ko": "길동생태공원"
+      },
+      "description": {
+        "en": "Wetland ecology park in Gangdong-gu for environmental education. Families learn about Korean ecosystems through walking trails.",
+        "ko": "환경 교육을 위한 강동구의 습지 생태공원. 가족들이 산책로를 통해 한국 생태계를 배운다."
+      },
+      "address": {
+        "en": "Gil-dong, Gangdong-gu, Seoul",
+        "ko": "서울 강동구 길동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Ecology",
+        "Education",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Environmental education",
+        "Korean ecosystems",
+        "Good for children"
+      ],
+      "neighborhood": "Gil-dong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5382,
+      "longitude": 127.1524
+    },
+    {
+      "name": {
+        "en": "Chungmuro Printing Street",
+        "ko": "충무로 인쇄골목"
+      },
+      "description": {
+        "en": "Historic printing district where business cards, banners, and books get made. The clatter of presses gives this street unique energy.",
+        "ko": "명함, 현수막, 책이 만들어지는 역사적인 인쇄 지구. 인쇄기 소리가 이 거리에 독특한 에너지를 준다."
+      },
+      "address": {
+        "en": "Chungmuro, Jung-gu, Seoul",
+        "ko": "서울 중구 충무로"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Printing",
+        "Industry",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Working printing shops",
+        "Historic industry area",
+        "Unique atmosphere"
+      ],
+      "neighborhood": "Chungmuro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5612,
+      "longitude": 126.9941
+    },
+    {
+      "name": {
+        "en": "Songjeong Station Market",
+        "ko": "송정역 시장"
+      },
+      "description": {
+        "en": "Traditional market near Songjeong Station serving western Seoul residents. Fresh produce and Korean homestyle banchan.",
+        "ko": "서부 서울 주민들을 위한 송정역 근처 전통 시장. 신선한 농산물과 한국 가정식 반찬."
+      },
+      "address": {
+        "en": "Songjeong Station, Gangseo-gu, Seoul",
+        "ko": "서울 강서구 송정역"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Market",
+        "Local",
+        "Produce"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Very local market",
+        "Good banchan",
+        "No English"
+      ],
+      "neighborhood": "Songjeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.41,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5613,
+      "longitude": 126.8103
+    },
+    {
+      "name": {
+        "en": "Banpo Bridge Evening Walk",
+        "ko": "반포대교 저녁산책"
+      },
+      "description": {
+        "en": "Walking path along Banpo Bridge connecting to the floating islands. Evening strollers enjoy bridge architecture and river breezes.",
+        "ko": "세빛섬과 연결되는 반포대교의 산책로. 저녁 산책객들이 다리 건축과 강바람을 즐긴다."
+      },
+      "address": {
+        "en": "Banpo Bridge, Seoul",
+        "ko": "서울 반포대교"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Bridge Walk",
+        "Evening",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Connects to Some Sevit islands",
+        "Fountain shows in season",
+        "Nice evening walk"
+      ],
+      "neighborhood": "Banpo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5146,
+      "longitude": 126.9965
+    },
+    {
+      "name": {
+        "en": "Hyehwa Daehangno Theater",
+        "ko": "혜화 대학로 극장"
+      },
+      "description": {
+        "en": "Seoul's theater district with small playhouses and musical venues. Catch Korean plays and musicals in intimate settings.",
+        "ko": "소극장과 뮤지컬 공연장이 있는 서울의 극장 지구. 친밀한 공간에서 한국 연극과 뮤지컬을 관람하라."
+      },
+      "address": {
+        "en": "Daehangno, Jongno-gu, Seoul",
+        "ko": "서울 종로구 대학로"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Theater",
+        "Musical",
+        "Performance"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Many small theaters",
+        "Korean language performances",
+        "Student theater scene"
+      ],
+      "neighborhood": "Hyehwa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5817,
+      "longitude": 127.0033
+    },
+    {
+      "name": {
+        "en": "National Gugak Center",
+        "ko": "국립국악원"
+      },
+      "description": {
+        "en": "Traditional Korean music performance center with regular concerts. Free Saturday performances introduce visitors to gugak (Korean classical music).",
+        "ko": "정기 공연이 있는 한국 전통 음악 공연장. 무료 토요 공연이 방문객들에게 국악을 소개한다."
+      },
+      "address": {
+        "en": "Seocho-gu, Seoul",
+        "ko": "서울 서초구"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Traditional Music",
+        "Performance",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Saturday afternoon",
+      "tips": [
+        "Free Saturday performances",
+        "Traditional Korean music",
+        "Peaceful grounds"
+      ],
+      "neighborhood": "Seocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Saturday afternoon"
+      },
+      "latitude": 37.4775,
+      "longitude": 127.0086
+    },
+    {
+      "name": {
+        "en": "Cheongdam CGV Prestige",
+        "ko": "청담 CGV 프레스티지"
+      },
+      "description": {
+        "en": "Luxury cinema with reclining seats and premium service. Gangnam's upscale crowd comes for VIP movie experiences.",
+        "ko": "리클라이닝 좌석과 프리미엄 서비스가 있는 럭셔리 영화관. 강남의 고급층이 VIP 영화 경험을 위해 온다."
+      },
+      "address": {
+        "en": "Cheongdam-dong, Gangnam-gu, Seoul",
+        "ko": "서울 강남구 청담동"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cinema",
+        "Luxury",
+        "VIP"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Premium ticket prices",
+        "VIP lounge",
+        "Reclining seats"
+      ],
+      "neighborhood": "Cheongdam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5258,
+      "longitude": 127.0523
+    },
+    {
+      "name": {
+        "en": "Itaewon African Restaurants",
+        "ko": "이태원 아프리카 식당"
+      },
+      "description": {
+        "en": "African restaurants serving Seoul's small but growing African community. Ethiopian, Nigerian, and North African cuisines available.",
+        "ko": "서울의 작지만 성장하는 아프리카 커뮤니티를 위한 아프리카 식당들. 에티오피아, 나이지리아, 북아프리카 요리 이용 가능."
+      },
+      "address": {
+        "en": "Itaewon, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 이태원"
+      },
+      "category": "Food",
+      "subcategories": [
+        "African",
+        "International",
+        "Diverse"
+      ],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Dinner",
+      "tips": [
+        "Various African cuisines",
+        "Small community hub",
+        "Unique in Seoul"
+      ],
+      "neighborhood": "Itaewon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 37.5345,
+      "longitude": 126.9944
+    },
+    {
+      "name": {
+        "en": "Nambu Bus Terminal Area",
+        "ko": "남부터미널 일대"
+      },
+      "description": {
+        "en": "Bus terminal in southern Seoul with surrounding restaurants. Gateway to cities south and west with local dining options.",
+        "ko": "주변 식당이 있는 남부 서울의 버스 터미널. 남쪽과 서쪽 도시로의 관문과 로컬 식사 옵션."
+      },
+      "address": {
+        "en": "Nambu Terminal, Seocho-gu, Seoul",
+        "ko": "서울 서초구 남부터미널"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Transit Hub",
+        "Local",
+        "Diverse"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Meal times",
+      "tips": [
+        "Major bus terminal",
+        "Local restaurants",
+        "Transit point for southern routes"
+      ],
+      "neighborhood": "Seocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Meal times"
+      },
+      "latitude": 37.4847,
+      "longitude": 127.0155
+    },
+    {
+      "name": {
+        "en": "Hongje Stream",
+        "ko": "홍제천"
+      },
+      "description": {
+        "en": "Restored urban stream in northwestern Seoul with walking paths. Locals walk dogs and jog along the tree-lined waterway.",
+        "ko": "산책로가 있는 북서부 서울의 복원된 도시 하천. 현지인들이 나무가 늘어선 수로를 따라 개 산책과 조깅을 한다."
+      },
+      "address": {
+        "en": "Hongje Stream, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 홍제천"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Stream",
+        "Walking",
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning or evening",
+      "tips": [
+        "Urban stream restoration",
+        "Good walking path",
+        "Local joggers"
+      ],
+      "neighborhood": "Hongje",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning or evening"
+      },
+      "latitude": 37.566,
+      "longitude": 126.9132
+    },
+    {
+      "name": {
+        "en": "Myeonmok Station Area",
+        "ko": "면목역 일대"
+      },
+      "description": {
+        "en": "Residential area in Jungnang-gu with local restaurants and markets. Everyday Seoul neighborhood life without any tourism.",
+        "ko": "로컬 식당과 시장이 있는 중랑구의 주거 지역. 관광 없이 일상적인 서울 동네 생활."
+      },
+      "address": {
+        "en": "Myeonmok Station, Jungnang-gu, Seoul",
+        "ko": "서울 중랑구 면목역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Residential",
+        "Authentic"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Evening",
+      "tips": [
+        "Very local area",
+        "No tourist presence",
+        "Authentic neighborhood"
+      ],
+      "neighborhood": "Myeonmok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5886,
+      "longitude": 127.0886
+    },
+    {
+      "name": {
+        "en": "Sangwangsimni Station Area",
+        "ko": "상왕십리역 일대"
+      },
+      "description": {
+        "en": "Neighborhood around Sangwangsimni Station with local shops and restaurants. Mix of old Seoul and new apartment developments.",
+        "ko": "로컬 상점과 식당이 있는 상왕십리역 주변 동네. 옛 서울과 새 아파트 개발의 혼합."
+      },
+      "address": {
+        "en": "Sangwangsimni Station, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 상왕십리역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Changing",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Mix of old and new",
+        "Changing neighborhood",
+        "Local atmosphere"
+      ],
+      "neighborhood": "Sangwangsimni",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5643,
+      "longitude": 127.0291
+    },
+    {
+      "name": {
+        "en": "Mapo Jeoldusan",
+        "ko": "마포 절두산"
+      },
+      "description": {
+        "en": "Riverside bluff with Catholic martyrs' shrine and museum. Peaceful grounds overlooking Han River with historical significance.",
+        "ko": "천주교 순교자 사당과 박물관이 있는 강변 절벽. 역사적 의미가 있는 한강을 내려다보는 평화로운 부지."
+      },
+      "address": {
+        "en": "Jeoldusan, Mapo-gu, Seoul",
+        "ko": "서울 마포구 절두산"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Religious",
+        "History",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Catholic pilgrimage site",
+        "River views",
+        "Museum about persecution"
+      ],
+      "neighborhood": "Hapjeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5442,
+      "longitude": 126.9122
+    },
+    {
+      "name": {
+        "en": "Gangil Station New Town",
+        "ko": "강일역 신도시"
+      },
+      "description": {
+        "en": "Newly developed residential area in eastern Seoul. Modern apartment complexes with new restaurants and amenities.",
+        "ko": "동부 서울의 새로 개발된 주거 지역. 새 식당과 편의 시설이 있는 현대적 아파트 단지."
+      },
+      "address": {
+        "en": "Gangil Station, Gangdong-gu, Seoul",
+        "ko": "서울 강동구 강일역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "New Town",
+        "Residential",
+        "Modern"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "New development",
+        "Modern amenities",
+        "Growing area"
+      ],
+      "neighborhood": "Gangil",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5575,
+      "longitude": 127.1758
+    },
+    {
+      "name": {
+        "en": "Apgujeong Rodeo Street Fashion",
+        "ko": "압구정 로데오 패션"
+      },
+      "description": {
+        "en": "Original luxury fashion street that launched Korean designer brands. The birthplace of Seoul's high fashion scene.",
+        "ko": "한국 디자이너 브랜드를 탄생시킨 원조 럭셔리 패션 거리. 서울 하이패션 씬의 발상지."
+      },
+      "address": {
+        "en": "Apgujeong Rodeo, Gangnam-gu, Seoul",
+        "ko": "서울 강남구 압구정로데오"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fashion",
+        "Designer",
+        "Luxury"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Korean designer brands",
+        "Original fashion street",
+        "High-end shopping"
+      ],
+      "neighborhood": "Apgujeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5284,
+      "longitude": 127.0388
+    }
+  ]
+}

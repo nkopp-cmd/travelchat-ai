@@ -1,0 +1,758 @@
+{
+  "city": "Ho Chi Minh City",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:49:49.057Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Than Cocktail Bar"
+      },
+      "description": {
+        "en": "Rooftop charm with modern approach. 218/7 Nam Ky Khoi Nghia, District 3."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Võ Thị Sáu",
+      "address": {
+        "en": "218/7 Nam Kỳ Khởi Nghĩa, Phường 6, Quận 3, Thành phố Hồ Chí Minh 72400, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Rooftop",
+        "Cocktails"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.783618899999999,
+      "longitude": 106.6915507,
+      "price_tier": "$$",
+      "google_place_id": "ChIJGQUJes8vdTER5KuwjtWjqZY"
+    },
+    {
+      "name": {
+        "en": "Heart of Darkness Craft Brewery"
+      },
+      "description": {
+        "en": "Wide selection of excellent craft beers. Modern, spacious setting at 35 Ham Nghi."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "31D Lý Tự Trọng, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Craft Beer"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7798149,
+      "longitude": 106.7029294,
+      "price_tier": "$$",
+      "google_place_id": "ChIJzTA09EgvdTERh5xGcQJNwVE"
+    },
+    {
+      "name": {
+        "en": "Pasteur Street Brewing"
+      },
+      "description": {
+        "en": "Pioneers of Vietnam craft beer movement. Unique brews with local ingredients. Original at 144 Pasteur."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "144/3 Pasteur, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Craft Beer"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.775175599999999,
+      "longitude": 106.7010337,
+      "price_tier": "$$",
+      "google_place_id": "ChIJN8LfcUcvdTER8RhGiGmQBlo"
+    },
+    {
+      "name": {
+        "en": "Rogue Saigon"
+      },
+      "description": {
+        "en": "Reclaimed wood, graffitied bare-brick walls. Brooklyn warehouse vibes, 16 cold brews. Low-key rooftop."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Rooftop",
+      "address": {
+        "en": "13 Pasteur, Rooftop, Quận 1, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Rooftop"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.769433399999999,
+      "longitude": 106.7029649,
+      "price_tier": "$$",
+      "google_place_id": "ChIJaQysrUEvdTERkIrPpw1bVhI"
+    },
+    {
+      "name": {
+        "en": "BiaCraft (Thao Dien)"
+      },
+      "description": {
+        "en": "Expat favorite in District 2. Moody cocktail den vibes alongside craft beer selection."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Thảo Điền",
+      "address": {
+        "en": "90 Xuân Thủy, Thảo Điền, Thủ Đức, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Cocktails",
+        "Craft Beer"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.803667400000002,
+      "longitude": 106.7346477,
+      "price_tier": "$$",
+      "google_place_id": "ChIJAW1U0xsmdTERe0yKuDomvyY"
+    },
+    {
+      "name": {
+        "en": "District 1 (Central)"
+      },
+      "description": {
+        "en": "Heart of HCMC nightlife. Rooftop bars, nightclubs, live music, hip lounges. Ben Thanh Market area."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "District 1",
+      "address": {
+        "en": "District 1, Ho Chi Minh City, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7753882,
+      "longitude": 106.70282499999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJe4jt-TgvdTERiYl2A1ftrRQ"
+    },
+    {
+      "name": {
+        "en": "Bui Vien Walking Street"
+      },
+      "description": {
+        "en": "Backpacker central. Neon lights, open-front bars, cheap beer, live music. Loud, chaotic, addictive."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bùi Viện",
+      "address": {
+        "en": "Bùi Viện, Phường Phạm Ngũ Lão, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.767351000000001,
+      "longitude": 106.69388359999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJCdzLBRYvdTERpsMyNScNwPE"
+    },
+    {
+      "name": {
+        "en": "Thao Dien (District 2)"
+      },
+      "description": {
+        "en": "Leafy expat enclave. Craft breweries, moody cocktail bars like Rabbit Hole. Cool without trying too hard."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Thao Dien",
+      "address": {
+        "en": "Thao Dien, Thủ Đức City, Ho Chi Minh City, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.808162300000001,
+      "longitude": 106.7307036,
+      "price_tier": "$$",
+      "google_place_id": "ChIJg0UOWD0mdTERY9Cuw0LgJW0"
+    },
+    {
+      "name": {
+        "en": "Nguyen Hue Walking Street"
+      },
+      "description": {
+        "en": "Pedestrian boulevard with upscale cafes, open-air seating. More refined evening strolls, street performances."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "Nguyễn Huệ, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7738495,
+      "longitude": 106.7036566,
+      "price_tier": "$",
+      "google_place_id": "ChIJnRF9v0YvdTERcuW8mp0X9us"
+    },
+    {
+      "name": {
+        "en": "Pham Viet Chanh"
+      },
+      "description": {
+        "en": "Once quiet, now dances with modern rhythm. Grilled skewers, contemporary bites, lively bars. Youthful energy."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Nguyễn Cư Trinh",
+      "address": {
+        "en": "Phạm Viết Chánh, Nguyễn Cư Trinh, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7667734,
+      "longitude": 106.6836667,
+      "price_tier": "$",
+      "google_place_id": "ChIJdRTA6hgvdTERTRHQLPhqn0E"
+    },
+    {
+      "name": {
+        "en": "Co Giang Street"
+      },
+      "description": {
+        "en": "Edge of exotic street food maze. Pure Vietnamese experience - BBQ embers, woks, fluorescent lights."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Cô Giang",
+      "address": {
+        "en": "Cô Giang, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7628286,
+      "longitude": 106.6945644,
+      "price_tier": "$",
+      "google_place_id": "ChIJXTNCEBQvdTERQcZNGcUw8Ss"
+    },
+    {
+      "name": {
+        "en": "Vinh Khanh Street (District 4)"
+      },
+      "description": {
+        "en": "Popular for grilled seafood, shellfish, hotpot. Opens 5pm-12am, some later. Culinary playground."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường 8",
+      "address": {
+        "en": "40 Đ. Vĩnh Khánh, Phường 8, Quận 4, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.761858499999999,
+      "longitude": 106.70223610000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_1aiYmsvdTEROJykTzEeUY0"
+    },
+    {
+      "name": {
+        "en": "Piu Piu"
+      },
+      "description": {
+        "en": "Zany funhouse with pool inflatables and painted oil drums. Three floors with different setlists, disco ball. Loyal raver following."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "41 Nguyễn Huệ, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7727276,
+      "longitude": 106.7045864,
+      "price_tier": "$$",
+      "google_place_id": "ChIJMfjWWgwvdTERU-FIYLcn7u0"
+    },
+    {
+      "name": {
+        "en": "The Observatory"
+      },
+      "description": {
+        "en": "Dancing until early hours. Alternative electronic music scene."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Phạm Ngũ Lão",
+      "address": {
+        "en": "85 Cách Mạng Tháng Tám, Phường Phạm Ngũ Lão, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7722541,
+      "longitude": 106.6913776,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ_5RTc0IvdTER27sO53BAuGQ"
+    },
+    {
+      "name": {
+        "en": "Apocalypse Now"
+      },
+      "description": {
+        "en": "24-hour establishment for round-the-clock partying."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "2f Thi Sách, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.777133,
+      "longitude": 106.70592459999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJF2D3dVYvdTERYLRnXilc5qA"
+    },
+    {
+      "name": {
+        "en": "Frolic"
+      },
+      "description": {
+        "en": "Friendly queer bar, stays open late. Welcoming atmosphere."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Cô Giang",
+      "address": {
+        "en": "151 Đề Thám, Phường Cô Giang, Quận 1, Thành phố Hồ Chí Minh 00000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7656574,
+      "longitude": 106.6945249,
+      "price_tier": "$$",
+      "google_place_id": "ChIJsRJkf5AvdTERsLNx2qrYH5U"
+    },
+    {
+      "name": {
+        "en": "Poc Poc"
+      },
+      "description": {
+        "en": "Ranked among DJ Mag's top 100 globally. World-class electronic lineups in beer-garden-meets-nightclub setting. Nguyen Dinh Chieu, District 3."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường 6",
+      "address": {
+        "en": "79a Nguyễn Đình Chiểu, Phường 6, Quận 3, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Garden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7810173,
+      "longitude": 106.69268029999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ4fIl-jMvdTER48GwNQBQ_WU"
+    },
+    {
+      "name": {
+        "en": "Bitexco Financial Tower"
+      },
+      "description": {
+        "en": "Iconic helipad design. EON Heli Bar on 52nd floor for views without observation deck cost."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "2 Đ. Hải Triều, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7717064,
+      "longitude": 106.7043759,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ6-qHzzovdTERKuM7X5ehack"
+    },
+    {
+      "name": {
+        "en": "War Remnants Museum"
+      },
+      "description": {
+        "en": "Powerful exhibits on Vietnam War. 20-minute walk from District 3."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường 6",
+      "address": {
+        "en": "Phường 6, Quận 3, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7795106,
+      "longitude": 106.6920916,
+      "price_tier": "$",
+      "google_place_id": "ChIJzwg3ojAvdTERqnQUK99K2Xw"
+    },
+    {
+      "name": {
+        "en": "Ben Thanh Market"
+      },
+      "description": {
+        "en": "Day market transitions to night market. Handicrafts, clothing, street food. Lively atmosphere."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Ben Thanh",
+      "address": {
+        "en": "Ben Thanh, District 1, Ho Chi Minh City, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.772516800000002,
+      "longitude": 106.6980208,
+      "price_tier": "$",
+      "google_place_id": "ChIJTeYpMT8vdTERMH8sUnkta40"
+    },
+    {
+      "name": {
+        "en": "Notre Dame Cathedral"
+      },
+      "description": {
+        "en": "French colonial architecture on Dong Khoi Street. Red brick facade, twin bell towers."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "01 Công trường Công xã Paris, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.779785500000001,
+      "longitude": 106.6990189,
+      "price_tier": "$",
+      "google_place_id": "ChIJUSTY5jcvdTERRVvtbJNZT-g"
+    },
+    {
+      "name": {
+        "en": "Central Post Office"
+      },
+      "description": {
+        "en": "Beautiful French colonial building. Still functioning post office with stunning interior."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "02 Công trường Công xã Paris, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7799129,
+      "longitude": 106.699902,
+      "price_tier": "$",
+      "google_place_id": "ChIJRxocgI4udTERspsje3PV-LA"
+    },
+    {
+      "name": {
+        "en": "Jade Emperor Pagoda"
+      },
+      "description": {
+        "en": "Spectacular Taoist shrine built 1909. Mythical statues, over 100 years old. Also called Tortoise Pagoda."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Đa Kao",
+      "address": {
+        "en": "73 Mai Thị Lựu, Đa Kao, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7919963,
+      "longitude": 106.69817909999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJYffbXBkpdTERjQgD7Syp7Tg"
+    },
+    {
+      "name": {
+        "en": "Fine Arts Museum"
+      },
+      "description": {
+        "en": "Yellow-and-white French/Chinese colonial building. Former wealthy Chinese merchant's residence."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Nguyễn Thái Bình",
+      "address": {
+        "en": "97A Phó Đức Chính, Phường Nguyễn Thái Bình, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7700162,
+      "longitude": 106.6991857,
+      "price_tier": "$",
+      "google_place_id": "ChIJPccxGQAvdTERYMYelqaxe8M"
+    },
+    {
+      "name": {
+        "en": "Nguyen Thuong Hien Street (D3)"
+      },
+      "description": {
+        "en": "Narrow, noir vibe. Famous for seafood - clams, sea snails, crab claws, oysters. Guitar-playing troubadours."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Đường Nguyễn Thượng Hiền",
+      "address": {
+        "en": "Đường Nguyễn Thượng Hiền, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.773997,
+      "longitude": 106.6840991,
+      "price_tier": "$",
+      "google_place_id": "ChIJbapZcSQvdTER-UHAZggz8HY"
+    }
+  ]
+}

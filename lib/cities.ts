@@ -618,6 +618,126 @@ const RING_3_CITIES: CityConfig[] = [
         vibe: "Tropical island escape",
         heroImage: "https://images.unsplash.com/photo-1664888882993-5bc4b906db5e?w=400",
     },
+    // Philippines
+    {
+        slug: "manila",
+        name: "Manila",
+        country: "Philippines",
+        countryCode: "PH",
+        emoji: "🇵🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Makati", "BGC", "Intramuros", "Binondo", "Poblacion",
+            "Quezon City", "Escolta", "Maginhawa"
+        ],
+        timezone: "Asia/Manila",
+        languages: ["tl", "en"],
+        currency: "PHP",
+        center: { lat: 14.5995, lng: 120.9842 },
+        vibe: "Street food & nightlife",
+        heroImage: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=400",
+    },
+    // Thailand (South)
+    {
+        slug: "phuket",
+        name: "Phuket",
+        country: "Thailand",
+        countryCode: "TH",
+        emoji: "🇹🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Old Town", "Patong", "Kata", "Karon", "Rawai",
+            "Kamala", "Surin", "Bang Tao"
+        ],
+        timezone: "Asia/Bangkok",
+        languages: ["th", "en"],
+        currency: "THB",
+        center: { lat: 7.8804, lng: 98.3923 },
+        vibe: "Islands & old town charm",
+        heroImage: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=400",
+    },
+    // Cambodia
+    {
+        slug: "siem-reap",
+        name: "Siem Reap",
+        country: "Cambodia",
+        countryCode: "KH",
+        emoji: "🇰🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Old Market", "Pub Street", "Wat Bo", "Sivatha",
+            "Charles de Gaulle", "Angkor Area"
+        ],
+        timezone: "Asia/Phnom_Penh",
+        languages: ["km", "en"],
+        currency: "KHR",
+        center: { lat: 13.3671, lng: 103.8448 },
+        vibe: "Temples & local cuisine",
+        heroImage: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400",
+    },
+    // Vietnam (Central)
+    {
+        slug: "hoi-an",
+        name: "Hoi An",
+        country: "Vietnam",
+        countryCode: "VN",
+        emoji: "🇻🇳",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Ancient Town", "An Bang Beach", "Cam Nam", "Tra Que",
+            "Cua Dai", "An Hoi"
+        ],
+        timezone: "Asia/Ho_Chi_Minh",
+        languages: ["vi", "en"],
+        currency: "VND",
+        center: { lat: 15.8801, lng: 108.3380 },
+        vibe: "Lanterns & local cooking",
+        heroImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400",
+    },
+    // Laos
+    {
+        slug: "luang-prabang",
+        name: "Luang Prabang",
+        country: "Laos",
+        countryCode: "LA",
+        emoji: "🇱🇦",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Old Town", "Mekong Riverside", "Night Market", "Phousi Hill",
+            "Ban Xang Khong", "Xieng Thong"
+        ],
+        timezone: "Asia/Vientiane",
+        languages: ["lo", "en"],
+        currency: "LAK",
+        center: { lat: 19.8857, lng: 102.1347 },
+        vibe: "Monks & Mekong sunsets",
+        heroImage: "https://images.unsplash.com/photo-1583417267826-aebc4d1542e1?w=400",
+    },
 ];
 
 // ============================================

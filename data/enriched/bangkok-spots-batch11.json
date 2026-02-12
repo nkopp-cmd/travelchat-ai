@@ -1,0 +1,744 @@
+{
+  "city": "bangkok",
+  "batch": 11,
+  "spots": [
+    {
+      "name": {
+        "en": "Kuaytiew Reua Boat Noodles",
+        "th": "ก๋วยเตี๋ยวเรือ"
+      },
+      "description": {
+        "en": "Authentic boat noodles in traditional style. Small bowls, intense broth.",
+        "th": "ก๋วยเตี๋ยวเรือแท้สไตล์ดั้งเดิม ชามเล็ก น้ำซุปเข้มข้น"
+      },
+      "address": {
+        "en": "Victory Monument, Bangkok",
+        "th": "อนุสาวรีย์ชัยสมรภูมิ กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Traditional",
+        "Street Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Small bowls",
+        "Try different styles",
+        "Very cheap"
+      ],
+      "neighborhood": "Victory Monument",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 13.7704,
+      "longitude": 100.5061
+    },
+    {
+      "name": {
+        "en": "Phra Athit Road",
+        "th": "ถนนพระอาทิตย์"
+      },
+      "description": {
+        "en": "Historic riverside street near Khao San. Cafes and local restaurants.",
+        "th": "ถนนริมน้ำประวัติศาสตร์ใกล้ข้าวสาร คาเฟ่และร้านอาหารท้องถิ่น"
+      },
+      "address": {
+        "en": "Phra Athit Road, Phra Nakhon, Bangkok",
+        "th": "ถนนพระอาทิตย์ พระนคร กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Riverside",
+        "Cafes",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "River views",
+        "Near Khao San",
+        "Good cafes"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.762,
+      "longitude": 100.4941
+    },
+    {
+      "name": {
+        "en": "Samsen Street",
+        "th": "ถนนสามเสน"
+      },
+      "description": {
+        "en": "Local street away from tourist areas. Real Bangkok atmosphere.",
+        "th": "ถนนท้องถิ่นห่างจากแหล่งท่องเที่ยว บรรยากาศกรุงเทพแท้"
+      },
+      "address": {
+        "en": "Samsen Road, Bangkok",
+        "th": "ถนนสามเสน กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Street Food",
+        "Authentic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Local atmosphere",
+        "Cheap eats",
+        "Real Bangkok"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 13.7636,
+      "longitude": 100.501
+    },
+    {
+      "name": {
+        "en": "Thewet Market",
+        "th": "ตลาดเทเวศร์"
+      },
+      "description": {
+        "en": "Local morning market near Dusit. Fresh produce and local food.",
+        "th": "ตลาดเช้าท้องถิ่นใกล้ดุสิต ผักสดและอาหารท้องถิ่น"
+      },
+      "address": {
+        "en": "Thewet Pier, Bangkok",
+        "th": "ท่าเทเวศร์ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Morning",
+        "Fresh",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning 6-9am",
+      "tips": [
+        "Very early",
+        "Fresh produce",
+        "Near river"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Morning 6-9am"
+      },
+      "latitude": 13.7712,
+      "longitude": 100.5025
+    },
+    {
+      "name": {
+        "en": "Dusit Zoo Area",
+        "th": "บริเวณสวนสัตว์ดุสิต"
+      },
+      "description": {
+        "en": "Historic royal area near former zoo. Wide boulevards and gardens.",
+        "th": "พื้นที่ราชวงศ์ประวัติศาสตร์ใกล้สวนสัตว์เดิม ถนนกว้างและสวน"
+      },
+      "address": {
+        "en": "Dusit District, Bangkok",
+        "th": "เขตดุสิต กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Historic",
+        "Royal",
+        "Gardens"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Near palace",
+        "Wide streets",
+        "Good for jogging"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7705,
+      "longitude": 100.5126
+    },
+    {
+      "name": {
+        "en": "Wat Benchamabophit Marble Temple",
+        "th": "วัดเบญจมบพิตร"
+      },
+      "description": {
+        "en": "Beautiful Italian marble temple. Quieter than major temples.",
+        "th": "วัดหินอ่อนอิตาเลียนสวยงาม เงียบกว่าวัดใหญ่"
+      },
+      "address": {
+        "en": "Wat Benchamabophit, Dusit, Bangkok",
+        "th": "วัดเบญจมบพิตร เขตดุสิต กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Architecture",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Italian marble",
+        "Less crowded",
+        "Beautiful Buddha"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7662,
+      "longitude": 100.5138
+    },
+    {
+      "name": {
+        "en": "Vimanmek Mansion",
+        "th": "พระที่นั่งวิมานเมฆ"
+      },
+      "description": {
+        "en": "World's largest golden teakwood mansion. Royal history museum.",
+        "th": "คฤหาสน์ไม้สักทองใหญ่ที่สุดในโลก พิพิธภัณฑ์ประวัติศาสตร์ราชวงศ์"
+      },
+      "address": {
+        "en": "Vimanmek Mansion, Dusit, Bangkok",
+        "th": "พระที่นั่งวิมานเมฆ เขตดุสิต กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Royal",
+        "Museum",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Dress code",
+        "Guided tours",
+        "Thai history"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7742,
+      "longitude": 100.512
+    },
+    {
+      "name": {
+        "en": "Nang Loeng Market",
+        "th": "ตลาดนางเลิ้ง"
+      },
+      "description": {
+        "en": "Historic wet market with vintage atmosphere. Traditional Bangkok.",
+        "th": "ตลาดสดประวัติศาสตร์บรรยากาศวินเทจ กรุงเทพดั้งเดิม"
+      },
+      "address": {
+        "en": "Nang Loeng, Bangkok",
+        "th": "นางเลิ้ง กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Historic",
+        "Wet Market",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Very old market",
+        "Locals only",
+        "Traditional food"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7591,
+      "longitude": 100.5121
+    },
+    {
+      "name": {
+        "en": "Ratchadamnoen Boxing Stadium",
+        "th": "สนามมวยราชดำเนิน"
+      },
+      "description": {
+        "en": "Historic Muay Thai stadium. Authentic Thai boxing experience.",
+        "th": "สนามมวยไทยประวัติศาสตร์ ประสบการณ์มวยไทยแท้"
+      },
+      "address": {
+        "en": "Ratchadamnoen Nok Road, Bangkok",
+        "th": "ถนนราชดำเนินนอก กรุงเทพฯ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Sports",
+        "Muay Thai",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Real fights",
+        "Historic venue",
+        "Book ringside"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7634,
+      "longitude": 100.5097
+    },
+    {
+      "name": {
+        "en": "Lumpini Boxing Stadium",
+        "th": "สนามมวยลุมพินี"
+      },
+      "description": {
+        "en": "Premier Muay Thai venue. Professional fights several nights weekly.",
+        "th": "สถานที่มวยไทยชั้นนำ การต่อสู้มืออาชีพหลายคืนต่อสัปดาห์"
+      },
+      "address": {
+        "en": "Ram Intra Road, Bangkok",
+        "th": "ถนนรามอินทรา กรุงเทพฯ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Sports",
+        "Muay Thai",
+        "Professional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Tuesday/Friday",
+      "tips": [
+        "Professional fights",
+        "Check schedule",
+        "Authentic experience"
+      ],
+      "neighborhood": "Ram Intra",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Tuesday/Friday"
+      },
+      "latitude": 13.8671,
+      "longitude": 100.6088
+    },
+    {
+      "name": {
+        "en": "Santichaiprakarn Park",
+        "th": "สวนสันติชัยปราการ"
+      },
+      "description": {
+        "en": "Riverside park with fort ruins. Sunset views of Chao Phraya.",
+        "th": "สวนริมน้ำกับซากป้อม วิวพระอาทิตย์ตกเจ้าพระยา"
+      },
+      "address": {
+        "en": "Phra Athit, Phra Nakhon, Bangkok",
+        "th": "พระอาทิตย์ พระนคร กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Riverside",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Sunset",
+      "tips": [
+        "Fort ruins",
+        "River views",
+        "Quiet spot"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7641,
+      "longitude": 100.4955
+    },
+    {
+      "name": {
+        "en": "Rattanakosin Exhibition Hall",
+        "th": "นิทรรศน์รัตนโกสินทร์"
+      },
+      "description": {
+        "en": "Interactive museum about Bangkok's founding. Multi-media exhibits.",
+        "th": "พิพิธภัณฑ์แบบโต้ตอบเกี่ยวกับการก่อตั้งกรุงเทพ นิทรรศการมัลติมีเดีย"
+      },
+      "address": {
+        "en": "Ratchadamnoen Klang Road, Bangkok",
+        "th": "ถนนราชดำเนินกลาง กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "History",
+        "Interactive"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Thai history",
+        "Air-con",
+        "Near temples"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7559,
+      "longitude": 100.5039
+    },
+    {
+      "name": {
+        "en": "Lak Mueang City Pillar Shrine",
+        "th": "ศาลหลักเมือง"
+      },
+      "description": {
+        "en": "Bangkok's founding shrine. Sacred to Thai people.",
+        "th": "ศาลก่อตั้งกรุงเทพ ศักดิ์สิทธิ์ต่อคนไทย"
+      },
+      "address": {
+        "en": "Near Grand Palace, Bangkok",
+        "th": "ใกล้พระบรมมหาราชวัง กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Sacred",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Very sacred",
+        "Traditional dancers",
+        "Free entry"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7537,
+      "longitude": 100.494
+    },
+    {
+      "name": {
+        "en": "Ministry of Defense Museum",
+        "th": "พิพิธภัณฑ์กระทรวงกลาโหม"
+      },
+      "description": {
+        "en": "Military history museum in old building. Thai military artifacts.",
+        "th": "พิพิธภัณฑ์ประวัติศาสตร์ทหารในอาคารเก่า สิ่งประดิษฐ์ทหารไทย"
+      },
+      "address": {
+        "en": "Sanam Chai Road, Bangkok",
+        "th": "ถนนสนามไชย กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Military",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Old weapons",
+        "Historic building"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7494,
+      "longitude": 100.494
+    },
+    {
+      "name": {
+        "en": "Queen Sirikit Art Gallery",
+        "th": "หอศิลป์สมเด็จพระนางเจ้าสิริกิติ์"
+      },
+      "description": {
+        "en": "National art gallery with Thai contemporary art. Rotating exhibitions.",
+        "th": "หอศิลป์แห่งชาติศิลปะร่วมสมัยไทย นิทรรศการหมุนเวียน"
+      },
+      "address": {
+        "en": "Ratchadamnoen Klang Road, Bangkok",
+        "th": "ถนนราชดำเนินกลาง กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Gallery",
+        "Contemporary"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Thai artists",
+        "Free entry often",
+        "Near Democracy Monument"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7569,
+      "longitude": 100.5047
+    },
+    {
+      "name": {
+        "en": "Democracy Monument",
+        "th": "อนุสาวรีย์ประชาธิปไตย"
+      },
+      "description": {
+        "en": "Historic monument on grand boulevard. Thai political history landmark.",
+        "th": "อนุสาวรีย์ประวัติศาสตร์บนถนนใหญ่ สถานที่สำคัญประวัติศาสตร์การเมืองไทย"
+      },
+      "address": {
+        "en": "Ratchadamnoen Road, Bangkok",
+        "th": "ถนนราชดำเนิน กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Monument",
+        "History",
+        "Political"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Traffic circle",
+        "Night lighting",
+        "Photo spot"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7567,
+      "longitude": 100.5018
+    },
+    {
+      "name": {
+        "en": "Loha Prasat Metal Castle",
+        "th": "โลหะปราสาท"
+      },
+      "description": {
+        "en": "Unique 37-spire metal castle temple. Only one of three in world.",
+        "th": "วัดปราสาทโลหะ 37 ยอดเดียวในโลก หนึ่งในสามแห่งในโลก"
+      },
+      "address": {
+        "en": "Wat Ratchanatdaram, Phra Nakhon, Bangkok",
+        "th": "วัดราชนัดดาฯ พระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Unique",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Climb to top",
+        "Unique structure",
+        "Less crowded"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7548,
+      "longitude": 100.5042
+    },
+    {
+      "name": {
+        "en": "Golden Mount Wat Saket",
+        "th": "ภูเขาทอง วัดสระเกศ"
+      },
+      "description": {
+        "en": "Hilltop temple with city views. 300 steps to golden chedi.",
+        "th": "วัดบนเนินกับวิวเมือง 300 ขั้นสู่เจดีย์ทอง"
+      },
+      "address": {
+        "en": "Buri Ram Road, Bangkok",
+        "th": "ถนนบุรีรัมย์ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Views",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Sunset",
+      "tips": [
+        "300 steps",
+        "City views",
+        "Sunset recommended"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7538,
+      "longitude": 100.5068
+    },
+    {
+      "name": {
+        "en": "Bamrung Muang Road Buddhist Supplies",
+        "th": "ถนนบำรุงเมือง สังฆภัณฑ์"
+      },
+      "description": {
+        "en": "Street of Buddhist supply shops. Monk robes, temple items.",
+        "th": "ถนนร้านสังฆภัณฑ์ จีวรพระ ของวัด"
+      },
+      "address": {
+        "en": "Bamrung Muang Road, Bangkok",
+        "th": "ถนนบำรุงเมือง กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Buddhist",
+        "Traditional",
+        "Specialty"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Monk supplies",
+        "Temple items",
+        "Unique shopping"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Saphan Lek Electronics Market",
+        "th": "สะพานเหล็ก"
+      },
+      "description": {
+        "en": "Electronics and gadget market area. Computer parts and gaming.",
+        "th": "พื้นที่ตลาดอิเล็กทรอนิกส์และแก็ดเจ็ต ชิ้นส่วนคอมพิวเตอร์และเกม"
+      },
+      "address": {
+        "en": "Charoen Krung Road, Bangkok",
+        "th": "ถนนเจริญกรุง กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Gaming",
+        "Tech"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Cheap electronics",
+        "Gaming gear",
+        "Bargain hard"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7454,
+      "longitude": 100.5024
+    }
+  ]
+}

@@ -1,0 +1,777 @@
+{
+  "city": "Tokyo",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:43:59.433Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Oimachi Tracks Tsutaya"
+      },
+      "description": {
+        "en": "Book lounge and café in multi-use complex."
+      },
+      "city": "Tokyo",
+      "neighborhood": "1",
+      "address": {
+        "en": "2-chōme-1-1 Hiromachi, Shinagawa City, Tokyo 140-0005, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6082956,
+      "longitude": 139.7331433,
+      "price_tier": "$$",
+      "google_place_id": "ChIJZwteBwCLGGAR0zuRb9cuqyo"
+    },
+    {
+      "name": {
+        "en": "Edo-Tokyo Museum"
+      },
+      "description": {
+        "en": "Reopened with Edo period recreations and new Meiji exhibits."
+      },
+      "city": "Tokyo",
+      "neighborhood": "4",
+      "address": {
+        "en": "1-chōme-4-1 Yokoami, Sumida City, Tokyo 130-0015, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6965972,
+      "longitude": 139.7957336,
+      "price_tier": "$$",
+      "google_place_id": "ChIJOWXu4TSJGGAR07vEEi8fZAw"
+    },
+    {
+      "name": {
+        "en": "MoN Takanawa"
+      },
+      "description": {
+        "en": "Tatami rooms and moon-viewing deck for Japanese culture."
+      },
+      "city": "Tokyo",
+      "neighborhood": "16",
+      "address": {
+        "en": "3-chōme-16-1 Mita, Minato City, Tokyo 108-0073, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6396988,
+      "longitude": 139.7418178,
+      "price_tier": "$",
+      "google_place_id": "ChIJh0l19UeLGGARpTcL3Xl0sfQ"
+    },
+    {
+      "name": {
+        "en": "Basegate Yokohama Kannai"
+      },
+      "description": {
+        "en": "Cultural hub with lounge, workspace, gallery, and restaurant."
+      },
+      "city": "Tokyo",
+      "neighborhood": "1 Chome",
+      "address": {
+        "en": "1 Chome Masagocho, Naka Ward, Yokohama, Kanagawa 231-0016, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.444089399999996,
+      "longitude": 139.6378488,
+      "price_tier": "$$",
+      "google_place_id": "ChIJRTtMDwBdGGARV45kJ-VBhmY"
+    },
+    {
+      "name": {
+        "en": "Yurakucho Park"
+      },
+      "description": {
+        "en": "Urban oasis with cultural hub, sake breweries, and pop-up art."
+      },
+      "city": "Tokyo",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-6 Hibiyakōen, Chiyoda City, Tokyo 100-0012, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6736115,
+      "longitude": 139.75587690000003,
+      "price_tier": "$",
+      "google_place_id": "ChIJx6xXOPKLGGARtPr6qZZ2nHA"
+    },
+    {
+      "name": {
+        "en": "PokéPark KANTO Forest"
+      },
+      "description": {
+        "en": "Hidden Pokémon in vast natural forests."
+      },
+      "city": "Tokyo",
+      "neighborhood": "1",
+      "address": {
+        "en": "Japan, 〒206-8725 Tokyo, Inagi, Tama Ward, Yanokuchi, 4-chōme−1−４０１５−１ よみうりランド遊園地内"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6260603,
+      "longitude": 139.5215629,
+      "price_tier": "$$",
+      "google_place_id": "ChIJq5iQDi_7GGARnFij8pe2yDo"
+    },
+    {
+      "name": {
+        "en": "Lush Green Park at Takanawa Gateway City"
+      },
+      "description": {
+        "en": "Scenic walks in urban greenery."
+      },
+      "city": "Tokyo",
+      "neighborhood": "21",
+      "address": {
+        "en": "2-chōme-21-21 Takanawa, Minato City, Tokyo 108-0074, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.635596500000005,
+      "longitude": 139.7397208,
+      "price_tier": "$",
+      "google_place_id": "ChIJnbjuhOuLGGARCT2ffPShwsc"
+    },
+    {
+      "name": {
+        "en": "Nezu Shrine",
+        "ja": "根津神社"
+      },
+      "description": {
+        "en": "One of Tokyo's oldest shrines with rows of red torii gates and famous spring azalea festival. Near Yanaka."
+      },
+      "city": "Tokyo",
+      "neighborhood": "28",
+      "address": {
+        "en": "1-chōme-28-9 Nezu, Bunkyo City, Tokyo 113-0031, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7201366,
+      "longitude": 139.76076949999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-X4hzjKMGGARDSsGeHOACgw"
+    },
+    {
+      "name": {
+        "en": "Yanaka Cemetery & Gardens"
+      },
+      "description": {
+        "en": "Peaceful historic area that survived WWII bombings - narrow lanes, wooden houses, small galleries, and secondhand bookstores."
+      },
+      "city": "Tokyo",
+      "neighborhood": "5",
+      "address": {
+        "en": "7-chōme-5-24 Yanaka, Taito City, Tokyo 110-0001, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7240044,
+      "longitude": 139.7702991,
+      "price_tier": "$",
+      "google_place_id": "ChIJO8HByiqMGGARP9I5xBEXlCM"
+    },
+    {
+      "name": {
+        "en": "Edo-Tokyo Museum"
+      },
+      "description": {
+        "en": "Life-size models of historical Tokyo."
+      },
+      "city": "Tokyo",
+      "neighborhood": "4",
+      "address": {
+        "en": "1-chōme-4-1 Yokoami, Sumida City, Tokyo 130-0015, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6965972,
+      "longitude": 139.7957336,
+      "price_tier": "$$",
+      "google_place_id": "ChIJOWXu4TSJGGAR07vEEi8fZAw"
+    },
+    {
+      "name": {
+        "en": "Harajuku Street Eats"
+      },
+      "description": {
+        "en": "Anime-inspired snacks near new cafes."
+      },
+      "city": "Tokyo",
+      "neighborhood": "2",
+      "address": {
+        "en": "6-chōme-2-4 Jingūmae, Shibuya, Tokyo 150-0001, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6675016,
+      "longitude": 139.70610259999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJF6tIb6SMGGAR2iuQeXjrMIs"
+    },
+    {
+      "name": {
+        "en": "Shinjuku Gyoen National Garden"
+      },
+      "description": {
+        "en": "Vintage park with historical ties."
+      },
+      "city": "Tokyo",
+      "neighborhood": "Naitōmachi",
+      "address": {
+        "en": "11 Naitōmachi, Shinjuku City, Tokyo 160-0014, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.685176299999995,
+      "longitude": 139.7100517,
+      "price_tier": "$",
+      "google_place_id": "ChIJPyOTG8KMGGARh_IXobWxHmo"
+    },
+    {
+      "name": {
+        "en": "Shimokitazawa District"
+      },
+      "description": {
+        "en": "Tokyo's bohemian thrift paradise with 30+ vintage shops, live music venues, indie boutiques, and record shops. The ultimate thrifting destination."
+      },
+      "city": "Tokyo",
+      "neighborhood": "Shimokitazawa",
+      "address": {
+        "en": "Shimokitazawa, Kitazawa, Setagaya City, Tokyo 155-0031, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.665786,
+      "longitude": 139.66986269999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJw_teZ_8hGGARgsSeLR2OLjM"
+    },
+    {
+      "name": {
+        "en": "CIRCULABLE SUPPLY (Shimokitazawa)"
+      },
+      "description": {
+        "en": "New April 2025 flagship from Baycrew's with 1,500-2,000 curated items including luxury imports like Louis Vuitton, Japanese designers like Issey Miyake, and vintage Levi's."
+      },
+      "city": "Tokyo",
+      "neighborhood": "30",
+      "address": {
+        "en": "Japan, 〒155-0032 Tokyo, Setagaya City, Daizawa, 5-chōme−30−２ A＊G Shimokitazawa, 1階"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6579747,
+      "longitude": 139.6677901,
+      "price_tier": "$$",
+      "google_place_id": "ChIJnVwqGDyNGGARkIWsytxbAOQ"
+    },
+    {
+      "name": {
+        "en": "Notime Shimokitazawa"
+      },
+      "description": {
+        "en": "Futuristic 24-hour thrift shop opened April 2025 with staffed hours (noon-9pm) and scan-to-enter unstaffed hours. First hybrid system in Japan."
+      },
+      "city": "Tokyo",
+      "neighborhood": "19",
+      "address": {
+        "en": "Japan, 〒155-0031 Tokyo, Setagaya City, Kitazawa, 2-chōme−19−１７ サザン石井ビル"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.660272,
+      "longitude": 139.6672633,
+      "price_tier": "$",
+      "google_place_id": "ChIJ3dW4JQDzGGARRqcRBSeCqv0"
+    },
+    {
+      "name": {
+        "en": "Flamingo (Shimokitazawa)"
+      },
+      "description": {
+        "en": "Local legend since 2005 with curated American vintage denim, retro dresses, leather jackets. Look for iconic neon flamingo signs. Two stores in Shimokita."
+      },
+      "city": "Tokyo",
+      "neighborhood": "25",
+      "address": {
+        "en": "Japan, 〒155-0031 Tokyo, Setagaya City, Kitazawa, 2-chōme−25−１２ リサビル 1Ｆ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6626969,
+      "longitude": 139.66705969999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJJfSKMzPzGGAR8SkxrJD5qoc"
+    },
+    {
+      "name": {
+        "en": "Stick Out (Shimokitazawa)"
+      },
+      "description": {
+        "en": "Everything priced at ¥800 - used clothing, accessories, and upcycled fashion. In Shimokita Garage Department with 20+ local vendors."
+      },
+      "city": "Tokyo",
+      "neighborhood": "14",
+      "address": {
+        "en": "Japan, 〒155-0031 Tokyo, Setagaya City, 世田谷区Kitazawa, 2-chōme−14−１４−１６ 2F"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6598494,
+      "longitude": 139.6676511,
+      "price_tier": "$",
+      "google_place_id": "ChIJq1Uae2nzGGARwnP7kSX9lk0"
+    },
+    {
+      "name": {
+        "en": "New York Joe Exchange (Shimokitazawa)"
+      },
+      "description": {
+        "en": "High-turnover shop where customers sell their clothes - chaotic treasure-hunt atmosphere with love-at-first-sight vintage finds."
+      },
+      "city": "Tokyo",
+      "neighborhood": "26",
+      "address": {
+        "en": "Japan, 〒155-0031 Tokyo, Setagaya City, Kitazawa, 3-chōme−26−４ 栃倉ビル"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6639104,
+      "longitude": 139.66815019999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJI_aZ32rzGGARhjQlOeV4oB0"
+    },
+    {
+      "name": {
+        "en": "Chicago (Harajuku/Shimokitazawa)"
+      },
+      "description": {
+        "en": "25+ year institution with secondhand kimonos, yukata, kimono accessories, and American vintage. 3 stores in Harajuku, 1 in Shimokitazawa."
+      },
+      "city": "Tokyo",
+      "neighborhood": "32",
+      "address": {
+        "en": "5-chōme-32-5 Daizawa, Setagaya City, Tokyo 155-0032, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6590071,
+      "longitude": 139.6676807,
+      "price_tier": "$$",
+      "google_place_id": "ChIJQeShDWnzGGARA5rH2wwnK4s"
+    },
+    {
+      "name": {
+        "en": "Ragtag (Shimokitazawa)"
+      },
+      "description": {
+        "en": "High-end secondhand with luxury brands like ACME, Ralph Lauren, Stüssy, Supreme, Burberry, COACH, GUESS. Pristine quality feels brand new."
+      },
+      "city": "Tokyo",
+      "neighborhood": "34",
+      "address": {
+        "en": "2-chōme-34-12 Kitazawa, Setagaya City, Tokyo 155-0031, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.663026599999995,
+      "longitude": 139.66847629999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJQbfC_mrzGGARhMNloioNlFM"
+    },
+    {
+      "name": {
+        "en": "Toyo Department (Shimokitazawa)"
+      },
+      "description": {
+        "en": "Warehouse with 10+ little vintage shops, secondhand stores, and handmade accessory vendors. Perfect for one-of-a-kind gifts."
+      },
+      "city": "Tokyo",
+      "neighborhood": "25",
+      "address": {
+        "en": "2-chōme-25-8 Kitazawa, Setagaya City, Tokyo 155-0031, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6624012,
+      "longitude": 139.6670095,
+      "price_tier": "$$",
+      "google_place_id": "ChIJkVyhoGvzGGARvUZaSxjpb2Q"
+    },
+    {
+      "name": {
+        "en": "Treasure Factory Style (Shimokitazawa)"
+      },
+      "description": {
+        "en": "Eclectic mix of non-branded and designer clothes. Head upstairs or to the back for more affordable items (¥300-500 on sale)."
+      },
+      "city": "Tokyo",
+      "neighborhood": "3",
+      "address": {
+        "en": "Japan, 〒155-0031 Tokyo, Setagaya City, Kitazawa, 2-chōme−3−９ Style下北沢 1F‎"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6602457,
+      "longitude": 139.6684277,
+      "price_tier": "$$",
+      "google_place_id": "ChIJDePlg2nzGGARofCnYZae0MI"
+    },
+    {
+      "name": {
+        "en": "Mode Off (Shimokitazawa)"
+      },
+      "description": {
+        "en": "From the Hard-Off chain but classier in Shimokitazawa. Affordable prices with surprisingly good quality for the trendy location."
+      },
+      "city": "Tokyo",
+      "neighborhood": "26",
+      "address": {
+        "en": "Shimokitazawa Green Garden, 2-chōme-26-14 Kitazawa, Setagaya City, Tokyo 155-0031, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6625331,
+      "longitude": 139.666222,
+      "price_tier": "$",
+      "google_place_id": "ChIJAQCwemvzGGARunggslKz_2A"
+    },
+    {
+      "name": {
+        "en": "Koenji Thrift District"
+      },
+      "description": {
+        "en": "Raw, creative neighborhood - birthplace of Japan's punk scene. More mature and edgy than Shimokitazawa with record shops and quirky cafes."
+      },
+      "city": "Tokyo",
+      "neighborhood": "25",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 4-chōme−25−３ 高南ビル 1F"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.704325,
+      "longitude": 139.6490102,
+      "price_tier": "$$",
+      "google_place_id": "ChIJnWx1bnHzGGARz289XXZweEQ"
+    },
+    {
+      "name": {
+        "en": "Kuroneko Marin (Koenji)"
+      },
+      "description": {
+        "en": "Beloved vintage store near Koenji Hikawa Shrine with curated Japanese streetwear and handmade one-of-a-kind pieces."
+      },
+      "city": "Tokyo",
+      "neighborhood": "20",
+      "address": {
+        "en": "3-chōme-20-24 Kōenjikita, Suginami City, Tokyo 166-0002, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.70645100000001,
+      "longitude": 139.6491407,
+      "price_tier": "$$",
+      "google_place_id": "ChIJC-HGlX3yGGARvqU6iQOgB8I"
+    }
+  ]
+}

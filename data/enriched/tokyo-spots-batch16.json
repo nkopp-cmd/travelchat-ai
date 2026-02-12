@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 16,
+  "spots": [
+    {
+      "name": {
+        "en": "Palette Town Venus Fort",
+        "ja": "パレットタウンヴィーナスフォート"
+      },
+      "description": {
+        "en": "European-themed shopping mall in Odaiba. Indoor sky ceiling and outlet shopping.",
+        "ja": "お台場のヨーロッパ風ショッピングモール。屋内の空の天井とアウトレットショッピング。"
+      },
+      "address": {
+        "en": "Aomi, Koto-ku, Tokyo",
+        "ja": "東京都江東区青海"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "European",
+        "Outlet"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Indoor sky ceiling",
+        "Outlet prices",
+        "European atmosphere"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6138,
+      "longitude": 139.7814
+    },
+    {
+      "name": {
+        "en": "DiverCity Tokyo Plaza",
+        "ja": "ダイバーシティ東京プラザ"
+      },
+      "description": {
+        "en": "Shopping complex with life-size Gundam statue. Anime shops and family entertainment.",
+        "ja": "実物大ガンダム像があるショッピング施設。アニメショップとファミリーエンターテイメント。"
+      },
+      "address": {
+        "en": "1-1-10 Aomi, Koto-ku, Tokyo",
+        "ja": "東京都江東区青海1-1-10"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Gundam",
+        "Anime",
+        "Family"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Afternoon",
+      "tips": [
+        "Life-size Gundam",
+        "Gundam Base Tokyo",
+        "Round1 entertainment"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6246,
+      "longitude": 139.776
+    },
+    {
+      "name": {
+        "en": "Aqua City Odaiba",
+        "ja": "アクアシティお台場"
+      },
+      "description": {
+        "en": "Waterfront shopping center with Statue of Liberty views. Ramen stadium and movie theaters.",
+        "ja": "自由の女神像が見えるウォーターフロントショッピングセンター。ラーメン国技館と映画館。"
+      },
+      "address": {
+        "en": "1-7-1 Daiba, Minato-ku, Tokyo",
+        "ja": "東京都港区台場1-7-1"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Waterfront",
+        "Ramen",
+        "Movies"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Ramen stadium",
+        "Rainbow Bridge views",
+        "Sunset dining"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6278,
+      "longitude": 139.7735
+    },
+    {
+      "name": {
+        "en": "Fuji TV Building",
+        "ja": "フジテレビ本社ビル"
+      },
+      "description": {
+        "en": "Iconic Tange-designed building with observation deck. TV studio tours and character shop.",
+        "ja": "展望台がある丹下設計の象徴的なビル。TVスタジオツアーとキャラクターショップ。"
+      },
+      "address": {
+        "en": "2-4-8 Daiba, Minato-ku, Tokyo",
+        "ja": "東京都港区台場2-4-8"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "TV",
+        "Architecture",
+        "Observatory"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Kenzo Tange building",
+        "TV studio tours",
+        "Observation sphere"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.36,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6272,
+      "longitude": 139.7752
+    },
+    {
+      "name": {
+        "en": "Daiba Park Beach",
+        "ja": "台場公園ビーチ"
+      },
+      "description": {
+        "en": "Urban beach with historic battery ruins. Rainbow Bridge and Tokyo skyline views.",
+        "ja": "歴史的な砲台跡がある都市ビーチ。レインボーブリッジと東京スカイラインの眺め。"
+      },
+      "address": {
+        "en": "Daiba, Minato-ku, Tokyo",
+        "ja": "東京都港区台場"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Historic",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Sunset",
+      "tips": [
+        "Historic fort ruins",
+        "No swimming",
+        "Great sunset spot"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 35.6333,
+      "longitude": 139.7709
+    },
+    {
+      "name": {
+        "en": "Telecom Center Observatory",
+        "ja": "テレコムセンター展望台"
+      },
+      "description": {
+        "en": "Less crowded observation deck in Odaiba. Night views of Rainbow Bridge and Tokyo.",
+        "ja": "お台場の混雑が少ない展望台。レインボーブリッジと東京の夜景。"
+      },
+      "address": {
+        "en": "2-5-10 Aomi, Koto-ku, Tokyo",
+        "ja": "東京都江東区青海2-5-10"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Observatory",
+        "Night Views",
+        "Quiet"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Less crowded",
+        "Night views",
+        "Cheap admission"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6171,
+      "longitude": 139.7801
+    },
+    {
+      "name": {
+        "en": "Miraikan Science Museum",
+        "ja": "日本科学未来館"
+      },
+      "description": {
+        "en": "National Museum of Emerging Science. ASIMO robot and Geo-Cosmos globe.",
+        "ja": "国立の先端科学技術博物館。ASIMOロボットとジオ・コスモス地球儀。"
+      },
+      "address": {
+        "en": "2-3-6 Aomi, Koto-ku, Tokyo",
+        "ja": "東京都江東区青海2-3-6"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Science",
+        "Museum",
+        "Technology"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "ASIMO demonstrations",
+        "Interactive exhibits",
+        "English available"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6192,
+      "longitude": 139.7767
+    },
+    {
+      "name": {
+        "en": "Jonanjima Beach",
+        "ja": "城南島海浜公園"
+      },
+      "description": {
+        "en": "Beach with airplane views near Haneda. Planes land directly overhead.",
+        "ja": "羽田近くの飛行機が見えるビーチ。飛行機が頭上を直接着陸。"
+      },
+      "address": {
+        "en": "4-2-2 Jonanjima, Ota-ku, Tokyo",
+        "ja": "東京都大田区城南島4-2-2"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Planes",
+        "Photography"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Planes overhead",
+        "BBQ areas",
+        "Local families"
+      ],
+      "neighborhood": "Jonanjima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.5814,
+      "longitude": 139.7848
+    },
+    {
+      "name": {
+        "en": "Omori Furusato Beach",
+        "ja": "大森ふるさとの浜辺公園"
+      },
+      "description": {
+        "en": "Artificial beach in Ota Ward. Swimming and water play for local families.",
+        "ja": "大田区の人工ビーチ。地元家族向けの水泳と水遊び。"
+      },
+      "address": {
+        "en": "Omori-Higashi, Ota-ku, Tokyo",
+        "ja": "東京都大田区大森東"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Swimming",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Summer",
+      "tips": [
+        "Swimming allowed",
+        "Local families",
+        "Summer only"
+      ],
+      "neighborhood": "Omori",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Summer"
+      },
+      "latitude": 35.5762,
+      "longitude": 139.7433
+    },
+    {
+      "name": {
+        "en": "Rokugo Bridge Tama River",
+        "ja": "六郷橋多摩川"
+      },
+      "description": {
+        "en": "Riverside area for sports and relaxation. Baseball fields and cycling near airport.",
+        "ja": "スポーツとリラックスのための河川敷エリア。空港近くの野球場とサイクリング。"
+      },
+      "address": {
+        "en": "Rokugo, Ota-ku, Tokyo",
+        "ja": "東京都大田区六郷"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "River",
+        "Sports",
+        "Cycling"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Weekend",
+      "tips": [
+        "Near Haneda",
+        "Sports fields",
+        "River cycling"
+      ],
+      "neighborhood": "Rokugo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.5655,
+      "longitude": 139.6975
+    },
+    {
+      "name": {
+        "en": "Kawasaki Daishi Approach",
+        "ja": "川崎大師参道"
+      },
+      "description": {
+        "en": "Approach to major temple just across Tokyo border. Traditional shopping and sweets.",
+        "ja": "東京境界のすぐ向こうにある主要寺院への参道。伝統的なショッピングと和菓子。"
+      },
+      "address": {
+        "en": "Kawasaki Daishi, Kawasaki, Kanagawa",
+        "ja": "神奈川県川崎市川崎大師"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Traditional",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Major Buddhist temple",
+        "Traditional sweets",
+        "New Year's crowds"
+      ],
+      "neighborhood": "Kawasaki",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.5343,
+      "longitude": 139.7294
+    },
+    {
+      "name": {
+        "en": "Chofu Jindaiji Temple",
+        "ja": "調布深大寺"
+      },
+      "description": {
+        "en": "Historic temple famous for soba noodles. Multiple soba shops and botanical garden.",
+        "ja": "そばで有名な歴史的な寺院。多くのそば店と植物園。"
+      },
+      "address": {
+        "en": "5-15-1 Jindaiji-Motomachi, Chofu-shi, Tokyo",
+        "ja": "東京都調布市深大寺元町5-15-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Soba",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Famous soba",
+        "Botanical garden",
+        "Historic temple"
+      ],
+      "neighborhood": "Chofu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 35.6622,
+      "longitude": 139.5618
+    },
+    {
+      "name": {
+        "en": "Jindai Botanical Garden",
+        "ja": "神代植物公園"
+      },
+      "description": {
+        "en": "Large botanical garden near Jindaiji Temple. Rose garden and seasonal flowers.",
+        "ja": "深大寺近くの大きな植物園。バラ園と季節の花。"
+      },
+      "address": {
+        "en": "5-31-10 Jindaiji-Motomachi, Chofu-shi, Tokyo",
+        "ja": "東京都調布市深大寺元町5-31-10"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Botanical",
+        "Flowers"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Spring/Autumn",
+      "tips": [
+        "Large rose garden",
+        "Near temple",
+        "Seasonal flowers"
+      ],
+      "neighborhood": "Chofu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Spring/Autumn"
+      },
+      "latitude": 35.6652,
+      "longitude": 139.5512
+    },
+    {
+      "name": {
+        "en": "Ghibli Museum Mitaka",
+        "ja": "三鷹の森ジブリ美術館"
+      },
+      "description": {
+        "en": "Studio Ghibli animation museum. Advance tickets only, no walk-ins allowed.",
+        "ja": "スタジオジブリのアニメーション美術館。事前チケットのみ、当日入場不可。"
+      },
+      "address": {
+        "en": "1-1-83 Shimorenjaku, Mitaka-shi, Tokyo",
+        "ja": "東京都三鷹市下連雀1-1-83"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Anime",
+        "Museum",
+        "Ghibli"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Any (with ticket)",
+      "tips": [
+        "Book months ahead",
+        "No photos inside",
+        "Original short films"
+      ],
+      "neighborhood": "Mitaka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Any (with ticket)"
+      },
+      "latitude": 35.6962,
+      "longitude": 139.5706
+    },
+    {
+      "name": {
+        "en": "Mitaka Astronomical Observatory",
+        "ja": "三鷹天文台"
+      },
+      "description": {
+        "en": "National Astronomical Observatory with historic telescopes. Free grounds and occasional events.",
+        "ja": "歴史的な望遠鏡がある国立天文台。無料の敷地と時折のイベント。"
+      },
+      "address": {
+        "en": "2-21-1 Osawa, Mitaka-shi, Tokyo",
+        "ja": "東京都三鷹市大沢2-21-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Science",
+        "Observatory",
+        "Free"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Open event days",
+      "tips": [
+        "Free grounds",
+        "Historic telescopes",
+        "Special events"
+      ],
+      "neighborhood": "Mitaka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Open event days"
+      },
+      "latitude": 35.6769,
+      "longitude": 139.5386
+    },
+    {
+      "name": {
+        "en": "Nogawa Park",
+        "ja": "野川公園"
+      },
+      "description": {
+        "en": "Large natural park along Noga River. Barbecue areas and bird watching.",
+        "ja": "野川沿いの大きな自然公園。バーベキューエリアと野鳥観察。"
+      },
+      "address": {
+        "en": "6-4-1 Osawa, Mitaka-shi, Tokyo",
+        "ja": "東京都三鷹市大沢6-4-1"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Nature",
+        "BBQ"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Weekend",
+      "tips": [
+        "BBQ permitted",
+        "Bird watching",
+        "Natural setting"
+      ],
+      "neighborhood": "Mitaka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.605,
+      "longitude": 139.6442
+    },
+    {
+      "name": {
+        "en": "Musashino Central Park",
+        "ja": "武蔵野中央公園"
+      },
+      "description": {
+        "en": "Former military base turned park. Wide open spaces for local families.",
+        "ja": "元軍用地が公園に。地元家族向けの広々とした空間。"
+      },
+      "address": {
+        "en": "Midori-cho, Musashino-shi, Tokyo",
+        "ja": "東京都武蔵野市緑町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Military History",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Weekend",
+      "tips": [
+        "Former base",
+        "Wide open",
+        "Local families"
+      ],
+      "neighborhood": "Musashino",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.7186,
+      "longitude": 139.5585
+    },
+    {
+      "name": {
+        "en": "Musashisakai Station Area",
+        "ja": "武蔵境駅エリア"
+      },
+      "description": {
+        "en": "Pleasant station area with good dining. Library and local community atmosphere.",
+        "ja": "良い食事がある快適な駅エリア。図書館と地元のコミュニティ雰囲気。"
+      },
+      "address": {
+        "en": "Musashisakai, Musashino-shi, Tokyo",
+        "ja": "東京都武蔵野市武蔵境"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Station",
+        "Community",
+        "Dining"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Good library",
+        "Local dining",
+        "Community feel"
+      ],
+      "neighborhood": "Musashisakai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.7094,
+      "longitude": 139.5437
+    },
+    {
+      "name": {
+        "en": "Koganei Park",
+        "ja": "小金井公園"
+      },
+      "description": {
+        "en": "One of Tokyo's largest parks with Edo-Tokyo Open Air Museum. Historic buildings preserved.",
+        "ja": "江戸東京たてもの園がある東京最大級の公園。歴史的建造物を保存。"
+      },
+      "address": {
+        "en": "Koganei Park, Koganei-shi, Tokyo",
+        "ja": "東京都小金井市小金井公園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Museum",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Any season",
+      "tips": [
+        "Open air museum",
+        "Cherry blossoms",
+        "Very large park"
+      ],
+      "neighborhood": "Koganei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Any season"
+      },
+      "latitude": 35.7165,
+      "longitude": 139.5196
+    },
+    {
+      "name": {
+        "en": "Edo-Tokyo Open Air Museum",
+        "ja": "江戸東京たてもの園"
+      },
+      "description": {
+        "en": "Historic buildings relocated and preserved. Walk through old Tokyo architecture.",
+        "ja": "移築され保存された歴史的建造物。昔の東京建築を歩く。"
+      },
+      "address": {
+        "en": "3-7-1 Sakura-cho, Koganei-shi, Tokyo",
+        "ja": "東京都小金井市桜町3-7-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Architecture",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "30+ historic buildings",
+        "Ghibli inspiration",
+        "Full day needed"
+      ],
+      "neighborhood": "Koganei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7164,
+      "longitude": 139.5127
+    }
+  ]
+}

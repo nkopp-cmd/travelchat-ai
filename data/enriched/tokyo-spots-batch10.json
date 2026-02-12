@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 10,
+  "spots": [
+    {
+      "name": {
+        "en": "Kiyosumi-Shirakawa Coffee Town",
+        "ja": "清澄白河コーヒータウン"
+      },
+      "description": {
+        "en": "Third-wave coffee destination with roasters and cafes. Blue Bottle Japan's first store location.",
+        "ja": "ロースターとカフェがあるサードウェーブコーヒーの目的地。ブルーボトル日本1号店の場所。"
+      },
+      "address": {
+        "en": "Kiyosumi-Shirakawa, Koto-ku, Tokyo",
+        "ja": "東京都江東区清澄白河"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Third Wave",
+        "Trendy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Blue Bottle original",
+        "Multiple roasters",
+        "Gallery area"
+      ],
+      "neighborhood": "Kiyosumi-Shirakawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6821,
+      "longitude": 139.7988
+    },
+    {
+      "name": {
+        "en": "Fukagawa Fudo Temple",
+        "ja": "深川不動堂"
+      },
+      "description": {
+        "en": "Buddhist temple with daily fire rituals. Dramatic goma fire ceremonies multiple times daily.",
+        "ja": "毎日火の儀式がある仏教寺院。毎日複数回行われるドラマチックな護摩火焚き。"
+      },
+      "address": {
+        "en": "1-17-13 Tomioka, Koto-ku, Tokyo",
+        "ja": "東京都江東区富岡1-17-13"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Ritual",
+        "Buddhist"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning ceremony",
+      "tips": [
+        "Fire ceremonies daily",
+        "Check schedule",
+        "Near Tomioka Hachimangu"
+      ],
+      "neighborhood": "Fukagawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning ceremony"
+      },
+      "latitude": 35.673,
+      "longitude": 139.7983
+    },
+    {
+      "name": {
+        "en": "Tomioka Hachimangu Shrine",
+        "ja": "富岡八幡宮"
+      },
+      "description": {
+        "en": "Shinto shrine with sumo wrestling connections. Monthly flea market and summer water festival.",
+        "ja": "相撲と縁のある神道神社。月例フリーマーケットと夏の水かけ祭り。"
+      },
+      "address": {
+        "en": "1-20-3 Tomioka, Koto-ku, Tokyo",
+        "ja": "東京都江東区富岡1-20-3"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Sumo",
+        "Festival"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Monthly flea market",
+      "tips": [
+        "Sumo origins",
+        "15th/28th flea markets",
+        "Summer water festival"
+      ],
+      "neighborhood": "Fukagawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Monthly flea market"
+      },
+      "latitude": 35.6716,
+      "longitude": 139.7998
+    },
+    {
+      "name": {
+        "en": "Monzen-Nakacho Izakaya",
+        "ja": "門前仲町居酒屋街"
+      },
+      "description": {
+        "en": "Traditional drinking district with old-school izakayas. Authentic Tokyo nightlife away from tourists.",
+        "ja": "昔ながらの居酒屋が並ぶ伝統的な飲み屋街。観光客から離れた本格的な東京ナイトライフ。"
+      },
+      "address": {
+        "en": "Monzen-Nakacho, Koto-ku, Tokyo",
+        "ja": "東京都江東区門前仲町"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Izakaya",
+        "Traditional",
+        "Authentic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Old school izakayas",
+        "Near temples",
+        "Local crowd"
+      ],
+      "neighborhood": "Monzen-Nakacho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6726,
+      "longitude": 139.7949
+    },
+    {
+      "name": {
+        "en": "Shin-Kiba Wood Terminal",
+        "ja": "新木場木材ターミナル"
+      },
+      "description": {
+        "en": "Industrial waterfront with club venues and Ageha. Massive nightclub complex on the bay.",
+        "ja": "クラブ会場とアゲハがある工業ウォーターフロント。湾岸の巨大ナイトクラブ複合施設。"
+      },
+      "address": {
+        "en": "Shin-Kiba, Koto-ku, Tokyo",
+        "ja": "東京都江東区新木場"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Industrial",
+        "Music"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Late night",
+      "tips": [
+        "Ageha mega club",
+        "Industrial setting",
+        "Studio Coast closed"
+      ],
+      "neighborhood": "Shin-Kiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 35.6461,
+      "longitude": 139.8273
+    },
+    {
+      "name": {
+        "en": "Kasai Rinkai Park",
+        "ja": "葛西臨海公園"
+      },
+      "description": {
+        "en": "Seaside park with ferris wheel and aquarium. Family destination with Tokyo Bay views.",
+        "ja": "観覧車と水族館のある臨海公園。東京湾の眺めが楽しめるファミリー向けスポット。"
+      },
+      "address": {
+        "en": "6-2-1 Rinkacho, Edogawa-ku, Tokyo",
+        "ja": "東京都江戸川区臨海町6-2-1"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Aquarium",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Weekend",
+      "tips": [
+        "Large aquarium",
+        "BBQ areas",
+        "Beach nearby"
+      ],
+      "neighborhood": "Kasai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.6422,
+      "longitude": 139.8595
+    },
+    {
+      "name": {
+        "en": "Shibamata Taishakuten",
+        "ja": "柴又帝釈天"
+      },
+      "description": {
+        "en": "Temple famous from Tora-san films. Old shopping street preserving Showa era atmosphere.",
+        "ja": "寅さん映画で有名な寺院。昭和時代の雰囲気を残す古い商店街。"
+      },
+      "address": {
+        "en": "7-10-3 Shibamata, Katsushika-ku, Tokyo",
+        "ja": "東京都葛飾区柴又7-10-3"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Film Location",
+        "Nostalgic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Tora-san film location",
+        "Nostalgic shopping",
+        "Dango sweets"
+      ],
+      "neighborhood": "Shibamata",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7584,
+      "longitude": 139.8788
+    },
+    {
+      "name": {
+        "en": "Katsushika Shibamata Flea",
+        "ja": "葛飾柴又フリマ"
+      },
+      "description": {
+        "en": "Old-fashioned flea market with antiques. Monthly market in traditional neighborhood.",
+        "ja": "骨董品がある昔ながらのフリーマーケット。伝統的な街の月例マーケット。"
+      },
+      "address": {
+        "en": "Shibamata, Katsushika-ku, Tokyo",
+        "ja": "東京都葛飾区柴又"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flea Market",
+        "Antiques",
+        "Monthly"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Monthly market days",
+      "tips": [
+        "Check schedule",
+        "Old Tokyo finds",
+        "Very local"
+      ],
+      "neighborhood": "Shibamata",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Monthly market days"
+      },
+      "latitude": 35.7564,
+      "longitude": 139.8771
+    },
+    {
+      "name": {
+        "en": "Mizumoto Park",
+        "ja": "水元公園"
+      },
+      "description": {
+        "en": "Tokyo's largest park with metasequoia forest. Vast green space rarely visited by tourists.",
+        "ja": "メタセコイアの森がある東京最大の公園。観光客がほとんど訪れない広大な緑地。"
+      },
+      "address": {
+        "en": "3-2 Mizumoto-koen, Katsushika-ku, Tokyo",
+        "ja": "東京都葛飾区水元公園3-2"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Nature",
+        "Vast"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Morning",
+      "tips": [
+        "Tokyo's largest park",
+        "Metasequoia forest",
+        "Very quiet"
+      ],
+      "neighborhood": "Mizumoto",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.7815,
+      "longitude": 139.851
+    },
+    {
+      "name": {
+        "en": "Nishi-Kasai Little India",
+        "ja": "西葛西リトルインディア"
+      },
+      "description": {
+        "en": "Indian community with authentic restaurants. Tokyo's largest Indian population area.",
+        "ja": "本格的なレストランがあるインド人コミュニティ。東京最大のインド人居住エリア。"
+      },
+      "address": {
+        "en": "Nishi-Kasai, Edogawa-ku, Tokyo",
+        "ja": "東京都江戸川区西葛西"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Indian",
+        "Authentic",
+        "Community"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Dinner",
+      "tips": [
+        "Authentic Indian food",
+        "Growing community",
+        "Multiple restaurants"
+      ],
+      "neighborhood": "Nishi-Kasai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 35.6646,
+      "longitude": 139.8593
+    },
+    {
+      "name": {
+        "en": "Koiwa Working Area",
+        "ja": "小岩庶民街"
+      },
+      "description": {
+        "en": "Working class district with cheap izakayas. Far from tourist Tokyo with real local life.",
+        "ja": "安い居酒屋がある労働者階級の街。観光客の東京から遠く、本当の地元生活。"
+      },
+      "address": {
+        "en": "Koiwa, Edogawa-ku, Tokyo",
+        "ja": "東京都江戸川区小岩"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Working Class",
+        "Cheap",
+        "Local"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Evening",
+      "tips": [
+        "Ultra local",
+        "Cheap drinks",
+        "Zero tourists"
+      ],
+      "neighborhood": "Koiwa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.7332,
+      "longitude": 139.8818
+    },
+    {
+      "name": {
+        "en": "Oji Asukayama Park",
+        "ja": "王子飛鳥山公園"
+      },
+      "description": {
+        "en": "Historic park with free tram and cherry blossoms. Paper Museum and historic monuments.",
+        "ja": "無料のモノレールと桜がある歴史的な公園。紙の博物館と歴史的記念碑。"
+      },
+      "address": {
+        "en": "1-1-3 Oji, Kita-ku, Tokyo",
+        "ja": "東京都北区王子1-1-3"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Historic",
+        "Sakura"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Spring",
+      "tips": [
+        "Free monorail",
+        "Paper Museum",
+        "Local cherry blossom spot"
+      ],
+      "neighborhood": "Oji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 35.7599,
+      "longitude": 139.7366
+    },
+    {
+      "name": {
+        "en": "Jujo Shopping Street",
+        "ja": "十条商店街"
+      },
+      "description": {
+        "en": "Long covered shopping street with cheap eats. Working class neighborhood shopping.",
+        "ja": "安い食事がある長いアーケード商店街。労働者階級の街のショッピング。"
+      },
+      "address": {
+        "en": "Jujo, Kita-ku, Tokyo",
+        "ja": "東京都北区十条"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping Street",
+        "Cheap",
+        "Local"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Famous croquettes",
+        "Very cheap",
+        "Long arcade"
+      ],
+      "neighborhood": "Jujo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7633,
+      "longitude": 139.7213
+    },
+    {
+      "name": {
+        "en": "Akabane Drinking Strip",
+        "ja": "赤羽飲み屋街"
+      },
+      "description": {
+        "en": "Working class drinking district famous for standing bars. Authentic Tokyo drinking culture.",
+        "ja": "立ち飲みバーで有名な労働者階級の飲み屋街。本格的な東京の飲み文化。"
+      },
+      "address": {
+        "en": "Akabane, Kita-ku, Tokyo",
+        "ja": "東京都北区赤羽"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Standing Bar",
+        "Working Class",
+        "Authentic"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Standing bars",
+        "Day drinking OK",
+        "Very authentic"
+      ],
+      "neighborhood": "Akabane",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.7781,
+      "longitude": 139.7208
+    },
+    {
+      "name": {
+        "en": "Itabashi Post Town",
+        "ja": "板橋宿場町"
+      },
+      "description": {
+        "en": "Former post town on historic Nakasendo road. Traditional atmosphere in residential area.",
+        "ja": "歴史的な中山道沿いの元宿場町。住宅街の中の伝統的な雰囲気。"
+      },
+      "address": {
+        "en": "Itabashi, Itabashi-ku, Tokyo",
+        "ja": "東京都板橋区板橋"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Post Town",
+        "Walking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Nakasendo history",
+        "Old buildings remain",
+        "Local shrines"
+      ],
+      "neighborhood": "Itabashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7505,
+      "longitude": 139.7153
+    },
+    {
+      "name": {
+        "en": "Nerima Anime Spots",
+        "ja": "練馬アニメスポット"
+      },
+      "description": {
+        "en": "Birthplace of anime industry with studios. Tezuka Production and many animation companies.",
+        "ja": "スタジオがあるアニメ産業発祥の地。手塚プロダクションと多くのアニメ会社。"
+      },
+      "address": {
+        "en": "Nerima, Nerima-ku, Tokyo",
+        "ja": "東京都練馬区練馬"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Anime",
+        "Studios",
+        "Industry"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Anime birthplace",
+        "Studio locations",
+        "Themed manholes"
+      ],
+      "neighborhood": "Nerima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7506,
+      "longitude": 139.6163
+    },
+    {
+      "name": {
+        "en": "Shakujii Park",
+        "ja": "石神井公園"
+      },
+      "description": {
+        "en": "Large park with ponds and shrine in residential Nerima. Peaceful escape for local families.",
+        "ja": "池と神社がある練馬の住宅街の大きな公園。地元家族の平和な逃げ場。"
+      },
+      "address": {
+        "en": "Shakujiimachi, Nerima-ku, Tokyo",
+        "ja": "東京都練馬区石神井町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Pond",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Weekend",
+      "tips": [
+        "Two large ponds",
+        "Boat rentals",
+        "Local families"
+      ],
+      "neighborhood": "Shakujii",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.7376,
+      "longitude": 139.5998
+    },
+    {
+      "name": {
+        "en": "Hikarigaoka Park",
+        "ja": "光が丘公園"
+      },
+      "description": {
+        "en": "Large park built on former army base. Wide open spaces and BBQ areas in Nerima.",
+        "ja": "旧陸軍基地跡に建てられた大きな公園。練馬の広々とした空間とBBQエリア。"
+      },
+      "address": {
+        "en": "Hikarigaoka, Nerima-ku, Tokyo",
+        "ja": "東京都練馬区光が丘"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "BBQ",
+        "Sports"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Weekend",
+      "tips": [
+        "Former military land",
+        "Large fields",
+        "BBQ permitted"
+      ],
+      "neighborhood": "Hikarigaoka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.7702,
+      "longitude": 139.6244
+    },
+    {
+      "name": {
+        "en": "Ekoda Art University Area",
+        "ja": "江古田芸大エリア"
+      },
+      "description": {
+        "en": "Art college neighborhood with cheap eats and galleries. Nihon University Arts student area.",
+        "ja": "安い食事とギャラリーがある芸術大学街。日本大学芸術学部の学生エリア。"
+      },
+      "address": {
+        "en": "Ekoda, Nerima-ku, Tokyo",
+        "ja": "東京都練馬区江古田"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Student",
+        "Art",
+        "Cheap"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Art student area",
+        "Cheap restaurants",
+        "Small galleries"
+      ],
+      "neighborhood": "Ekoda",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.7376,
+      "longitude": 139.6728
+    },
+    {
+      "name": {
+        "en": "Nakai Dyeing District",
+        "ja": "中井染物街"
+      },
+      "description": {
+        "en": "Traditional dyeing area with workshops. Annual Somemono Festival celebrating textile arts.",
+        "ja": "工房がある伝統的な染物エリア。繊維工芸を祝う年次染め物祭り。"
+      },
+      "address": {
+        "en": "Nakai, Shinjuku-ku, Tokyo",
+        "ja": "東京都新宿区中井"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Traditional",
+        "Crafts",
+        "Textile"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Festival days",
+      "tips": [
+        "Dyeing workshops",
+        "Annual festival",
+        "Riverside location"
+      ],
+      "neighborhood": "Nakai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Festival days"
+      },
+      "latitude": 35.7141,
+      "longitude": 139.6863
+    }
+  ]
+}

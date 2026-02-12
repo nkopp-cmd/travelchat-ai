@@ -1,0 +1,764 @@
+{
+  "city": "Seoul",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:24:45.357Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Faust (Itaewon)"
+      },
+      "description": {
+        "en": "Berlin-style techno club for 10+ years - Korean debut pad for DJs from Berghain and Tresor."
+      },
+      "city": "Seoul",
+      "neighborhood": "Bogwang-ro 60-gil",
+      "address": {
+        "en": "South Korea, Seoul, Yongsan District, Bogwang-ro 60-gil, 7 3층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.534005,
+      "longitude": 126.994527,
+      "price_tier": "$$",
+      "google_place_id": "ChIJs3sLPKGjfDURGpMTfM2msrA"
+    },
+    {
+      "name": {
+        "en": "Cakeshop (Itaewon)"
+      },
+      "description": {
+        "en": "Gritty artsy underground venue that hosted Peggy Gou - favorite of Seoul's electronic music scene."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-ro",
+      "address": {
+        "en": "134 Itaewon-ro, 이태원제1동 Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.533838599999996,
+      "longitude": 126.98880220000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJIZmwyzeifDURkMRlwtxdI-E"
+    },
+    {
+      "name": {
+        "en": "Soap Seoul (Itaewon)"
+      },
+      "description": {
+        "en": "Famous underground club with international DJs, tech-house, hip-hop, and raw high-energy crowd."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-dong",
+      "address": {
+        "en": "132-3 Itaewon-dong, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5335608,
+      "longitude": 126.99516939999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJN2TJkkqifDURHYoqHI2HH4k"
+    },
+    {
+      "name": {
+        "en": "Blind Spot Speakeasy (Hongdae)"
+      },
+      "description": {
+        "en": "Navigate winding alleyways to find nondescript door - inside: vintage furniture, kitschy décor, Soju Sling and Makgeolli Mule cocktails."
+      },
+      "city": "Seoul",
+      "neighborhood": "Jangmun-ro",
+      "address": {
+        "en": "1F, 23 Jangmun-ro, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.528493,
+      "longitude": 126.99303719999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJB2Nm9WKjfDUR2AK9S0sJKyA"
+    },
+    {
+      "name": {
+        "en": "Eau de Vie (Seongdong)"
+      },
+      "description": {
+        "en": "No-menu hidden gem where owner-bartender Robin Hong creates one-of-a-kind bespoke cocktails based on your preferences."
+      },
+      "city": "Seoul",
+      "neighborhood": "연희동",
+      "address": {
+        "en": "South Korea, Seoul, Seodaemun-gu, 연희동 189-11"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.566234,
+      "longitude": 126.928669,
+      "price_tier": "$$",
+      "google_place_id": "ChIJn9hnc_KYfDURW31LtNpkU9M"
+    },
+    {
+      "name": {
+        "en": "The Storage Room (Yongsan)"
+      },
+      "description": {
+        "en": "New York 1920s speakeasy atmosphere with period-accurate prohibition-era decor."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yeonmujang 7-gil",
+      "address": {
+        "en": "South Korea, Seoul, Seongdong-gu, Yeonmujang 7-gil, 8-1 지하1층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.543399799999996,
+      "longitude": 127.0546644,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ__HREAClfDUR7lRS34SZNhk"
+    },
+    {
+      "name": {
+        "en": "Pomme (Gangnam)"
+      },
+      "description": {
+        "en": "Korean fruit-based cocktails showcasing local seasonal ingredients in elegant setting."
+      },
+      "city": "Seoul",
+      "neighborhood": "Tongin-dong",
+      "address": {
+        "en": "135-4 Tongin-dong, Jongno District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5793302,
+      "longitude": 126.9703248,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ43as88ajfDURSfI9rFRp0SA"
+    },
+    {
+      "name": {
+        "en": "Pung New"
+      },
+      "description": {
+        "en": "Floating drinks served in a rock stream setting - dramatically Instagram-worthy presentation."
+      },
+      "city": "Seoul",
+      "neighborhood": "Toegye-ro 70-gil",
+      "address": {
+        "en": "10-3 Toegye-ro 70-gil, Jung District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.564199,
+      "longitude": 127.01105159999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJu7nzSeKjfDURrTSsE17s4Nc"
+    },
+    {
+      "name": {
+        "en": "Gozib (Itaewon)"
+      },
+      "description": {
+        "en": "Korean-Italian fusion with truffle cream risotto and dazzling N Seoul Tower views, sparklers on the terrace."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-ro",
+      "address": {
+        "en": "South Korea, Seoul, Yongsan District, Itaewon-ro, 134 3F"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.533975999999996,
+      "longitude": 126.9888284,
+      "price_tier": "$$",
+      "google_place_id": "ChIJxQLU4CKjfDURvD8HlRGuQWE"
+    },
+    {
+      "name": {
+        "en": "Paper (Itaewon)"
+      },
+      "description": {
+        "en": "Rooftop club with stunning city views - dance to deep house and techno under the stars."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-ro 27ga-gil",
+      "address": {
+        "en": "South Korea, Seoul, Yongsan District, Itaewon-ro 27ga-gil, 37 루프탑"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.534853399999996,
+      "longitude": 126.9930899,
+      "price_tier": "$$",
+      "google_place_id": "ChIJIQWQ8A2jfDURJ_Kr7jZ64CU"
+    },
+    {
+      "name": {
+        "en": "Volnost (Itaewon)"
+      },
+      "description": {
+        "en": "Small but hardcore underground club with excellent sound system for proper techno."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-ro",
+      "address": {
+        "en": "142 Itaewon-ro, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.534020999999996,
+      "longitude": 126.9893021,
+      "price_tier": "$$",
+      "google_place_id": "ChIJc6-1zDeifDUReiidmKAfVAc"
+    },
+    {
+      "name": {
+        "en": "The Booth (Itaewon)"
+      },
+      "description": {
+        "en": "Must-visit craft beer spot on the main strip - perfect for starting the night with a chilled Pale Ale."
+      },
+      "city": "Seoul",
+      "neighborhood": "Noksapyeong-daero 54-gil",
+      "address": {
+        "en": "7 Noksapyeong-daero 54-gil, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.539358799999995,
+      "longitude": 126.98769000000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJl6gnyEiifDURLSvt0GmFNLA"
+    },
+    {
+      "name": {
+        "en": "Jack's Bar (Itaewon)"
+      },
+      "description": {
+        "en": "Spacious bar with arcade games and good cocktails - easy to find a table."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-ro 27ga-gil",
+      "address": {
+        "en": "South Korea, Seoul, Yongsan District, Itaewon-ro 27ga-gil, 52 1층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.535029699999996,
+      "longitude": 126.99237520000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJW4TKJEqifDURtkAFAUoaOMU"
+    },
+    {
+      "name": {
+        "en": "HAUS NOWHERE (Gentle Monster Flagship)"
+      },
+      "description": {
+        "en": "14-story concept store with eyewear, fragrances, and immersive art."
+      },
+      "city": "Seoul",
+      "neighborhood": "Apgujeong-ro 10-gil",
+      "address": {
+        "en": "23 Apgujeong-ro 10-gil, Gangnam District, Seoul, South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5220948,
+      "longitude": 127.02203410000001,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJky3yOuujfDURg-6TuvZcidE"
+    },
+    {
+      "name": {
+        "en": "EQL SEONGSU GROVE"
+      },
+      "description": {
+        "en": "Multi-brand fashion with exclusive lines and home goods."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yeonmujang 15-gil",
+      "address": {
+        "en": "South Korea, Seoul, Seongdong-gu, A동 Yeonmujang 15-gil, 11 EQL성수점"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.542927999999996,
+      "longitude": 127.05883089999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJxT3tDfWlfDURsciD6phIUu8"
+    },
+    {
+      "name": {
+        "en": "The Hyundai Seoul"
+      },
+      "description": {
+        "en": "Luxury fashion, tech, and Korean designers in a massive complex."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yeoui-daero",
+      "address": {
+        "en": "108 1F Yeoui-daero, Yeongdeungpo District, Seoul, South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5259162,
+      "longitude": 126.9284926,
+      "price_tier": "$$",
+      "google_place_id": "ChIJz4OjfACffDURdhog9kiXBus"
+    },
+    {
+      "name": {
+        "en": "Blue Elephant Seongsu Flagship Store"
+      },
+      "description": {
+        "en": "3,300 sqm eyewear haven with 700+ frames, Seoul Edition series, rooftop cafe, and spherical art installation."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yeonmujang-gil",
+      "address": {
+        "en": "South Korea, Seoul, Seongdong-gu, Yeonmujang-gil, 13 2층 3층"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5437612,
+      "longitude": 127.05116029999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJv1xwXQClfDURJFemcDcFo5U"
+    },
+    {
+      "name": {
+        "en": "Simmons Grocery Store Sinsa"
+      },
+      "description": {
+        "en": "Concept store styled as retro supermarket with accessories and home goods packaged like snacks, plus burger joint."
+      },
+      "city": "Seoul",
+      "neighborhood": "청담동",
+      "address": {
+        "en": "88-25 (1st floor, 청담동 강남구 서울특별시 South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5231998,
+      "longitude": 127.04866549999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJPUne_mSlfDURTO0PpsfowHM"
+    },
+    {
+      "name": {
+        "en": "HAUS NOWHERE Installations"
+      },
+      "description": {
+        "en": "Futuristic AI-powered art and exhibits like TAMBURINS' sculptures."
+      },
+      "city": "Seoul",
+      "neighborhood": "Ttukseom-ro",
+      "address": {
+        "en": "South Korea, Seoul, HAUS NOWHERE Ttukseom-ro, 433 KR 서울특별시 성동구"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5380654,
+      "longitude": 127.05894859999998,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJWTP6EbylfDURiLzaVEe1_Zg"
+    },
+    {
+      "name": {
+        "en": "HiKR GROUND XR Studio"
+      },
+      "description": {
+        "en": "K-Pop music video creation and virtual experiences."
+      },
+      "city": "Seoul",
+      "neighborhood": "Cheonggyecheon-ro",
+      "address": {
+        "en": "40 Cheonggyecheon-ro, Jung District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5685891,
+      "longitude": 126.9818622,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ_xCS_d-jfDURgqxl66H3dd8"
+    },
+    {
+      "name": {
+        "en": "Seosomun Shrine History Museum"
+      },
+      "description": {
+        "en": "Modern exhibits on Joseon history with sky route art."
+      },
+      "city": "Seoul",
+      "neighborhood": "Chilpae-ro",
+      "address": {
+        "en": "5 Chilpae-ro, Jung District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5605541,
+      "longitude": 126.96882950000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJcWxy6eWjfDUR5VuxaZqfDQM"
+    },
+    {
+      "name": {
+        "en": "Starfield Library (COEX)"
+      },
+      "description": {
+        "en": "Instagram-famous library with 13-meter high bookshelves and 50,000 books in stunning architecture."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yeongdong-daero",
+      "address": {
+        "en": "South Korea, Seoul, Gangnam District, Yeongdong-daero, 513 스타필드 코엑스몰 B1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5100586,
+      "longitude": 127.0601188,
+      "price_tier": "$",
+      "google_place_id": "ChIJu5Gg2hWkfDURl7NN7FpFnis"
+    },
+    {
+      "name": {
+        "en": "Ihwa Mural Village"
+      },
+      "description": {
+        "en": "Hillside neighbourhood with vibrant murals, sculptures, and photo ops like koi fish stairs and angel wings."
+      },
+      "city": "Seoul",
+      "neighborhood": "Naksan 4-gil",
+      "address": {
+        "en": "49 Naksan 4-gil, Jongno District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5779788,
+      "longitude": 127.00719149999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ63NnRS6jfDURt-efnKIjXzs"
+    },
+    {
+      "name": {
+        "en": "Dongdaemun Design Plaza (DDP)",
+        "ko": "동대문디자인플라자"
+      },
+      "description": {
+        "en": "Futuristic architecture housing exhibitions, fashion shows, and LED rose garden at night."
+      },
+      "city": "Seoul",
+      "neighborhood": "Eulji-ro",
+      "address": {
+        "en": "281 Eulji-ro, Jung District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5665256,
+      "longitude": 127.00922360000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ8xRYr29FezUR3AtFqx2pIlw"
+    },
+    {
+      "name": {
+        "en": "4560designhaus"
+      },
+      "description": {
+        "en": "Museum-cafe focusing on Apple products and cassette players through the decades."
+      },
+      "city": "Seoul",
+      "neighborhood": "",
+      "address": {
+        "en": "4560designhaus, Seoul"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$"
+    }
+  ]
+}

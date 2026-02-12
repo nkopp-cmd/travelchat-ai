@@ -1,0 +1,744 @@
+{
+  "city": "seoul",
+  "batch": 10,
+  "spots": [
+    {
+      "name": {
+        "en": "Gwanak-gu Office BBQ Street",
+        "ko": "관악구청 고깃집골목"
+      },
+      "description": {
+        "en": "BBQ restaurants near Gwanak-gu Office serving Seoul National University students and government workers. Affordable meat with student-friendly prices.",
+        "ko": "서울대 학생들과 공무원들을 위한 관악구청 근처 고깃집. 학생 친화적 가격의 저렴한 고기."
+      },
+      "address": {
+        "en": "Gwanak-gu Office area, Seoul",
+        "ko": "서울 관악구청 일대"
+      },
+      "category": "Food",
+      "subcategories": [
+        "BBQ",
+        "Student",
+        "Budget"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Dinner",
+      "tips": [
+        "Near Seoul National University",
+        "Very affordable",
+        "Student and worker crowd"
+      ],
+      "neighborhood": "Gwanak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Dinner"
+      }
+    },
+    {
+      "name": {
+        "en": "Ichon-dong Hangang Park",
+        "ko": "이촌동 한강공원"
+      },
+      "description": {
+        "en": "Riverside park section popular with Yongsan residents. Less crowded than other parks, with good cycling connections to Yeouido and beyond.",
+        "ko": "용산 주민들에게 인기인 강변공원 구역. 다른 공원보다 덜 붐비고, 여의도 등으로 자전거 연결이 좋다."
+      },
+      "address": {
+        "en": "Ichon-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 이촌동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Cycling",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Quieter than other sections",
+        "Good bike rentals",
+        "Connected to other parks"
+      ],
+      "neighborhood": "Ichon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5193,
+      "longitude": 126.9665
+    },
+    {
+      "name": {
+        "en": "Sangam MBC Plus",
+        "ko": "상암 MBC 플러스"
+      },
+      "description": {
+        "en": "Media complex with public broadcast tours and K-pop music show tapings. Fans line up for free tickets to see their favorite idols perform.",
+        "ko": "공개 방송 투어와 K-pop 음악 방송 녹화가 있는 미디어 복합단지. 팬들이 좋아하는 아이돌 공연을 보기 위해 무료 티켓을 위해 줄을 선다."
+      },
+      "address": {
+        "en": "Digital Media City, Mapo-gu, Seoul",
+        "ko": "서울 마포구 디지털미디어시티"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "K-Pop",
+        "TV",
+        "Fan Experience"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Music show recording days",
+      "tips": [
+        "Check music show schedules",
+        "Free tickets available",
+        "Arrive very early for popular groups"
+      ],
+      "neighborhood": "Sangam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Music show recording days"
+      },
+      "latitude": 37.5762,
+      "longitude": 126.9015
+    },
+    {
+      "name": {
+        "en": "Gangnam Express Bus Terminal Underground",
+        "ko": "고속터미널 지하상가"
+      },
+      "description": {
+        "en": "Massive underground mall below Express Bus Terminal with fashion, home goods, and the famous flower market. Locals know this as shopping paradise.",
+        "ko": "패션, 생활용품, 유명한 꽃시장이 있는 고속버스터미널 아래 거대한 지하상가. 현지인들은 쇼핑 천국으로 안다."
+      },
+      "address": {
+        "en": "Express Bus Terminal, Seocho-gu, Seoul",
+        "ko": "서울 서초구 고속터미널"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Underground Mall",
+        "Fashion",
+        "Flowers"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Flower market is huge",
+        "Three connected malls",
+        "Good food court options"
+      ],
+      "neighborhood": "Express Terminal",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.506,
+      "longitude": 127.0044
+    },
+    {
+      "name": {
+        "en": "Munrae Craft Beer",
+        "ko": "문래 크래프트 맥주"
+      },
+      "description": {
+        "en": "Craft breweries and beer bars that have opened in the ironworks district. Industrial atmosphere meets quality brews in converted factory spaces.",
+        "ko": "철공소 지구에 들어선 크래프트 브루어리와 비어 바. 개조된 공장 공간에서 인더스트리얼 분위기가 퀄리티 맥주를 만난다."
+      },
+      "address": {
+        "en": "Mullae-dong, Yeongdeungpo-gu, Seoul",
+        "ko": "서울 영등포구 문래동"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Craft Beer",
+        "Industrial",
+        "Hip"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Several breweries to try",
+        "Industrial chic setting",
+        "Part of Mullae arts scene"
+      ],
+      "neighborhood": "Mullae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5158,
+      "longitude": 126.8923
+    },
+    {
+      "name": {
+        "en": "Samgakji Station Samgyetang",
+        "ko": "삼각지역 삼계탕"
+      },
+      "description": {
+        "en": "Famous ginseng chicken soup restaurants near War Memorial. Traditional summer tonic food that Koreans eat on the hottest days of the year.",
+        "ko": "전쟁기념관 근처 유명한 삼계탕 식당들. 한국인들이 일 년 중 가장 더운 날에 먹는 전통 보양식."
+      },
+      "address": {
+        "en": "Samgakji Station, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 삼각지역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Korean",
+        "Traditional",
+        "Healthy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Summer lunch",
+      "tips": [
+        "Traditionally eaten on hottest days",
+        "Whole chicken stuffed with rice and ginseng",
+        "Very nutritious"
+      ],
+      "neighborhood": "Samgakji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Summer lunch"
+      },
+      "latitude": 37.5345,
+      "longitude": 126.9734
+    },
+    {
+      "name": {
+        "en": "Gupabal Station Hiking Gateway",
+        "ko": "구파발역 등산 입구"
+      },
+      "description": {
+        "en": "Major starting point for Bukhansan National Park hikes. Restaurants and equipment shops cater to hikers before and after mountain adventures.",
+        "ko": "북한산국립공원 등산의 주요 출발점. 식당과 장비점이 산행 전후 등산객들을 맞는다."
+      },
+      "address": {
+        "en": "Gupabal Station, Eunpyeong-gu, Seoul",
+        "ko": "서울 은평구 구파발역"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Gateway",
+        "Equipment"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Multiple Bukhansan trails start here",
+        "Hiking equipment shops",
+        "Post-hike restaurants"
+      ],
+      "neighborhood": "Gupabal",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.6369,
+      "longitude": 126.9188
+    },
+    {
+      "name": {
+        "en": "Yangjae Station Flower Market",
+        "ko": "양재역 화훼시장"
+      },
+      "description": {
+        "en": "Wholesale flower market where florists buy supplies at dawn. Beautiful blooms at lower prices than retail, with attached cafes for flower-gazing.",
+        "ko": "꽃집들이 새벽에 물건을 사는 도매 화훼시장. 소매보다 저렴한 가격의 아름다운 꽃들과 구경을 위한 카페가 있다."
+      },
+      "address": {
+        "en": "Yangjae Station, Seocho-gu, Seoul",
+        "ko": "서울 서초구 양재역"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flowers",
+        "Wholesale",
+        "Dawn"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Early morning",
+      "tips": [
+        "Wholesale prices available",
+        "Best selection at dawn",
+        "Beautiful photo opportunities"
+      ],
+      "neighborhood": "Yangjae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 37.4838,
+      "longitude": 127.0347
+    },
+    {
+      "name": {
+        "en": "Myeong-dong Cathedral",
+        "ko": "명동성당"
+      },
+      "description": {
+        "en": "Gothic cathedral that's been central to Korean Catholicism and democracy movements. An oasis of peace in busy Myeong-dong with beautiful architecture.",
+        "ko": "한국 천주교와 민주화 운동의 중심이었던 고딕 성당. 아름다운 건축물과 함께 번잡한 명동의 평화로운 오아시스."
+      },
+      "address": {
+        "en": "Myeong-dong, Jung-gu, Seoul",
+        "ko": "서울 중구 명동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Religious",
+        "Architecture",
+        "History"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Important historical site",
+        "Free to visit",
+        "Escape from Myeong-dong crowds"
+      ],
+      "neighborhood": "Myeongdong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5633,
+      "longitude": 126.9873
+    },
+    {
+      "name": {
+        "en": "Dongho Bridge Night Walk",
+        "ko": "동호대교 야경"
+      },
+      "description": {
+        "en": "Bridge connecting Oksu and Apgujeong with walking paths and night views. Less famous than other bridges but equally beautiful Han River scenery.",
+        "ko": "옥수와 압구정을 잇는 산책로와 야경의 다리. 다른 다리보다 덜 유명하지만 똑같이 아름다운 한강 풍경."
+      },
+      "address": {
+        "en": "Dongho Bridge, Seoul",
+        "ko": "서울 동호대교"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Bridge",
+        "Night Walk",
+        "Views"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Less crowded than famous bridges",
+        "Great city views",
+        "Connected to riverside paths"
+      ],
+      "neighborhood": "Dongho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5352,
+      "longitude": 127.0218
+    },
+    {
+      "name": {
+        "en": "Sindorim D-Cube City",
+        "ko": "신도림 디큐브시티"
+      },
+      "description": {
+        "en": "Modern shopping and entertainment complex in southwest Seoul. Office workers and families from the area use the restaurants, shops, and cinema.",
+        "ko": "남서부 서울의 현대적 쇼핑 엔터테인먼트 복합단지. 지역 직장인과 가족들이 식당, 상점, 영화관을 이용한다."
+      },
+      "address": {
+        "en": "Sindorim, Guro-gu, Seoul",
+        "ko": "서울 구로구 신도림"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Entertainment",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Evening or weekend",
+      "tips": [
+        "Major transit hub",
+        "Good restaurant selection",
+        "Rooftop garden"
+      ],
+      "neighborhood": "Sindorim",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening or weekend"
+      },
+      "latitude": 37.5089,
+      "longitude": 126.8912
+    },
+    {
+      "name": {
+        "en": "National Museum of Korea",
+        "ko": "국립중앙박물관"
+      },
+      "description": {
+        "en": "Korea's largest museum with free admission and world-class collections. The building and grounds alone are worth the visit for architecture fans.",
+        "ko": "무료 입장에 세계적 수준의 컬렉션을 가진 한국 최대 박물관. 건축 팬들에게는 건물과 부지만으로도 방문할 가치가 있다."
+      },
+      "address": {
+        "en": "Ichon-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 이촌동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "History",
+        "Art"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Free admission",
+        "Allow several hours",
+        "Beautiful grounds and reflecting pool"
+      ],
+      "neighborhood": "Yongsan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5239,
+      "longitude": 126.9803
+    },
+    {
+      "name": {
+        "en": "Anam-dong Korea University Street",
+        "ko": "안암동 고대앞"
+      },
+      "description": {
+        "en": "Student area in front of Korea University with restaurants, bars, and the famous 'Tiger' school spirit. Red is the color here - rival to Yonsei's blue.",
+        "ko": "식당, 술집, 유명한 '호랑이' 학교 정신이 있는 고려대 앞 대학가. 연세대의 파란색에 대항하는 빨간색이 이곳의 색이다."
+      },
+      "address": {
+        "en": "Anam-dong, Seongbuk-gu, Seoul",
+        "ko": "서울 성북구 안암동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "University",
+        "Student",
+        "Korean"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Ko-Yon rivalry is intense",
+        "Good Korean restaurants",
+        "Youthful energy"
+      ],
+      "neighborhood": "Anam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5876,
+      "longitude": 127.0271
+    },
+    {
+      "name": {
+        "en": "Children's Grand Park",
+        "ko": "어린이대공원"
+      },
+      "description": {
+        "en": "Large family park in east Seoul with zoo, amusement rides, and gardens. Weekend crowds of families make it a quintessential Korean family outing.",
+        "ko": "동물원, 놀이기구, 정원이 있는 동서울의 대규모 가족 공원. 주말 가족 인파가 전형적인 한국 가족 나들이를 만든다."
+      },
+      "address": {
+        "en": "Gwangjin-gu, Seoul",
+        "ko": "서울 광진구"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Zoo",
+        "Family",
+        "Park"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Weekday afternoon",
+      "tips": [
+        "Free admission to park",
+        "Zoo has additional fee",
+        "Cherry blossoms in spring"
+      ],
+      "neighborhood": "Gwangjin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Weekday afternoon"
+      },
+      "latitude": 37.5476,
+      "longitude": 127.0744
+    },
+    {
+      "name": {
+        "en": "Wangsimni Gopchang Alley",
+        "ko": "왕십리 곱창골목"
+      },
+      "description": {
+        "en": "Intestine BBQ street famous across Seoul. Office workers travel here for grilled gopchang and makchang - not for the timid but beloved by adventurous eaters.",
+        "ko": "서울 전역에서 유명한 곱창 골목. 직장인들이 구운 곱창과 막창을 먹으러 온다 - 소심한 사람에게는 아니지만 모험적인 미식가들의 사랑을 받는다."
+      },
+      "address": {
+        "en": "Wangsimni, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 왕십리"
+      },
+      "category": "Food",
+      "subcategories": [
+        "BBQ",
+        "Offal",
+        "Famous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Famous gopchang street",
+        "Try it with soju",
+        "Various restaurants to choose from"
+      ],
+      "neighborhood": "Wangsimni",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5615,
+      "longitude": 127.0386
+    },
+    {
+      "name": {
+        "en": "Hapjeong Mecenat Polis Food Court",
+        "ko": "합정 메세나폴리스 푸드코트"
+      },
+      "description": {
+        "en": "Popular underground food court with diverse options. Local workers come for quick, quality meals away from Hongdae's tourist crowds.",
+        "ko": "다양한 옵션의 인기 지하 푸드코트. 홍대 관광객 인파를 피해 빠르고 질 좋은 식사를 하러 지역 직장인들이 온다."
+      },
+      "address": {
+        "en": "Hapjeong Station, Mapo-gu, Seoul",
+        "ko": "서울 마포구 합정역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Food Court",
+        "Quick",
+        "Diverse"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Good variety of cuisines",
+        "Connected to subway",
+        "Less crowded than Hongdae"
+      ],
+      "neighborhood": "Hapjeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 37.551,
+      "longitude": 126.9157
+    },
+    {
+      "name": {
+        "en": "Leeum Samsung Museum of Art",
+        "ko": "리움미술관"
+      },
+      "description": {
+        "en": "World-class art museum designed by three famous architects. Traditional Korean art meets contemporary in Samsung's cultural showpiece.",
+        "ko": "세 명의 유명 건축가가 설계한 세계적 수준의 미술관. 삼성의 문화적 쇼케이스에서 한국 전통 미술이 현대를 만난다."
+      },
+      "address": {
+        "en": "Hannam-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 한남동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Art",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Building itself is art",
+        "Korean and international collections",
+        "Reopened after renovation"
+      ],
+      "neighborhood": "Hannam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5385,
+      "longitude": 126.9988
+    },
+    {
+      "name": {
+        "en": "Seongbuk-dong Trail",
+        "ko": "성북동 산책로"
+      },
+      "description": {
+        "en": "Walking paths through historic Seongbuk-dong with hanok houses and embassy residences. Peaceful stroll through Seoul's intellectual and artistic heritage.",
+        "ko": "한옥과 대사관 관저가 있는 역사적 성북동의 산책로. 서울의 지적, 예술적 유산을 통한 평화로운 산책."
+      },
+      "address": {
+        "en": "Seongbuk-dong, Seongbuk-gu, Seoul",
+        "ko": "서울 성북구 성북동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Historic",
+        "Residential"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Historic literati neighborhood",
+        "Embassy row nearby",
+        "Connects to fortress wall"
+      ],
+      "neighborhood": "Seongbuk",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5955,
+      "longitude": 126.9922
+    },
+    {
+      "name": {
+        "en": "Jungnang Camping Forest",
+        "ko": "중랑캠핑숲"
+      },
+      "description": {
+        "en": "Urban camping area in northeast Seoul where families camp without leaving the city. Book in advance for weekend spots with BBQ facilities.",
+        "ko": "도시를 떠나지 않고 가족들이 캠핑하는 북동서울의 도심 캠핑장. 바베큐 시설이 있는 주말 자리는 미리 예약 필수."
+      },
+      "address": {
+        "en": "Jungnang-gu, Seoul",
+        "ko": "서울 중랑구"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Camping",
+        "Family",
+        "Urban Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Weekend",
+      "tips": [
+        "Book far in advance",
+        "BBQ facilities available",
+        "Urban camping experience"
+      ],
+      "neighborhood": "Jungnang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 37.6046,
+      "longitude": 127.1093
+    },
+    {
+      "name": {
+        "en": "Seodaemun Independence Park",
+        "ko": "서대문독립공원"
+      },
+      "description": {
+        "en": "Park surrounding the Independence Hall and Seodaemun Prison History Hall. Peaceful green space with profound historical significance for Korean independence.",
+        "ko": "독립관과 서대문형무소역사관을 둘러싼 공원. 한국 독립에 깊은 역사적 의미가 있는 평화로운 녹지."
+      },
+      "address": {
+        "en": "Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "History",
+        "Memorial"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Combine with prison museum",
+        "Important independence history",
+        "Peaceful atmosphere"
+      ],
+      "neighborhood": "Seodaemun",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5741,
+      "longitude": 126.9571
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "city": "Hong Kong",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:48:48.026Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Ping Shan Heritage Trail"
+      },
+      "description": {
+        "en": "New Territories ancient walled village, pagoda, ancestral halls. Free self-guided walk."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Ping Shan",
+      "address": {
+        "en": "Ping Shan Heritage Trail, Ping Shan, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.4461535,
+      "longitude": 114.0060257,
+      "price_tier": "$",
+      "google_place_id": "ChIJWf3V_4HwAzQR7OP-ZL-1FFs"
+    }
+  ]
+}

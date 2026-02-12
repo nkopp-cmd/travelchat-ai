@@ -1,0 +1,732 @@
+{
+  "city": "seoul",
+  "batch": 16,
+  "spots": [
+    {
+      "name": {
+        "en": "Munbae-dong Old Town",
+        "ko": "문배동 구시가"
+      },
+      "description": {
+        "en": "Historic neighborhood near Yeongdeungpo with old houses. Surviving old Seoul architecture in rapidly developing west.",
+        "ko": "오래된 집이 있는 영등포 근처의 역사적인 동네. 빠르게 발전하는 서쪽에서 살아남은 옛 서울 건축."
+      },
+      "address": {
+        "en": "Munbae-dong, Yeongdeungpo-gu, Seoul",
+        "ko": "서울 영등포구 문배동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Architecture",
+        "Disappearing"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Disappearing old Seoul",
+        "Historic architecture",
+        "Visit before redevelopment"
+      ],
+      "neighborhood": "Munbae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Dorim Stream Walk",
+        "ko": "도림천 산책로"
+      },
+      "description": {
+        "en": "Restored urban stream in southwest Seoul with walking paths. Locals exercise along the tree-lined waterway.",
+        "ko": "산책로가 있는 남서부 서울의 복원된 도시 하천. 현지인들이 나무가 늘어선 수로를 따라 운동한다."
+      },
+      "address": {
+        "en": "Dorim Stream, various districts, Seoul",
+        "ko": "서울 도림천"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Stream",
+        "Walking",
+        "Exercise"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning or evening",
+      "tips": [
+        "Urban stream restoration",
+        "Good jogging path",
+        "Multiple access points"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning or evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Yangpyeong-dong Market",
+        "ko": "양평동 시장"
+      },
+      "description": {
+        "en": "Traditional market in Yeongdeungpo serving local residents. Authentic neighborhood market with fresh produce.",
+        "ko": "지역 주민을 위한 영등포의 전통 시장. 신선한 농산물이 있는 정통 동네 시장."
+      },
+      "address": {
+        "en": "Yangpyeong-dong, Yeongdeungpo-gu, Seoul",
+        "ko": "서울 영등포구 양평동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Market",
+        "Local",
+        "Produce"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Very local market",
+        "Fresh produce",
+        "No English"
+      ],
+      "neighborhood": "Yangpyeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.39,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5384,
+      "longitude": 126.8935
+    },
+    {
+      "name": {
+        "en": "Seongsoo-dong 1-ga Industry",
+        "ko": "성수동1가 공업지역"
+      },
+      "description": {
+        "en": "Working industrial area adjacent to trendy Seongsu cafes. See the contrast between old industry and new gentrification.",
+        "ko": "트렌디한 성수 카페에 인접한 현역 공업 지역. 오래된 산업과 새로운 젠트리피케이션의 대조를 보라."
+      },
+      "address": {
+        "en": "Seongsu-dong 1-ga, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 성수동1가"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Industrial",
+        "Contrast",
+        "Urban Change"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekday",
+      "tips": [
+        "Working industrial area",
+        "Contrast with trendy Seongsu",
+        "Urban transformation visible"
+      ],
+      "neighborhood": "Seongsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 37.5435,
+      "longitude": 127.0374
+    },
+    {
+      "name": {
+        "en": "Songjung-dong Local Eats",
+        "ko": "송정동 로컬맛집"
+      },
+      "description": {
+        "en": "Neighborhood restaurants in Seongdong-gu serving local workers. Authentic Korean food without trendy markup.",
+        "ko": "지역 직장인을 위한 성동구의 동네 식당들. 트렌디한 마진 없이 정통 한식."
+      },
+      "address": {
+        "en": "Songjung-dong, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 송정동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Korean",
+        "Budget"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Lunch",
+      "tips": [
+        "Local worker crowd",
+        "Authentic food",
+        "No-frills dining"
+      ],
+      "neighborhood": "Songjung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Lunch"
+      }
+    },
+    {
+      "name": {
+        "en": "Hannam-dong Blue House Road",
+        "ko": "한남동 블루하우스길"
+      },
+      "description": {
+        "en": "Scenic road with cafes near former presidential residence. Upscale neighborhood with quiet coffee shops.",
+        "ko": "전 대통령 관저 근처 카페가 있는 경치 좋은 도로. 조용한 커피숍이 있는 고급 동네."
+      },
+      "address": {
+        "en": "Hannam-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 한남동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Scenic",
+        "Upscale",
+        "Quiet"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near former Blue House",
+        "Upscale cafes",
+        "Scenic drive"
+      ],
+      "neighborhood": "Hannam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5382,
+      "longitude": 127.0074
+    },
+    {
+      "name": {
+        "en": "Wonhyo-dong Fish Cake Street",
+        "ko": "원효동 어묵거리"
+      },
+      "description": {
+        "en": "Fish cake factories and shops in Yongsan. Buy fresh odeng and processed seafood direct from producers.",
+        "ko": "용산의 어묵 공장과 상점들. 생산자에게서 직접 신선한 오뎅과 가공 해산물을 사라."
+      },
+      "address": {
+        "en": "Wonhyo-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 원효동"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fish Cake",
+        "Factory",
+        "Direct"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Fish cake factories",
+        "Buy direct",
+        "Wholesale prices"
+      ],
+      "neighborhood": "Wonhyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5279,
+      "longitude": 126.9473
+    },
+    {
+      "name": {
+        "en": "Ichon-dong Japanese Town",
+        "ko": "이촌동 일본인마을"
+      },
+      "description": {
+        "en": "Neighborhood with Japanese restaurants and businesses. Long-established Japanese community adds international flavor.",
+        "ko": "일본 식당과 사업체가 있는 동네. 오래된 일본인 커뮤니티가 국제적인 맛을 더한다."
+      },
+      "address": {
+        "en": "Ichon-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 이촌동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Japanese",
+        "International",
+        "Community"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Dinner",
+      "tips": [
+        "Japanese community area",
+        "Authentic Japanese food",
+        "Near National Museum"
+      ],
+      "neighborhood": "Ichon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 37.5193,
+      "longitude": 126.9665
+    },
+    {
+      "name": {
+        "en": "Sangdo-dong Night Owls",
+        "ko": "상도동 야식골목"
+      },
+      "description": {
+        "en": "Late-night food spots near Sangdo serving area residents. Fried chicken, jokbal, and delivery food culture.",
+        "ko": "지역 주민을 위한 상도 근처의 심야 먹거리. 치킨, 족발, 배달 음식 문화."
+      },
+      "address": {
+        "en": "Sangdo-dong, Dongjak-gu, Seoul",
+        "ko": "서울 동작구 상도동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Late Night",
+        "Delivery",
+        "Comfort"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Late night",
+      "tips": [
+        "Late-night dining",
+        "Good delivery options",
+        "Residential area"
+      ],
+      "neighborhood": "Sangdo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 37.4988,
+      "longitude": 126.9441
+    },
+    {
+      "name": {
+        "en": "Noryangjin Water Products Market",
+        "ko": "노량진 수산물시장"
+      },
+      "description": {
+        "en": "Massive seafood wholesale market operating day and night. Buy live fish from tanks and have it prepared upstairs.",
+        "ko": "밤낮으로 운영되는 대규모 해산물 도매시장. 수조에서 살아있는 생선을 사서 위층에서 조리하라."
+      },
+      "address": {
+        "en": "Noryangjin, Dongjak-gu, Seoul",
+        "ko": "서울 동작구 노량진"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Seafood",
+        "Wholesale",
+        "Experience"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Early morning or late night",
+      "tips": [
+        "Buy fish and have it prepared",
+        "Negotiate prices",
+        "Open 24 hours"
+      ],
+      "neighborhood": "Noryangjin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Early morning or late night"
+      },
+      "latitude": 37.5136,
+      "longitude": 126.9416
+    },
+    {
+      "name": {
+        "en": "Heukseok-dong Student Town",
+        "ko": "흑석동 대학가"
+      },
+      "description": {
+        "en": "Student area near Chung-Ang University with affordable restaurants. Young crowd keeps energy high in this budget-friendly zone.",
+        "ko": "저렴한 식당이 있는 중앙대 근처의 대학가. 젊은 군중이 이 가성비 좋은 지역에서 에너지를 높게 유지한다."
+      },
+      "address": {
+        "en": "Heukseok-dong, Dongjak-gu, Seoul",
+        "ko": "서울 동작구 흑석동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Student",
+        "Budget",
+        "Youth"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Near Chung-Ang University",
+        "Budget-friendly",
+        "Student atmosphere"
+      ],
+      "neighborhood": "Heukseok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5064,
+      "longitude": 126.9637
+    },
+    {
+      "name": {
+        "en": "Boramae Park Markets",
+        "ko": "보라매공원 시장"
+      },
+      "description": {
+        "en": "Markets near Boramae Park serving local families. Weekend crowds visit both the park and surrounding food options.",
+        "ko": "지역 가족을 위한 보라매공원 근처 시장들. 주말 인파가 공원과 주변 먹거리를 함께 방문한다."
+      },
+      "address": {
+        "en": "Boramae Park area, Dongjak-gu, Seoul",
+        "ko": "서울 동작구 보라매공원 일대"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Family",
+        "Park Adjacent",
+        "Weekend"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekend",
+      "tips": [
+        "Near Boramae Park",
+        "Family destination",
+        "Good food options"
+      ],
+      "neighborhood": "Boramae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Weekend"
+      }
+    },
+    {
+      "name": {
+        "en": "Sillim Sundae Alley",
+        "ko": "신림 순대골목"
+      },
+      "description": {
+        "en": "Famous sundae street near Sillim Station. Multiple restaurants compete for the best blood sausage in Seoul.",
+        "ko": "신림역 근처의 유명한 순대 골목. 여러 식당이 서울 최고의 순대를 위해 경쟁한다."
+      },
+      "address": {
+        "en": "Sillim, Gwanak-gu, Seoul",
+        "ko": "서울 관악구 신림"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Sundae",
+        "Famous",
+        "Competition"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Late night",
+      "tips": [
+        "Famous sundae street",
+        "Multiple options",
+        "Late-night favorite"
+      ],
+      "neighborhood": "Sillim",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 37.4842,
+      "longitude": 126.9297
+    },
+    {
+      "name": {
+        "en": "Gwanaksan Trail Restaurants",
+        "ko": "관악산 등산로 맛집"
+      },
+      "description": {
+        "en": "Traditional restaurants at Gwanaksan hiking entrances. Post-hike pajeon and makgeolli tradition strong here.",
+        "ko": "관악산 등산로 입구의 전통 식당들. 등산 후 파전과 막걸리 전통이 여기서 강하다."
+      },
+      "address": {
+        "en": "Gwanaksan area, Gwanak-gu, Seoul",
+        "ko": "서울 관악구 관악산 일대"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Hiking",
+        "Traditional",
+        "Post-climb"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "After hiking",
+      "tips": [
+        "Post-hike tradition",
+        "Pajeon and makgeolli",
+        "Multiple trail entrances"
+      ],
+      "neighborhood": "Gwanak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "After hiking"
+      }
+    },
+    {
+      "name": {
+        "en": "Seoul Grand Park Area",
+        "ko": "서울대공원 일대"
+      },
+      "description": {
+        "en": "Entertainment complex with zoo, gardens, and amusement park. Full day family destination just outside Seoul.",
+        "ko": "동물원, 정원, 놀이공원이 있는 엔터테인먼트 복합단지. 서울 바로 바깥의 온종일 가족 목적지."
+      },
+      "address": {
+        "en": "Seoul Grand Park, Gwacheon, Gyeonggi-do",
+        "ko": "경기도 과천 서울대공원"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Zoo",
+        "Family",
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Weekday",
+      "tips": [
+        "Full day destination",
+        "Zoo and amusement park",
+        "Takes subway Line 4"
+      ],
+      "neighborhood": "Gwacheon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 37.4302,
+      "longitude": 127.015
+    },
+    {
+      "name": {
+        "en": "Uijeongbu Budaejjigae",
+        "ko": "의정부 부대찌개"
+      },
+      "description": {
+        "en": "Northern suburb famous for army stew. The original budaejjigae street where the dish was invented post-Korean War.",
+        "ko": "부대찌개로 유명한 북부 교외. 한국전쟁 후 이 음식이 발명된 원조 부대찌개 거리."
+      },
+      "address": {
+        "en": "Uijeongbu, Gyeonggi-do",
+        "ko": "경기도 의정부"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Budaejjigae",
+        "Origin",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Lunch or dinner",
+      "tips": [
+        "Original budaejjigae location",
+        "Easy train from Seoul",
+        "Historic food origin"
+      ],
+      "neighborhood": "Uijeongbu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Lunch or dinner"
+      },
+      "latitude": 37.5485,
+      "longitude": 127.071
+    },
+    {
+      "name": {
+        "en": "Paju DMZ Border Town",
+        "ko": "파주 DMZ 접경마을"
+      },
+      "description": {
+        "en": "Town near the DMZ border with observation points and duty-free shops. See the reality of Korean division.",
+        "ko": "전망대와 면세점이 있는 DMZ 접경 도시. 한국 분단의 현실을 보라."
+      },
+      "address": {
+        "en": "Paju, Gyeonggi-do",
+        "ko": "경기도 파주"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "DMZ",
+        "Border",
+        "History"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Day trip",
+      "tips": [
+        "DMZ tours available",
+        "Bring passport",
+        "Korean division history"
+      ],
+      "neighborhood": "Paju",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Day trip"
+      },
+      "latitude": 37.5093,
+      "longitude": 126.8167
+    },
+    {
+      "name": {
+        "en": "Suwon Hwaseong Fortress",
+        "ko": "수원화성"
+      },
+      "description": {
+        "en": "UNESCO World Heritage fortress just south of Seoul. Walk the walls and explore the historic city within.",
+        "ko": "서울 바로 남쪽의 유네스코 세계유산 성곽. 성벽을 걷고 그 안의 역사적인 도시를 탐험하라."
+      },
+      "address": {
+        "en": "Suwon, Gyeonggi-do",
+        "ko": "경기도 수원"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "UNESCO",
+        "Fortress",
+        "Day Trip"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Day trip",
+      "tips": [
+        "UNESCO World Heritage",
+        "Easy train from Seoul",
+        "Walk the walls"
+      ],
+      "neighborhood": "Suwon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Day trip"
+      }
+    },
+    {
+      "name": {
+        "en": "Incheon Chinatown",
+        "ko": "인천 차이나타운"
+      },
+      "description": {
+        "en": "Korea's largest Chinatown where jjajangmyeon was invented. Visit for history, food, and coastal scenery.",
+        "ko": "짜장면이 발명된 한국 최대의 차이나타운. 역사, 음식, 해안 풍경을 위해 방문하라."
+      },
+      "address": {
+        "en": "Incheon Chinatown, Incheon",
+        "ko": "인천 차이나타운"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Chinatown",
+        "Jjajangmyeon",
+        "Day Trip"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Day trip",
+      "tips": [
+        "Jjajangmyeon birthplace",
+        "Near Incheon Port",
+        "Historic Chinatown"
+      ],
+      "neighborhood": "Incheon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Day trip"
+      }
+    },
+    {
+      "name": {
+        "en": "Bukhansan Dulle Trail",
+        "ko": "북한산 둘레길"
+      },
+      "description": {
+        "en": "Easier trail circling Bukhansan for those who don't want to summit. Gentle forest walk with mountain scenery.",
+        "ko": "정상에 가지 않으려는 사람들을 위해 북한산을 도는 더 쉬운 트레일. 산 풍경과 함께하는 부드러운 숲길 산책."
+      },
+      "address": {
+        "en": "Bukhansan National Park, Seoul",
+        "ko": "서울 북한산국립공원"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Forest",
+        "Easy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Easier than summit trails",
+        "Multiple access points",
+        "Forest bathing"
+      ],
+      "neighborhood": "Bukhansan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.6676,
+      "longitude": 126.9814
+    }
+  ]
+}

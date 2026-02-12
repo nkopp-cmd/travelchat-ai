@@ -1,0 +1,743 @@
+{
+  "city": "Kuala Lumpur",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:46:00.094Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Petaling Street Market"
+      },
+      "description": {
+        "en": "Heart of Chinatown with clothing, accessories, souvenirs, and famous Ah Loh's peanut pancakes."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1443950999999997,
+      "longitude": 101.69764959999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJRVe3rdFJzDER_fqRQvv39qk"
+    },
+    {
+      "name": {
+        "en": "Kwai Chai Hong"
+      },
+      "description": {
+        "en": "Restored alley with gorgeous nostalgic murals depicting early 20th century Chinatown life. Don't miss night visit."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Lorong Panggung, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1414714999999998,
+      "longitude": 101.6976131,
+      "price_tier": "$",
+      "google_place_id": "ChIJAY0UL3BJzDERgtnOxJhzC8k"
+    },
+    {
+      "name": {
+        "en": "RexKL"
+      },
+      "description": {
+        "en": "Repurposed art deco cinema turned arts/culture center with BookXcess bookstore (absolutely photoworthy!), exhibitions, and cafés."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "80, Jalan Sultan, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1449092999999997,
+      "longitude": 101.69848239999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ3e1uC49JzDERC9qoEgThcHM"
+    },
+    {
+      "name": {
+        "en": "Chan She Shu Yuen Clan Hall"
+      },
+      "description": {
+        "en": "Stunning Cantonese heritage building with ornate roof - beautiful architecture near Petaling Street."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "172, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1402509,
+      "longitude": 101.6984022,
+      "price_tier": "$",
+      "google_place_id": "ChIJF5HxHdpJzDERcxbhlW8Kkg0"
+    },
+    {
+      "name": {
+        "en": "Bright Yellow Shophouses"
+      },
+      "description": {
+        "en": "Restored row of Chinese shophouses in yellow/blue - Instagram magnet including famous Bun Choon bakery."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kampung Ampang Campuran",
+      "address": {
+        "en": "213, Lorong Ikan Emas 2, Kampung Ampang Campuran, 68000 Ampang, Selangor, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1327127999999997,
+      "longitude": 101.76933439999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJJYAXnew2zDERsFka0_B5B44"
+    },
+    {
+      "name": {
+        "en": "Central Market"
+      },
+      "description": {
+        "en": "Restored art deco building with artisan craft stalls, fashion stores, art galleries - beyond Petaling Street tat."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur City Centre",
+      "address": {
+        "en": "Kuala Lumpur City Centre, 50050 Kuala Lumpur, Federal Territory of Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1452635000000004,
+      "longitude": 101.69541579999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJVxLq2dFJzDERAmCinEoNs_w"
+    },
+    {
+      "name": {
+        "en": "Lorong Petaling 2"
+      },
+      "description": {
+        "en": "Small alley beside Pikwah bar with walls illustrated with Chinatown history - total hidden gem."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Lrg Petaling 2, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1415415,
+      "longitude": 101.6983991,
+      "price_tier": "$",
+      "google_place_id": "ChIJOT-SgdpJzDERpIeEr6l2s3c"
+    },
+    {
+      "name": {
+        "en": "Air Mata Kucing"
+      },
+      "description": {
+        "en": "Legendary Chinatown sweet drink with longan and winter melon - refreshing street classic."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "15, Jalan Hang Lekir, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.144446,
+      "longitude": 101.6977958,
+      "price_tier": "$",
+      "google_place_id": "ChIJHwHErdFJzDERMT6WjIk1Fh0"
+    },
+    {
+      "name": {
+        "en": "Char Kway Teow"
+      },
+      "description": {
+        "en": "Wok-fried flat noodles with prawns, cockles, egg - essential KL street food experience."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Brickfields",
+      "address": {
+        "en": "Sports toto, 19, Jalan Tun Sambanthan 4, Brickfields, 50470 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1327974999999997,
+      "longitude": 101.6894652,
+      "price_tier": "$",
+      "google_place_id": "ChIJiXoN9cFJzDERmK4K4Ry1SxA"
+    },
+    {
+      "name": {
+        "en": "Bun Choon"
+      },
+      "description": {
+        "en": "100-year-old bakery in yellow shophouse famous for egg tarts."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "3, Jalan Balai Polis, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1413376,
+      "longitude": 101.6976265,
+      "price_tier": "$",
+      "google_place_id": "ChIJ26oZVOxJzDERW-yFGLa6p5U"
+    },
+    {
+      "name": {
+        "en": "Popiah Cart (Jalan Hang Lekir)"
+      },
+      "description": {
+        "en": "Hidden gem pushcart with fresh spring rolls - turnip, carrots, crushed peanuts in paper-thin wrap. RM3."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kampung Jawa",
+      "address": {
+        "en": "124, Jalan Munshi Abdullah, Kampung Jawa, 75100 Melaka, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 2.199975,
+      "longitude": 102.25219369999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJne3Wqdnx0TERbmnfVaGgKLs"
+    },
+    {
+      "name": {
+        "en": "Old Kopitiam Culture"
+      },
+      "description": {
+        "en": "Traditional coffee shops with metal tables, plastic stools, slowly turning fans - nostalgic vintage dining."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Maluri",
+      "address": {
+        "en": "7, Jalan Jejaka 5, Maluri, 55100 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1277086,
+      "longitude": 101.7307558,
+      "price_tier": "$",
+      "google_place_id": "ChIJwzqyQGs2zDER0Q7TmLZTamE"
+    },
+    {
+      "name": {
+        "en": "Chocha Foodstore"
+      },
+      "description": {
+        "en": "Contemporary twists on classics in vibrant Kwai Chai Hong setting."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "156, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1408204,
+      "longitude": 101.6982343,
+      "price_tier": "$$",
+      "google_place_id": "ChIJaRH6iNpJzDERXDrFviXF5Ck"
+    },
+    {
+      "name": {
+        "en": "Upper House KL"
+      },
+      "description": {
+        "en": "Rooftop above boutique hotel in Chinatown with modern Asian cuisine, Merdeka 118 views, butterfish tataki."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Rooftop, B Hotel 82, 84, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1430928,
+      "longitude": 101.69793639999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ0WwEroNJzDER0JRvEBLdivU"
+    },
+    {
+      "name": {
+        "en": "The Hungry Tapir"
+      },
+      "description": {
+        "en": "KL's only vegan restaurant with bar - plant-based Malaysian flavors."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "135, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1417916,
+      "longitude": 101.697829,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ6emqStdJzDERNrD4Z0LdkNs"
+    },
+    {
+      "name": {
+        "en": "Da Bao"
+      },
+      "description": {
+        "en": "Funky Chinese restobar via backdoor in Kwai Chai Hong - modern Baos with cool cocktails."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "145, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1414978,
+      "longitude": 101.69788369999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJIZwrhgNJzDERs6M9F-jRIHw"
+    },
+    {
+      "name": {
+        "en": "Crane KL"
+      },
+      "description": {
+        "en": "Four-storey former Grocer's Guild with fusion restaurant and hidden bar behind wall of drawers - scarlet decor, customizable G&Ts."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kl City",
+      "address": {
+        "en": "1st Floor, 78, Jalan Sultan, Kl City, 50000 Wilayah Persekutuan, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1441049999999997,
+      "longitude": 101.6983379,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJreFyidFJzDERkyIVfh4ata0"
+    },
+    {
+      "name": {
+        "en": "Bubble Bee Café"
+      },
+      "description": {
+        "en": "Recognizable entrance mural, famous for signature egg waffles."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "139, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1416733,
+      "longitude": 101.69785429999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ1-TCeNBJzDERBNLK7n-0fWg"
+    },
+    {
+      "name": {
+        "en": "LaGula Vegan Bakery"
+      },
+      "description": {
+        "en": "Vegan bakery-café with floral spring salad and big brekkie specialties."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "G-02, Ground Floor, Four Points Hotel by Sheraton, 2, Jalan Balai Polis, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1410416999999997,
+      "longitude": 101.697884,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ-55vHr9JzDERCiLgMxrcHbA"
+    },
+    {
+      "name": {
+        "en": "PS150"
+      },
+      "description": {
+        "en": "Legendary speakeasy behind vintage toy shop - pre-war building divided into eras of drinking. Tiki to spirit-forward cocktails."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Ground Floor, 150, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1409966999999996,
+      "longitude": 101.6981964,
+      "price_tier": "$$",
+      "google_place_id": "ChIJX6W7YtpJzDER1ZCh0R1ALPc"
+    },
+    {
+      "name": {
+        "en": "Penrose KL"
+      },
+      "description": {
+        "en": "Asia's best bars 2024 - experimental cocktails, only 25 customers at a time. Expect lines."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "149, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1414641,
+      "longitude": 101.6979123,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJS0y677RJzDERvxxFFqGh7eg"
+    },
+    {
+      "name": {
+        "en": "Jann Bar (Four Points)"
+      },
+      "description": {
+        "en": "7th floor bar with panoramic Chinatown and skyline views, KL Tower light show, cocktails inspired by Chinatown history."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Level 7, Chinatown, Four Points by Sheraton, 2, Jalan Balai Polis, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1408723999999997,
+      "longitude": 101.6978896,
+      "price_tier": "$$",
+      "google_place_id": "ChIJFzyPwjhJzDERT-7Lc8NJB8E"
+    },
+    {
+      "name": {
+        "en": "The Attic Bar"
+      },
+      "description": {
+        "en": "Hidden rooftop above Travel Hub Guesthouse with Twin Towers, KL Tower, and Merdeka Tower views. Live DJs Saturday, live music Sunday."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Third Floor, 15, Jalan Balai Polis, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1413610999999997,
+      "longitude": 101.69722499999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJpzPLhNpJzDERJKk5dhSQUvI"
+    },
+    {
+      "name": {
+        "en": "Concubine KL"
+      },
+      "description": {
+        "en": "Malaysia's Top 30 Bars - bright yellow/blue entrance, vibrant playful two-floor venue across from Kwai Chai Hong."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Lot 2, Jalan Panggong, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1417959,
+      "longitude": 101.6975702,
+      "price_tier": "$$",
+      "google_place_id": "ChIJjS6_d4ZJzDERCPGCTmi4_Ro"
+    },
+    {
+      "name": {
+        "en": "Baijiu Bar"
+      },
+      "description": {
+        "en": "Cozy old-school oriental spot with dark wood, red lanterns, creative cocktails (Spice Up Your Life, Biscoff Terracotta) and dim sum."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Lorong Panggung, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1417305,
+      "longitude": 101.6975542,
+      "price_tier": "$$",
+      "google_place_id": "ChIJifc4GGhJzDERGB0pCPSIjXc"
+    }
+  ]
+}

@@ -1,0 +1,746 @@
+{
+  "city": "hong_kong",
+  "batch": 2,
+  "spots": [
+    {
+      "name": {
+        "en": "Star Ferry",
+        "zh": "天星小輪"
+      },
+      "description": {
+        "en": "Iconic harbor crossing. Cheap scenic ride.",
+        "zh": "標誌性海港渡輪。便宜的風景遊覽。"
+      },
+      "address": {
+        "en": "Star Ferry Pier, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀天星碼頭"
+      },
+      "category": "Transportation",
+      "subcategories": [
+        "Ferry",
+        "Iconic",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Upper deck better",
+        "Night skyline",
+        "Very cheap"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2939,
+      "longitude": 114.1687
+    },
+    {
+      "name": {
+        "en": "Victoria Harbour Promenade TST",
+        "zh": "尖沙咀海濱長廊"
+      },
+      "description": {
+        "en": "Waterfront promenade with skyline views.",
+        "zh": "有天際線景觀的海濱長廊。"
+      },
+      "address": {
+        "en": "Tsim Sha Tsui Promenade, Kowloon",
+        "zh": "九龍尖沙咀海濱長廊"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Promenade",
+        "Views",
+        "Skyline"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Symphony of Lights 8pm",
+        "Photo spot",
+        "Free views"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2994,
+      "longitude": 114.1856
+    },
+    {
+      "name": {
+        "en": "Avenue of Stars",
+        "zh": "星光大道"
+      },
+      "description": {
+        "en": "Hong Kong film industry tribute. Celebrity handprints.",
+        "zh": "香港電影業致敬。明星手印。"
+      },
+      "address": {
+        "en": "Avenue of Stars, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀星光大道"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Film",
+        "Celebrity",
+        "Promenade"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Bruce Lee statue",
+        "Film history",
+        "Harbor views"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2941,
+      "longitude": 114.1758
+    },
+    {
+      "name": {
+        "en": "Hong Kong Cultural Centre",
+        "zh": "香港文化中心"
+      },
+      "description": {
+        "en": "Major performance venue. Concerts and shows.",
+        "zh": "主要表演場地。音樂會和演出。"
+      },
+      "address": {
+        "en": "10 Salisbury Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀梳士巴利道10號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Performance",
+        "Venue",
+        "Arts"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Check schedule",
+        "World class shows",
+        "Near harbor"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2937,
+      "longitude": 114.1705
+    },
+    {
+      "name": {
+        "en": "Hong Kong Space Museum",
+        "zh": "香港太空館"
+      },
+      "description": {
+        "en": "Space museum with planetarium. Iconic dome.",
+        "zh": "有天文館的太空博物館。標誌性圓頂。"
+      },
+      "address": {
+        "en": "10 Salisbury Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀梳士巴利道10號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Space",
+        "Planetarium"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Planetarium shows",
+        "Free hall",
+        "Iconic building"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2942,
+      "longitude": 114.1719
+    },
+    {
+      "name": {
+        "en": "Hong Kong Museum of Art",
+        "zh": "香港藝術館"
+      },
+      "description": {
+        "en": "Fine art museum on waterfront. Renovated.",
+        "zh": "海濱美術館。已翻新。"
+      },
+      "address": {
+        "en": "10 Salisbury Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀梳士巴利道10號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Art",
+        "Waterfront"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free admission Wed",
+        "Harbor views",
+        "Renovated"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2935,
+      "longitude": 114.172
+    },
+    {
+      "name": {
+        "en": "Hong Kong Science Museum",
+        "zh": "香港科學館"
+      },
+      "description": {
+        "en": "Interactive science museum. Family favorite.",
+        "zh": "互動科學博物館。家庭最愛。"
+      },
+      "address": {
+        "en": "2 Science Museum Road, Tsim Sha Tsui East, Kowloon",
+        "zh": "九龍尖沙咀東科學館道2號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Science",
+        "Interactive"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free admission Wed",
+        "Kids love it",
+        "Interactive exhibits"
+      ],
+      "neighborhood": "Tsim Sha Tsui East",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.301,
+      "longitude": 114.1765
+    },
+    {
+      "name": {
+        "en": "Hong Kong History Museum",
+        "zh": "香港歷史博物館"
+      },
+      "description": {
+        "en": "Comprehensive Hong Kong history. Free entry.",
+        "zh": "全面的香港歷史。免費入場。"
+      },
+      "address": {
+        "en": "100 Chatham Road South, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀漆咸道南100號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "History",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Now free",
+        "HK story exhibit",
+        "Very comprehensive"
+      ],
+      "neighborhood": "Tsim Sha Tsui East",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3019,
+      "longitude": 114.1774
+    },
+    {
+      "name": {
+        "en": "K11 Art Mall",
+        "zh": "K11購物藝術館"
+      },
+      "description": {
+        "en": "Art integrated shopping mall.",
+        "zh": "藝術融合購物中心。"
+      },
+      "address": {
+        "en": "18 Hanoi Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀河內道18號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Art",
+        "Design"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Art installations",
+        "Design shops",
+        "Food options"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2976,
+      "longitude": 114.1736
+    },
+    {
+      "name": {
+        "en": "K11 Musea",
+        "zh": "K11 Musea"
+      },
+      "description": {
+        "en": "Luxury cultural retail complex. Waterfront.",
+        "zh": "豪華文化零售綜合體。海濱。"
+      },
+      "address": {
+        "en": "Victoria Dockside, 18 Salisbury Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀梳士巴利道18號維港文化匯"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Cultural",
+        "Waterfront"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Afternoon",
+      "tips": [
+        "New complex",
+        "Art exhibitions",
+        "Harbor views"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2946,
+      "longitude": 114.1749
+    },
+    {
+      "name": {
+        "en": "Harbour City",
+        "zh": "海港城"
+      },
+      "description": {
+        "en": "Massive waterfront shopping complex.",
+        "zh": "大型海濱購物中心。"
+      },
+      "address": {
+        "en": "Canton Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀廣東道"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Massive",
+        "Waterfront"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very large",
+        "All brands",
+        "Easy to get lost"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.297,
+      "longitude": 114.1684
+    },
+    {
+      "name": {
+        "en": "iSquare",
+        "zh": "國際廣場"
+      },
+      "description": {
+        "en": "Vertical mall near Nathan Road. Cinema.",
+        "zh": "彌敦道附近的垂直商場。電影院。"
+      },
+      "address": {
+        "en": "63 Nathan Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀彌敦道63號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Vertical",
+        "Cinema"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "IMAX cinema",
+        "Rooftop restaurants",
+        "Near MTR"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2969,
+      "longitude": 114.1719
+    },
+    {
+      "name": {
+        "en": "The One",
+        "zh": "The One"
+      },
+      "description": {
+        "en": "Tall mall on Nathan Road. Many floors.",
+        "zh": "彌敦道高層商場。多層。"
+      },
+      "address": {
+        "en": "100 Nathan Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀彌敦道100號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Vertical",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Many restaurants",
+        "High floors",
+        "Nathan Road"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2999,
+      "longitude": 114.1727
+    },
+    {
+      "name": {
+        "en": "Chungking Mansions",
+        "zh": "重慶大廈"
+      },
+      "description": {
+        "en": "Famous multicultural building. Cheap food and hostels.",
+        "zh": "著名多元文化大廈。便宜食物和旅館。"
+      },
+      "address": {
+        "en": "36-44 Nathan Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀彌敦道36-44號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Multicultural",
+        "Budget",
+        "Iconic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Cheap Indian food",
+        "Budget hostels",
+        "Unique experience"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2964,
+      "longitude": 114.1728
+    },
+    {
+      "name": {
+        "en": "Kowloon Park",
+        "zh": "九龍公園"
+      },
+      "description": {
+        "en": "Large urban park in TST. Pool and gardens.",
+        "zh": "尖沙咀大型城市公園。游泳池和花園。"
+      },
+      "address": {
+        "en": "22 Austin Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀柯士甸道22號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Urban",
+        "Pool"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Swimming pool",
+        "Bird lake",
+        "Tai chi morning"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3005,
+      "longitude": 114.1701
+    },
+    {
+      "name": {
+        "en": "Kowloon Mosque",
+        "zh": "九龍清真寺"
+      },
+      "description": {
+        "en": "Largest mosque in Hong Kong. Islamic centre.",
+        "zh": "香港最大清真寺。伊斯蘭中心。"
+      },
+      "address": {
+        "en": "105 Nathan Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀彌敦道105號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Mosque",
+        "Islamic",
+        "Largest"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Respectful dress",
+        "Non-Muslims lobby only",
+        "Historic"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2987,
+      "longitude": 114.172
+    },
+    {
+      "name": {
+        "en": "Nathan Road",
+        "zh": "彌敦道"
+      },
+      "description": {
+        "en": "Main shopping thoroughfare. Golden Mile.",
+        "zh": "主要購物大道。金色一英里。"
+      },
+      "address": {
+        "en": "Nathan Road, Kowloon",
+        "zh": "九龍彌敦道"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Main Street",
+        "Shopping",
+        "Iconic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Neon signs",
+        "Many shops",
+        "Iconic street"
+      ],
+      "neighborhood": "Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2963,
+      "longitude": 114.1724
+    },
+    {
+      "name": {
+        "en": "Sai Yeung Choi Street",
+        "zh": "西洋菜街"
+      },
+      "description": {
+        "en": "Electronics and shopping street in Mong Kok.",
+        "zh": "旺角電子和購物街。"
+      },
+      "address": {
+        "en": "Sai Yeung Choi Street, Mong Kok, Kowloon",
+        "zh": "九龍旺角西洋菜街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Shopping",
+        "Busy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Very busy",
+        "Electronics shops",
+        "Mobile phones"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3187,
+      "longitude": 114.1703
+    },
+    {
+      "name": {
+        "en": "Langham Place",
+        "zh": "朗豪坊"
+      },
+      "description": {
+        "en": "Modern mall in Mong Kok. Youth fashion.",
+        "zh": "旺角現代商場。年輕時尚。"
+      },
+      "address": {
+        "en": "8 Argyle Street, Mong Kok, Kowloon",
+        "zh": "九龍旺角亞皆老街8號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Modern",
+        "Youth"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Long escalators",
+        "Fashion focus",
+        "Near MTR"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3183,
+      "longitude": 114.1686
+    },
+    {
+      "name": {
+        "en": "Sino Centre",
+        "zh": "信和中心"
+      },
+      "description": {
+        "en": "Anime and collectibles mall. Otaku paradise.",
+        "zh": "動漫和收藏品商場。宅男天堂。"
+      },
+      "address": {
+        "en": "582-592 Nathan Road, Mong Kok, Kowloon",
+        "zh": "九龍旺角彌敦道582-592號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Anime",
+        "Collectibles",
+        "Otaku"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Japanese goods",
+        "Collectibles",
+        "Multiple floors"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3161,
+      "longitude": 114.1703
+    }
+  ]
+}

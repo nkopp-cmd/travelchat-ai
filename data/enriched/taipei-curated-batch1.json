@@ -1,0 +1,767 @@
+{
+  "city": "Taipei",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:25:09.645Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Raohe Street Night Market",
+        "zh": "饒河街觀光夜市"
+      },
+      "description": {
+        "en": "Most beloved night market among locals. Famous Fuzhou pepper pork buns (Michelin Guide), pan-fried buns, medicinal herb soup. Enter through ornate Songshan Ciyou Temple gate."
+      },
+      "city": "Taipei",
+      "neighborhood": "Raohe St",
+      "address": {
+        "en": "Raohe St, Songshan District, Taipei City, Taiwan 105"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0508854,
+      "longitude": 121.5774891,
+      "price_tier": "$",
+      "google_place_id": "ChIJg6W0DZyrQjQR9vZdgYMRoj0"
+    },
+    {
+      "name": {
+        "en": "Ningxia Night Market",
+        "zh": "寧夏夜市"
+      },
+      "description": {
+        "en": "Traditional night market near Dadaocheng. Famous for oyster omelets, deep-fried taro balls (Liu Yu Zi), Piaoxiang Beef Noodle stall. Carnival games and old-school arcades."
+      },
+      "city": "Taipei",
+      "neighborhood": "Ningxia Rd",
+      "address": {
+        "en": "Ningxia Rd, Datong District, Taipei City, Taiwan 103"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0566808,
+      "longitude": 121.51536410000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJxUXPVmupQjQRtBB6oj-S5qI"
+    },
+    {
+      "name": {
+        "en": "Shilin Night Market",
+        "zh": "士林夜市"
+      },
+      "description": {
+        "en": "Taipei's biggest and most famous night market. Multiple floors, food courts, claw machines, game stalls. More touristy but essential experience."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 101",
+      "address": {
+        "en": "No. 101, Jihe Rd, Shilin District, Taipei City, Taiwan 111"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0884972,
+      "longitude": 121.52435039999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJBa_9xLGuQjQRKfnnhr5twuc"
+    },
+    {
+      "name": {
+        "en": "Ximending Night Market"
+      },
+      "description": {
+        "en": "First pedestrian zone in Taipei, Japanese colonial influence. Anime stores, maid cafes, Hello Kitty 7-Eleven. LGBTQ+ hub with rainbow crossings and queer-friendly bars."
+      },
+      "city": "Taipei",
+      "neighborhood": "Ximen",
+      "address": {
+        "en": "No. 127, Hanzhong St, Wanhua District, Taipei City, Taiwan 108"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0428337,
+      "longitude": 121.5077445,
+      "price_tier": "$",
+      "google_place_id": "ChIJB0DPcAmpQjQRwNRSPVgGqpU"
+    },
+    {
+      "name": {
+        "en": "Gongguan Night Market",
+        "zh": "公館夜市"
+      },
+      "description": {
+        "en": "Near National Taiwan University, younger crowd. Youthful atmosphere, two Michelin-rated stalls. Great aromatic milk tea and made-to-order dishes hidden in building."
+      },
+      "city": "Taipei",
+      "neighborhood": "Gongguan",
+      "address": {
+        "en": "Ln 90, Section 4, Roosevelt Rd, Da’an District, Taipei City, Taiwan 100"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0137201,
+      "longitude": 121.5347221,
+      "price_tier": "$",
+      "google_place_id": "ChIJVVVVVRWsQjQRwQH6WTfTfPA"
+    },
+    {
+      "name": {
+        "en": "Nanjichang Night Market",
+        "zh": "南機場夜市"
+      },
+      "description": {
+        "en": "Deep in Wanhua district, few tourists. Numbered stalls with English, tiramisu version of peanut ice cream rolls. Authentic local experience."
+      },
+      "city": "Taipei",
+      "neighborhood": "Lane 307",
+      "address": {
+        "en": "Lane 307, Section 2, Zhonghua Rd, Zhongzheng District, Taipei City, Taiwan 100"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0291811,
+      "longitude": 121.50592440000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJv92qsLGpQjQRPYW4ymlvqS0"
+    },
+    {
+      "name": {
+        "en": "Lehua Night Market",
+        "zh": "樂華夜市"
+      },
+      "description": {
+        "en": "Between Dingxi and Yongan Market MRT. Many locals claim this is the best night market in greater Taipei. Near Museum of World Religions."
+      },
+      "city": "Taipei",
+      "neighborhood": "Yongping Rd",
+      "address": {
+        "en": "Yongping Rd, Yonghe District, New Taipei City, Taiwan 234"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.008415600000003,
+      "longitude": 121.51172709999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJDdo_4cKpQjQRb4wdglMtMYc"
+    },
+    {
+      "name": {
+        "en": "Yongkang Street",
+        "zh": "永康街"
+      },
+      "description": {
+        "en": "Legendary food street with original Din Tai Fung and birthplace of mango shaved ice. Side alleys have charming cafes and unexpected food spots. Near Da'an Park."
+      },
+      "city": "Taipei",
+      "neighborhood": "Yongkang St",
+      "address": {
+        "en": "Yongkang St, Da’an District, Taipei City, Taiwan 106"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.030765,
+      "longitude": 121.529533,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ-aQ8v4OpQjQR0ShTzThG1VI"
+    },
+    {
+      "name": {
+        "en": "Din Tai Fung (Original)"
+      },
+      "description": {
+        "en": "World-famous xiao long bao (soup dumplings). Original location on Yongkang Street. Watch dumpling masters through glass kitchen. Expect queues."
+      },
+      "city": "Taipei",
+      "neighborhood": "East Gate",
+      "address": {
+        "en": "No. 194號, Section 2, Xinyi Rd, Da’an District, Taipei City, Taiwan 106"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0335035,
+      "longitude": 121.53011799999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJbTKSE4KpQjQRXDZZI57v-pM"
+    },
+    {
+      "name": {
+        "en": "Yong Kang Beef Noodles"
+      },
+      "description": {
+        "en": "Most famous beef noodle soup in Taipei. Rich dark broth, thick wheat noodles, tender beef. Perfect rainy day comfort food."
+      },
+      "city": "Taipei",
+      "neighborhood": "East Gate",
+      "address": {
+        "en": "No. 17號, Lane 31, Section 2, Jinshan S Rd, Da’an District, Taipei City, Taiwan 106"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0329382,
+      "longitude": 121.52811109999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJgRdW94KpQjQRODiapkz_DB0"
+    },
+    {
+      "name": {
+        "en": "Liangshan Po Soup Dumpling"
+      },
+      "description": {
+        "en": "Local favorite for xiao long bao, less crowded than Din Tai Fung. Juicy minced pork with rich broth in thin skin."
+      },
+      "city": "Taipei",
+      "neighborhood": "Ximen",
+      "address": {
+        "en": "No. 54-4號, Section 2, Hankou St, Wanhua District, Taipei City, Taiwan 108"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0454994,
+      "longitude": 121.50574440000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJC6Lg1A6pQjQRJ0_JYfUcqoA"
+    },
+    {
+      "name": {
+        "en": "Dihua Street Food"
+      },
+      "description": {
+        "en": "Taipei's oldest street (1850s), traditional snacks, herbal remedies. Tea shops, dried goods, Chinese medicine. Great cooking classes available."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 146號",
+      "address": {
+        "en": "No. 146號, Section 1, Dihua St, Datong District, Taipei City, Taiwan 103"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0581215,
+      "longitude": 121.50981099999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJZXKGOBSpQjQRHko-EIytJMU"
+    },
+    {
+      "name": {
+        "en": "Gua Bao"
+      },
+      "description": {
+        "en": "Taiwanese \"hamburger\" - steamed bao with tender pork belly, crushed peanuts, coriander, pickled veggies. Found at night markets."
+      },
+      "city": "Taipei",
+      "neighborhood": "Gongguan",
+      "address": {
+        "en": "No. 3號, Alley 8, Ln. 316, Section 3, Roosevelt Rd, Zhongzheng District, Taipei City, Taiwan 100"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0157411,
+      "longitude": 121.5325808,
+      "price_tier": "$",
+      "google_place_id": "ChIJzVr3l4upQjQRHTNqYkEgR40"
+    },
+    {
+      "name": {
+        "en": "Taiwanese Fried Chicken"
+      },
+      "description": {
+        "en": "Massive flattened chicken cutlet fried crispy. Available spicy, sweet, or salty. Night market essential."
+      },
+      "city": "Taipei",
+      "neighborhood": "Dazhi",
+      "address": {
+        "en": "No. 530號, Beian Rd, Zhongshan District, Taipei City, Taiwan 104"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0797107,
+      "longitude": 121.54662970000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJtfTMuAWsQjQRZAjRu3jqBPc"
+    },
+    {
+      "name": {
+        "en": "Shaved Peanut Ice Cream Roll"
+      },
+      "description": {
+        "en": "Dessert wrap with taro or peanut ice cream, peanut brittle shavings. Some add cilantro (skip if not adventurous)."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 20號",
+      "address": {
+        "en": "No. 20號, Jishan St, Ruifang District, New Taipei City, Taiwan 224"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.108619299999997,
+      "longitude": 121.84513840000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJA3p8GBhFXTQRqIqd8rcn5l8"
+    },
+    {
+      "name": {
+        "en": "Seniman Coffee Studio"
+      },
+      "description": {
+        "en": "Digital nomad favorite in Ubud. Strong Wi-Fi, great coffee, perfect for working. Popular with remote workers."
+      },
+      "city": "Taipei",
+      "neighborhood": "Jl. Sri Wedari No.5",
+      "address": {
+        "en": "Jl. Sri Wedari No.5, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5067234,
+      "longitude": 115.26515479999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJu5hbBmo90i0R4po77axHom8"
+    },
+    {
+      "name": {
+        "en": "Anomali Coffee"
+      },
+      "description": {
+        "en": "Indonesian specialty coffee chain with excellent single-origin beans. Good workspace with fast internet."
+      },
+      "city": "Taipei",
+      "neighborhood": "Margocity",
+      "address": {
+        "en": "Margocity, G Jl. Margonda Raya No.358, Kemiri Muka, Depok, Kota Depok, Jawa Barat 16423, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -6.374006199999999,
+      "longitude": 106.8342428,
+      "price_tier": "$$",
+      "google_place_id": "ChIJV875UCPraS4RLEX24wS2e7w"
+    },
+    {
+      "name": {
+        "en": "Somebody Café (Ximending)"
+      },
+      "description": {
+        "en": "Owned by local artist with rotating exhibitions. Unique milk tea and occasional live performances by dancers/musicians."
+      },
+      "city": "Taipei",
+      "neighborhood": "Ximen",
+      "address": {
+        "en": "108, Taiwan, Taipei City, Wanhua District, Chengdu Rd, 65號2樓"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.042924000000003,
+      "longitude": 121.50574499999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJrdn6PAmpQjQRaclry9PagdY"
+    },
+    {
+      "name": {
+        "en": "Clear Café (Ubud-style)"
+      },
+      "description": {
+        "en": "Part of Taipei's growing health-conscious cafe scene. Fresh juices and healthy options alongside good coffee."
+      },
+      "city": "Taipei",
+      "neighborhood": "Jl. Hanoman No.8",
+      "address": {
+        "en": "Jl. Hanoman No.8, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5091774,
+      "longitude": 115.2649008,
+      "price_tier": "$$",
+      "google_place_id": "ChIJuWpfwms90i0RmUc7F9E9hGY"
+    },
+    {
+      "name": {
+        "en": "Longshan Temple",
+        "zh": "龍山寺"
+      },
+      "description": {
+        "en": "One of Taiwan's most famous and colorful temples. Ornate decorations, active worship site. Free entry, fascinating for kids too."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 211",
+      "address": {
+        "en": "No. 211, Guangzhou St, Wanhua District, Taipei City, Taiwan 10853"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.037310599999998,
+      "longitude": 121.49986539999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJCd7n16ipQjQRihzEWF4z6Pg"
+    },
+    {
+      "name": {
+        "en": "Baoan Temple"
+      },
+      "description": {
+        "en": "UNESCO-recognized temple with stunning architecture. Less crowded than Longshan, equally impressive craftsmanship."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 61",
+      "address": {
+        "en": "No. 61, Hami St, Datong District, Taipei City, Taiwan 103"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0731088,
+      "longitude": 121.51557030000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJoWFCL2qpQjQRPOoT7nFV3YU"
+    },
+    {
+      "name": {
+        "en": "Xiahai City God Temple",
+        "zh": "霞海城隍廟"
+      },
+      "description": {
+        "en": "Famous Dadaocheng temple where people pray for love. Complex rituals to follow for matchmaking prayers."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 61號",
+      "address": {
+        "en": "No. 61號, Section 1, Dihua St, Datong District, Taipei City, Taiwan 103"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0555941,
+      "longitude": 121.51021689999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ58RTchSpQjQR0nPhT8U-bWk"
+    },
+    {
+      "name": {
+        "en": "Songshan Ciyou Temple"
+      },
+      "description": {
+        "en": "Grand temple at Raohe Night Market entrance. Lit up beautifully at night. Perfect combo with night market visit."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 761號",
+      "address": {
+        "en": "No. 761號, Section 4, Bade Rd, Songshan District, Taipei City, Taiwan 105"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.051218199999997,
+      "longitude": 121.57768999999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJy55HbZyrQjQRgTcmZb7QnQ4"
+    },
+    {
+      "name": {
+        "en": "Guandu Temple",
+        "zh": "關渡宮"
+      },
+      "description": {
+        "en": "One of Taipei's oldest temples (1712), oldest Matsu Temple in North Taiwan. Amazing statue-filled tunnel through hill with river views."
+      },
+      "city": "Taipei",
+      "neighborhood": "Guandu",
+      "address": {
+        "en": "No. 360, Zhixing Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.117679100000004,
+      "longitude": 121.46395539999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJeaOR-EfFDRQRXhAcRnu-PZc"
+    },
+    {
+      "name": {
+        "en": "Puji Temple (Beitou)"
+      },
+      "description": {
+        "en": "Hidden Japanese wooden temple built 1905. Small but beautiful, tucked on forested hill. Watch for small gate on Wenquan Road."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 112",
+      "address": {
+        "en": "No. 112, Wenquan Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.135918399999998,
+      "longitude": 121.51124759999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJ1eMGHkOuQjQRj6IiCtQdLpg"
+    }
+  ]
+}

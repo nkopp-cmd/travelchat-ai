@@ -1,0 +1,746 @@
+{
+  "city": "singapore",
+  "batch": 12,
+  "spots": [
+    {
+      "name": {
+        "en": "Ang Mo Kio Hub",
+        "zh": "宏茂桥中心"
+      },
+      "description": {
+        "en": "Heartland mall in north. Local shopping.",
+        "zh": "北部邻里购物中心。当地购物。"
+      },
+      "address": {
+        "en": "53 Ang Mo Kio Avenue 3, Singapore",
+        "zh": "新加坡宏茂桥3道53号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Heartland",
+        "Mall",
+        "North"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Heartland mall",
+        "Very local",
+        "Good food court"
+      ],
+      "neighborhood": "Ang Mo Kio",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3694,
+      "longitude": 103.8483
+    },
+    {
+      "name": {
+        "en": "Tampines Mall",
+        "zh": "淡滨尼购物中心"
+      },
+      "description": {
+        "en": "East side heartland mall. Family shopping.",
+        "zh": "东部邻里购物中心。家庭购物。"
+      },
+      "address": {
+        "en": "4 Tampines Central 5, Singapore",
+        "zh": "新加坡淡滨尼中心5路4号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Heartland",
+        "East",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Heartland east",
+        "Near IKEA",
+        "Local families"
+      ],
+      "neighborhood": "Tampines",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3525,
+      "longitude": 103.9447
+    },
+    {
+      "name": {
+        "en": "NEX Serangoon",
+        "zh": "NEX实龙岗"
+      },
+      "description": {
+        "en": "Large northeast mall. Above MRT station.",
+        "zh": "大型东北购物中心。地铁站上方。"
+      },
+      "address": {
+        "en": "23 Serangoon Central, Singapore",
+        "zh": "新加坡实龙岗中心23号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Large",
+        "Northeast",
+        "Modern"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Large heartland mall",
+        "Cinema",
+        "Above MRT"
+      ],
+      "neighborhood": "Serangoon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3505,
+      "longitude": 103.8723
+    },
+    {
+      "name": {
+        "en": "JEM Jurong East",
+        "zh": "JEM裕廊东"
+      },
+      "description": {
+        "en": "Major west side mall. Connected to MRT.",
+        "zh": "主要西部购物中心。与地铁相连。"
+      },
+      "address": {
+        "en": "50 Jurong Gateway Road, Singapore",
+        "zh": "新加坡裕廊门户路50号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "West",
+        "Major",
+        "Connected"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "West region hub",
+        "Near Westgate",
+        "Good food"
+      ],
+      "neighborhood": "Jurong East",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3333,
+      "longitude": 103.7434
+    },
+    {
+      "name": {
+        "en": "Causeway Point",
+        "zh": "长堤坊"
+      },
+      "description": {
+        "en": "Major north mall. Near Woodlands Checkpoint.",
+        "zh": "主要北部购物中心。靠近兀兰关卡。"
+      },
+      "address": {
+        "en": "1 Woodlands Square, Singapore",
+        "zh": "新加坡兀兰广场1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "North",
+        "Major",
+        "Border"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "North region hub",
+        "Near checkpoint",
+        "Local shopping"
+      ],
+      "neighborhood": "Woodlands",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.436,
+      "longitude": 103.786
+    },
+    {
+      "name": {
+        "en": "Northpoint City",
+        "zh": "北岸城"
+      },
+      "description": {
+        "en": "Major north mall complex. Yishun area.",
+        "zh": "主要北部购物中心综合体。义顺地区。"
+      },
+      "address": {
+        "en": "930 Yishun Avenue 2, Singapore",
+        "zh": "新加坡义顺2道930号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "North",
+        "Large",
+        "Complex"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "North region",
+        "Very big",
+        "Local families"
+      ],
+      "neighborhood": "Yishun",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.4282,
+      "longitude": 103.8363
+    },
+    {
+      "name": {
+        "en": "Waterway Point",
+        "zh": "水道坊"
+      },
+      "description": {
+        "en": "Punggol waterfront mall. New town center.",
+        "zh": "榜鹅海滨购物中心。新镇中心。"
+      },
+      "address": {
+        "en": "83 Punggol Central, Singapore",
+        "zh": "新加坡榜鹅中心83号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Waterfront",
+        "New Town",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "New town",
+        "Near waterway",
+        "Young families"
+      ],
+      "neighborhood": "Punggol",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.4064,
+      "longitude": 103.902
+    },
+    {
+      "name": {
+        "en": "Compass One",
+        "zh": "罗敏娜广场"
+      },
+      "description": {
+        "en": "Sengkang mall. Family oriented.",
+        "zh": "盛港购物中心。面向家庭。"
+      },
+      "address": {
+        "en": "1 Sengkang Square, Singapore",
+        "zh": "新加坡盛港广场1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Heartland",
+        "Family",
+        "Northeast"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Family mall",
+        "Near LRT",
+        "Young town"
+      ],
+      "neighborhood": "Sengkang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.392,
+      "longitude": 103.895
+    },
+    {
+      "name": {
+        "en": "Hougang Mall",
+        "zh": "后港购物中心"
+      },
+      "description": {
+        "en": "Heartland mall in northeast. Local crowds.",
+        "zh": "东北部邻里购物中心。当地人群。"
+      },
+      "address": {
+        "en": "90 Hougang Avenue 10, Singapore",
+        "zh": "新加坡后港10道90号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Heartland",
+        "Northeast",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very local",
+        "Near market",
+        "Old heartland"
+      ],
+      "neighborhood": "Hougang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3726,
+      "longitude": 103.8938
+    },
+    {
+      "name": {
+        "en": "Toa Payoh Hub",
+        "zh": "大巴窑中心"
+      },
+      "description": {
+        "en": "Integrated hub mall. Library included.",
+        "zh": "综合中心购物中心。包括图书馆。"
+      },
+      "address": {
+        "en": "490 Lorong 6 Toa Payoh, Singapore",
+        "zh": "新加坡大巴窑6巷490号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Integrated",
+        "Library",
+        "Central"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Library inside",
+        "Community hub",
+        "Mature estate"
+      ],
+      "neighborhood": "Toa Payoh",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3328,
+      "longitude": 103.8476
+    },
+    {
+      "name": {
+        "en": "Bedok Mall",
+        "zh": "勿洛购物中心"
+      },
+      "description": {
+        "en": "East side neighborhood mall. Above MRT.",
+        "zh": "东部邻里购物中心。地铁上方。"
+      },
+      "address": {
+        "en": "311 New Upper Changi Road, Singapore",
+        "zh": "新加坡新樟宜路上段311号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "East",
+        "Neighborhood",
+        "MRT"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "East neighborhood",
+        "Good food court",
+        "Above MRT"
+      ],
+      "neighborhood": "Bedok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3249,
+      "longitude": 103.9292
+    },
+    {
+      "name": {
+        "en": "I12 Katong",
+        "zh": "I12加东"
+      },
+      "description": {
+        "en": "East coast lifestyle mall. Peranakan area.",
+        "zh": "东海岸生活方式购物中心。土生华人区。"
+      },
+      "address": {
+        "en": "112 East Coast Road, Singapore",
+        "zh": "新加坡东海岸路112号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Lifestyle",
+        "East Coast",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Katong area",
+        "Near Joo Chiat",
+        "Good restaurants"
+      ],
+      "neighborhood": "Katong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3051,
+      "longitude": 103.9052
+    },
+    {
+      "name": {
+        "en": "Parkway Parade",
+        "zh": "百汇广场"
+      },
+      "description": {
+        "en": "East coast established mall. Marine Parade.",
+        "zh": "东海岸老牌购物中心。马林百列。"
+      },
+      "address": {
+        "en": "80 Marine Parade Road, Singapore",
+        "zh": "新加坡马林百列路80号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "East Coast",
+        "Established",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "East coast families",
+        "Near beach",
+        "Established mall"
+      ],
+      "neighborhood": "Marine Parade",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3014,
+      "longitude": 103.9052
+    },
+    {
+      "name": {
+        "en": "Kinex",
+        "zh": "Kinex"
+      },
+      "description": {
+        "en": "East side mall near stadium. Entertainment.",
+        "zh": "体育场附近的东部购物中心。娱乐。"
+      },
+      "address": {
+        "en": "11 Tanjong Katong Road, Singapore",
+        "zh": "新加坡丹戎加东路11号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "East",
+        "Entertainment",
+        "Sports"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near stadium",
+        "Rock climbing",
+        "Entertainment focus"
+      ],
+      "neighborhood": "Katong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3148,
+      "longitude": 103.8947
+    },
+    {
+      "name": {
+        "en": "Great World City",
+        "zh": "大世界城"
+      },
+      "description": {
+        "en": "River Valley area mall. Family entertainment.",
+        "zh": "里峇峇利地区购物中心。家庭娱乐。"
+      },
+      "address": {
+        "en": "1 Kim Seng Promenade, Singapore",
+        "zh": "新加坡金声海滨道1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "River Valley",
+        "Family",
+        "Entertainment"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Family entertainment",
+        "Cold Storage",
+        "Near river"
+      ],
+      "neighborhood": "River Valley",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2935,
+      "longitude": 103.832
+    },
+    {
+      "name": {
+        "en": "Queensway Shopping Centre",
+        "zh": "女皇道购物中心"
+      },
+      "description": {
+        "en": "Sports goods mall. Cheap sports equipment.",
+        "zh": "运动用品购物中心。便宜的运动器材。"
+      },
+      "address": {
+        "en": "1 Queensway, Singapore",
+        "zh": "新加坡女皇道1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Sports",
+        "Cheap",
+        "Equipment"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Cheap sports goods",
+        "Soccer jerseys",
+        "Bargain"
+      ],
+      "neighborhood": "Queenstown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2875,
+      "longitude": 103.8035
+    },
+    {
+      "name": {
+        "en": "Anchorpoint Shopping Centre",
+        "zh": "安珀广场"
+      },
+      "description": {
+        "en": "Outlet mall near IKEA. Discount shopping.",
+        "zh": "宜家附近的奥特莱斯购物中心。折扣购物。"
+      },
+      "address": {
+        "en": "370 Alexandra Road, Singapore",
+        "zh": "新加坡亚历山大路370号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Outlet",
+        "Discount",
+        "Alexandra"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Outlet stores",
+        "Near IKEA",
+        "Discount brands"
+      ],
+      "neighborhood": "Alexandra",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2887,
+      "longitude": 103.8051
+    },
+    {
+      "name": {
+        "en": "IMM Building",
+        "zh": "IMM大厦"
+      },
+      "description": {
+        "en": "Major outlet mall in west. Factory outlets.",
+        "zh": "西部主要奥特莱斯购物中心。工厂店。"
+      },
+      "address": {
+        "en": "2 Jurong East Street 21, Singapore",
+        "zh": "新加坡裕廊东21街2号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Outlet",
+        "Factory",
+        "West"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Factory outlets",
+        "Many brands",
+        "Worth the trip"
+      ],
+      "neighborhood": "Jurong East",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3347,
+      "longitude": 103.7477
+    },
+    {
+      "name": {
+        "en": "Changi City Point",
+        "zh": "樟宜城坊"
+      },
+      "description": {
+        "en": "Mall near Expo. Business park area.",
+        "zh": "博览会附近的购物中心。商业园区。"
+      },
+      "address": {
+        "en": "5 Changi Business Park Central 1, Singapore",
+        "zh": "新加坡樟宜商业园中心1路5号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Business Park",
+        "East",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "Office crowd",
+        "Good food court",
+        "Near Expo"
+      ],
+      "neighborhood": "Changi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3341,
+      "longitude": 103.9627
+    },
+    {
+      "name": {
+        "en": "Jewel Changi Airport",
+        "zh": "星耀樟宜"
+      },
+      "description": {
+        "en": "Airport nature attraction. Indoor waterfall.",
+        "zh": "机场自然景点。室内瀑布。"
+      },
+      "address": {
+        "en": "78 Airport Boulevard, Singapore",
+        "zh": "新加坡机场林荫道78号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Airport",
+        "Nature",
+        "Attraction"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Rain Vortex",
+        "Light shows",
+        "Many restaurants"
+      ],
+      "neighborhood": "Changi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.3602,
+      "longitude": 103.9897
+    }
+  ]
+}

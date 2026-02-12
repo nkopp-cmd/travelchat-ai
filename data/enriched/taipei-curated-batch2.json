@@ -1,0 +1,720 @@
+{
+  "city": "Taipei",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:25:09.647Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Nong Chan Temple (Beitou)"
+      },
+      "description": {
+        "en": "Modern architecture meets Buddhist calm. Glass walls reflect lotus pond, mountains frame background. Meditation hall welcomes visitors."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 89",
+      "address": {
+        "en": "No. 89, Lane 65, Daye Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.1225471,
+      "longitude": 121.49537950000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ9UvPvP6uQjQRq0CCfaWofcY"
+    },
+    {
+      "name": {
+        "en": "Dadaocheng & Dihua Street"
+      },
+      "description": {
+        "en": "Taipei's oldest neighborhood, once Taiwan's most prosperous trading area. Colonial-era buildings, traditional teahouses, craft beer bars. Lunar New Year celebrations."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 146號",
+      "address": {
+        "en": "No. 146號, Section 1, Dihua St, Datong District, Taipei City, Taiwan 103"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0581215,
+      "longitude": 121.50981099999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJZXKGOBSpQjQRHko-EIytJMU"
+    },
+    {
+      "name": {
+        "en": "Ximending",
+        "zh": "西門町"
+      },
+      "description": {
+        "en": "Late-night entertainment hub with Japanese influence. Rainbow crossings, LGBTQ+-friendly, Red House cultural center. First pedestrian zone in Taipei."
+      },
+      "city": "Taipei",
+      "neighborhood": "Ximen",
+      "address": {
+        "en": "Shi-men Ting, Wanhua District, Taipei City, Taiwan 108"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0446664,
+      "longitude": 121.5063096,
+      "price_tier": "$",
+      "google_place_id": "ChIJKyaoGAmpQjQR99RS3zrx9Ms"
+    },
+    {
+      "name": {
+        "en": "Zhongshan"
+      },
+      "description": {
+        "en": "Cool cafes and modern vibe. Good for wandering, shopping, and dining. Less chaotic than tourist areas."
+      },
+      "city": "Taipei",
+      "neighborhood": "Zhongshan District",
+      "address": {
+        "en": "Zhongshan District, Taipei City, Taiwan 104"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0792018,
+      "longitude": 121.54270929999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJAR6jgvmrQjQRKbIugg0XTUY"
+    },
+    {
+      "name": {
+        "en": "Fujin Street",
+        "zh": "富錦街"
+      },
+      "description": {
+        "en": "Where young Taipei hangs out weekends. Tree tunnels, independent cafes, ceramics studios, vintage clothing. No tour buses can fit."
+      },
+      "city": "Taipei",
+      "neighborhood": "Fujin St",
+      "address": {
+        "en": "Fujin St, Songshan District, Taipei City, Taiwan 105"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0606207,
+      "longitude": 121.5590367,
+      "price_tier": "$",
+      "google_place_id": "ChIJcwoX2_KrQjQRbskeAOtJpi0"
+    },
+    {
+      "name": {
+        "en": "Beitou Hot Springs"
+      },
+      "description": {
+        "en": "Taipei's hot spring capital, 20 minutes by MRT. Japanese-era architecture, sulfur valley, thermal valley. Named top 10 Taiwan destination 2026."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 2",
+      "address": {
+        "en": "No. 2, Zhongshan Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Wellness"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.136569400000003,
+      "longitude": 121.50715,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ6fE69FCuQjQRPAp8aSmP8a0"
+    },
+    {
+      "name": {
+        "en": "Beitou Thermal Valley (Hell Valley)"
+      },
+      "description": {
+        "en": "Free to visit, bubbling steam rising from sulfur-rich waters. Stunning turquoise pools. Closed Mondays."
+      },
+      "city": "Taipei",
+      "neighborhood": "Thermal Valley",
+      "address": {
+        "en": "Thermal Valley, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Wellness"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.137894,
+      "longitude": 121.5118863,
+      "price_tier": "$",
+      "google_place_id": "ChIJq73cSEKuQjQRF6Pddi_UFeg"
+    },
+    {
+      "name": {
+        "en": "Beitou Hot Spring Museum",
+        "zh": "北投溫泉博物館"
+      },
+      "description": {
+        "en": "Free entry, explains Japanese colonial history of hot springs. Beautiful historic building inside Beitou Park."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 2",
+      "address": {
+        "en": "No. 2, Zhongshan Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Wellness"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.136569400000003,
+      "longitude": 121.50715,
+      "price_tier": "$",
+      "google_place_id": "ChIJ6fE69FCuQjQRPAp8aSmP8a0"
+    },
+    {
+      "name": {
+        "en": "Beitou Library",
+        "zh": "北投圖書館"
+      },
+      "description": {
+        "en": "Award-winning eco-friendly \"green library\" with arm-chairs and outdoor terrace. Perfect spot between hot spring visits."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 251號",
+      "address": {
+        "en": "No. 251號, Guangming Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Wellness"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.1364397,
+      "longitude": 121.5062909,
+      "price_tier": "$",
+      "google_place_id": "ChIJC1DM2kSuQjQRHQpu_eh59Mg"
+    },
+    {
+      "name": {
+        "en": "Millennium Hot Spring"
+      },
+      "description": {
+        "en": "Budget-friendly public pools in Beitou. Bring swimsuit and towel for authentic local experience."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 6號",
+      "address": {
+        "en": "No. 6號, Zhongshan Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Wellness"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.136879399999998,
+      "longitude": 121.50837759999997,
+      "price_tier": "$",
+      "google_place_id": "ChIJSU4BnUSuQjQRLfZGgyjCaHw"
+    },
+    {
+      "name": {
+        "en": "Sulfur Valley"
+      },
+      "description": {
+        "en": "More dramatic fumaroles than Thermal Valley. Take minibus from Beitou Park to Mituo Temple, short walk."
+      },
+      "city": "Taipei",
+      "neighborhood": "Quanyuan Rd",
+      "address": {
+        "en": "Quanyuan Rd, Beitou District, Taipei City, Taiwan 112"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Wellness"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.1435677,
+      "longitude": 121.521203,
+      "price_tier": "$",
+      "google_place_id": "ChIJz9febg2uQjQR49MUp8qZJOQ"
+    },
+    {
+      "name": {
+        "en": "Taipei 101",
+        "zh": "台北101"
+      },
+      "description": {
+        "en": "Former world's tallest building (508m). Record-breaking elevators, observation deck with stunning city views. Damper baby mascot."
+      },
+      "city": "Taipei",
+      "neighborhood": "Taipei 101",
+      "address": {
+        "en": "Taipei 101, No. 7, Section 5, Xinyi Rd, Xinyi District, Taipei City, Taiwan 110"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.033976,
+      "longitude": 121.56453889999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJH56c2rarQjQRphD9gvC8BhI"
+    },
+    {
+      "name": {
+        "en": "National Palace Museum",
+        "zh": "國立故宮博物院"
+      },
+      "description": {
+        "en": "World-class collection of Chinese art and artifacts. Jade cabbage and meat-shaped stone are highlights."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 221",
+      "address": {
+        "en": "No. 221, Sec 2, Zhi Shan Rd, Shilin District, Taipei City, Taiwan 111"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.1023554,
+      "longitude": 121.54849250000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJfUpAzTqsQjQRwQl6ORhwbV0"
+    },
+    {
+      "name": {
+        "en": "Chiang Kai-shek Memorial Hall",
+        "zh": "中正紀念堂"
+      },
+      "description": {
+        "en": "Grand memorial with changing of guard ceremony. Free entry, beautiful grounds with Liberty Square."
+      },
+      "city": "Taipei",
+      "neighborhood": "Zhongzheng District",
+      "address": {
+        "en": "Zhongzheng District, Taipei City, Taiwan 100"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.035501999999997,
+      "longitude": 121.5201832,
+      "price_tier": "$",
+      "google_place_id": "ChIJTamiuZ2pQjQRsmnfkkID6UM"
+    },
+    {
+      "name": {
+        "en": "Maokong Gondola",
+        "zh": "貓空纜車"
+      },
+      "description": {
+        "en": "Cable car ride to tea mountain. Crystal cabin floor option for brave. Tea houses and views at top."
+      },
+      "city": "Taipei",
+      "neighborhood": "Wenshan",
+      "address": {
+        "en": "Maokong, Wenshan District, Taipei",
+        "zh": "台北市文山區貓空"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 24.979684,
+      "longitude": 121.5898661,
+      "price_tier": "$",
+      "google_place_id": "ChIJS71H94CqQjQRJ0scddOTQvk"
+    },
+    {
+      "name": {
+        "en": "Songshan Cultural Creative Park"
+      },
+      "description": {
+        "en": "Former tobacco factory turned art hub. Exhibitions, indie shops, cozy cafes. Taiwan Design Museum."
+      },
+      "city": "Taipei",
+      "neighborhood": "No. 133號",
+      "address": {
+        "en": "No. 133號, Guangfu S Rd, Xinyi District, Taipei City, Taiwan 11072"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.0438366,
+      "longitude": 121.5606383,
+      "price_tier": "$",
+      "google_place_id": "ChIJO0vOI7-rQjQR3Pl9_4cPK8g"
+    },
+    {
+      "name": {
+        "en": "Miniatures Museum of Taiwan",
+        "zh": "袖珍博物館"
+      },
+      "description": {
+        "en": "Hidden in office building basement. Fairy tale castles, miniature Phantom of Opera. Quirky hidden gem."
+      },
+      "city": "Taipei",
+      "neighborhood": "Taiwan",
+      "address": {
+        "en": "10489, Taiwan, Taipei City, Zhongshan District, Section 1, Jianguo N Rd, 96號B1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.050421,
+      "longitude": 121.5360584,
+      "price_tier": "$",
+      "google_place_id": "ChIJbVjU3GGpQjQRf-842jJJufc"
+    },
+    {
+      "name": {
+        "en": "Elephant Mountain (Xiangshan)",
+        "zh": "象山"
+      },
+      "description": {
+        "en": "Classic Taipei 101 viewpoint hike. Short but steep, best at sunset or night for city lights."
+      },
+      "city": "Taipei",
+      "neighborhood": "Taiwan",
+      "address": {
+        "en": "110, Taiwan, 臺北市信義區象山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.027223,
+      "longitude": 121.57649889999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJZbFYW6yrQjQRIGUPSTaQuG0"
+    },
+    {
+      "name": {
+        "en": "Yangmingshan National Park",
+        "zh": "陽明山國家公園"
+      },
+      "description": {
+        "en": "Volcanic mountain park with hot springs, fumaroles, and hiking trails. Cherry blossoms in spring."
+      },
+      "city": "Taipei",
+      "neighborhood": "Beitou",
+      "address": {
+        "en": "Yangmingshan, Beitou District, Taipei",
+        "zh": "台北市北投區陽明山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.1942462,
+      "longitude": 121.5609363,
+      "price_tier": "$",
+      "google_place_id": "ChIJS8fPJPitQjQRebDDT6PjC1w"
+    },
+    {
+      "name": {
+        "en": "Dadaocheng to Tamsui Bike Path"
+      },
+      "description": {
+        "en": "20km flat riverside path connecting old Taipei to coastal Tamsui. Rental bikes available."
+      },
+      "city": "Taipei",
+      "neighborhood": "Tamsui District",
+      "address": {
+        "en": "Tamsui District, New Taipei City, Taiwan 251"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.166715,
+      "longitude": 121.44689190000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJYa5wFfavQjQRxPwkDQYIwCQ"
+    },
+    {
+      "name": {
+        "en": "Campuhan Ridge Walk"
+      },
+      "description": {
+        "en": "Part of the extensive bike trail network. 200+ km of trails connect the city."
+      },
+      "city": "Taipei",
+      "neighborhood": "Jl. Raya Ubud",
+      "address": {
+        "en": "Jl. Raya Ubud, Kelusa, Kec. Payangan, Kabupaten Gianyar, Bali, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5035806,
+      "longitude": 115.25475789999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ9XP0yms90i0Rn8QbqnT9E3w"
+    },
+    {
+      "name": {
+        "en": "Jiufen"
+      },
+      "description": {
+        "en": "Mountain village that inspired Spirited Away. Teahouses overlooking Pacific, lantern-lit narrow streets."
+      },
+      "city": "Taipei",
+      "neighborhood": "Jioufen",
+      "address": {
+        "en": "Jioufen, Ruifang District, New Taipei City, Taiwan 224"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.109187,
+      "longitude": 121.8462979,
+      "price_tier": "$",
+      "google_place_id": "ChIJeWdTBRhFXTQRhDuVjIM6uCk"
+    },
+    {
+      "name": {
+        "en": "Tamsui (Danshui)"
+      },
+      "description": {
+        "en": "Riverside promenade at MRT end. Sunset views, street food, historic Fort San Domingo then ferry to Bali."
+      },
+      "city": "Taipei",
+      "neighborhood": "Tamsui District",
+      "address": {
+        "en": "Tamsui District, New Taipei City, Taiwan 251"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 25.1719805,
+      "longitude": 121.44337060000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5Sf2QxmwQjQRsn3QcZ95QNI"
+    }
+  ]
+}

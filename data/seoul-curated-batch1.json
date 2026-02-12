@@ -1,0 +1,757 @@
+{
+  "city": "Seoul",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:24:45.355Z",
+  "spots": [
+    {
+      "name": {
+        "en": "NUDAKE Seongsu Tea House"
+      },
+      "description": {
+        "en": "Innovative scented tea pairings with molecular gastronomy desserts like matcha lattes in an art exhibit setting."
+      },
+      "city": "Seoul",
+      "neighborhood": "Ttukseom-ro",
+      "address": {
+        "en": "South Korea, Seoul, Seongdong-gu, Ttukseom-ro, 433 5층"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5381263,
+      "longitude": 127.05889780000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ7z3R-OalfDURRMjtwAF3rdA"
+    },
+    {
+      "name": {
+        "en": "CAFE 3 STRIPES SEOUL"
+      },
+      "description": {
+        "en": "Health-focused eats including striped pastries, protein bars, and sporty smoothies for Gen Z travelers."
+      },
+      "city": "Seoul",
+      "neighborhood": "Seongsui-ro 7ga-gil",
+      "address": {
+        "en": "9 Seongsui-ro 7ga-gil, Seongdong-gu, Seoul, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5410933,
+      "longitude": 127.054988,
+      "price_tier": "$",
+      "google_place_id": "ChIJe-0MUKelfDUR5fwpmDeAFrc"
+    },
+    {
+      "name": {
+        "en": "Knotted at Suwon Starfield Mall"
+      },
+      "description": {
+        "en": "Signature salted bread and casual dining options in a new mall setting."
+      },
+      "city": "Seoul",
+      "neighborhood": "Suseong-ro",
+      "address": {
+        "en": "175 Suseong-ro, Jangan-gu, Suwon, Gyeonggi-do, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.2873665,
+      "longitude": 126.99120749999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJV-ZOvmdDezURVYEkKRoAi4o"
+    },
+    {
+      "name": {
+        "en": "Randy's Donuts"
+      },
+      "description": {
+        "en": "World-famous donut shop offering an array of treats in Anguk."
+      },
+      "city": "Seoul",
+      "neighborhood": "Donggyo-ro",
+      "address": {
+        "en": "247 Donggyo-ro, Mapo-gu, Seoul, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.562069,
+      "longitude": 126.9242797,
+      "price_tier": "$",
+      "google_place_id": "ChIJjyWoRc6ZfDUR_I2XmCKB0SM"
+    },
+    {
+      "name": {
+        "en": "Soha Saltpond"
+      },
+      "description": {
+        "en": "Salt-themed spot famous for soft, fluffy salt bread in sweet and savoury flavours like mentaiko and matcha chocolate."
+      },
+      "city": "Seoul",
+      "neighborhood": "Supyo-ro 28-gil",
+      "address": {
+        "en": "21-5 Supyo-ro 28-gil, Jongno District, Seoul, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5730739,
+      "longitude": 126.98969489999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJdawuLnGjfDURFoQHgAgusNI"
+    },
+    {
+      "name": {
+        "en": "Vinyl Cafe at Suwon Starfield Library"
+      },
+      "description": {
+        "en": "Coffee while listening to vinyl records with scenic library views."
+      },
+      "city": "Seoul",
+      "neighborhood": "Jeongja-dong",
+      "address": {
+        "en": "111-14 Jeongja-dong, Jangan-gu, Suwon, Gyeonggi-do, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.2875533,
+      "longitude": 126.9913337,
+      "price_tier": "$",
+      "google_place_id": "ChIJQbZIFQBDezURDZCHucrZMWQ"
+    },
+    {
+      "name": {
+        "en": "Cafe Onion Anguk"
+      },
+      "description": {
+        "en": "Coffee in a restored Hanok traditional house."
+      },
+      "city": "Seoul",
+      "neighborhood": "Gyedong-gil",
+      "address": {
+        "en": "5 Gyedong-gil, Jongno District, Seoul, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5776235,
+      "longitude": 126.9865541,
+      "price_tier": "$",
+      "google_place_id": "ChIJLXL2BvijfDURmTrYFPQIGUc"
+    },
+    {
+      "name": {
+        "en": "Jungdamun Bukchon"
+      },
+      "description": {
+        "en": "Traditional tea house blending Bukchon Hanok Village charm with modern touches."
+      },
+      "city": "Seoul",
+      "neighborhood": "Gyedong-gil",
+      "address": {
+        "en": "33-9 Gyedong-gil, Jongno District, Seoul, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5788516,
+      "longitude": 126.98611319999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-9d0zMSifDURFeL7UnV4dyg"
+    },
+    {
+      "name": {
+        "en": "Coffee Hanyakbang"
+      },
+      "description": {
+        "en": "Onsite roasted beans, hand-drip coffee, desserts, and pastries in a vintage-themed interior."
+      },
+      "city": "Seoul",
+      "neighborhood": "Samil-daero 12-gil",
+      "address": {
+        "en": "16-6 Samil-daero 12-gil, Jung District, Seoul, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5665301,
+      "longitude": 126.98859359999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJedlDzuWifDURBaOCaa5hkL4"
+    },
+    {
+      "name": {
+        "en": "Meerkat Friends Cafe"
+      },
+      "description": {
+        "en": "Quirky animal cafe to hang out with meerkats, raccoons, and exotic animals."
+      },
+      "city": "Seoul",
+      "neighborhood": "Wausan-ro 21-gil",
+      "address": {
+        "en": "South Korea, Seoul, Mapo-gu, Wausan-ro 21-gil, 20 미어캣 프랜즈 2층"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.552419,
+      "longitude": 126.92295899999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJQ1GTJ8WYfDURMicgCdYYZRM"
+    },
+    {
+      "name": {
+        "en": "Sikmulgwan PH"
+      },
+      "description": {
+        "en": "Plant-filled cafe with curated art exhibits, galleries, and relaxing menu for reading or exploration."
+      },
+      "city": "Seoul",
+      "neighborhood": "Gwangpyeong-ro 34-gil",
+      "address": {
+        "en": "24 Gwangpyeong-ro 34-gil, Gangnam District, Seoul, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.482648,
+      "longitude": 127.094642,
+      "price_tier": "$",
+      "google_place_id": "ChIJBw7myjGlfDURjJH2JIP9EDU"
+    },
+    {
+      "name": {
+        "en": "CAFE 3 STRIPES SEOUL Rooftop"
+      },
+      "description": {
+        "en": "Weekend music lives and rooftop cinema with barbecues."
+      },
+      "city": "Seoul",
+      "neighborhood": "Seongsui-ro 7ga-gil",
+      "address": {
+        "en": "9 Seongsui-ro 7ga-gil, Seongdong-gu, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5410933,
+      "longitude": 127.054988,
+      "price_tier": "$",
+      "google_place_id": "ChIJe-0MUKelfDUR5fwpmDeAFrc"
+    },
+    {
+      "name": {
+        "en": "Zoo Sindang"
+      },
+      "description": {
+        "en": "Zodiac-themed speakeasy with colorful lights, lanterns, greenery, and zodiac-inspired cocktails and bites."
+      },
+      "city": "Seoul",
+      "neighborhood": "Toegye-ro",
+      "address": {
+        "en": "411 Toegye-ro, Jung District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5659231,
+      "longitude": 127.017235,
+      "price_tier": "$$",
+      "google_place_id": "ChIJG5j8PISjfDURcuiYHMSxb2k"
+    },
+    {
+      "name": {
+        "en": "Zest (Itaewon/Hannam)"
+      },
+      "description": {
+        "en": "Asia's #2 bar 2025 - no bottles displayed, all made in-house with Korean ingredients like Jeju citrus and wild herbs."
+      },
+      "city": "Seoul",
+      "neighborhood": "Dosan-daero 55-gil",
+      "address": {
+        "en": "South Korea, Seoul, Gangnam District, Dosan-daero 55-gil, 26 하늘빌딩 1층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5252611,
+      "longitude": 127.04077799999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ9eN6-_GlfDUR5SGWDB7YNkw"
+    },
+    {
+      "name": {
+        "en": "Bar Cham (Seochon)"
+      },
+      "description": {
+        "en": "Asia's #6 bar 2025 - deeply Korean cocktails with omija berries, perilla leaves, and fermented grains in hanok setting."
+      },
+      "city": "Seoul",
+      "neighborhood": "Jahamun-ro 7-gil",
+      "address": {
+        "en": "34 Jahamun-ro 7-gil, Jongno District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5791709,
+      "longitude": 126.97038509999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJxWShw9-jfDURS80cyKrrVI4"
+    },
+    {
+      "name": {
+        "en": "Alice Cheongdam"
+      },
+      "description": {
+        "en": "Whimsical speakeasy themed around Alice in Wonderland with experimental cocktails and curtained private rooms."
+      },
+      "city": "Seoul",
+      "neighborhood": "Dosan-daero 55-gil",
+      "address": {
+        "en": "South Korea, Seoul, Gangnam District, Dosan-daero 55-gil, 47 지하 1층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5266874,
+      "longitude": 127.040951,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ1SQnb3ikfDURcbiz6NFB5h0"
+    },
+    {
+      "name": {
+        "en": "Southside Parlor (Itaewon)"
+      },
+      "description": {
+        "en": "80s arcade games, hookahs, rooftop Namsan Tower view, and award-winning cocktails by decorated mixologist."
+      },
+      "city": "Seoul",
+      "neighborhood": "Noksapyeong-daero",
+      "address": {
+        "en": "218 Noksapyeong-daero, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5370925,
+      "longitude": 126.9870429,
+      "price_tier": "$$",
+      "google_place_id": "ChIJXZvbb0iifDURdSMUpMDYfTI"
+    },
+    {
+      "name": {
+        "en": "Volstead (Itaewon)"
+      },
+      "description": {
+        "en": "Basement speakeasy named after 1919 Prohibition Act with vintage posters and seasonal cocktail menu."
+      },
+      "city": "Seoul",
+      "neighborhood": "보광로",
+      "address": {
+        "en": "South Korea, Seoul, Yongsan District, 이태원1동 보광로 116"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5331252,
+      "longitude": 126.99452,
+      "price_tier": "$$",
+      "google_place_id": "ChIJRRMQh0qifDURciriDUnbb40"
+    },
+    {
+      "name": {
+        "en": "Charles H (Four Seasons)"
+      },
+      "description": {
+        "en": "Luxury speakeasy behind hidden marble door with city-themed menu pages and plush leather couches."
+      },
+      "city": "Seoul",
+      "neighborhood": "Saemunan-ro",
+      "address": {
+        "en": "97 Saemunan-ro, Jongno District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5705573,
+      "longitude": 126.97543139999998,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJfZLLbCOjfDURJv2oIh07atc"
+    },
+    {
+      "name": {
+        "en": "Le Chamber (Gangnam)"
+      },
+      "description": {
+        "en": "Speakeasy with timeless sophistication and gentleman's club atmosphere behind discreet alleyway entrance."
+      },
+      "city": "Seoul",
+      "neighborhood": "Dosan-daero 55-gil",
+      "address": {
+        "en": "South Korea, Seoul, Gangnam District, Dosan-daero 55-gil, 42 지하 1층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5262177,
+      "longitude": 127.04103959999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ639qa3ikfDURlcK_PQa7PbQ"
+    },
+    {
+      "name": {
+        "en": "Pussyfoot Saloon (Yongsan)"
+      },
+      "description": {
+        "en": "1930s Shanghai train voyage theme with digital train windows and loft-style high ceilings."
+      },
+      "city": "Seoul",
+      "neighborhood": "Daesagwan-ro 31-gil",
+      "address": {
+        "en": "7-8 Daesagwan-ro 31-gil, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.533920699999996,
+      "longitude": 127.00546639999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJQQpT17CjfDURi1dqJpDGPOg"
+    },
+    {
+      "name": {
+        "en": "Miir Lounge (Itaewon)"
+      },
+      "description": {
+        "en": "Elusive speakeasy with small discreet sign, refined elegance, and meticulously crafted signature cocktails."
+      },
+      "city": "Seoul",
+      "neighborhood": "Jangmun-ro",
+      "address": {
+        "en": "23 Jangmun-ro, RF, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.528539800000004,
+      "longitude": 126.99310700000001,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJHxW2nH-jfDURKibKs9z1aOk"
+    },
+    {
+      "name": {
+        "en": "Sunsetmood (Itaewon)"
+      },
+      "description": {
+        "en": "Intimate rooftop bar with Namsan Tower views, high ceilings, and wide-open terrace over townhouses."
+      },
+      "city": "Seoul",
+      "neighborhood": "4 층",
+      "address": {
+        "en": "226-6 4 층, Itaewon-dong, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5398704,
+      "longitude": 126.991167,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ61atWgCjfDUR542OQ3IFDp0"
+    },
+    {
+      "name": {
+        "en": "MU/ART (Yongsan)"
+      },
+      "description": {
+        "en": "Jazz bar with live singer-songwriter and jazz trio performances every Saturday night amid old photos and artistic backdrop."
+      },
+      "city": "Seoul",
+      "neighborhood": "Daesagwan-ro 12-gil",
+      "address": {
+        "en": "South Korea, Seoul, Yongsan District, Daesagwan-ro 12-gil, 8 B101"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.533237,
+      "longitude": 127.00139489999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJbxIATACjfDUREmyxGvTZwC0"
+    },
+    {
+      "name": {
+        "en": "Carlos Whiskey Bar (Itaewon)"
+      },
+      "description": {
+        "en": "70 malted whiskeys, 30 American whiskeys, 10 Japanese whiskeys in wood-planked intimate setting with ambient lighting."
+      },
+      "city": "Seoul",
+      "neighborhood": "Itaewon-dong",
+      "address": {
+        "en": "57-15 Itaewon-dong, Yongsan District, Seoul, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5345441,
+      "longitude": 126.9893261,
+      "price_tier": "$$",
+      "google_place_id": "ChIJV3KK0QqjfDURTWLX1UNa0c0"
+    }
+  ]
+}

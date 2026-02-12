@@ -1,0 +1,746 @@
+{
+  "city": "kyoto",
+  "batch": 2,
+  "spots": [
+    {
+      "name": {
+        "en": "Ryoan-ji Temple",
+        "ja": "龍安寺"
+      },
+      "description": {
+        "en": "Famous rock garden. Zen meditation.",
+        "ja": "有名な石庭。禅の瞑想。"
+      },
+      "address": {
+        "en": "13 Ryoanji Goryonoshitacho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区龍安寺御陵ノ下町13"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Zen",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Morning",
+      "tips": [
+        "15 rocks puzzle",
+        "Quiet contemplation",
+        "Beautiful pond garden"
+      ],
+      "neighborhood": "Ukyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0335,
+      "longitude": 135.7181
+    },
+    {
+      "name": {
+        "en": "Daitoku-ji Temple",
+        "ja": "大徳寺"
+      },
+      "description": {
+        "en": "Zen temple complex. Multiple sub-temples.",
+        "ja": "禅寺院群。複数の塔頭。"
+      },
+      "address": {
+        "en": "53 Murasakino Daitokujicho, Kita-ku, Kyoto",
+        "ja": "京都市北区紫野大徳寺町53"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Zen",
+        "Complex"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Multiple sub-temples",
+        "Tea ceremony connection",
+        "Less crowded"
+      ],
+      "neighborhood": "Kita",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0437,
+      "longitude": 135.7458
+    },
+    {
+      "name": {
+        "en": "Nanzen-ji Temple",
+        "ja": "南禅寺"
+      },
+      "description": {
+        "en": "Major Zen temple. Aqueduct.",
+        "ja": "主要な禅寺。水路閣。"
+      },
+      "address": {
+        "en": "Nanzenji Fukuchicho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区南禅寺福地町"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Zen",
+        "Aqueduct"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Brick aqueduct popular",
+        "Autumn colors",
+        "Near Philosopher's Path"
+      ],
+      "neighborhood": "Sakyo",
+      "latitude": 35.0114138,
+      "longitude": 135.7944841,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Byodo-in Temple",
+        "ja": "平等院"
+      },
+      "description": {
+        "en": "Phoenix Hall. On 10 yen coin.",
+        "ja": "鳳凰堂。10円硬貨に描かれている。"
+      },
+      "address": {
+        "en": "116 Uji Renge, Uji, Kyoto",
+        "ja": "京都府宇治市宇治蓮華116"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Iconic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "10 yen coin temple",
+        "Uji green tea area",
+        "Day trip from Kyoto"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.8895,
+      "longitude": 135.8075
+    },
+    {
+      "name": {
+        "en": "Uji Area",
+        "ja": "宇治"
+      },
+      "description": {
+        "en": "Green tea capital. Historic temples.",
+        "ja": "緑茶の産地。歴史ある寺院。"
+      },
+      "address": {
+        "en": "Uji, Kyoto",
+        "ja": "京都府宇治市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Tea",
+        "Historic",
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Matcha everything",
+        "Tale of Genji",
+        "River walks"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9632,
+      "longitude": 135.7709
+    },
+    {
+      "name": {
+        "en": "Yasaka Shrine",
+        "ja": "八坂神社"
+      },
+      "description": {
+        "en": "Gion shrine. Gion Festival.",
+        "ja": "祇園の神社。祇園祭。"
+      },
+      "address": {
+        "en": "625 Gionmachi Kitagawa, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区祇園町北側625"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Festival",
+        "Gion"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Free entry",
+        "Night lanterns",
+        "Gion Festival base"
+      ],
+      "neighborhood": "Gion",
+      "latitude": 35.0036559,
+      "longitude": 135.7785534,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Maruyama Park",
+        "ja": "円山公園"
+      },
+      "description": {
+        "en": "Best cherry blossom spot. Weeping cherry.",
+        "ja": "最高の桜スポット。しだれ桜。"
+      },
+      "address": {
+        "en": "Maruyama-cho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区円山町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Cherry Blossom",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Spring",
+      "tips": [
+        "Night cherry viewing",
+        "Famous weeping cherry",
+        "Food stalls spring"
+      ],
+      "neighborhood": "Higashiyama",
+      "latitude": 35.0035587,
+      "longitude": 135.78052689999998,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Spring"
+      }
+    },
+    {
+      "name": {
+        "en": "Kodai-ji Temple",
+        "ja": "高台寺"
+      },
+      "description": {
+        "en": "Beautiful gardens. Night illumination.",
+        "ja": "美しい庭園。夜間ライトアップ。"
+      },
+      "address": {
+        "en": "526 Kodaiji Shimokawara-cho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区高台寺下河原町526"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Garden",
+        "Night"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Night illumination",
+        "Bamboo grove",
+        "Hideyoshi's wife"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0003,
+      "longitude": 135.7806
+    },
+    {
+      "name": {
+        "en": "Kennin-ji Temple",
+        "ja": "建仁寺"
+      },
+      "description": {
+        "en": "Oldest Zen temple in Kyoto. Dragons.",
+        "ja": "京都最古の禅寺。龍の天井画。"
+      },
+      "address": {
+        "en": "584 Komatsu-cho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区小松町584"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Zen",
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Dragon ceiling paintings",
+        "Photography allowed",
+        "Near Gion"
+      ],
+      "neighborhood": "Gion",
+      "latitude": 35.0000363,
+      "longitude": 135.77356319999998,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Heian Shrine",
+        "ja": "平安神宮"
+      },
+      "description": {
+        "en": "Large torii gate. Jidai Festival.",
+        "ja": "大きな鳥居。時代祭。"
+      },
+      "address": {
+        "en": "97 Okazaki Nishitennocho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区岡崎西天王町97"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Large",
+        "Festival"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Huge torii gate",
+        "Garden extra fee",
+        "Jidai Festival October"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0161,
+      "longitude": 135.7829
+    },
+    {
+      "name": {
+        "en": "Eikan-do Temple",
+        "ja": "永観堂"
+      },
+      "description": {
+        "en": "Best autumn colors. Looking back Buddha.",
+        "ja": "最高の紅葉。見返り阿弥陀。"
+      },
+      "address": {
+        "en": "48 Eikando-cho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区永観堂町48"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Autumn",
+        "Buddha"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Autumn",
+      "tips": [
+        "Best autumn colors",
+        "Looking back Buddha",
+        "Night illumination autumn"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.014,
+      "longitude": 135.795
+    },
+    {
+      "name": {
+        "en": "Shimogamo Shrine",
+        "ja": "下鴨神社"
+      },
+      "description": {
+        "en": "Ancient forest shrine. UNESCO.",
+        "ja": "原生林の神社。ユネスコ。"
+      },
+      "address": {
+        "en": "59 Shimogamo Izumikawacho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区下鴨泉川町59"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "UNESCO",
+        "Forest"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Ancient forest",
+        "Aoi Festival May",
+        "Less crowded"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.037,
+      "longitude": 135.7725
+    },
+    {
+      "name": {
+        "en": "Kamigamo Shrine",
+        "ja": "上賀茂神社"
+      },
+      "description": {
+        "en": "Oldest shrine in Kyoto. UNESCO.",
+        "ja": "京都最古の神社。ユネスコ。"
+      },
+      "address": {
+        "en": "339 Kamigamomotoyama, Kita-ku, Kyoto",
+        "ja": "京都市北区上賀茂本山339"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "UNESCO",
+        "Oldest"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Sand cones",
+        "Aoi Festival",
+        "Less touristy"
+      ],
+      "neighborhood": "Kita",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0605,
+      "longitude": 135.7523
+    },
+    {
+      "name": {
+        "en": "Kitano Tenmangu Shrine",
+        "ja": "北野天満宮"
+      },
+      "description": {
+        "en": "Shrine for students. Plum blossoms.",
+        "ja": "学問の神社。梅の花。"
+      },
+      "address": {
+        "en": "Bakurocho, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区馬喰町"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Students",
+        "Plum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "February",
+      "tips": [
+        "Flea market 25th",
+        "Exam prayers",
+        "Plum blossoms February"
+      ],
+      "neighborhood": "Kamigyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "February"
+      },
+      "latitude": 35.0282,
+      "longitude": 135.736
+    },
+    {
+      "name": {
+        "en": "Myoshin-ji Temple",
+        "ja": "妙心寺"
+      },
+      "description": {
+        "en": "Large Zen temple complex. 46 sub-temples.",
+        "ja": "大きな禅寺院群。46の塔頭。"
+      },
+      "address": {
+        "en": "64 Hanazono Myoshinjicho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区花園妙心寺町64"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Zen",
+        "Large"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "46 sub-temples",
+        "Dragon ceiling",
+        "Very peaceful"
+      ],
+      "neighborhood": "Ukyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0217,
+      "longitude": 135.7201
+    },
+    {
+      "name": {
+        "en": "Shoren-in Temple",
+        "ja": "青蓮院"
+      },
+      "description": {
+        "en": "Imperial temple. Blue illumination.",
+        "ja": "門跡寺院。青いライトアップ。"
+      },
+      "address": {
+        "en": "69-1 Awatacho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区粟田口三条坊町69-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Imperial",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Blue illumination",
+        "Giant camphor trees",
+        "Less crowded"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0076,
+      "longitude": 135.7834
+    },
+    {
+      "name": {
+        "en": "Chion-in Temple",
+        "ja": "知恩院"
+      },
+      "description": {
+        "en": "Pure Land headquarters. Massive gate.",
+        "ja": "浄土宗総本山。巨大な門。"
+      },
+      "address": {
+        "en": "400 Rinka-cho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区林下町400"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Large",
+        "Pure Land"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Massive sanmon gate",
+        "New Year bells",
+        "Large complex"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0056,
+      "longitude": 135.7835
+    },
+    {
+      "name": {
+        "en": "Tofuku-ji Temple",
+        "ja": "東福寺"
+      },
+      "description": {
+        "en": "Best autumn temple. Tsutenkyo Bridge.",
+        "ja": "最高の紅葉寺。通天橋。"
+      },
+      "address": {
+        "en": "15-778 Honmachi, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区本町15-778"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Autumn",
+        "Bridge"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Autumn",
+      "tips": [
+        "Tsutenkyo bridge view",
+        "Moss garden",
+        "Very crowded autumn"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 34.9772,
+      "longitude": 135.7746
+    },
+    {
+      "name": {
+        "en": "Daigo-ji Temple",
+        "ja": "醍醐寺"
+      },
+      "description": {
+        "en": "Cherry blossom temple. UNESCO.",
+        "ja": "桜の寺。ユネスコ。"
+      },
+      "address": {
+        "en": "22 Daigohigashioji-cho, Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区醍醐東大路町22"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Cherry Blossom"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Spring",
+      "tips": [
+        "Hideyoshi cherry viewing",
+        "Multiple areas",
+        "Mountain temple"
+      ],
+      "neighborhood": "Fushimi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 34.9513,
+      "longitude": 135.8209
+    },
+    {
+      "name": {
+        "en": "Kokedera Moss Temple",
+        "ja": "西芳寺苔寺"
+      },
+      "description": {
+        "en": "Moss garden temple. Reservation required.",
+        "ja": "苔庭の寺。要予約。"
+      },
+      "address": {
+        "en": "56 Matsuo Jingatanicho, Nishikyo-ku, Kyoto",
+        "ja": "京都市西京区松尾神ケ谷町56"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Moss",
+        "Reservation"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Rainy Season",
+      "tips": [
+        "Must reserve",
+        "Sutra copying",
+        "120 types of moss"
+      ],
+      "neighborhood": "Nishikyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Rainy Season"
+      },
+      "latitude": 34.9923,
+      "longitude": 135.6836
+    }
+  ]
+}

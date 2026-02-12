@@ -1,0 +1,744 @@
+{
+  "city": "bangkok",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "On Nut Night Market",
+        "th": "ตลาดกลางคืนอ่อนนุช"
+      },
+      "description": {
+        "en": "Local night market near BTS On Nut. Authentic street food and cheap goods.",
+        "th": "ตลาดกลางคืนท้องถิ่นใกล้บีทีเอสอ่อนนุช สตรีทฟู้ดแท้และของถูก"
+      },
+      "address": {
+        "en": "On Nut, Prawet, Bangkok",
+        "th": "อ่อนนุช เขตประเวศ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Local",
+        "Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Near BTS",
+        "Very local",
+        "Cheap food"
+      ],
+      "neighborhood": "On Nut",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7174,
+      "longitude": 100.6545
+    },
+    {
+      "name": {
+        "en": "Bearing Area",
+        "th": "แบริ่ง"
+      },
+      "description": {
+        "en": "Residential area with local restaurants. Growing food scene.",
+        "th": "พื้นที่อยู่อาศัยมีร้านอาหารท้องถิ่น ซีนอาหารกำลังโต"
+      },
+      "address": {
+        "en": "Bearing, Samut Prakan",
+        "th": "แบริ่ง สมุทรปราการ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Residential",
+        "Growing"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "End of BTS line",
+        "Local eats",
+        "Residential"
+      ],
+      "neighborhood": "Bearing",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.6612,
+      "longitude": 100.6018
+    },
+    {
+      "name": {
+        "en": "Phra Khanong Community",
+        "th": "พระโขนง"
+      },
+      "description": {
+        "en": "Local neighborhood with old community feel. Traditional markets and temples.",
+        "th": "ย่านท้องถิ่นมีบรรยากาศชุมชนเก่า ตลาดดั้งเดิมและวัด"
+      },
+      "address": {
+        "en": "Phra Khanong, Watthana, Bangkok",
+        "th": "พระโขนง เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Community",
+        "Traditional",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Old Bangkok feel",
+        "Local temples",
+        "Morning market"
+      ],
+      "neighborhood": "Phra Khanong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7024,
+      "longitude": 100.6015
+    },
+    {
+      "name": {
+        "en": "W Market Phra Khanong",
+        "th": "ดับเบิลยู มาร์เก็ต พระโขนง"
+      },
+      "description": {
+        "en": "Hip weekend market near BTS. Young crowd and creative vendors.",
+        "th": "ตลาดนัดฮิปสุดสัปดาห์ใกล้บีทีเอส คนรุ่นใหม่และพ่อค้าสร้างสรรค์"
+      },
+      "address": {
+        "en": "W Market, Phra Khanong, Bangkok",
+        "th": "ดับเบิลยู มาร์เก็ต พระโขนง กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Weekend",
+        "Hip",
+        "Creative"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekend",
+      "tips": [
+        "Weekend only",
+        "Young crowd",
+        "Near BTS"
+      ],
+      "neighborhood": "Phra Khanong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 13.7148,
+      "longitude": 100.5942
+    },
+    {
+      "name": {
+        "en": "Bang Na Complex",
+        "th": "บางนา"
+      },
+      "description": {
+        "en": "Suburban shopping and IKEA. Mega Bangna and Central Bang Na.",
+        "th": "ช้อปปิ้งชานเมืองและอิเกีย เมกา บางนา และเซ็นทรัล บางนา"
+      },
+      "address": {
+        "en": "Bang Na, Bangkok",
+        "th": "บางนา กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Suburban",
+        "IKEA"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "IKEA Bangkok",
+        "Mega Bangna",
+        "Family shopping"
+      ],
+      "neighborhood": "Bang Na",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7362,
+      "longitude": 100.5634
+    },
+    {
+      "name": {
+        "en": "Suvarnabhumi Viewing Area",
+        "th": "ชมเครื่องบินสุวรรณภูมิ"
+      },
+      "description": {
+        "en": "Plane spotting near airport. Watch planes take off and land.",
+        "th": "ดูเครื่องบินใกล้สนามบิน ดูเครื่องบินขึ้นและลง"
+      },
+      "address": {
+        "en": "Near Suvarnabhumi Airport, Bangkok",
+        "th": "ใกล้สนามบินสุวรรณภูมิ กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Planes",
+        "Spotting",
+        "Unique"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Plane spotting",
+        "Local families",
+        "Free activity"
+      ],
+      "neighborhood": "Airport",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Lat Krabang Street Food",
+        "th": "สตรีทฟู้ดลาดกระบัง"
+      },
+      "description": {
+        "en": "Street food near airport and university. Student prices.",
+        "th": "สตรีทฟู้ดใกล้สนามบินและมหาวิทยาลัย ราคานักศึกษา"
+      },
+      "address": {
+        "en": "Lat Krabang, Bangkok",
+        "th": "ลาดกระบัง กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Street Food",
+        "Student",
+        "Cheap"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Near KMITL",
+        "Very cheap",
+        "Student area"
+      ],
+      "neighborhood": "Lat Krabang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.42,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7277,
+      "longitude": 100.7486
+    },
+    {
+      "name": {
+        "en": "Min Buri Old Market",
+        "th": "ตลาดเก่ามีนบุรี"
+      },
+      "description": {
+        "en": "Historic market in eastern Bangkok. Far from tourists.",
+        "th": "ตลาดประวัติศาสตร์ในกรุงเทพฯ ตะวันออก ไกลจากนักท่องเที่ยว"
+      },
+      "address": {
+        "en": "Min Buri, Bangkok",
+        "th": "มีนบุรี กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Historic",
+        "Local",
+        "Far"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Very local",
+        "Historic area",
+        "Far from center"
+      ],
+      "neighborhood": "Min Buri",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.42,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.8084,
+      "longitude": 100.7327
+    },
+    {
+      "name": {
+        "en": "Safari World Bangkok",
+        "th": "ซาฟารีเวิลด์"
+      },
+      "description": {
+        "en": "Drive-through safari and marine park. Family entertainment destination.",
+        "th": "ซาฟารีขับรถผ่านและมารีนพาร์ค จุดหมายบันเทิงครอบครัว"
+      },
+      "address": {
+        "en": "Safari World, Min Buri, Bangkok",
+        "th": "ซาฟารีเวิลด์ มีนบุรี กรุงเทพฯ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Safari",
+        "Zoo",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Half day needed",
+        "Drive-through",
+        "Family destination"
+      ],
+      "neighborhood": "Min Buri",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.865,
+      "longitude": 100.7031
+    },
+    {
+      "name": {
+        "en": "Don Muang Night Market",
+        "th": "ตลาดกลางคืนดอนเมือง"
+      },
+      "description": {
+        "en": "Local night market near old airport. Very authentic experience.",
+        "th": "ตลาดกลางคืนท้องถิ่นใกล้สนามบินเก่า ประสบการณ์แท้มาก"
+      },
+      "address": {
+        "en": "Don Muang, Bangkok",
+        "th": "ดอนเมือง กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Local",
+        "Airport"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Near Don Muang airport",
+        "Very local",
+        "Cheap food"
+      ],
+      "neighborhood": "Don Muang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.9147,
+      "longitude": 100.5979
+    },
+    {
+      "name": {
+        "en": "Saphan Mai Market",
+        "th": "ตลาดสะพานใหม่"
+      },
+      "description": {
+        "en": "Large local market in northern Bangkok. Food and household goods.",
+        "th": "ตลาดท้องถิ่นใหญ่ในกรุงเทพฯ เหนือ อาหารและของใช้ในบ้าน"
+      },
+      "address": {
+        "en": "Saphan Mai, Bangkok",
+        "th": "สะพานใหม่ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local",
+        "Large",
+        "Food"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Large market",
+        "Very local",
+        "Northern Bangkok"
+      ],
+      "neighborhood": "Saphan Mai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7369,
+      "longitude": 100.5248
+    },
+    {
+      "name": {
+        "en": "Bang Sue Grand Station",
+        "th": "สถานีกลางบางซื่อ"
+      },
+      "description": {
+        "en": "New central railway station. Southeast Asia's largest railway hub.",
+        "th": "สถานีรถไฟกลางใหม่ ศูนย์กลางรถไฟใหญ่ที่สุดในเอเชียตะวันออกเฉียงใต้"
+      },
+      "address": {
+        "en": "Bang Sue, Chatuchak, Bangkok",
+        "th": "บางซื่อ จตุจักร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Railway",
+        "Architecture",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Anytime",
+      "tips": [
+        "New station",
+        "Large building",
+        "Future connections"
+      ],
+      "neighborhood": "Bang Sue",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "latitude": 13.804,
+      "longitude": 100.5417
+    },
+    {
+      "name": {
+        "en": "Taopoon Junction",
+        "th": "เตาปูน"
+      },
+      "description": {
+        "en": "Local area near Bang Sue. Real Bangkok neighborhood.",
+        "th": "พื้นที่ท้องถิ่นใกล้บางซื่อ ย่านกรุงเทพฯ แท้"
+      },
+      "address": {
+        "en": "Taopoon, Bangkok",
+        "th": "เตาปูน กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Residential",
+        "Food"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Very local",
+        "MRT connection",
+        "Real Bangkok"
+      ],
+      "neighborhood": "Bang Sue",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.8062,
+      "longitude": 100.5308
+    },
+    {
+      "name": {
+        "en": "Nonthaburi Market",
+        "th": "ตลาดนนทบุรี"
+      },
+      "description": {
+        "en": "Provincial market just outside Bangkok. Famous for durian.",
+        "th": "ตลาดจังหวัดเพิ่งออกกรุงเทพฯ ขึ้นชื่อเรื่องทุเรียน"
+      },
+      "address": {
+        "en": "Nonthaburi Market, Nonthaburi",
+        "th": "ตลาดนนทบุรี นนทบุรี"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Provincial",
+        "Fruit",
+        "Durian"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Famous durian",
+        "MRT accessible",
+        "Outside Bangkok"
+      ],
+      "neighborhood": "Nonthaburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.9057,
+      "longitude": 100.521
+    },
+    {
+      "name": {
+        "en": "Ko Kret Island",
+        "th": "เกาะเกร็ด"
+      },
+      "description": {
+        "en": "River island with Mon pottery villages. Weekend day trip destination.",
+        "th": "เกาะในแม่น้ำมีหมู่บ้านเครื่องปั้นดินเผามอญ จุดหมายทริปวันหยุด"
+      },
+      "address": {
+        "en": "Ko Kret, Nonthaburi",
+        "th": "เกาะเกร็ด นนทบุรี"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Island",
+        "Pottery",
+        "Day Trip"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Weekend",
+      "tips": [
+        "Mon pottery",
+        "Bike around island",
+        "Weekend best"
+      ],
+      "neighborhood": "Nonthaburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 13.9089,
+      "longitude": 100.4796
+    },
+    {
+      "name": {
+        "en": "Wat Sai Floating Market",
+        "th": "ตลาดน้ำวัดไทร"
+      },
+      "description": {
+        "en": "Small local floating market in Nonthaburi. Very authentic.",
+        "th": "ตลาดน้ำท้องถิ่นเล็กๆ ในนนทบุรี แท้มาก"
+      },
+      "address": {
+        "en": "Wat Sai, Nonthaburi",
+        "th": "วัดไทร นนทบุรี"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Floating Market",
+        "Local",
+        "Authentic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Very local",
+        "Small market",
+        "Authentic experience"
+      ],
+      "neighborhood": "Nonthaburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.6896,
+      "longitude": 100.4581
+    },
+    {
+      "name": {
+        "en": "Rama VIII Bridge",
+        "th": "สะพานพระราม 8"
+      },
+      "description": {
+        "en": "Modern cable-stayed bridge with park. Night photography spot.",
+        "th": "สะพานขึงสมัยใหม่มีสวน จุดถ่ายรูปกลางคืน"
+      },
+      "address": {
+        "en": "Rama VIII Bridge, Bangkok",
+        "th": "สะพานพระราม 8 กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Bridge",
+        "Views",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Night photography",
+        "River views",
+        "Park underneath"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7692,
+      "longitude": 100.4967
+    },
+    {
+      "name": {
+        "en": "Santichaiprakarn Park",
+        "th": "สวนสันติชัยปราการ"
+      },
+      "description": {
+        "en": "Riverside park near Khaosan. Sunset views and local exercise.",
+        "th": "สวนริมแม่น้ำใกล้ข้าวสาร วิวพระอาทิตย์ตกและออกกำลังกายท้องถิ่น"
+      },
+      "address": {
+        "en": "Phra Athit, Phra Nakhon, Bangkok",
+        "th": "พระอาทิตย์ พระนคร กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Riverside",
+        "Sunset"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Sunset",
+      "tips": [
+        "River views",
+        "Near Khao San",
+        "Evening exercise"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7641,
+      "longitude": 100.4955
+    },
+    {
+      "name": {
+        "en": "Phra Sumen Fort",
+        "th": "ป้อมพระสุเมรุ"
+      },
+      "description": {
+        "en": "Historic white fort near Khao San. Part of old city walls.",
+        "th": "ป้อมขาวประวัติศาสตร์ใกล้ข้าวสาร ส่วนหนึ่งของกำแพงเมืองเก่า"
+      },
+      "address": {
+        "en": "Phra Sumen Fort, Phra Nakhon, Bangkok",
+        "th": "ป้อมพระสุเมรุ พระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Fort",
+        "Historic",
+        "Landmark"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Historic fort",
+        "Photo spot",
+        "Near river"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.764,
+      "longitude": 100.4958
+    },
+    {
+      "name": {
+        "en": "Democracy Monument Area",
+        "th": "อนุสาวรีย์ประชาธิปไตย"
+      },
+      "description": {
+        "en": "Historic monument with political significance. Street food nearby.",
+        "th": "อนุสาวรีย์ประวัติศาสตร์มีความสำคัญทางการเมือง สตรีทฟู้ดใกล้ๆ"
+      },
+      "address": {
+        "en": "Democracy Monument, Phra Nakhon, Bangkok",
+        "th": "อนุสาวรีย์ประชาธิปไตย พระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Monument",
+        "Political",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Political history",
+        "Photo spot",
+        "Street food"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7567,
+      "longitude": 100.5018
+    }
+  ]
+}

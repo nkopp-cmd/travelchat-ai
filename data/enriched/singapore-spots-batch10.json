@@ -1,0 +1,746 @@
+{
+  "city": "singapore",
+  "batch": 10,
+  "spots": [
+    {
+      "name": {
+        "en": "Banana Leaf Apolo",
+        "zh": "香蕉叶阿波罗"
+      },
+      "description": {
+        "en": "Famous fish head curry. Race Course Road.",
+        "zh": "著名鱼头咖喱。马场路。"
+      },
+      "address": {
+        "en": "54 Race Course Road, Singapore",
+        "zh": "新加坡马场路54号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Indian",
+        "Fish Head",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Lunch",
+      "tips": [
+        "Fish head curry famous",
+        "Banana leaf",
+        "Little India"
+      ],
+      "neighborhood": "Little India",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3053,
+      "longitude": 103.8519
+    },
+    {
+      "name": {
+        "en": "Komala Vilas",
+        "zh": "Komala Vilas"
+      },
+      "description": {
+        "en": "Vegetarian Indian restaurant. Little India classic.",
+        "zh": "素食印度餐厅。小印度经典。"
+      },
+      "address": {
+        "en": "76 Serangoon Road, Singapore",
+        "zh": "新加坡实龙岗路76号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Indian",
+        "Vegetarian",
+        "Classic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "All vegetarian",
+        "Thali meals",
+        "Very cheap"
+      ],
+      "neighborhood": "Little India",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3065,
+      "longitude": 103.852
+    },
+    {
+      "name": {
+        "en": "MTR Singapore",
+        "zh": "MTR新加坡"
+      },
+      "description": {
+        "en": "South Indian vegetarian chain. Since 1924.",
+        "zh": "南印度素食连锁店。自1924年。"
+      },
+      "address": {
+        "en": "438 Serangoon Road, Singapore",
+        "zh": "新加坡实龙岗路438号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Indian",
+        "South Indian",
+        "Vegetarian"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Breakfast",
+      "tips": [
+        "Dosa famous",
+        "South Indian breakfast",
+        "Clean"
+      ],
+      "neighborhood": "Little India",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 1.313,
+      "longitude": 103.8565
+    },
+    {
+      "name": {
+        "en": "Bismillah Biryani",
+        "zh": "Bismillah Biryani"
+      },
+      "description": {
+        "en": "Famous dum biryani. Dunlop Street.",
+        "zh": "著名蒸饭。敦禄街。"
+      },
+      "address": {
+        "en": "50 Dunlop Street, Singapore",
+        "zh": "新加坡敦禄街50号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Indian",
+        "Biryani",
+        "Famous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "Dum biryani",
+        "Queue expected",
+        "Sells out"
+      ],
+      "neighborhood": "Little India",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3051,
+      "longitude": 103.8537
+    },
+    {
+      "name": {
+        "en": "Hjh Maimunah",
+        "zh": "Hjh Maimunah"
+      },
+      "description": {
+        "en": "Famous nasi padang. Joo Chiat original.",
+        "zh": "著名巴东饭。如切原店。"
+      },
+      "address": {
+        "en": "11 Joo Chiat Road, Singapore",
+        "zh": "新加坡如切路11号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Malay",
+        "Nasi Padang",
+        "Famous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "Many dishes",
+        "Point and choose",
+        "Queue expected"
+      ],
+      "neighborhood": "Katong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3032,
+      "longitude": 103.8586
+    },
+    {
+      "name": {
+        "en": "Warong Nasi Pariaman",
+        "zh": "Warong Nasi Pariaman"
+      },
+      "description": {
+        "en": "Traditional nasi padang. North Bridge Road.",
+        "zh": "传统巴东饭。北桥路。"
+      },
+      "address": {
+        "en": "738 North Bridge Road, Singapore",
+        "zh": "新加坡北桥路738号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Malay",
+        "Nasi Padang",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Very traditional",
+        "Cash only",
+        "Local crowd"
+      ],
+      "neighborhood": "Kampong Glam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.303,
+      "longitude": 103.8592
+    },
+    {
+      "name": {
+        "en": "Beach Road Scissor Cut Curry Rice",
+        "zh": "剪刀咖喱饭"
+      },
+      "description": {
+        "en": "Unique curry rice. Cut with scissors.",
+        "zh": "独特咖喱饭。用剪刀切。"
+      },
+      "address": {
+        "en": "229 Jalan Besar, Singapore",
+        "zh": "新加坡大坝街229号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Curry Rice",
+        "Unique",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Scissors cut pork",
+        "Very local",
+        "Late night open"
+      ],
+      "neighborhood": "Jalan Besar",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3095,
+      "longitude": 103.8578
+    },
+    {
+      "name": {
+        "en": "Lau Hong Ser Bookstore Rojak",
+        "zh": "老洪记书店罗惹"
+      },
+      "description": {
+        "en": "Rojak at old bookstore. Unique location.",
+        "zh": "旧书店的罗惹。独特位置。"
+      },
+      "address": {
+        "en": "21 Koek Road, Singapore",
+        "zh": "新加坡阔街21号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Rojak",
+        "Unique",
+        "Famous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Old bookstore",
+        "Famous rojak",
+        "Cash only"
+      ],
+      "neighborhood": "Dhoby Ghaut",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3016,
+      "longitude": 103.841
+    },
+    {
+      "name": {
+        "en": "Sin Chew Satay Bee Hoon",
+        "zh": "新洲沙爹米粉"
+      },
+      "description": {
+        "en": "Satay bee hoon specialty. Golden Mile.",
+        "zh": "沙爹米粉专卖。黄金坊。"
+      },
+      "address": {
+        "en": "Old Airport Road Food Centre, Singapore",
+        "zh": "新加坡旧机场路熟食中心"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Satay",
+        "Specialty"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Unique dish",
+        "Peanut sauce",
+        "Local favorite"
+      ],
+      "neighborhood": "Geylang Serai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3083,
+      "longitude": 103.8859
+    },
+    {
+      "name": {
+        "en": "Outram Park Fried Kway Teow",
+        "zh": "欧南园炒粿条"
+      },
+      "description": {
+        "en": "Famous char kway teow. Hong Lim.",
+        "zh": "著名炒粿条。芳林。"
+      },
+      "address": {
+        "en": "Hong Lim Food Centre, Singapore",
+        "zh": "新加坡芳林熟食中心"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Char Kway Teow",
+        "Famous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "Very famous",
+        "Queue expected",
+        "Uncle retiring"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.2854,
+      "longitude": 103.8459
+    },
+    {
+      "name": {
+        "en": "Kim Keat Hokkien Mee",
+        "zh": "金吉福建面"
+      },
+      "description": {
+        "en": "Famous Hokkien mee. Toa Payoh.",
+        "zh": "著名福建面。大巴窑。"
+      },
+      "address": {
+        "en": "Toa Payoh Lorong 8 Market, Singapore",
+        "zh": "新加坡大巴窑8巷巴刹"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Hokkien Mee",
+        "Famous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Dinner",
+      "tips": [
+        "Very famous",
+        "Opens evening",
+        "Queue expected"
+      ],
+      "neighborhood": "Toa Payoh",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 1.3403,
+      "longitude": 103.8544
+    },
+    {
+      "name": {
+        "en": "Nam Sing Hokkien Mee",
+        "zh": "南星福建面"
+      },
+      "description": {
+        "en": "Old school Hokkien mee. Old Airport Road.",
+        "zh": "老派福建面。旧机场路。"
+      },
+      "address": {
+        "en": "Old Airport Road Food Centre, Singapore",
+        "zh": "新加坡旧机场路熟食中心"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Hokkien Mee",
+        "Old School"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Old school style",
+        "Wok hei",
+        "Local favorite"
+      ],
+      "neighborhood": "Geylang Serai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3083,
+      "longitude": 103.8859
+    },
+    {
+      "name": {
+        "en": "Geylang Lorong 9 Fresh Frog Porridge",
+        "zh": "芽笼9巷生蛙粥"
+      },
+      "description": {
+        "en": "Famous frog porridge. Late night Geylang.",
+        "zh": "著名田鸡粥。深夜芽笼。"
+      },
+      "address": {
+        "en": "Lorong 9 Geylang, Singapore",
+        "zh": "新加坡芽笼9巷"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Porridge",
+        "Frog",
+        "Late Night"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late night",
+      "tips": [
+        "Late night food",
+        "Geylang vibes",
+        "Local experience"
+      ],
+      "neighborhood": "Geylang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 1.3124,
+      "longitude": 103.8765
+    },
+    {
+      "name": {
+        "en": "Geylang Durian Stalls",
+        "zh": "芽笼榴莲档"
+      },
+      "description": {
+        "en": "Durian paradise. Multiple stalls in season.",
+        "zh": "榴莲天堂。季节中多个摊位。"
+      },
+      "address": {
+        "en": "Geylang Road, Singapore",
+        "zh": "新加坡芽笼路"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Durian",
+        "Seasonal",
+        "Night"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Season evening",
+      "tips": [
+        "June-August best",
+        "Mao Shan Wang",
+        "Cash needed"
+      ],
+      "neighborhood": "Geylang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Season evening"
+      },
+      "latitude": 1.3135,
+      "longitude": 103.8842
+    },
+    {
+      "name": {
+        "en": "Goodwood Park Durian Fiesta",
+        "zh": "良木园榴莲嘉年华"
+      },
+      "description": {
+        "en": "Annual durian dessert festival. Hotel event.",
+        "zh": "年度榴莲甜点节。酒店活动。"
+      },
+      "address": {
+        "en": "22 Scotts Road, Singapore",
+        "zh": "新加坡史各士路22号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Durian",
+        "Dessert",
+        "Festival"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Durian season",
+      "tips": [
+        "Seasonal only",
+        "Durian pastries",
+        "Book ahead"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Durian season"
+      },
+      "latitude": 1.3087,
+      "longitude": 103.835
+    },
+    {
+      "name": {
+        "en": "Two Men Bagel House",
+        "zh": "Two Men Bagel House"
+      },
+      "description": {
+        "en": "Popular bagel cafe. Holland Village area.",
+        "zh": "受欢迎的百吉饼咖啡馆。荷兰村地区。"
+      },
+      "address": {
+        "en": "12 Serene Centre, Singapore",
+        "zh": "新加坡雅静中心12号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Bagels",
+        "Brunch",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Brunch",
+      "tips": [
+        "Good bagels",
+        "Weekend queue",
+        "Holland area"
+      ],
+      "neighborhood": "Bukit Timah",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 1.3208,
+      "longitude": 103.843
+    },
+    {
+      "name": {
+        "en": "Atlas Coffeehouse",
+        "zh": "Atlas咖啡屋"
+      },
+      "description": {
+        "en": "Popular brunch cafe. Bukit Timah.",
+        "zh": "受欢迎的早午餐咖啡馆。武吉知马。"
+      },
+      "address": {
+        "en": "6 Duke's Road, Singapore",
+        "zh": "新加坡公爵路6号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Brunch",
+        "Coffee",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Brunch",
+      "tips": [
+        "Weekend busy",
+        "Good coffee",
+        "Nice space"
+      ],
+      "neighborhood": "Bukit Timah",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 1.3228,
+      "longitude": 103.812
+    },
+    {
+      "name": {
+        "en": "Wildseed Cafe at The Alkaff Mansion",
+        "zh": "Wildseed Cafe"
+      },
+      "description": {
+        "en": "Cafe in heritage mansion. Beautiful grounds.",
+        "zh": "遗产豪宅中的咖啡馆。美丽的场地。"
+      },
+      "address": {
+        "en": "10 Telok Blangah Green, Singapore",
+        "zh": "新加坡直落布兰雅绿道10号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Heritage",
+        "Garden",
+        "Brunch"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Brunch",
+      "tips": [
+        "Beautiful mansion",
+        "Good for photos",
+        "Book ahead"
+      ],
+      "neighborhood": "Mount Faber",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 1.2789,
+      "longitude": 103.8132
+    },
+    {
+      "name": {
+        "en": "Wheeler's Estate",
+        "zh": "Wheeler's Estate"
+      },
+      "description": {
+        "en": "Colonial house cafe. Seletar Aerospace.",
+        "zh": "殖民地房屋咖啡馆。实里达航空园。"
+      },
+      "address": {
+        "en": "2 Park Lane, Singapore",
+        "zh": "新加坡百乐巷2号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Colonial",
+        "Estate",
+        "Brunch"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Brunch",
+      "tips": [
+        "Colonial estate",
+        "Far but worth it",
+        "Planes nearby"
+      ],
+      "neighborhood": "Seletar",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 1.4093,
+      "longitude": 103.868
+    },
+    {
+      "name": {
+        "en": "The Coastal Settlement",
+        "zh": "The Coastal Settlement"
+      },
+      "description": {
+        "en": "Cafe in old building. Changi area.",
+        "zh": "旧建筑中的咖啡馆。樟宜地区。"
+      },
+      "address": {
+        "en": "200 Netheravon Road, Singapore",
+        "zh": "新加坡尼特拉文路200号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Colonial",
+        "Changi",
+        "Estate"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Brunch",
+      "tips": [
+        "Old colonial building",
+        "Changi area",
+        "Good for groups"
+      ],
+      "neighborhood": "Changi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 1.3891,
+      "longitude": 103.9779
+    }
+  ]
+}

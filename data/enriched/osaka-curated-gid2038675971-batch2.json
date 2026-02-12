@@ -1,0 +1,468 @@
+{
+  "city": "Osaka",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:47:19.622Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Semba Centre"
+      },
+      "description": {
+        "en": "10 multi-storey buildings under expressway with wholesale fashion and hidden gems."
+      },
+      "city": "Osaka",
+      "neighborhood": "3",
+      "address": {
+        "en": "Japan, 〒541-0055 Osaka, Chuo Ward, Senbachūō, 2-chōme−3−６ 船場センタービル管理事務所 6号館 4階 401号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6818429,
+      "longitude": 135.50408679999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJmdEbESLnAGARoi0uvToZmR8"
+    },
+    {
+      "name": {
+        "en": "Osaka Castle",
+        "ja": "大阪城"
+      },
+      "description": {
+        "en": "Historic castle with museum inside and beautiful park grounds - cherry blossoms in spring, illuminated at night."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-1 Ōsakajō, Chuo Ward, Osaka, 540-0002, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6872571,
+      "longitude": 135.5258546,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_TooXM3gAGARQR6hXH3QAQ8"
+    },
+    {
+      "name": {
+        "en": "Umeda Sky Building",
+        "ja": "梅田スカイビル"
+      },
+      "description": {
+        "en": "Floating Garden Observatory with 360° views - especially beautiful at sunset when city bathes in golden hues."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-88 Ōyodonaka, Kita Ward, Osaka, 531-6023, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.7052872,
+      "longitude": 135.4896527,
+      "price_tier": "$$",
+      "google_place_id": "ChIJbyd0kIjmAGAR_crecCbjwlc"
+    },
+    {
+      "name": {
+        "en": "Abeno Harukas",
+        "ja": "あべのハルカス"
+      },
+      "description": {
+        "en": "Japan's tallest non-tower building at 300m with observation deck, shopping, and Kintetsu department store."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-43 Abenosuji, Abeno Ward, Osaka, 545-6016, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6460706,
+      "longitude": 135.5134771,
+      "price_tier": "$$",
+      "google_place_id": "ChIJed3mI_DdAGARJyFcpACSbwc"
+    },
+    {
+      "name": {
+        "en": "Tempozan Ferris Wheel",
+        "ja": "天保山大観覧車"
+      },
+      "description": {
+        "en": "Giant wheel near aquarium with views of Osaka Bay and surrounding port area."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-10 Kaigandōri, Minato Ward, Osaka, 552-0022, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6562686,
+      "longitude": 135.4309659,
+      "price_tier": "$",
+      "google_place_id": "ChIJQ-VhVYvoAGARJsKgJKTie_4"
+    },
+    {
+      "name": {
+        "en": "Osaka Aquarium Kaiyukan",
+        "ja": "海遊館"
+      },
+      "description": {
+        "en": "One of world's largest aquariums with whale shark tank and interactive marine ecosystems."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-10 Kaigandōri, Minato Ward, Osaka, 552-0022, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6545182,
+      "longitude": 135.4289645,
+      "price_tier": "$$",
+      "google_place_id": "ChIJzakNjPToAGARzCwIriDFg28"
+    },
+    {
+      "name": {
+        "en": "Ebisu Tower Ferris Wheel"
+      },
+      "description": {
+        "en": "World's first oval-shaped rotating wheel attached to Don Quijote building - open until 4am!"
+      },
+      "city": "Osaka",
+      "neighborhood": "7",
+      "address": {
+        "en": "7-13 Souemonchō, Chuo Ward, Osaka, 542-0084, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.669240699999996,
+      "longitude": 135.5027407,
+      "price_tier": "$",
+      "google_place_id": "ChIJzTcpYBTnAGAR-QMx9lJUULg"
+    },
+    {
+      "name": {
+        "en": "Osaka Museum of Housing"
+      },
+      "description": {
+        "en": "Walk through recreated Edo-period streets - can rent kimono for full immersion experience."
+      },
+      "city": "Osaka",
+      "neighborhood": "4",
+      "address": {
+        "en": "Japan, 〒530-0041 Osaka, Kita Ward, Tenjinbashi, 6-chōme−4−２０ 大阪市立住まい情報センタービル 8F"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.710340599999995,
+      "longitude": 135.5113276,
+      "price_tier": "$",
+      "google_place_id": "ChIJ7xEdT7nmAGARYQc8ZWRPI5Q"
+    },
+    {
+      "name": {
+        "en": "Cup Noodles Museum Ikeda"
+      },
+      "description": {
+        "en": "Interactive museum where you create your own custom instant noodles - fun for all ages."
+      },
+      "city": "Osaka",
+      "neighborhood": "8",
+      "address": {
+        "en": "8-25 Masumichō, Ikeda, Osaka 563-0041, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.8178846,
+      "longitude": 135.4266442,
+      "price_tier": "$",
+      "google_place_id": "ChIJp2oJD8bwAGARqttJH_AeWA4"
+    },
+    {
+      "name": {
+        "en": "Tennoji Park",
+        "ja": "天王寺公園"
+      },
+      "description": {
+        "en": "Peaceful park for recharging after busy Shinsekai exploring. Beautiful Japanese garden included."
+      },
+      "city": "Osaka",
+      "neighborhood": "5",
+      "address": {
+        "en": "5-55 Chausuyamachō, Tennoji Ward, Osaka, 543-0063, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6507248,
+      "longitude": 135.51041510000002,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5_QnR_HdAGARMEh6Uhj3FJA"
+    },
+    {
+      "name": {
+        "en": "Osaka Castle Park",
+        "ja": "大阪城公園"
+      },
+      "description": {
+        "en": "Expansive grounds surrounding castle - perfect for picnics, jogging, and seasonal photography."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-1 Ōsakajō, Chuo Ward, Osaka, 540-0002, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6864797,
+      "longitude": 135.5262114,
+      "price_tier": "$",
+      "google_place_id": "ChIJVVVld8ngAGARi9mE-a6e9mc"
+    },
+    {
+      "name": {
+        "en": "Minoo Park"
+      },
+      "description": {
+        "en": "Waterfall hike just 30 min from city center - famous for autumn foliage and maple leaf tempura snacks."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-18 Minookōen, Minoh, Osaka 562-0002, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.847070599999995,
+      "longitude": 135.4723464,
+      "price_tier": "$",
+      "google_place_id": "ChIJWycYzY35AGAR6rz9QCA7shE"
+    },
+    {
+      "name": {
+        "en": "Nakazakicho",
+        "ja": "中崎町"
+      },
+      "description": {
+        "en": "Preserved pre-war district with narrow lanes, Taisho/Showa-era homes turned cafés and art studios. Hakuryuokami shrine hidden in alleyway."
+      },
+      "city": "Osaka",
+      "neighborhood": "5",
+      "address": {
+        "en": "1 Chome-5 Nakazaki, Kita Ward, Osaka, 530-0016, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.70693990000001,
+      "longitude": 135.5053825,
+      "price_tier": "$",
+      "google_place_id": "ChIJV2R0lpXmAGAR0isU5tWq7pU"
+    },
+    {
+      "name": {
+        "en": "Minamikyuhojimachi"
+      },
+      "description": {
+        "en": "Quiet slice between Hommachi and Shinsaibashi with book cafés, unobtrusive shrines, and secondhand bookshop-cafés."
+      },
+      "city": "Osaka",
+      "neighborhood": "Minamikyuhojimachi",
+      "address": {
+        "en": "Minamikyuhojimachi, Chuo Ward, Osaka, 541-0058, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6792603,
+      "longitude": 135.5047186,
+      "price_tier": "$",
+      "google_place_id": "ChIJG8GT-xjnAGARdNac3UYILLg"
+    },
+    {
+      "name": {
+        "en": "Shinmachi"
+      },
+      "description": {
+        "en": "10-15 min walk from Dotonbori providing lower-key vibes after the frenzy."
+      },
+      "city": "Osaka",
+      "neighborhood": "Shinmachi",
+      "address": {
+        "en": "Shinmachi, Nishi Ward, Osaka, 550-0013, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6772421,
+      "longitude": 135.4933776,
+      "price_tier": "$",
+      "google_place_id": "ChIJW7UNrAHnAGARH8V8rWz0Id8"
+    }
+  ]
+}

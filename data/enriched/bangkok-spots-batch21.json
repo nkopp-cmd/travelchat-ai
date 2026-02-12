@@ -1,0 +1,742 @@
+{
+  "city": "bangkok",
+  "batch": 21,
+  "spots": [
+    {
+      "name": {
+        "en": "Queen Saovabha Memorial Institute Snake Farm",
+        "th": "สถานเสาวภา ฟาร์มงู"
+      },
+      "description": {
+        "en": "Snake research center with shows. Venom extraction demonstrations.",
+        "th": "ศูนย์วิจัยงูมีการแสดง สาธิตการรีดพิษงู"
+      },
+      "address": {
+        "en": "Rama IV Road, Bangkok",
+        "th": "ถนนพระราม 4 กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Science",
+        "Snakes",
+        "Research"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning shows",
+      "tips": [
+        "Venom extraction",
+        "Educational",
+        "11am/2:30pm shows"
+      ],
+      "neighborhood": "Silom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning shows"
+      },
+      "latitude": 13.7148,
+      "longitude": 100.5771
+    },
+    {
+      "name": {
+        "en": "Suan Pakkad Palace Museum",
+        "th": "พิพิธภัณฑ์วังสวนผักกาด"
+      },
+      "description": {
+        "en": "Royal residence turned museum. Thai antiques and gardens.",
+        "th": "ที่ประทับเจ้านายกลายเป็นพิพิธภัณฑ์ ของโบราณไทยและสวน"
+      },
+      "address": {
+        "en": "Sri Ayutthaya Road, Bangkok",
+        "th": "ถนนศรีอยุธยา กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Palace",
+        "Gardens"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Thai houses",
+        "Lacquerware pavilion",
+        "Quiet gardens"
+      ],
+      "neighborhood": "Phaya Thai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7571,
+      "longitude": 100.5377
+    },
+    {
+      "name": {
+        "en": "Kamthieng House",
+        "th": "บ้านคำเที่ยง"
+      },
+      "description": {
+        "en": "Northern Thai house museum. Traditional architecture.",
+        "th": "พิพิธภัณฑ์บ้านไทยเหนือ สถาปัตยกรรมดั้งเดิม"
+      },
+      "address": {
+        "en": "Siam Society, Sukhumvit, Bangkok",
+        "th": "สยามสมาคม สุขุมวิท กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Architecture",
+        "Northern Thai"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Northern architecture",
+        "Siam Society",
+        "Garden setting"
+      ],
+      "neighborhood": "Asoke",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7392,
+      "longitude": 100.5613
+    },
+    {
+      "name": {
+        "en": "Neilson Hays Library",
+        "th": "ห้องสมุดเนลสัน เฮยส์"
+      },
+      "description": {
+        "en": "Historic English library. Colonial-era building.",
+        "th": "ห้องสมุดอังกฤษประวัติศาสตร์ อาคารยุคโคโลเนียล"
+      },
+      "address": {
+        "en": "Surawong Road, Bang Rak, Bangkok",
+        "th": "ถนนสุรวงศ์ เขตบางรัก กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Library",
+        "Historic",
+        "Colonial"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "English books",
+        "Historic building",
+        "Quiet spot"
+      ],
+      "neighborhood": "Silom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7271,
+      "longitude": 100.523
+    },
+    {
+      "name": {
+        "en": "Monk's Bowl Village Ban Baat",
+        "th": "บ้านบาตร"
+      },
+      "description": {
+        "en": "Traditional alms bowl makers. Last in Bangkok.",
+        "th": "ช่างทำบาตรดั้งเดิม สุดท้ายในกรุงเทพ"
+      },
+      "address": {
+        "en": "Soi Ban Baat, Bangkok",
+        "th": "ซอยบ้านบาตร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Craft",
+        "Traditional",
+        "Buddhist"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Traditional craft",
+        "Buy handmade bowl",
+        "Near Golden Mount"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.751,
+      "longitude": 100.5058
+    },
+    {
+      "name": {
+        "en": "Amulet Market Wang Burapa",
+        "th": "ตลาดพระเครื่องวังบูรพา"
+      },
+      "description": {
+        "en": "Outdoor amulet market. Serious collectors.",
+        "th": "ตลาดพระเครื่องกลางแจ้ง นักสะสมจริงจัง"
+      },
+      "address": {
+        "en": "Wang Burapa, Bangkok",
+        "th": "วังบูรพา กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Amulets",
+        "Buddhist",
+        "Collectors"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Morning",
+      "tips": [
+        "Collectors market",
+        "Sunday best",
+        "Very local"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Soi Cowboy",
+        "th": "ซอยคาวบอย"
+      },
+      "description": {
+        "en": "Entertainment district in Sukhumvit. Neon nightlife.",
+        "th": "ย่านบันเทิงในสุขุมวิท ไนท์ไลฟ์นีออน"
+      },
+      "address": {
+        "en": "Between Sukhumvit 21-23, Bangkok",
+        "th": "ระหว่างสุขุมวิท 21-23 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Entertainment",
+        "Neon",
+        "District"
+      ],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "Late night",
+      "tips": [
+        "Neon street",
+        "Tourist area",
+        "Photo worthy neon"
+      ],
+      "neighborhood": "Asoke",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.737,
+      "longitude": 100.5621
+    },
+    {
+      "name": {
+        "en": "Patpong Night Market",
+        "th": "ตลาดกลางคืนพัฒน์พงศ์"
+      },
+      "description": {
+        "en": "Night market in entertainment area. Mixed reputation.",
+        "th": "ตลาดกลางคืนในย่านบันเทิง ชื่อเสียงผสม"
+      },
+      "address": {
+        "en": "Patpong, Silom, Bangkok",
+        "th": "พัฒน์พงศ์ สีลม กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Mixed",
+        "Famous"
+      ],
+      "localley_score": 3,
+      "local_percentage": 25,
+      "best_time": "Evening",
+      "tips": [
+        "Bargain hard",
+        "Watch bags",
+        "Mixed area"
+      ],
+      "neighborhood": "Silom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7289,
+      "longitude": 100.5292
+    },
+    {
+      "name": {
+        "en": "Thanon Khao San (Khao San Road)",
+        "th": "ถนนข้าวสาร"
+      },
+      "description": {
+        "en": "Famous backpacker street. Budget travel hub.",
+        "th": "ถนนนักท่องเที่ยวเป้แบกชื่อดัง จุดศูนย์กลางท่องเที่ยวราคาถูก"
+      },
+      "address": {
+        "en": "Khao San Road, Bangkok",
+        "th": "ถนนข้าวสาร กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Backpacker",
+        "Famous",
+        "Party"
+      ],
+      "localley_score": 2,
+      "local_percentage": 20,
+      "best_time": "Night",
+      "tips": [
+        "Backpacker hub",
+        "Street food",
+        "Night scene"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.16,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 13.7588,
+      "longitude": 100.4978
+    },
+    {
+      "name": {
+        "en": "RCA Royal City Avenue",
+        "th": "อาร์ซีเอ รอยัลซิตี้อเวนิว"
+      },
+      "description": {
+        "en": "Club district for young Thais. Multiple large clubs.",
+        "th": "ย่านคลับสำหรับคนไทยหนุ่มสาว หลายคลับใหญ่"
+      },
+      "address": {
+        "en": "Rama 9, Bangkok",
+        "th": "พระราม 9 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Clubs",
+        "Thai",
+        "Young"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Late night",
+      "tips": [
+        "Thai clubs",
+        "Very loud",
+        "Late start"
+      ],
+      "neighborhood": "Rama 9",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7467,
+      "longitude": 100.5797
+    },
+    {
+      "name": {
+        "en": "Route 66 Club",
+        "th": "รูท 66"
+      },
+      "description": {
+        "en": "Large Thai-style club. Live music and DJ.",
+        "th": "คลับสไตล์ไทยขนาดใหญ่ ดนตรีสดและดีเจ"
+      },
+      "address": {
+        "en": "RCA, Bangkok",
+        "th": "อาร์ซีเอ กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Thai",
+        "Large"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Late night",
+      "tips": [
+        "Thai pop",
+        "Very crowded",
+        "Table service"
+      ],
+      "neighborhood": "Rama 9",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7514,
+      "longitude": 100.5754
+    },
+    {
+      "name": {
+        "en": "Onyx Club",
+        "th": "โอนิกซ์"
+      },
+      "description": {
+        "en": "EDM club in RCA. International DJs.",
+        "th": "คลับ EDM ใน อาร์ซีเอ ดีเจนานาชาติ"
+      },
+      "address": {
+        "en": "RCA, Bangkok",
+        "th": "อาร์ซีเอ กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "EDM",
+        "International"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Late night",
+      "tips": [
+        "EDM music",
+        "Big names",
+        "Expensive"
+      ],
+      "neighborhood": "Rama 9",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Late night"
+      }
+    },
+    {
+      "name": {
+        "en": "Levels Club",
+        "th": "เลเวลส์"
+      },
+      "description": {
+        "en": "Multi-floor club in Sukhumvit. Hip hop and EDM.",
+        "th": "คลับหลายชั้นในสุขุมวิท ฮิปฮอปและ EDM"
+      },
+      "address": {
+        "en": "Sukhumvit 11, Bangkok",
+        "th": "สุขุมวิท 11 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Multi-floor",
+        "Mixed"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late night",
+      "tips": [
+        "Multiple floors",
+        "Different music",
+        "International crowd"
+      ],
+      "neighborhood": "Nana",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.32,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7444,
+      "longitude": 100.556
+    },
+    {
+      "name": {
+        "en": "Sing Sing Theater",
+        "th": "ซิงซิงเธียเตอร์"
+      },
+      "description": {
+        "en": "Glamorous nightclub. Cabaret shows.",
+        "th": "ไนท์คลับหรูหรา โชว์คาบาเรต์"
+      },
+      "address": {
+        "en": "Sukhumvit 45, Bangkok",
+        "th": "สุขุมวิท 45 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Cabaret",
+        "Glamorous"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late night",
+      "tips": [
+        "Show club",
+        "Glamorous decor",
+        "Book tables"
+      ],
+      "neighborhood": "Thonglor",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7281,
+      "longitude": 100.5735
+    },
+    {
+      "name": {
+        "en": "Tichuca Rooftop",
+        "th": "ทิชูก้า รูฟท็อป"
+      },
+      "description": {
+        "en": "Jungle-themed rooftop bar. Unique atmosphere.",
+        "th": "บาร์ดาดฟ้าธีมป่า บรรยากาศเฉพาะตัว"
+      },
+      "address": {
+        "en": "Sukhumvit 63, Bangkok",
+        "th": "สุขุมวิท 63 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Theme",
+        "Bar"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Jungle theme",
+        "Good photos",
+        "Trendy crowd"
+      ],
+      "neighborhood": "Ekkamai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7221,
+      "longitude": 100.5804
+    },
+    {
+      "name": {
+        "en": "Beam Club",
+        "th": "บีม คลับ"
+      },
+      "description": {
+        "en": "Underground electronic club. Serious music venue.",
+        "th": "คลับอิเล็กทรอนิกส์ใต้ดิน สถานที่ดนตรีจริงจัง"
+      },
+      "address": {
+        "en": "Sukhumvit 72, Bangkok",
+        "th": "สุขุมวิท 72 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Electronic",
+        "Underground"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Late night",
+      "tips": [
+        "Serious techno",
+        "Good sound",
+        "International DJs"
+      ],
+      "neighborhood": "Phra Khanong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7218,
+      "longitude": 100.7323
+    },
+    {
+      "name": {
+        "en": "SAFE ROOM Bangkok",
+        "th": "เซฟรูม กรุงเทพ"
+      },
+      "description": {
+        "en": "Underground techno club. Berlin-style venue.",
+        "th": "คลับเทคโนใต้ดิน สถานที่สไตล์เบอร์ลิน"
+      },
+      "address": {
+        "en": "Sukhumvit, Bangkok",
+        "th": "สุขุมวิท กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Techno",
+        "Underground"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Late night",
+      "tips": [
+        "Berlin vibes",
+        "Dark venue",
+        "Techno purists"
+      ],
+      "neighborhood": "Sukhumvit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7364,
+      "longitude": 100.5023
+    },
+    {
+      "name": {
+        "en": "Sugar Club",
+        "th": "ซูการ์ คลับ"
+      },
+      "description": {
+        "en": "Hip hop club in Sukhumvit. R&B nights.",
+        "th": "คลับฮิปฮอปในสุขุมวิท คืน R&B"
+      },
+      "address": {
+        "en": "Sukhumvit 11, Bangkok",
+        "th": "สุขุมวิท 11 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Hip Hop",
+        "R&B"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late night",
+      "tips": [
+        "Hip hop focus",
+        "Mixed crowd",
+        "Dance floor"
+      ],
+      "neighborhood": "Nana",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.743,
+      "longitude": 100.5565
+    },
+    {
+      "name": {
+        "en": "Q Bar Bangkok",
+        "th": "คิว บาร์ กรุงเทพ"
+      },
+      "description": {
+        "en": "Long-running cocktail bar. Good drinks and music.",
+        "th": "บาร์ค็อกเทลเปิดนาน เครื่องดื่มดีและดนตรี"
+      },
+      "address": {
+        "en": "Sukhumvit 11, Bangkok",
+        "th": "สุขุมวิท 11 กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Cocktails",
+        "Music"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late evening",
+      "tips": [
+        "Good cocktails",
+        "Live DJs",
+        "Dancing"
+      ],
+      "neighborhood": "Nana",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Late evening"
+      },
+      "latitude": 13.7459,
+      "longitude": 100.5395
+    },
+    {
+      "name": {
+        "en": "Saxophone Pub",
+        "th": "แซกโซโฟน พับ"
+      },
+      "description": {
+        "en": "Live music venue since 1980s. Jazz and blues.",
+        "th": "สถานที่ดนตรีสดตั้งแต่ทศวรรษ 1980 แจ๊สและบลูส์"
+      },
+      "address": {
+        "en": "Victory Monument, Bangkok",
+        "th": "อนุสาวรีย์ชัยสมรภูมิ กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Live Music",
+        "Jazz",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Live jazz nightly",
+        "Historic venue",
+        "No cover"
+      ],
+      "neighborhood": "Victory Monument",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7636,
+      "longitude": 100.5381
+    }
+  ]
+}

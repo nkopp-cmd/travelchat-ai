@@ -1,0 +1,67 @@
+{
+  "city": "Ho Chi Minh City",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:49:49.057Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Tran Khac Chan Street"
+      },
+      "description": {
+        "en": "Neon-lit strip in District 1. Smorgasbord of options amid quintessential Saigon bustle."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Trần Khắc Chân",
+      "address": {
+        "en": "Trần Khắc Chân, Phú Nhuận, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7995239,
+      "longitude": 106.6782743,
+      "price_tier": "$",
+      "google_place_id": "ChIJTVQ579codTERd0XoIwte3AY"
+    },
+    {
+      "name": {
+        "en": "Van Kiep Street"
+      },
+      "description": {
+        "en": "Border of Phu Nhuan/Binh Thanh. Neon glow, young festive crowd. Rare dishes found here."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "phường 1",
+      "address": {
+        "en": "Đ. Vạn Kiếp, phường 1, Bình Thạnh, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7994339,
+      "longitude": 106.693545,
+      "price_tier": "$",
+      "google_place_id": "ChIJEfJ83cUodTERigkOUF5RNi0"
+    }
+  ]
+}

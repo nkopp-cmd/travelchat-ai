@@ -1,0 +1,432 @@
+{
+  "city": "Tokyo",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:43:59.433Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Furugiya SANGO (Koenji)"
+      },
+      "description": {
+        "en": "Maze of 70s, 80s, and early 2000s fashion - jackets, dresses, and accessories stacked high in retro paradise."
+      },
+      "city": "Tokyo",
+      "neighborhood": "6",
+      "address": {
+        "en": "Japan, 〒166-0002 Tokyo, Suginami City, Kōenjikita, 2-chōme−6−４ 井上ビル 3階"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7062271,
+      "longitude": 139.6497597,
+      "price_tier": "$",
+      "google_place_id": "ChIJ9cC7ug_zGGAR8n5ALtcgO5w"
+    },
+    {
+      "name": {
+        "en": "Bernet (Koenji)"
+      },
+      "description": {
+        "en": "1950s-60s \"grandma\" cottage-core aesthetic handpicked from Europe and USA. Average ¥10,000 but high quality for decades-old clothing."
+      },
+      "city": "Tokyo",
+      "neighborhood": "24",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 4-chōme−24−１１ 宝山ビル 101"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7037148,
+      "longitude": 139.6490705,
+      "price_tier": "$$",
+      "google_place_id": "ChIJA8bKSX3yGGARHp58YiV99mQ"
+    },
+    {
+      "name": {
+        "en": "Furugisho Otora (Koenji)"
+      },
+      "description": {
+        "en": "Some of Tokyo's most affordable secondhand fashion right next to Koenji Station. Men's, women's, and kimonos at bargain prices."
+      },
+      "city": "Tokyo",
+      "neighborhood": "28",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 4-chōme−28−１０ 高円寺リリエンハイム 102"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.704629,
+      "longitude": 139.65044699999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJHdtx9ofyGGARrC_4R1-lvxk"
+    },
+    {
+      "name": {
+        "en": "Safari 1st & 2nd Shop (Koenji)"
+      },
+      "description": {
+        "en": "Two shops side by side - paradise for vintage lovers seeking sukajan souvenir jackets, military wear, denim, and 80s/90s fashion."
+      },
+      "city": "Tokyo",
+      "neighborhood": "57",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 3-chōme−57−４ ベルシャトー高円寺 １F"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.703856,
+      "longitude": 139.64826979999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJFcATI33yGGARulg82B74bMo"
+    },
+    {
+      "name": {
+        "en": "Albatross (Koenji)"
+      },
+      "description": {
+        "en": "Sister shops (with Slat and Isla) specializing in band t-shirts, motorcycle fashion, and outdoor-turned-street fashion. Great for first-time thrifters."
+      },
+      "city": "Tokyo",
+      "neighborhood": "6",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 4-chōme−6−１ 朝日ビル B1"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7030117,
+      "longitude": 139.6485394,
+      "price_tier": "$",
+      "google_place_id": "ChIJhw_UMn3yGGARxyGkMQVoPGk"
+    },
+    {
+      "name": {
+        "en": "Whistler (Koenji)"
+      },
+      "description": {
+        "en": "Eye-catching shop with vintage USA imports from 1940s-1960s for men."
+      },
+      "city": "Tokyo",
+      "neighborhood": "30",
+      "address": {
+        "en": "4-chōme-30-8 Kōenjiminami, Suginami City, Tokyo 166-0003, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.704118699999995,
+      "longitude": 139.6512871,
+      "price_tier": "$$",
+      "google_place_id": "ChIJAQD84YfyGGARAq3pv97W2W0"
+    },
+    {
+      "name": {
+        "en": "PokéPark KANTO"
+      },
+      "description": {
+        "en": "Pokémon exploration with tech and nature."
+      },
+      "city": "Tokyo",
+      "neighborhood": "1",
+      "address": {
+        "en": "Japan, 〒206-8725 Tokyo, Inagi, Tama Ward, Yanokuchi, 4-chōme−1−４０１５−１ よみうりランド遊園地内"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6260603,
+      "longitude": 139.5215629,
+      "price_tier": "$$",
+      "google_place_id": "ChIJq5iQDi_7GGARnFij8pe2yDo"
+    },
+    {
+      "name": {
+        "en": "Tokyo DisneySea 25th Anniversary"
+      },
+      "description": {
+        "en": "Enhanced night shows and water spectacles."
+      },
+      "city": "Tokyo",
+      "neighborhood": "Maihama",
+      "address": {
+        "en": "1-13 Maihama, Urayasu, Chiba 279-8511, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6267108,
+      "longitude": 139.8850779,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJszdHEQN9GGARJS23SnAdR0E"
+    },
+    {
+      "name": {
+        "en": "Kawaii Monster Land"
+      },
+      "description": {
+        "en": "Indoor amusement park with candy-shaped rides, over-the-top food, and live performances."
+      },
+      "city": "Tokyo",
+      "neighborhood": "１６",
+      "address": {
+        "en": "b1f, 1-chōme-１６-4 神宮前 渋谷区 東京都 150-0001, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.671193099999996,
+      "longitude": 139.7043319,
+      "price_tier": "$$",
+      "google_place_id": "ChIJY1GZIgCNGGARCaBta5uZn6A"
+    },
+    {
+      "name": {
+        "en": "Tokyo Dream Park"
+      },
+      "description": {
+        "en": "Entertainment complex with theater for stage productions and rooftop plaza events."
+      },
+      "city": "Tokyo",
+      "neighborhood": "3",
+      "address": {
+        "en": "3 Chome-3 Ariake, Koto City, Tokyo 135-0063, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6296806,
+      "longitude": 139.7875406,
+      "price_tier": "$$",
+      "google_place_id": "ChIJY1OfXwCJGGARe0nc4TqT9QQ"
+    },
+    {
+      "name": {
+        "en": "Pretty Guardian Sailor Moon Shining Theater"
+      },
+      "description": {
+        "en": "Permanent stage show with immersive elements and themed drinks."
+      },
+      "city": "Tokyo",
+      "neighborhood": "",
+      "address": {
+        "en": "Pretty Guardian Sailor Moon Shining Theater, Tokyo"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$$"
+    },
+    {
+      "name": {
+        "en": "Shibuya Lovez"
+      },
+      "description": {
+        "en": "Versatile venue for gigs, plays, and performances with state-of-the-art facilities."
+      },
+      "city": "Tokyo",
+      "neighborhood": "9",
+      "address": {
+        "en": "9-5 Udagawachō, Shibuya, Tokyo 150-0042, Japan"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.663063199999996,
+      "longitude": 139.6962122,
+      "price_tier": "$$",
+      "google_place_id": "ChIJMedjKgCNGGAR6l3uK8RiZ3U"
+    },
+    {
+      "name": {
+        "en": "Oimachi Tracks Toho Cinemas"
+      },
+      "description": {
+        "en": "Cinema with Tokyo's first Dolby Cinema for immersive screenings."
+      },
+      "city": "Tokyo",
+      "neighborhood": "3",
+      "address": {
+        "en": "Japan, 〒103-0022 Tokyo, Chuo City, Nihonbashimuromachi, 2-chōme−3−１ コレド室町2 3F"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6869002,
+      "longitude": 139.7748527,
+      "price_tier": "$$",
+      "google_place_id": "ChIJAe0wr1WJGGARuuNpEzGN8Mo"
+    },
+    {
+      "name": {
+        "en": "Koenji Live Music Scene"
+      },
+      "description": {
+        "en": "Long-running venues like JIROKICHI and Sub Store Tokyo plus cult-favorite record shops like Record BOY and UPTOWN RECORD STORE."
+      },
+      "city": "Tokyo",
+      "neighborhood": "30",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 4-chōme−30−１ カームステージ高円寺"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.703585,
+      "longitude": 139.65108510000002,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ9dpIDojyGGARtPtxxIWdB3Q"
+    }
+  ]
+}

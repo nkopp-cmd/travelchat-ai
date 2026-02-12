@@ -1,0 +1,746 @@
+{
+  "city": "osaka",
+  "batch": 2,
+  "spots": [
+    {
+      "name": {
+        "en": "Universal Studios Japan",
+        "ja": "ユニバーサル・スタジオ・ジャパン"
+      },
+      "description": {
+        "en": "Major theme park. Harry Potter world.",
+        "ja": "主要テーマパーク。ハリーポッターワールド。"
+      },
+      "address": {
+        "en": "2-1-33 Sakurajima, Konohana-ku, Osaka",
+        "ja": "大阪市此花区桜島2-1-33"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Theme Park",
+        "Universal",
+        "Family"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Buy Express Pass",
+        "Weekday less crowded",
+        "Full day needed"
+      ],
+      "neighborhood": "Konohana",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.6656,
+      "longitude": 135.4325
+    },
+    {
+      "name": {
+        "en": "Sumiyoshi Taisha",
+        "ja": "住吉大社"
+      },
+      "description": {
+        "en": "Ancient Shinto shrine. Unique architecture.",
+        "ja": "古代の神社。独特の建築様式。"
+      },
+      "address": {
+        "en": "2-9-89 Sumiyoshi, Sumiyoshi-ku, Osaka",
+        "ja": "大阪市住吉区住吉2-9-89"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Ancient",
+        "Architecture"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Unique bridge",
+        "Less touristy",
+        "New Year popular"
+      ],
+      "neighborhood": "Sumiyoshi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.613,
+      "longitude": 135.4931
+    },
+    {
+      "name": {
+        "en": "Shitenno-ji Temple",
+        "ja": "四天王寺"
+      },
+      "description": {
+        "en": "Japan's oldest temple. Buddhist.",
+        "ja": "日本最古の寺院。仏教寺院。"
+      },
+      "address": {
+        "en": "1-11-18 Shitennoji, Tennoji-ku, Osaka",
+        "ja": "大阪市天王寺区四天王寺1-11-18"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Ancient",
+        "Buddhist"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Flea market 21st/22nd",
+        "Oldest temple",
+        "Buddhist architecture"
+      ],
+      "neighborhood": "Tennoji",
+      "latitude": 34.6544581,
+      "longitude": 135.51652389999998,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Nipponbashi Denden Town",
+        "ja": "日本橋でんでんタウン"
+      },
+      "description": {
+        "en": "Electronics and otaku district.",
+        "ja": "電気とオタク街。"
+      },
+      "address": {
+        "en": "Nipponbashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区日本橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Otaku",
+        "Anime"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Osaka Akihabara",
+        "Anime shops",
+        "Maid cafes"
+      ],
+      "neighborhood": "Nipponbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6671,
+      "longitude": 135.5064
+    },
+    {
+      "name": {
+        "en": "Nakanoshima",
+        "ja": "中之島"
+      },
+      "description": {
+        "en": "Business island with museums and roses.",
+        "ja": "美術館とバラ園のあるビジネス島。"
+      },
+      "address": {
+        "en": "Nakanoshima, Kita-ku, Osaka",
+        "ja": "大阪市北区中之島"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Island",
+        "Museums",
+        "Business"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Rose garden",
+        "Museums",
+        "Nice walk"
+      ],
+      "neighborhood": "Nakanoshima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6909,
+      "longitude": 135.4868
+    },
+    {
+      "name": {
+        "en": "National Museum of Art Osaka",
+        "ja": "国立国際美術館"
+      },
+      "description": {
+        "en": "Underground art museum. Contemporary art.",
+        "ja": "地下美術館。現代アート。"
+      },
+      "address": {
+        "en": "4-2-55 Nakanoshima, Kita-ku, Osaka",
+        "ja": "大阪市北区中之島4-2-55"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Art",
+        "Underground"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Unique building",
+        "Contemporary art",
+        "Underground design"
+      ],
+      "neighborhood": "Nakanoshima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6917,
+      "longitude": 135.4922
+    },
+    {
+      "name": {
+        "en": "Osaka Museum of History",
+        "ja": "大阪歴史博物館"
+      },
+      "description": {
+        "en": "History museum with castle views.",
+        "ja": "城の眺望がある歴史博物館。"
+      },
+      "address": {
+        "en": "4-1-32 Otemae, Chuo-ku, Osaka",
+        "ja": "大阪市中央区大手前4-1-32"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "History",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Castle views",
+        "Interactive",
+        "Near castle"
+      ],
+      "neighborhood": "Osaka Castle",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6826,
+      "longitude": 135.5208
+    },
+    {
+      "name": {
+        "en": "Osaka Science Museum",
+        "ja": "大阪市立科学館"
+      },
+      "description": {
+        "en": "Science museum with planetarium.",
+        "ja": "プラネタリウムのある科学館。"
+      },
+      "address": {
+        "en": "4-2-1 Nakanoshima, Kita-ku, Osaka",
+        "ja": "大阪市北区中之島4-2-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Science",
+        "Planetarium"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Planetarium shows",
+        "Family friendly",
+        "Interactive"
+      ],
+      "neighborhood": "Nakanoshima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6912,
+      "longitude": 135.4915
+    },
+    {
+      "name": {
+        "en": "Tenjinbashi-suji Shopping Street",
+        "ja": "天神橋筋商店街"
+      },
+      "description": {
+        "en": "Japan's longest shopping street. 2.6km.",
+        "ja": "日本最長の商店街。2.6km。"
+      },
+      "address": {
+        "en": "Tenjinbashi, Kita-ku, Osaka",
+        "ja": "大阪市北区天神橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Arcade",
+        "Longest",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "2.6km long",
+        "Local shops",
+        "Cheap eats"
+      ],
+      "neighborhood": "Tenjinbashi",
+      "latitude": 34.7025467,
+      "longitude": 135.51145409999998,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Osaka Tenmangu Shrine",
+        "ja": "大阪天満宮"
+      },
+      "description": {
+        "en": "Shrine for scholars. Tenjin Festival.",
+        "ja": "学問の神社。天神祭。"
+      },
+      "address": {
+        "en": "2-1-8 Tenjinbashi, Kita-ku, Osaka",
+        "ja": "大阪市北区天神橋2-1-8"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Festival",
+        "Students"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Tenjin Festival July",
+        "Student prayers",
+        "Near shopping street"
+      ],
+      "neighborhood": "Tenjinbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.6961,
+      "longitude": 135.5128
+    },
+    {
+      "name": {
+        "en": "Tenjin Festival",
+        "ja": "天神祭"
+      },
+      "description": {
+        "en": "One of Japan's top 3 festivals. July.",
+        "ja": "日本三大祭りの一つ。7月。"
+      },
+      "address": {
+        "en": "Osaka Tenmangu area, Osaka",
+        "ja": "大阪天満宮周辺"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Festival",
+        "Major",
+        "July"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "July 24-25",
+      "tips": [
+        "July 24-25",
+        "Boat procession",
+        "Fireworks"
+      ],
+      "neighborhood": "Tenjinbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "July 24-25"
+      },
+      "latitude": 34.7673,
+      "longitude": 135.4603
+    },
+    {
+      "name": {
+        "en": "Osaka Museum of Housing and Living",
+        "ja": "大阪くらしの今昔館"
+      },
+      "description": {
+        "en": "Walk through Edo-era Osaka. Kimono rental.",
+        "ja": "江戸時代の大阪を歩く。着物レンタル。"
+      },
+      "address": {
+        "en": "6-4-20 Tenjinbashi, Kita-ku, Osaka",
+        "ja": "大阪市北区天神橋6-4-20"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Edo Era",
+        "Kimono"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Kimono experience",
+        "Recreated streets",
+        "Good photos"
+      ],
+      "neighborhood": "Tenjinbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.7105,
+      "longitude": 135.5114
+    },
+    {
+      "name": {
+        "en": "Namba Yasaka Shrine",
+        "ja": "難波八阪神社"
+      },
+      "description": {
+        "en": "Shrine with giant lion head stage.",
+        "ja": "巨大な獅子頭舞台のある神社。"
+      },
+      "address": {
+        "en": "2-9-19 Motomachi, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区元町2-9-19"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Unique",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Giant lion head",
+        "Unique photo spot",
+        "Swallows bad luck"
+      ],
+      "neighborhood": "Namba",
+      "latitude": 34.661559200000006,
+      "longitude": 135.4967039,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Tempozan Ferris Wheel",
+        "ja": "天保山大観覧車"
+      },
+      "description": {
+        "en": "Giant Ferris wheel at harbor.",
+        "ja": "港の大観覧車。"
+      },
+      "address": {
+        "en": "3-11-14 Chikko, Minato-ku, Osaka",
+        "ja": "大阪市港区築港3-11-14"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Ferris Wheel",
+        "Harbor",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Sunset",
+      "tips": [
+        "Bay views",
+        "Near aquarium",
+        "Night lights"
+      ],
+      "neighborhood": "Tempozan",
+      "latitude": 34.6562686,
+      "longitude": 135.4309659,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Sunset"
+      }
+    },
+    {
+      "name": {
+        "en": "Osaka Aquarium Kaiyukan",
+        "ja": "海遊館"
+      },
+      "description": {
+        "en": "World-class aquarium. Whale sharks.",
+        "ja": "世界クラスの水族館。ジンベエザメ。"
+      },
+      "address": {
+        "en": "1-1-10 Kaigandori, Minato-ku, Osaka",
+        "ja": "大阪市港区海岸通1-1-10"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Aquarium",
+        "World Class",
+        "Family"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Morning",
+      "tips": [
+        "Whale sharks",
+        "Early best",
+        "Evening cheaper"
+      ],
+      "neighborhood": "Tempozan",
+      "latitude": 34.6545182,
+      "longitude": 135.4289645,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Tempozan Harbor Village",
+        "ja": "天保山ハーバービレッジ"
+      },
+      "description": {
+        "en": "Waterfront complex. Aquarium and shopping.",
+        "ja": "ウォーターフロント施設。水族館とショッピング。"
+      },
+      "address": {
+        "en": "Chikko, Minato-ku, Osaka",
+        "ja": "大阪市港区築港"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Waterfront",
+        "Complex",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "LEGOLAND Discovery",
+        "Shopping",
+        "Near aquarium"
+      ],
+      "neighborhood": "Tempozan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6551,
+      "longitude": 135.4299
+    },
+    {
+      "name": {
+        "en": "Tempozan",
+        "ja": "天保山"
+      },
+      "description": {
+        "en": "Japan's lowest mountain. Quirky claim.",
+        "ja": "日本で最も低い山。ユニークな名所。"
+      },
+      "address": {
+        "en": "Tempozan Park, Minato-ku, Osaka",
+        "ja": "大阪市港区天保山公園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Mountain",
+        "Quirky",
+        "Park"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "4.5m tall",
+        "Climbing certificate",
+        "Funny attraction"
+      ],
+      "neighborhood": "Tempozan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6545,
+      "longitude": 135.4403
+    },
+    {
+      "name": {
+        "en": "Shinsekai Kushikatsu Street",
+        "ja": "新世界串カツストリート"
+      },
+      "description": {
+        "en": "Street of kushikatsu restaurants.",
+        "ja": "串カツ店の通り。"
+      },
+      "address": {
+        "en": "Shinsekai, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区新世界"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Kushikatsu",
+        "Street",
+        "Local"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Dinner",
+      "tips": [
+        "No double dipping",
+        "Many options",
+        "Cheap"
+      ],
+      "neighborhood": "Shinsekai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 34.6521,
+      "longitude": 135.5062
+    },
+    {
+      "name": {
+        "en": "Jan Jan Yokocho",
+        "ja": "ジャンジャン横丁"
+      },
+      "description": {
+        "en": "Retro arcade alley. Shogi and mahjong.",
+        "ja": "レトロなアーケード横丁。将棋と麻雀。"
+      },
+      "address": {
+        "en": "Shinsekai, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区新世界"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Retro",
+        "Arcade",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Game parlors",
+        "Very local",
+        "Retro atmosphere"
+      ],
+      "neighborhood": "Shinsekai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.6499,
+      "longitude": 135.5061
+    },
+    {
+      "name": {
+        "en": "Spa World",
+        "ja": "スパワールド"
+      },
+      "description": {
+        "en": "Large hot spring theme park. World baths.",
+        "ja": "大型温泉テーマパーク。世界の風呂。"
+      },
+      "address": {
+        "en": "3-4-24 Ebisuhigashi, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区恵美須東3-4-24"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Onsen",
+        "Theme Park",
+        "Relaxation"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Multiple floors",
+        "World theme baths",
+        "Open late"
+      ],
+      "neighborhood": "Shinsekai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.6499,
+      "longitude": 135.5056
+    }
+  ]
+}

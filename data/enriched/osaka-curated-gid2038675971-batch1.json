@@ -1,0 +1,771 @@
+{
+  "city": "Osaka",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:47:19.620Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Dotonbori Street Food"
+      },
+      "description": {
+        "en": "Osaka's iconic food capital with takoyaki, okonomiyaki, and gyoza stalls under neon signs. Try Mizuno for premium okonomiyaki."
+      },
+      "city": "Osaka",
+      "neighborhood": "1 Chome",
+      "address": {
+        "en": "1 Chome-9 Dotonbori, Chuo Ward, Osaka, 542-0071, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6687234,
+      "longitude": 135.5012971,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_fmKgRPnAGARkKWLtCYTu7g"
+    },
+    {
+      "name": {
+        "en": "Shinsekai Kushikatsu"
+      },
+      "description": {
+        "en": "Retro district famous for deep-fried skewers - Kushikatsu Daruma started here. Hit smaller side street places for authentic experience."
+      },
+      "city": "Osaka",
+      "neighborhood": "3",
+      "address": {
+        "en": "2-chōme-3-9 Ebisuhigashi, Naniwa Ward, Osaka, 556-0002, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6515704,
+      "longitude": 135.5062032,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5V4HCWDnAGARd6bIaaK91O4"
+    },
+    {
+      "name": {
+        "en": "Kuromon Market",
+        "ja": "黒門市場"
+      },
+      "description": {
+        "en": "Osaka's kitchen - fresh seafood, Kobe beef, tamagoyaki, and seasonal fruits. Best visited early morning."
+      },
+      "city": "Osaka",
+      "neighborhood": "2 Chome",
+      "address": {
+        "en": "2 Chome-21 Nipponbashi, Chuo Ward, Osaka, 542-0073, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6653529,
+      "longitude": 135.5062406,
+      "price_tier": "$$",
+      "google_place_id": "ChIJXSJB5UHnAGARQcEjvngsHaw"
+    },
+    {
+      "name": {
+        "en": "Tenjinbashisuji Shopping Street",
+        "ja": "天神橋筋商店街"
+      },
+      "description": {
+        "en": "Japan's longest shopping arcade (2.6km) - locals prefer this to touristy Shinsaibashi. Great for street food and souvenirs."
+      },
+      "city": "Osaka",
+      "neighborhood": "Tenjinbashi",
+      "address": {
+        "en": "3 Chome-8 Tenjinbashi, Kita Ward, Osaka, 530-0041, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.7025467,
+      "longitude": 135.51145409999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJTW9DUrnmAGARVwa3Ga1U-JI"
+    },
+    {
+      "name": {
+        "en": "Tenma Standing Bars"
+      },
+      "description": {
+        "en": "Local drinking culture at its finest - tiny standing bars where regulars have drunk for decades with green onion skewers."
+      },
+      "city": "Osaka",
+      "neighborhood": "12",
+      "address": {
+        "en": "4-chōme-12-22 Tenjinbashi, Kita Ward, Osaka, 530-0041, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.7059074,
+      "longitude": 135.51181409999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJ1VDDRsfmAGARV1DHYEQY1p8"
+    },
+    {
+      "name": {
+        "en": "Janjan Yokocho"
+      },
+      "description": {
+        "en": "Narrow Shinsekai alley with old-school bars, traditional eateries, and ¥100-200 kushikatsu. True Showa-era nostalgia."
+      },
+      "city": "Osaka",
+      "neighborhood": "3 Chome",
+      "address": {
+        "en": "3 Chome-3 Ebisuhigashi, Naniwa Ward, Osaka, 556-0002, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6492448,
+      "longitude": 135.5059526,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-5_CtYrdAGARtbanSXYA76Y"
+    },
+    {
+      "name": {
+        "en": "Ura-Namba",
+        "ja": "裏なんば"
+      },
+      "description": {
+        "en": "Backstreets behind Namba with tiny standing bars and hole-in-the-wall eateries serving the best food in the city."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-6 Nanbasennichimae, Chuo Ward, Osaka, 542-0075, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6648844,
+      "longitude": 135.5054576,
+      "price_tier": "$",
+      "google_place_id": "ChIJG8GPFGrnAGARL-25AQZO3wM"
+    },
+    {
+      "name": {
+        "en": "Nakazakicho Cafes"
+      },
+      "description": {
+        "en": "Pre-war neighborhood with machiya townhouses turned indie cafés, vintage shops, and artist studios. Neel Coffee is Instagram-famous."
+      },
+      "city": "Osaka",
+      "neighborhood": "10",
+      "address": {
+        "en": "1-chōme-10-11 Nakazakinishi, Kita Ward, Osaka, 530-0015, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.708641,
+      "longitude": 135.5042741,
+      "price_tier": "$$",
+      "google_place_id": "ChIJzcfdRQDnAGARgCmucNdEsAk"
+    },
+    {
+      "name": {
+        "en": "Nakanoshima Children's Book Forest"
+      },
+      "description": {
+        "en": "Stunning Tadao Ando-designed library with cozy reading nooks - free entry, perfect for quiet afternoon."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-28 Nakanoshima, Kita Ward, Osaka, 530-0005, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.693045999999995,
+      "longitude": 135.50640439999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJ26CC5pDnAGARbbJuu8qZxxc"
+    },
+    {
+      "name": {
+        "en": "Kitahama American Cafe Scene"
+      },
+      "description": {
+        "en": "Popular American-style cafés for brunch culture near the business district."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "Japan, 〒541-0041 Osaka, Chuo Ward, Kitahama, 1-chōme−1−２８ ビルマビル北浜 1F"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6918167,
+      "longitude": 135.5072044,
+      "price_tier": "$$",
+      "google_place_id": "ChIJf4_q5t3mAGARn1x_dddQnlQ"
+    },
+    {
+      "name": {
+        "en": "Dotonbori Side Streets"
+      },
+      "description": {
+        "en": "Step off main strip into dimly lit yakitori joints and retro taverns for nostalgic late-night bites."
+      },
+      "city": "Osaka",
+      "neighborhood": "1 Chome",
+      "address": {
+        "en": "1 Chome-9 Dotonbori, Chuo Ward, Osaka, 542-0071, Japan"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6687234,
+      "longitude": 135.5012971,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_fmKgRPnAGARkKWLtCYTu7g"
+    },
+    {
+      "name": {
+        "en": "Shinsekai Vintage Arcades"
+      },
+      "description": {
+        "en": "Smart ball (old pinball-like game) and classic Street Fighter machines in buzzing vintage game centers."
+      },
+      "city": "Osaka",
+      "neighborhood": "5",
+      "address": {
+        "en": "Japan, 〒556-0002 Osaka, Naniwa Ward, Ebisuhigashi, 3-chōme−5−１９ ニュースター"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6509861,
+      "longitude": 135.5062055,
+      "price_tier": "$",
+      "google_place_id": "ChIJHxAZAGDnAGARi4ORVfHNZq4"
+    },
+    {
+      "name": {
+        "en": "Americamura Live Houses"
+      },
+      "description": {
+        "en": "Up-and-coming bands play for small lively crowds - intimate atmosphere where every night feels personal."
+      },
+      "city": "Osaka",
+      "neighborhood": "18",
+      "address": {
+        "en": "Japan, 〒542-0086 Osaka, Chuo Ward, Nishishinsaibashi, 2-chōme−18−９ Tri Front心斎橋 B1F"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.671893700000005,
+      "longitude": 135.49753809999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJNV8cVh_nAGARAnDQoUz_B3I"
+    },
+    {
+      "name": {
+        "en": "Tempozan Marketplace After Dark"
+      },
+      "description": {
+        "en": "Transforms at night with themed cafés, quirky entertainment zones, and local shops staying open late."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-10 Kaigandōri, Minato Ward, Osaka, 552-0022, Japan"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6558539,
+      "longitude": 135.430205,
+      "price_tier": "$",
+      "google_place_id": "ChIJxyaCoPToAGARnodRQINyFmg"
+    },
+    {
+      "name": {
+        "en": "Spa World (Shinsekai)"
+      },
+      "description": {
+        "en": "Massive 24-hour complex with baths themed around different countries. Open until early morning - perfect between trains."
+      },
+      "city": "Osaka",
+      "neighborhood": "4",
+      "address": {
+        "en": "3-chōme-4-24 Ebisuhigashi, Naniwa Ward, Osaka, 556-0002, Japan"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6499029,
+      "longitude": 135.5056078,
+      "price_tier": "$$",
+      "google_place_id": "ChIJsR9Zt4rdAGARqlF3kRuWnMI"
+    },
+    {
+      "name": {
+        "en": "Shinsekai District"
+      },
+      "description": {
+        "en": "Retro Showa-era district with Tsutenkaku Tower, Billiken statues (rub feet for luck), colorful signs, and nostalgic atmosphere."
+      },
+      "city": "Osaka",
+      "neighborhood": "2 Chome",
+      "address": {
+        "en": "2 Chome-5 Ebisuhigashi, Naniwa Ward, Osaka, 556-0002, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.651601299999996,
+      "longitude": 135.50595619999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJV6JXdmDnAGAR-9a4atjXsTY"
+    },
+    {
+      "name": {
+        "en": "Tsutenkaku Tower",
+        "ja": "通天閣"
+      },
+      "description": {
+        "en": "103m landmark of Osaka with city views and Billiken statue - neon-lit at night, stunning from surrounding streets."
+      },
+      "city": "Osaka",
+      "neighborhood": "18",
+      "address": {
+        "en": "1-chōme-18-6 Ebisuhigashi, Naniwa Ward, Osaka, 556-0002, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6524992,
+      "longitude": 135.50630580000004,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_0Lgd2DnAGARV0X03lbPy-U"
+    },
+    {
+      "name": {
+        "en": "Hozenji Temple (Namba)"
+      },
+      "description": {
+        "en": "Tiny hidden temple with moss-covered Fudo Myoo statue - visitors pour water as prayer. Tranquil escape steps from Dotonbori chaos."
+      },
+      "city": "Osaka",
+      "neighborhood": "2",
+      "address": {
+        "en": "1-chōme-2-16 Namba, Chuo Ward, Osaka, 542-0076, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6679398,
+      "longitude": 135.5024676,
+      "price_tier": "$",
+      "google_place_id": "ChIJI7QyuRTnAGARU28-XLGEOfU"
+    },
+    {
+      "name": {
+        "en": "Hozenji Yokocho",
+        "ja": "法善寺横丁"
+      },
+      "description": {
+        "en": "Stone-paved narrow alley near temple with traditional lanterns and high-end Japanese restaurants."
+      },
+      "city": "Osaka",
+      "neighborhood": "1",
+      "address": {
+        "en": "1-chōme-1-17 Namba, Chuo Ward, Osaka, 542-0076, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6681187,
+      "longitude": 135.50261039999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJY4ZQxRTnAGAR0mjfWQwO7ho"
+    },
+    {
+      "name": {
+        "en": "Namba Yasaka Shrine",
+        "ja": "難波八阪神社"
+      },
+      "description": {
+        "en": "Striking shrine with giant lion head said to bring good luck - tucked in middle of the city."
+      },
+      "city": "Osaka",
+      "neighborhood": "9",
+      "address": {
+        "en": "2-chōme-9-19 Motomachi, Naniwa Ward, Osaka, 556-0016, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.661559200000006,
+      "longitude": 135.4967039,
+      "price_tier": "$",
+      "google_place_id": "ChIJQVW9eXLnAGARn-pUdRl0w4A"
+    },
+    {
+      "name": {
+        "en": "Kitakagaya Street Art"
+      },
+      "description": {
+        "en": "Old shipbuilding neighborhood near Kizu River transformed with street art, galleries, and creative spaces."
+      },
+      "city": "Osaka",
+      "neighborhood": "4",
+      "address": {
+        "en": "3 Chome-4 Kitakagaya, Suminoe Ward, Osaka, 559-0011, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6247583,
+      "longitude": 135.4775652,
+      "price_tier": "$",
+      "google_place_id": "ChIJxZgYh5bdAGARbCYGa6NQJNs"
+    },
+    {
+      "name": {
+        "en": "Shitenno-ji Temple",
+        "ja": "四天王寺"
+      },
+      "description": {
+        "en": "One of Japan's oldest temples with flea market on 21st-22nd of each month selling jewelry, accessories, ornaments."
+      },
+      "city": "Osaka",
+      "neighborhood": "11",
+      "address": {
+        "en": "1-chōme-11-18 Shitennōji, Tennoji Ward, Osaka, 543-0051, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.6544581,
+      "longitude": 135.51652389999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJIVA6O_jdAGARLWCtv8iBqrY"
+    },
+    {
+      "name": {
+        "en": "Shinsaibashi-Suji Shopping Street"
+      },
+      "description": {
+        "en": "600m+ covered arcade with Uniqlo, Pokemon store, cosmetics, and malls. Also great for secondhand clothes."
+      },
+      "city": "Osaka",
+      "neighborhood": "2",
+      "address": {
+        "en": "2-chōme-2-22 Shinsaibashisuji, Chuo Ward, Osaka, 542-0085, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.670867699999995,
+      "longitude": 135.5013862,
+      "price_tier": "$$",
+      "google_place_id": "ChIJc7M3_BPnAGARI8OZlTnEXGI"
+    },
+    {
+      "name": {
+        "en": "Sennichimae Doguyasuji"
+      },
+      "description": {
+        "en": "Kitchen/cookware shopping street in Namba - professional Japanese knives, ceramics, restaurant supplies."
+      },
+      "city": "Osaka",
+      "neighborhood": "Nanbasennichimae",
+      "address": {
+        "en": "9 Nanbasennichimae, Chuo Ward, Osaka, 542-0075, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.664014099999996,
+      "longitude": 135.5035063,
+      "price_tier": "$$",
+      "google_place_id": "ChIJfQfezmvnAGARy4Sd3VGFy_A"
+    },
+    {
+      "name": {
+        "en": "Amerikamura (American Village)"
+      },
+      "description": {
+        "en": "Youth fashion district with vintage clothing, streetwear, and creative boutiques."
+      },
+      "city": "Osaka",
+      "neighborhood": "2 Chome",
+      "address": {
+        "en": "2 Chome-11 Nishishinsaibashi, Chuo Ward, Osaka, 542-0086, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.672207199999995,
+      "longitude": 135.4978861,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ7_ZM7hHnAGARvBkV-jqyz24"
+    }
+  ]
+}

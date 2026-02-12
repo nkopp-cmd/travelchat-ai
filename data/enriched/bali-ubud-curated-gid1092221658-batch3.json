@@ -1,0 +1,157 @@
+{
+  "city": "Ubud, Bali",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:49:18.800Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Kecak Dance (Uluwatu)"
+      },
+      "description": {
+        "en": "Sunset fire dance at Uluwatu Temple. World-renowned traditional performance. 2 hours from Ubud - book tour with transport."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Kawasan parkir Pura Uluwatu",
+      "address": {
+        "en": "Kawasan parkir Pura Uluwatu, Jl. Uluwatu, Pecatu, Kec. Kuta Sel., Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.8305729,
+      "longitude": 115.0854093,
+      "price_tier": "$",
+      "google_place_id": "ChIJE4-AAwVQ0i0RJI17Kb5qMjQ"
+    },
+    {
+      "name": {
+        "en": "Cooking Classes"
+      },
+      "description": {
+        "en": "Learn Balinese cuisine. Market visits, multiple dishes, often include recipe books."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jalan Raya Laplapan",
+      "address": {
+        "en": "Jalan Raya Laplapan, Petulu, Ubud, Petulu, Kecamatan Ubud, Bali, 80552, Indonesia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5052468,
+      "longitude": 115.2786786,
+      "price_tier": "$$",
+      "google_place_id": "ChIJV54BuWA90i0RRGlX3dS-ecc"
+    },
+    {
+      "name": {
+        "en": "Yoga Retreats"
+      },
+      "description": {
+        "en": "Ubud is yoga capital. Drop-in classes to multi-day retreats. Yoga Barn famous."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Pengosekan",
+      "address": {
+        "en": "Jl. Raya Pengosekan, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5205927,
+      "longitude": 115.2628775,
+      "price_tier": "$$",
+      "google_place_id": "ChIJJb-xNrk90i0RIIsrBuE2Bo0"
+    },
+    {
+      "name": {
+        "en": "Nusa Penida"
+      },
+      "description": {
+        "en": "Island near Bali, dramatic cliffs, Teletubbies Hills. Crystal Bay diving with Mola Mola. Surprisingly busy - Tembeling Beach/Forest quieter."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Penida Island",
+      "address": {
+        "en": "Penida Island, Nusa Penida, Klungkung Regency, Bali, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.727807,
+      "longitude": 115.54442309999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ0xkTTRlx0i0Re3sZsgY3Olw"
+    },
+    {
+      "name": {
+        "en": "Tembeling Beach & Forest (Nusa Penida)"
+      },
+      "description": {
+        "en": "Off-beaten-track hideaway. Steep walk or motorbike ride. Secluded bay, dramatic cliffs. Worth the trek."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Batumadeg",
+      "address": {
+        "en": "6FHW+PQG, Batumadeg, Nusa Penida, Klungkung Regency, Bali 80771, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.7706991,
+      "longitude": 115.49695559999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJR1f4xHh60i0Rl0PrKWj6JFo"
+    }
+  ]
+}

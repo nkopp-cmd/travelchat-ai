@@ -1,0 +1,743 @@
+{
+  "city": "Ubud, Bali",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:49:18.800Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Sacred Monkey Forest"
+      },
+      "description": {
+        "en": "Ubud's famous monkey sanctuary. Temple ruins, giant banyan trees. Watch belongings, monkeys grab everything."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Monkey Forest",
+      "address": {
+        "en": "Jl. Monkey Forest, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5193727,
+      "longitude": 115.26062990000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJZ5sY9kM90i0RVsPvSxZD7LY"
+    },
+    {
+      "name": {
+        "en": "Tukad Cepung Waterfall"
+      },
+      "description": {
+        "en": "Hidden between rocks near Kemenuh village. Light hits at right angle creates rainbows. Steep hike down. Second smaller waterfall to right."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Tembuku",
+      "address": {
+        "en": "Jl. Tembuku, Tembuku, Kec. Tembuku, Kabupaten Bangli, Bali 80671, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.4410173,
+      "longitude": 115.3868079,
+      "price_tier": "$",
+      "google_place_id": "ChIJQ6ocSKAb0i0RP1CIrkak0ws"
+    },
+    {
+      "name": {
+        "en": "Bayad Waterfall"
+      },
+      "description": {
+        "en": "Secret waterfall near Banjar Mancingan Rice Terrace. Visited mid-day and had it to myself. Unlike crowded Kanto Lampo."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "manik sawang",
+      "address": {
+        "en": "manik sawang, bayad, H8P2+6F8, Kedisan, Kec. Tegallalang, Kabupaten Gianyar, Bali 80561, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.4144729,
+      "longitude": 115.3012186,
+      "price_tier": "$",
+      "google_place_id": "ChIJe5qmFg0Z0i0RsDVJkUVxj3w"
+    },
+    {
+      "name": {
+        "en": "Banyu Wana Amertha Waterfall"
+      },
+      "description": {
+        "en": "North Bali, lush green trees, tropical flowers. Wooden bridges, sitting areas for picnics. 2 hours from Canggu, 1.5 from Ubud."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Q4RG+229",
+      "address": {
+        "en": "Q4RG+229, Wanagiri, Sukasada, Buleleng Regency, Bali 81161, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.212829,
+      "longitude": 115.12222709999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJL6Q2CwqP0S0RRcaWKuRqTPY"
+    },
+    {
+      "name": {
+        "en": "Sekumpul Waterfall"
+      },
+      "description": {
+        "en": "Often called Bali's most beautiful. Multiple cascades, jungle setting. North Bali, combine with other attractions."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Air Terjun",
+      "address": {
+        "en": "Jl. Air Terjun, Bebetin, Kec. Sawan, Kabupaten Buleleng, Bali, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.1775308,
+      "longitude": 115.18258250000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJNyp2FiCP0S0RNamdBru46Bg"
+    },
+    {
+      "name": {
+        "en": "The Mocca Canggu"
+      },
+      "description": {
+        "en": "Super pretty space with bright colors, quirky Al-Fresco seating, extensive cake assortment."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Gg. Nyepi",
+      "address": {
+        "en": "Gg. Nyepi, Canggu, Kec. Kuta Utara, Kabupaten Badung, Bali 80351, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.653161299999999,
+      "longitude": 115.131689,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ1UOc4QQ50i0RzGcaT334kwE"
+    },
+    {
+      "name": {
+        "en": "Warung Saya (Ubud)"
+      },
+      "description": {
+        "en": "Only two tables - get there early! More restaurant than cafe but unique intimate spot."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Gootama",
+      "address": {
+        "en": "Jl. Gootama, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.508949399999999,
+      "longitude": 115.26431319999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJQ3_t1io90i0RlHQSKT5f8cY"
+    },
+    {
+      "name": {
+        "en": "Warung Gauri"
+      },
+      "description": {
+        "en": "Hidden street in Central Ubud, romantic garden setting with lights. Pork belly rice bowl just $5 with mixed juice."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Bisma No.25",
+      "address": {
+        "en": "Jl. Bisma No.25, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5076086,
+      "longitude": 115.25838030000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJfyrWGRU90i0R9puBVLjWNXM"
+    },
+    {
+      "name": {
+        "en": "Seniman Coffee Studio"
+      },
+      "description": {
+        "en": "Digital nomad favorite. Strong wifi, great coffee, work-friendly atmosphere."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Sri Wedari No.5",
+      "address": {
+        "en": "Jl. Sri Wedari No.5, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5067234,
+      "longitude": 115.26515479999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJu5hbBmo90i0R4po77axHom8"
+    },
+    {
+      "name": {
+        "en": "Clear Cafe"
+      },
+      "description": {
+        "en": "Ubud health-conscious cafe. Fresh juices, vegetarian options, good workspace."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Hanoman No.8",
+      "address": {
+        "en": "Jl. Hanoman No.8, Ubud, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5091774,
+      "longitude": 115.2649008,
+      "price_tier": "$$",
+      "google_place_id": "ChIJuWpfwms90i0RmUc7F9E9hGY"
+    },
+    {
+      "name": {
+        "en": "Cretya Ubud"
+      },
+      "description": {
+        "en": "Three-level infinity pool overlooking rice terraces. Way more affordable than beach clubs ($65 VIP for 2). Day club not party spot. 8am-9pm."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Tegallalang",
+      "address": {
+        "en": "Jl. Raya Tegallalang, Tegallalang, Kec. Tegallalang, Kabupaten Gianyar, Bali 80561, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.439962,
+      "longitude": 115.280982,
+      "price_tier": "$$",
+      "google_place_id": "ChIJgxo5IH8i0i0Rpy_5pkJSx58"
+    },
+    {
+      "name": {
+        "en": "Wanna Jungle Pool and Bar"
+      },
+      "description": {
+        "en": "Three-tiered pool mimicking rice terraces. Jungle views behind. Alternative to crowded Cretya."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Banjar Bresela Desa Bresela",
+      "address": {
+        "en": "Banjar Bresela Desa Bresela, Payangan, Bresela, Kecamatan Ubud, Kabupaten Gianyar, Bali 80572, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.423115899999999,
+      "longitude": 115.27503519999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJP7o6M6Mj0i0RVFY5XfkezWY"
+    },
+    {
+      "name": {
+        "en": "Penglipuran Village"
+      },
+      "description": {
+        "en": "Well-preserved traditional Balinese village. Narrow streets, beautiful local houses. Once secret, now tourist attraction."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Penglipuran",
+      "address": {
+        "en": "Jl. Penglipuran, Kubu, Kec. Bangli, Kabupaten Bangli, Bali 80611, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.422503899999999,
+      "longitude": 115.35975309999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJqfTkrG4Z0i0RGTQM35oWGTM"
+    },
+    {
+      "name": {
+        "en": "Nyuh Kuning Village"
+      },
+      "description": {
+        "en": "Alternative to touristy Penglipuran. Local Bali charm without commercialization. Near Ubud."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Nyuh Kuning",
+      "address": {
+        "en": "Jl. Raya Nyuh Kuning, Mas, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5272832,
+      "longitude": 115.2593894,
+      "price_tier": "$",
+      "google_place_id": "ChIJJzq08aA90i0Rb3AEsy1pPUo"
+    },
+    {
+      "name": {
+        "en": "Klungkung Royal Courts of Justice"
+      },
+      "description": {
+        "en": "King personally sentenced criminals here pre-modern era. Insanely detailed ceiling artwork telling island history. Semarapura area."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Klungkung Royal Palace",
+      "address": {
+        "en": "Klungkung Royal Palace, JL. Diponegoro, Semarapura Kangin, 80751 Bali, Indonesia, Central Semarapura, Klungkung, Klungkung Regency, Bali 80761, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5357948,
+      "longitude": 115.40293700000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ723cqmwR0i0RlxUQK--WAks"
+    },
+    {
+      "name": {
+        "en": "Green Village"
+      },
+      "description": {
+        "en": "50+ bamboo structures, school, eco-resort, organic farm. Sustainable living practices tour. Book ahead. Under 1 hour from major areas."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Tanah Ayu",
+      "address": {
+        "en": "Jl. Tanah Ayu, Sibang Gede, Kec. Abiansemal, Kabupaten Badung, Bali 80352, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.574337,
+      "longitude": 115.21403400000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJXdCBzpg-0i0Rf0IdU5dDpOs"
+    },
+    {
+      "name": {
+        "en": "Melasti Beach"
+      },
+      "description": {
+        "en": "Spectacular road down cliffs. White sand, Tropical Temptation beach club. Near Uluwatu/Nusa Dua."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Melasti Beach",
+      "address": {
+        "en": "Melasti Beach, Jl. Melasti Ungasan, Ungasan, Kec. Kuta Sel., Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.848293500000002,
+      "longitude": 115.16316970000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJh8lbxuNb0i0RAgipvy5V2_o"
+    },
+    {
+      "name": {
+        "en": "Nyang Nyang Beach"
+      },
+      "description": {
+        "en": "Least popular Uluwatu beach - bit further off beaten track. Powdery white sand, clear water, towering cliffs."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Nyang Nyang Beach",
+      "address": {
+        "en": "Nyang Nyang Beach, Jl. Raya Uluwatu Pecatu, Pecatu, Kec. Kuta Sel., Kabupaten Badung, Bali, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.839163600000001,
+      "longitude": 115.09341719999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJW5cRiada0i0RV4fIoPtmw8Q"
+    },
+    {
+      "name": {
+        "en": "Balian Beach"
+      },
+      "description": {
+        "en": "Not fully Instagram-taken yet. Surf community, beach clean-ups, eco-conscious. Local surf schools, fresh seafood warungs."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Balian Beach",
+      "address": {
+        "en": "Balian Beach, Lalanglinggah, Selemadeg Barat, Tabanan Regency, Bali 82162, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.503113299999999,
+      "longitude": 114.96555959999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJDZj9WIgt0i0RkuwzYDeJATE"
+    },
+    {
+      "name": {
+        "en": "Pasut Beach"
+      },
+      "description": {
+        "en": "Long black sand beach 45 min north of Canggu. Palm trees lining shores. Still off beaten path."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Pantai Pasut",
+      "address": {
+        "en": "Pantai Pasut, Jalan Raya Pasut, Tibubiu, Kec. Kerambitan, Kabupaten Tabanan, Bali, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.563438,
+      "longitude": 115.0367423,
+      "price_tier": "$",
+      "google_place_id": "ChIJmwQt5CIx0i0Rw4rwskRHZLg"
+    },
+    {
+      "name": {
+        "en": "Amed"
+      },
+      "description": {
+        "en": "Black sand fishing village, northeast Bali. Snorkeling, diving, Japanese Wreck. Far from beach clubs. Relaxing escape."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Amed",
+      "address": {
+        "en": "Amed, Amed, Jl. I Ketut Natih, Culik, Kec. Abang, Kabupaten Karangasem, Bali 80852, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.343609299999999,
+      "longitude": 115.6164127,
+      "price_tier": "$",
+      "google_place_id": "ChIJQRRoGP4A0i0RQQfjqCpVKso"
+    },
+    {
+      "name": {
+        "en": "Sidemen Valley"
+      },
+      "description": {
+        "en": "Like Ubud without traffic and tourists. Quiet rice terraces, sustainable rural tourism. Bicycle or hike around paddies. Eco-friendly resorts."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Banjar Jl. Raya Tebola",
+      "address": {
+        "en": "Banjar Jl. Raya Tebola, Telaga Tawang, Kec. Sidemen, Kabupaten Karangasem, Bali 80864, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.4743593,
+      "longitude": 115.44154800000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJk2was3cQ0i0R4wF_LpZq3tQ"
+    },
+    {
+      "name": {
+        "en": "Munduk"
+      },
+      "description": {
+        "en": "North Bali lakes, temples, waterfalls. Wanagiri Hidden Hill viewpoint overlooking twin lakes. Selfie parks with nests, swings."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Munduk",
+      "address": {
+        "en": "Munduk, Banjar, Buleleng Regency, Bali, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.2664396,
+      "longitude": 115.05433839999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJX6h3ABGG0S0RgAaDyvsLAwU"
+    },
+    {
+      "name": {
+        "en": "Lake Bratan"
+      },
+      "description": {
+        "en": "Caldera lake 1,000+ m elevation. Pleasantly cool. Parasailing, motorboating, or quiet time at Ulun Danu Bratan temple."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Candikuning",
+      "address": {
+        "en": "Candikuning, Baturiti, Tabanan Regency, Bali, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.2751807,
+      "longitude": 115.16682340000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJVwisn2yJ0S0RUxvb5GhlJBg"
+    },
+    {
+      "name": {
+        "en": "Telaga Waja River Rafting"
+      },
+      "description": {
+        "en": "Longest course, east Bali. Pass waterfalls, palm trees, lush forests. More off beaten path than Ayung River near Ubud."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Muncan",
+      "address": {
+        "en": "Jl. Raya Muncan, Menanga, Kec. Rendang, Kabupaten Karangasem, Bali 80863, Indonesia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.424264899999999,
+      "longitude": 115.4381266,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ-_XbNwUb0i0Rhc0HoFQqNck"
+    }
+  ]
+}

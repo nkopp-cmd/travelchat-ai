@@ -1,0 +1,744 @@
+{
+  "city": "hong_kong",
+  "batch": 6,
+  "spots": [
+    {
+      "name": {
+        "en": "Ten Thousand Buddhas Monastery",
+        "zh": "萬佛寺"
+      },
+      "description": {
+        "en": "Monastery with thousands of Buddha statues.",
+        "zh": "有數千尊佛像的寺院。"
+      },
+      "address": {
+        "en": "Pai Tau Village, Sha Tin, New Territories",
+        "zh": "新界沙田排頭村"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Unique",
+        "Climb"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "400 steps up",
+        "13000 Buddhas",
+        "Free entry"
+      ],
+      "neighborhood": "Sha Tin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.388,
+      "longitude": 114.1849
+    },
+    {
+      "name": {
+        "en": "Hong Kong Heritage Museum",
+        "zh": "香港文化博物館"
+      },
+      "description": {
+        "en": "Major museum in Sha Tin. Bruce Lee exhibit.",
+        "zh": "沙田主要博物館。李小龍展覽。"
+      },
+      "address": {
+        "en": "1 Man Lam Road, Sha Tin, New Territories",
+        "zh": "新界沙田文林路1號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Heritage",
+        "Bruce Lee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free Wed",
+        "Bruce Lee exhibit",
+        "Cantonese opera"
+      ],
+      "neighborhood": "Sha Tin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3774,
+      "longitude": 114.1854
+    },
+    {
+      "name": {
+        "en": "Che Kung Temple",
+        "zh": "車公廟"
+      },
+      "description": {
+        "en": "Popular temple in Sha Tin. Turning fans.",
+        "zh": "沙田熱門寺廟。轉風車。"
+      },
+      "address": {
+        "en": "7 Che Kung Miu Road, Sha Tin, New Territories",
+        "zh": "新界沙田車公廟路7號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Popular",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Turn the fans",
+        "CNY crowded",
+        "Fortune sticks"
+      ],
+      "neighborhood": "Sha Tin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3748,
+      "longitude": 114.1862
+    },
+    {
+      "name": {
+        "en": "Sha Tin Racecourse",
+        "zh": "沙田馬場"
+      },
+      "description": {
+        "en": "Major horse racing venue. Larger than Happy Valley.",
+        "zh": "主要賽馬場。比跑馬地大。"
+      },
+      "address": {
+        "en": "Sha Tin Racecourse, New Territories",
+        "zh": "新界沙田馬場"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Racing",
+        "Venue",
+        "Major"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Race Days",
+      "tips": [
+        "Sunday/Saturday races",
+        "Larger venue",
+        "Check schedule"
+      ],
+      "neighborhood": "Sha Tin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Race Days"
+      },
+      "latitude": 22.3997,
+      "longitude": 114.2044
+    },
+    {
+      "name": {
+        "en": "Ma On Shan",
+        "zh": "馬鞍山"
+      },
+      "description": {
+        "en": "New town with waterfront. Former mining area.",
+        "zh": "有海濱的新市鎮。前礦區。"
+      },
+      "address": {
+        "en": "Ma On Shan, New Territories",
+        "zh": "新界馬鞍山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "New Town",
+        "Waterfront",
+        "Hiking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Waterfront promenade",
+        "Mining heritage",
+        "New residential"
+      ],
+      "neighborhood": "Ma On Shan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.4248,
+      "longitude": 114.2316
+    },
+    {
+      "name": {
+        "en": "Sai Kung Town",
+        "zh": "西貢市"
+      },
+      "description": {
+        "en": "Seafood town and nature gateway. Weekend getaway.",
+        "zh": "海鮮小鎮和自然門戶。週末度假。"
+      },
+      "address": {
+        "en": "Sai Kung, New Territories",
+        "zh": "新界西貢"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Seafood",
+        "Town",
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Dinner",
+      "tips": [
+        "Fresh seafood",
+        "Boat trips",
+        "Nature gateway"
+      ],
+      "neighborhood": "Sai Kung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.3825,
+      "longitude": 114.2719
+    },
+    {
+      "name": {
+        "en": "Sai Kung Seafood Street",
+        "zh": "西貢海鮮街"
+      },
+      "description": {
+        "en": "Waterfront seafood restaurants. Pick your fish.",
+        "zh": "海濱海鮮餐廳。選擇你的魚。"
+      },
+      "address": {
+        "en": "Sai Kung Waterfront, New Territories",
+        "zh": "新界西貢海濱"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Seafood",
+        "Waterfront",
+        "Pick Fresh"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Dinner",
+      "tips": [
+        "Pick from tanks",
+        "Negotiate price",
+        "Weekend busy"
+      ],
+      "neighborhood": "Sai Kung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.3686,
+      "longitude": 114.1222
+    },
+    {
+      "name": {
+        "en": "Sharp Island",
+        "zh": "橋咀洲"
+      },
+      "description": {
+        "en": "Geopark island with tombolo. Boat from Sai Kung.",
+        "zh": "有連島沙洲的地質公園島嶼。從西貢坐船。"
+      },
+      "address": {
+        "en": "Sharp Island, Sai Kung",
+        "zh": "西貢橋咀洲"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Island",
+        "Geopark",
+        "Beach"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Tombolo at low tide",
+        "Volcanic rocks",
+        "Kaito boat"
+      ],
+      "neighborhood": "Sai Kung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3643,
+      "longitude": 114.2944
+    },
+    {
+      "name": {
+        "en": "High Island Reservoir East Dam",
+        "zh": "萬宜水庫東壩"
+      },
+      "description": {
+        "en": "Stunning hexagonal rock columns. UNESCO Geopark.",
+        "zh": "壯觀的六角形岩柱。聯合國教科文組織地質公園。"
+      },
+      "address": {
+        "en": "High Island Reservoir, Sai Kung",
+        "zh": "西貢萬宜水庫"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Geopark",
+        "Rocks",
+        "Reservoir"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Hexagonal columns",
+        "Taxi needed",
+        "Stunning geology"
+      ],
+      "neighborhood": "Sai Kung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "MacLehose Trail",
+        "zh": "麥理浩徑"
+      },
+      "description": {
+        "en": "100km trail across New Territories. 10 sections.",
+        "zh": "穿越新界的100公里步道。10段。"
+      },
+      "address": {
+        "en": "New Territories",
+        "zh": "新界"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Trail",
+        "Long Distance"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Autumn",
+      "tips": [
+        "10 sections",
+        "Section 2 popular",
+        "Overnight camping"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 22.4166,
+      "longitude": 114.1454
+    },
+    {
+      "name": {
+        "en": "Tai Long Wan",
+        "zh": "大浪灣"
+      },
+      "description": {
+        "en": "Remote beach paradise. Best beach in Hong Kong.",
+        "zh": "偏遠海灘天堂。香港最佳海灘。"
+      },
+      "address": {
+        "en": "Tai Long Wan, Sai Kung",
+        "zh": "西貢大浪灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Remote",
+        "Beautiful"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Hike or boat",
+        "Four beaches",
+        "Camping possible"
+      ],
+      "neighborhood": "Sai Kung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2464,
+      "longitude": 114.2459
+    },
+    {
+      "name": {
+        "en": "Clearwater Bay",
+        "zh": "清水灣"
+      },
+      "description": {
+        "en": "Popular beach area. Country park.",
+        "zh": "熱門海灘區。郊野公園。"
+      },
+      "address": {
+        "en": "Clearwater Bay, Sai Kung",
+        "zh": "西貢清水灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Popular",
+        "Country Park"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Two beaches",
+        "Golf course",
+        "Tin Hau temple"
+      ],
+      "neighborhood": "Clearwater Bay",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3411,
+      "longitude": 114.2587
+    },
+    {
+      "name": {
+        "en": "Tseung Kwan O",
+        "zh": "將軍澳"
+      },
+      "description": {
+        "en": "New town with waterfront promenade.",
+        "zh": "有海濱長廊的新市鎮。"
+      },
+      "address": {
+        "en": "Tseung Kwan O, New Territories",
+        "zh": "新界將軍澳"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "New Town",
+        "Promenade",
+        "Cycling"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Long promenade",
+        "Cycling path",
+        "New residential"
+      ],
+      "neighborhood": "Tseung Kwan O",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3073,
+      "longitude": 114.2598
+    },
+    {
+      "name": {
+        "en": "Yuen Long",
+        "zh": "元朗"
+      },
+      "description": {
+        "en": "Traditional New Territories town. Good food.",
+        "zh": "傳統新界城鎮。美食。"
+      },
+      "address": {
+        "en": "Yuen Long, New Territories",
+        "zh": "新界元朗"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Traditional",
+        "New Territories",
+        "Local Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Yuen Long old town",
+        "Good food scene",
+        "Traditional shops"
+      ],
+      "neighborhood": "Yuen Long",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.4567,
+      "longitude": 114.0207
+    },
+    {
+      "name": {
+        "en": "Ping Shan Heritage Trail",
+        "zh": "屏山文物徑"
+      },
+      "description": {
+        "en": "Historic trail with clan halls and pagoda.",
+        "zh": "有祠堂和寶塔的歷史步道。"
+      },
+      "address": {
+        "en": "Ping Shan, Yuen Long, New Territories",
+        "zh": "新界元朗屏山"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Heritage",
+        "Trail",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Clan heritage",
+        "Ancient pagoda",
+        "Free"
+      ],
+      "neighborhood": "Yuen Long",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.4429,
+      "longitude": 114.012
+    },
+    {
+      "name": {
+        "en": "Kam Tin Walled Villages",
+        "zh": "錦田圍村"
+      },
+      "description": {
+        "en": "Historic walled villages. Tang clan heritage.",
+        "zh": "歷史圍村。鄧氏遺產。"
+      },
+      "address": {
+        "en": "Kam Tin, Yuen Long, New Territories",
+        "zh": "新界元朗錦田"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Village",
+        "Walled",
+        "Heritage"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Kat Hing Wai",
+        "Iron gate history",
+        "Clan heritage"
+      ],
+      "neighborhood": "Kam Tin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.5046,
+      "longitude": 114.1284
+    },
+    {
+      "name": {
+        "en": "Tai O",
+        "zh": "大澳"
+      },
+      "description": {
+        "en": "Fishing village on stilts. Pink dolphins.",
+        "zh": "水上棚屋漁村。粉紅海豚。"
+      },
+      "address": {
+        "en": "Tai O, Lantau Island",
+        "zh": "大嶼山大澳"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Fishing Village",
+        "Stilts",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Stilt houses",
+        "Shrimp paste",
+        "Boat tours for dolphins"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2535,
+      "longitude": 113.8631
+    },
+    {
+      "name": {
+        "en": "Ngong Ping 360",
+        "zh": "昂坪360"
+      },
+      "description": {
+        "en": "Cable car to Big Buddha. Scenic ride.",
+        "zh": "到大佛的纜車。風景優美的旅程。"
+      },
+      "address": {
+        "en": "Tung Chung, Lantau Island",
+        "zh": "大嶼山東涌"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cable Car",
+        "Scenic",
+        "Attraction"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Crystal cabin option",
+        "25 min ride",
+        "Book ahead"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2891,
+      "longitude": 113.941
+    },
+    {
+      "name": {
+        "en": "Tian Tan Buddha",
+        "zh": "天壇大佛"
+      },
+      "description": {
+        "en": "Giant Buddha statue at Po Lin. 268 steps.",
+        "zh": "寶蓮寺的巨型佛像。268級台階。"
+      },
+      "address": {
+        "en": "Ngong Ping, Lantau Island",
+        "zh": "大嶼山昂坪"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Buddha",
+        "Giant",
+        "Temple"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "268 steps",
+        "Vegetarian meal",
+        "Po Lin Monastery"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.254,
+      "longitude": 113.905
+    },
+    {
+      "name": {
+        "en": "Po Lin Monastery",
+        "zh": "寶蓮禪寺"
+      },
+      "description": {
+        "en": "Major Buddhist monastery. Vegetarian restaurant.",
+        "zh": "主要佛教寺院。素食餐廳。"
+      },
+      "address": {
+        "en": "Ngong Ping, Lantau Island",
+        "zh": "大嶼山昂坪"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Monastery",
+        "Buddhist",
+        "Vegetarian"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Famous vegetarian food",
+        "Near Big Buddha"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2553,
+      "longitude": 113.9076
+    }
+  ]
+}

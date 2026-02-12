@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 2,
+  "spots": [
+    {
+      "name": {
+        "en": "Omoide Yokocho (Memory Lane)",
+        "ja": "思い出横丁"
+      },
+      "description": {
+        "en": "Narrow alley of yakitori stalls next to Shinjuku Station that survived redevelopment. Smoke, grilled skewers, and salaryman camaraderie since 1946.",
+        "ja": "新宿駅横で再開発を生き延びた焼き鳥屋の細い路地。1946年から煙、焼き鳥、サラリーマンの友情。"
+      },
+      "address": {
+        "en": "Nishi-Shinjuku, Shinjuku-ku, Tokyo",
+        "ja": "東京都新宿区西新宿"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Yakitori",
+        "Historic",
+        "Late Night"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Also called 'Piss Alley' (don't ask)",
+        "Crowded and smoky",
+        "Counter seating only mostly"
+      ],
+      "neighborhood": "Shinjuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.693,
+      "longitude": 139.6997
+    },
+    {
+      "name": {
+        "en": "Ameyoko Market",
+        "ja": "アメヤ横丁"
+      },
+      "description": {
+        "en": "Chaotic street market under the Yamanote Line tracks. Fresh seafood, spices, clothes, and New Year's shopping chaos define this post-war market.",
+        "ja": "山手線高架下の混沌とした街市場。鮮魚、スパイス、衣類、年末の買い物の混乱がこの戦後市場を定義する。"
+      },
+      "address": {
+        "en": "Ueno, Taito-ku, Tokyo",
+        "ja": "東京都台東区上野"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Street Market",
+        "Food",
+        "Chaotic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Late morning",
+      "tips": [
+        "Haggling sometimes works",
+        "Fresh seafood excellent",
+        "Year-end is absolutely insane"
+      ],
+      "neighborhood": "Ueno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Late morning"
+      },
+      "latitude": 35.7115,
+      "longitude": 139.7748
+    },
+    {
+      "name": {
+        "en": "Nishi-Ogikubo Antique Alley",
+        "ja": "西荻窪アンティーク通り"
+      },
+      "description": {
+        "en": "Quiet neighborhood with Japan's highest concentration of antique shops. From Meiji pottery to mid-century modern furniture.",
+        "ja": "日本一の骨董品店の密集地である静かな住宅街。明治の陶器からミッドセンチュリーモダンの家具まで。"
+      },
+      "address": {
+        "en": "Nishi-Ogikubo, Suginami-ku, Tokyo",
+        "ja": "東京都杉並区西荻窪"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Antiques",
+        "Vintage",
+        "Furniture"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Over 50 antique shops",
+        "Dealers are knowledgeable",
+        "Shipping available for large items"
+      ],
+      "neighborhood": "Nishi-Ogikubo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7037,
+      "longitude": 139.5996
+    },
+    {
+      "name": {
+        "en": "Hoppy Street Asakusa",
+        "ja": "浅草ホッピー通り"
+      },
+      "description": {
+        "en": "Old-school drinking street where Hoppy (beer-like drink) flows freely. Outdoor plastic chairs, grilled beef offal, and retro Tokyo atmosphere.",
+        "ja": "ホッピー（ビール風飲料）が自由に流れる昔ながらの飲み屋街。屋外のプラスチック椅子、もつ焼き、レトロな東京の雰囲気。"
+      },
+      "address": {
+        "en": "Asakusa, Taito-ku, Tokyo",
+        "ja": "東京都台東区浅草"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Drinking Street",
+        "Retro",
+        "Offal"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Late afternoon to evening",
+      "tips": [
+        "Try nikomi (beef stew)",
+        "Cash only mostly",
+        "Afternoon drinking is normal here"
+      ],
+      "neighborhood": "Asakusa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Late afternoon to evening"
+      },
+      "latitude": 35.7138,
+      "longitude": 139.7942
+    },
+    {
+      "name": {
+        "en": "Nihonbashi Takashimaya",
+        "ja": "日本橋高島屋"
+      },
+      "description": {
+        "en": "Historic department store in Tokyo's original commercial district. The basement food hall (depachika) showcases Japan's best food gifts.",
+        "ja": "東京の元々の商業地区にある歴史的デパート。地下食品売場（デパ地下）が日本最高の食品ギフトを披露。"
+      },
+      "address": {
+        "en": "Nihonbashi, Chuo-ku, Tokyo",
+        "ja": "東京都中央区日本橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Food Hall",
+        "Historic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 70,
+      "best_time": "Late afternoon (evening discounts)",
+      "tips": [
+        "Basement food hall is incredible",
+        "Evening discounts on fresh items",
+        "Free gift wrapping is art"
+      ],
+      "neighborhood": "Nihonbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Late afternoon (evening discounts)"
+      },
+      "latitude": 35.6813,
+      "longitude": 139.7738
+    },
+    {
+      "name": {
+        "en": "Sunamachi Ginza",
+        "ja": "砂町銀座商店街"
+      },
+      "description": {
+        "en": "Massive 670-meter shopping street in eastern Tokyo, utterly untouched by tourism. Pure local commerce serving neighborhood residents.",
+        "ja": "東京東部の670メートルの巨大商店街、観光とは完全に無縁。地元住民に純粋なローカル商業を提供。"
+      },
+      "address": {
+        "en": "Sunamachi, Koto-ku, Tokyo",
+        "ja": "東京都江東区砂町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping Street",
+        "Local",
+        "Untouched"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Late morning to afternoon",
+      "tips": [
+        "Zero tourist infrastructure",
+        "Best oden in Tokyo",
+        "Bring cash only"
+      ],
+      "neighborhood": "Sunamachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.41,
+      "best_times": {
+        "en": "Late morning to afternoon"
+      },
+      "latitude": 35.6795,
+      "longitude": 139.8294
+    },
+    {
+      "name": {
+        "en": "Ebisu Yokocho",
+        "ja": "恵比寿横丁"
+      },
+      "description": {
+        "en": "Indoor food court of tiny restaurants recreating the yokocho (alley) atmosphere. Young professionals gather here for afterwork drinks.",
+        "ja": "横丁の雰囲気を再現した小さなレストランの屋内フードコート。若いビジネスパーソンが仕事帰りの飲み会に集まる。"
+      },
+      "address": {
+        "en": "Ebisu, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区恵比寿"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Food Court",
+        "Izakaya",
+        "After Work"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Multiple cuisines available",
+        "Gets very crowded",
+        "Good first stop for bar hopping"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6482,
+      "longitude": 139.7107
+    },
+    {
+      "name": {
+        "en": "Jiyugaoka Sweets Forest",
+        "ja": "自由が丘スイーツ街"
+      },
+      "description": {
+        "en": "Upscale neighborhood famous for patisseries and dessert shops. Well-heeled locals stroll between European-style cafes and bakeries.",
+        "ja": "パティスリーとデザートショップで有名な高級住宅街。裕福な地元民がヨーロピアンスタイルのカフェやベーカリーを巡る。"
+      },
+      "address": {
+        "en": "Jiyugaoka, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区自由が丘"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dessert",
+        "Patisserie",
+        "Upscale"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Many award-winning pastry shops",
+        "Also good for general shopping",
+        "Very walkable area"
+      ],
+      "neighborhood": "Jiyugaoka",
+      "latitude": 35.6078042,
+      "longitude": 139.671478,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Tsukishima Monja Street",
+        "ja": "月島もんじゃストリート"
+      },
+      "description": {
+        "en": "80+ restaurants serving monjayaki - Tokyo's answer to Osaka's okonomiyaki. More liquid and crispy, cooked on the griddle at your table.",
+        "ja": "もんじゃ焼きを提供する80以上のレストラン - 東京版お好み焼き。より液状でカリカリ、テーブルの鉄板で調理。"
+      },
+      "address": {
+        "en": "Tsukishima, Chuo-ku, Tokyo",
+        "ja": "東京都中央区月島"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Monjayaki",
+        "Tokyo Specialty",
+        "DIY"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch or dinner",
+      "tips": [
+        "Staff will cook first one to show technique",
+        "Order multiple types to share",
+        "Mentaiko monja is popular"
+      ],
+      "neighborhood": "Tsukishima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Lunch or dinner"
+      },
+      "latitude": 35.6643,
+      "longitude": 139.7825
+    },
+    {
+      "name": {
+        "en": "Akihabara Electric Town",
+        "ja": "秋葉原電気街"
+      },
+      "description": {
+        "en": "Legendary electronics district now equally known for anime, manga, and maid cafes. Otaku culture's spiritual home.",
+        "ja": "今やアニメ、漫画、メイドカフェでも知られる伝説の電気街。オタク文化の聖地。"
+      },
+      "address": {
+        "en": "Akihabara, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区秋葉原"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Anime",
+        "Otaku"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Electronics shops are in side streets",
+        "Maid cafes are an experience",
+        "Gashapon (capsule toys) everywhere"
+      ],
+      "neighborhood": "Akihabara",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6992,
+      "longitude": 139.7726
+    },
+    {
+      "name": {
+        "en": "Naka-Meguro Riverside Cafes",
+        "ja": "中目黒川沿いカフェ"
+      },
+      "description": {
+        "en": "Hip cafes lining the Meguro River where Tokyo's creative class gathers. Australian coffee culture meets Japanese design sensibility.",
+        "ja": "東京のクリエイティブ層が集まる目黒川沿いのヒップなカフェ。オーストラリアのコーヒー文化と日本のデザイン感覚が出会う。"
+      },
+      "address": {
+        "en": "Nakameguro, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区中目黒"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Riverside",
+        "Trendy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning or late afternoon",
+      "tips": [
+        "Blue Bottle started its Japan journey here",
+        "Many boutique roasters",
+        "Good for people watching"
+      ],
+      "neighborhood": "Nakameguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning or late afternoon"
+      },
+      "latitude": 35.6441,
+      "longitude": 139.699
+    },
+    {
+      "name": {
+        "en": "Shibamata Taishakuten",
+        "ja": "柴又帝釈天"
+      },
+      "description": {
+        "en": "Temple town that's the setting for Japan's longest film series 'Otoko wa Tsurai yo'. Traditional shopping street feels like stepping back 50 years.",
+        "ja": "日本最長の映画シリーズ『男はつらいよ』の舞台となった門前町。伝統的な商店街は50年前にタイムスリップした気分。"
+      },
+      "address": {
+        "en": "Shibamata, Katsushika-ku, Tokyo",
+        "ja": "東京都葛飾区柴又"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple Town",
+        "Film Location",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning to afternoon",
+      "tips": [
+        "Famous for kusa-dango (grass mochi)",
+        "Very retro atmosphere",
+        "Tora-san museum for fans"
+      ],
+      "neighborhood": "Shibamata",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning to afternoon"
+      },
+      "latitude": 35.7584,
+      "longitude": 139.8788
+    },
+    {
+      "name": {
+        "en": "Odaiba TeamLab Planets",
+        "ja": "お台場チームラボプラネッツ"
+      },
+      "description": {
+        "en": "Immersive digital art museum where you walk through water and light installations barefoot. Surreal experience unlike typical museums.",
+        "ja": "裸足で水と光のインスタレーションの中を歩く没入型デジタルアート美術館。典型的な美術館とは異なる超現実的体験。"
+      },
+      "address": {
+        "en": "Odaiba, Koto-ku, Tokyo",
+        "ja": "東京都江東区お台場"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Digital Art",
+        "Immersive",
+        "Modern"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Weekday",
+      "tips": [
+        "Book tickets online in advance",
+        "Wear shorts or short skirt for water rooms",
+        "Allow 2-3 hours"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 35.619,
+      "longitude": 139.7794
+    },
+    {
+      "name": {
+        "en": "Shimokitazawa Live Houses",
+        "ja": "下北沢ライブハウス"
+      },
+      "description": {
+        "en": "Indie music venues where tomorrow's bands play tonight. Small clubs like Shelter, 440, and Basementbar define Tokyo's underground scene.",
+        "ja": "明日のバンドが今夜演奏するインディー音楽会場。シェルター、440、ベースメントバーなどの小さなクラブが東京のアンダーグラウンドシーンを定義。"
+      },
+      "address": {
+        "en": "Shimokitazawa, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区下北沢"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Live Music",
+        "Indie",
+        "Alternative"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Check schedules online",
+        "Cover charges around 2000-3000 yen",
+        "Many venues within walking distance"
+      ],
+      "neighborhood": "Shimokitazawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6617,
+      "longitude": 139.6663
+    },
+    {
+      "name": {
+        "en": "Shinjuku Ni-chome",
+        "ja": "新宿二丁目"
+      },
+      "description": {
+        "en": "Asia's largest LGBTQ+ district with hundreds of bars ranging from welcoming to members-only. Each tiny bar has its own character.",
+        "ja": "アジア最大のLGBTQ+地区で、ウェルカムなバーから会員制バーまで数百軒。それぞれの小さなバーが独自の個性を持つ。"
+      },
+      "address": {
+        "en": "Shinjuku Ni-chome, Shinjuku-ku, Tokyo",
+        "ja": "東京都新宿区新宿二丁目"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "LGBTQ+",
+        "Bars",
+        "Community"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Late evening",
+      "tips": [
+        "Some bars are specific to demographics",
+        "Dragon Men and Arty Farty welcome tourists",
+        "Respectful attitude appreciated"
+      ],
+      "neighborhood": "Shinjuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Late evening"
+      },
+      "latitude": 35.6918,
+      "longitude": 139.7073
+    },
+    {
+      "name": {
+        "en": "Meguro Parasitological Museum",
+        "ja": "目黒寄生虫館"
+      },
+      "description": {
+        "en": "Only museum in the world dedicated to parasites. Fascinating and slightly disturbing - includes the world's longest tapeworm specimen.",
+        "ja": "寄生虫に特化した世界唯一の博物館。魅力的でやや不穏 - 世界最長のサナダムシ標本を含む。"
+      },
+      "address": {
+        "en": "Meguro, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区目黒"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Unique",
+        "Science"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free admission",
+        "Not for the squeamish",
+        "Gift shop sells parasite merchandise"
+      ],
+      "neighborhood": "Meguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6317,
+      "longitude": 139.7067
+    },
+    {
+      "name": {
+        "en": "Azabu-Juban Shopping Street",
+        "ja": "麻布十番商店街"
+      },
+      "description": {
+        "en": "Historic shopping street in embassy district mixing international and traditional Japanese shops. Where diplomats and old Tokyo families shop.",
+        "ja": "大使館地区の歴史的商店街で国際色と伝統的な日本の店が混在。外交官と古い東京の家族が買い物する場所。"
+      },
+      "address": {
+        "en": "Azabu-Juban, Minato-ku, Tokyo",
+        "ja": "東京都港区麻布十番"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "International",
+        "Traditional",
+        "Upscale"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Famous for taiyaki (fish-shaped cake)",
+        "Many embassy workers shop here",
+        "Summer festival is famous"
+      ],
+      "neighborhood": "Azabu-Juban",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6525,
+      "longitude": 139.7352
+    },
+    {
+      "name": {
+        "en": "Harajuku Takeshita Street",
+        "ja": "原宿竹下通り"
+      },
+      "description": {
+        "en": "Teen fashion mecca packed with crepe shops and colorful stores. Youth culture epicenter that defines Japanese street fashion trends.",
+        "ja": "クレープ店とカラフルな店でいっぱいのティーンファッションの聖地。日本のストリートファッショントレンドを定義する若者文化の中心。"
+      },
+      "address": {
+        "en": "Harajuku, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区原宿"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fashion",
+        "Youth Culture",
+        "Crepes"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Weekday afternoon",
+      "tips": [
+        "Weekends are impossibly crowded",
+        "Side streets have better shops",
+        "Crepe quality varies widely"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Weekday afternoon"
+      },
+      "latitude": 35.6717,
+      "longitude": 139.7029
+    },
+    {
+      "name": {
+        "en": "Meiji Shrine",
+        "ja": "明治神宮"
+      },
+      "description": {
+        "en": "Serene forest shrine in the heart of busy Shibuya. The approach through towering trees makes you forget you're in the world's largest city.",
+        "ja": "忙しい渋谷の中心にある静謐な森の神社。そびえ立つ木々の間の参道を歩くと、世界最大の都市にいることを忘れる。"
+      },
+      "address": {
+        "en": "Meiji Shrine, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区明治神宮"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Forest",
+        "Spiritual"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Early morning",
+      "tips": [
+        "Free to enter",
+        "Huge grounds take time to explore",
+        "Weekend weddings are beautiful"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 35.6748,
+      "longitude": 139.6996
+    },
+    {
+      "name": {
+        "en": "Toyosu Fish Market",
+        "ja": "豊洲市場"
+      },
+      "description": {
+        "en": "World's largest fish market that replaced Tsukiji. Watch tuna auctions from observation decks, then eat sushi at market restaurants.",
+        "ja": "築地に代わる世界最大の魚市場。見学デッキからマグロ競りを見て、市場内のレストランで寿司を食べる。"
+      },
+      "address": {
+        "en": "Toyosu, Koto-ku, Tokyo",
+        "ja": "東京都江東区豊洲"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Fish Market",
+        "Tuna Auction",
+        "Wholesale"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "5-6am for auctions",
+      "tips": [
+        "Tuna auction viewing requires lottery",
+        "Sushi restaurants open early",
+        "Clean and modern unlike old Tsukiji"
+      ],
+      "neighborhood": "Toyosu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "5-6am for auctions"
+      },
+      "latitude": 35.6421,
+      "longitude": 139.7827
+    }
+  ]
+}

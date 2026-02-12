@@ -1,0 +1,497 @@
+{
+  "city": "Singapore",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:44:31.437Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Rail Corridor (Green Corridor)",
+        "zh": "铁道走廊（绿色走廊）"
+      },
+      "description": {
+        "en": "Former railway track converted to 24km nature trail connecting north to south Singapore through lush greenery."
+      },
+      "city": "Singapore",
+      "neighborhood": "Bukit Merah",
+      "address": {
+        "en": "Rail Corridor, Singapore",
+        "zh": "新加坡铁道走廊"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2731724,
+      "longitude": 103.8321009,
+      "price_tier": "$",
+      "google_place_id": "ChIJ63lVZBsZ2jERFjL8E1oXNCc"
+    },
+    {
+      "name": {
+        "en": "Bukit Timah Nature Reserve",
+        "zh": "武吉知马自然保护区"
+      },
+      "description": {
+        "en": "Primary rainforest with hiking trails and Singapore's highest hill (163m) - local favorite escape from the city."
+      },
+      "city": "Singapore",
+      "neighborhood": "Bukit Panjang",
+      "address": {
+        "en": "Hindhede Dr, Singapore 589318"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3483882999999999,
+      "longitude": 103.77670099999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJO9cemPUQ2jERvlh8KtwhtAc"
+    },
+    {
+      "name": {
+        "en": "Chinatown Heritage Centre",
+        "zh": "牛车水原貌馆"
+      },
+      "description": {
+        "en": "Recreations of early Chinese quarters."
+      },
+      "city": "Singapore",
+      "neighborhood": "Outram",
+      "address": {
+        "en": "48 Pagoda St, Singapore 059207"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2835298,
+      "longitude": 103.8442036,
+      "price_tier": "$",
+      "google_place_id": "ChIJ3eg6SXMZ2jERCxutt4adUyY"
+    },
+    {
+      "name": {
+        "en": "Interactive Images of Singapore at Madame Tussauds"
+      },
+      "description": {
+        "en": "AI interactions with historical figures and immersive displays."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "40 Imbiah Rd, Imbiah Lookout, Singapore 099700"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2540487999999999,
+      "longitude": 103.8175954,
+      "price_tier": "$$",
+      "google_place_id": "ChIJea1DBf8b2jERedMZYR9YXBI"
+    },
+    {
+      "name": {
+        "en": "Reimagined Singapore Flyer Journey"
+      },
+      "description": {
+        "en": "Multimedia exhibits on Singapore's history with AR views."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "30 Raffles Ave., Singapore Flyer, Singapore 039803"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2893573,
+      "longitude": 103.86301259999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJy3E6KUgZ2jERh_pSDuv1nYs"
+    },
+    {
+      "name": {
+        "en": "Once Upon a Tide"
+      },
+      "description": {
+        "en": "Exhibition on 700-year sea history from port to global hub."
+      },
+      "city": "Singapore",
+      "neighborhood": "Museum",
+      "address": {
+        "en": "93 Stamford Rd, Singapore 178897"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.296613,
+      "longitude": 103.84850910000002,
+      "price_tier": "$$",
+      "google_place_id": "ChIJD1u-EaMZ2jERaLhNfFkR45I"
+    },
+    {
+      "name": {
+        "en": "Little India Heritage Walk"
+      },
+      "description": {
+        "en": "Self-guided walk through historic shophouses, temples like Sri Veeramakaliamman, and spice markets."
+      },
+      "city": "Singapore",
+      "neighborhood": "Little India",
+      "address": {
+        "en": "41 Kerbau Rd, Singapore 219170"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3070233,
+      "longitude": 103.8508147,
+      "price_tier": "$",
+      "google_place_id": "ChIJEWnurbgZ2jERgnTACKlYCBw"
+    },
+    {
+      "name": {
+        "en": "Kampong Glam Arab Quarter"
+      },
+      "description": {
+        "en": "Historic Muslim quarter with Sultan Mosque, textile shops, perfume stores, and Haji Lane street art."
+      },
+      "city": "Singapore",
+      "neighborhood": "Kampong Glam",
+      "address": {
+        "en": "Kampong Glam, Singapore"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3015584,
+      "longitude": 103.86231339999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ18kcLbEZ2jERHV-sR1RGyZc"
+    },
+    {
+      "name": {
+        "en": "Chinatown Markets"
+      },
+      "description": {
+        "en": "Hawker stalls with multicultural eats."
+      },
+      "city": "Singapore",
+      "neighborhood": "Outram",
+      "address": {
+        "en": "29 Smith St, Singapore 058943"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2821932,
+      "longitude": 103.8442544,
+      "price_tier": "$",
+      "google_place_id": "ChIJ44PnOnMZ2jERDhzYwdX5qI4"
+    },
+    {
+      "name": {
+        "en": "Chinatown Heritage Shops"
+      },
+      "description": {
+        "en": "Vintage business stories and artifacts."
+      },
+      "city": "Singapore",
+      "neighborhood": "Outram",
+      "address": {
+        "en": "48 Pagoda St, Singapore 059207"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2835298,
+      "longitude": 103.8442036,
+      "price_tier": "$",
+      "google_place_id": "ChIJ3eg6SXMZ2jERCxutt4adUyY"
+    },
+    {
+      "name": {
+        "en": "Dopamine Land"
+      },
+      "description": {
+        "en": "Sensory rooms with VR and light shows."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "26 Sentosa Gateway, #02-204-205, 098269 WEAVE at Resorts World Sentosa, Singapore 098269"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2574466,
+      "longitude": 103.82002539999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ3-Xn2_0b2jERdNSsfIxf15E"
+    },
+    {
+      "name": {
+        "en": "Disney Adventure Cruise"
+      },
+      "description": {
+        "en": "Themed areas with shows and rollercoasters."
+      },
+      "city": "Singapore",
+      "neighborhood": "Queenstown",
+      "address": {
+        "en": "1 Fusionopolis Vw, #06-01 Sandcrawler Building, Singapore 138577"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2997328,
+      "longitude": 103.78942169999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJuWwOCFA82jERmzFO0bpsulg"
+    },
+    {
+      "name": {
+        "en": "Minion Land at USS"
+      },
+      "description": {
+        "en": "Zones with rides, shows, and marketplace."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "8 Sentosa Gateway, Singapore 098269"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2554644,
+      "longitude": 103.82306659999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJB4NLBgAZ2jER49e9UjRVsjw"
+    },
+    {
+      "name": {
+        "en": "Pokémon Day-to-Night Adventure"
+      },
+      "description": {
+        "en": "Cable car with day Pokémon themes and night glowing hunt."
+      },
+      "city": "Singapore",
+      "neighborhood": "Bukit Merah",
+      "address": {
+        "en": "109 Mount Faber Rd, Mount Faber Peak, Singapore 099203"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2711447999999999,
+      "longitude": 103.8195992,
+      "price_tier": "$$",
+      "google_place_id": "ChIJAQAAAK0e2jERMFQeIT5IR-E"
+    },
+    {
+      "name": {
+        "en": "The Haunting Tales of Ubin tour"
+      },
+      "description": {
+        "en": "Night paranormal tour with lantern-led walks."
+      },
+      "city": "Singapore",
+      "neighborhood": "",
+      "address": {
+        "en": "The Haunting Tales of Ubin tour, Singapore"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$$$"
+    },
+    {
+      "name": {
+        "en": "Harry Potter: Visions of Magic"
+      },
+      "description": {
+        "en": "Interactive with wand, Butterbeer, and environments."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "WEAVE, Level B1, Resorts World Sentosa, 8 Sentosa Gateway, Sentosa Island, Singapore 098269"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.256422,
+      "longitude": 103.8200913,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJPyMMVgAb2jER8OpjGrmB-kc"
+    }
+  ]
+}

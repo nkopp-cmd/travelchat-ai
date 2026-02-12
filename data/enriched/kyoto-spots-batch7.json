@@ -1,0 +1,746 @@
+{
+  "city": "kyoto",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "Kyoto Aquarium",
+        "ja": "京都水族館"
+      },
+      "description": {
+        "en": "Modern aquarium in park.",
+        "ja": "公園内のモダンな水族館。"
+      },
+      "address": {
+        "en": "35-1 Kankijicho, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区観喜寺町35-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Aquarium",
+        "Family",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Giant salamander",
+        "Near railway museum",
+        "Family friendly"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9876,
+      "longitude": 135.7479
+    },
+    {
+      "name": {
+        "en": "Nishijin Textile Center",
+        "ja": "西陣織会館"
+      },
+      "description": {
+        "en": "Traditional textile museum.",
+        "ja": "伝統的な織物の博物館。"
+      },
+      "address": {
+        "en": "Horikawa Imadegawa, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区堀川今出川"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Textile",
+        "Traditional",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Kimono shows",
+        "Weaving demos",
+        "Free entry"
+      ],
+      "neighborhood": "Kamigyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0296,
+      "longitude": 135.7492
+    },
+    {
+      "name": {
+        "en": "Nishijin District",
+        "ja": "西陣"
+      },
+      "description": {
+        "en": "Traditional weaving district.",
+        "ja": "伝統的な織物の街。"
+      },
+      "address": {
+        "en": "Nishijin, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区西陣"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Textile",
+        "Historic",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Working looms",
+        "Traditional houses",
+        "Local shops"
+      ],
+      "neighborhood": "Kamigyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0672,
+      "longitude": 135.7194
+    },
+    {
+      "name": {
+        "en": "Funaoka Onsen",
+        "ja": "船岡温泉"
+      },
+      "description": {
+        "en": "Historic public bathhouse.",
+        "ja": "歴史ある銭湯。"
+      },
+      "address": {
+        "en": "82-1 Murasakinominami Funa-oka-cho, Kita-ku, Kyoto",
+        "ja": "京都市北区紫野南舟岡町82-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Sento",
+        "Historic",
+        "Onsen"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Historic building",
+        "Very local",
+        "Cheap entry"
+      ],
+      "neighborhood": "Kita",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0369,
+      "longitude": 135.7445
+    },
+    {
+      "name": {
+        "en": "Goko-no-miya Shrine",
+        "ja": "御香宮神社"
+      },
+      "description": {
+        "en": "Local shrine in Fushimi.",
+        "ja": "伏見の地元の神社。"
+      },
+      "address": {
+        "en": "174 Goko-no-miya Monzen-cho, Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区御香宮門前町174"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Local",
+        "Sacred Water"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Sacred water",
+        "Near sake district",
+        "Very local"
+      ],
+      "neighborhood": "Fushimi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9341,
+      "longitude": 135.7674
+    },
+    {
+      "name": {
+        "en": "Terada-ya",
+        "ja": "寺田屋"
+      },
+      "description": {
+        "en": "Historic inn. Sakamoto Ryoma.",
+        "ja": "歴史ある旅館。坂本龍馬。"
+      },
+      "address": {
+        "en": "263 Minamihamachou, Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区南浜町263"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Inn",
+        "Samurai"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Sakamoto Ryoma history",
+        "Can stay overnight",
+        "Fushimi area"
+      ],
+      "neighborhood": "Fushimi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0279,
+      "longitude": 135.7884
+    },
+    {
+      "name": {
+        "en": "Fushimi Momoyama Castle",
+        "ja": "伏見桃山城"
+      },
+      "description": {
+        "en": "Reconstructed castle in park.",
+        "ja": "公園内の再建された城。"
+      },
+      "address": {
+        "en": "Momoyama-cho, Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区桃山町"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Castle",
+        "Park",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Reconstruction",
+        "Nice park",
+        "Less touristy"
+      ],
+      "neighborhood": "Fushimi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9393,
+      "longitude": 135.7769
+    },
+    {
+      "name": {
+        "en": "Zuishin-in Temple",
+        "ja": "随心院"
+      },
+      "description": {
+        "en": "Temple of poet Ono no Komachi.",
+        "ja": "小野小町ゆかりの寺院。"
+      },
+      "address": {
+        "en": "35 Ono Goryo-cho, Yamashina-ku, Kyoto",
+        "ja": "京都市山科区小野御霊町35"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Poetry",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Spring",
+      "tips": [
+        "Poet's temple",
+        "Plum blossoms",
+        "Very peaceful"
+      ],
+      "neighborhood": "Yamashina",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 34.9589,
+      "longitude": 135.8162
+    },
+    {
+      "name": {
+        "en": "Bishamon-do Temple",
+        "ja": "毘沙門堂"
+      },
+      "description": {
+        "en": "Autumn temple in Yamashina.",
+        "ja": "山科の紅葉寺。"
+      },
+      "address": {
+        "en": "18 Anshu Inari-cho, Yamashina-ku, Kyoto",
+        "ja": "京都市山科区安朱稲荷山町18"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Autumn",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Autumn",
+      "tips": [
+        "Tunnel of maples",
+        "Less crowded",
+        "Photo famous"
+      ],
+      "neighborhood": "Yamashina",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0015,
+      "longitude": 135.8191
+    },
+    {
+      "name": {
+        "en": "Shosei-en Garden",
+        "ja": "渉成園"
+      },
+      "description": {
+        "en": "Quiet garden near station.",
+        "ja": "駅近くの静かな庭園。"
+      },
+      "address": {
+        "en": "Karasuma, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区烏丸"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Quiet",
+        "Central"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near station",
+        "Donation entry",
+        "Peaceful escape"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9914,
+      "longitude": 135.763
+    },
+    {
+      "name": {
+        "en": "Higashi Hongan-ji Temple",
+        "ja": "東本願寺"
+      },
+      "description": {
+        "en": "Massive temple near station.",
+        "ja": "駅近くの巨大な寺院。"
+      },
+      "address": {
+        "en": "Karasuma-dori, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区烏丸通"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Large",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Very large",
+        "Near station"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9912,
+      "longitude": 135.7584
+    },
+    {
+      "name": {
+        "en": "Nishi Hongan-ji Temple",
+        "ja": "西本願寺"
+      },
+      "description": {
+        "en": "UNESCO temple. National treasures.",
+        "ja": "ユネスコ寺院。国宝。"
+      },
+      "address": {
+        "en": "Horikawa-dori, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区堀川通"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "National treasures",
+        "Less touristy"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9918,
+      "longitude": 135.751
+    },
+    {
+      "name": {
+        "en": "Rokuharamitsu-ji Temple",
+        "ja": "六波羅蜜寺"
+      },
+      "description": {
+        "en": "Temple with Kuya statue.",
+        "ja": "空也像のある寺院。"
+      },
+      "address": {
+        "en": "81-1 Matsubara-cho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区松原町81-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Statues",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Famous Kuya statue",
+        "Small temple",
+        "Near Kiyomizu"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9971,
+      "longitude": 135.7733
+    },
+    {
+      "name": {
+        "en": "Manpuku-ji Temple",
+        "ja": "萬福寺"
+      },
+      "description": {
+        "en": "Chinese style Zen temple.",
+        "ja": "中国様式の禅寺。"
+      },
+      "address": {
+        "en": "34 Gokasho-sanbanwari, Uji, Kyoto",
+        "ja": "京都府宇治市五ケ庄三番割34"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Chinese",
+        "Zen"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Chinese architecture",
+        "Near Uji",
+        "Less touristy"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9551,
+      "longitude": 135.7211
+    },
+    {
+      "name": {
+        "en": "Ujigami Shrine",
+        "ja": "宇治上神社"
+      },
+      "description": {
+        "en": "Oldest shrine building. UNESCO.",
+        "ja": "最古の神社建築。ユネスコ。"
+      },
+      "address": {
+        "en": "1 Uji Yamada, Uji, Kyoto",
+        "ja": "京都府宇治市宇治山田1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "UNESCO",
+        "Oldest"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Oldest shrine",
+        "Near Byodo-in",
+        "Very small"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.8921,
+      "longitude": 135.8115
+    },
+    {
+      "name": {
+        "en": "Takaosan",
+        "ja": "高雄山"
+      },
+      "description": {
+        "en": "Mountain area with temples. Autumn.",
+        "ja": "寺院のある山岳地域。紅葉。"
+      },
+      "address": {
+        "en": "Takao, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区高雄"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Mountain",
+        "Temples",
+        "Autumn"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Autumn",
+      "tips": [
+        "Autumn colors",
+        "Multiple temples",
+        "Day trip"
+      ],
+      "neighborhood": "Takao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0576,
+      "longitude": 135.6677
+    },
+    {
+      "name": {
+        "en": "Jingo-ji Temple",
+        "ja": "神護寺"
+      },
+      "description": {
+        "en": "Mountain temple in Takao.",
+        "ja": "高雄の山岳寺院。"
+      },
+      "address": {
+        "en": "5 Umegahata Takao-cho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区梅ヶ畑高雄町5"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Mountain",
+        "Autumn"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Autumn",
+      "tips": [
+        "Throw kawarake",
+        "Steep approach",
+        "Autumn famous"
+      ],
+      "neighborhood": "Takao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0553,
+      "longitude": 135.6694
+    },
+    {
+      "name": {
+        "en": "Kozan-ji Temple",
+        "ja": "高山寺"
+      },
+      "description": {
+        "en": "UNESCO temple with animal scrolls.",
+        "ja": "鳥獣戯画のあるユネスコ寺院。"
+      },
+      "address": {
+        "en": "8 Umegahata Togano-ocho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区梅ヶ畑栂尾町8"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Art"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Autumn",
+      "tips": [
+        "Famous scrolls",
+        "Quiet mountain",
+        "Near Jingo-ji"
+      ],
+      "neighborhood": "Takao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0605,
+      "longitude": 135.6781
+    },
+    {
+      "name": {
+        "en": "Matsuo Taisha Shrine",
+        "ja": "松尾大社"
+      },
+      "description": {
+        "en": "Sake shrine. Ancient.",
+        "ja": "酒の神社。古代。"
+      },
+      "address": {
+        "en": "3 Arashiyama Miyamachi, Nishikyo-ku, Kyoto",
+        "ja": "京都市西京区嵐山宮町3"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Sake",
+        "Ancient"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Sake deity",
+        "Near Arashiyama",
+        "Less crowded"
+      ],
+      "neighborhood": "Nishikyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0002,
+      "longitude": 135.6878
+    },
+    {
+      "name": {
+        "en": "Saiho-ji Application",
+        "ja": "西芳寺申込"
+      },
+      "description": {
+        "en": "How to apply for Moss Temple.",
+        "ja": "苔寺の申し込み方法。"
+      },
+      "address": {
+        "en": "Nishikyo-ku, Kyoto",
+        "ja": "京都市西京区"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Application",
+        "Process"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Any",
+      "tips": [
+        "Mail application",
+        "2 weeks ahead",
+        "Return postcard"
+      ],
+      "neighborhood": "Nishikyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.9862,
+      "longitude": 135.7601
+    }
+  ]
+}
