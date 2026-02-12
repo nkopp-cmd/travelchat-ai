@@ -41,7 +41,7 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
     };
 
     return (
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group flex flex-col h-full min-h-[420px]">
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group flex flex-col h-full min-h-[420px] !py-0 !gap-0">
             {/* Image */}
             <div className="relative aspect-[16/9] overflow-hidden bg-gray-100 flex-shrink-0">
                 <Image
@@ -169,7 +169,7 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
 // Skeleton loader for activity cards
 export function ActivityCardSkeleton() {
     return (
-        <Card className="overflow-hidden flex flex-col h-full min-h-[420px]">
+        <Card className="overflow-hidden flex flex-col h-full min-h-[420px] !py-0 !gap-0">
             <div className="aspect-[16/9] bg-gray-200 animate-pulse flex-shrink-0" />
             <CardContent className="p-4 space-y-3 flex-1">
                 <div className="h-6 bg-gray-200 rounded animate-pulse" />
