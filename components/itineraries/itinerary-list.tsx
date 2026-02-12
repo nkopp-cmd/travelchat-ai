@@ -477,7 +477,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         <span className="text-sm font-medium text-muted-foreground">Continue where you left off</span>
                     </div>
                     <Link href={`/itineraries/${filteredItineraries[0].id}`}>
-                        <Card className="overflow-hidden border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-300/50 dark:hover:border-violet-700/50 transition-all group">
+                        <Card className="!py-0 !gap-0 overflow-hidden border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-300/50 dark:hover:border-violet-700/50 transition-all group">
                             <div className="flex items-center gap-4 p-4">
                                 {/* Mini thumbnail with city image */}
                                 <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-violet-200 dark:ring-violet-800 relative">
@@ -541,7 +541,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                             <Card
                                 key={itinerary.id}
                                 className={cn(
-                                    "group overflow-hidden relative",
+                                    "!py-0 !gap-0 group overflow-hidden relative",
                                     "bg-white/70 dark:bg-white/5 backdrop-blur-md",
                                     "border border-black/5 dark:border-white/10",
                                     "transition-all duration-300 ease-out",
@@ -643,7 +643,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                     {viewMode === "grid" && (
                         <Link href="/itineraries/new">
                             <Card className={cn(
-                                "min-h-[240px] relative overflow-hidden",
+                                "!py-0 !gap-0 min-h-[240px] relative overflow-hidden",
                                 "border-2 border-dashed border-violet-300/50 dark:border-violet-700/50",
                                 "bg-white/50 dark:bg-white/5 backdrop-blur-md",
                                 "hover:border-violet-400/70 dark:hover:border-violet-500/70",
