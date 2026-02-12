@@ -574,7 +574,7 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                                     border: "1px solid rgba(255,255,255,0.15)",
                                 }}
                             >
-                                <span style={{ fontSize: 24, color: "#6ee7b7" }}>✓</span>
+                                <span style={{ fontSize: 24, color: "#6ee7b7" }}>•</span>
                                 <span style={{ fontSize: 24, color: "white" }}>{highlight}</span>
                             </div>
                         ))}

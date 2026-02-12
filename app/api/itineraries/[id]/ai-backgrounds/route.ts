@@ -20,30 +20,9 @@ function validateImageSource(data: string): boolean {
         return hasImageExtension || url.includes('unsplash') || url.includes('pexels') || url.includes('supabase');
     }
 
-    // Accept base64-encoded data URLs
-    if (data.startsWith('data:image/')) {
-        // Check it has base64 encoding
-        if (!data.includes(';base64,')) return false;
-
-        // Extract and validate base64 content
-        const base64Part = data.split(',')[1];
-        if (!base64Part) return false;
-
-        // Check length is reasonable (not empty, not too large)
-        // Min: 100 chars (~75 bytes), Max: 10MB (~7.5MB base64)
-        if (base64Part.length < 100 || base64Part.length > 10_000_000) {
-            return false;
-        }
-
-        // Validate base64 characters
-        const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
-        if (!base64Regex.test(base64Part)) {
-            return false;
-        }
-
-        return true;
-    }
-
+    // Reject base64 data URLs — all images should be HTTPS URLs now
+    // (from Supabase storage, Unsplash, Pexels, TripAdvisor, or placeholder)
+    // Base64 was previously accepted but caused 413 Payload Too Large errors
     return false;
 }
 

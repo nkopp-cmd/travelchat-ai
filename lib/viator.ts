@@ -59,7 +59,7 @@ class ViatorClient {
             const data = await response.json();
             return this.transformSearchResponse(data);
         } catch (error) {
-            console.error('Error searching Viator activities:', error);
+            console.warn('Error searching Viator activities:', error);
             // Fallback to mock data on error
             return this.getMockSearchResults(params);
         }
@@ -88,7 +88,7 @@ class ViatorClient {
             const data = await response.json();
             return this.transformActivityResponse(data);
         } catch (error) {
-            console.error('Error fetching Viator activity:', error);
+            console.warn('Error fetching Viator activity:', error);
             return this.getMockActivity(productCode);
         }
     }
@@ -118,7 +118,7 @@ class ViatorClient {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error('Error checking Viator availability:', error);
+            console.warn('Error checking Viator availability:', error);
             return this.getMockAvailability(productCode, date);
         }
     }
@@ -148,7 +148,7 @@ class ViatorClient {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error('Error fetching Viator pricing:', error);
+            console.warn('Error fetching Viator pricing:', error);
             return this.getMockPricing(productCode, date, travelers);
         }
     }

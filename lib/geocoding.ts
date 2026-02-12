@@ -46,6 +46,41 @@ export function isKoreanCity(cityNameOrSlug: string): boolean {
 }
 
 /**
+ * Haversine distance between two points in kilometers.
+ * Used to validate geocoding results are within reasonable distance of target city.
+ */
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Maximum distance (km) from city center for a geocoding result to be valid */
+const MAX_DISTANCE_KM = 50;
+
+/**
+ * Validate a geocoding result is within reasonable distance of the target city.
+ * Rejects results in wrong cities/countries.
+ */
+function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: number }): boolean {
+    const dist = distanceKm(result.lat, result.lng, center.lat, center.lng);
+    if (dist > MAX_DISTANCE_KM) {
+        console.warn(`[geocoding] Result rejected: ${dist.toFixed(1)}km from city center (max ${MAX_DISTANCE_KM}km)`, {
+            result: { lat: result.lat, lng: result.lng },
+            center,
+            provider: result.provider,
+        });
+        return false;
+    }
+    return true;
+}
+
+/**
  * Simplify an address for better Nominatim results.
  * Strips street numbers, lane details, floor/unit numbers — keeps place name + district + city.
  */
@@ -229,9 +264,17 @@ async function geocodeWithKakao(query: string): Promise<GeocodingResult | null> 
 // Provider: Nominatim (OpenStreetMap)
 // ============================================================================
 
-async function geocodeWithNominatim(query: string): Promise<GeocodingResult | null> {
+async function geocodeWithNominatim(query: string, center?: { lat: number; lng: number }): Promise<GeocodingResult | null> {
     try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        // Build URL with optional viewbox bias to prefer results near the target city
+        let urlStr = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        if (center) {
+            // viewbox format: lng1,lat1,lng2,lat2 (left,top,right,bottom)
+            // ±0.5° ≈ 50km radius — soft bias (bounded=0 allows results outside)
+            const offset = 0.5;
+            urlStr += `&viewbox=${center.lng - offset},${center.lat + offset},${center.lng + offset},${center.lat - offset}&bounded=0`;
+        }
+        const url = urlStr;
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'Localley Travel App (https://localley.ai)',
@@ -259,12 +302,18 @@ async function geocodeWithNominatim(query: string): Promise<GeocodingResult | nu
 // Provider: Google Geocoding API
 // ============================================================================
 
-async function geocodeWithGoogle(query: string): Promise<GeocodingResult | null> {
+async function geocodeWithGoogle(query: string, center?: { lat: number; lng: number }): Promise<GeocodingResult | null> {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey) return null;
 
     try {
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+        // Add bounds bias to prefer results near the target city
+        let urlStr = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+        if (center) {
+            const offset = 0.5;
+            urlStr += `&bounds=${center.lat - offset},${center.lng - offset}|${center.lat + offset},${center.lng + offset}`;
+        }
+        const url = urlStr;
         const response = await fetch(url);
 
         if (!response.ok) return null;
@@ -302,6 +351,14 @@ export async function geocodeWithCascade(
     const isKorea = isKoreanCity(city);
     const cityConfig = resolveCityConfig(city);
     const localLang = getCityLocalLanguage(city);
+    const center = cityConfig?.center;
+
+    // Helper: validate result is near the target city (rejects wrong-country results)
+    const isValid = (r: GeocodingResult | null): r is GeocodingResult => {
+        if (!r) return false;
+        if (!center) return true; // No center to validate against
+        return isResultNearCity(r, center);
+    };
 
     // Build query variants (English)
     const simplifiedAddress = simplifyAddress(address, city);
@@ -321,70 +378,72 @@ export async function geocodeWithCascade(
         translatedAddress = tAddr;
     }
 
-    // 1. Kakao (Korea only)
+    // 1. Kakao (Korea only) — inherently bounded to Korea
     if (isKorea) {
         // Try translated name first (best for Kakao keyword search)
         if (translatedName) {
-            let result = await geocodeWithKakao(translatedName);
-            if (result) return result;
+            const result = await geocodeWithKakao(translatedName);
+            if (isValid(result)) return result;
         }
 
         // Try translated address
         if (translatedAddress) {
-            let result = await geocodeWithKakao(translatedAddress);
-            if (result) return result;
+            const result = await geocodeWithKakao(translatedAddress);
+            if (isValid(result)) return result;
         }
 
         // Try English address fallbacks
         let result = await geocodeWithKakao(address);
-        if (result) return result;
+        if (isValid(result)) return result;
 
         if (simplifiedAddress !== address) {
             result = await geocodeWithKakao(simplifiedAddress);
-            if (result) return result;
+            if (isValid(result)) return result;
         }
 
         if (nameAndCity) {
             result = await geocodeWithKakao(nameAndCity);
-            if (result) return result;
+            if (isValid(result)) return result;
         }
 
         if (placeName) {
             result = await geocodeWithKakao(placeName);
-            if (result) return result;
+            if (isValid(result)) return result;
         }
     }
 
     // 2. Nominatim with translated query first, then English
     // Nominatim works better with local-language queries for Asian cities
+    // Pass center for viewbox bias to prefer results near the target city
     if (translatedName) {
-        const result = await geocodeWithNominatim(`${translatedName} ${city}`);
-        if (result) return result;
+        const result = await geocodeWithNominatim(`${translatedName} ${city}`, center);
+        if (isValid(result)) return result;
     }
 
     const nominatimQuery = nameAndCity || `${simplifiedAddress}, ${city}`;
-    let result = await geocodeWithNominatim(nominatimQuery);
-    if (result) return result;
+    let result = await geocodeWithNominatim(nominatimQuery, center);
+    if (isValid(result)) return result;
 
     if (nameAndCity && nominatimQuery !== nameAndCity) {
-        result = await geocodeWithNominatim(nameAndCity);
-        if (result) return result;
+        result = await geocodeWithNominatim(nameAndCity, center);
+        if (isValid(result)) return result;
     }
 
     // 3. Google as last resort (handles both languages well natively)
+    // Pass center for bounds bias to prefer results near the target city
     const googleQuery = nameAndCity || `${address}, ${city}`;
-    result = await geocodeWithGoogle(googleQuery);
-    if (result) return result;
+    result = await geocodeWithGoogle(googleQuery, center);
+    if (isValid(result)) return result;
 
     // Try translated query with Google
     if (translatedName) {
-        result = await geocodeWithGoogle(`${translatedName} ${city}`);
-        if (result) return result;
+        result = await geocodeWithGoogle(`${translatedName} ${city}`, center);
+        if (isValid(result)) return result;
     }
 
     if (nameAndCity) {
-        result = await geocodeWithGoogle(`${placeName} ${city}`);
-        if (result) return result;
+        result = await geocodeWithGoogle(`${placeName} ${city}`, center);
+        if (isValid(result)) return result;
     }
 
     return null;

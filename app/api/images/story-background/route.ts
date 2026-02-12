@@ -21,7 +21,7 @@ import {
     isPexelsAvailable,
     isTripAdvisorAvailable,
 } from "@/lib/story-backgrounds";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier, checkAndIncrementUsage } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
 
         // Check cache first if cacheKey provided
         if (cacheKey) {
-            const supabase = await createSupabaseServerClient();
+            const supabase = createSupabaseAdmin();
             const { data: cached } = await supabase.storage
                 .from("generated-images")
                 .list("story-backgrounds", { search: `${cacheKey}.png` });
@@ -163,9 +163,9 @@ export async function POST(req: NextRequest) {
                     source = "ai";
                     console.log("[STORY_BG] AI generation successful, uploading to storage...");
 
-                    // Always upload AI images to Supabase Storage and return URL
-                    // This avoids passing huge base64 strings through the database
-                    const supabase = await createSupabaseServerClient();
+                    // Upload AI images to Supabase Storage and return URL
+                    // Uses admin client to bypass RLS (route already authenticates via auth())
+                    const supabase = createSupabaseAdmin();
                     const buffer = Buffer.from(aiImage, "base64");
                     const { error: uploadError } = await supabase.storage
                         .from("generated-images")
@@ -185,8 +185,8 @@ export async function POST(req: NextRequest) {
                         }
                     } else {
                         console.error("[STORY_BG] Storage upload failed:", uploadError);
-                        // Fallback to base64 if upload fails
-                        imageUrl = `data:image/png;base64,${aiImage}`;
+                        // Don't fallback to base64 — let code fall through to stock photo providers
+                        // Base64 fallback caused 413 errors when client tried to save to database
                     }
                 }
             } catch (error) {
