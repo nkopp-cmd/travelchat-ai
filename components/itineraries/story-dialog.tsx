@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles } from "lucide-react";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
@@ -38,6 +38,39 @@ interface StorySlide {
     label: string;
     url: string;
     aiBackground?: string; // base64 AI-generated background
+}
+
+/** Generate a descriptive filename for a story slide */
+function getSlideFilename(slide: StorySlide, city?: string, totalDays?: number): string {
+    const citySlug = city
+        ? city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "")
+        : "trip";
+    const daysStr = totalDays ? `${totalDays}days` : "";
+    const slideSlug = slide.label.toLowerCase().replace(/\s+/g, "-");
+    return `localley-${citySlug}-${daysStr}-${slideSlug}.png`;
+}
+
+/** Share via native share sheet (mobile) or fall back to download (desktop) */
+async function shareOrDownload(blob: Blob, filename: string) {
+    const file = new File([blob], filename, { type: "image/png" });
+    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({ files: [file] });
+            return;
+        } catch (err) {
+            // User cancelled share — don't fall through to download
+            if ((err as Error).name === "AbortError") return;
+        }
+    }
+    // Fallback: standard <a download> (desktop or unsupported browsers)
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
 }
 
 export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dailyPlans }: StoryDialogProps) {
@@ -306,6 +339,9 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         }
     };
 
+    // Detect if Web Share API with files is available (mobile)
+    const isMobileShare = typeof navigator !== "undefined" && !!navigator.canShare;
+
     const handleDownload = async (index: number) => {
         const slide = slides[index];
         if (!slide) return;
@@ -314,17 +350,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         try {
             const response = await fetch(slide.url);
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `localley-story-${slide.label.toLowerCase().replace(/\s+/g, "-")}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            const filename = getSlideFilename(slide, city, totalDays);
+            await shareOrDownload(blob, filename);
 
             toast({
-                title: "Downloaded!",
+                title: isMobileShare ? "Saved!" : "Downloaded!",
                 description: `${slide.label} saved to your device`,
             });
         } catch (error) {
@@ -344,6 +374,53 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             await handleDownload(i);
             // Small delay between downloads
             await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+    };
+
+    const handleDownloadZip = async () => {
+        setDownloadingIndex(-1); // -1 indicates "zipping all"
+        try {
+            const JSZip = (await import("jszip")).default;
+            const zip = new JSZip();
+
+            for (let i = 0; i < slides.length; i++) {
+                setGenerationProgress(`Preparing ${i + 1}/${slides.length}...`);
+                const response = await fetch(slides[i].url);
+                const blob = await response.blob();
+                const filename = getSlideFilename(slides[i], city, totalDays);
+                zip.file(filename, blob);
+            }
+
+            setGenerationProgress("Creating ZIP...");
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+
+            const citySlug = city?.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "trip";
+            const zipFilename = `localley-${citySlug}-${totalDays}days-stories.zip`;
+
+            // ZIP always uses <a download> (no benefit from share sheet)
+            const url = window.URL.createObjectURL(zipBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = zipFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            toast({
+                title: "Downloaded!",
+                description: `All ${slides.length} slides saved as ZIP`,
+            });
+        } catch (error) {
+            console.error("ZIP download error:", error);
+            toast({
+                title: "Download failed",
+                description: "Please try again",
+                variant: "destructive",
+            });
+        } finally {
+            setDownloadingIndex(null);
+            setGenerationProgress("");
         }
     };
 
@@ -477,7 +554,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2 justify-end border-t pt-4">
+                        <div className="flex flex-wrap gap-2 justify-end border-t pt-4">
                             <Button
                                 variant="outline"
                                 onClick={() => handleDownload(selectedSlide)}
@@ -485,25 +562,44 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             >
                                 {downloadingIndex === selectedSlide ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : isMobileShare ? (
+                                    <Share2 className="mr-2 h-4 w-4" />
                                 ) : (
                                     <Download className="mr-2 h-4 w-4" />
                                 )}
-                                Download This
+                                {isMobileShare ? "Save Image" : "Download This"}
                             </Button>
                             <Button
+                                variant="outline"
                                 onClick={handleDownloadAll}
                                 disabled={downloadingIndex !== null}
-                                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
                             >
-                                {downloadingIndex !== null ? (
+                                {downloadingIndex !== null && downloadingIndex !== -1 ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Downloading...
+                                        {isMobileShare ? "Saving..." : "Downloading..."}
                                     </>
                                 ) : (
                                     <>
                                         <CheckCircle className="mr-2 h-4 w-4" />
-                                        Download All ({slides.length})
+                                        {isMobileShare ? `Save All (${slides.length})` : `Download All (${slides.length})`}
+                                    </>
+                                )}
+                            </Button>
+                            <Button
+                                onClick={handleDownloadZip}
+                                disabled={downloadingIndex !== null}
+                                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                            >
+                                {downloadingIndex === -1 ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        {generationProgress || "Creating ZIP..."}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Archive className="mr-2 h-4 w-4" />
+                                        Save as ZIP
                                     </>
                                 )}
                             </Button>
