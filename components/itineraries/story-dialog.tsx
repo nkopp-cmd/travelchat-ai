@@ -115,6 +115,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             });
     }, []);
 
+    // Auto-enable AI backgrounds when available and user has access
+    useEffect(() => {
+        if (aiAvailable && isPaidUser) {
+            setUseAiBackgrounds(true);
+        }
+    }, [aiAvailable, isPaidUser]);
+
     const generateSlides = () => {
         // Add paid=true query param for paid users to remove CTA
         const paidParam = isPaidUser ? "&paid=true" : "";

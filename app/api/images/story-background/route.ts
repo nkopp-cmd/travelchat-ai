@@ -187,8 +187,12 @@ export async function POST(req: NextRequest) {
             imageUrl = await getTripAdvisorThemedImage(city, searchTheme);
             if (imageUrl) {
                 source = "tripadvisor";
-                console.log("[STORY_BG] TripAdvisor image found");
+                console.log("[STORY_BG] TripAdvisor image found:", imageUrl.substring(0, 80));
+            } else {
+                console.log("[STORY_BG] TripAdvisor returned no image for:", { city, searchTheme });
             }
+        } else if (!imageUrl) {
+            console.log("[STORY_BG] Skipping TripAdvisor (key not available)");
         }
 
         // Fall back to Pexels if TripAdvisor not available or failed
@@ -199,17 +203,23 @@ export async function POST(req: NextRequest) {
             imageUrl = await getPexelsThemedImage(city, searchTheme);
             if (imageUrl) {
                 source = "pexels";
-                console.log("[STORY_BG] Pexels image found");
+                console.log("[STORY_BG] Pexels image found:", imageUrl.substring(0, 80));
+            } else {
+                console.log("[STORY_BG] Pexels returned no image for:", { city, searchTheme });
             }
+        } else if (!imageUrl) {
+            console.log("[STORY_BG] Skipping Pexels (key not available)");
         }
 
         // Final fallback to Unsplash (always available)
         if (!imageUrl) {
-            console.log("[STORY_BG] Using Unsplash fallback");
+            console.log("[STORY_BG] Using Unsplash fallback for:", { city, type });
             const searchTheme = theme || "travel landmark";
             imageUrl = getUnsplashThemedImage(city, searchTheme);
             source = "unsplash";
         }
+
+        console.log("[STORY_BG] Final result:", { source, type, city, imageUrl: imageUrl?.substring(0, 80) });
 
         return NextResponse.json({
             success: true,
@@ -219,6 +229,7 @@ export async function POST(req: NextRequest) {
             cached: false,
             aiAvailable: canUseAI,
             pexelsAvailable: isPexelsAvailable(),
+            tripAdvisorAvailable: isTripAdvisorAvailable(),
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);
