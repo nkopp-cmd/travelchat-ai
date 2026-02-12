@@ -19,6 +19,7 @@ import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
+import { isKoreanCity } from "@/hooks/use-map-provider";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
@@ -58,13 +59,22 @@ function resolveCity(itinerary: { city: string; title: string }): string {
     return getDisplayCity(itinerary.city);
 }
 
-// Generate Google Maps route URL for a day's activities
+// Generate route URL for a day's activities
+// Korea → Kakao Maps (Google Maps has limited data there), everywhere else → Google Maps
 function getDayRouteUrl(activities: ItineraryActivity[], city: string): string {
-    const waypoints = activities
-        .filter(a => a.address)
+    const activitiesWithAddress = activities.filter(a => a.address);
+    if (activitiesWithAddress.length === 0) return "";
+
+    // Korean cities: use Kakao Maps (which has full Korea coverage)
+    if (isKoreanCity(city)) {
+        const firstActivity = activitiesWithAddress[0];
+        return `https://map.kakao.com/link/search/${encodeURIComponent(`${firstActivity.address}, ${city}`)}`;
+    }
+
+    // All other cities: use Google Maps with multi-waypoint routing
+    const waypoints = activitiesWithAddress
         .map(a => encodeURIComponent(`${a.address}, ${city}`));
 
-    if (waypoints.length === 0) return "";
     if (waypoints.length === 1) {
         return `https://www.google.com/maps/search/?api=1&query=${waypoints[0]}`;
     }
@@ -299,7 +309,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                                     className="bg-white/20 text-white hover:bg-white/30 border-0 gap-1.5"
                                                 >
                                                     <Navigation className="h-4 w-4" />
-                                                    View Route
+                                                    {isKoreanCity(displayCity) ? "View in Kakao Maps" : "View Route"}
                                                 </Button>
                                             </a>
                                         )}
