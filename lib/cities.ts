@@ -294,7 +294,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "KRW",
         center: { lat: 35.1796, lng: 129.0756 },
         vibe: "Beaches & seafood",
-        heroImage: "https://images.unsplash.com/photo-1538485399081-7c8ed7e694d0?w=400",
+        heroImage: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=400",
     },
     {
         slug: "jeju",

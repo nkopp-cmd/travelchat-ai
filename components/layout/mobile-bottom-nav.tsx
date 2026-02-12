@@ -30,7 +30,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
 
   // Don't show on landing page, auth pages, or when using wizard
-  const hiddenPaths = ["/", "/sign-in", "/sign-up"];
+  const hiddenPaths = ["/", "/sign-in", "/sign-up", "/itineraries/new"];
   const isHidden = hiddenPaths.some(path => pathname === path || pathname.startsWith(path + "/"));
 
   if (isHidden) return null;

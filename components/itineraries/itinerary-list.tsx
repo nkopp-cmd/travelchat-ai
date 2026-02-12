@@ -53,6 +53,7 @@ import {
     Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCityImageUrl } from "@/lib/city-images";
 import Image from "next/image";
 
 interface Itinerary {
@@ -251,53 +252,6 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         ];
         const hash = city.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
         return gradients[hash % gradients.length];
-    };
-
-    // Get city image URL - uses curated Unsplash images for known cities
-    const getCityImageUrl = (city: string): string | null => {
-        const cityLower = city.toLowerCase().trim();
-
-        // Map of cities to their Unsplash photo IDs (curated for quality)
-        const cityImages: Record<string, string> = {
-            // Asia
-            "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
-            "seoul": "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800&q=80",
-            "bangkok": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&q=80",
-            "singapore": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&q=80",
-            "hong kong": "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=800&q=80",
-            "osaka": "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=800&q=80",
-            "kyoto": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80",
-            "taipei": "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=800&q=80",
-            "bali": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80",
-            "hanoi": "https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=800&q=80",
-            "ho chi minh": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80",
-            "kuala lumpur": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80",
-            "manila": "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80",
-            // Europe
-            "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
-            "london": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80",
-            "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80",
-            "barcelona": "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800&q=80",
-            "amsterdam": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=800&q=80",
-            "berlin": "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&q=80",
-            // Americas
-            "new york": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80",
-            "los angeles": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=800&q=80",
-            "san francisco": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80",
-            "miami": "https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=800&q=80",
-            // Oceania
-            "sydney": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=80",
-            "melbourne": "https://images.unsplash.com/photo-1514395462725-fb4566210144?w=800&q=80",
-        };
-
-        // Check for exact match or partial match
-        for (const [key, url] of Object.entries(cityImages)) {
-            if (cityLower.includes(key) || key.includes(cityLower)) {
-                return url;
-            }
-        }
-
-        return null;
     };
 
     // Enhanced card header with city image or gradient fallback
