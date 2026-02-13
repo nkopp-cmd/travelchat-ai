@@ -1,6 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "edge";
 
@@ -639,7 +639,7 @@ export async function GET(
         // Check if user is paid (passed from client that knows the tier)
         const isPaidUser = searchParams.get("paid") === "true";
 
-        const supabase = await createSupabaseServerClient();
+        const supabase = createSupabaseAdmin();
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")

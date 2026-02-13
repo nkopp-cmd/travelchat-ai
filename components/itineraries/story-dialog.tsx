@@ -323,12 +323,18 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 }
 
                 if (Object.keys(bgToSave).length > 0) {
-                    console.log("[STORY] Saving all backgrounds to database...");
-                    await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                    console.log("[STORY] Saving all backgrounds to database...", Object.keys(bgToSave));
+                    const saveRes = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(bgToSave),
                     });
+                    if (!saveRes.ok) {
+                        const errText = await saveRes.text().catch(() => "unknown");
+                        console.error("[STORY] Failed to save backgrounds:", saveRes.status, errText);
+                    } else {
+                        console.log("[STORY] Backgrounds saved successfully");
+                    }
                 }
 
                 setGeneratingAi(false);

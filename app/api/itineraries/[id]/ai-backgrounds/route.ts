@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
 /**
@@ -91,7 +91,7 @@ export async function PATCH(
             }
         }
 
-        const supabase = await createSupabaseServerClient();
+        const supabase = createSupabaseAdmin();
 
         // First verify the itinerary belongs to the user
         const { data: itinerary, error: fetchError } = await supabase
@@ -171,7 +171,7 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const supabase = await createSupabaseServerClient();
+        const supabase = createSupabaseAdmin();
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")
