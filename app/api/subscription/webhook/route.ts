@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
                 break;
             }
 
-            case "invoice.payment_succeeded": {
+            case "invoice.payment_succeeded":
+            case "invoice.paid": {
                 const invoice = event.data.object as Stripe.Invoice;
                 await handlePaymentSucceeded(supabase, invoice);
                 break;
