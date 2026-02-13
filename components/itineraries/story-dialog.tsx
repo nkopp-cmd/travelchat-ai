@@ -87,7 +87,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [generationProgress, setGenerationProgress] = useState<string>("");
     const [isPaidUser, setIsPaidUser] = useState(false);
     const [aiQuota, setAiQuota] = useState<{ used: number; limit: number } | null>(null);
+    const [brokenSlides, setBrokenSlides] = useState<Set<number>>(new Set());
     const { toast } = useToast();
+
+    const handleImageError = (index: number) => {
+        setBrokenSlides(prev => new Set(prev).add(index));
+    };
 
     // Check available image sources and user tier
     useEffect(() => {
@@ -223,6 +228,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     const handleGenerate = async () => {
         setIsGenerating(true);
+        setBrokenSlides(new Set()); // Reset broken slides on regenerate
         const imageSources: string[] = [];
 
         try {
@@ -575,13 +581,20 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                                 : "border-border hover:border-violet-300"
                                         }`}
                                     >
-                                        <Image
-                                            src={slide.url}
-                                            alt={slide.label}
-                                            fill
-                                            className="object-cover"
-                                            unoptimized
-                                        />
+                                        {brokenSlides.has(index) ? (
+                                            <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+                                                <span className="text-white text-xs text-center px-1">{slide.label}</span>
+                                            </div>
+                                        ) : (
+                                            <Image
+                                                src={slide.url}
+                                                alt={slide.label}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                                onError={() => handleImageError(index)}
+                                            />
+                                        )}
                                         <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-1 text-center">
                                             {slide.label}
                                         </div>
@@ -592,13 +605,20 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             {/* Main preview */}
                             <div className="flex-1 flex flex-col items-center">
                                 <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl border border-border">
-                                    <Image
-                                        src={slides[selectedSlide]?.url || ""}
-                                        alt={slides[selectedSlide]?.label || ""}
-                                        fill
-                                        className="object-cover"
-                                        unoptimized
-                                    />
+                                    {brokenSlides.has(selectedSlide) ? (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center p-4">
+                                            <span className="text-white text-lg font-bold text-center">{slides[selectedSlide]?.label || "Slide"}</span>
+                                        </div>
+                                    ) : (
+                                        <Image
+                                            src={slides[selectedSlide]?.url || ""}
+                                            alt={slides[selectedSlide]?.label || ""}
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                            onError={() => handleImageError(selectedSlide)}
+                                        />
+                                    )}
                                 </div>
                                 <p className="text-sm text-muted-foreground mt-3">
                                     {slides[selectedSlide]?.label} • 1080 × 1920

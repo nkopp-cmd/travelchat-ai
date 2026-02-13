@@ -50,7 +50,7 @@ const SAFE_ZONE = {
 };
 
 interface Activity {
-    name: string;
+    name: string | Record<string, string>;
     description?: string;
     time?: string;
     localleyScore?: number;
@@ -60,6 +60,20 @@ interface DayPlan {
     day: number;
     theme?: string;
     activities: Activity[];
+}
+
+/**
+ * Safely convert any value to a display string.
+ * Handles MultiLang objects ({en: "...", ko: "..."}), nulls, numbers, etc.
+ */
+function safeString(value: unknown, fallback = ''): string {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return String(value);
+    if (typeof value === 'object' && value !== null) {
+        const obj = value as Record<string, unknown>;
+        return String(obj.en || obj.ko || obj.name || fallback);
+    }
+    return fallback;
 }
 
 // Cover slide template
@@ -344,7 +358,7 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     </span>
                     {dayPlan.theme && (
                         <span style={{ fontSize: 28, color: "rgba(255,255,255,0.9)", marginTop: 8 }}>
-                            {dayPlan.theme}
+                            {safeString(dayPlan.theme)}
                         </span>
                     )}
                 </div>
@@ -379,9 +393,9 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                                 }}
                             >
                                 <span style={{ fontSize: 26 }}>
-                                    {activity.localleyScore && activity.localleyScore >= 5
+                                    {Number(activity.localleyScore) >= 5
                                         ? "💎"
-                                        : activity.localleyScore && activity.localleyScore >= 4
+                                        : Number(activity.localleyScore) >= 4
                                             ? "⭐"
                                             : "📍"}
                                 </span>
@@ -393,12 +407,12 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                                         textShadow: "0 2px 8px rgba(0,0,0,0.4)",
                                     }}
                                 >
-                                    {activity.name}
+                                    {safeString(activity.name, "Activity")}
                                 </span>
                             </div>
                             {activity.time && (
                                 <span style={{ fontSize: 20, color: "rgba(255,255,255,0.8)" }}>
-                                    🕐 {activity.time}
+                                    🕐 {safeString(activity.time)}
                                 </span>
                             )}
                         </div>
@@ -689,9 +703,26 @@ export async function GET(
             console.log("[STORY_ROUTE] Using fallback image for", itinerary.city, ":", aiBackground);
         }
 
-        const dailyPlans: DayPlan[] = typeof itinerary.activities === "string"
-            ? JSON.parse(itinerary.activities)
-            : itinerary.activities || [];
+        // Robust activities parsing — handle all possible data shapes
+        let rawActivities: unknown = itinerary.activities;
+        if (typeof rawActivities === "string") {
+            try { rawActivities = JSON.parse(rawActivities); } catch { rawActivities = []; }
+        }
+        const parsedActivities = Array.isArray(rawActivities) ? rawActivities : [];
+
+        // Normalize: detect DayPlan[] (has nested .activities) vs other formats
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dailyPlans: DayPlan[] = parsedActivities.length > 0 && (parsedActivities[0] as any)?.activities
+            ? parsedActivities as DayPlan[]
+            : [];
+
+        console.log("[STORY_ROUTE] Parsed activities:", {
+            rawType: typeof itinerary.activities,
+            isArray: Array.isArray(rawActivities),
+            parsedLength: parsedActivities.length,
+            dailyPlansLength: dailyPlans.length,
+            hasDayActivities: dailyPlans.length > 0 ? !!dailyPlans[0]?.activities : false,
+        });
 
         let element;
 
@@ -708,10 +739,19 @@ export async function GET(
                 break;
 
             case "day":
-                const dayPlan = dailyPlans[dayIndex];
-                if (!dayPlan) {
-                    return new Response("Day not found", { status: 404 });
-                }
+                // Graceful fallback: if dayPlan doesn't exist, render a minimal day slide
+                // instead of returning 404 (which causes broken image icon in the client)
+                const dayPlan = dailyPlans[dayIndex] || {
+                    day: dayIndex + 1,
+                    theme: `Day ${dayIndex + 1}`,
+                    activities: [],
+                };
+                console.log("[STORY_ROUTE] Day slide data:", {
+                    dayIndex,
+                    hasDayPlan: !!dailyPlans[dayIndex],
+                    activitiesCount: dayPlan.activities?.length || 0,
+                    theme: dayPlan.theme,
+                });
                 element = (
                     <DaySlide
                         dayPlan={dayPlan}
@@ -738,12 +778,67 @@ export async function GET(
                 return new Response("Invalid slide type", { status: 400 });
         }
 
-        return new ImageResponse(element, {
-            width: STORY_WIDTH,
-            height: STORY_HEIGHT,
-        });
+        // Wrap ImageResponse in try-catch to never return error responses
+        try {
+            return new ImageResponse(element, {
+                width: STORY_WIDTH,
+                height: STORY_HEIGHT,
+            });
+        } catch (renderError) {
+            console.error("[STORY_ROUTE] ImageResponse render failed:", renderError);
+            // Return a minimal gradient PNG instead of a 500 text error
+            const fallbackLabel = slide === "day" ? `Day ${dayIndex + 1}` : slide === "cover" ? (itinerary.title || "Your Trip") : "Summary";
+            return new ImageResponse(
+                (
+                    <div style={{
+                        width: STORY_WIDTH,
+                        height: STORY_HEIGHT,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                    }}>
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            backgroundColor: "rgba(0,0,0,0.3)",
+                            padding: "12px 28px",
+                            borderRadius: 100,
+                            border: "1px solid rgba(255,255,255,0.2)",
+                            marginBottom: 40,
+                        }}>
+                            <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>Localley</span>
+                        </div>
+                        <span style={{ fontSize: 56, color: "white", fontWeight: "bold", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+                            {fallbackLabel}
+                        </span>
+                    </div>
+                ),
+                { width: STORY_WIDTH, height: STORY_HEIGHT }
+            );
+        }
     } catch (error) {
-        console.error("Story generation error:", error);
-        return new Response("Failed to generate story", { status: 500 });
+        console.error("[STORY_ROUTE] Fatal error:", error);
+        // Even the outermost catch should try to return a PNG, not text
+        try {
+            return new ImageResponse(
+                (
+                    <div style={{
+                        width: STORY_WIDTH,
+                        height: STORY_HEIGHT,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                    }}>
+                        <span style={{ fontSize: 48, color: "white", fontWeight: "bold" }}>Localley</span>
+                    </div>
+                ),
+                { width: STORY_WIDTH, height: STORY_HEIGHT }
+            );
+        } catch {
+            return new Response("Failed to generate story", { status: 500 });
+        }
     }
 }
