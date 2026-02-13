@@ -166,7 +166,9 @@ export async function POST(req: NextRequest) {
                     // Upload AI images to Supabase Storage and return URL
                     // Uses admin client to bypass RLS (route already authenticates via auth())
                     const supabase = createSupabaseAdmin();
-                    const buffer = Buffer.from(aiImage, "base64");
+                    // Strip data URL prefix if present (safety net for API format changes)
+                    const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
+                    const buffer = Buffer.from(cleanBase64, "base64");
                     const { error: uploadError } = await supabase.storage
                         .from("generated-images")
                         .upload(storageKey, buffer, {

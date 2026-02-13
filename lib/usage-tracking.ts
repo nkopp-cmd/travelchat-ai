@@ -252,13 +252,37 @@ export async function incrementUsage(
 }
 
 /**
+ * Lifetime premium email addresses (admin/dev team).
+ * These users always get premium tier regardless of subscription status.
+ */
+const LIFETIME_PREMIUM_EMAILS = [
+    "nkopp@my-goodlife.com",
+    "hello@localley.io",
+    // Add more emails here as needed
+];
+
+/**
  * Get user's subscription tier from database (uncached - for internal use)
- * Respects beta mode and early adopter status
+ * Respects beta mode, lifetime premium, and early adopter status
  */
 async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
     // Beta mode - everyone gets premium
     if (isBetaMode()) {
         return "premium";
+    }
+
+    // Check lifetime premium emails (admin/dev team)
+    if (LIFETIME_PREMIUM_EMAILS.length > 0) {
+        const supabase = createSupabaseAdmin();
+        const { data: userData } = await supabase
+            .from("users")
+            .select("email")
+            .eq("clerk_id", clerkUserId)
+            .single();
+
+        if (userData?.email && LIFETIME_PREMIUM_EMAILS.includes(userData.email.toLowerCase())) {
+            return "premium";
+        }
     }
 
     // Check if user is an early adopter (first 100 users get premium)
