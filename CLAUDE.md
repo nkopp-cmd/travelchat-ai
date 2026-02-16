@@ -58,12 +58,12 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 
 ### Story Image Pipeline
 - **CRITICAL**: Satori/resvg (used by `@vercel/og` ImageResponse) does NOT support WebP
+- **CRITICAL**: Story route MUST use `runtime = "edge"` — Satori's built-in image fetcher only works reliably on Edge. On Node.js runtime, Satori silently drops images that fail to fetch (see `@vercel/og` index.node.js line ~17738: catch returns empty array)
+- Do NOT switch to Node.js runtime — it breaks image rendering and requires pre-fetch workarounds that cause cascading failures
 - All Unsplash URLs MUST include `&fm=jpg` to force JPEG format
-- Images MUST be pre-fetched as base64 data URIs — Satori's built-in fetch silently drops images that fail to load on Vercel Node.js (see `@vercel/og` index.node.js line ~17738: catch returns empty array)
-- The pre-fetch Accept header must NOT include `image/webp` — use `image/jpeg,image/png,image/gif,image/*`
 - The story route uses `select("*")` to safely handle missing columns (e.g., `ai_backgrounds` before migration)
 - `ensureJpegFormat()` is a safety net that adds `&fm=jpg` to any Unsplash URL missing it
-- Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, pre-fetches as JPEG base64, passes data URI to Satori `<img src>`
+- Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, passes to Satori `<img src>` (Edge runtime fetches natively)
 
 ### City Configuration
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore

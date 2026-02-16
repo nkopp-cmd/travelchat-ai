@@ -2,8 +2,9 @@ import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
-export const runtime = "nodejs";
-export const maxDuration = 30; // Allow up to 30s for image fetching + Satori rendering
+// Edge runtime: Satori's built-in image fetcher works reliably on Edge.
+// Node.js runtime caused Satori to silently drop external images.
+export const runtime = "edge";
 
 // Curated Unsplash images for fallback (when no ai_backgrounds in database)
 // IMPORTANT: Use fm=jpg to force JPEG — Satori/resvg CANNOT decode WebP
@@ -64,48 +65,6 @@ function ensureJpegFormat(url: string): string {
         }
     }
     return url;
-}
-
-/**
- * Pre-fetch an image and convert to base64 data URI for Satori.
- *
- * WHY: Satori's built-in fetch silently drops images that fail to load
- * (see @vercel/og index.node.js line ~17738). On Vercel Node.js serverless
- * functions, external image fetches are unreliable. Pre-fetching gives us
- * control over the fetch and guaranteed image data for Satori.
- *
- * CRITICAL: Request JPEG only — Satori/resvg cannot decode WebP.
- */
-async function prefetchImage(url: string): Promise<string | undefined> {
-    try {
-        const res = await fetch(url, {
-            signal: AbortSignal.timeout(10000),
-            headers: {
-                // Do NOT include image/webp — Satori/resvg cannot decode it
-                'Accept': 'image/jpeg,image/png,image/gif,image/*',
-            },
-        });
-        if (!res.ok) {
-            console.error("[STORY_ROUTE] Image fetch failed:", res.status, url.substring(0, 80));
-            return undefined;
-        }
-        const contentType = res.headers.get('content-type') || 'image/jpeg';
-        // Reject WebP even if server ignores Accept header
-        if (contentType.includes('webp')) {
-            console.error("[STORY_ROUTE] Got WebP despite Accept header, skipping:", url.substring(0, 80));
-            return undefined;
-        }
-        const buffer = await res.arrayBuffer();
-        if (buffer.byteLength < 500) {
-            console.error("[STORY_ROUTE] Image too small:", buffer.byteLength, "bytes");
-            return undefined;
-        }
-        console.log("[STORY_ROUTE] Pre-fetched:", url.substring(0, 80), `(${buffer.byteLength} bytes, ${contentType})`);
-        return `data:${contentType};base64,${Buffer.from(buffer).toString('base64')}`;
-    } catch (err) {
-        console.error("[STORY_ROUTE] Image pre-fetch error:", err instanceof Error ? err.message : err);
-        return undefined;
-    }
 }
 
 // Story dimensions (9:16 aspect ratio for Instagram/TikTok)
@@ -812,22 +771,8 @@ export async function GET(
             aiBackground = ensureJpegFormat(aiBackground);
         }
 
-        // Pre-fetch the image as base64 data URI for Satori.
-        // Satori's built-in fetch silently drops images that fail to load on Vercel Node.js,
-        // so we fetch ourselves and provide the data inline.
-        let backgroundDataUri: string | undefined;
-        if (aiBackground) {
-            backgroundDataUri = await prefetchImage(aiBackground);
-            // If primary failed, try a different fallback
-            if (!backgroundDataUri && itinerary.city) {
-                const fallbackUrl = ensureJpegFormat(getFallbackImage(itinerary.city, aiBackground));
-                console.log("[STORY_ROUTE] Primary fetch failed, trying fallback:", fallbackUrl.substring(0, 80));
-                backgroundDataUri = await prefetchImage(fallbackUrl);
-            }
-            if (!backgroundDataUri) {
-                console.warn("[STORY_ROUTE] All image fetches failed, using gradient fallback");
-            }
-        }
+        // On Edge runtime, Satori fetches images natively via <img src={url}>.
+        // Pass the URL directly — no pre-fetch needed.
 
         // Robust activities parsing — handle all possible data shapes
         let rawActivities: unknown = itinerary.activities;
@@ -859,7 +804,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         days={itinerary.days}
-                        backgroundImage={backgroundDataUri || undefined}
+                        backgroundImage={aiBackground || undefined}
                     />
                 );
                 break;
@@ -882,7 +827,7 @@ export async function GET(
                     <DaySlide
                         dayPlan={dayPlan}
                         dayNumber={dayIndex + 1}
-                        backgroundImage={backgroundDataUri || undefined}
+                        backgroundImage={aiBackground || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
@@ -894,7 +839,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         highlights={itinerary.highlights || []}
-                        backgroundImage={backgroundDataUri || undefined}
+                        backgroundImage={aiBackground || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
