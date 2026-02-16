@@ -61,7 +61,7 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - All Unsplash URLs MUST include `&fm=jpg` to force JPEG format
 - The `prefetchImageAsDataUri()` function in `story/route.tsx` pre-fetches images and converts to base64 data URIs because Satori cannot fetch external URLs reliably on Vercel
 - Accept header must NOT include `image/webp` — use `image/jpeg,image/png,image/gif,image/*`
-- Safety net: if WebP is received despite headers, `sharp` converts it to JPEG before passing to Satori
+- Safety net: if WebP is received despite headers, the pre-fetch rejects it and retries/falls back to gradient
 - Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, pre-fetches as base64, renders with Satori
 
 ### City Configuration

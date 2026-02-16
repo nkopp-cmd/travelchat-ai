@@ -1,7 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import sharp from "sharp";
 
 export const runtime = "nodejs";
 export const maxDuration = 30; // Allow up to 30s for image fetching + Satori rendering
@@ -109,25 +108,18 @@ async function prefetchImageAsDataUri(url: string): Promise<string | undefined> 
                 continue;
             }
 
-            let contentType = res.headers.get('content-type') || 'image/jpeg';
-            let imageBuffer = Buffer.from(buffer);
+            const contentType = res.headers.get('content-type') || 'image/jpeg';
 
-            // Safety net: if server still returned WebP despite our Accept header,
-            // convert to JPEG using sharp (Satori/resvg cannot decode WebP)
+            // Safety net: reject WebP — Satori/resvg cannot decode it.
+            // This should rarely trigger since we request fm=jpg and exclude webp from Accept.
             if (contentType.includes('webp')) {
-                console.log("[STORY_ROUTE] Converting WebP to JPEG for Satori compatibility");
-                try {
-                    imageBuffer = await sharp(imageBuffer).jpeg({ quality: 85 }).toBuffer();
-                    contentType = 'image/jpeg';
-                } catch (convertErr) {
-                    console.error("[STORY_ROUTE] WebP conversion failed:", convertErr);
-                    continue;
-                }
+                console.error("[STORY_ROUTE] Server returned WebP despite Accept header — skipping");
+                continue; // retry (the fm=jpg param should prevent this on Unsplash)
             }
 
-            const base64 = imageBuffer.toString('base64');
+            const base64 = Buffer.from(buffer).toString('base64');
             console.log("[STORY_ROUTE] Pre-fetched image:", optimizedUrl.substring(0, 80),
-                "size:", imageBuffer.byteLength, "bytes, type:", contentType, "attempt:", attempt);
+                "size:", buffer.byteLength, "bytes, type:", contentType, "attempt:", attempt);
             return `data:${contentType};base64,${base64}`;
         } catch (e) {
             console.error("[STORY_ROUTE] Pre-fetch attempt", attempt, "failed for:", optimizedUrl.substring(0, 80), e instanceof Error ? e.message : e);
