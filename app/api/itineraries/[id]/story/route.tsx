@@ -29,13 +29,25 @@ const CITY_IMAGES: Record<string, string[]> = {
 const DEFAULT_TRAVEL_IMAGES = [
     'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=720&h=1280&fit=crop&q=80',
     'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=1280&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&h=1280&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=720&h=1280&fit=crop&q=80',
 ];
 
-function getFallbackImage(city: string): string {
+/**
+ * Get a fallback Unsplash image for a city.
+ * Pass `exclude` to avoid returning a URL that already failed pre-fetch.
+ */
+function getFallbackImage(city: string, exclude?: string): string {
     const normalizedCity = city.toLowerCase().trim();
     const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
-    const randomIndex = Math.floor(Math.random() * images.length);
-    return images[randomIndex];
+    // If we need to exclude a URL, filter it out first
+    if (exclude) {
+        const filtered = images.filter(url => url !== exclude);
+        if (filtered.length > 0) {
+            return filtered[Math.floor(Math.random() * filtered.length)];
+        }
+    }
+    return images[Math.floor(Math.random() * images.length)];
 }
 
 /**
@@ -780,13 +792,11 @@ export async function GET(
         if (aiBackground) {
             backgroundDataUri = await prefetchImageAsDataUri(aiBackground);
 
-            // If the DB/primary URL failed, try Unsplash fallback as backup
+            // If the DB/primary URL failed, try Unsplash fallback (excluding the failed URL)
             if (!backgroundDataUri && itinerary.city) {
-                const fallbackUrl = getFallbackImage(itinerary.city);
-                if (fallbackUrl !== aiBackground) {
-                    console.log("[STORY_ROUTE] Primary pre-fetch failed, trying Unsplash fallback:", fallbackUrl.substring(0, 80));
-                    backgroundDataUri = await prefetchImageAsDataUri(fallbackUrl);
-                }
+                const fallbackUrl = getFallbackImage(itinerary.city, aiBackground);
+                console.log("[STORY_ROUTE] Primary pre-fetch failed, trying Unsplash fallback:", fallbackUrl.substring(0, 80));
+                backgroundDataUri = await prefetchImageAsDataUri(fallbackUrl);
             }
 
             if (!backgroundDataUri) {

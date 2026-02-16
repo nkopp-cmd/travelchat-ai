@@ -97,9 +97,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     // Check available image sources and user tier
     useEffect(() => {
         fetch("/api/images/story-background")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
             .then((data) => {
-                console.log("[STORY_DIALOG] Available sources:", data.sources);
                 setAiAvailable(data.sources?.ai ?? false);
                 setTripAdvisorAvailable(data.sources?.tripadvisor ?? false);
                 setPexelsAvailable(data.sources?.pexels ?? false);
@@ -111,12 +113,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setPexelsAvailable(false);
             });
 
-        // Check if user is on a paid tier (Pro or Premium)
         fetch("/api/user/tier")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
             .then((data) => {
                 const tier = data.tier || "free";
-                console.log("[STORY_DIALOG] User tier:", tier);
                 setIsPaidUser(tier === "pro" || tier === "premium");
             })
             .catch((err) => {
@@ -124,9 +127,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setIsPaidUser(false);
             });
 
-        // Fetch AI image quota for display
         fetch("/api/subscription/status")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
             .then((data) => {
                 if (data.limits && data.usage) {
                     setAiQuota({
@@ -190,7 +195,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         console.log("[STORY] Generating background for:", { city, slideType, ...options });
 
         try {
-            // Use the new story-background endpoint with fallback support
             const requestBody = {
                 type: slideType,
                 city,
@@ -204,22 +208,23 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 excludeUrls: options.excludeUrls || [],
             };
 
-            console.log("[STORY] Sending request to /api/images/story-background:", requestBody);
-
             const response = await fetch("/api/images/story-background", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestBody),
             });
 
-            console.log("[STORY] Response status:", response.status);
+            if (!response.ok) {
+                console.error("[STORY] Background API returned HTTP", response.status);
+                return undefined;
+            }
+
             const data = await response.json();
-            console.log("[STORY] Response data:", {
+            console.log("[STORY] Response:", {
                 success: data.success,
                 hasImage: !!data.image,
                 source: data.source,
                 error: data.error,
-                debug: data.debug, // Server-side pipeline debug info
             });
 
             if (data.success && data.image) {
@@ -235,55 +240,48 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     const handleGenerate = async () => {
         setIsGenerating(true);
-        setBrokenSlides(new Set()); // Reset broken slides on regenerate
+        setBrokenSlides(new Set());
+        setSlides([]); // Clear stale slides from previous generation
         const imageSources: string[] = [];
 
         try {
-            // Generate backgrounds (AI, Pexels, or Unsplash depending on availability)
             if (city) {
                 setGeneratingAi(true);
 
                 const backgrounds: Record<string, string> = {};
                 const totalSlides = 2 + totalDays; // cover + days + summary
                 let completedCount = 0;
-                // Track used image URLs to prevent duplicates across slides
                 const usedUrls: string[] = [];
 
-                setGenerationProgress(`Generating all ${totalSlides} backgrounds...`);
+                setGenerationProgress(`Generating backgrounds (0/${totalSlides})...`);
                 toast({
                     title: "Generating backgrounds...",
-                    description: `Creating ${totalSlides} images in parallel`,
+                    description: `Creating ${totalSlides} images`,
                 });
 
-                // Generate ALL backgrounds in parallel for maximum speed
-                // Each request gets the current usedUrls snapshot for best-effort dedup
-                const allPromises: Promise<void>[] = [];
+                // --- Phase 1: Generate cover first (await) so we get its URL for dedup ---
+                const coverResult = await generateBackground("cover", {
+                    theme: "iconic landmarks and stunning cityscape view",
+                    excludeUrls: [],
+                });
+                completedCount++;
+                setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                if (coverResult) {
+                    backgrounds.cover = coverResult.image;
+                    usedUrls.push(coverResult.image);
+                    imageSources.push(coverResult.source);
+                }
 
-                // Cover background
-                allPromises.push(
-                    generateBackground("cover", {
-                        theme: "iconic landmarks and stunning cityscape view",
-                        excludeUrls: [...usedUrls],
-                    }).then(result => {
-                        completedCount++;
-                        setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
-                        if (result) {
-                            backgrounds.cover = result.image;
-                            usedUrls.push(result.image);
-                            imageSources.push(result.source);
-                            console.log("[STORY] Cover background from:", result.source);
-                        }
-                    })
-                );
+                // --- Phase 2: Generate all days + summary in parallel, excluding cover URL ---
+                const phase2Promises: Promise<void>[] = [];
 
-                // Day backgrounds - all in parallel
                 for (let j = 0; j < totalDays; j++) {
                     const dayNumber = j + 1;
                     const dayPlan = dailyPlans?.[j];
                     const theme = dayPlan?.theme || `Day ${dayNumber} adventures`;
                     const activities = dayPlan?.activities?.map(a => a.name) || [];
 
-                    allPromises.push(
+                    phase2Promises.push(
                         generateBackground("day", {
                             theme,
                             dayNumber,
@@ -296,14 +294,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 backgrounds[`day${dayNumber}`] = result.image;
                                 usedUrls.push(result.image);
                                 imageSources.push(result.source);
-                                console.log(`[STORY] Day ${dayNumber} background from:`, result.source);
                             }
                         })
                     );
                 }
 
-                // Summary background
-                allPromises.push(
+                phase2Promises.push(
                     generateBackground("summary", {
                         theme: "beautiful panoramic travel scenery at sunset",
                         excludeUrls: [...usedUrls],
@@ -314,19 +310,16 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             backgrounds.summary = result.image;
                             usedUrls.push(result.image);
                             imageSources.push(result.source);
-                            console.log("[STORY] Summary background from:", result.source);
                         }
                     })
                 );
 
-                // Wait for all to complete (using allSettled so one failure doesn't block others)
-                await Promise.allSettled(allPromises);
+                await Promise.allSettled(phase2Promises);
 
-                // Save backgrounds to database in parallel (URLs are small now)
+                // --- Save backgrounds to database ---
                 setGenerationProgress("Saving backgrounds...");
-                const savePromises: Promise<Response>[] = [];
+                let saveFailed = false;
 
-                // Save all backgrounds at once - they're URLs now, not base64
                 const bgToSave: Record<string, string> = {};
                 if (backgrounds.cover) bgToSave.cover = backgrounds.cover;
                 if (backgrounds.summary) bgToSave.summary = backgrounds.summary;
@@ -336,17 +329,23 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 }
 
                 if (Object.keys(bgToSave).length > 0) {
-                    console.log("[STORY] Saving all backgrounds to database...", Object.keys(bgToSave));
-                    const saveRes = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(bgToSave),
-                    });
-                    if (!saveRes.ok) {
-                        const errText = await saveRes.text().catch(() => "unknown");
-                        console.error("[STORY] Failed to save backgrounds:", saveRes.status, errText);
-                    } else {
-                        console.log("[STORY] Backgrounds saved successfully");
+                    console.log("[STORY] Saving backgrounds to database:", Object.keys(bgToSave));
+                    try {
+                        const saveRes = await fetch(`/api/itineraries/${itineraryId}/ai-backgrounds`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(bgToSave),
+                        });
+                        if (!saveRes.ok) {
+                            const errText = await saveRes.text().catch(() => "unknown");
+                            console.error("[STORY] Failed to save backgrounds:", saveRes.status, errText);
+                            saveFailed = true;
+                        } else {
+                            console.log("[STORY] Backgrounds saved successfully");
+                        }
+                    } catch (err) {
+                        console.error("[STORY] Save request failed:", err);
+                        saveFailed = true;
                     }
                 }
 
@@ -359,27 +358,47 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ city }),
-                    }).catch(err => console.log("[STORY] Email notification failed (non-blocking):", err));
+                    }).catch(err => console.log("[STORY] Email notification skipped:", err));
                 }
+
+                // Generate slides
+                const generatedSlides = generateSlides();
+                setSlides(generatedSlides);
+                setSelectedSlide(0);
+
+                // Show accurate toast based on actual results
+                const bgCount = Object.keys(bgToSave).length;
+                const uniqueSources = [...new Set(imageSources)];
+                const sourceText = uniqueSources.length > 0 ? ` (${uniqueSources.join(", ")})` : "";
+
+                if (bgCount === 0) {
+                    toast({
+                        title: "Stories ready (gradient fallback)",
+                        description: "Background generation failed — slides use default gradients",
+                        variant: "destructive",
+                    });
+                } else if (saveFailed) {
+                    toast({
+                        title: "Stories generated",
+                        description: `${bgCount} backgrounds created but failed to save${sourceText}`,
+                        variant: "destructive",
+                    });
+                } else {
+                    toast({
+                        title: "Stories generated!",
+                        description: `${generatedSlides.length} slides ready${sourceText}`,
+                    });
+                }
+            } else {
+                // No city — generate slides with gradient fallback
+                const generatedSlides = generateSlides();
+                setSlides(generatedSlides);
+                setSelectedSlide(0);
+                toast({
+                    title: "Stories generated!",
+                    description: `${generatedSlides.length} slides ready (gradient backgrounds)`,
+                });
             }
-
-            // Generate slides (backgrounds will be fetched from database by story API)
-            const generatedSlides = generateSlides();
-            console.log("[STORY] Generated slides:", generatedSlides.map(s => ({ label: s.label, url: s.url })));
-
-            setSlides(generatedSlides);
-            setSelectedSlide(0);
-
-            // Show source summary in toast
-            const uniqueSources = [...new Set(imageSources)];
-            const sourceText = uniqueSources.length > 0
-                ? ` (${uniqueSources.join(", ")})`
-                : "";
-
-            toast({
-                title: "Stories generated!",
-                description: `${generatedSlides.length} story slides ready${sourceText}`,
-            });
         } catch (error) {
             console.error("Error generating stories:", error);
             toast({
@@ -404,6 +423,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         setDownloadingIndex(index);
         try {
             const response = await fetch(slide.url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.startsWith("image/")) {
+                throw new Error(`Expected image, got ${contentType}`);
+            }
             const blob = await response.blob();
             const filename = getSlideFilename(slide, city, totalDays);
             await shareOrDownload(blob, filename);
@@ -441,6 +467,10 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             for (let i = 0; i < slides.length; i++) {
                 setGenerationProgress(`Preparing ${i + 1}/${slides.length}...`);
                 const response = await fetch(slides[i].url);
+                if (!response.ok) {
+                    console.error(`[STORY] ZIP: Failed to fetch slide ${i}:`, response.status);
+                    continue; // Skip failed slides instead of breaking entire ZIP
+                }
                 const blob = await response.blob();
                 const filename = getSlideFilename(slides[i], city, totalDays);
                 zip.file(filename, blob);
