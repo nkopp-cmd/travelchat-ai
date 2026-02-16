@@ -233,6 +233,36 @@ export async function POST(req: NextRequest) {
             console.log("[STORY_BG] Skipping Pexels (key not available)");
         }
 
+        // DEBUG: When DEBUG_NO_UNSPLASH is set, skip Unsplash to surface real failures
+        const debugNoUnsplash = process.env.DEBUG_NO_UNSPLASH === "true";
+
+        if (!imageUrl && debugNoUnsplash) {
+            console.error("[STORY_BG] DEBUG: All providers failed, Unsplash disabled for testing", {
+                canUseAI,
+                imageProvider,
+                tier,
+                hasGeminiKey: isImagenAvailable(),
+                hasSeedreamKey: isSeedreamAvailable(),
+                hasTripAdvisorKey: isTripAdvisorAvailable(),
+                hasPexelsKey: isPexelsAvailable(),
+            });
+            return NextResponse.json({
+                success: false,
+                error: "All image sources failed (Unsplash disabled for debugging)",
+                debug: {
+                    canUseAI,
+                    imageProvider,
+                    tier,
+                    hasGeminiKey: isImagenAvailable(),
+                    hasSeedreamKey: isSeedreamAvailable(),
+                    hasTripAdvisorKey: isTripAdvisorAvailable(),
+                    hasPexelsKey: isPexelsAvailable(),
+                    preferAI,
+                    isAnyProviderAvailable: isAnyProviderAvailable(),
+                },
+            }, { status: 503 });
+        }
+
         // Final fallback to Unsplash (always available)
         if (!imageUrl) {
             console.log("[STORY_BG] Using Unsplash fallback for:", { city, type });
@@ -258,6 +288,17 @@ export async function POST(req: NextRequest) {
             aiAvailable: canUseAI,
             pexelsAvailable: isPexelsAvailable(),
             tripAdvisorAvailable: isTripAdvisorAvailable(),
+            // Include debug info so the client can display it
+            debug: {
+                tier,
+                canUseAI,
+                imageProvider,
+                hasGeminiKey: isImagenAvailable(),
+                hasSeedreamKey: isSeedreamAvailable(),
+                hasTripAdvisorKey: isTripAdvisorAvailable(),
+                hasPexelsKey: isPexelsAvailable(),
+                preferAI,
+            },
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);

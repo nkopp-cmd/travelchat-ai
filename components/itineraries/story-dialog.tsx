@@ -99,11 +99,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         fetch("/api/images/story-background")
             .then((res) => res.json())
             .then((data) => {
+                console.log("[STORY_DIALOG] Available sources:", data.sources);
                 setAiAvailable(data.sources?.ai ?? false);
                 setTripAdvisorAvailable(data.sources?.tripadvisor ?? false);
                 setPexelsAvailable(data.sources?.pexels ?? false);
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error("[STORY_DIALOG] Failed to check sources:", err);
                 setAiAvailable(false);
                 setTripAdvisorAvailable(false);
                 setPexelsAvailable(false);
@@ -114,9 +116,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             .then((res) => res.json())
             .then((data) => {
                 const tier = data.tier || "free";
+                console.log("[STORY_DIALOG] User tier:", tier);
                 setIsPaidUser(tier === "pro" || tier === "premium");
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error("[STORY_DIALOG] Failed to check tier:", err);
                 setIsPaidUser(false);
             });
 
@@ -213,6 +217,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 hasImage: !!data.image,
                 source: data.source,
                 error: data.error,
+                debug: data.debug, // Server-side pipeline debug info
             });
 
             if (data.success && data.image) {
@@ -532,15 +537,20 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                         {/* Image source info */}
                         {city && (
-                            <p className="text-xs text-muted-foreground text-center mb-4">
-                                {useAiBackgrounds && aiAvailable
-                                    ? "Using AI-generated images"
-                                    : tripAdvisorAvailable
-                                        ? "Using real location photos from TripAdvisor"
-                                        : pexelsAvailable
-                                            ? "Using high-quality photos from Pexels"
-                                            : "Using photos from Unsplash"}
-                            </p>
+                            <>
+                                <p className="text-xs text-muted-foreground text-center mb-2">
+                                    {useAiBackgrounds && aiAvailable
+                                        ? "Using AI-generated images"
+                                        : tripAdvisorAvailable
+                                            ? "Using real location photos from TripAdvisor"
+                                            : pexelsAvailable
+                                                ? "Using high-quality photos from Pexels"
+                                                : "Using photos from Unsplash"}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground/60 text-center mb-4 font-mono">
+                                    Sources: AI={aiAvailable ? "yes" : "no"} TA={tripAdvisorAvailable ? "yes" : "no"} PX={pexelsAvailable ? "yes" : "no"} Paid={isPaidUser ? "yes" : "no"} Toggle={useAiBackgrounds ? "on" : "off"}
+                                </p>
+                            </>
                         )}
 
                         <Button
