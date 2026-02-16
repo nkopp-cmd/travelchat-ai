@@ -1,10 +1,9 @@
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
-// Edge runtime: Satori's built-in image fetcher works reliably on Edge.
-// Node.js runtime caused Satori to silently drop external images.
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const maxDuration = 30;
 
 // Curated Unsplash images for fallback (when no ai_backgrounds in database)
 // IMPORTANT: Use fm=jpg to force JPEG — Satori/resvg CANNOT decode WebP
@@ -65,6 +64,27 @@ function ensureJpegFormat(url: string): string {
         }
     }
     return url;
+}
+
+/**
+ * Pre-fetch an image and return as base64 data URI.
+ * Required because Satori's internal fetch is unreliable on Vercel Node.js.
+ */
+async function prefetchImage(url: string): Promise<string | undefined> {
+    try {
+        const res = await fetch(url, {
+            signal: AbortSignal.timeout(10000),
+            headers: { 'Accept': 'image/jpeg,image/png,image/gif,image/*' },
+        });
+        if (!res.ok) return undefined;
+        const ct = res.headers.get('content-type') || 'image/jpeg';
+        if (ct.includes('webp')) return undefined;
+        const buf = await res.arrayBuffer();
+        if (buf.byteLength < 500) return undefined;
+        return `data:${ct};base64,${Buffer.from(buf).toString('base64')}`;
+    } catch {
+        return undefined;
+    }
 }
 
 // Story dimensions (9:16 aspect ratio for Instagram/TikTok)
@@ -686,15 +706,19 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const debugMode = new URL(req.url).searchParams.get("debug") === "true";
+    const diagnostics: Record<string, unknown> = { timestamp: new Date().toISOString(), runtime: "nodejs" };
+
     try {
         const { id } = await params;
         const { searchParams } = new URL(req.url);
         const slide = searchParams.get("slide") || "cover";
         const dayIndex = parseInt(searchParams.get("day") || "1", 10) - 1;
-        // Check if user is paid (passed from client that knows the tier)
         const isPaidUser = searchParams.get("paid") === "true";
+        diagnostics.params = { id, slide, dayIndex, isPaidUser };
 
         const supabase = createSupabaseAdmin();
+        diagnostics.supabaseCreated = true;
 
         // Use select("*") — safe even if ai_backgrounds column doesn't exist yet
         // (select("*") returns whatever columns exist, unlike named selects which error)
@@ -703,6 +727,12 @@ export async function GET(
             .select("*")
             .eq("id", id)
             .single();
+
+        diagnostics.queryResult = { hasData: !!itinerary, error: error?.message || null };
+
+        if (debugMode && (error || !itinerary)) {
+            return NextResponse.json({ ...diagnostics, step: "query_failed" });
+        }
 
         if (error || !itinerary) {
             console.error("[STORY_ROUTE] Itinerary query failed:", error?.message || "not found", { id });
@@ -771,8 +801,24 @@ export async function GET(
             aiBackground = ensureJpegFormat(aiBackground);
         }
 
-        // On Edge runtime, Satori fetches images natively via <img src={url}>.
-        // Pass the URL directly — no pre-fetch needed.
+        // Pre-fetch the image as base64 for Satori (Node.js fetch is unreliable in Satori)
+        let backgroundDataUri: string | undefined;
+        if (aiBackground) {
+            backgroundDataUri = await prefetchImage(aiBackground);
+            if (!backgroundDataUri && itinerary.city) {
+                const fallback = ensureJpegFormat(getFallbackImage(itinerary.city, aiBackground));
+                backgroundDataUri = await prefetchImage(fallback);
+            }
+        }
+        diagnostics.background = {
+            aiBackground: aiBackground?.substring(0, 80),
+            prefetchSuccess: !!backgroundDataUri,
+            dataUriLength: backgroundDataUri?.length,
+        };
+
+        if (debugMode) {
+            return NextResponse.json({ ...diagnostics, step: "pre_render" });
+        }
 
         // Robust activities parsing — handle all possible data shapes
         let rawActivities: unknown = itinerary.activities;
@@ -804,7 +850,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         days={itinerary.days}
-                        backgroundImage={aiBackground || undefined}
+                        backgroundImage={backgroundDataUri || undefined}
                     />
                 );
                 break;
@@ -827,7 +873,7 @@ export async function GET(
                     <DaySlide
                         dayPlan={dayPlan}
                         dayNumber={dayIndex + 1}
-                        backgroundImage={aiBackground || undefined}
+                        backgroundImage={backgroundDataUri || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
@@ -839,7 +885,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         highlights={itinerary.highlights || []}
-                        backgroundImage={aiBackground || undefined}
+                        backgroundImage={backgroundDataUri || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
@@ -896,6 +942,13 @@ export async function GET(
         }
     } catch (error) {
         console.error("[STORY_ROUTE] Fatal error:", error);
+        if (debugMode) {
+            return NextResponse.json({
+                ...diagnostics,
+                step: "fatal_error",
+                error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+            });
+        }
         // Even the outermost catch should try to return a PNG, not text
         try {
             const fatalResponse = new ImageResponse(
