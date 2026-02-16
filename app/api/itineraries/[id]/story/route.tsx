@@ -757,23 +757,56 @@ export async function GET(
 
         const supabase = createSupabaseAdmin();
 
+        // Fetch core itinerary data (guaranteed columns)
+        // ai_backgrounds is fetched separately because it may not exist
+        // if pending migrations haven't been applied
         const { data: itinerary, error } = await supabase
             .from("itineraries")
-            .select("title, city, days, activities, highlights, ai_backgrounds")
+            .select("title, city, days, activities, highlights")
             .eq("id", id)
             .single();
 
         if (error || !itinerary) {
-            return new Response("Itinerary not found", { status: 404 });
+            console.error("[STORY_ROUTE] Itinerary query failed:", error?.message || "not found", { id });
+            // Return a valid PNG error slide instead of text 404
+            const errResponse = new ImageResponse(
+                (
+                    <div style={{
+                        width: STORY_WIDTH, height: STORY_HEIGHT, display: "flex",
+                        justifyContent: "center", alignItems: "center",
+                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                    }}>
+                        <span style={{ fontSize: 48, color: "white", fontWeight: "bold" }}>Localley</span>
+                    </div>
+                ),
+                { width: STORY_WIDTH, height: STORY_HEIGHT }
+            );
+            errResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return errResponse;
         }
 
-        // Extract AI backgrounds from database
-        const aiBackgrounds = itinerary.ai_backgrounds as Record<string, string> | null;
+        // Try to fetch ai_backgrounds separately (column may not exist)
+        let aiBackgrounds: Record<string, string> | null = null;
+        try {
+            const { data: bgData } = await supabase
+                .from("itineraries")
+                .select("ai_backgrounds")
+                .eq("id", id)
+                .single();
+            if (bgData?.ai_backgrounds && typeof bgData.ai_backgrounds === 'object') {
+                aiBackgrounds = bgData.ai_backgrounds as Record<string, string>;
+            }
+        } catch (bgErr) {
+            console.log("[STORY_ROUTE] ai_backgrounds column not available:", bgErr);
+        }
+
         let aiBackground: string | undefined;
 
         console.log("[STORY_ROUTE] Rendering slide:", {
             slide,
             dayIndex,
+            title: itinerary.title,
+            city: itinerary.city,
             hasAiBackgrounds: !!aiBackgrounds,
             backgroundKeys: aiBackgrounds ? Object.keys(aiBackgrounds) : [],
         });
