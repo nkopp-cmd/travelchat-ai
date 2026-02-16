@@ -51,81 +51,19 @@ function getFallbackImage(city: string, exclude?: string): string {
 }
 
 /**
- * Optimize image URL for Satori rendering.
- * - Reduce dimensions (Satori upscales to 1080×1920 anyway)
- * - Force JPEG format (Satori/resvg does NOT support WebP)
+ * Ensure Unsplash URLs use JPEG format (Satori/resvg cannot decode WebP).
+ * All hardcoded URLs already have &fm=jpg, but this is a safety net for DB-stored URLs.
  */
-function optimizeImageUrl(url: string): string {
+function ensureJpegFormat(url: string): string {
     if (url.includes('images.unsplash.com')) {
-        let optimized = url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
-        // Force JPEG format — Satori/resvg cannot decode WebP
-        if (!optimized.includes('fm=')) {
-            optimized += '&fm=jpg';
-        } else {
-            optimized = optimized.replace(/fm=\w+/, 'fm=jpg');
+        if (!url.includes('fm=')) {
+            return url + '&fm=jpg';
         }
-        return optimized;
-    }
-    if (url.includes('images.pexels.com')) {
-        return url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
+        if (!url.includes('fm=jpg')) {
+            return url.replace(/fm=\w+/, 'fm=jpg');
+        }
     }
     return url;
-}
-
-/**
- * Pre-fetch an image URL and convert it to a base64 data URI.
- * Satori cannot reliably fetch external URLs at render time on Vercel,
- * so we fetch the image ourselves and pass the data inline.
- *
- * CRITICAL: Satori/resvg only supports JPEG, PNG, and GIF.
- * We must NOT request WebP and must convert any WebP responses to JPEG.
- */
-async function prefetchImageAsDataUri(url: string): Promise<string | undefined> {
-    const optimizedUrl = optimizeImageUrl(url);
-    const fetchHeaders = {
-        // Do NOT include image/webp — Satori/resvg cannot decode WebP
-        'Accept': 'image/jpeg,image/png,image/gif,image/*',
-        'User-Agent': 'Localley/1.0 (https://localley.io)',
-    };
-
-    for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-            if (attempt > 0) {
-                console.log("[STORY_ROUTE] Retry attempt", attempt, "for:", optimizedUrl.substring(0, 80));
-                await new Promise(r => setTimeout(r, 2000));
-            }
-            const res = await fetch(optimizedUrl, {
-                signal: AbortSignal.timeout(15000),
-                headers: fetchHeaders,
-            });
-            if (!res.ok) {
-                console.error("[STORY_ROUTE] Pre-fetch HTTP error:", res.status, res.statusText, optimizedUrl.substring(0, 80));
-                continue;
-            }
-            const buffer = await res.arrayBuffer();
-            if (buffer.byteLength < 1000) {
-                console.error("[STORY_ROUTE] Pre-fetch returned suspiciously small response:", buffer.byteLength, "bytes");
-                continue;
-            }
-
-            const contentType = res.headers.get('content-type') || 'image/jpeg';
-
-            // Safety net: reject WebP — Satori/resvg cannot decode it.
-            // This should rarely trigger since we request fm=jpg and exclude webp from Accept.
-            if (contentType.includes('webp')) {
-                console.error("[STORY_ROUTE] Server returned WebP despite Accept header — skipping");
-                continue; // retry (the fm=jpg param should prevent this on Unsplash)
-            }
-
-            const base64 = Buffer.from(buffer).toString('base64');
-            console.log("[STORY_ROUTE] Pre-fetched image:", optimizedUrl.substring(0, 80),
-                "size:", buffer.byteLength, "bytes, type:", contentType, "attempt:", attempt);
-            return `data:${contentType};base64,${base64}`;
-        } catch (e) {
-            console.error("[STORY_ROUTE] Pre-fetch attempt", attempt, "failed for:", optimizedUrl.substring(0, 80), e instanceof Error ? e.message : e);
-        }
-    }
-    return undefined;
 }
 
 // Story dimensions (9:16 aspect ratio for Instagram/TikTok)
@@ -757,12 +695,11 @@ export async function GET(
 
         const supabase = createSupabaseAdmin();
 
-        // Fetch core itinerary data (guaranteed columns)
-        // ai_backgrounds is fetched separately because it may not exist
-        // if pending migrations haven't been applied
+        // Use select("*") — safe even if ai_backgrounds column doesn't exist yet
+        // (select("*") returns whatever columns exist, unlike named selects which error)
         const { data: itinerary, error } = await supabase
             .from("itineraries")
-            .select("title, city, days, activities, highlights")
+            .select("*")
             .eq("id", id)
             .single();
 
@@ -785,20 +722,10 @@ export async function GET(
             return errResponse;
         }
 
-        // Try to fetch ai_backgrounds separately (column may not exist)
-        let aiBackgrounds: Record<string, string> | null = null;
-        try {
-            const { data: bgData } = await supabase
-                .from("itineraries")
-                .select("ai_backgrounds")
-                .eq("id", id)
-                .single();
-            if (bgData?.ai_backgrounds && typeof bgData.ai_backgrounds === 'object') {
-                aiBackgrounds = bgData.ai_backgrounds as Record<string, string>;
-            }
-        } catch (bgErr) {
-            console.log("[STORY_ROUTE] ai_backgrounds column not available:", bgErr);
-        }
+        // ai_backgrounds may or may not exist depending on migration status
+        const aiBackgrounds = (itinerary.ai_backgrounds && typeof itinerary.ai_backgrounds === 'object')
+            ? itinerary.ai_backgrounds as Record<string, string>
+            : null;
 
         let aiBackground: string | undefined;
 
@@ -838,23 +765,9 @@ export async function GET(
             console.log("[STORY_ROUTE] Using fallback image for", itinerary.city, ":", aiBackground);
         }
 
-        // Pre-fetch the image and convert to base64 data URI for Satori.
-        // Satori cannot reliably fetch external URLs at render time on Vercel,
-        // so we provide the image data inline as a data URI.
-        let backgroundDataUri: string | undefined;
+        // Ensure JPEG format for Satori compatibility (no WebP)
         if (aiBackground) {
-            backgroundDataUri = await prefetchImageAsDataUri(aiBackground);
-
-            // If the DB/primary URL failed, try Unsplash fallback (excluding the failed URL)
-            if (!backgroundDataUri && itinerary.city) {
-                const fallbackUrl = getFallbackImage(itinerary.city, aiBackground);
-                console.log("[STORY_ROUTE] Primary pre-fetch failed, trying Unsplash fallback:", fallbackUrl.substring(0, 80));
-                backgroundDataUri = await prefetchImageAsDataUri(fallbackUrl);
-            }
-
-            if (!backgroundDataUri) {
-                console.warn("[STORY_ROUTE] All pre-fetch attempts failed, slide will use gradient fallback");
-            }
+            aiBackground = ensureJpegFormat(aiBackground);
         }
 
         // Robust activities parsing — handle all possible data shapes
@@ -887,7 +800,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         days={itinerary.days}
-                        backgroundImage={backgroundDataUri || undefined}
+                        backgroundImage={aiBackground || undefined}
                     />
                 );
                 break;
@@ -910,7 +823,7 @@ export async function GET(
                     <DaySlide
                         dayPlan={dayPlan}
                         dayNumber={dayIndex + 1}
-                        backgroundImage={backgroundDataUri || undefined}
+                        backgroundImage={aiBackground || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
@@ -922,7 +835,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         highlights={itinerary.highlights || []}
-                        backgroundImage={backgroundDataUri || undefined}
+                        backgroundImage={aiBackground || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
