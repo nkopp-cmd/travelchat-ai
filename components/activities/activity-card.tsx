@@ -111,7 +111,7 @@ export function ActivityCard({
 
     if (compact) {
         return (
-            <Card className={cn("overflow-hidden hover:shadow-md transition-shadow", className)}>
+            <Card className={cn("overflow-hidden hover:shadow-md transition-shadow !py-0 !gap-0", className)}>
                 <CardContent className="p-3">
                     <div className="flex gap-3">
                         {/* Compact Image */}
@@ -170,7 +170,7 @@ export function ActivityCard({
 
     return (
         <>
-            <Card className={cn("overflow-hidden hover:shadow-lg transition-all", className)}>
+            <Card className={cn("overflow-hidden hover:shadow-lg transition-all !py-0 !gap-0", className)}>
                 {/* Image Section */}
                 <div className="relative h-48 bg-gradient-to-br from-violet-100 to-indigo-100">
                     {canShowImages && activity.image && !imageError ? (

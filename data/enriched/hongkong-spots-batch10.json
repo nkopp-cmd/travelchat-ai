@@ -1,0 +1,746 @@
+{
+  "city": "hong_kong",
+  "batch": 10,
+  "spots": [
+    {
+      "name": {
+        "en": "Hong Kong Science Museum",
+        "zh": "香港科學館"
+      },
+      "description": {
+        "en": "Interactive science museum. Family friendly.",
+        "zh": "互動科學博物館。適合家庭。"
+      },
+      "address": {
+        "en": "2 Science Museum Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀科學館道2號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Science",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Interactive exhibits",
+        "Free Wednesday",
+        "Near history museum"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.301,
+      "longitude": 114.1765
+    },
+    {
+      "name": {
+        "en": "Hong Kong Space Museum",
+        "zh": "香港太空館"
+      },
+      "description": {
+        "en": "Space museum with planetarium.",
+        "zh": "有天文館的太空博物館。"
+      },
+      "address": {
+        "en": "10 Salisbury Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀梳士巴利道10號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Space",
+        "Planetarium"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Iconic building",
+        "Planetarium shows",
+        "Near waterfront"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2942,
+      "longitude": 114.1719
+    },
+    {
+      "name": {
+        "en": "Hong Kong Maritime Museum",
+        "zh": "香港海事博物館"
+      },
+      "description": {
+        "en": "Maritime history at Central Pier.",
+        "zh": "中環碼頭的海事歷史。"
+      },
+      "address": {
+        "en": "Central Ferry Pier No. 8, Central, Hong Kong",
+        "zh": "香港中環8號碼頭"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Maritime",
+        "History"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Harbor views",
+        "Ship models",
+        "Near ferry"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2869,
+      "longitude": 114.1621
+    },
+    {
+      "name": {
+        "en": "Hong Kong Film Archive",
+        "zh": "香港電影資料館"
+      },
+      "description": {
+        "en": "Archive and cinema for film lovers.",
+        "zh": "電影愛好者的資料館和影院。"
+      },
+      "address": {
+        "en": "50 Lei King Road, Sai Wan Ho, Hong Kong",
+        "zh": "香港西灣河鯉景道50號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Film",
+        "Archive",
+        "Cinema"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Film screenings",
+        "HK cinema history",
+        "Free exhibitions"
+      ],
+      "neighborhood": "Sai Wan Ho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2851,
+      "longitude": 114.2221
+    },
+    {
+      "name": {
+        "en": "Flagstaff House Museum of Tea Ware",
+        "zh": "茶具文物館"
+      },
+      "description": {
+        "en": "Tea museum in Hong Kong Park.",
+        "zh": "香港公園的茶具博物館。"
+      },
+      "address": {
+        "en": "Hong Kong Park, Central, Hong Kong",
+        "zh": "香港中環香港公園"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Tea",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Oldest colonial building",
+        "Tea culture"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2783,
+      "longitude": 114.1626
+    },
+    {
+      "name": {
+        "en": "Hong Kong Park",
+        "zh": "香港公園"
+      },
+      "description": {
+        "en": "Urban park with aviary. Near Pacific Place.",
+        "zh": "有鳥舍的城市公園。太古廣場附近。"
+      },
+      "address": {
+        "en": "19 Cotton Tree Drive, Central, Hong Kong",
+        "zh": "香港中環紅棉路19號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Aviary",
+        "Urban"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free aviary",
+        "Tai chi mornings",
+        "Wedding photos"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2774,
+      "longitude": 114.1615
+    },
+    {
+      "name": {
+        "en": "Zoological and Botanical Gardens",
+        "zh": "動植物公園"
+      },
+      "description": {
+        "en": "Historic gardens with animals. Free.",
+        "zh": "有動物的歷史花園。免費。"
+      },
+      "address": {
+        "en": "Albany Road, Central, Hong Kong",
+        "zh": "香港中環雅賓利道"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Zoo",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Old monkeys",
+        "Nice gardens"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.279,
+      "longitude": 114.1552
+    },
+    {
+      "name": {
+        "en": "Middle Bay Beach",
+        "zh": "中灣泳灘"
+      },
+      "description": {
+        "en": "Quiet beach near Repulse Bay.",
+        "zh": "淺水灣附近的寧靜海灘。"
+      },
+      "address": {
+        "en": "Middle Bay, Hong Kong Island",
+        "zh": "香港島中灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Quiet",
+        "South Side"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Less crowded",
+        "Walk from Repulse Bay",
+        "Nice beach"
+      ],
+      "neighborhood": "South Side",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2298,
+      "longitude": 114.1981
+    },
+    {
+      "name": {
+        "en": "South Bay Beach",
+        "zh": "南灣泳灘"
+      },
+      "description": {
+        "en": "Smaller beach south side.",
+        "zh": "南區較小海灘。"
+      },
+      "address": {
+        "en": "South Bay, Hong Kong Island",
+        "zh": "香港島南灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Small",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very quiet",
+        "Local beach",
+        "Near Repulse Bay"
+      ],
+      "neighborhood": "South Side",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2251,
+      "longitude": 114.1978
+    },
+    {
+      "name": {
+        "en": "Deep Water Bay",
+        "zh": "深水灣"
+      },
+      "description": {
+        "en": "Upscale beach area. Calm waters.",
+        "zh": "高檔海灘區。平靜水域。"
+      },
+      "address": {
+        "en": "Deep Water Bay, Hong Kong Island",
+        "zh": "香港島深水灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Upscale",
+        "Calm"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Golf club nearby",
+        "Calmer water",
+        "Less crowded"
+      ],
+      "neighborhood": "South Side",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2471,
+      "longitude": 114.1875
+    },
+    {
+      "name": {
+        "en": "Kowloon Park",
+        "zh": "九龍公園"
+      },
+      "description": {
+        "en": "Large park in TST. Swimming pool.",
+        "zh": "尖沙咀大型公園。游泳池。"
+      },
+      "address": {
+        "en": "22 Austin Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀柯士甸道22號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Pool",
+        "Large"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Public pool",
+        "Flamingos",
+        "Kung fu corner Sunday"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3005,
+      "longitude": 114.1701
+    },
+    {
+      "name": {
+        "en": "Signal Hill Garden",
+        "zh": "訊號山花園"
+      },
+      "description": {
+        "en": "Historic signal tower in TST.",
+        "zh": "尖沙咀歷史訊號塔。"
+      },
+      "address": {
+        "en": "Minden Row, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀緬甸臺"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Historic",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Historic tower",
+        "Nice views",
+        "Free entry"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2961,
+      "longitude": 114.1746
+    },
+    {
+      "name": {
+        "en": "Former Marine Police HQ",
+        "zh": "前水警總部"
+      },
+      "description": {
+        "en": "Historic building now 1881 Heritage.",
+        "zh": "歷史建築現為1881 Heritage。"
+      },
+      "address": {
+        "en": "2A Canton Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀廣東道2A號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Heritage",
+        "Historic",
+        "Shopping"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Beautiful restoration",
+        "Luxury shopping",
+        "Night photos"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2956,
+      "longitude": 114.17
+    },
+    {
+      "name": {
+        "en": "Tai Wong Temple",
+        "zh": "大王爺廟"
+      },
+      "description": {
+        "en": "Temples across Hong Kong. Local worship.",
+        "zh": "香港各地的廟宇。當地崇拜。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Local",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Local temples",
+        "Daily worship",
+        "Various locations"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2188,
+      "longitude": 114.2104
+    },
+    {
+      "name": {
+        "en": "Lung Yeuk Tau Heritage Trail",
+        "zh": "龍躍頭文物徑"
+      },
+      "description": {
+        "en": "Heritage trail in Fanling. Clan history.",
+        "zh": "粉嶺文物徑。宗族歷史。"
+      },
+      "address": {
+        "en": "Lung Yeuk Tau, Fanling, New Territories",
+        "zh": "新界粉嶺龍躍頭"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Heritage",
+        "Trail",
+        "Clan"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Tang clan",
+        "Historic buildings",
+        "Less touristy"
+      ],
+      "neighborhood": "Fanling",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.4957,
+      "longitude": 114.1414
+    },
+    {
+      "name": {
+        "en": "Sheung Yiu Folk Museum",
+        "zh": "上窰民俗文物館"
+      },
+      "description": {
+        "en": "Hakka village museum in Sai Kung.",
+        "zh": "西貢客家村博物館。"
+      },
+      "address": {
+        "en": "Pak Tam Chung, Sai Kung",
+        "zh": "西貢北潭涌"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Hakka",
+        "Village"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Hakka life",
+        "Near country park"
+      ],
+      "neighborhood": "Sai Kung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3926,
+      "longitude": 114.3213
+    },
+    {
+      "name": {
+        "en": "Tsang Tai Uk",
+        "zh": "曾大屋"
+      },
+      "description": {
+        "en": "Well-preserved Hakka walled village.",
+        "zh": "保存完好的客家圍村。"
+      },
+      "address": {
+        "en": "Sha Tin, New Territories",
+        "zh": "新界沙田"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Village",
+        "Hakka",
+        "Walled"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Inhabited village",
+        "Respect residents",
+        "Historic"
+      ],
+      "neighborhood": "Sha Tin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3756,
+      "longitude": 114.1893
+    },
+    {
+      "name": {
+        "en": "Lok Ma Chau Lookout",
+        "zh": "落馬洲瞭望台"
+      },
+      "description": {
+        "en": "View into Shenzhen from border.",
+        "zh": "從邊境眺望深圳。"
+      },
+      "address": {
+        "en": "Lok Ma Chau, New Territories",
+        "zh": "新界落馬洲"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Viewpoint",
+        "Border",
+        "Unique"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "View Shenzhen",
+        "Near border",
+        "Unique experience"
+      ],
+      "neighborhood": "Yuen Long",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.5106,
+      "longitude": 114.0791
+    },
+    {
+      "name": {
+        "en": "K11 Art Mall",
+        "zh": "K11購物藝術館"
+      },
+      "description": {
+        "en": "Art mall concept. Exhibitions.",
+        "zh": "藝術商場概念。展覽。"
+      },
+      "address": {
+        "en": "18 Hanoi Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀河內道18號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Art",
+        "Unique"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Art exhibitions",
+        "Design shops",
+        "Food hall"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2976,
+      "longitude": 114.1736
+    },
+    {
+      "name": {
+        "en": "Pacific Place",
+        "zh": "太古廣場"
+      },
+      "description": {
+        "en": "Upscale mall in Admiralty.",
+        "zh": "金鐘高檔商場。"
+      },
+      "address": {
+        "en": "88 Queensway, Admiralty, Hong Kong",
+        "zh": "香港金鐘金鐘道88號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Upscale",
+        "Central"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Luxury brands",
+        "Good restaurants",
+        "MTR connected"
+      ],
+      "neighborhood": "Admiralty",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.278,
+      "longitude": 114.1655
+    }
+  ]
+}

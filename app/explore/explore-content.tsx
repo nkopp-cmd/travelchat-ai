@@ -237,7 +237,7 @@ export function ExploreContent({
                         return (
                             <Card
                                 key={itinerary.id}
-                                className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/40"
+                                className="!py-0 !gap-0 group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/40"
                             >
                                 {/* Card Header with gradient */}
                                 <CardHeader className="relative bg-gradient-to-br from-violet-500 to-indigo-600 text-white p-5">

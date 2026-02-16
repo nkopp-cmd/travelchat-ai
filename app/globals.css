@@ -140,6 +140,19 @@
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
+  /* Dynamic viewport height for mobile keyboard handling */
+  .h-dvh {
+    height: 100dvh;
+  }
+  .max-h-dvh {
+    max-height: 100dvh;
+  }
+
+  /* Safe bottom padding that accounts for device safe areas */
+  .pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
   /* Hide scrollbar for Chrome, Safari and Opera */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -310,7 +323,7 @@
 
   /* Premium page background */
   .page-premium {
-    @apply min-h-screen relative;
+    @apply relative;
     background: linear-gradient(180deg,
       hsl(var(--background)) 0%,
       hsl(var(--background)) 50%,

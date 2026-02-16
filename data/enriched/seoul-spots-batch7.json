@@ -1,0 +1,744 @@
+{
+  "city": "seoul",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "Yongsan Electronics Market",
+        "ko": "용산전자상가"
+      },
+      "description": {
+        "en": "Korea's legendary electronics district, though smaller than its heyday. Still the go-to for PC builds, A/V equipment, and tech repair at competitive prices.",
+        "ko": "전성기보다 작아졌지만 한국의 전설적인 전자상가. 여전히 PC 조립, AV 장비, 경쟁력 있는 가격의 기술 수리를 위한 곳."
+      },
+      "address": {
+        "en": "Yongsan Electronics Market, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 용산전자상가"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Tech",
+        "PC Building"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Compare prices between shops",
+        "Cash discounts common",
+        "Fewer shops than before but still valuable"
+      ],
+      "neighborhood": "Yongsan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5337,
+      "longitude": 126.9644
+    },
+    {
+      "name": {
+        "en": "Janghanpyeong Antique Market",
+        "ko": "장한평 골동품시장"
+      },
+      "description": {
+        "en": "Sprawling antique complex east of Seoul with furniture, pottery, and vintage goods. Dealers come from all over Korea to buy and sell.",
+        "ko": "가구, 도자기, 빈티지 상품이 있는 서울 동쪽의 거대한 골동품 단지. 전국에서 딜러들이 사고팔러 온다."
+      },
+      "address": {
+        "en": "Janghanpyeong, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 장한평"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Antiques",
+        "Furniture",
+        "Wholesale"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Bring a truck for furniture purchases",
+        "Negotiation expected",
+        "Several buildings to explore"
+      ],
+      "neighborhood": "Janghanpyeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5615,
+      "longitude": 127.0646
+    },
+    {
+      "name": {
+        "en": "Yangjae Citizen's Forest",
+        "ko": "양재시민의숲"
+      },
+      "description": {
+        "en": "Green escape in southern Seoul where office workers jog and families picnic. Annual flower festivals and autumn foliage draw seasonal crowds.",
+        "ko": "남서울에서 직장인들이 조깅하고 가족들이 피크닉하는 녹색 휴식처. 연례 꽃 축제와 가을 단풍이 계절 인파를 끈다."
+      },
+      "address": {
+        "en": "Yangjae-dong, Seocho-gu, Seoul",
+        "ko": "서울 서초구 양재동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Forest",
+        "Jogging"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Morning or late afternoon",
+      "tips": [
+        "Metro-connected to Yangjae Station",
+        "Popular wedding photo location",
+        "Good cafe at entrance"
+      ],
+      "neighborhood": "Yangjae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning or late afternoon"
+      },
+      "latitude": 37.4701,
+      "longitude": 127.0384
+    },
+    {
+      "name": {
+        "en": "Dongdaemun Design Plaza (DDP)",
+        "ko": "동대문디자인플라자"
+      },
+      "description": {
+        "en": "Zaha Hadid's iconic curved building housing design exhibitions, fashion shows, and the 24-hour shopping arcades nearby. Architecture lovers make pilgrimages here.",
+        "ko": "자하 하디드의 상징적인 곡선 건물로 디자인 전시, 패션쇼, 인근 24시간 쇼핑 아케이드가 있다. 건축 애호가들이 순례처럼 찾는다."
+      },
+      "address": {
+        "en": "Euljiro, Jung-gu, Seoul",
+        "ko": "서울 중구 을지로"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Design",
+        "Architecture",
+        "Exhibitions"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Free to explore exterior",
+        "LED roses beautiful at night",
+        "Nearby shopping open 24/7"
+      ],
+      "neighborhood": "Dongdaemun",
+      "latitude": 37.5665256,
+      "longitude": 127.00922360000001,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Seocho Bangbae Cafe Alley",
+        "ko": "서초 방배 카페골목"
+      },
+      "description": {
+        "en": "Hidden cafe street in residential Bangbae where Seoul's coffee pioneers opened early roasters. Quieter and more refined than trendier cafe areas.",
+        "ko": "주거지역 방배의 숨겨진 카페 거리로 서울 커피 개척자들이 초기 로스터리를 열었다. 트렌디한 카페 지역보다 조용하고 세련됨."
+      },
+      "address": {
+        "en": "Bangbae-dong, Seocho-gu, Seoul",
+        "ko": "서울 서초구 방배동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Quiet",
+        "Pioneer"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Fel Coffee is legendary",
+        "Less crowded than Seongsu/Hannam",
+        "Residential neighborhood vibe"
+      ],
+      "neighborhood": "Bangbae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.4788,
+      "longitude": 126.9929
+    },
+    {
+      "name": {
+        "en": "Godeok Station Wetland",
+        "ko": "고덕역 수변공원"
+      },
+      "description": {
+        "en": "Restored wetland ecosystem in eastern Seoul with walking paths and bird watching. Rare urban nature experience where city meets wilderness.",
+        "ko": "산책로와 조류 관찰이 있는 동서울의 복원된 습지 생태계. 도시가 자연과 만나는 드문 도시 자연 체험."
+      },
+      "address": {
+        "en": "Godeok-dong, Gangdong-gu, Seoul",
+        "ko": "서울 강동구 고덕동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Wetland",
+        "Nature",
+        "Bird Watching"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Early morning",
+      "tips": [
+        "Bring binoculars for bird watching",
+        "Connected to Han River path",
+        "Very peaceful escape"
+      ],
+      "neighborhood": "Godeok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 37.5653,
+      "longitude": 127.1576
+    },
+    {
+      "name": {
+        "en": "Hapjeong-dong Vintage Shops",
+        "ko": "합정동 빈티지샵"
+      },
+      "description": {
+        "en": "Cluster of curated vintage clothing stores popular with young Seoulites. Better quality and curation than Dongmyo's chaos, at higher prices.",
+        "ko": "젊은 서울 사람들에게 인기인 큐레이션된 빈티지 의류점 밀집 지역. 동묘의 혼잡보다 더 좋은 품질과 큐레이션, 더 높은 가격."
+      },
+      "address": {
+        "en": "Hapjeong-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 합정동"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Fashion",
+        "Curated"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Prices higher but quality better",
+        "Instagram-friendly stores",
+        "Near Hapjeong Station Exit 3"
+      ],
+      "neighborhood": "Hapjeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5478,
+      "longitude": 126.9096
+    },
+    {
+      "name": {
+        "en": "Gaebong-dong Marketplace",
+        "ko": "개봉동 재래시장"
+      },
+      "description": {
+        "en": "Southwest Seoul neighborhood market serving the local residential community. Zero tourist polish - just grandmas buying groceries and chatting.",
+        "ko": "지역 주거 커뮤니티를 위한 남서부 서울 동네 시장. 관광객용 다듬기 제로 - 그냥 장보고 수다 떠는 할머니들."
+      },
+      "address": {
+        "en": "Gaebong-dong, Guro-gu, Seoul",
+        "ko": "서울 구로구 개봉동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Market",
+        "Residential",
+        "Authentic"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Absolutely zero English",
+        "Real neighborhood market",
+        "Cheap produce and banchan"
+      ],
+      "neighborhood": "Gaebong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.41,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.4946,
+      "longitude": 126.8562
+    },
+    {
+      "name": {
+        "en": "Yeonhui-dong Cafe Street",
+        "ko": "연희동 카페거리"
+      },
+      "description": {
+        "en": "Quiet residential neighborhood with hidden cafes in converted houses. Writers and artists favor this area for its peaceful, creative atmosphere.",
+        "ko": "개조된 주택의 숨겨진 카페가 있는 조용한 주거 지역. 작가와 예술가들이 평화롭고 창의적인 분위기 때문에 이 지역을 선호한다."
+      },
+      "address": {
+        "en": "Yeonhui-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 연희동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden",
+        "Residential",
+        "Creative"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Homes converted to cafes",
+        "Very quiet atmosphere",
+        "Good for writing or reading"
+      ],
+      "neighborhood": "Yeonhui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5723,
+      "longitude": 126.9308
+    },
+    {
+      "name": {
+        "en": "Yeomchang-dong Traditional Market",
+        "ko": "염창동 전통시장"
+      },
+      "description": {
+        "en": "Old neighborhood market in western Seoul that's managed to survive. Korean pancakes (jeon) vendors and traditional snacks draw locals.",
+        "ko": "살아남은 서부 서울의 오래된 동네 시장. 전 장수와 전통 간식이 현지인을 끈다."
+      },
+      "address": {
+        "en": "Yeomchang-dong, Gangseo-gu, Seoul",
+        "ko": "서울 강서구 염창동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Market",
+        "Street Food",
+        "Local"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Morning",
+      "tips": [
+        "Jeon (pancakes) are specialty",
+        "Near Yeomchang Station",
+        "Bring cash"
+      ],
+      "neighborhood": "Yeomchang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.41,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5553,
+      "longitude": 126.8725
+    },
+    {
+      "name": {
+        "en": "Seoul National University Main Gate Area",
+        "ko": "서울대 정문"
+      },
+      "description": {
+        "en": "Korea's top university with surrounding student restaurants and cafes. Autumn foliage on campus is spectacular, and the mountain hiking trails start here.",
+        "ko": "한국 최고 대학과 주변 학생 식당, 카페. 캠퍼스 가을 단풍이 장관이고, 등산로가 여기서 시작된다."
+      },
+      "address": {
+        "en": "Seoul National University, Gwanak-gu, Seoul",
+        "ko": "서울 관악구 서울대"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "University",
+        "Nature",
+        "Student Area"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Autumn afternoon",
+      "tips": [
+        "Beautiful campus in fall",
+        "Gwanaksan trails start here",
+        "Cheap student eats around gate"
+      ],
+      "neighborhood": "Seoul National University",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Autumn afternoon"
+      },
+      "latitude": 37.4661,
+      "longitude": 126.9492
+    },
+    {
+      "name": {
+        "en": "Gwanaksan Mountain",
+        "ko": "관악산"
+      },
+      "description": {
+        "en": "Rugged mountain south of Seoul popular with serious hikers. Rocky granite peaks offer challenging climbs and panoramic views of the city.",
+        "ko": "진지한 등산객들에게 인기인 서울 남쪽의 험한 산. 바위 화강암 봉우리가 도전적인 등반과 도시 파노라마 전망을 제공한다."
+      },
+      "address": {
+        "en": "Gwanaksan, Gwanak-gu, Seoul",
+        "ko": "서울 관악구 관악산"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Challenging",
+        "Scenic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Multiple routes - choose by difficulty",
+        "Bring proper gear",
+        "Summit views worth the effort"
+      ],
+      "neighborhood": "Gwanak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.4472,
+      "longitude": 126.9496
+    },
+    {
+      "name": {
+        "en": "Cheongnyangni 588",
+        "ko": "청량리 588"
+      },
+      "description": {
+        "en": "Historic red-light district being redeveloped, now with trendy cafes and restaurants moving in. A neighborhood in transition showing Seoul's constant reinvention.",
+        "ko": "재개발 중인 역사적 홍등가로, 이제 트렌디한 카페와 식당이 입점하고 있다. 서울의 끊임없는 재발명을 보여주는 전환기의 동네."
+      },
+      "address": {
+        "en": "Cheongnyangni, Dongdaemun-gu, Seoul",
+        "ko": "서울 동대문구 청량리"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Gentrification",
+        "History",
+        "Transition"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Area is changing rapidly",
+        "New cafes opening",
+        "Interesting urban transformation"
+      ],
+      "neighborhood": "Cheongnyangni",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5883,
+      "longitude": 127.0459
+    },
+    {
+      "name": {
+        "en": "Jegi-dong Herbal Medicine Market",
+        "ko": "제기동 약령시장"
+      },
+      "description": {
+        "en": "Traditional Korean medicine market where herbalists have traded for centuries. Ginseng, dried herbs, and traditional remedies fill the air with earthy scents.",
+        "ko": "한방 상인들이 수백 년간 거래해온 전통 한약 시장. 인삼, 건조 약초, 전통 치료제가 흙내음으로 공기를 채운다."
+      },
+      "address": {
+        "en": "Jegi-dong, Dongdaemun-gu, Seoul",
+        "ko": "서울 동대문구 제기동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Medicine",
+        "Herbs",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Ginseng here is high quality",
+        "Shops can prepare custom herb mixes",
+        "Museum of Korean Medicine nearby"
+      ],
+      "neighborhood": "Jegi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5847,
+      "longitude": 127.0368
+    },
+    {
+      "name": {
+        "en": "Ttukseom Resort Station Area",
+        "ko": "뚝섬유원지역"
+      },
+      "description": {
+        "en": "Former amusement park area now popular for outdoor activities. Rent bikes, kayak on the Han River, or join the weekend picnic crowds.",
+        "ko": "현재 야외 활동으로 인기인 옛 놀이공원 지역. 자전거를 빌리거나, 한강에서 카약을 타거나, 주말 피크닉 인파에 합류하라."
+      },
+      "address": {
+        "en": "Ttukseom, Gwangjin-gu, Seoul",
+        "ko": "서울 광진구 뚝섬"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Recreation",
+        "Riverside",
+        "Water Sports"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Weekend afternoon",
+      "tips": [
+        "Water sports rentals in summer",
+        "Bike rental available",
+        "Good sunset views"
+      ],
+      "neighborhood": "Ttukseom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Weekend afternoon"
+      },
+      "latitude": 37.5301,
+      "longitude": 127.0658
+    },
+    {
+      "name": {
+        "en": "Mangwon-dong Brunch Spots",
+        "ko": "망원동 브런치 카페"
+      },
+      "description": {
+        "en": "Weekend brunch culture thrives in Mangwon with Australian-style cafes and egg dishes. Young professionals recover from Friday nights with quality coffee and avocado toast.",
+        "ko": "호주 스타일 카페와 계란 요리로 망원에서 주말 브런치 문화가 번성한다. 젊은 직장인들이 좋은 커피와 아보카도 토스트로 금요일 밤에서 회복한다."
+      },
+      "address": {
+        "en": "Mangwon-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 망원동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Brunch",
+        "Western",
+        "Weekend"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Weekend late morning",
+      "tips": [
+        "Lines at popular spots",
+        "Aussie brunch culture strong here",
+        "Combine with Mangwon Market visit"
+      ],
+      "neighborhood": "Mangwon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Weekend late morning"
+      },
+      "latitude": 37.556,
+      "longitude": 126.901
+    },
+    {
+      "name": {
+        "en": "Sangsu Station Vinyl Bars",
+        "ko": "상수역 LP바"
+      },
+      "description": {
+        "en": "Listening bars around Sangsu Station where vinyl enthusiasts gather. Curated collections, good cocktails, and the warmth of analog sound.",
+        "ko": "바이닐 애호가들이 모이는 상수역 주변 리스닝 바. 큐레이션된 컬렉션, 좋은 칵테일, 아날로그 사운드의 따뜻함."
+      },
+      "address": {
+        "en": "Sangsu Station area, Mapo-gu, Seoul",
+        "ko": "서울 마포구 상수역 일대"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Vinyl Bar",
+        "Cocktails",
+        "Music"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Respect the listening experience",
+        "Good cocktail selection",
+        "Intimate atmospheres"
+      ],
+      "neighborhood": "Sangsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Yeongdong Traditional Market",
+        "ko": "영동전통시장"
+      },
+      "description": {
+        "en": "Old-school market in Gangnam that predates the district's development. Traditional vendors alongside a neighborhood that became a symbol of Korean prosperity.",
+        "ko": "강남 개발 이전의 올드스쿨 시장. 한국 번영의 상징이 된 동네 옆에서 전통 상인들이 영업한다."
+      },
+      "address": {
+        "en": "Yeongdong, Gangnam-gu, Seoul",
+        "ko": "서울 강남구 영동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Market",
+        "Contrast",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Surprising to find in Gangnam",
+        "Old Seoul in new Seoul",
+        "Local produce and banchan"
+      ],
+      "neighborhood": "Gangnam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5171,
+      "longitude": 127.0585
+    },
+    {
+      "name": {
+        "en": "Yeouido Saetgang Ecological Park",
+        "ko": "여의도샛강생태공원"
+      },
+      "description": {
+        "en": "Hidden ecological preserve behind the skyscrapers, connected to Han River. Cyclists and nature lovers find refuge from the financial district's intensity.",
+        "ko": "빌딩숲 뒤에 숨겨진 한강과 연결된 생태 보전 지역. 자전거 타는 사람과 자연 애호가가 금융 지구의 강렬함에서 피난처를 찾는다."
+      },
+      "address": {
+        "en": "Yeouido, Yeongdeungpo-gu, Seoul",
+        "ko": "서울 영등포구 여의도"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Ecology",
+        "Nature",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning or late afternoon",
+      "tips": [
+        "Easy access from Yeouinaru Station",
+        "Bike path through wetlands",
+        "Unexpected nature in business district"
+      ],
+      "neighborhood": "Yeouido",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Morning or late afternoon"
+      },
+      "latitude": 37.5246,
+      "longitude": 126.9138
+    },
+    {
+      "name": {
+        "en": "Dongdaemun Late Night Shopping",
+        "ko": "동대문 심야쇼핑"
+      },
+      "description": {
+        "en": "Legendary 24-hour fashion district where designers, retailers, and night owls shop through the night. The real action happens after midnight.",
+        "ko": "디자이너, 소매상, 올빼미족이 밤새 쇼핑하는 전설적인 24시간 패션 지구. 진짜 액션은 자정 이후에 일어난다."
+      },
+      "address": {
+        "en": "Dongdaemun, Jung-gu, Seoul",
+        "ko": "서울 중구 동대문"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fashion",
+        "24 Hour",
+        "Wholesale"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Midnight to 4am",
+      "tips": [
+        "Wholesale prices after midnight",
+        "Multiple malls to explore",
+        "Cafes open 24/7 for breaks"
+      ],
+      "neighborhood": "Dongdaemun",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Midnight to 4am"
+      },
+      "latitude": 37.5643,
+      "longitude": 127.0071
+    }
+  ]
+}

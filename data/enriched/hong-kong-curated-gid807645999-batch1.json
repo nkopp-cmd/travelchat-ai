@@ -1,0 +1,769 @@
+{
+  "city": "Hong Kong",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:48:48.023Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Tai Ping Shan (PoHo)"
+      },
+      "description": {
+        "en": "First Chinese settlement in 19th century, now creative enclave. Independent galleries, herbal tea shops, quirky coffee bars. HK Walls street art festival."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tai Ping Shan",
+      "address": {
+        "en": "Tai Ping Shan, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2849425,
+      "longitude": 114.14727959999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJm8T30X4ABDQRKYfD3FTFoJQ"
+    },
+    {
+      "name": {
+        "en": "Tai Hang"
+      },
+      "description": {
+        "en": "Next to Causeway Bay but feels different. Laid-back, slow-living vibe. Instagrammable cafes, vintage shops, skateboard boutiques. Old groceries meet modern galleries."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tai Hang",
+      "address": {
+        "en": "Tai Hang, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.275188099999998,
+      "longitude": 114.1937244,
+      "price_tier": "$",
+      "google_place_id": "ChIJz8Q6_6wBBDQRWsmIH2chOAo"
+    },
+    {
+      "name": {
+        "en": "Sham Shui Po"
+      },
+      "description": {
+        "en": "Raw, local vibes for off-beaten-path travelers. Affordable, authentic Hong Kong character."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Sham Shui Po",
+      "address": {
+        "en": "Sham Shui Po, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.328589899999997,
+      "longitude": 114.1602846,
+      "price_tier": "$",
+      "google_place_id": "ChIJC6pfobQABDQRTn_pueERhuM"
+    },
+    {
+      "name": {
+        "en": "Sheung Wan"
+      },
+      "description": {
+        "en": "Man Mo Temple area. French fine-dining, Thai, Middle Eastern cuisine. Mizunara whisky bar, rooftop cocktails."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Sheung Wan",
+      "address": {
+        "en": "Sheung Wan, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.286394299999998,
+      "longitude": 114.1491375,
+      "price_tier": "$",
+      "google_place_id": "ChIJlT8bgX4ABDQRhDf4_LhjyEc"
+    },
+    {
+      "name": {
+        "en": "Causeway Bay"
+      },
+      "description": {
+        "en": "Shopping mecca but also hidden depths. Times Square, Sogo, Hysan Place. Victoria Park. Great Food Hall."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Causeway Bay",
+      "address": {
+        "en": "Causeway Bay, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.285978699999998,
+      "longitude": 114.19149189999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJf6xts1UABDQRagwS57GoPwI"
+    },
+    {
+      "name": {
+        "en": "Jordan"
+      },
+      "description": {
+        "en": "Residential but bustling. Temple Street Night Market, local eateries. Microcosm of HK culture."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Jordan",
+      "address": {
+        "en": "Jordan, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3059608,
+      "longitude": 114.1715157,
+      "price_tier": "$",
+      "google_place_id": "ChIJr6xKoOsABDQRUrncbv49ykg"
+    },
+    {
+      "name": {
+        "en": "Peng Chau Island"
+      },
+      "description": {
+        "en": "Ferry from Central, feels worlds away. Population 6,000. Finger Hill for views, Leather Factory arts. \"Hong Kong before the rush.\""
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Peng Chau",
+      "address": {
+        "en": "Peng Chau, Hong Kong"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2830679,
+      "longitude": 114.04136749999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJmWHddN39AzQRBD8e-rkz_jE"
+    },
+    {
+      "name": {
+        "en": "SKYE Roofbar"
+      },
+      "description": {
+        "en": "Park Lane Hong Kong 27th floor. No deposit, reasonable prices. PL50 exclusive gin, Gloucester Road cocktail. Causeway Bay views."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Causeway Bay",
+      "address": {
+        "en": "27/F, 310 Gloucester Rd, Causeway Bay, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2814709,
+      "longitude": 114.18641099999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJjxWWzVUABDQRQnKdub8eZrc"
+    },
+    {
+      "name": {
+        "en": "Cardinal Point"
+      },
+      "description": {
+        "en": "Opened late 2023, 45 floors high. Sky Terrace with superb views. West Face Killa cocktail with passion fruit, pineapple."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "43-45/F, FORTY-FIVE, Gloucester Tower, Landmark, 15 Queen's Road Central, Central, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.281483299999998,
+      "longitude": 114.1577911,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJo4dlNN8BBDQRBnDDxORfekg"
+    },
+    {
+      "name": {
+        "en": "Swim Club (Kimpton TST)"
+      },
+      "description": {
+        "en": "50th floor rooftop bar transformed into Beverly Hills-meets-HK. 270-degree harbour views, striped umbrellas, milk-washed rum punches."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tsim Sha Tsui",
+      "address": {
+        "en": "50F, 11 Middle Rd, Tsim Sha Tsui, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2958176,
+      "longitude": 114.17380999999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJI19FavMBBDQRHVqkKzGEctw"
+    },
+    {
+      "name": {
+        "en": "Red Sugar (Kerry Hotel)"
+      },
+      "description": {
+        "en": "Level 7 Kowloon waterfront. 270° harbour views, craft beers, barrel-aged cocktails, Asian bites."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Hung Hom",
+      "address": {
+        "en": "7/F, Kerry Hotel, 38 Hung Luen Rd, Hung Hom, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3012196,
+      "longitude": 114.18817059999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ_TEXnOEABDQRG_nEbwKztyM"
+    },
+    {
+      "name": {
+        "en": "TopTown"
+      },
+      "description": {
+        "en": "Art-deco Great Gatsby vibes on 28 Stanley Street rooftop. Business district and Victoria Harbour views. Sister venue Oro below."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "31/F, 28 Stanley St, Central, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.282312899999997,
+      "longitude": 114.15544009999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ3Wxw9U0BBDQR2XrAoRgZWx4"
+    },
+    {
+      "name": {
+        "en": "The Lawn (Upper House)"
+      },
+      "description": {
+        "en": "6th floor lounge-garden at five-star hotel. Hidden oasis among skyscrapers."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Admiralty",
+      "address": {
+        "en": "L6 (Portion A) , The Upper House, Pacific Place, 88 Queensway, Admiralty, Hong Kong, Admiralty, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.277714,
+      "longitude": 114.16543499999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJqd-ct2cABDQRbztxmQTwEDs"
+    },
+    {
+      "name": {
+        "en": "Wooloomooloo Rooftop"
+      },
+      "description": {
+        "en": "Sheung Wan area, sky-high cocktails with views."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Wan Chai",
+      "address": {
+        "en": "31/F The Hennessy 256 Hennessy Road, Main entrance on, 213 Johnston Rd, Wan Chai, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.277691400000002,
+      "longitude": 114.1761051,
+      "price_tier": "$$",
+      "google_place_id": "ChIJbR94slsABDQREJXLSQOPu20"
+    },
+    {
+      "name": {
+        "en": "Bar Leone"
+      },
+      "description": {
+        "en": "Asia's Best Bar 2024. Lorenzo Antinori brings Roman renaissance. Yuzu Negroni signature. Party vibes when Lorenzo is in."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "11-15 Bridges St, Central, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.283523799999998,
+      "longitude": 114.1509492,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJqyyPsGUBBDQRE5twNod5Lk8"
+    },
+    {
+      "name": {
+        "en": "DIO | Cafe Bar"
+      },
+      "description": {
+        "en": "Best Cocktail Menu 2025. Cantonese food culture in cocktails. Bonham Strand with Luo Han Guo wine, mushrooms, goji."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "中環",
+      "address": {
+        "en": "Hong Kong, 中環鴨巴甸街8 號地下 A 舖"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.283923299999998,
+      "longitude": 114.15303809999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ1c5YlwABBDQRl0GVw1VkQZw"
+    },
+    {
+      "name": {
+        "en": "Avoca (Mondrian HK)"
+      },
+      "description": {
+        "en": "Sky-high above TST. True street flavors in cocktail form - sweet, salty, sour, spicy."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tsim Sha Tsui",
+      "address": {
+        "en": "38/F, Mondrian, 8A Hart Ave, Tsim Sha Tsui, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2976487,
+      "longitude": 114.1748233,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ-e5L3GQBBDQRvJhmdKqVu-c"
+    },
+    {
+      "name": {
+        "en": "Madara (Causeway Bay)"
+      },
+      "description": {
+        "en": "10-seat Japanese bar inside Yorucho. Ginza-style hidden bar. Sakura shochutinis, hojicha cosmos, dashi Bloody Marys."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Causeway Bay",
+      "address": {
+        "en": "Hong Kong, Causeway Bay, Tang Lung St, 28號, Circle Tower, Floor 16"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.279264599999998,
+      "longitude": 114.1820324,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ2XugHT8BBDQReM_7No80mrA"
+    },
+    {
+      "name": {
+        "en": "Hungry Tiger Hidden Dragon"
+      },
+      "description": {
+        "en": "Kai Tak Sports Park rooftop. Bo Jai Fan Old Fashioned with Chinese sausage honey. Stadium views."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Kai Tak",
+      "address": {
+        "en": "Level 4, Health &, Park, Wellness Centre, Kai Tak Sports Ave, Kai Tak, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3247291,
+      "longitude": 114.1955971,
+      "price_tier": "$$",
+      "google_place_id": "ChIJv6B-KRgBBDQR5dXJHHj5_Go"
+    },
+    {
+      "name": {
+        "en": "Bar Q88 (JW Marriott)"
+      },
+      "description": {
+        "en": "Reopened 2025 with loungey, comfortable new identity. Crystal Bar cocktail - Bees Knees with plum sauce."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Admiralty",
+      "address": {
+        "en": "Lobby Level, JW Marriott Hotel Hong Kong, Pacific Place, 88 Queensway, Admiralty, Hong Kong"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2774985,
+      "longitude": 114.16632249999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJaTcUlWcABDQRP587gemm1yE"
+    },
+    {
+      "name": {
+        "en": "Sake Bar CHU CHU"
+      },
+      "description": {
+        "en": "Tang Lung Street, Causeway Bay. Dozens of sake from across Japan, glass or bottle."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Causeway Bay",
+      "address": {
+        "en": "Hong Kong, Causeway Bay, Tang Lung St, 28號, Circle Tower, 25樓"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.279264599999998,
+      "longitude": 114.1820324,
+      "price_tier": "$$",
+      "google_place_id": "ChIJM2Cw92YBBDQRSFIRr0pZiAA"
+    },
+    {
+      "name": {
+        "en": "Tim Ho Wan"
+      },
+      "description": {
+        "en": "World's cheapest Michelin star. Famous BBQ pork buns with crispy top. Multiple locations, expect queues."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "Shop 12A & 12B, Level 1, MTR Hong Kong Station, Central, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "BBQ",
+        "Korean",
+        "Grilled"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.284509399999997,
+      "longitude": 114.15814259999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJFaKIAGMABDQRN-JA3EpHFJc"
+    },
+    {
+      "name": {
+        "en": "Lin Heung Tea House"
+      },
+      "description": {
+        "en": "Traditional dim sum experience. Push carts, old-school atmosphere. Locals grab dishes aggressively - join in!"
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "160號 Wellington St, Central, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Dim Sum",
+        "Chinese",
+        "Tea"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2842663,
+      "longitude": 114.1534466,
+      "price_tier": "$",
+      "google_place_id": "ChIJ2VMbhXwABDQRRuoVK12X6Tk"
+    },
+    {
+      "name": {
+        "en": "Maxim's Palace"
+      },
+      "description": {
+        "en": "City Hall location for classic trolley service dim sum. Grand setting, weekend crowds."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "2/F Low Block, Central, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Dim Sum",
+        "Chinese"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.28237,
+      "longitude": 114.16175899999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJZ7kEVWEABDQRUsrU6FQ1y5E"
+    },
+    {
+      "name": {
+        "en": "Australia Dairy Company"
+      },
+      "description": {
+        "en": "Famous for silky scrambled eggs on toast and almond steamed milk pudding. Tsim Sha Tsui."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Jordan",
+      "address": {
+        "en": "47號 Parkes St, Jordan, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Tea"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.304627999999997,
+      "longitude": 114.1705439,
+      "price_tier": "$",
+      "google_place_id": "ChIJgR3J8gIBBDQRz3-Yaz5vVPo"
+    }
+  ]
+}

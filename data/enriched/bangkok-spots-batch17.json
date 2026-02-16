@@ -1,0 +1,742 @@
+{
+  "city": "bangkok",
+  "batch": 17,
+  "spots": [
+    {
+      "name": {
+        "en": "Ceresia Coffee Roasters",
+        "th": "เซเรเซีย คอฟฟี่ โรสเตอร์ส"
+      },
+      "description": {
+        "en": "High-end specialty coffee. Single origin focus.",
+        "th": "กาแฟพิเศษระดับบน เน้นซิงเกิลออริจิน"
+      },
+      "address": {
+        "en": "Ekkamai, Bangkok",
+        "th": "เอกมัย กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Single Origin",
+        "Premium"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Premium coffee",
+        "Single origin",
+        "Coffee nerds"
+      ],
+      "neighborhood": "Ekkamai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7195,
+      "longitude": 100.5851
+    },
+    {
+      "name": {
+        "en": "Kaizen Coffee",
+        "th": "ไคเซ็น คอฟฟี่"
+      },
+      "description": {
+        "en": "Japanese-style coffee shop. Precision brewing.",
+        "th": "ร้านกาแฟสไตล์ญี่ปุ่น การชงแม่นยำ"
+      },
+      "address": {
+        "en": "Ekkamai, Bangkok",
+        "th": "เอกมัย กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Japanese",
+        "Precision"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Japanese style",
+        "Pour over",
+        "Quiet space"
+      ],
+      "neighborhood": "Ekkamai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7397,
+      "longitude": 100.5896
+    },
+    {
+      "name": {
+        "en": "Hands and Heart Cafe",
+        "th": "แฮนด์ส แอนด์ ฮาร์ท"
+      },
+      "description": {
+        "en": "Coffee and craft workspace. Creative community.",
+        "th": "กาแฟและพื้นที่งานฝีมือ ชุมชนสร้างสรรค์"
+      },
+      "address": {
+        "en": "Charoenkrung, Bangkok",
+        "th": "เจริญกรุง กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Craft",
+        "Community"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Craft workshops",
+        "Good coffee",
+        "Creative space"
+      ],
+      "neighborhood": "Charoen Krung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7217,
+      "longitude": 100.5793
+    },
+    {
+      "name": {
+        "en": "Onion Creek Cafe",
+        "th": "ออเนียน ครีก"
+      },
+      "description": {
+        "en": "Southern US comfort food. Bangkok brunch scene.",
+        "th": "อาหารคอมฟอร์ตใต้สหรัฐ ซีนบรันช์กรุงเทพ"
+      },
+      "address": {
+        "en": "Sukhumvit Soi 36, Bangkok",
+        "th": "สุขุมวิท ซอย 36 กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Brunch",
+        "American",
+        "Southern"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Brunch",
+      "tips": [
+        "Southern food",
+        "Big portions",
+        "Weekend brunch"
+      ],
+      "neighborhood": "Thonglor",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 13.7201,
+      "longitude": 100.5762
+    },
+    {
+      "name": {
+        "en": "Patom Organic Living",
+        "th": "ปฐม ออร์แกนิค ลิฟวิ่ง"
+      },
+      "description": {
+        "en": "Organic cafe and market. Thai organic ingredients.",
+        "th": "คาเฟ่และตลาดออร์แกนิก วัตถุดิบออร์แกนิกไทย"
+      },
+      "address": {
+        "en": "Thonglor, Bangkok",
+        "th": "ทองหล่อ กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Organic",
+        "Healthy",
+        "Market"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Organic Thai",
+        "Healthy options",
+        "Nice garden"
+      ],
+      "neighborhood": "Thonglor",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7386,
+      "longitude": 100.579
+    },
+    {
+      "name": {
+        "en": "Veganerie Concept",
+        "th": "วีแกนเนอรี่ คอนเซปต์"
+      },
+      "description": {
+        "en": "Vegan cafe and bakery. Plant-based dining.",
+        "th": "คาเฟ่และเบเกอรี่วีแกน อาหารพืชเป็นฐาน"
+      },
+      "address": {
+        "en": "Mercury Ville, Bangkok",
+        "th": "เมอร์คิวรี่วิลล์ กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Vegan",
+        "Bakery",
+        "Plant-based"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "All vegan",
+        "Good desserts",
+        "Multiple branches"
+      ],
+      "neighborhood": "Chit Lom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Lunch"
+      }
+    },
+    {
+      "name": {
+        "en": "May Veggie Home",
+        "th": "เมย์ เวจจี้ โฮม"
+      },
+      "description": {
+        "en": "Vegetarian Thai restaurant. Chinese Buddhist style.",
+        "th": "ร้านอาหารไทยมังสวิรัติ สไตล์พุทธจีน"
+      },
+      "address": {
+        "en": "Soi Polo, Bangkok",
+        "th": "ซอยโปโล กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Vegetarian",
+        "Thai",
+        "Buddhist"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Thai veggie",
+        "Cheap eats",
+        "Local spot"
+      ],
+      "neighborhood": "Lumpini",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 13.7401,
+      "longitude": 100.5629
+    },
+    {
+      "name": {
+        "en": "D'Ark Bangkok",
+        "th": "ดาร์ค กรุงเทพ"
+      },
+      "description": {
+        "en": "Stylish coffee and co-working. Design focused.",
+        "th": "กาแฟและโคเวิร์กกิ้งสไตลิช เน้นดีไซน์"
+      },
+      "address": {
+        "en": "Silom, Bangkok",
+        "th": "สีลม กรุงเทพฯ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Co-working",
+        "Design"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Good design",
+        "Work space",
+        "Silom area"
+      ],
+      "neighborhood": "Silom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7321,
+      "longitude": 100.5694
+    },
+    {
+      "name": {
+        "en": "Above Eleven Rooftop",
+        "th": "อะบาฟ อีเลฟเว่น"
+      },
+      "description": {
+        "en": "Peruvian-Japanese rooftop bar. Stunning views.",
+        "th": "บาร์ดาดฟ้าเปรู-ญี่ปุ่น วิวสวยงาม"
+      },
+      "address": {
+        "en": "Fraser Suites, Sukhumvit, Bangkok",
+        "th": "เฟรเซอร์ สวีท สุขุมวิท กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Bar",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Sunset",
+      "tips": [
+        "City views",
+        "Good cocktails",
+        "Nikkei food"
+      ],
+      "neighborhood": "Sukhumvit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7456,
+      "longitude": 100.5566
+    },
+    {
+      "name": {
+        "en": "Octave Rooftop Bar",
+        "th": "อ็อคเทฟ รูฟท็อปบาร์"
+      },
+      "description": {
+        "en": "Three-level rooftop bar. 360-degree views.",
+        "th": "บาร์ดาดฟ้าสามชั้น วิว 360 องศา"
+      },
+      "address": {
+        "en": "Marriott Sukhumvit, Bangkok",
+        "th": "แมริออท สุขุมวิท กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Bar",
+        "360 Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Sunset",
+      "tips": [
+        "Three floors",
+        "360 views",
+        "Happy hour"
+      ],
+      "neighborhood": "Thonglor",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7234,
+      "longitude": 100.5805
+    },
+    {
+      "name": {
+        "en": "Spectrum Lounge",
+        "th": "สเปกตรัม เลานจ์"
+      },
+      "description": {
+        "en": "Rooftop bar at Hyatt. Views over Nana.",
+        "th": "บาร์ดาดฟ้าไฮแอท วิวเหนือนานา"
+      },
+      "address": {
+        "en": "Hyatt Regency, Bangkok",
+        "th": "ไฮแอท รีเจนซี่ กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Bar",
+        "Hotel"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Hotel bar",
+        "Good views",
+        "Less crowded"
+      ],
+      "neighborhood": "Sukhumvit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7399,
+      "longitude": 100.5572
+    },
+    {
+      "name": {
+        "en": "Cielo Sky Bar",
+        "th": "เซียโล สกายบาร์"
+      },
+      "description": {
+        "en": "Italian rooftop restaurant. Skyline dining.",
+        "th": "ร้านอาหารอิตาเลียนดาดฟ้า อาหารสกายไลน์"
+      },
+      "address": {
+        "en": "Sky Walk Condominium, Bangkok",
+        "th": "สกายวอล์ค คอนโด กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Italian",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Dinner",
+      "tips": [
+        "Good Italian",
+        "City views",
+        "Less famous"
+      ],
+      "neighborhood": "Phra Khanong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 13.7144,
+      "longitude": 100.5937
+    },
+    {
+      "name": {
+        "en": "Bangkok Heights Rooftop",
+        "th": "กรุงเทพไฮท์ รูฟท็อป"
+      },
+      "description": {
+        "en": "Local rooftop bar. Less touristy views.",
+        "th": "บาร์ดาดฟ้าท้องถิ่น วิวไม่ท่องเที่ยว"
+      },
+      "address": {
+        "en": "Central Ladprao, Bangkok",
+        "th": "เซ็นทรัล ลาดพร้าว กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Local",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Local crowd",
+        "Good prices",
+        "Different view"
+      ],
+      "neighborhood": "Ladprao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.8168,
+      "longitude": 100.5614
+    },
+    {
+      "name": {
+        "en": "Zoom Sky Bar",
+        "th": "ซูม สกายบาร์"
+      },
+      "description": {
+        "en": "Rooftop at Anantara Sathorn. Elegant atmosphere.",
+        "th": "ดาดฟ้าอนันตราสาทร บรรยากาศสง่างาม"
+      },
+      "address": {
+        "en": "Anantara Sathorn, Bangkok",
+        "th": "อนันตรา สาทร กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop",
+        "Hotel",
+        "Elegant"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Elegant vibe",
+        "Good service",
+        "Hotel quality"
+      ],
+      "neighborhood": "Sathorn",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.36,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7162,
+      "longitude": 100.5312
+    },
+    {
+      "name": {
+        "en": "Long Table Bangkok",
+        "th": "ลองเทเบิล กรุงเทพ"
+      },
+      "description": {
+        "en": "Thai food with skyline views. 25th floor dining.",
+        "th": "อาหารไทยพร้อมวิวสกายไลน์ อาหารชั้น 25"
+      },
+      "address": {
+        "en": "Column Tower, Sukhumvit, Bangkok",
+        "th": "คอลัมน์ ทาวเวอร์ สุขุมวิท กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Thai",
+        "Views",
+        "High Rise"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Dinner",
+      "tips": [
+        "Long communal table",
+        "City views",
+        "Modern Thai"
+      ],
+      "neighborhood": "Asoke",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 13.733,
+      "longitude": 100.5605
+    },
+    {
+      "name": {
+        "en": "Blue Sky Rooftop",
+        "th": "บลูสกาย รูฟท็อป"
+      },
+      "description": {
+        "en": "Thai restaurant rooftop. Centara Grand views.",
+        "th": "ร้านอาหารไทยดาดฟ้า วิวเซ็นทาราแกรนด์"
+      },
+      "address": {
+        "en": "Centara Grand, Central World, Bangkok",
+        "th": "เซ็นทาราแกรนด์ เซ็นทรัลเวิลด์ กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Thai",
+        "Rooftop",
+        "Hotel"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Dinner",
+      "tips": [
+        "Thai food",
+        "Good views",
+        "Central location"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Dinner"
+      }
+    },
+    {
+      "name": {
+        "en": "The Deck by Arun Residence",
+        "th": "เดอะเด็ค บายอรุณ เรสิเดนซ์"
+      },
+      "description": {
+        "en": "Wat Arun views restaurant. Sunset dining.",
+        "th": "ร้านอาหารวิววัดอรุณ อาหารพระอาทิตย์ตก"
+      },
+      "address": {
+        "en": "Maharaj Road, Bangkok",
+        "th": "ถนนมหาราช กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Views",
+        "Riverside",
+        "Sunset"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Sunset",
+      "tips": [
+        "Best Wat Arun view",
+        "Book sunset table",
+        "Thai fusion"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7449,
+      "longitude": 100.4912
+    },
+    {
+      "name": {
+        "en": "Sala Rattanakosin",
+        "th": "ศาลารัตนโกสินทร์"
+      },
+      "description": {
+        "en": "Boutique hotel rooftop. Temple views dining.",
+        "th": "ดาดฟ้าโรงแรมบูติก อาหารวิววัด"
+      },
+      "address": {
+        "en": "Maharat Road, Bangkok",
+        "th": "ถนนมหาราช กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Views",
+        "Temple",
+        "Boutique"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Sunset",
+      "tips": [
+        "Temple views",
+        "Intimate",
+        "Reserve ahead"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7521,
+      "longitude": 100.4967
+    },
+    {
+      "name": {
+        "en": "Supatra River House",
+        "th": "สุภัทรา ริเวอร์เฮ้าส์"
+      },
+      "description": {
+        "en": "Thai restaurant with river views. Historic house.",
+        "th": "ร้านอาหารไทยวิวแม่น้ำ บ้านประวัติศาสตร์"
+      },
+      "address": {
+        "en": "Soi Wat Rakhang, Bangkok",
+        "th": "ซอยวัดระฆัง กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Thai",
+        "Riverside",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Dinner",
+      "tips": [
+        "River location",
+        "Traditional Thai",
+        "Good setting"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 13.754,
+      "longitude": 100.4864
+    },
+    {
+      "name": {
+        "en": "Steve Cafe and Cuisine",
+        "th": "สตีฟ คาเฟ่ แอนด์ คูซีน"
+      },
+      "description": {
+        "en": "Thai food by the river. Casual riverside dining.",
+        "th": "อาหารไทยริมน้ำ อาหารริมน้ำสบายๆ"
+      },
+      "address": {
+        "en": "Sri Ayutthaya Road, Bangkok",
+        "th": "ถนนศรีอยุธยา กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Thai",
+        "Riverside",
+        "Casual"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Dinner",
+      "tips": [
+        "River breeze",
+        "Good Thai",
+        "Casual vibe"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 13.7719,
+      "longitude": 100.5037
+    }
+  ]
+}

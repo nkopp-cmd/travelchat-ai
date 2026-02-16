@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLACEHOLDER_IMAGE = "/placeholder-spot.svg";
+const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
 interface SpotCardProps {
     spot: Spot;
@@ -33,7 +33,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
         return (
             <Link href={`/spots/${spot.id}`}>
                 <Card className={cn(
-                    "overflow-hidden group flex flex-row",
+                    "overflow-hidden group flex flex-row !py-0 !gap-0",
                     "bg-gradient-to-r from-card to-card/95",
                     "border border-border/50",
                     "transition-all duration-300 ease-out",
@@ -111,7 +111,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     return (
         <Link href={`/spots/${spot.id}`}>
             <Card className={cn(
-                "overflow-hidden h-full flex flex-col group",
+                "overflow-hidden h-full flex flex-col group !py-0 !gap-0",
                 "bg-card/95 backdrop-blur-sm",
                 "border border-border/50",
                 "transition-all duration-300 ease-out",

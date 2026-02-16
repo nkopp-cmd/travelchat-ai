@@ -1,0 +1,742 @@
+{
+  "city": "hong_kong",
+  "batch": 8,
+  "spots": [
+    {
+      "name": {
+        "en": "Cha Chaan Teng Culture",
+        "zh": "茶餐廳文化"
+      },
+      "description": {
+        "en": "Hong Kong style cafes. Local institution.",
+        "zh": "港式茶餐廳。當地文化。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Cafe",
+        "Local",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Any",
+      "tips": [
+        "Milk tea",
+        "Pineapple bun",
+        "Fast meals"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Any"
+      }
+    },
+    {
+      "name": {
+        "en": "Lan Fong Yuen",
+        "zh": "蘭芳園"
+      },
+      "description": {
+        "en": "Birthplace of milk tea. Central institution.",
+        "zh": "奶茶發源地。中環老店。"
+      },
+      "address": {
+        "en": "Gage Street, Central, Hong Kong",
+        "zh": "香港中環結志街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Milk Tea",
+        "Historic",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Silk stocking milk tea",
+        "Very small",
+        "Historic"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2826,
+      "longitude": 114.1538
+    },
+    {
+      "name": {
+        "en": "Mido Cafe",
+        "zh": "美都餐室"
+      },
+      "description": {
+        "en": "Retro cha chaan teng in Yau Ma Tei.",
+        "zh": "油麻地復古茶餐廳。"
+      },
+      "address": {
+        "en": "63 Temple Street, Yau Ma Tei, Kowloon",
+        "zh": "九龍油麻地廟街63號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Cafe",
+        "Retro",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Retro decor",
+        "Photo famous",
+        "Near Temple Street"
+      ],
+      "neighborhood": "Yau Ma Tei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3102,
+      "longitude": 114.1704
+    },
+    {
+      "name": {
+        "en": "Capital Cafe",
+        "zh": "華星冰室"
+      },
+      "description": {
+        "en": "Popular cha chaan teng chain. Good food.",
+        "zh": "熱門茶餐廳連鎖。美食。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Cafe",
+        "Chain",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Any",
+      "tips": [
+        "Good pork chop",
+        "Multiple locations",
+        "Local favorite"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 22.2777,
+      "longitude": 114.1772
+    },
+    {
+      "name": {
+        "en": "Sing Heung Yuen",
+        "zh": "勝香園"
+      },
+      "description": {
+        "en": "Street side cafe. Tomato noodles famous.",
+        "zh": "街邊茶餐廳。番茄麵出名。"
+      },
+      "address": {
+        "en": "2 Mei Lun Street, Central, Hong Kong",
+        "zh": "香港中環美輪街2號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Cafe",
+        "Street",
+        "Noodles"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Breakfast",
+      "tips": [
+        "Tomato noodles",
+        "Crispy bun",
+        "Very local"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 22.2841,
+      "longitude": 114.1525
+    },
+    {
+      "name": {
+        "en": "Dai Pai Dongs",
+        "zh": "大牌檔"
+      },
+      "description": {
+        "en": "Open-air street food stalls. Disappearing.",
+        "zh": "露天街頭食檔。逐漸消失。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Street Food",
+        "Traditional",
+        "Disappearing"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Dinner",
+      "tips": [
+        "Sham Shui Po",
+        "Central",
+        "Night time best"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.2801,
+      "longitude": 114.2308
+    },
+    {
+      "name": {
+        "en": "Sing Kee Dai Pai Dong",
+        "zh": "勝記大牌檔"
+      },
+      "description": {
+        "en": "Famous dai pai dong in Central.",
+        "zh": "中環著名大牌檔。"
+      },
+      "address": {
+        "en": "Stanley Street, Central, Hong Kong",
+        "zh": "香港中環士丹利街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dai Pai Dong",
+        "Famous",
+        "Central"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Dinner",
+      "tips": [
+        "Classic experience",
+        "Stir fry",
+        "Beer and food"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.2836,
+      "longitude": 114.1545
+    },
+    {
+      "name": {
+        "en": "Joy Hing Roasted Meat",
+        "zh": "再興燒臘飯店"
+      },
+      "description": {
+        "en": "Famous char siu shop. Wan Chai.",
+        "zh": "著名叉燒店。灣仔。"
+      },
+      "address": {
+        "en": "265-267 Hennessy Road, Wan Chai, Hong Kong",
+        "zh": "香港灣仔軒尼詩道265-267號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Char Siu",
+        "Famous",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Amazing char siu",
+        "Queue expected",
+        "Cash only"
+      ],
+      "neighborhood": "Wan Chai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.2783,
+      "longitude": 114.1767
+    },
+    {
+      "name": {
+        "en": "Good Luck Thai Food",
+        "zh": "好運泰國菜"
+      },
+      "description": {
+        "en": "Authentic Thai in Kowloon City.",
+        "zh": "九龍城正宗泰國菜。"
+      },
+      "address": {
+        "en": "Kowloon City, Kowloon",
+        "zh": "九龍九龍城"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Thai",
+        "Authentic",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Dinner",
+      "tips": [
+        "Real Thai food",
+        "Many options nearby",
+        "Local Thai community"
+      ],
+      "neighborhood": "Kowloon City",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.2812,
+      "longitude": 114.1553
+    },
+    {
+      "name": {
+        "en": "Tai Hing",
+        "zh": "太興"
+      },
+      "description": {
+        "en": "Popular roast meat chain. Affordable.",
+        "zh": "熱門燒味連鎖。實惠。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Roast Meat",
+        "Chain",
+        "Affordable"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Everywhere",
+        "Good roast",
+        "Fast service"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.4027,
+      "longitude": 113.972
+    },
+    {
+      "name": {
+        "en": "Ozone Bar",
+        "zh": "Ozone酒吧"
+      },
+      "description": {
+        "en": "World's highest bar. Ritz Carlton 118/F.",
+        "zh": "世界最高酒吧。麗思卡爾頓118樓。"
+      },
+      "address": {
+        "en": "ICC, 1 Austin Road West, Kowloon",
+        "zh": "九龍柯士甸道西1號環球貿易廣場"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Rooftop",
+        "Views"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_time": "Evening",
+      "tips": [
+        "Smart casual",
+        "Expensive",
+        "Book ahead"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3033,
+      "longitude": 114.1602
+    },
+    {
+      "name": {
+        "en": "Aqua",
+        "zh": "Aqua"
+      },
+      "description": {
+        "en": "Rooftop bar and restaurant. TST views.",
+        "zh": "天台酒吧和餐廳。尖沙咀景觀。"
+      },
+      "address": {
+        "en": "One Peking Road, TST, Kowloon",
+        "zh": "九龍尖沙咀北京道1號"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Rooftop",
+        "Restaurant"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Harbor views",
+        "Dress code",
+        "Reservations"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.296,
+      "longitude": 114.17
+    },
+    {
+      "name": {
+        "en": "Feather Boa",
+        "zh": "Feather Boa"
+      },
+      "description": {
+        "en": "Quirky vintage bar in SoHo.",
+        "zh": "SoHo古怪復古酒吧。"
+      },
+      "address": {
+        "en": "38 Staunton Street, SoHo, Hong Kong",
+        "zh": "香港蘇豪士丹頓街38號"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Quirky",
+        "Vintage"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Night",
+      "tips": [
+        "Hidden gem",
+        "Unique decor",
+        "Cocktails"
+      ],
+      "neighborhood": "SoHo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 22.2823,
+      "longitude": 114.1523
+    },
+    {
+      "name": {
+        "en": "Club 71",
+        "zh": "Club 71"
+      },
+      "description": {
+        "en": "Local bar named after July 1st protests.",
+        "zh": "以七一遊行命名的當地酒吧。"
+      },
+      "address": {
+        "en": "Hollywood Road, Central, Hong Kong",
+        "zh": "香港中環荷李活道"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Local",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Night",
+      "tips": [
+        "Local crowd",
+        "Cheap drinks",
+        "Political history"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 22.2835,
+      "longitude": 114.1527
+    },
+    {
+      "name": {
+        "en": "The Pawn",
+        "zh": "The Pawn"
+      },
+      "description": {
+        "en": "Historic pawn shop turned restaurant bar.",
+        "zh": "歷史當鋪改建的餐廳酒吧。"
+      },
+      "address": {
+        "en": "62 Johnston Road, Wan Chai, Hong Kong",
+        "zh": "香港灣仔莊士敦道62號"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Historic",
+        "Restaurant"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Historic building",
+        "British gastropub",
+        "Nice terrace"
+      ],
+      "neighborhood": "Wan Chai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2763,
+      "longitude": 114.1714
+    },
+    {
+      "name": {
+        "en": "Lockhart Road Bars",
+        "zh": "駱克道酒吧"
+      },
+      "description": {
+        "en": "Wan Chai bar street. Mixed scene.",
+        "zh": "灣仔酒吧街。混合場景。"
+      },
+      "address": {
+        "en": "Lockhart Road, Wan Chai, Hong Kong",
+        "zh": "香港灣仔駱克道"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar Street",
+        "Mixed",
+        "Nightlife"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Night",
+      "tips": [
+        "Various bars",
+        "Mixed crowd",
+        "Late night"
+      ],
+      "neighborhood": "Wan Chai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 22.2783,
+      "longitude": 114.1696
+    },
+    {
+      "name": {
+        "en": "Knutsford Terrace",
+        "zh": "諾士佛臺"
+      },
+      "description": {
+        "en": "Alley of bars and restaurants in TST.",
+        "zh": "尖沙咀酒吧餐廳小巷。"
+      },
+      "address": {
+        "en": "Knutsford Terrace, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀諾士佛臺"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Alley",
+        "Dining"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Many options",
+        "International cuisine",
+        "Outdoor seating"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.301,
+      "longitude": 114.1731
+    },
+    {
+      "name": {
+        "en": "Ashley Road Bars",
+        "zh": "亞士厘道酒吧"
+      },
+      "description": {
+        "en": "Budget bar street in TST.",
+        "zh": "尖沙咀平價酒吧街。"
+      },
+      "address": {
+        "en": "Ashley Road, Tsim Sha Tsui, Kowloon",
+        "zh": "九龍尖沙咀亞士厘道"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Budget",
+        "Street"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Night",
+      "tips": [
+        "Cheap drinks",
+        "Sports bars",
+        "Casual"
+      ],
+      "neighborhood": "Tsim Sha Tsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 22.2969,
+      "longitude": 114.1705
+    },
+    {
+      "name": {
+        "en": "Wyndham Street Clubs",
+        "zh": "雲咸街俱樂部"
+      },
+      "description": {
+        "en": "Central nightclub area. Late night.",
+        "zh": "中環夜店區。深夜。"
+      },
+      "address": {
+        "en": "Wyndham Street, Central, Hong Kong",
+        "zh": "香港中環雲咸街"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Club",
+        "Late Night",
+        "Central"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late Night",
+      "tips": [
+        "After LKF",
+        "Late closing",
+        "Mixed crowd"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Late Night"
+      },
+      "latitude": 22.2808,
+      "longitude": 114.1548
+    },
+    {
+      "name": {
+        "en": "TOTT's Asian Grill & Bar",
+        "zh": "TOTT's亞洲燒烤酒吧"
+      },
+      "description": {
+        "en": "Rooftop venue in Causeway Bay.",
+        "zh": "銅鑼灣天台場所。"
+      },
+      "address": {
+        "en": "34/F Excelsior Hotel, Causeway Bay, Hong Kong",
+        "zh": "香港銅鑼灣怡東酒店34樓"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Rooftop",
+        "Restaurant"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Harbor views",
+        "Dinner and drinks",
+        "Live music"
+      ],
+      "neighborhood": "Causeway Bay",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Evening"
+      }
+    }
+  ]
+}

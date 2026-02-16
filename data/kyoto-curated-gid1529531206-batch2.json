@@ -1,0 +1,703 @@
+{
+  "city": "Kyoto",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:46:27.528Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Gion Karyo"
+      },
+      "description": {
+        "en": "Refined kaiseki meal showcasing Kyoto's seasonal cuisine in beautiful traditional setting."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Gionmachi Minamigawa",
+      "address": {
+        "en": "570-235 Gionmachi Minamigawa, Higashiyama Ward, Kyoto, 605-0074, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0018011,
+      "longitude": 135.7745123,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJjbOS9sMIAWARn4xC7JAw2iQ"
+    },
+    {
+      "name": {
+        "en": "Gion Tanto"
+      },
+      "description": {
+        "en": "Popular okonomiyaki spot with many vegan options - expect lines on weekends. Canal-side photogenic location."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kiyomotochō",
+      "address": {
+        "en": "372 Kiyomotochō, Higashiyama Ward, Kyoto, 605-0084, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0055264,
+      "longitude": 135.77452979999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ8dlnc-oIAWARMw3PidOJz1w"
+    },
+    {
+      "name": {
+        "en": "Korin Izakaya"
+      },
+      "description": {
+        "en": "Classic izakaya in repurposed teahouse near Kenninji - sashimi, tempura, and impressive local sake selection."
+      },
+      "city": "Kyoto",
+      "neighborhood": "3-chōme",
+      "address": {
+        "en": "3-chōme-285 Miyagawasuji, Higashiyama Ward, Kyoto, 605-0801, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.000487899999996,
+      "longitude": 135.771198,
+      "price_tier": "$$",
+      "google_place_id": "ChIJT40un8AIAWARkDjlY9EnAqY"
+    },
+    {
+      "name": {
+        "en": "Yaki Imo Street Carts"
+      },
+      "description": {
+        "en": "Roasted sweet potatoes from portable stalls - comforting treat especially in colder months while strolling Gion."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Higashigawachō",
+      "address": {
+        "en": "511ｰ2 Higashigawachō, Nakagyo Ward, Kyoto, 604-8046, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.005836599999995,
+      "longitude": 135.7672527,
+      "price_tier": "$",
+      "google_place_id": "ChIJ63vpfVYJAWARGPKDUG0jxYE"
+    },
+    {
+      "name": {
+        "en": "TeamLab Biovortex (NEW 2025)"
+      },
+      "description": {
+        "en": "Biggest TeamLab yet opened Oct 2025 - unique bubble rooms, Morphing Continuum tornado, interactive for all ages."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Higashikujō Higashiiwamotochō",
+      "address": {
+        "en": "21-5 Higashikujō Higashiiwamotochō, Minami Ward, Kyoto, 601-8006, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.9837159,
+      "longitude": 135.7649368,
+      "price_tier": "$$",
+      "google_place_id": "ChIJUW4XawAJAWARO8Dp88_nego"
+    },
+    {
+      "name": {
+        "en": "Kyoto International Manga Museum"
+      },
+      "description": {
+        "en": "Walls of manga floor to ceiling - you can read all day. Paradise for manga fans."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kinbukichō",
+      "address": {
+        "en": "452 Kinbukichō, Nakagyo Ward, Kyoto, 604-0846, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0118576,
+      "longitude": 135.7594192,
+      "price_tier": "$",
+      "google_place_id": "ChIJh1qJf4YIAWARTAOFMHrSHvI"
+    },
+    {
+      "name": {
+        "en": "Gion Odori (November)"
+      },
+      "description": {
+        "en": "Beautiful autumn dance performance held Nov 1-10 at Gion Kaikan Hall - buy tickets in advance."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Gionmachi Kitagawa",
+      "address": {
+        "en": "323 Gionmachi Kitagawa, Higashiyama Ward, Kyoto, 605-0073, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0046111,
+      "longitude": 135.77726669999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJj5sO_MIIAWARGhpL08G_vEA"
+    },
+    {
+      "name": {
+        "en": "Arashiyama Bamboo Grove"
+      },
+      "description": {
+        "en": "Towering bamboo forest creating ethereal atmosphere - arrive at dawn to beat crowds."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Sagaogurayama Tabuchiyamacho",
+      "address": {
+        "en": "Sagaogurayama Tabuchiyamacho, Ukyo Ward, Kyoto, 616-8394, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0168187,
+      "longitude": 135.67130129999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJrYtcv-urAWAR3XzWvXv8n_s"
+    },
+    {
+      "name": {
+        "en": "Philosopher's Path"
+      },
+      "description": {
+        "en": "Peaceful 2km cherry-tree-lined canal walk perfect for reflection and calm energy."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Sakyo Ward",
+      "address": {
+        "en": "Tetsugaku No Michi, Sakyo Ward, Kyoto, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0214532,
+      "longitude": 135.7942948,
+      "price_tier": "$",
+      "google_place_id": "ChIJC1iQcQQJAWARJ1jqp_e7tLU"
+    },
+    {
+      "name": {
+        "en": "Okochi Sanso Villa"
+      },
+      "description": {
+        "en": "Panoramic Kyoto views from beautiful garden estate - includes matcha and sweet."
+      },
+      "city": "Kyoto",
+      "neighborhood": "8",
+      "address": {
+        "en": "8 Sagaogurayama Tabuchiyamacho, Ukyo Ward, Kyoto, 616-8394, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0167147,
+      "longitude": 135.6699227,
+      "price_tier": "$$",
+      "google_place_id": "ChIJGTfQ9gSqAWARvzp3lzOgjk8"
+    },
+    {
+      "name": {
+        "en": "Rurikoin Temple"
+      },
+      "description": {
+        "en": "Splendid fall foliage spot with teahouse and famous table reflection photo."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kamitakano Higashiyama",
+      "address": {
+        "en": "55 Kamitakano Higashiyama, Sakyo Ward, Kyoto, 606-0067, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.063578899999996,
+      "longitude": 135.80854159999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJXZuLhMIJAWARSLNKYkYbX8g"
+    },
+    {
+      "name": {
+        "en": "Kyoto Botanical Gardens"
+      },
+      "description": {
+        "en": "Japan's rare flora exhibition in expansive gardens - peaceful escape."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Shimogamo Hangicho",
+      "address": {
+        "en": "Shimogamo Hangicho, Sakyo Ward, Kyoto, 606-0823, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.048617199999995,
+      "longitude": 135.7630378,
+      "price_tier": "$",
+      "google_place_id": "ChIJ1e95GRsIAWARxYokwoFuups"
+    },
+    {
+      "name": {
+        "en": "Lake Biwa Canal"
+      },
+      "description": {
+        "en": "Beautiful cherry blossom spot with brick aqueduct infrastructure."
+      },
+      "city": "Kyoto",
+      "neighborhood": "7",
+      "address": {
+        "en": "7 Miideracho, Otsu, Shiga 520-0034, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.012077399999995,
+      "longitude": 135.857419,
+      "price_tier": "$",
+      "google_place_id": "ChIJT-AJK2YMAWARjpxphW18yTc"
+    },
+    {
+      "name": {
+        "en": "Maruyama Park"
+      },
+      "description": {
+        "en": "Famous weeping cherry tree, especially magical during hanami season with evening illuminations."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Maruyamacho",
+      "address": {
+        "en": "Maruyamacho, Higashiyama Ward, Kyoto, 605-0071, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0035587,
+      "longitude": 135.78052689999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJm6JortwIAWARS811J4oNJus"
+    },
+    {
+      "name": {
+        "en": "Nijo Castle"
+      },
+      "description": {
+        "en": "UNESCO site with beautiful interiors, gardens, and famous \"nightingale floors\" that chirp for security."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nijōjōchō",
+      "address": {
+        "en": "541 Nijōjōchō, Nakagyo Ward, Kyoto, 604-8301, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0140379,
+      "longitude": 135.7484258,
+      "price_tier": "$$",
+      "google_place_id": "ChIJC5srCtQHAWARLy9qkFmHaxA"
+    },
+    {
+      "name": {
+        "en": "Southern Higashiyama"
+      },
+      "description": {
+        "en": "Best-preserved historic streets with wooden houses, stone pathways, paper lanterns. Perfect for kimono rental wandering."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Sueyoshichō",
+      "address": {
+        "en": "78-6 Sueyoshichō, Higashiyama Ward, Kyoto, 605-0085, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0052348,
+      "longitude": 135.7733233,
+      "price_tier": "$",
+      "google_place_id": "ChIJT6WKtsMIAWARYmD6J_yS2Ss"
+    },
+    {
+      "name": {
+        "en": "Ninen-zaka Street"
+      },
+      "description": {
+        "en": "Quieter counterpart to Sannen-zaka with traditional machiya, stone streets, and historic storefronts."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Higashiyama Ward",
+      "address": {
+        "en": "Ninen Zaka Path, Higashiyama Ward, Kyoto, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.9986043,
+      "longitude": 135.7808222,
+      "price_tier": "$",
+      "google_place_id": "ChIJqZsSA9AIAWARewnW_cioTog"
+    },
+    {
+      "name": {
+        "en": "Uji"
+      },
+      "description": {
+        "en": "Famous for green tea with Byodoin Phoenix Hall, Tale of Genji Museum, matcha dessert cafés, and riverside shrines."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Uji",
+      "address": {
+        "en": "Uji, Kyoto, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.884513399999996,
+      "longitude": 135.79970369999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ7VMo54QRAWAR3t1BYKpGatY"
+    },
+    {
+      "name": {
+        "en": "Kameoka"
+      },
+      "description": {
+        "en": "Natural scenery and Hozugawa River boat cruising through scenic gorge to Arashiyama."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kameoka",
+      "address": {
+        "en": "Kameoka, Kyoto, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0134498,
+      "longitude": 135.5735249,
+      "price_tier": "$$",
+      "google_place_id": "ChIJl7d1OLNWAGARdK8Op-z_WX4"
+    },
+    {
+      "name": {
+        "en": "Mt. Hiei"
+      },
+      "description": {
+        "en": "Origins of Japanese Buddhism with Enryaku-ji temple complex in forested mountain setting."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Ichijoji Idegadanichosenguchi",
+      "address": {
+        "en": "Mount Hiei, Ichijoji Idegadanichosenguchi, Sakyo Ward, Kyoto, 606-0000, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0622477,
+      "longitude": 135.8315317,
+      "price_tier": "$$",
+      "google_place_id": "ChIJEYMovyYKAWAR7-9MXpymVeI"
+    },
+    {
+      "name": {
+        "en": "Kurama Temple"
+      },
+      "description": {
+        "en": "Mountain temple to meet long-nosed goblins (tengu) - reached by scenic train or hiking."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kuramahonmachi",
+      "address": {
+        "en": "1074 Kuramahonmachi, Sakyo Ward, Kyoto, 601-1111, Japan"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1181404,
+      "longitude": 135.7708892,
+      "price_tier": "$",
+      "google_place_id": "ChIJnTF3sxKmAWAROIRwRX49KFA"
+    },
+    {
+      "name": {
+        "en": "SOU SOU Kyoto Store"
+      },
+      "description": {
+        "en": "Trendy Japanese clothing with modern takes on traditional patterns."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nakanochō",
+      "address": {
+        "en": "583-3 Nakanochō, Nakagyo Ward, Kyoto, 604-8042, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0044207,
+      "longitude": 135.7675454,
+      "price_tier": "$$",
+      "google_place_id": "ChIJV8w3S5QIAWARlBv-_FgTTws"
+    },
+    {
+      "name": {
+        "en": "Teramachi & Shinkyogoku"
+      },
+      "description": {
+        "en": "Covered shopping arcades with mix of traditional crafts and modern shops."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Sakuranochō",
+      "address": {
+        "en": "Japan, 〒604-8035 Kyoto, Nakagyo Ward, Sakuranochō, ４３８−１ 2F"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0071037,
+      "longitude": 135.76715579999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ6fUyMZQIAWAR4tOOD7AkWJw"
+    }
+  ]
+}

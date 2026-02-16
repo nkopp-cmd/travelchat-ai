@@ -1,0 +1,374 @@
+{
+  "city": "tokyo",
+  "batch": 21,
+  "spots": [
+    {
+      "name": {
+        "en": "Bills Omotesando",
+        "ja": "ビルズ表参道"
+      },
+      "description": {
+        "en": "Famous Australian brunch spot. Ricotta pancakes and all-day breakfast.",
+        "ja": "有名なオーストラリアンブランチスポット。リコッタパンケーキと終日朝食。"
+      },
+      "address": {
+        "en": "4-30-3 Jingumae, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区神宮前4-30-3"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Brunch",
+        "Western",
+        "Popular"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Morning",
+      "tips": [
+        "Famous pancakes",
+        "Long waits weekend",
+        "Tokyu Plaza rooftop"
+      ],
+      "neighborhood": "Omotesando",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6686,
+      "longitude": 139.7058
+    },
+    {
+      "name": {
+        "en": "Aoyama Book Center",
+        "ja": "青山ブックセンター"
+      },
+      "description": {
+        "en": "Curated bookstore with art and design focus. Late night hours for book lovers.",
+        "ja": "アートとデザインに特化したキュレートされた書店。本好きのための深夜営業。"
+      },
+      "address": {
+        "en": "5-53-67 Jingumae, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区神宮前5-53-67"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Books",
+        "Art",
+        "Design"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Art focus",
+        "Late hours",
+        "Curated selection"
+      ],
+      "neighborhood": "Omotesando",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6631,
+      "longitude": 139.7077
+    },
+    {
+      "name": {
+        "en": "Watari Museum",
+        "ja": "ワタリウム美術館"
+      },
+      "description": {
+        "en": "Contemporary art museum with Mario Botta building. Rotating international exhibitions.",
+        "ja": "マリオ・ボッタ建築の現代美術館。国際的な企画展のローテーション。"
+      },
+      "address": {
+        "en": "3-7-6 Jingumae, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区神宮前3-7-6"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Contemporary",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Contemporary art",
+        "Good bookshop",
+        "Striped building"
+      ],
+      "neighborhood": "Gaienmae",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6707,
+      "longitude": 139.7134
+    },
+    {
+      "name": {
+        "en": "Togo Shrine Antique Market",
+        "ja": "東郷神社骨董市"
+      },
+      "description": {
+        "en": "Monthly antique market at Harajuku shrine. First and fourth Sundays.",
+        "ja": "原宿の神社での月例骨董市。第1・第4日曜日。"
+      },
+      "address": {
+        "en": "1-5-3 Jingumae, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区神宮前1-5-3"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Antiques",
+        "Monthly",
+        "Shrine"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "1st/4th Sunday",
+      "tips": [
+        "Check dates",
+        "In shrine grounds",
+        "Good finds"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "1st/4th Sunday"
+      },
+      "latitude": 35.6692,
+      "longitude": 139.7073
+    },
+    {
+      "name": {
+        "en": "Shoto Art Museum",
+        "ja": "渋谷区立松濤美術館"
+      },
+      "description": {
+        "en": "Small municipal museum in upscale area. Shirai Seiichi designed building.",
+        "ja": "高級エリアにある小さな区立美術館。白井晟一設計の建物。"
+      },
+      "address": {
+        "en": "2-14-14 Shoto, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区松濤2-14-14"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Architecture",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Unique building",
+        "Quiet museum",
+        "Good exhibitions"
+      ],
+      "neighborhood": "Shoto",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6587,
+      "longitude": 139.6918
+    },
+    {
+      "name": {
+        "en": "Log Road Daikanyama",
+        "ja": "ログロード代官山"
+      },
+      "description": {
+        "en": "Former railway line turned shopping street. Spring Valley Brewery and boutiques.",
+        "ja": "元鉄道路線がショッピングストリートに。スプリングバレーブルワリーとブティック。"
+      },
+      "address": {
+        "en": "Daikanyama, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区代官山"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Converted",
+        "Railway",
+        "Brewery"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Former railway",
+        "Craft beer",
+        "Nice walking"
+      ],
+      "neighborhood": "Daikanyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6508,
+      "longitude": 139.7054
+    },
+    {
+      "name": {
+        "en": "Shoto Park",
+        "ja": "松濤公園"
+      },
+      "description": {
+        "en": "Quiet park in wealthy residential area. Pond and traditional atmosphere.",
+        "ja": "高級住宅街の静かな公園。池と伝統的な雰囲気。"
+      },
+      "address": {
+        "en": "2-10 Shoto, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区松濤2-10"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Pond",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Very quiet",
+        "Near museum",
+        "Local residents"
+      ],
+      "neighborhood": "Shoto",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6597,
+      "longitude": 139.6912
+    },
+    {
+      "name": {
+        "en": "Yebisu Beer Museum",
+        "ja": "ヱビスビール記念館"
+      },
+      "description": {
+        "en": "Museum about Yebisu beer history. Tasting included with tour.",
+        "ja": "ヱビスビールの歴史についての博物館。ツアーにテイスティング付き。"
+      },
+      "address": {
+        "en": "Ebisu Garden Place, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区恵比寿ガーデンプレイス"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Beer",
+        "Museum",
+        "Tasting"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Beer tasting",
+        "History exhibits",
+        "Cheap tours"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.642,
+      "longitude": 139.7136
+    },
+    {
+      "name": {
+        "en": "Westin Tokyo Garden",
+        "ja": "ウェスティン東京庭園"
+      },
+      "description": {
+        "en": "Hotel garden open to public. Seasonal flowers in Ebisu Garden Place.",
+        "ja": "一般公開されているホテルの庭園。恵比寿ガーデンプレイスの季節の花。"
+      },
+      "address": {
+        "en": "Westin Tokyo, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区ウェスティン東京"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Hotel",
+        "Flowers"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free access",
+        "Seasonal flowers",
+        "Afternoon tea option"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Naka-Meguro High Guard",
+        "ja": "中目黒ハイガード"
+      },
+      "description": {
+        "en": "Under-tracks shops and izaakyas. Local drinking spot near river.",
+        "ja": "高架下のショップと居酒屋。川の近くの地元の飲みスポット。"
+      },
+      "address": {
+        "en": "Naka-Meguro, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区中目黒"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Under-tracks",
+        "Izakaya",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Under tracks",
+        "Near river",
+        "Local atmosphere"
+      ],
+      "neighborhood": "Nakameguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6441,
+      "longitude": 139.6988
+    }
+  ]
+}

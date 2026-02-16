@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -22,10 +23,14 @@ export function Logo({
   size = "md",
   showText = true,
   className,
-  href = "/",
+  href,
   isLanding = false,
 }: LogoProps) {
+  const { isSignedIn } = useUser();
   const config = sizeConfig[size];
+
+  // Default href: dashboard if signed in, landing page if not
+  const resolvedHref = href ?? (isSignedIn ? "/dashboard" : "/");
 
   const content = (
     <div className={cn("flex items-center gap-2 group", className)}>
@@ -62,8 +67,8 @@ export function Logo({
     </div>
   );
 
-  if (href) {
-    return <Link href={href}>{content}</Link>;
+  if (resolvedHref) {
+    return <Link href={resolvedHref}>{content}</Link>;
   }
 
   return content;

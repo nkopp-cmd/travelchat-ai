@@ -113,7 +113,7 @@ export function ViatorSuggestions({
     }
 
     return (
-        <Card className={cn("overflow-hidden", className)}>
+        <Card className={cn("overflow-hidden !py-0 !gap-0", className)}>
             <CardHeader className="bg-gradient-to-r from-violet-600 to-purple-700 text-white">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <Sparkles className="h-5 w-5" />

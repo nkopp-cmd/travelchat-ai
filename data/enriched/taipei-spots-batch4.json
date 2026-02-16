@@ -1,0 +1,746 @@
+{
+  "city": "taipei",
+  "batch": 4,
+  "spots": [
+    {
+      "name": {
+        "en": "Lin Antai Historical House",
+        "zh": "林安泰古厝"
+      },
+      "description": {
+        "en": "Traditional Minnan architecture house museum.",
+        "zh": "傳統閩南建築房屋博物館。"
+      },
+      "address": {
+        "en": "5 Binjiang Street, Zhongshan District, Taipei",
+        "zh": "台北市中山區濱江街5號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic House",
+        "Architecture",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Beautiful traditional house",
+        "Near Expo Park"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0724,
+      "longitude": 121.5305
+    },
+    {
+      "name": {
+        "en": "Maji Square",
+        "zh": "MAJI集食行樂"
+      },
+      "description": {
+        "en": "Food truck and market area. Weekend hangout.",
+        "zh": "餐車和市集區。週末聚會地。"
+      },
+      "address": {
+        "en": "1 Yumen Street, Zhongshan District, Taipei",
+        "zh": "台北市中山區玉門街1號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Food Trucks",
+        "Market",
+        "Weekend"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Weekend markets",
+        "Food trucks",
+        "Near Expo Park"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0696,
+      "longitude": 121.522
+    },
+    {
+      "name": {
+        "en": "Taipei Confucius Temple",
+        "zh": "台北孔廟"
+      },
+      "description": {
+        "en": "Beautiful Confucian temple. Teacher's Day ceremony.",
+        "zh": "美麗的孔廟。教師節儀式。"
+      },
+      "address": {
+        "en": "275 Dalong Street, Datong District, Taipei",
+        "zh": "台北市大同區大龍街275號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Confucian",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Beautiful architecture",
+        "Near Dalongdong"
+      ],
+      "neighborhood": "Datong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0727,
+      "longitude": 121.5165
+    },
+    {
+      "name": {
+        "en": "Dalongdong Baoan Temple",
+        "zh": "大龍峒保安宮"
+      },
+      "description": {
+        "en": "UNESCO awarded temple. Traditional arts.",
+        "zh": "聯合國教科文組織獲獎寺廟。傳統藝術。"
+      },
+      "address": {
+        "en": "61 Hami Street, Datong District, Taipei",
+        "zh": "台北市大同區哈密街61號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "UNESCO recognized",
+        "Beautiful murals",
+        "Near Confucius Temple"
+      ],
+      "neighborhood": "Datong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0723,
+      "longitude": 121.5156
+    },
+    {
+      "name": {
+        "en": "Xingtian Temple",
+        "zh": "行天宮"
+      },
+      "description": {
+        "en": "Popular Taoist temple. Fortune telling area.",
+        "zh": "熱門道教廟。算命區。"
+      },
+      "address": {
+        "en": "109 Minquan East Road Sec 2, Zhongshan District, Taipei",
+        "zh": "台北市中山區民權東路二段109號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Taoist",
+        "Fortune Telling"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "No incense policy",
+        "Fortune tellers outside",
+        "Very local"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0631,
+      "longitude": 121.5338
+    },
+    {
+      "name": {
+        "en": "Qingguang Market",
+        "zh": "晴光市場"
+      },
+      "description": {
+        "en": "Traditional morning market. Local breakfast.",
+        "zh": "傳統早市。當地早餐。"
+      },
+      "address": {
+        "en": "Qingguang Street, Zhongshan District, Taipei",
+        "zh": "台北市中山區晴光街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Morning Market",
+        "Traditional",
+        "Breakfast"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Morning market",
+        "Local breakfast",
+        "Very authentic"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0643,
+      "longitude": 121.5244
+    },
+    {
+      "name": {
+        "en": "Shuanglian Morning Market",
+        "zh": "雙連朝市"
+      },
+      "description": {
+        "en": "Famous morning market. Fresh produce and food.",
+        "zh": "著名早市。新鮮農產品和食物。"
+      },
+      "address": {
+        "en": "Minsheng West Road, Zhongshan District, Taipei",
+        "zh": "台北市中山區民生西路"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Morning Market",
+        "Fresh",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Near MRT",
+        "Fresh produce",
+        "Local food stalls"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0558,
+      "longitude": 121.5118
+    },
+    {
+      "name": {
+        "en": "Neihu Technology Park",
+        "zh": "內湖科技園區"
+      },
+      "description": {
+        "en": "Tech district with food options. Office area.",
+        "zh": "有美食選擇的科技園區。辦公區。"
+      },
+      "address": {
+        "en": "Neihu District, Taipei",
+        "zh": "台北市內湖區"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Tech District",
+        "Lunch",
+        "Office"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch",
+      "tips": [
+        "Office workers",
+        "Many restaurants",
+        "Weekday lunch"
+      ],
+      "neighborhood": "Neihu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.0797,
+      "longitude": 121.5735
+    },
+    {
+      "name": {
+        "en": "Dahu Park",
+        "zh": "大湖公園"
+      },
+      "description": {
+        "en": "Lake park with famous bridge. Photography spot.",
+        "zh": "有著名橋樑的湖泊公園。攝影點。"
+      },
+      "address": {
+        "en": "31 Chengkong Road Sec 5, Neihu District, Taipei",
+        "zh": "台北市內湖區成功路五段31號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Lake",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Beautiful bridge",
+        "Photography popular",
+        "Morning mist"
+      ],
+      "neighborhood": "Neihu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0838,
+      "longitude": 121.6023
+    },
+    {
+      "name": {
+        "en": "Bihu Park",
+        "zh": "碧湖公園"
+      },
+      "description": {
+        "en": "Neighborhood lake park. Local morning exercise.",
+        "zh": "社區湖泊公園。當地晨運。"
+      },
+      "address": {
+        "en": "175 Neihu Road Sec 3, Neihu District, Taipei",
+        "zh": "台北市內湖區內湖路三段175號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Lake",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Morning exercise",
+        "Very local",
+        "Peaceful"
+      ],
+      "neighborhood": "Neihu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0786,
+      "longitude": 121.5849
+    },
+    {
+      "name": {
+        "en": "Neihu Flower Market",
+        "zh": "內湖花市"
+      },
+      "description": {
+        "en": "Large flower market. Weekend shopping.",
+        "zh": "大型花市。週末購物。"
+      },
+      "address": {
+        "en": "Minshan Street, Neihu District, Taipei",
+        "zh": "台北市內湖區民山街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flowers",
+        "Weekend",
+        "Shopping"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Weekend mornings",
+        "Fresh flowers",
+        "Good prices"
+      ],
+      "neighborhood": "Neihu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0853,
+      "longitude": 121.5576
+    },
+    {
+      "name": {
+        "en": "Miaokou Night Market",
+        "zh": "廟口夜市"
+      },
+      "description": {
+        "en": "Keelung famous night market. Seafood specialty.",
+        "zh": "基隆著名夜市。海鮮特色。"
+      },
+      "address": {
+        "en": "Ren 3rd Road, Keelung City",
+        "zh": "基隆市仁三路"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Night Market",
+        "Seafood",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Seafood soup famous",
+        "Bubble tea origin",
+        "Day trip from Taipei"
+      ],
+      "neighborhood": "Keelung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0322,
+      "longitude": 121.576
+    },
+    {
+      "name": {
+        "en": "Jiufen Old Street",
+        "zh": "九份老街"
+      },
+      "description": {
+        "en": "Mountain town with tea houses. Spirited Away vibes.",
+        "zh": "有茶館的山城。神隱少女氛圍。"
+      },
+      "address": {
+        "en": "Jishan Street, Ruifang District, New Taipei",
+        "zh": "新北市瑞芳區基山街"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Old Street",
+        "Tea Houses",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Evening lanterns",
+        "Tea houses",
+        "Crowded weekends"
+      ],
+      "neighborhood": "Ruifang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.1095,
+      "longitude": 121.8453
+    },
+    {
+      "name": {
+        "en": "Shifen Old Street",
+        "zh": "十分老街"
+      },
+      "description": {
+        "en": "Sky lantern town. Train track street.",
+        "zh": "天燈小鎮。火車軌道街。"
+      },
+      "address": {
+        "en": "Shifen, Pingxi District, New Taipei",
+        "zh": "新北市平溪區十分"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Lanterns",
+        "Train",
+        "Day Trip"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Afternoon",
+      "tips": [
+        "Release sky lanterns",
+        "Train on street",
+        "Waterfall nearby"
+      ],
+      "neighborhood": "Pingxi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0411,
+      "longitude": 121.7752
+    },
+    {
+      "name": {
+        "en": "Shifen Waterfall",
+        "zh": "十分瀑布"
+      },
+      "description": {
+        "en": "Taiwan's largest curtain waterfall. Mini Niagara.",
+        "zh": "台灣最大的簾幕瀑布。小尼加拉。"
+      },
+      "address": {
+        "en": "Shifen, Pingxi District, New Taipei",
+        "zh": "新北市平溪區十分"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Waterfall",
+        "Nature",
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Taiwan's Niagara",
+        "Easy walk",
+        "Near old street"
+      ],
+      "neighborhood": "Pingxi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.049,
+      "longitude": 121.7873
+    },
+    {
+      "name": {
+        "en": "Yehliu Geopark",
+        "zh": "野柳地質公園"
+      },
+      "description": {
+        "en": "Unique rock formations by sea. Queen's Head.",
+        "zh": "海邊獨特岩石地形。女王頭。"
+      },
+      "address": {
+        "en": "167-1 Gangdong Road, Wanli District, New Taipei",
+        "zh": "新北市萬里區港東路167-1號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Geopark",
+        "Nature",
+        "Day Trip"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Morning",
+      "tips": [
+        "Queen's Head rock",
+        "Unique formations",
+        "Avoid crowds"
+      ],
+      "neighborhood": "Wanli",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.2113,
+      "longitude": 121.6964
+    },
+    {
+      "name": {
+        "en": "Tamsui Old Street",
+        "zh": "淡水老街"
+      },
+      "description": {
+        "en": "Riverside town with sunset views. Street food.",
+        "zh": "有日落景觀的河畔小鎮。街頭美食。"
+      },
+      "address": {
+        "en": "Zhongzheng Road, Tamsui District, New Taipei",
+        "zh": "新北市淡水區中正路"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Old Street",
+        "Sunset",
+        "Riverside"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Famous sunset",
+        "Iron eggs",
+        "Fish balls"
+      ],
+      "neighborhood": "Tamsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.1718,
+      "longitude": 121.4378
+    },
+    {
+      "name": {
+        "en": "Fisherman's Wharf Tamsui",
+        "zh": "淡水漁人碼頭"
+      },
+      "description": {
+        "en": "Waterfront area with lover's bridge.",
+        "zh": "有情人橋的水岸區。"
+      },
+      "address": {
+        "en": "Fisherman's Wharf, Tamsui District, New Taipei",
+        "zh": "新北市淡水區漁人碼頭"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Wharf",
+        "Bridge",
+        "Sunset"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Lover's bridge",
+        "Sunset views",
+        "Ferry from old street"
+      ],
+      "neighborhood": "Tamsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.1839,
+      "longitude": 121.4112
+    },
+    {
+      "name": {
+        "en": "Fort San Domingo",
+        "zh": "紅毛城"
+      },
+      "description": {
+        "en": "Historic Spanish/Dutch fort. Colonial history.",
+        "zh": "歷史西班牙/荷蘭堡壘。殖民歷史。"
+      },
+      "address": {
+        "en": "1 Zhongzheng Road Lane 28, Tamsui District, New Taipei",
+        "zh": "新北市淡水區中正路28巷1號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Fort",
+        "Colonial"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Colonial history",
+        "River views",
+        "Near old street"
+      ],
+      "neighborhood": "Tamsui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1754,
+      "longitude": 121.4329
+    },
+    {
+      "name": {
+        "en": "Bali Left Bank",
+        "zh": "八里左岸"
+      },
+      "description": {
+        "en": "Riverside cycling and food. Across from Tamsui.",
+        "zh": "河濱自行車和美食。淡水對岸。"
+      },
+      "address": {
+        "en": "Bali District, New Taipei",
+        "zh": "新北市八里區"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Cycling",
+        "Riverside",
+        "Food"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Rent bikes",
+        "Ferry from Tamsui",
+        "Twin towers view"
+      ],
+      "neighborhood": "Bali",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1321,
+      "longitude": 121.4529
+    }
+  ]
+}

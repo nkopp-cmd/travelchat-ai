@@ -1,0 +1,745 @@
+{
+  "city": "Hong Kong",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:48:48.026Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Lan Fong Yuen"
+      },
+      "description": {
+        "en": "Birthplace of Hong Kong milk tea. Try hot with crispy pork chop bun."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "2 Gage St, Central, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2827177,
+      "longitude": 114.1537154,
+      "price_tier": "$",
+      "google_place_id": "ChIJUe2zb3sABDQRow0zOoqDVT8"
+    },
+    {
+      "name": {
+        "en": "Mido Cafe"
+      },
+      "description": {
+        "en": "Yau Ma Tei retro cafe. Film location, vintage interior unchanged for decades."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Yau Ma Tei",
+      "address": {
+        "en": "63 Temple St, Yau Ma Tei, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3102211,
+      "longitude": 114.1702722,
+      "price_tier": "$",
+      "google_place_id": "ChIJXaygtPEBBDQR-0OEq9AhTCc"
+    },
+    {
+      "name": {
+        "en": "Curry Fish Balls"
+      },
+      "description": {
+        "en": "Signature HK street snack. Chewy fish balls in spicy curry sauce on skewers. Mong Kok, Temple Street."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Mong Kok",
+      "address": {
+        "en": "6 Argyle St, Mong Kok, Hong Kong"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3189405,
+      "longitude": 114.16799599999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJh91sVmYBBDQRafYA2_y1Cwc"
+    },
+    {
+      "name": {
+        "en": "Egg Waffles (Gai Daan Jai)"
+      },
+      "description": {
+        "en": "Golden, crispy bubble-shaped waffles. Chocolate, matcha, taro flavors. Hot off the iron."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tsim Sha Tsui",
+      "address": {
+        "en": "Nathan Rd, Tsim Sha Tsui, Hong Kong"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.302782099999998,
+      "longitude": 114.1719808,
+      "price_tier": "$",
+      "google_place_id": "ChIJHRdfdOwABDQRnO1PcDBWVTo"
+    },
+    {
+      "name": {
+        "en": "Pineapple Bun with Butter"
+      },
+      "description": {
+        "en": "Warm crispy bun with cold butter melting inside. Pair with iced milk tea."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Jahamun-ro 1-gil",
+      "address": {
+        "en": "53 Jahamun-ro 1-gil, Pirun-dong, Jongno District, Seoul, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5768938,
+      "longitude": 126.9695152,
+      "price_tier": "$",
+      "google_place_id": "ChIJ4wWjVsCjfDUR1W6hGE4lgdc"
+    },
+    {
+      "name": {
+        "en": "Wonton Noodles"
+      },
+      "description": {
+        "en": "Springy bamboo-pressed noodles, whole shrimp wontons, fish-pork broth. Mak's Noodle famous."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Jordan",
+      "address": {
+        "en": "G/F, 51號 Parkes St, Jordan, Hong Kong"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3046664,
+      "longitude": 114.17056389999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJcaCRCusABDQRbEmVNBREGAM"
+    },
+    {
+      "name": {
+        "en": "HK French Toast"
+      },
+      "description": {
+        "en": "Deep-fried golden toast drizzled with condensed milk. Sweet but balanced. Cha chaan teng staple."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Mong Kok",
+      "address": {
+        "en": "981 Canton Rd, Mong Kok, Hong Kong"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.316858,
+      "longitude": 114.167525,
+      "price_tier": "$",
+      "google_place_id": "ChIJJ7_inLgABDQRECXBG5KdD4w"
+    },
+    {
+      "name": {
+        "en": "Chun Yeung Street Market"
+      },
+      "description": {
+        "en": "North Point wet market. Fresh produce, tram runs through. BBQ pork buns, egg tarts from the oven."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "North Point",
+      "address": {
+        "en": "91-103, Tai Hing Building, 91-103 Chun Yeung St, North Point, Hong Kong"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2913529,
+      "longitude": 114.1976421,
+      "price_tier": "$",
+      "google_place_id": "ChIJhZbqmgQBBDQRDMDh8sRMsVs"
+    },
+    {
+      "name": {
+        "en": "Temple Street Night Market"
+      },
+      "description": {
+        "en": "Jordan's famous night market. Fortune tellers, street food, bargain shopping. Cantonese opera sometimes."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Jordan",
+      "address": {
+        "en": "Temple St, Jordan, Hong Kong"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3065185,
+      "longitude": 114.1699805,
+      "price_tier": "$",
+      "google_place_id": "ChIJzcAL8-oABDQRpDOEry9D3bc"
+    },
+    {
+      "name": {
+        "en": "Ladies Market"
+      },
+      "description": {
+        "en": "Mong Kok's clothing and accessories market. Bargaining expected. Busy evenings."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Mong Kok",
+      "address": {
+        "en": "Tung Choi St, Mong Kok, Hong Kong"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.317608999999997,
+      "longitude": 114.1709284,
+      "price_tier": "$",
+      "google_place_id": "ChIJbYMkZMgABDQRryWJe8ooWP0"
+    },
+    {
+      "name": {
+        "en": "Tai Po Market"
+      },
+      "description": {
+        "en": "Traditional dishes, cooked food center. Poon choi, steamed fish, beef brisket noodles, dim sum."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Ting Kok",
+      "address": {
+        "en": "Tai Po Wholesale Fish Market, Yue On St, Ting Kok, Hong Kong"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.4575894,
+      "longitude": 114.2054741,
+      "price_tier": "$",
+      "google_place_id": "ChIJlxTF7-IIBDQROsodpIZVsvg"
+    },
+    {
+      "name": {
+        "en": "Jade Market"
+      },
+      "description": {
+        "en": "Yau Ma Tei jade and gemstone market. Know your stuff or just browse."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Yau Ma Tei",
+      "address": {
+        "en": "261號 Shanghai St, Yau Ma Tei, Hong Kong"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local Market"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3090595,
+      "longitude": 114.1700127,
+      "price_tier": "$",
+      "google_place_id": "ChIJjwdYIsAABDQReue-izvjVPo"
+    },
+    {
+      "name": {
+        "en": "Victoria Peak"
+      },
+      "description": {
+        "en": "Iconic views of HK skyline. Peak Tram up, walk down through forests. Sunset/night best."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "The Peak",
+      "address": {
+        "en": "Victoria Peak, The Peak, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2758835,
+      "longitude": 114.14553199999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJsd2-34n_AzQROJPZYjyLMS4"
+    },
+    {
+      "name": {
+        "en": "Star Ferry"
+      },
+      "description": {
+        "en": "Historic harbour crossing since 1888. Best views of skyline for pocket change. Central to TST."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tsim Sha Tsui",
+      "address": {
+        "en": "Tsim Sha Tsui, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.293763,
+      "longitude": 114.168748,
+      "price_tier": "$",
+      "google_place_id": "ChIJt6hfR_MABDQRksRMRk3NNeM"
+    },
+    {
+      "name": {
+        "en": "Man Mo Temple"
+      },
+      "description": {
+        "en": "Oldest and most atmospheric temple (1847). Hollywood Road. Giant incense coils hanging from ceiling."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Sheung Wan",
+      "address": {
+        "en": "Man Mo Temple, 124-130 Hollywood Rd, Sheung Wan, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.283972900000002,
+      "longitude": 114.15019989999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJkR_N-HsABDQR49-CU5m1ShU"
+    },
+    {
+      "name": {
+        "en": "Big Buddha (Tian Tan)"
+      },
+      "description": {
+        "en": "Lantau Island bronze Buddha. Ngong Ping 360 cable car, Po Lin Monastery, Wisdom Path."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Lantau Island",
+      "address": {
+        "en": "Ngong Ping Rd, Lantau Island, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2539847,
+      "longitude": 113.904984,
+      "price_tier": "$$",
+      "google_place_id": "ChIJMU72avZYATQRcPDlSybkD00"
+    },
+    {
+      "name": {
+        "en": "PMQ"
+      },
+      "description": {
+        "en": "Former police quarters turned creative hub. Studios, markets, rooftop garden. Central."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "PMQ - Staunton, Aberdeen St, Central, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.283327999999997,
+      "longitude": 114.15156689999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJn7jpjXsABDQRBt_E3gFvqVw"
+    },
+    {
+      "name": {
+        "en": "Tai Kwun"
+      },
+      "description": {
+        "en": "Former Central Police Station complex. Heritage, contemporary art, dining, bars."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Central",
+      "address": {
+        "en": "Tai Kwun, 10 Hollywood Rd, Central, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.281168599999997,
+      "longitude": 114.15402300000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5wsqFHsABDQRjRR4AEF6Zkg"
+    },
+    {
+      "name": {
+        "en": "Wong Tai Sin Temple"
+      },
+      "description": {
+        "en": "Huge Taoist temple complex. Fortune telling, incense offerings. Lion Rock hike nearby."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Chuk Un",
+      "address": {
+        "en": "Hong Kong, Chuk Un, 竹園村二號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3427257,
+      "longitude": 114.19325819999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJPyxIxtgGBDQRzvn_sxhWkTU"
+    },
+    {
+      "name": {
+        "en": "Dragon's Back Trail"
+      },
+      "description": {
+        "en": "Hong Kong Island's most famous hike. Ocean views, relatively easy. Shek O beach at end."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Shek O",
+      "address": {
+        "en": "Hong Kong, Shek O, Dragon's Back"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2361841,
+      "longitude": 114.2433547,
+      "price_tier": "$",
+      "google_place_id": "ChIJgcNZHv6pBjQRSr1hPSBhpn4"
+    },
+    {
+      "name": {
+        "en": "Lion Rock"
+      },
+      "description": {
+        "en": "Iconic peak symbolizing HK spirit. Challenging but rewarding views over Kowloon."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Lion Rock",
+      "address": {
+        "en": "Lion Rock, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.3522705,
+      "longitude": 114.18703660000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJRdcaTx8HBDQRIh6RNtshNwo"
+    },
+    {
+      "name": {
+        "en": "Lamma Island Coastal Trail"
+      },
+      "description": {
+        "en": "2-hour walk Yung Shue Wan to Sok Kwu Wan. Mangroves, beaches, seafood restaurants."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Lamma Island",
+      "address": {
+        "en": "Lamma Island Family Walk, Lamma Island, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2080751,
+      "longitude": 114.1258233,
+      "price_tier": "$",
+      "google_place_id": "ChIJFfTIv11VATQRG3HG59UEv7o"
+    },
+    {
+      "name": {
+        "en": "Cheung Chau Island"
+      },
+      "description": {
+        "en": "1 hour ferry from Central. Bike rental, red bean pancakes, Tung Wan Beach, Pak Tai Temple, shrimp paste."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Cheung Chau",
+      "address": {
+        "en": "Cheung Chau, Hong Kong"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2016179,
+      "longitude": 114.0265007,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5Wwlvo1WATQRypCa2VQqYLM"
+    },
+    {
+      "name": {
+        "en": "Happy Wednesday Races"
+      },
+      "description": {
+        "en": "Happy Valley Racecourse weekly horse races. Affordable entry, lively atmosphere. Near Tai Hang."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Happy Valley",
+      "address": {
+        "en": "3/F, Members Stand II, Happy Valley Racecourse, Wong Nai Chung Rd, Happy Valley, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.2718214,
+      "longitude": 114.18061689999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJcVnvqE8ABDQRmlCv6UgfOvk"
+    },
+    {
+      "name": {
+        "en": "Symphony of Lights"
+      },
+      "description": {
+        "en": "Nightly 8pm light show across Victoria Harbour. Free from TST waterfront."
+      },
+      "city": "Hong Kong",
+      "neighborhood": "Tsim Sha Tsui",
+      "address": {
+        "en": "Kowloon Public Pier, Tsim Sha Tsui, Hong Kong"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.293005200000003,
+      "longitude": 114.1739717,
+      "price_tier": "$",
+      "google_place_id": "ChIJkREjcRoBBDQR6Il8cWesveU"
+    }
+  ]
+}

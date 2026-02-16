@@ -1,0 +1,575 @@
+{
+  "city": "Chiang Mai",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:46:53.809Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Sai Ua (Northern Sausage)"
+      },
+      "description": {
+        "en": "Herb-filled pork sausage unique to Northern Thailand - best from street stalls."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Suthep",
+      "address": {
+        "en": "QXR6+6CR, Suthep, Mueang Chiang Mai District, Chiang Mai 50200, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7906117,
+      "longitude": 98.9610267,
+      "price_tier": "$",
+      "google_place_id": "ChIJgaZqr3s62jARsRm5YkiZKTk"
+    },
+    {
+      "name": {
+        "en": "Grandma's Cooking School"
+      },
+      "description": {
+        "en": "Full-day cooking class with market visit - learn 6 dishes including dessert. Photos provided free."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Thailand",
+      "address": {
+        "en": "172/7 Moo.8 Saraphi Chang Wat Chiang Mai 50140, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.677474,
+      "longitude": 99.05451699999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ3X8Cf9Mt2jARn1qSIzL3E6g"
+    },
+    {
+      "name": {
+        "en": "Thai & Akha Cooking Class"
+      },
+      "description": {
+        "en": "6-hour class featuring both Thai and indigenous Akha hill tribe dishes - starts with local market trip."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Hai Ya",
+      "address": {
+        "en": "14, 10 Soi Rat Chiang Saen 2, Tambon Hai Ya, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50000, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7761554,
+      "longitude": 98.99235619999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJO87DzZo62jARWASv78auD0o"
+    },
+    {
+      "name": {
+        "en": "Street Food Night Markets"
+      },
+      "description": {
+        "en": "Best Thai food is from streets not restaurants - Pad Krapow, sticky rice, mango sticky rice at any night market."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Chang Moi",
+      "address": {
+        "en": "Changklan Rd, Tambon Chang Moi, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50100, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7852244,
+      "longitude": 99.0002986,
+      "price_tier": "$",
+      "google_place_id": "ChIJW0qnDKY62jARHbAmfwD1Lgs"
+    },
+    {
+      "name": {
+        "en": "North Gate Jazz Co-op"
+      },
+      "description": {
+        "en": "Live jazz every night in Old City - intimate venue with local and international musicians."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Si Phum",
+      "address": {
+        "en": "91/1-2 ถนน Tambon Si Phum, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.795229799999998,
+      "longitude": 98.98707189999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJVysZJZc62jARMcaDlAs-u4E"
+    },
+    {
+      "name": {
+        "en": "Zoe in Yellow"
+      },
+      "description": {
+        "en": "Popular backpacker bar area near Tha Pae Gate with multiple venues and late-night energy."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Si Phum",
+      "address": {
+        "en": "48, QXRR+F4X, 1 Ratvithi Rd, Tambon Si Phum, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.790890299999997,
+      "longitude": 98.9904873,
+      "price_tier": "$",
+      "google_place_id": "ChIJxbtGdJg62jARlc0cgtmxP54"
+    },
+    {
+      "name": {
+        "en": "Nimman Road Nightlife"
+      },
+      "description": {
+        "en": "Trendy area with rooftop bars, craft cocktails, and hip cafés frequented by students and expats."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Su Thep",
+      "address": {
+        "en": "13 Nimmana Haeminda Rd Lane 13, Tambon Su Thep, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7965235,
+      "longitude": 98.9680678,
+      "price_tier": "$$",
+      "google_place_id": "ChIJU97MKycx2jAR-rP-D_IqBZs"
+    },
+    {
+      "name": {
+        "en": "Monk's Trail to Wat Pha Lat"
+      },
+      "description": {
+        "en": "Beautiful 30-min forest hike from Chiang Mai University area through jungle to hidden temple. Can continue to Doi Suthep."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Suthep",
+      "address": {
+        "en": "QWXJ+JM4, Suthep, Mueang Chiang Mai District, Chiang Mai 50200, Thailand"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.799015699999998,
+      "longitude": 98.9316963,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-cKN-Rs62jARY3IuXxqPlvo"
+    },
+    {
+      "name": {
+        "en": "Doi Inthanon National Park"
+      },
+      "description": {
+        "en": "Thailand's highest peak with waterfalls, hill tribe villages, and stunning viewpoints. Day trip essential."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Ban Luang",
+      "address": {
+        "en": "119, Tambon Ban Luang, Amphoe Chom Thong, Chang Wat Chiang Mai 50160, Thailand"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.535626200000003,
+      "longitude": 98.5221239,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_2FUVZWr2zARW5cz-sRD41Q"
+    },
+    {
+      "name": {
+        "en": "Sticky Waterfall (Bua Thong)"
+      },
+      "description": {
+        "en": "Unique limestone waterfall you can climb up - minerals make rocks non-slippery. Fun adventure."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Mae Ho Phra",
+      "address": {
+        "en": "33GM+686, Mae Ho Phra, Mae Taeng District, Chiang Mai 50150, Thailand"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 19.0755433,
+      "longitude": 99.08325149999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJiXiBQ-kb2jARHfa8qGwbWcc"
+    },
+    {
+      "name": {
+        "en": "Huay Tueng Thao Reservoir"
+      },
+      "description": {
+        "en": "Beautiful lake for relaxing, eating, zip lining, and checking out massive animal sculptures."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Chang Wat Chiang Mai 50180",
+      "address": {
+        "en": "283 ม.3 ดอนแก้ว Amphoe Mae Rim, Chang Wat Chiang Mai 50180, Thailand"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.8665946,
+      "longitude": 98.94488340000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJDzmQmfI72jARq4IW9ed8l8Y"
+    },
+    {
+      "name": {
+        "en": "Chiang Dao Caves"
+      },
+      "description": {
+        "en": "Dramatic cave system with Buddhist shrines inside - mystical exploration."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Amphoe Chiang Dao",
+      "address": {
+        "en": "273 หมู่ 5 Tambon Chiang Dao, Amphoe Chiang Dao, Chang Wat Chiang Mai 50170, Thailand"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 19.393704,
+      "longitude": 98.92859100000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJs4usyiun0DARfBTjdX8oDMc"
+    },
+    {
+      "name": {
+        "en": "Elephant Nature Park"
+      },
+      "description": {
+        "en": "Ethical elephant sanctuary - observe, feed, and bathe elephants humanely without riding."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "ชม.3052 Tambon Kuet Chang",
+      "address": {
+        "en": "ชม.3052 Tambon Kuet Chang, Amphoe Mae Taeng, Chang Wat Chiang Mai 50150, Thailand"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Park"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 19.217172899999998,
+      "longitude": 98.86003799999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJj21Ja6g62jARFSuw0w8gLNs"
+    },
+    {
+      "name": {
+        "en": "Elephant Jungle Sanctuary"
+      },
+      "description": {
+        "en": "Another ethical option for humane elephant interaction in natural forest setting."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Chang Khlan",
+      "address": {
+        "en": "119/10 Tha Phae Road, Tambon Chang Khlan, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50100, Thailand"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7881713,
+      "longitude": 98.9972682,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJPURvkqU62jARbXjOuhd0BKo"
+    },
+    {
+      "name": {
+        "en": "Traditional Thai Massage"
+      },
+      "description": {
+        "en": "Chiang Mai is famous for Thai massage schools and affordable quality treatments."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Phra Sing",
+      "address": {
+        "en": "41/1 Ratchamanka Rd, Tambon Phra Sing, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7852419,
+      "longitude": 98.9907381,
+      "price_tier": "$",
+      "google_place_id": "ChIJpxnqX5862jARnxPK28S5KnE"
+    },
+    {
+      "name": {
+        "en": "Meditation Retreat (Wat Suan Dok)"
+      },
+      "description": {
+        "en": "One-day or multi-day Buddhist meditation retreats with English-speaking monks."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Su Thep",
+      "address": {
+        "en": "139 Suthep Rd, Tambon Su Thep, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.7882387,
+      "longitude": 98.9677619,
+      "price_tier": "$",
+      "google_place_id": "ChIJ61iS53062jARdlXpw3EiusM"
+    },
+    {
+      "name": {
+        "en": "Coffee Journey to Hill Tribes"
+      },
+      "description": {
+        "en": "Weekend stays in hill tribe communities learning about fair-trade sustainable coffee (Nov-March harvest season only)."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Chang Khlan",
+      "address": {
+        "en": "249 1 soi 12ก Tambon Chang Khlan, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50100, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.774218299999998,
+      "longitude": 99.0016151,
+      "price_tier": "$$",
+      "google_place_id": "ChIJN3OtVA8w2jAR0A7JetkXRyA"
+    },
+    {
+      "name": {
+        "en": "Yi Peng/Loy Krathong Festival"
+      },
+      "description": {
+        "en": "November lantern festival - best at Three Kings Monument, Ping River for krathong floating, and temple light shows."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Su Thep",
+      "address": {
+        "en": "1 Nimmanahaeminda Road, Tambon Su Thep, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.800164000000002,
+      "longitude": 98.9677469,
+      "price_tier": "$$",
+      "google_place_id": "ChIJrW9JwBs72jAR3rhqTSFiw1k"
+    },
+    {
+      "name": {
+        "en": "Muay Thai Classes"
+      },
+      "description": {
+        "en": "Learn traditional Thai boxing at one of many training camps around the city."
+      },
+      "city": "Chiang Mai",
+      "neighborhood": "Tambon Si Phum",
+      "address": {
+        "en": "43, 1 Thanon Arak, Tambon Si Phum, Amphoe Mueang Chiang Mai, Chang Wat Chiang Mai 50200, Thailand"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Experiences"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 18.788309299999998,
+      "longitude": 98.97841869999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ-ciG0kU72jARscepokvK5hQ"
+    }
+  ]
+}

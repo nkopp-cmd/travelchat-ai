@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 3,
+  "spots": [
+    {
+      "name": {
+        "en": "Shibuya Crossing",
+        "ja": "渋谷スクランブル交差点"
+      },
+      "description": {
+        "en": "World's busiest pedestrian crossing where up to 3,000 people cross at once. Watch from Starbucks above or join the organized chaos.",
+        "ja": "一度に最大3,000人が渡る世界で最も忙しい横断歩道。上のスタバから眺めるか、組織された混沌に加わろう。"
+      },
+      "address": {
+        "en": "Shibuya Crossing, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区渋谷"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Iconic",
+        "Urban",
+        "People Watching"
+      ],
+      "localley_score": 2,
+      "local_percentage": 40,
+      "best_time": "Evening rush hour",
+      "tips": [
+        "Mag's Park rooftop has free viewing",
+        "Best photos from above",
+        "Experience crossing yourself"
+      ],
+      "neighborhood": "Shibuya",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Evening rush hour"
+      },
+      "latitude": 35.6595,
+      "longitude": 139.7005
+    },
+    {
+      "name": {
+        "en": "Nonbei Yokocho",
+        "ja": "のんべい横丁"
+      },
+      "description": {
+        "en": "Hidden alley of tiny bars surviving behind Shibuya Station. Much quieter and more intimate than Golden Gai.",
+        "ja": "渋谷駅裏で生き残る小さなバーの隠れた路地。ゴールデン街よりはるかに静かで親密。"
+      },
+      "address": {
+        "en": "Shibuya, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区渋谷"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Tiny Bars",
+        "Hidden",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Much less known than Golden Gai",
+        "Some bars are regulars only",
+        "Start early as seats fill up"
+      ],
+      "neighborhood": "Shibuya",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.66,
+      "longitude": 139.7015
+    },
+    {
+      "name": {
+        "en": "Gotokuji Cat Temple",
+        "ja": "豪徳寺"
+      },
+      "description": {
+        "en": "Temple with thousands of beckoning cat (maneki-neko) statues. Legend says this is where the lucky cat symbol originated.",
+        "ja": "何千もの招き猫像がある寺院。伝説によるとここが招き猫の発祥地。"
+      },
+      "address": {
+        "en": "Gotokuji, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区豪徳寺"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Cats",
+        "Lucky Charm"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Buy a cat to leave, or take home",
+        "Cemetery of Ii clan lords here",
+        "Peaceful atmosphere"
+      ],
+      "neighborhood": "Gotokuji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6485,
+      "longitude": 139.6473
+    },
+    {
+      "name": {
+        "en": "Roppongi Hills Observation Deck",
+        "ja": "六本木ヒルズ展望台"
+      },
+      "description": {
+        "en": "Open-air observation deck with 360-degree Tokyo views. Night views of the city lights are spectacular.",
+        "ja": "360度の東京の眺望がある屋上展望台。夜の街の明かりの眺めは壮観。"
+      },
+      "address": {
+        "en": "Roppongi Hills, Minato-ku, Tokyo",
+        "ja": "東京都港区六本木ヒルズ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Observatory",
+        "Views",
+        "Night"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Sunset to night",
+      "tips": [
+        "Mori Art Museum included in ticket",
+        "Sky Deck is outdoors",
+        "Tokyo Tower views excellent"
+      ],
+      "neighborhood": "Roppongi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Sunset to night"
+      },
+      "latitude": 35.6602,
+      "longitude": 139.7298
+    },
+    {
+      "name": {
+        "en": "Jimbocho Book Town",
+        "ja": "神保町古書店街"
+      },
+      "description": {
+        "en": "World's largest used book district with 170+ bookshops. From ancient Japanese texts to vintage Western first editions.",
+        "ja": "170以上の古書店がある世界最大の古書街。古い日本の文献からヴィンテージの洋書初版まで。"
+      },
+      "address": {
+        "en": "Jimbocho, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区神保町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Books",
+        "Antique",
+        "Academic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Each shop has specialty",
+        "Curry restaurants also famous here",
+        "Book festivals in autumn"
+      ],
+      "neighborhood": "Jimbocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.696,
+      "longitude": 139.7569
+    },
+    {
+      "name": {
+        "en": "Yoyogi Park",
+        "ja": "代々木公園"
+      },
+      "description": {
+        "en": "Massive park where Tokyo goes to relax on weekends. Musicians, dancers, cosplayers, and picnickers claim their spaces.",
+        "ja": "週末に東京の人々がくつろぐ巨大な公園。ミュージシャン、ダンサー、コスプレイヤー、ピクニック客がそれぞれの場所を確保。"
+      },
+      "address": {
+        "en": "Yoyogi Park, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区代々木公園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Events",
+        "Gathering"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Weekend afternoon",
+      "tips": [
+        "Food festivals often held here",
+        "Near Meiji Shrine",
+        "Rockabilly dancers on Sundays"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Weekend afternoon"
+      },
+      "latitude": 35.6714,
+      "longitude": 139.6952
+    },
+    {
+      "name": {
+        "en": "Odaiba Oedo Onsen Monogatari",
+        "ja": "お台場大江戸温泉物語"
+      },
+      "description": {
+        "en": "Hot spring theme park recreating Edo-period bathhouse atmosphere. Wear yukata, play games, and relax in various baths.",
+        "ja": "江戸時代の銭湯の雰囲気を再現した温泉テーマパーク。浴衣を着てゲームをし、様々なお風呂でリラックス。"
+      },
+      "address": {
+        "en": "Odaiba, Koto-ku, Tokyo",
+        "ja": "東京都江東区お台場"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Onsen",
+        "Theme Park",
+        "Relaxation"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Tattoos may be restricted",
+        "Open late",
+        "Games and food inside"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.619,
+      "longitude": 139.7794
+    },
+    {
+      "name": {
+        "en": "Kappabashi Kitchen Street",
+        "ja": "かっぱ橋道具街"
+      },
+      "description": {
+        "en": "Professional kitchen equipment street where chefs shop. Knives, ceramics, and the famous plastic food samples.",
+        "ja": "シェフが買い物をするプロ用厨房機器街。包丁、陶器、有名な食品サンプル。"
+      },
+      "address": {
+        "en": "Kappabashi, Taito-ku, Tokyo",
+        "ja": "東京都台東区かっぱ橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Kitchen",
+        "Professional",
+        "Knives"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Best knife shopping in Japan",
+        "Plastic food samples make great souvenirs",
+        "Many shops close early"
+      ],
+      "neighborhood": "Kappabashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.7125,
+      "longitude": 139.7885
+    },
+    {
+      "name": {
+        "en": "Senso-ji Temple",
+        "ja": "浅草寺"
+      },
+      "description": {
+        "en": "Tokyo's oldest temple with its iconic red lantern and Nakamise shopping street. Tourist-heavy but genuinely historic.",
+        "ja": "象徴的な赤い提灯と仲見世通りがある東京最古の寺院。観光客は多いが本当に歴史的。"
+      },
+      "address": {
+        "en": "Senso-ji, Taito-ku, Tokyo",
+        "ja": "東京都台東区浅草寺"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic",
+        "Shopping Street"
+      ],
+      "localley_score": 2,
+      "local_percentage": 35,
+      "best_time": "Early morning (6am)",
+      "tips": [
+        "Go at dawn to avoid crowds",
+        "Nakamise has tourist trap prices",
+        "Night lighting is beautiful"
+      ],
+      "neighborhood": "Asakusa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.19,
+      "best_times": {
+        "en": "Early morning (6am)"
+      },
+      "latitude": 35.7134,
+      "longitude": 139.7955
+    },
+    {
+      "name": {
+        "en": "Naka-Okachimachi Jewelry District",
+        "ja": "仲御徒町ジュエリー街"
+      },
+      "description": {
+        "en": "Wholesale jewelry district where dealers trade gems and precious metals. Open to public at wholesale-adjacent prices.",
+        "ja": "業者が宝石や貴金属を取引する宝飾品卸売地区。卸売に近い価格で一般公開。"
+      },
+      "address": {
+        "en": "Naka-Okachimachi, Taito-ku, Tokyo",
+        "ja": "東京都台東区仲御徒町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Jewelry",
+        "Wholesale",
+        "Gems"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Prices better than retail",
+        "Many small specialist shops",
+        "Good for engagement rings"
+      ],
+      "neighborhood": "Okachimachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7066,
+      "longitude": 139.7762
+    },
+    {
+      "name": {
+        "en": "Shimo-Kitazawa Cage Theater",
+        "ja": "下北沢ケージ"
+      },
+      "description": {
+        "en": "Experimental theater venue under the railway tracks. Avant-garde performances in intimate industrial space.",
+        "ja": "線路下の実験的劇場。親密な工業的空間で前衛的パフォーマンス。"
+      },
+      "address": {
+        "en": "Shimokitazawa, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区下北沢"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Theater",
+        "Experimental",
+        "Alternative"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening performances",
+      "tips": [
+        "Check performance schedule",
+        "Part of new Shimokita development",
+        "Very local scene"
+      ],
+      "neighborhood": "Shimokitazawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening performances"
+      },
+      "latitude": 35.6617,
+      "longitude": 139.6663
+    },
+    {
+      "name": {
+        "en": "Todoroki Valley",
+        "ja": "等々力渓谷"
+      },
+      "description": {
+        "en": "Tokyo's only valley gorge, hidden in suburban Setagaya. Wooden walkways lead through an unexpected forest ravine.",
+        "ja": "郊外の世田谷に隠れた東京唯一の渓谷。木製の遊歩道が思いがけない森の峡谷を通り抜ける。"
+      },
+      "address": {
+        "en": "Todoroki, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区等々力"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature",
+        "Valley",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Free to enter",
+        "Mosquitos in summer",
+        "Unbelievably peaceful for Tokyo"
+      ],
+      "neighborhood": "Todoroki",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6051,
+      "longitude": 139.6457
+    },
+    {
+      "name": {
+        "en": "Ginza Six Rooftop Garden",
+        "ja": "GINZA SIX 屋上庭園"
+      },
+      "description": {
+        "en": "Free rooftop garden atop Ginza's newest luxury mall. Escape the shopping masses for skyline views and greenery.",
+        "ja": "銀座最新の高級モールの屋上にある無料庭園。買い物客の群れを逃れてスカイラインと緑を楽しむ。"
+      },
+      "address": {
+        "en": "Ginza Six, Chuo-ku, Tokyo",
+        "ja": "東京都中央区銀座シックス"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Rooftop",
+        "Garden",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Late afternoon",
+      "tips": [
+        "Free elevator access",
+        "Good sunset views",
+        "Basement food hall excellent"
+      ],
+      "neighborhood": "Ginza",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Late afternoon"
+      },
+      "latitude": 35.6695,
+      "longitude": 139.764
+    },
+    {
+      "name": {
+        "en": "Ueno Park Museums",
+        "ja": "上野公園博物館群"
+      },
+      "description": {
+        "en": "Japan's highest concentration of museums in one park. National Museum, Western Art Museum, Zoo, and more.",
+        "ja": "日本一の博物館密集地帯。国立博物館、西洋美術館、動物園など。"
+      },
+      "address": {
+        "en": "Ueno Park, Taito-ku, Tokyo",
+        "ja": "東京都台東区上野公園"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museums",
+        "Art",
+        "Education"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Weekday morning",
+      "tips": [
+        "National Museum is must-see",
+        "Cherry blossoms famous",
+        "Multiple days needed for all"
+      ],
+      "neighborhood": "Ueno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Weekday morning"
+      },
+      "latitude": 35.719,
+      "longitude": 139.776
+    },
+    {
+      "name": {
+        "en": "Nakano Broadway",
+        "ja": "中野ブロードウェイ"
+      },
+      "description": {
+        "en": "Otaku shopping mall that makes Akihabara look mainstream. Vintage toys, rare manga, and serious collector items.",
+        "ja": "秋葉原がメインストリームに見えるオタクショッピングモール。ヴィンテージ玩具、レア漫画、本格的なコレクターアイテム。"
+      },
+      "address": {
+        "en": "Nakano Broadway, Nakano-ku, Tokyo",
+        "ja": "東京都中野区中野ブロードウェイ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Otaku",
+        "Vintage Toys",
+        "Collectors"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Mandarake store is legendary",
+        "Serious collectors shop here",
+        "Prices can be high for rare items"
+      ],
+      "neighborhood": "Nakano",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7092,
+      "longitude": 139.6657
+    },
+    {
+      "name": {
+        "en": "Sumida River Evening Cruise",
+        "ja": "隅田川イブニングクルーズ"
+      },
+      "description": {
+        "en": "Water bus cruises offering unique perspective of Tokyo's waterways. See traditional bridges and modern architecture from the river.",
+        "ja": "東京の水路のユニークな視点を提供する水上バスクルーズ。川から伝統的な橋と現代建築を見る。"
+      },
+      "address": {
+        "en": "Sumida River, Tokyo",
+        "ja": "東京都隅田川"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cruise",
+        "River",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Multiple departure points",
+        "Himiko boat is futuristic design",
+        "Summer fireworks cruises popular"
+      ],
+      "neighborhood": "Asakusa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.7417,
+      "longitude": 139.7911
+    },
+    {
+      "name": {
+        "en": "Ikebukuro Sunshine City",
+        "ja": "池袋サンシャインシティ"
+      },
+      "description": {
+        "en": "Massive entertainment complex with aquarium, planetarium, and themed restaurants. Local families spend whole days here.",
+        "ja": "水族館、プラネタリウム、テーマレストランがある巨大エンターテインメント複合施設。地元の家族が丸一日過ごす。"
+      },
+      "address": {
+        "en": "Sunshine City, Toshima-ku, Tokyo",
+        "ja": "東京都豊島区サンシャインシティ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Aquarium",
+        "Family",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Weekday",
+      "tips": [
+        "Aquarium has penguins",
+        "Pokemon Center inside",
+        "Observatory has good views"
+      ],
+      "neighborhood": "Ikebukuro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 35.7289,
+      "longitude": 139.7188
+    },
+    {
+      "name": {
+        "en": "Aoyama Cemetery Cherry Blossoms",
+        "ja": "青山霊園桜"
+      },
+      "description": {
+        "en": "Historic cemetery with spectacular cherry blossom tunnel. Less crowded than parks, offering reflective hanami experience.",
+        "ja": "壮大な桜のトンネルがある歴史的な霊園。公園より混雑が少なく、内省的な花見体験ができる。"
+      },
+      "address": {
+        "en": "Aoyama Cemetery, Minato-ku, Tokyo",
+        "ja": "東京都港区青山霊園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Cherry Blossoms",
+        "Cemetery",
+        "Peaceful"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late March to early April",
+      "tips": [
+        "Hachiko's grave is here",
+        "Respectful behavior required",
+        "Beautiful at night with lights"
+      ],
+      "neighborhood": "Aoyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Late March to early April"
+      },
+      "latitude": 35.6658,
+      "longitude": 139.7227
+    },
+    {
+      "name": {
+        "en": "Ningyocho Traditional District",
+        "ja": "人形町伝統地区"
+      },
+      "description": {
+        "en": "Old-Tokyo commercial district with traditional shops and sweet shops. Named for doll-makers who once worked here.",
+        "ja": "伝統的な店や甘味処がある下町の商業地区。かつてここで働いていた人形師にちなんで名付けられた。"
+      },
+      "address": {
+        "en": "Ningyocho, Chuo-ku, Tokyo",
+        "ja": "東京都中央区人形町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Traditional",
+        "Sweets",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late morning",
+      "tips": [
+        "Famous for taiyaki",
+        "Many old Tokyo shops",
+        "Walking distance to Suitengu shrine"
+      ],
+      "neighborhood": "Ningyocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Late morning"
+      },
+      "latitude": 35.6863,
+      "longitude": 139.7822
+    },
+    {
+      "name": {
+        "en": "Higashikitazawa Antiques",
+        "ja": "東北沢アンティーク"
+      },
+      "description": {
+        "en": "Quiet residential area with scattered antique and vintage shops. Less famous than Nishi-Ogi but equally good finds.",
+        "ja": "アンティークやヴィンテージショップが点在する静かな住宅街。西荻窪ほど有名ではないが同様に良い掘り出し物がある。"
+      },
+      "address": {
+        "en": "Higashi-Kitazawa, Setagaya-ku, Tokyo",
+        "ja": "東京都世田谷区東北沢"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Antiques",
+        "Hidden",
+        "Residential"
+      ],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very local area",
+        "Combine with Shimokitazawa visit",
+        "Quieter shopping experience"
+      ],
+      "neighborhood": "Higashi-Kitazawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.41,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6651,
+      "longitude": 139.6725
+    }
+  ]
+}

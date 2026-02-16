@@ -1,0 +1,747 @@
+{
+  "city": "Ho Chi Minh City",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:49:49.054Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Banh Mi Huynh Hoa"
+      },
+      "description": {
+        "en": "Arguably best banh mi in Saigon. Overflowing with ingredients, featured on Luke Nguyen's show. Also called \"Banh Mi O Moi\" (lesbian banh mi) - 30+ years, LGBT-owned."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Thành",
+      "address": {
+        "en": "26 Lê Thị Riêng, Phường Phạm Ngũ Lão, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.771522599999999,
+      "longitude": 106.6923968,
+      "price_tier": "$",
+      "google_place_id": "ChIJ9bBIK5ovdTERXOUNNEW8YGo"
+    },
+    {
+      "name": {
+        "en": "Pho Hung"
+      },
+      "description": {
+        "en": "Popular pho restaurant near Pham Ngu Lao. Customizable beef noodle soup, generous portions with vegetables and spices."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Cầu Ông Lãnh",
+      "address": {
+        "en": "241 - 243 Nguyễn Trãi, Phường Cầu Ông Lãnh, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7648891,
+      "longitude": 106.6877054,
+      "price_tier": "$",
+      "google_place_id": "ChIJgTpe0RkvdTERiArZU41y19w"
+    },
+    {
+      "name": {
+        "en": "Pho So 1 Ha Noi"
+      },
+      "description": {
+        "en": "Open 24 hours, popular with taxi drivers. Rich chicken broth, thin-sliced chicken breast. Great for late-night flu recovery."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "19 Nguyễn Thị Minh Khai, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.784841799999999,
+      "longitude": 106.7000801,
+      "price_tier": "$",
+      "google_place_id": "ChIJI-4dC0ovdTERUo8q8K6ppkM"
+    },
+    {
+      "name": {
+        "en": "Hong Hanh (Banh Da Xuc Hen)"
+      },
+      "description": {
+        "en": "Rice paper crisp with tiny clams fried in lemongrass, rau ram, chilli, garlic. Unique flavor unlike anything else."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "17A Nguyễn Thị Minh Khai, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.785311499999999,
+      "longitude": 106.7004801,
+      "price_tier": "$",
+      "google_place_id": "ChIJXQpackovdTEROq5DG-Ws_Io"
+    },
+    {
+      "name": {
+        "en": "Ben Nghe Street Food Market"
+      },
+      "description": {
+        "en": "Tourist-friendly market great for sampling foods from across Vietnam. Cheapest beer in city (20,000 VND). Good for beginners."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Sài Gòn",
+      "address": {
+        "en": "134 Nam Kỳ Khởi Nghĩa, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7773167,
+      "longitude": 106.6977562,
+      "price_tier": "$",
+      "google_place_id": "ChIJSy3R1jgvdTERE51Ytwqzbpo"
+    },
+    {
+      "name": {
+        "en": "200 Xom Chieu Street Food Alley"
+      },
+      "description": {
+        "en": "Hidden gem in District 4. Pho, banh xeo, goi cuon, che. Authentic local experience away from tourists."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Nhà thờ Thánh Giuse (hẻm 183)",
+      "address": {
+        "en": "Nhà thờ Thánh Giuse (hẻm 183), Xóm Chiếu, Phường 15, Quận 4, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7554992,
+      "longitude": 106.7091744,
+      "price_tier": "$",
+      "google_place_id": "ChIJ8WiMLnAvdTER3Wy06w0sph0"
+    },
+    {
+      "name": {
+        "en": "Bun Cha 145"
+      },
+      "description": {
+        "en": "On Bui Vien Walking Street, excellent grilled pork vermicelli with spring rolls. BBQ pork patties, noodles, fish sauce."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Phạm Ngũ Lão",
+      "address": {
+        "en": "145 Bùi Viện, Phường Phạm Ngũ Lão, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7663227,
+      "longitude": 106.69173459999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJiQVvSBYvdTER_qJ8teDXpFg"
+    },
+    {
+      "name": {
+        "en": "Bún thịt nướng Kiều Bảo"
+      },
+      "description": {
+        "en": "Extremely popular with locals - delivery drivers constantly lining up. Grilled pork vermicelli with unlimited fish sauce and vegetables. 30,000 VND (~$1.20)."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Cô Giang",
+      "address": {
+        "en": "139 Đề Thám, Phường Cô Giang, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.765281900000002,
+      "longitude": 106.694635,
+      "price_tier": "$",
+      "google_place_id": "ChIJ0bszZuAvdTERpouhodSCRo0"
+    },
+    {
+      "name": {
+        "en": "The Workshop"
+      },
+      "description": {
+        "en": "Fantastic coffee and local cafe culture. Great atmosphere for relaxing and people watching."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Tầng 2",
+      "address": {
+        "en": "Tầng 2, 27 Ngô Đức Kế, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7734764,
+      "longitude": 106.7056037,
+      "price_tier": "$$",
+      "google_place_id": "ChIJdyfroEYvdTER2m7eTz44Bns"
+    },
+    {
+      "name": {
+        "en": "Cafe Apartments (42 Nguyen Hue)"
+      },
+      "description": {
+        "en": "Historic French colonial building transformed into multi-floor cafe hub. Po Cafe for Creme Brulee Egg Coffee. Instagram-worthy."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Street",
+      "address": {
+        "en": "D1, 42 Nguyễn Huệ, Street, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7740586,
+      "longitude": 106.7041674,
+      "price_tier": "$$",
+      "google_place_id": "ChIJP4LyNAAvdTERp2XLe0QvLeU"
+    },
+    {
+      "name": {
+        "en": "Tonkin Garden Egg Coffee"
+      },
+      "description": {
+        "en": "Westernized take on traditional coffee. Mountain tribe beans, card explaining sourcing. Try their spicy coffee."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Cầu Ông Lãnh",
+      "address": {
+        "en": "135/50 Trần Hưng Đạo, Phường Cầu Ông Lãnh, Quận 1, Thành phố Hồ Chí Minh 71009, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.766164999999999,
+      "longitude": 106.69547899999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ8y--x30vdTERNKp1T9DDyOA"
+    },
+    {
+      "name": {
+        "en": "Cuc Gach Cafe"
+      },
+      "description": {
+        "en": "Relaxing spot for Vietnamese coffee. Different from main restaurant location. Traditional atmosphere."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Đa Kao",
+      "address": {
+        "en": "79 Phan Kế Bính, Đa Kao, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.790235299999999,
+      "longitude": 106.6987953,
+      "price_tier": "$$",
+      "google_place_id": "ChIJeRbgvsoodTER5RLaxCgKtcs"
+    },
+    {
+      "name": {
+        "en": "The Morning News Cafe"
+      },
+      "description": {
+        "en": "Writers hideout, book lovers corner. Tiny alley location, wood and art-filled room. Quiet spot to read or write."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "An Phú",
+      "address": {
+        "en": "148 Đ. 51, An Phú, Quận 2, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.784851399999999,
+      "longitude": 106.7486899,
+      "price_tier": "$$",
+      "google_place_id": "ChIJgy8VjhQldTERq7rvc2VsqdY"
+    },
+    {
+      "name": {
+        "en": "Nap Saigon"
+      },
+      "description": {
+        "en": "Spacious location with extensive menu including egg coffee. 3/5 Nguyen Van Thu, District 1."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "B1.01 Saigon Royal 34",
+      "address": {
+        "en": "B1.01 Saigon Royal 34, 35 Bến Vân Đồn, Phường 12, Quận 4, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7663767,
+      "longitude": 106.70421,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ62gAUA4vdTERJtDl7i_8yT8"
+    },
+    {
+      "name": {
+        "en": "Chill Sky Bar"
+      },
+      "description": {
+        "en": "Most famous rooftop bar in HCMC. 26th floor AB Tower, panoramic views, upbeat music. 5:30pm-2am daily."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Tầng 26 - 27",
+      "address": {
+        "en": "Tầng 26 - 27, AB Tower, 76A Lê Lai, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.770564799999999,
+      "longitude": 106.69437769999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJMRRuhj4vdTER1M4F3fECIGI"
+    },
+    {
+      "name": {
+        "en": "EON Heli Bar"
+      },
+      "description": {
+        "en": "One of highest bars in Vietnam. 52nd floor Bitexco Tower, 360-degree panorama. Helicopter-themed decor."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "QPC3+MQ Bến Nghé",
+      "address": {
+        "en": "QPC3+MQ Bến Nghé, Phường Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7716853,
+      "longitude": 106.70445219999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJq6pqR0EvdTERhwkL_CZywLo"
+    },
+    {
+      "name": {
+        "en": "Saigon Saigon Rooftop Bar"
+      },
+      "description": {
+        "en": "Caravelle Hotel, overlooking Opera House and Lam Son Square. Historic - once haven for wartime journalists. Old Saigon charm."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "19-23 Lam Son Square, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7761926,
+      "longitude": 106.70342679999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJPZNYAyMpdTERSMElIuOXxdI"
+    },
+    {
+      "name": {
+        "en": "Social Club Rooftop Bar"
+      },
+      "description": {
+        "en": "Hotel des Arts, 23rd-24th floor. Infinity pool, live DJs. Ladynite Tuesdays. Glamorous vibe."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "St",
+      "address": {
+        "en": "76 78 Nguyễn Thị Minh Khai, St, Quận 3, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7824226,
+      "longitude": 106.6973331,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJO9BqXjYvdTERVrVlBcU1Ccc"
+    },
+    {
+      "name": {
+        "en": "Broma Not a Bar"
+      },
+      "description": {
+        "en": "Double-decker rooftop with in-floor fish tanks. Tailored cocktails on request. Come early as they turn people away when full."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "41 Nguyễn Huệ, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7727302,
+      "longitude": 106.7046106,
+      "price_tier": "$$",
+      "google_place_id": "ChIJxSLFs0YvdTERKOc0qdOtYrw"
+    },
+    {
+      "name": {
+        "en": "Boosh Rooftop"
+      },
+      "description": {
+        "en": "Underground vibes with weekend DJs. Alternative to glitzy Chill Skybar."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phạm Ngũ Lão",
+      "address": {
+        "en": "6 Bùi Viện, Phường Phạm Ngũ Lão, Quận 1, Thành phố Hồ Chí Minh 70000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7679609,
+      "longitude": 106.6950667,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ8TBg-_gvdTERi1YDZXSjZ-I"
+    },
+    {
+      "name": {
+        "en": "Snuffbox"
+      },
+      "description": {
+        "en": "Best speakeasy in town. Roaring Twenties prohibition-era decor, sensuous jazz. Expert Angostura bitters and Manhattans."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Nguyễn Thái Bình",
+      "address": {
+        "en": "14 Tôn Thất Đạm, Phường Nguyễn Thái Bình, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.769603900000002,
+      "longitude": 106.70415799999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJXRaYoUEvdTERKREXSXS8tOg"
+    },
+    {
+      "name": {
+        "en": "The Alley Cocktail Bar & Kitchen"
+      },
+      "description": {
+        "en": "Tucked in alley at 63/1 Pasteur. Expertly crafted cocktails in cozy setting."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "63/8 Pasteur, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7748235,
+      "longitude": 106.70062039999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJOXX9ZEcvdTER41dcZZJM4oU"
+    },
+    {
+      "name": {
+        "en": "The Iron Bank"
+      },
+      "description": {
+        "en": "Popular speakeasy with secretive entrance. Intimate, exclusive experience."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường Nguyễn Thái Bình",
+      "address": {
+        "en": "47 Tôn Thất Đạm, Phường Nguyễn Thái Bình, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.770216999999999,
+      "longitude": 106.70352799999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJnUwEBkEvdTER7cxdTa9Cdqw"
+    },
+    {
+      "name": {
+        "en": "Ministry Bar"
+      },
+      "description": {
+        "en": "Cocktails inspired by legends like Churchill and Curie. Each drink with theatrical presentation - cocktails as stories."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Bến Nghé",
+      "address": {
+        "en": "17 Lê Duẩn Bến Nghé Sofitel Saigon Plaza, Bến Nghé, Quận 1, Thành phố Hồ Chí Minh 710545, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.784239999999999,
+      "longitude": 106.70264209999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJkeNbrxcpdTERpDsyejEaNe0"
+    },
+    {
+      "name": {
+        "en": "Firkin Bar"
+      },
+      "description": {
+        "en": "Hidden gem at 20 Mac Thi Buoi. Extensive whiskey collection and classic cocktails."
+      },
+      "city": "Ho Chi Minh City",
+      "neighborhood": "Phường",
+      "address": {
+        "en": "20 Mạc Thị Bưởi, Phường, Quận 1, Thành phố Hồ Chí Minh 700000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 10.7758456,
+      "longitude": 106.70496059999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ9bS2ekYvdTERPBU0lvbR6lI"
+    }
+  ]
+}

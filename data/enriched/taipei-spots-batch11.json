@@ -1,0 +1,740 @@
+{
+  "city": "taipei",
+  "batch": 11,
+  "spots": [
+    {
+      "name": {
+        "en": "National Dr. Sun Yat-sen Memorial Hall",
+        "zh": "國立國父紀念館"
+      },
+      "description": {
+        "en": "Memorial hall with guard change ceremony.",
+        "zh": "有衛兵交接的紀念館。"
+      },
+      "address": {
+        "en": "505 Renai Road Sec 4, Xinyi District, Taipei",
+        "zh": "台北市信義區仁愛路四段505號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Memorial",
+        "Historic",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Guard change hourly",
+        "Free entry",
+        "Nice park"
+      ],
+      "neighborhood": "Xinyi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Taipei Guest House",
+        "zh": "台北賓館"
+      },
+      "description": {
+        "en": "Historic state guest house. Limited open days.",
+        "zh": "歷史國賓館。有限開放日。"
+      },
+      "address": {
+        "en": "1 Ketagalan Boulevard, Zhongzheng District, Taipei",
+        "zh": "台北市中正區凱達格蘭大道1號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Government",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Open Days",
+      "tips": [
+        "Check open days",
+        "Beautiful building",
+        "Near 228 Park"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Open Days"
+      },
+      "latitude": 25.0403,
+      "longitude": 121.5168
+    },
+    {
+      "name": {
+        "en": "Land Bank Exhibition Hall",
+        "zh": "土地銀行展示館"
+      },
+      "description": {
+        "en": "Historic bank building. Dinosaur exhibits.",
+        "zh": "歷史銀行建築。恐龍展覽。"
+      },
+      "address": {
+        "en": "25 Xiangyang Road, Zhongzheng District, Taipei",
+        "zh": "台北市中正區襄陽路25號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Historic",
+        "Dinosaurs"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Colonial building",
+        "Dinosaur fossils",
+        "Near 228 Park"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0441,
+      "longitude": 121.5148
+    },
+    {
+      "name": {
+        "en": "Postal Museum",
+        "zh": "郵政博物館"
+      },
+      "description": {
+        "en": "Stamp and postal history museum.",
+        "zh": "郵票和郵政歷史博物館。"
+      },
+      "address": {
+        "en": "45 Chongqing South Road Sec 2, Zhongzheng District, Taipei",
+        "zh": "台北市中正區重慶南路二段45號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Stamps",
+        "History"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Stamp collecting",
+        "Multiple floors",
+        "Affordable"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0317,
+      "longitude": 121.5149
+    },
+    {
+      "name": {
+        "en": "Zhongshan Hall",
+        "zh": "中山堂"
+      },
+      "description": {
+        "en": "Historic public hall. Japanese surrender site.",
+        "zh": "歷史公共會堂。日本投降地點。"
+      },
+      "address": {
+        "en": "98 Yanping South Road, Zhongzheng District, Taipei",
+        "zh": "台北市中正區延平南路98號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Hall",
+        "Surrender Site"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "WWII history",
+        "Performance venue",
+        "Near Ximending"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0433,
+      "longitude": 121.5095
+    },
+    {
+      "name": {
+        "en": "Taiwan Storyland",
+        "zh": "台灣故事館"
+      },
+      "description": {
+        "en": "Retro Taiwan exhibition. 1960s nostalgia.",
+        "zh": "復古台灣展覽。1960年代懷舊。"
+      },
+      "address": {
+        "en": "B2, 50 Chengde Road, Datong District, Taipei",
+        "zh": "台北市大同區承德路50號B2"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Retro",
+        "Exhibition",
+        "Nostalgia"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Old Taiwan life",
+        "Photo ops",
+        "Near train station"
+      ],
+      "neighborhood": "Datong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0134,
+      "longitude": 121.5304
+    },
+    {
+      "name": {
+        "en": "Museum of Contemporary Art Taipei",
+        "zh": "台北當代藝術館"
+      },
+      "description": {
+        "en": "Contemporary art in historic school building.",
+        "zh": "歷史學校建築中的當代藝術。"
+      },
+      "address": {
+        "en": "39 Changan West Road, Datong District, Taipei",
+        "zh": "台北市大同區長安西路39號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Contemporary Art",
+        "Museum",
+        "Historic Building"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Contemporary art",
+        "Historic building",
+        "Near Zhongshan"
+      ],
+      "neighborhood": "Datong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0508,
+      "longitude": 121.519
+    },
+    {
+      "name": {
+        "en": "Spot Taipei Film House Garden",
+        "zh": "台北之家花園"
+      },
+      "description": {
+        "en": "Beautiful garden at historic venue.",
+        "zh": "歷史場館的美麗花園。"
+      },
+      "address": {
+        "en": "18 Zhongshan North Road Sec 2, Zhongshan District, Taipei",
+        "zh": "台北市中山區中山北路二段18號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Historic",
+        "Cafe"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Nice garden",
+        "Cafe inside",
+        "Historic building"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Taipei Artist Village",
+        "zh": "台北國際藝術村"
+      },
+      "description": {
+        "en": "Artist residencies and exhibitions.",
+        "zh": "藝術家駐村和展覽。"
+      },
+      "address": {
+        "en": "7 Beiping East Road, Zhongzheng District, Taipei",
+        "zh": "台北市中正區北平東路7號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Residency",
+        "Exhibitions"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Artist programs",
+        "Free exhibitions",
+        "Near Huashan"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0106,
+      "longitude": 121.5322
+    },
+    {
+      "name": {
+        "en": "C-Lab Taiwan Contemporary Culture Lab",
+        "zh": "臺灣當代文化實驗場"
+      },
+      "description": {
+        "en": "Art and technology space. Former Air Force site.",
+        "zh": "藝術與科技空間。前空軍場地。"
+      },
+      "address": {
+        "en": "177 Jianguo South Road Sec 1, Da'an District, Taipei",
+        "zh": "台北市大安區建國南路一段177號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Contemporary",
+        "Art",
+        "Technology"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Art and tech",
+        "Free entry",
+        "Experimental"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0396,
+      "longitude": 121.5397
+    },
+    {
+      "name": {
+        "en": "Taipei Cinema Park",
+        "zh": "台北光點電影公園"
+      },
+      "description": {
+        "en": "Small park near Film House. Shaded rest area.",
+        "zh": "電影公園附近的小公園。遮蔭休息區。"
+      },
+      "address": {
+        "en": "Zhongshan North Road Sec 2, Zhongshan District, Taipei",
+        "zh": "台北市中山區中山北路二段"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Small",
+        "Rest"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Quiet spot",
+        "Near shopping",
+        "Rest area"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0445,
+      "longitude": 121.5031
+    },
+    {
+      "name": {
+        "en": "Auntie Shui Fried Bun",
+        "zh": "水煎包"
+      },
+      "description": {
+        "en": "Local pan-fried bun breakfast.",
+        "zh": "當地水煎包早餐。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Breakfast",
+        "Buns",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Breakfast",
+      "tips": [
+        "Morning food",
+        "Very cheap",
+        "Street vendors"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 25.1396,
+      "longitude": 121.5012
+    },
+    {
+      "name": {
+        "en": "Soy Milk Breakfast Shops",
+        "zh": "豆漿店"
+      },
+      "description": {
+        "en": "Traditional Taiwanese breakfast culture.",
+        "zh": "傳統台灣早餐文化。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Breakfast",
+        "Soy Milk",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Breakfast",
+      "tips": [
+        "Youtiao combo",
+        "Egg crepe",
+        "Local breakfast"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 25.1376,
+      "longitude": 121.5467
+    },
+    {
+      "name": {
+        "en": "Danbing (Egg Crepe) Shops",
+        "zh": "蛋餅店"
+      },
+      "description": {
+        "en": "Egg crepe breakfast everywhere.",
+        "zh": "到處都有蛋餅早餐。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Breakfast",
+        "Egg Crepe",
+        "Ubiquitous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Breakfast",
+      "tips": [
+        "Local breakfast",
+        "Many varieties",
+        "Very cheap"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 24.9821,
+      "longitude": 121.415
+    },
+    {
+      "name": {
+        "en": "Taiwanese Bento Boxes",
+        "zh": "台灣便當"
+      },
+      "description": {
+        "en": "Affordable box lunch culture.",
+        "zh": "平價盒飯文化。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Lunch",
+        "Bento",
+        "Affordable"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch",
+      "tips": [
+        "Office lunch",
+        "Many options",
+        "Very affordable"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Lunch"
+      }
+    },
+    {
+      "name": {
+        "en": "Formosa Chang Lu Rou Fan",
+        "zh": "鬍鬚張滷肉飯"
+      },
+      "description": {
+        "en": "Famous braised pork rice chain.",
+        "zh": "著名滷肉飯連鎖。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Lu Rou Fan",
+        "Chain",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Classic dish",
+        "Many locations",
+        "Consistent quality"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.059,
+      "longitude": 121.5301
+    },
+    {
+      "name": {
+        "en": "Jin Feng Lu Rou Fan",
+        "zh": "金峰滷肉飯"
+      },
+      "description": {
+        "en": "Famous braised pork rice shop.",
+        "zh": "著名滷肉飯店。"
+      },
+      "address": {
+        "en": "10 Roosevelt Road Sec 1, Zhongzheng District, Taipei",
+        "zh": "台北市中正區羅斯福路一段10號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Lu Rou Fan",
+        "Famous",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Lunch",
+      "tips": [
+        "Queue expected",
+        "Simple menu",
+        "Delicious pork"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.032,
+      "longitude": 121.5185
+    },
+    {
+      "name": {
+        "en": "Taiwanese Beef Noodle Soup Culture",
+        "zh": "台灣牛肉麵文化"
+      },
+      "description": {
+        "en": "National dish found everywhere.",
+        "zh": "到處都有的國民美食。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Beef Noodles",
+        "National Dish",
+        "Ubiquitous"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Many styles",
+        "Festival each year",
+        "Must try"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.0429,
+      "longitude": 121.5049
+    },
+    {
+      "name": {
+        "en": "50 Lan Bubble Tea",
+        "zh": "50嵐"
+      },
+      "description": {
+        "en": "Popular local bubble tea chain.",
+        "zh": "熱門當地珍珠奶茶連鎖。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Bubble Tea",
+        "Chain",
+        "Popular"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Local favorite",
+        "Many locations",
+        "Customize sweetness"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0273,
+      "longitude": 121.5432
+    },
+    {
+      "name": {
+        "en": "CoCo Bubble Tea",
+        "zh": "CoCo都可"
+      },
+      "description": {
+        "en": "Major bubble tea chain.",
+        "zh": "主要珍珠奶茶連鎖。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Bubble Tea",
+        "Chain",
+        "Major"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Everywhere",
+        "Consistent",
+        "Many flavors"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0302,
+      "longitude": 121.5166
+    }
+  ]
+}

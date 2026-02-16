@@ -1,0 +1,742 @@
+{
+  "city": "kyoto",
+  "batch": 3,
+  "spots": [
+    {
+      "name": {
+        "en": "Katsura Imperial Villa",
+        "ja": "桂離宮"
+      },
+      "description": {
+        "en": "Perfect Japanese garden. Reservation.",
+        "ja": "完璧な日本庭園。要予約。"
+      },
+      "address": {
+        "en": "Katsuranomiya, Nishikyo-ku, Kyoto",
+        "ja": "京都市西京区桂御園"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Villa",
+        "Garden",
+        "Imperial"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Reservation required",
+        "Perfect garden design",
+        "Free entry"
+      ],
+      "neighborhood": "Nishikyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9839,
+      "longitude": 135.7103
+    },
+    {
+      "name": {
+        "en": "Shugakuin Imperial Villa",
+        "ja": "修学院離宮"
+      },
+      "description": {
+        "en": "Mountain villa with terraced gardens.",
+        "ja": "段々庭園のある山荘。"
+      },
+      "address": {
+        "en": "Shugakuin, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区修学院"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Villa",
+        "Garden",
+        "Mountain"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Reservation required",
+        "Mountain views",
+        "Long walking tour"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0528,
+      "longitude": 135.7925
+    },
+    {
+      "name": {
+        "en": "Ninna-ji Temple",
+        "ja": "仁和寺"
+      },
+      "description": {
+        "en": "Late cherry blossoms. UNESCO.",
+        "ja": "遅咲きの桜。ユネスコ。"
+      },
+      "address": {
+        "en": "33 Omuro Ouchi, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区御室大内33"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Cherry Blossom"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Late Spring",
+      "tips": [
+        "Omuro cherry trees",
+        "Late blooming",
+        "Beautiful gate"
+      ],
+      "neighborhood": "Ukyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Late Spring"
+      },
+      "latitude": 35.0298,
+      "longitude": 135.7141
+    },
+    {
+      "name": {
+        "en": "Arashiyama",
+        "ja": "嵐山"
+      },
+      "description": {
+        "en": "Western Kyoto scenic area.",
+        "ja": "京都西部の景勝地。"
+      },
+      "address": {
+        "en": "Arashiyama, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵐山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Scenic",
+        "Mountain",
+        "Tourism"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Autumn",
+      "tips": [
+        "Multiple attractions",
+        "Day trip area",
+        "Autumn colors"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.009,
+      "longitude": 135.6745
+    },
+    {
+      "name": {
+        "en": "Togetsukyo Bridge",
+        "ja": "渡月橋"
+      },
+      "description": {
+        "en": "Iconic bridge in Arashiyama.",
+        "ja": "嵐山の象徴的な橋。"
+      },
+      "address": {
+        "en": "Arashiyama, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵐山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Bridge",
+        "Iconic",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Morning",
+      "tips": [
+        "Photo spot",
+        "Early morning best",
+        "Mountain backdrop"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0129,
+      "longitude": 135.6778
+    },
+    {
+      "name": {
+        "en": "Okochi Sanso Villa",
+        "ja": "大河内山荘"
+      },
+      "description": {
+        "en": "Actor's villa with gardens.",
+        "ja": "俳優の別荘と庭園。"
+      },
+      "address": {
+        "en": "8 Sagaogurayama Tabuchiyamacho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨小倉山田淵山町8"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Villa",
+        "Garden",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Beautiful views",
+        "Matcha included",
+        "Near bamboo grove"
+      ],
+      "neighborhood": "Arashiyama",
+      "latitude": 35.0167147,
+      "longitude": 135.6699227,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Jojakkoji Temple",
+        "ja": "常寂光寺"
+      },
+      "description": {
+        "en": "Autumn temple in Arashiyama.",
+        "ja": "嵐山の紅葉寺。"
+      },
+      "address": {
+        "en": "3 Sagaogurayama Ogurachō, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨小倉山小倉町3"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Autumn",
+        "Mountain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Autumn",
+      "tips": [
+        "Great autumn colors",
+        "Steep stairs",
+        "Mountain views"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0197,
+      "longitude": 135.6686
+    },
+    {
+      "name": {
+        "en": "Gio-ji Temple",
+        "ja": "祇王寺"
+      },
+      "description": {
+        "en": "Small moss temple. Quiet.",
+        "ja": "小さな苔寺。静か。"
+      },
+      "address": {
+        "en": "32 Sagatorimoto Kosakachō, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨鳥居本小坂町32"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Moss",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Rainy Season",
+      "tips": [
+        "Beautiful moss",
+        "Small and quiet",
+        "Less touristy"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Rainy Season"
+      },
+      "latitude": 35.0235,
+      "longitude": 135.6668
+    },
+    {
+      "name": {
+        "en": "Otagi Nenbutsu-ji",
+        "ja": "愛宕念仏寺"
+      },
+      "description": {
+        "en": "1200 stone statues. Hidden gem.",
+        "ja": "1200体の石仏。隠れた名所。"
+      },
+      "address": {
+        "en": "2-5 Sagatorimoto Fukatani-cho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨鳥居本深谷町2-5"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Statues",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "1200 unique statues",
+        "End of Arashiyama",
+        "Very quiet"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0312,
+      "longitude": 135.6612
+    },
+    {
+      "name": {
+        "en": "Adashino Nenbutsu-ji",
+        "ja": "化野念仏寺"
+      },
+      "description": {
+        "en": "Buddhist memorial temple. Stone Buddhas.",
+        "ja": "仏教の追悼寺。石仏。"
+      },
+      "address": {
+        "en": "17 Sagatorimoto Adashino-cho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨鳥居本化野町17"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Memorial",
+        "Stone Buddhas"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "8000 stone Buddhas",
+        "August candle festival",
+        "Contemplative"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0269,
+      "longitude": 135.6646
+    },
+    {
+      "name": {
+        "en": "Sagano Scenic Railway",
+        "ja": "嵯峨野トロッコ列車"
+      },
+      "description": {
+        "en": "Scenic train through valley.",
+        "ja": "渓谷を走る観光列車。"
+      },
+      "address": {
+        "en": "Saga-Arashiyama Station area, Kyoto",
+        "ja": "嵯峨嵐山駅周辺"
+      },
+      "category": "Transportation",
+      "subcategories": [
+        "Train",
+        "Scenic",
+        "Valley"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Autumn",
+      "tips": [
+        "Book ahead autumn",
+        "River gorge views",
+        "One way recommended"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.32,
+      "best_times": {
+        "en": "Autumn"
+      }
+    },
+    {
+      "name": {
+        "en": "Hozu River Cruise",
+        "ja": "保津川下り"
+      },
+      "description": {
+        "en": "River cruise to Arashiyama.",
+        "ja": "嵐山への川下り。"
+      },
+      "address": {
+        "en": "Kameoka to Arashiyama, Kyoto",
+        "ja": "亀岡から嵐山"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cruise",
+        "River",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Autumn",
+      "tips": [
+        "2 hours",
+        "From Kameoka",
+        "Rapids exciting"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Autumn"
+      }
+    },
+    {
+      "name": {
+        "en": "Daikaku-ji Temple",
+        "ja": "大覚寺"
+      },
+      "description": {
+        "en": "Imperial palace turned temple.",
+        "ja": "御所から寺院へ。"
+      },
+      "address": {
+        "en": "4 Sagaosawa-cho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨大沢町4"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Imperial",
+        "Pond"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Autumn",
+      "tips": [
+        "Osawa Pond",
+        "Less crowded",
+        "Moon viewing spot"
+      ],
+      "neighborhood": "Saga",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0277,
+      "longitude": 135.678
+    },
+    {
+      "name": {
+        "en": "Kurama Temple",
+        "ja": "鞍馬寺"
+      },
+      "description": {
+        "en": "Mountain temple. Tengu legends.",
+        "ja": "山の寺。天狗伝説。"
+      },
+      "address": {
+        "en": "1074 Kuramahonmachi, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区鞍馬本町1074"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Mountain",
+        "Hiking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Autumn",
+      "tips": [
+        "Cable car available",
+        "Hike to Kibune",
+        "Fire festival October"
+      ],
+      "neighborhood": "Kurama",
+      "latitude": 35.1181404,
+      "longitude": 135.7708892,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Autumn"
+      }
+    },
+    {
+      "name": {
+        "en": "Kibune Shrine",
+        "ja": "貴船神社"
+      },
+      "description": {
+        "en": "Water deity shrine in mountains.",
+        "ja": "山中の水の神社。"
+      },
+      "address": {
+        "en": "180 Kibunecho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区鞍馬貴船町180"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Mountain",
+        "Water"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Summer",
+      "tips": [
+        "Kawadoko dining summer",
+        "Red torii path",
+        "Hike from Kurama"
+      ],
+      "neighborhood": "Kibune",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Summer"
+      },
+      "latitude": 35.0503,
+      "longitude": 135.7469
+    },
+    {
+      "name": {
+        "en": "Kibune Kawadoko",
+        "ja": "貴船川床"
+      },
+      "description": {
+        "en": "River platform dining. Summer only.",
+        "ja": "川床料理。夏季のみ。"
+      },
+      "address": {
+        "en": "Kibune, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区貴船"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dining",
+        "River",
+        "Summer"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Summer",
+      "tips": [
+        "May-September",
+        "Book ahead",
+        "Cool escape"
+      ],
+      "neighborhood": "Kibune",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Summer"
+      },
+      "latitude": 35.1189,
+      "longitude": 135.7624
+    },
+    {
+      "name": {
+        "en": "Ohara",
+        "ja": "大原"
+      },
+      "description": {
+        "en": "Rural area with temples. Peaceful.",
+        "ja": "寺院のある農村地区。静か。"
+      },
+      "address": {
+        "en": "Ohara, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区大原"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Rural",
+        "Temples",
+        "Peaceful"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Autumn",
+      "tips": [
+        "Rural escape",
+        "Multiple temples",
+        "Shiso leaves famous"
+      ],
+      "neighborhood": "Ohara",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.1198,
+      "longitude": 135.829
+    },
+    {
+      "name": {
+        "en": "Sanzen-in Temple",
+        "ja": "三千院"
+      },
+      "description": {
+        "en": "Moss garden in Ohara. Peaceful.",
+        "ja": "大原の苔庭。静か。"
+      },
+      "address": {
+        "en": "540 Ohararaigoin-cho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区大原来迎院町540"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Moss",
+        "Ohara"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Autumn",
+      "tips": [
+        "Hydrangeas summer",
+        "Autumn colors",
+        "Moss garden"
+      ],
+      "neighborhood": "Ohara",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.1196,
+      "longitude": 135.8349
+    },
+    {
+      "name": {
+        "en": "Jakko-in Temple",
+        "ja": "寂光院"
+      },
+      "description": {
+        "en": "Temple connected to Heike story.",
+        "ja": "平家物語にゆかりの寺。"
+      },
+      "address": {
+        "en": "676 Ohara Kusao-cho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区大原草生町676"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Autumn",
+      "tips": [
+        "Tale of Heike",
+        "Very peaceful",
+        "Small temple"
+      ],
+      "neighborhood": "Ohara",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.1241,
+      "longitude": 135.8208
+    },
+    {
+      "name": {
+        "en": "Enryaku-ji Temple",
+        "ja": "延暦寺"
+      },
+      "description": {
+        "en": "UNESCO temple on Mt. Hiei.",
+        "ja": "比叡山のユネスコ寺院。"
+      },
+      "address": {
+        "en": "4220 Honmachi, Sakamoto, Otsu, Shiga",
+        "ja": "滋賀県大津市坂本本町4220"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Mountain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Autumn",
+      "tips": [
+        "Cable car access",
+        "Large complex",
+        "Day trip"
+      ],
+      "neighborhood": "Mt. Hiei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0656,
+      "longitude": 135.8269
+    }
+  ]
+}

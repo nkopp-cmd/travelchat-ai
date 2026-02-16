@@ -1,0 +1,768 @@
+{
+  "city": "Busan",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:45:34.127Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Haeundae Beach"
+      },
+      "description": {
+        "en": "South Korea's most famous beach with sandy shores, modern skyline backdrop, and summer festivals. Buzzing with energy year-round."
+      },
+      "city": "Busan",
+      "neighborhood": "Haeundae Beach",
+      "address": {
+        "en": "Haeundae Beach, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.158697499999995,
+      "longitude": 129.16038419999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJXwf-DlyNaDURmKxjwdWxY5k"
+    },
+    {
+      "name": {
+        "en": "Gwangalli Beach"
+      },
+      "description": {
+        "en": "Locals' favorite with stunning Gwangan Bridge views, beachfront cafés, Saturday drone shows, and romantic nighttime atmosphere."
+      },
+      "city": "Busan",
+      "neighborhood": "Gwangalli Beach",
+      "address": {
+        "en": "Gwangalli Beach, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1531696,
+      "longitude": 129.118666,
+      "price_tier": "$",
+      "google_place_id": "ChIJxw7HJy_taDUR-xaSTeHwbf8"
+    },
+    {
+      "name": {
+        "en": "Songjeong Beach"
+      },
+      "description": {
+        "en": "Quiet surfer's paradise with cozy surf cafes, rugged coastal trails, and cinnamon-toast-scented morning spots. Less crowded than Haeundae."
+      },
+      "city": "Busan",
+      "neighborhood": "South Korea",
+      "address": {
+        "en": "South Korea, 송정해수욕장"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.17861250000001,
+      "longitude": 129.19971329999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJAeJVSEyMaDURJSl7wzo7GTI"
+    },
+    {
+      "name": {
+        "en": "Dadaepo Beach"
+      },
+      "description": {
+        "en": "Wide shallow beach famous for dramatic sunsets, Sunset Fountain of Dream show, and connection to Nakdong Estuary Ecological Park."
+      },
+      "city": "Busan",
+      "neighborhood": "Dadae-ro",
+      "address": {
+        "en": "Dadaepo Beach, 680 Dadae-ro, Dadae-dong, Saha-gu, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0462468,
+      "longitude": 128.96315380000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJR_w0WhPdaDURllEsxhEIA90"
+    },
+    {
+      "name": {
+        "en": "Ilgwang Beach"
+      },
+      "description": {
+        "en": "Secret serene stretch perfect for swimming and picnicking - a true local favorite away from tourist crowds."
+      },
+      "city": "Busan",
+      "neighborhood": "Samseong-ri",
+      "address": {
+        "en": "Ilgwang Beach, 115-20 Samseong-ri, Ilgwang-myeon, Gijang, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Nature"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.2622451,
+      "longitude": 129.2336003,
+      "price_tier": "$",
+      "google_place_id": "ChIJyZBjOFSPaDURKWR7rMB3f9I"
+    },
+    {
+      "name": {
+        "en": "Gamcheon Culture Village"
+      },
+      "description": {
+        "en": "Hillside village with vibrant painted houses, murals, art installations, indie cafés. Follow the stamp trail map from Tourist Info."
+      },
+      "city": "Busan",
+      "neighborhood": "Gamnae 2-ro",
+      "address": {
+        "en": "203 Gamnae 2-ro, Saha-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0973904,
+      "longitude": 129.0105924,
+      "price_tier": "$",
+      "google_place_id": "ChIJUToRo7fpaDURo_ZMItcBfpc"
+    },
+    {
+      "name": {
+        "en": "Huinnyeoul Culture Village"
+      },
+      "description": {
+        "en": "\"Santorini of Korea\" - clifftop village with sea-facing cafes, white/blue houses, murals. Quieter than Gamcheon with stunning bay views."
+      },
+      "city": "Busan",
+      "neighborhood": "Yeongseon-dong 4(sa)-ga",
+      "address": {
+        "en": "1043 Yeongseon-dong 4(sa)-ga, Yeongdo-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0782798,
+      "longitude": 129.0453198,
+      "price_tier": "$",
+      "google_place_id": "ChIJseGsfh7paDURigYilgTVojA"
+    },
+    {
+      "name": {
+        "en": "Dakbatgol Mural Village"
+      },
+      "description": {
+        "en": "Colorful mural village with the famous Stairway of Wishes and free street cable car for elderly residents (visitors can use too!)."
+      },
+      "city": "Busan",
+      "neighborhood": "Mangyang-ro 170beon-gil",
+      "address": {
+        "en": "동 Mangyang-ro 170beon-gil, 동대신2 Seo-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1142746,
+      "longitude": 129.0237551,
+      "price_tier": "$",
+      "google_place_id": "ChIJF-3IhITpaDURCiscL2pKj_A"
+    },
+    {
+      "name": {
+        "en": "F1963 Cultural Complex"
+      },
+      "description": {
+        "en": "Repurposed wire factory turned creative hub with galleries, bookstore, makgeolli brewery (Boksoondoga), and event spaces."
+      },
+      "city": "Busan",
+      "neighborhood": "Gurak-ro 123beon-gil",
+      "address": {
+        "en": "20 Gurak-ro 123beon-gil, Suyeong-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1767015,
+      "longitude": 129.11531,
+      "price_tier": "$",
+      "google_place_id": "ChIJLbOoCN-SaDURI46oWU05XgM"
+    },
+    {
+      "name": {
+        "en": "Busan Museum of Art"
+      },
+      "description": {
+        "en": "Contemporary Korean and international art in stunning architecture - often overlooked by tourists."
+      },
+      "city": "Busan",
+      "neighborhood": "APEC-ro",
+      "address": {
+        "en": "58 APEC-ro, Haeundae, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1667329,
+      "longitude": 129.1370714,
+      "price_tier": "$",
+      "google_place_id": "ChIJUV0TbriSaDURK4AmxXitluY"
+    },
+    {
+      "name": {
+        "en": "Museum 1 (Centum City)"
+      },
+      "description": {
+        "en": "Immersive digital art with 80 million LEDs on floors, ceiling, and walls - feels like stepping inside artwork."
+      },
+      "city": "Busan",
+      "neighborhood": "Centum seo-ro",
+      "address": {
+        "en": "20 Centum seo-ro, Haeundae, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1713288,
+      "longitude": 129.1289794,
+      "price_tier": "$$",
+      "google_place_id": "ChIJMdF91iSTaDURCCK292RIcB8"
+    },
+    {
+      "name": {
+        "en": "Jagalchi Fish Market"
+      },
+      "description": {
+        "en": "Korea's largest seafood market - pick fresh fish from tanks and have it prepared at upstairs restaurants."
+      },
+      "city": "Busan",
+      "neighborhood": "Jagalchihaean-ro",
+      "address": {
+        "en": "52 Jagalchihaean-ro, Jung-gu, Busan, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0966339,
+      "longitude": 129.0307965,
+      "price_tier": "$$",
+      "google_place_id": "ChIJudkrFArpaDURbbCzajeQs0c"
+    },
+    {
+      "name": {
+        "en": "Choryang Milmyeon"
+      },
+      "description": {
+        "en": "Queue with locals for authentic Busan cold noodle soup (milmyeon) and giant dumplings (wangmandu) - floor seating traditional style."
+      },
+      "city": "Busan",
+      "neighborhood": "Jungang-daero",
+      "address": {
+        "en": "225 Jungang-daero, Dong-gu, Busan, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.117359,
+      "longitude": 129.040609,
+      "price_tier": "$",
+      "google_place_id": "ChIJr7CoMdjraDURktivS8cIFwQ"
+    },
+    {
+      "name": {
+        "en": "Samjin Amook (Busan Station)"
+      },
+      "description": {
+        "en": "Famous fishcake bakery - Busan is known for having Korea's best fishcakes (eomuk). Must-try local specialty."
+      },
+      "city": "Busan",
+      "neighborhood": "Jungang-daero 214beon-gil",
+      "address": {
+        "en": "7 Jungang-daero 214beon-gil, Dong-gu, Busan, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.116192399999996,
+      "longitude": 129.0413676,
+      "price_tier": "$",
+      "google_place_id": "ChIJAz4FnmLpaDURXPeF37By-4w"
+    },
+    {
+      "name": {
+        "en": "Haeundae Market"
+      },
+      "description": {
+        "en": "Traditional market behind Haeundae Beach for street food including hotteok (sweet pancakes) and eomuk (fish cakes)."
+      },
+      "city": "Busan",
+      "neighborhood": "Gunam-ro 41beon-gil",
+      "address": {
+        "en": "22-1 Gunam-ro 41beon-gil, Haeundae, Busan, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.161453699999996,
+      "longitude": 129.16224889999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJCXner12NaDURvTHbPe3S9tU"
+    },
+    {
+      "name": {
+        "en": "Gwangbokdong Food Street"
+      },
+      "description": {
+        "en": "Narrow street packed with restaurants and food stalls - let vendors pick for you if you're feeling adventurous!"
+      },
+      "city": "Busan",
+      "neighborhood": "Bupyeong-dong 1(il)-ga",
+      "address": {
+        "en": "South Korea, Busan, Jung-gu, Bupyeong-dong 1(il)-ga, 48-6 -ga,"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.098835199999996,
+      "longitude": 129.0284881,
+      "price_tier": "$",
+      "google_place_id": "ChIJJzMc4aDpaDURvlmYCCz_6h0"
+    },
+    {
+      "name": {
+        "en": "BIFF Square Street Food"
+      },
+      "description": {
+        "en": "Street food haven near the Film Centre with local specialties and international options."
+      },
+      "city": "Busan",
+      "neighborhood": "Gudeok-ro",
+      "address": {
+        "en": "58-1 Gudeok-ro, Jung-gu, Busan, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.098243,
+      "longitude": 129.029212,
+      "price_tier": "$",
+      "google_place_id": "ChIJL1scg6DpaDURxXQZg1kWGZ4"
+    },
+    {
+      "name": {
+        "en": "Cafe Rooftop (Haeundae)"
+      },
+      "description": {
+        "en": "Cozy cafe minutes from beach with magnificent sea views, indoor and terrace sections, tasteful decor."
+      },
+      "city": "Busan",
+      "neighborhood": "Cheongsapo-ro",
+      "address": {
+        "en": "139-4 Cheongsapo-ro, Haeundae, Busan, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1611366,
+      "longitude": 129.1936685,
+      "price_tier": "$$",
+      "google_place_id": "ChIJrdqf5AKNaDURcOGHRuagcWI"
+    },
+    {
+      "name": {
+        "en": "Avant Garde Cafe (Gamcheon)"
+      },
+      "description": {
+        "en": "Best views of Gamcheon Culture Village from terrace - perfect coffee stop during village exploration."
+      },
+      "city": "Busan",
+      "neighborhood": "Okcheon-ro",
+      "address": {
+        "en": "121 Okcheon-ro, Saha-gu, Busan, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.097046,
+      "longitude": 129.0099487,
+      "price_tier": "$",
+      "google_place_id": "ChIJM8X9trfpaDURyYRMkF5-Bi8"
+    },
+    {
+      "name": {
+        "en": "Coffee It House (Gamcheon)"
+      },
+      "description": {
+        "en": "Another excellent Gamcheon viewpoint cafe with amazing village panoramas from rooftop."
+      },
+      "city": "Busan",
+      "neighborhood": "Okcheon-ro",
+      "address": {
+        "en": "115 Okcheon-ro, Saha-gu, Busan, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0963171,
+      "longitude": 129.0100129,
+      "price_tier": "$",
+      "google_place_id": "ChIJX-a1S7bpaDURgtRzKwSP2r0"
+    },
+    {
+      "name": {
+        "en": "Songjeong Surf Cafes"
+      },
+      "description": {
+        "en": "Cluster of cozy cafes with warm wooden interiors, cinnamon toast scent, and laid-back surf culture atmosphere."
+      },
+      "city": "Busan",
+      "neighborhood": "Songjeongjungang-ro 6beon-gil",
+      "address": {
+        "en": "South Korea, Busan, Haeundae, Songjeongjungang-ro 6beon-gil, 188 4층"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1761003,
+      "longitude": 129.1965876,
+      "price_tier": "$",
+      "google_place_id": "ChIJL06E5LWNaDURlfrPkreEJUE"
+    },
+    {
+      "name": {
+        "en": "Yeongdo Industrial Cafe"
+      },
+      "description": {
+        "en": "Converted industrial space filled with local art and serene atmosphere - a hidden gem stumbled upon by few."
+      },
+      "city": "Busan",
+      "neighborhood": "Bongnaenaru-ro",
+      "address": {
+        "en": "160 Bongnaenaru-ro, Yeongdo-gu, Busan, South Korea"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0961199,
+      "longitude": 129.042549,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_6NQRWTpaDURqFsZhhf3pr4"
+    },
+    {
+      "name": {
+        "en": "Gwangalli After Dark"
+      },
+      "description": {
+        "en": "Beach bonfires, live music, bars, and casual gatherings with glowing Gwangan Bridge as backdrop."
+      },
+      "city": "Busan",
+      "neighborhood": "Millak-dong",
+      "address": {
+        "en": "209-2 Millak-dong, Suyeong-gu, Busan, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.154965,
+      "longitude": 129.12248879999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJH8x6RADtaDURYIP-6DbuhXc"
+    },
+    {
+      "name": {
+        "en": "Galmegi Brewing Co"
+      },
+      "description": {
+        "en": "Polished American-style brewpub with concrete/pine interior and American fare. Multiple locations including Gwangalli."
+      },
+      "city": "Busan",
+      "neighborhood": "Haeundaehaebyeon-ro 265beon-gil",
+      "address": {
+        "en": "9 Haeundaehaebyeon-ro 265beon-gil, Haeundae, Busan, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1603318,
+      "longitude": 129.16076329999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJr8UMNVyNaDURWHn7gynKyew"
+    },
+    {
+      "name": {
+        "en": "Seomyeon Entertainment District"
+      },
+      "description": {
+        "en": "Street fashion, night markets, food stalls, and all-night cafés - Busan's youth hub."
+      },
+      "city": "Busan",
+      "neighborhood": "Jungang-daero",
+      "address": {
+        "en": "지하 717 Jungang-daero, Busanjin District, Busan, South Korea"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1562986,
+      "longitude": 129.059155,
+      "price_tier": "$$",
+      "google_place_id": "ChIJS2MRDG_raDUR0VNDeM8rmC0"
+    }
+  ]
+}

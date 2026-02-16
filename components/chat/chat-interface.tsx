@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { Send, Plus, Sparkles, X, Map, LayoutTemplate } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -76,7 +75,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
   const [activeItinerary, setActiveItinerary] = useState<ItineraryContext | undefined>(itineraryContext);
   const [chatError, setChatError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const { announce, LiveRegionPortal } = useLiveAnnouncer();
 
@@ -206,7 +205,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
   };
 
   return (
-    <div className={cn("flex flex-col h-full min-h-0", className)} role="region" aria-label="Chat with Alley">
+    <div className={cn("flex flex-col h-full min-h-0 overflow-hidden", className)} role="region" aria-label="Chat with Alley">
       {/* Live region for screen reader announcements */}
       <LiveRegionPortal />
 
@@ -288,8 +287,9 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 min-h-0 p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-4">
-        <div className="space-y-6 pb-4">
+      {/* Messages container - Native overflow for proper flex constraints (replaces Radix ScrollArea) */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
+        <div className="space-y-6">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -321,44 +321,41 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
           ))}
           {isLoading && <ChatMessageSkeleton />}
           <div ref={scrollRef} />
-        </div>
-      </ScrollArea>
 
-      {/* Quick Action Buttons - Primary action prominent, secondary grouped */}
-      <div className="flex items-center gap-2 mb-3 flex-shrink-0">
-        {/* Primary CTA */}
-        <Link href="/itineraries/new" className="flex-shrink-0">
-          <Button
-            size="sm"
-            className="rounded-full text-xs gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20 whitespace-nowrap"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Generate Itinerary
-          </Button>
-        </Link>
-
-        {/* Secondary Actions */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
-          <Link href="/templates">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
-            >
-              <LayoutTemplate className="h-3.5 w-3.5" />
-              Templates
-            </Button>
-          </Link>
-          <Link href="/spots">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
-            >
-              <Map className="h-3.5 w-3.5" />
-              Spots
-            </Button>
-          </Link>
+          {/* Quick Action Buttons - Inside scroll area so they scroll with messages */}
+          <div className="flex items-center gap-2 pt-2">
+            <Link href="/itineraries/new" className="flex-shrink-0">
+              <Button
+                size="sm"
+                className="rounded-full text-xs gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20 whitespace-nowrap"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Generate Itinerary
+              </Button>
+            </Link>
+            <div className="flex gap-1.5 overflow-x-auto">
+              <Link href="/templates">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
+                >
+                  <LayoutTemplate className="h-3.5 w-3.5" />
+                  Templates
+                </Button>
+              </Link>
+              <Link href="/spots">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
+                >
+                  <Map className="h-3.5 w-3.5" />
+                  Spots
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -369,20 +366,29 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0" role="search">
+      {/* INPUT ANCHOR - Always visible at bottom */}
+      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0 pt-2 pb-0" role="search">
         <label htmlFor="chat-input" className="sr-only">
           Message to Alley
         </label>
-        <Input
+        <Textarea
           id="chat-input"
           ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            // Submit on Enter (without Shift), allow Shift+Enter for new line
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
           placeholder="Ask Alley..."
           disabled={isLoading}
+          rows={1}
           aria-describedby={chatError ? "chat-error" : isLoading ? "chat-loading" : undefined}
           aria-invalid={!!chatError}
-          className="flex-1 rounded-full border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md focus-visible:ring-violet-500"
+          className="flex-1 rounded-2xl border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md focus-visible:ring-violet-500 min-h-[40px] max-h-[120px] resize-none py-2.5"
         />
         {isLoading && (
           <span id="chat-loading" className="sr-only">

@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "Roppongi Hills Mori Tower",
+        "ja": "六本木ヒルズ森タワー"
+      },
+      "description": {
+        "en": "Art museum and observation deck at 52nd floor. Contemporary art with Tokyo panorama views.",
+        "ja": "52階の美術館と展望台。東京のパノラマビューと現代アート。"
+      },
+      "address": {
+        "en": "6-10-1 Roppongi, Minato-ku, Tokyo",
+        "ja": "東京都港区六本木6-10-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Observatory",
+        "Modern"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Mori Art Museum",
+        "Sky Deck rooftop",
+        "Night views"
+      ],
+      "neighborhood": "Roppongi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6605,
+      "longitude": 139.7293
+    },
+    {
+      "name": {
+        "en": "Nishi-Azabu Bar District",
+        "ja": "西麻布バー街"
+      },
+      "description": {
+        "en": "Sophisticated bar scene away from Roppongi chaos. Where Tokyo's elite drink quietly.",
+        "ja": "六本木の喧騒から離れた洗練されたバーシーン。東京のエリートが静かに飲む場所。"
+      },
+      "address": {
+        "en": "Nishi-Azabu, Minato-ku, Tokyo",
+        "ja": "東京都港区西麻布"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Upscale",
+        "Quiet"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late night",
+      "tips": [
+        "Sophisticated crowd",
+        "Away from clubs",
+        "Reservation helpful"
+      ],
+      "neighborhood": "Nishi-Azabu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 35.66,
+      "longitude": 139.7238
+    },
+    {
+      "name": {
+        "en": "Hiroo International",
+        "ja": "広尾インターナショナル"
+      },
+      "description": {
+        "en": "Expat-heavy neighborhood with international shops and cafes. European bakeries and organic stores.",
+        "ja": "外国人が多い街でインターナショナルな店とカフェ。ヨーロッパのパン屋やオーガニックストア。"
+      },
+      "address": {
+        "en": "Hiroo, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区広尾"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "International",
+        "Expat",
+        "Organic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Embassy area",
+        "International supermarket",
+        "European feel"
+      ],
+      "neighborhood": "Hiroo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6465,
+      "longitude": 139.7256
+    },
+    {
+      "name": {
+        "en": "Arisugawa Park",
+        "ja": "有栖川宮記念公園"
+      },
+      "description": {
+        "en": "Peaceful park in upscale Hiroo. Japanese garden with waterfall, ponds, and forest paths.",
+        "ja": "高級住宅街広尾の静かな公園。滝、池、森の小道がある日本庭園。"
+      },
+      "address": {
+        "en": "5-7-29 Minami-Azabu, Minato-ku, Tokyo",
+        "ja": "東京都港区南麻布5-7-29"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Garden",
+        "Peaceful"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Peaceful escape",
+        "Historic library nearby",
+        "Local joggers"
+      ],
+      "neighborhood": "Hiroo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6522,
+      "longitude": 139.7257
+    },
+    {
+      "name": {
+        "en": "Azabu-Juban Shopping Street",
+        "ja": "麻布十番商店街"
+      },
+      "description": {
+        "en": "Traditional shopping street in wealthy neighborhood. Mix of old shops and modern boutiques.",
+        "ja": "高級住宅街の伝統的な商店街。老舗と現代的なブティックが混在。"
+      },
+      "address": {
+        "en": "Azabu-Juban, Minato-ku, Tokyo",
+        "ja": "東京都港区麻布十番"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Traditional",
+        "Modern",
+        "Local"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Famous taiyaki shop",
+        "Summer festival",
+        "Good restaurants"
+      ],
+      "neighborhood": "Azabu-Juban",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6525,
+      "longitude": 139.7352
+    },
+    {
+      "name": {
+        "en": "Tokyo Tower",
+        "ja": "東京タワー"
+      },
+      "description": {
+        "en": "Iconic 1958 communications tower with observation decks. Classic Tokyo landmark with retro charm.",
+        "ja": "1958年の象徴的な電波塔で展望台あり。レトロな魅力の東京のランドマーク。"
+      },
+      "address": {
+        "en": "4-2-8 Shiba-koen, Minato-ku, Tokyo",
+        "ja": "東京都港区芝公園4-2-8"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Landmark",
+        "Observatory",
+        "Classic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Less crowded than Skytree",
+        "Night illumination",
+        "Retro vibes"
+      ],
+      "neighborhood": "Shiba-koen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.16,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6584,
+      "longitude": 139.7455
+    },
+    {
+      "name": {
+        "en": "Zojoji Temple",
+        "ja": "増上寺"
+      },
+      "description": {
+        "en": "Major Buddhist temple with Tokyo Tower backdrop. Historic temple of the Tokugawa shoguns.",
+        "ja": "東京タワーを背景にした主要な仏教寺院。徳川将軍の歴史的な寺院。"
+      },
+      "address": {
+        "en": "4-7-35 Shiba-koen, Minato-ku, Tokyo",
+        "ja": "東京都港区芝公園4-7-35"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic",
+        "Landmark"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Tokugawa tombs",
+        "New Year's bells",
+        "Photo with Tower"
+      ],
+      "neighborhood": "Shiba-koen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6572,
+      "longitude": 139.7503
+    },
+    {
+      "name": {
+        "en": "Shinbashi Salaryman District",
+        "ja": "新橋サラリーマン街"
+      },
+      "description": {
+        "en": "After-work drinking district for Tokyo's office workers. Authentic izakaya culture under the tracks.",
+        "ja": "東京のサラリーマンの仕事帰りの飲み屋街。高架下の本格的な居酒屋文化。"
+      },
+      "address": {
+        "en": "Shinbashi, Minato-ku, Tokyo",
+        "ja": "東京都港区新橋"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Izakaya",
+        "Salaryman",
+        "Authentic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "After 6pm",
+      "tips": [
+        "Under-tracks drinking",
+        "Salaryman TV interviews",
+        "Authentic atmosphere"
+      ],
+      "neighborhood": "Shinbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "After 6pm"
+      },
+      "latitude": 35.6651,
+      "longitude": 139.7561
+    },
+    {
+      "name": {
+        "en": "Shiodome Caretta",
+        "ja": "汐留カレッタ"
+      },
+      "description": {
+        "en": "Skyscraper complex with restaurants and winter illuminations. Famous Christmas light displays.",
+        "ja": "レストランと冬のイルミネーションがある超高層ビル群。有名なクリスマスライトディスプレイ。"
+      },
+      "address": {
+        "en": "1-8-1 Higashi-Shimbashi, Minato-ku, Tokyo",
+        "ja": "東京都港区東新橋1-8-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Dining",
+        "Modern"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Winter evening",
+      "tips": [
+        "Famous illuminations",
+        "November-February",
+        "46F restaurant views"
+      ],
+      "neighborhood": "Shiodome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Winter evening"
+      },
+      "latitude": 35.6642,
+      "longitude": 139.7617
+    },
+    {
+      "name": {
+        "en": "Hamamatsucho Station Area",
+        "ja": "浜松町駅周辺"
+      },
+      "description": {
+        "en": "Business district with hidden yakitori alleys. Salary workers' after-work spot near monorail.",
+        "ja": "隠れた焼き鳥横丁があるビジネス街。モノレール近くのサラリーマンの仕事帰りスポット。"
+      },
+      "address": {
+        "en": "Hamamatsucho, Minato-ku, Tokyo",
+        "ja": "東京都港区浜松町"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Yakitori",
+        "Business",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Yakitori alley",
+        "Near airport monorail",
+        "Business crowd"
+      ],
+      "neighborhood": "Hamamatsucho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6551,
+      "longitude": 139.7571
+    },
+    {
+      "name": {
+        "en": "Daikanyama T-Site",
+        "ja": "代官山T-SITE"
+      },
+      "description": {
+        "en": "Stunning bookstore complex designed by Klein Dytham. Architecture and lifestyle destination.",
+        "ja": "クライン・ダイサムによる美しい書店複合施設。建築とライフスタイルの目的地。"
+      },
+      "address": {
+        "en": "17-5 Sarugakucho, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区猿楽町17-5"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Bookstore",
+        "Architecture",
+        "Lifestyle"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "24-hour bookstore",
+        "Award-winning design",
+        "Anjin lounge"
+      ],
+      "neighborhood": "Daikanyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6493,
+      "longitude": 139.6998
+    },
+    {
+      "name": {
+        "en": "Daikanyama Hillside Terrace",
+        "ja": "代官山ヒルサイドテラス"
+      },
+      "description": {
+        "en": "Architectural complex developed over 30 years. Galleries, boutiques, and design studios.",
+        "ja": "30年かけて開発された建築複合施設。ギャラリー、ブティック、デザインスタジオ。"
+      },
+      "address": {
+        "en": "Daikanyama, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区代官山"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Gallery",
+        "Design"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Fumihiko Maki design",
+        "Multiple phases",
+        "Hidden galleries"
+      ],
+      "neighborhood": "Daikanyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6482,
+      "longitude": 139.7032
+    },
+    {
+      "name": {
+        "en": "Ebisu Yokocho",
+        "ja": "恵比寿横丁"
+      },
+      "description": {
+        "en": "Lively indoor food alley with multiple small eateries. Young professionals' after-work hangout.",
+        "ja": "多くの小さな飲食店がある賑やかな屋内フードアレイ。若いプロフェッショナルの仕事帰りの溜まり場。"
+      },
+      "address": {
+        "en": "1-7-4 Ebisu, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区恵比寿1-7-4"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Yokocho",
+        "Variety",
+        "Casual"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Multiple food stalls",
+        "Lively atmosphere",
+        "Standing drinking"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6482,
+      "longitude": 139.7107
+    },
+    {
+      "name": {
+        "en": "Tokyo Metropolitan Museum of Photography",
+        "ja": "東京都写真美術館"
+      },
+      "description": {
+        "en": "Japan's only public museum dedicated to photography. Excellent exhibitions in Ebisu Garden Place.",
+        "ja": "日本唯一の公立写真美術館。恵比寿ガーデンプレイスで素晴らしい展覧会。"
+      },
+      "address": {
+        "en": "1-13-3 Mita, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区三田1-13-3"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Photography",
+        "Museum",
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Photography only museum",
+        "Excellent exhibitions",
+        "Quiet atmosphere"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6415,
+      "longitude": 139.7134
+    },
+    {
+      "name": {
+        "en": "Harajuku Takeshita Street",
+        "ja": "原宿竹下通り"
+      },
+      "description": {
+        "en": "Iconic teen fashion street with colorful shops. Crepes, kawaii goods, and street fashion.",
+        "ja": "カラフルな店が並ぶ象徴的なティーンファッションストリート。クレープ、かわいいグッズ、ストリートファッション。"
+      },
+      "address": {
+        "en": "Takeshita Street, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区竹下通り"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fashion",
+        "Youth",
+        "Kawaii"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_time": "Weekday morning",
+      "tips": [
+        "Very crowded weekends",
+        "Teen fashion",
+        "Famous crepes"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Weekday morning"
+      },
+      "latitude": 35.6717,
+      "longitude": 139.7029
+    },
+    {
+      "name": {
+        "en": "Ura-Harajuku",
+        "ja": "裏原宿"
+      },
+      "description": {
+        "en": "Back streets of Harajuku with streetwear and vintage shops. Where serious fashion hunters go.",
+        "ja": "ストリートウェアとヴィンテージショップがある原宿の裏通り。本格的なファッションハンターが行く場所。"
+      },
+      "address": {
+        "en": "Ura-Harajuku, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区裏原宿"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Streetwear",
+        "Vintage",
+        "Fashion"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Beyond Takeshita",
+        "Serious fashion",
+        "Vintage finds"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7585,
+      "longitude": 139.8161
+    },
+    {
+      "name": {
+        "en": "Cat Street",
+        "ja": "キャットストリート"
+      },
+      "description": {
+        "en": "Former river turned pedestrian shopping street. Independent boutiques and designer shops.",
+        "ja": "元河川が歩行者ショッピングストリートに。独立系ブティックとデザイナーショップ。"
+      },
+      "address": {
+        "en": "Cat Street, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区キャットストリート"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Boutique",
+        "Fashion",
+        "Design"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Former Shibuya River",
+        "Independent shops",
+        "Less crowded"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.667,
+      "longitude": 139.7063
+    },
+    {
+      "name": {
+        "en": "Meiji Shrine",
+        "ja": "明治神宮"
+      },
+      "description": {
+        "en": "Serene Shinto shrine in forest clearing. Escape the Harajuku crowds in ancient forest.",
+        "ja": "森の中の静かな神道神社。古代の森で原宿の喧騒から逃れる。"
+      },
+      "address": {
+        "en": "1-1 Yoyogikamizonocho, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区代々木神園町1-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Nature",
+        "Historic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Early morning",
+      "tips": [
+        "Forest in the city",
+        "Traditional weddings",
+        "New Year's crowds"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 35.6748,
+      "longitude": 139.6996
+    },
+    {
+      "name": {
+        "en": "Yoyogi Park",
+        "ja": "代々木公園"
+      },
+      "description": {
+        "en": "Tokyo's Central Park with weekend events. Rockabilly dancers, picnics, and festivals.",
+        "ja": "週末イベントがある東京のセントラルパーク。ロカビリーダンサー、ピクニック、フェスティバル。"
+      },
+      "address": {
+        "en": "2-1 Yoyogikamizonocho, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区代々木神園町2-1"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Events",
+        "Recreation"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Weekend",
+      "tips": [
+        "Rockabilly dancers Sunday",
+        "International festivals",
+        "Cherry blossoms"
+      ],
+      "neighborhood": "Harajuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.6714,
+      "longitude": 139.6952
+    },
+    {
+      "name": {
+        "en": "Shibuya Scramble Square",
+        "ja": "渋谷スクランブルスクエア"
+      },
+      "description": {
+        "en": "New skyscraper with rooftop observation deck. Best views of Shibuya Crossing from above.",
+        "ja": "屋上展望台のある新しい超高層ビル。渋谷スクランブル交差点を上から見る最高の眺め。"
+      },
+      "address": {
+        "en": "2-24-12 Shibuya, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区渋谷2-24-12"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Observatory",
+        "Views",
+        "Modern"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Sunset",
+      "tips": [
+        "Shibuya Sky rooftop",
+        "Book in advance",
+        "Best crossing views"
+      ],
+      "neighborhood": "Shibuya",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 35.6584,
+      "longitude": 139.7022
+    }
+  ]
+}

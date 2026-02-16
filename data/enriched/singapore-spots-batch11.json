@@ -1,0 +1,744 @@
+{
+  "city": "singapore",
+  "batch": 11,
+  "spots": [
+    {
+      "name": {
+        "en": "ION Orchard",
+        "zh": "爱雍乌节"
+      },
+      "description": {
+        "en": "Flagship Orchard Road mall. ION Sky observation deck.",
+        "zh": "乌节路旗舰购物中心。ION Sky观景台。"
+      },
+      "address": {
+        "en": "2 Orchard Turn, Singapore",
+        "zh": "新加坡乌节转2号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Flagship",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "ION Sky free",
+        "Luxury brands",
+        "Basement food"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3039,
+      "longitude": 103.8319
+    },
+    {
+      "name": {
+        "en": "Ngee Ann City Takashimaya",
+        "zh": "义安城高岛屋"
+      },
+      "description": {
+        "en": "Japanese department store. Orchard Road landmark.",
+        "zh": "日本百货公司。乌节路地标。"
+      },
+      "address": {
+        "en": "391 Orchard Road, Singapore",
+        "zh": "新加坡乌节路391号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Japanese",
+        "Mall"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Japanese department store",
+        "Kinokuniya bookstore",
+        "Food basement"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3031,
+      "longitude": 103.8339
+    },
+    {
+      "name": {
+        "en": "Paragon Shopping Centre",
+        "zh": "百利宫"
+      },
+      "description": {
+        "en": "Upscale Orchard mall. Medical hub.",
+        "zh": "高档乌节购物中心。医疗中心。"
+      },
+      "address": {
+        "en": "290 Orchard Road, Singapore",
+        "zh": "新加坡乌节路290号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Upscale",
+        "Medical"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Upscale shops",
+        "Medical specialists",
+        "Kids section"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3557,
+      "longitude": 103.892
+    },
+    {
+      "name": {
+        "en": "313@Somerset",
+        "zh": "313索美塞"
+      },
+      "description": {
+        "en": "Youth-oriented mall. Near MRT.",
+        "zh": "面向年轻人的购物中心。靠近地铁。"
+      },
+      "address": {
+        "en": "313 Orchard Road, Singapore",
+        "zh": "新加坡乌节路313号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Youth",
+        "Fashion"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Young crowd",
+        "Forever 21",
+        "Food basement"
+      ],
+      "neighborhood": "Somerset",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.301,
+      "longitude": 103.8385
+    },
+    {
+      "name": {
+        "en": "Plaza Singapura",
+        "zh": "狮城大厦"
+      },
+      "description": {
+        "en": "Mid-range mall near Dhoby Ghaut. Family friendly.",
+        "zh": "多美歌附近的中档购物中心。适合家庭。"
+      },
+      "address": {
+        "en": "68 Orchard Road, Singapore",
+        "zh": "新加坡乌节路68号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Mid-range",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Mid-range",
+        "Cinema",
+        "Near MRT"
+      ],
+      "neighborhood": "Dhoby Ghaut",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3004,
+      "longitude": 103.8449
+    },
+    {
+      "name": {
+        "en": "VivoCity",
+        "zh": "怡丰城"
+      },
+      "description": {
+        "en": "Largest mall in Singapore. Harbourfront location.",
+        "zh": "新加坡最大的购物中心。港湾位置。"
+      },
+      "address": {
+        "en": "1 Harbourfront Walk, Singapore",
+        "zh": "新加坡港湾径1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Largest",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Largest mall",
+        "Sentosa access",
+        "Rooftop playground"
+      ],
+      "neighborhood": "Harbourfront",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2644,
+      "longitude": 103.823
+    },
+    {
+      "name": {
+        "en": "Bugis Junction",
+        "zh": "白沙浮广场"
+      },
+      "description": {
+        "en": "Glass-roofed mall. Connected to MRT.",
+        "zh": "玻璃顶购物中心。与地铁相连。"
+      },
+      "address": {
+        "en": "200 Victoria Street, Singapore",
+        "zh": "新加坡维多利亚街200号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Glass Roof",
+        "Connected"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Glass covered street",
+        "Young fashion",
+        "Near Bugis Street"
+      ],
+      "neighborhood": "Bugis",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2989,
+      "longitude": 103.8552
+    },
+    {
+      "name": {
+        "en": "Bugis Street Market",
+        "zh": "白沙浮街头市场"
+      },
+      "description": {
+        "en": "Cheap shopping street market. Bargain clothes.",
+        "zh": "便宜的街头市场。便宜衣服。"
+      },
+      "address": {
+        "en": "3 New Bugis Street, Singapore",
+        "zh": "新加坡新白沙浮街3号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Market",
+        "Cheap",
+        "Street"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Cheap clothes",
+        "Bargain needed",
+        "Tourist market"
+      ],
+      "neighborhood": "Bugis",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Suntec City",
+        "zh": "新达城"
+      },
+      "description": {
+        "en": "Large convention mall. Fountain of Wealth.",
+        "zh": "大型会议购物中心。财富之泉。"
+      },
+      "address": {
+        "en": "3 Temasek Boulevard, Singapore",
+        "zh": "新加坡淡马锡林荫道3号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Convention",
+        "Large"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Fountain of Wealth",
+        "IT shows here",
+        "Convention center"
+      ],
+      "neighborhood": "Marina Centre",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2942,
+      "longitude": 103.8592
+    },
+    {
+      "name": {
+        "en": "Marina Square",
+        "zh": "滨海广场"
+      },
+      "description": {
+        "en": "Marina area mall. Multiple towers.",
+        "zh": "滨海区购物中心。多个塔楼。"
+      },
+      "address": {
+        "en": "6 Raffles Boulevard, Singapore",
+        "zh": "新加坡莱佛士林荫道6号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Marina",
+        "Mid-range"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near Esplanade",
+        "Hotels connected",
+        "Good food court"
+      ],
+      "neighborhood": "Marina Centre",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2913,
+      "longitude": 103.8572
+    },
+    {
+      "name": {
+        "en": "Millenia Walk",
+        "zh": "美年径"
+      },
+      "description": {
+        "en": "Upscale mall near convention. Designer shops.",
+        "zh": "会展附近的高档购物中心。设计师商店。"
+      },
+      "address": {
+        "en": "9 Raffles Boulevard, Singapore",
+        "zh": "新加坡莱佛士林荫道9号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Upscale",
+        "Designer"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Designer watches",
+        "Quiet mall",
+        "Near hotels"
+      ],
+      "neighborhood": "Marina Centre",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2925,
+      "longitude": 103.8596
+    },
+    {
+      "name": {
+        "en": "The Shoppes at Marina Bay Sands",
+        "zh": "滨海湾金沙购物中心"
+      },
+      "description": {
+        "en": "Luxury mall with canal. Sampan rides inside.",
+        "zh": "有运河的豪华购物中心。里面有舢板。"
+      },
+      "address": {
+        "en": "10 Bayfront Avenue, Singapore",
+        "zh": "新加坡滨海湾大道10号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Mall",
+        "Canal"
+      ],
+      "localley_score": 2,
+      "local_percentage": 35,
+      "best_time": "Afternoon",
+      "tips": [
+        "Canal inside",
+        "Luxury brands",
+        "Casino next door"
+      ],
+      "neighborhood": "Marina Bay",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.22,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.284,
+      "longitude": 103.8589
+    },
+    {
+      "name": {
+        "en": "Raffles City",
+        "zh": "莱佛士城"
+      },
+      "description": {
+        "en": "City Hall area mall. Connected to MRT.",
+        "zh": "市政厅区购物中心。与地铁相连。"
+      },
+      "address": {
+        "en": "252 North Bridge Road, Singapore",
+        "zh": "新加坡北桥路252号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Central",
+        "Connected"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Central location",
+        "Good basement food",
+        "Hotel above"
+      ],
+      "neighborhood": "City Hall",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2934,
+      "longitude": 103.8533
+    },
+    {
+      "name": {
+        "en": "Funan",
+        "zh": "富南"
+      },
+      "description": {
+        "en": "Tech and lifestyle mall. Climbing wall inside.",
+        "zh": "科技和生活方式购物中心。里面有攀岩墙。"
+      },
+      "address": {
+        "en": "107 North Bridge Road, Singapore",
+        "zh": "新加坡北桥路107号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Tech",
+        "Lifestyle",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Tech shops",
+        "Climbing wall",
+        "Good food options"
+      ],
+      "neighborhood": "City Hall",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2913,
+      "longitude": 103.8499
+    },
+    {
+      "name": {
+        "en": "Capitol Piazza",
+        "zh": "首都广场"
+      },
+      "description": {
+        "en": "Heritage building mall. Near Capitol Theatre.",
+        "zh": "遗产建筑购物中心。首都剧院附近。"
+      },
+      "address": {
+        "en": "15 Stamford Road, Singapore",
+        "zh": "新加坡史丹福路15号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Heritage",
+        "Mall",
+        "Theatre"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Heritage building",
+        "Capitol Theatre",
+        "Good restaurants"
+      ],
+      "neighborhood": "City Hall",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.2961,
+      "longitude": 103.8498
+    },
+    {
+      "name": {
+        "en": "People's Park Complex",
+        "zh": "珍珠坊"
+      },
+      "description": {
+        "en": "Old school Chinatown mall. Money changers.",
+        "zh": "老派牛车水购物中心。换钱商。"
+      },
+      "address": {
+        "en": "1 Park Road, Singapore",
+        "zh": "新加坡百乐路1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Old School",
+        "Chinatown",
+        "Money Change"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Best money rates",
+        "Old school mall",
+        "Chinatown"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.2841,
+      "longitude": 103.8426
+    },
+    {
+      "name": {
+        "en": "Lucky Plaza",
+        "zh": "乐喜广场"
+      },
+      "description": {
+        "en": "Filipino community mall. Sunday gathering.",
+        "zh": "菲律宾社区购物中心。周日聚会。"
+      },
+      "address": {
+        "en": "304 Orchard Road, Singapore",
+        "zh": "新加坡乌节路304号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Filipino",
+        "Community",
+        "Orchard"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Sunday",
+      "tips": [
+        "Filipino community",
+        "Sunday busy",
+        "Tailors"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Sunday"
+      },
+      "latitude": 1.3046,
+      "longitude": 103.8339
+    },
+    {
+      "name": {
+        "en": "Far East Plaza",
+        "zh": "远东广场"
+      },
+      "description": {
+        "en": "Indie fashion mall. Youth and tailors.",
+        "zh": "独立时尚购物中心。年轻人和裁缝。"
+      },
+      "address": {
+        "en": "14 Scotts Road, Singapore",
+        "zh": "新加坡史各士路14号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Indie",
+        "Fashion",
+        "Tailors"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Indie boutiques",
+        "Tailors",
+        "Youth fashion"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3071,
+      "longitude": 103.8336
+    },
+    {
+      "name": {
+        "en": "Sim Lim Square",
+        "zh": "森林广场"
+      },
+      "description": {
+        "en": "Electronics mall. Computer parts and repairs.",
+        "zh": "电子购物中心。电脑配件和维修。"
+      },
+      "address": {
+        "en": "1 Rochor Canal Road, Singapore",
+        "zh": "新加坡梧槽运河路1号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Computers",
+        "Parts"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Computer parts",
+        "Bargain carefully",
+        "Tech repairs"
+      ],
+      "neighborhood": "Little India",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.303,
+      "longitude": 103.853
+    },
+    {
+      "name": {
+        "en": "Sim Lim Tower",
+        "zh": "森林大厦"
+      },
+      "description": {
+        "en": "Audio equipment mall. HiFi enthusiasts.",
+        "zh": "音响设备购物中心。发烧友天堂。"
+      },
+      "address": {
+        "en": "10 Jalan Besar, Singapore",
+        "zh": "新加坡惹兰勿刹10号"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Audio",
+        "HiFi",
+        "Electronics"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Audio equipment",
+        "HiFi shops",
+        "Audiophile heaven"
+      ],
+      "neighborhood": "Jalan Besar",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 1.3039,
+      "longitude": 103.8547
+    }
+  ]
+}

@@ -1,0 +1,744 @@
+{
+  "city": "taipei",
+  "batch": 5,
+  "spots": [
+    {
+      "name": {
+        "en": "Fulong Beach",
+        "zh": "福隆海水浴場"
+      },
+      "description": {
+        "en": "Popular beach with sand sculptures festival.",
+        "zh": "有沙雕節的熱門海灘。"
+      },
+      "address": {
+        "en": "Fulong, Gongliao District, New Taipei",
+        "zh": "新北市貢寮區福隆"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Festival",
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Summer",
+      "tips": [
+        "Summer festival",
+        "Sand sculptures",
+        "Train accessible"
+      ],
+      "neighborhood": "Gongliao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Summer"
+      },
+      "latitude": 25.0222,
+      "longitude": 121.9428
+    },
+    {
+      "name": {
+        "en": "Wulai",
+        "zh": "烏來"
+      },
+      "description": {
+        "en": "Indigenous village with hot springs and waterfall.",
+        "zh": "有溫泉和瀑布的原住民村落。"
+      },
+      "address": {
+        "en": "Wulai District, New Taipei",
+        "zh": "新北市烏來區"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Springs",
+        "Waterfall",
+        "Indigenous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Hot springs",
+        "Waterfall",
+        "Indigenous culture"
+      ],
+      "neighborhood": "Wulai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 24.8662,
+      "longitude": 121.5511
+    },
+    {
+      "name": {
+        "en": "Wulai Waterfall",
+        "zh": "烏來瀑布"
+      },
+      "description": {
+        "en": "Scenic waterfall with cable car.",
+        "zh": "有纜車的風景瀑布。"
+      },
+      "address": {
+        "en": "Wulai District, New Taipei",
+        "zh": "新北市烏來區"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Waterfall",
+        "Scenic",
+        "Cable Car"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Cable car access",
+        "Beautiful falls",
+        "Indigenous area"
+      ],
+      "neighborhood": "Wulai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 24.8475,
+      "longitude": 121.5524
+    },
+    {
+      "name": {
+        "en": "Yingge Ceramics Old Street",
+        "zh": "鶯歌陶瓷老街"
+      },
+      "description": {
+        "en": "Ceramics town with workshops and shops.",
+        "zh": "有工作坊和商店的陶瓷小鎮。"
+      },
+      "address": {
+        "en": "Yingge District, New Taipei",
+        "zh": "新北市鶯歌區"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Ceramics",
+        "Workshops",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Pottery shopping",
+        "DIY workshops",
+        "Train accessible"
+      ],
+      "neighborhood": "Yingge",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 24.9522,
+      "longitude": 121.351
+    },
+    {
+      "name": {
+        "en": "Sanxia Old Street",
+        "zh": "三峽老街"
+      },
+      "description": {
+        "en": "Baroque-style old street. Traditional shops.",
+        "zh": "巴洛克風格老街。傳統商店。"
+      },
+      "address": {
+        "en": "Sanxia District, New Taipei",
+        "zh": "新北市三峽區"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Old Street",
+        "Baroque",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Baroque architecture",
+        "Bull horn bread",
+        "Near Yingge"
+      ],
+      "neighborhood": "Sanxia",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 24.9363,
+      "longitude": 121.3743
+    },
+    {
+      "name": {
+        "en": "Qingshui Cliff",
+        "zh": "清水斷崖"
+      },
+      "description": {
+        "en": "Dramatic coastal cliffs. Suhua Highway highlight.",
+        "zh": "壯觀的海岸懸崖。蘇花公路亮點。"
+      },
+      "address": {
+        "en": "Suhua Highway, Hualien",
+        "zh": "花蓮縣蘇花公路"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Cliffs",
+        "Coastal",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Stunning views",
+        "On east coast",
+        "Day trip from Taipei"
+      ],
+      "neighborhood": "Hualien",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Addiction Aquatic Development",
+        "zh": "上引水產"
+      },
+      "description": {
+        "en": "High-end fish market and seafood dining.",
+        "zh": "高端魚市場和海鮮餐飲。"
+      },
+      "address": {
+        "en": "18 Alley 2 Minzu East Road, Zhongshan District, Taipei",
+        "zh": "台北市中山區民族東路二巷18號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Seafood",
+        "Market",
+        "Upscale"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Dinner",
+      "tips": [
+        "Fresh seafood",
+        "Standing sushi",
+        "Multiple dining areas"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 25.0667,
+      "longitude": 121.5369
+    },
+    {
+      "name": {
+        "en": "Binjiang Street Flower Market",
+        "zh": "濱江街花市"
+      },
+      "description": {
+        "en": "Large flower and jade market. Weekend only.",
+        "zh": "大型花卉和玉石市場。只在週末。"
+      },
+      "address": {
+        "en": "Binjiang Street, Zhongshan District, Taipei",
+        "zh": "台北市中山區濱江街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flowers",
+        "Jade",
+        "Weekend"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Weekend only",
+        "Flowers and jade",
+        "Very local"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.036,
+      "longitude": 121.4821
+    },
+    {
+      "name": {
+        "en": "Taipei Fish Market (Binjiang)",
+        "zh": "台北魚市"
+      },
+      "description": {
+        "en": "Wholesale fish market. Early morning auction.",
+        "zh": "批發魚市場。清晨拍賣。"
+      },
+      "address": {
+        "en": "Binjiang Street, Zhongshan District, Taipei",
+        "zh": "台北市中山區濱江街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Fish",
+        "Wholesale",
+        "Early Morning"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Early Morning",
+      "tips": [
+        "Very early",
+        "Wholesale action",
+        "Authentic"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Early Morning"
+      },
+      "latitude": 25.0665,
+      "longitude": 121.537
+    },
+    {
+      "name": {
+        "en": "Jianguo Weekend Flower Market",
+        "zh": "建國假日花市"
+      },
+      "description": {
+        "en": "Popular weekend flower market under highway.",
+        "zh": "高架橋下熱門週末花市。"
+      },
+      "address": {
+        "en": "Jianguo South Road, Da'an District, Taipei",
+        "zh": "台北市大安區建國南路"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flowers",
+        "Weekend",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Weekend only",
+        "Under highway",
+        "Good variety"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0452,
+      "longitude": 121.52
+    },
+    {
+      "name": {
+        "en": "Jianguo Weekend Jade Market",
+        "zh": "建國假日玉市"
+      },
+      "description": {
+        "en": "Jade and antiques market next to flowers.",
+        "zh": "花市旁的玉石和古董市場。"
+      },
+      "address": {
+        "en": "Jianguo South Road, Da'an District, Taipei",
+        "zh": "台北市大安區建國南路"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Jade",
+        "Antiques",
+        "Weekend"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Weekend only",
+        "Bargain expected",
+        "Next to flower market"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0396,
+      "longitude": 121.5378
+    },
+    {
+      "name": {
+        "en": "Songjiang Nanjing Area",
+        "zh": "松江南京商圈"
+      },
+      "description": {
+        "en": "Office district with food options.",
+        "zh": "有美食選擇的辦公區。"
+      },
+      "address": {
+        "en": "Songjiang Road, Zhongshan District, Taipei",
+        "zh": "台北市中山區松江路"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Office District",
+        "Lunch",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Office worker food",
+        "Many options",
+        "Weekday lunch"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.052,
+      "longitude": 121.533
+    },
+    {
+      "name": {
+        "en": "Fuxing Sogo Area",
+        "zh": "復興SOGO商圈"
+      },
+      "description": {
+        "en": "Department store area with food basement.",
+        "zh": "有美食地下街的百貨區。"
+      },
+      "address": {
+        "en": "Fuxing South Road, Da'an District, Taipei",
+        "zh": "台北市大安區復興南路"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Food",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Food basement",
+        "Department stores",
+        "Near MRT"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0399,
+      "longitude": 121.5438
+    },
+    {
+      "name": {
+        "en": "Nanjing Fuxing Station Area",
+        "zh": "南京復興站商圈"
+      },
+      "description": {
+        "en": "Business district with restaurants.",
+        "zh": "有餐廳的商業區。"
+      },
+      "address": {
+        "en": "Nanjing East Road, Songshan District, Taipei",
+        "zh": "台北市松山區南京東路"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Business District",
+        "Restaurants",
+        "Office"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "Business lunch",
+        "Many restaurants",
+        "Near MRT"
+      ],
+      "neighborhood": "Songshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.0519,
+      "longitude": 121.5277
+    },
+    {
+      "name": {
+        "en": "Taipei Arena",
+        "zh": "台北小巨蛋"
+      },
+      "description": {
+        "en": "Concert and sports venue. Major events.",
+        "zh": "演唱會和體育場地。大型活動。"
+      },
+      "address": {
+        "en": "2 Nanjing East Road Sec 4, Songshan District, Taipei",
+        "zh": "台北市松山區南京東路四段2號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Arena",
+        "Concerts",
+        "Sports"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Event time",
+      "tips": [
+        "Check event schedule",
+        "Ice skating rink",
+        "Near MRT"
+      ],
+      "neighborhood": "Songshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Event time"
+      },
+      "latitude": 25.0507,
+      "longitude": 121.5501
+    },
+    {
+      "name": {
+        "en": "Taipei Dome",
+        "zh": "大巨蛋"
+      },
+      "description": {
+        "en": "Large indoor stadium. Baseball and concerts.",
+        "zh": "大型室內體育場。棒球和演唱會。"
+      },
+      "address": {
+        "en": "Zhongxiao East Road, Xinyi District, Taipei",
+        "zh": "台北市信義區忠孝東路"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Stadium",
+        "Baseball",
+        "Concerts"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Event time",
+      "tips": [
+        "New venue",
+        "Major events",
+        "Near Songshan"
+      ],
+      "neighborhood": "Xinyi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Event time"
+      },
+      "latitude": 25.0424,
+      "longitude": 121.5596
+    },
+    {
+      "name": {
+        "en": "Breeze Center Taipei",
+        "zh": "微風廣場"
+      },
+      "description": {
+        "en": "Upscale shopping mall. Good food court.",
+        "zh": "高檔購物中心。美食廣場。"
+      },
+      "address": {
+        "en": "39 Fuxing South Road Sec 1, Da'an District, Taipei",
+        "zh": "台北市大安區復興南路一段39號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Upscale",
+        "Food Court"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Good food court",
+        "Upscale shopping",
+        "Near MRT"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0448,
+      "longitude": 121.545
+    },
+    {
+      "name": {
+        "en": "Shin Kong Mitsukoshi Xinyi",
+        "zh": "新光三越信義"
+      },
+      "description": {
+        "en": "Major department store complex. Multiple buildings.",
+        "zh": "主要百貨公司綜合體。多棟建築。"
+      },
+      "address": {
+        "en": "Songzhi Road, Xinyi District, Taipei",
+        "zh": "台北市信義區松智路"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Complex",
+        "Major"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Multiple buildings",
+        "Good food options",
+        "Near 101"
+      ],
+      "neighborhood": "Xinyi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0366,
+      "longitude": 121.5672
+    },
+    {
+      "name": {
+        "en": "ATT 4 FUN",
+        "zh": "ATT 4 FUN"
+      },
+      "description": {
+        "en": "Entertainment and dining complex.",
+        "zh": "娛樂餐飲綜合體。"
+      },
+      "address": {
+        "en": "12 Songshou Road, Xinyi District, Taipei",
+        "zh": "台北市信義區松壽路12號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment",
+        "Dining",
+        "Nightlife"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Dining options",
+        "Nightlife spot",
+        "Near 101"
+      ],
+      "neighborhood": "Xinyi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0353,
+      "longitude": 121.566
+    },
+    {
+      "name": {
+        "en": "Wufenpu Garment District",
+        "zh": "五分埔服飾批發"
+      },
+      "description": {
+        "en": "Wholesale clothing market. Bargain fashion.",
+        "zh": "服飾批發市場。便宜時尚。"
+      },
+      "address": {
+        "en": "Wufenpu, Songshan District, Taipei",
+        "zh": "台北市松山區五分埔"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Wholesale",
+        "Fashion",
+        "Bargain"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Wholesale prices",
+        "Bargain needed",
+        "Near Raohe"
+      ],
+      "neighborhood": "Songshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0467,
+      "longitude": 121.5776
+    }
+  ]
+}

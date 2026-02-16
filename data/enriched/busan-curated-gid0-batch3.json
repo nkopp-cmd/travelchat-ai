@@ -1,0 +1,38 @@
+{
+  "city": "Busan",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:45:34.130Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Haeundae Mipo Rail Bike"
+      },
+      "description": {
+        "en": "Upgraded 2025 with LED tunnels and sea-breeze selfie zones - scenic coastal ride."
+      },
+      "city": "Busan",
+      "neighborhood": "Dalmaji-gil 62beon-gil",
+      "address": {
+        "en": "13 Dalmaji-gil 62beon-gil, Haeundae, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "New",
+        "Trending"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.158284,
+      "longitude": 129.17276719999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJfdIYWwuNaDURDx-eqtUjCkg"
+    }
+  ]
+}

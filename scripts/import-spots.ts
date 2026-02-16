@@ -341,101 +341,112 @@ async function importSpots(
 // CLI ENTRY POINT
 // ============================================
 
-async function main() {
-    const args = process.argv.slice(2);
-
-    if (args.length === 0 || args.includes("--help")) {
-        console.log(`
-╔════════════════════════════════════════════════════════════╗
-║              LOCALLEY SPOT IMPORT TOOL                     ║
-╠════════════════════════════════════════════════════════════╣
-║  Usage:                                                    ║
-║    npx tsx scripts/import-spots.ts <json-file> [options]   ║
-║                                                            ║
-║  Options:                                                  ║
-║    --dry-run    Validate without inserting                 ║
-║    --city=slug  Override city detection                    ║
-║                                                            ║
-║  Example:                                                  ║
-║    npx tsx scripts/import-spots.ts data/osaka-spots.json   ║
-╚════════════════════════════════════════════════════════════╝
-        `);
-        process.exit(0);
-    }
-
-    const jsonFile = args.find(a => !a.startsWith("--"));
-    const dryRun = args.includes("--dry-run");
-    const cityOverride = args.find(a => a.startsWith("--city="))?.split("=")[1];
-
-    if (!jsonFile) {
-        console.error("❌ No JSON file specified");
-        process.exit(1);
-    }
-
-    // Load environment
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-        console.error("❌ Missing Supabase credentials in .env.local");
-        process.exit(1);
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Load JSON
+/**
+ * Import a single JSON file and print its report.
+ * Returns the report for aggregation.
+ */
+async function importSingleFile(
+    supabase: SupabaseClient,
+    jsonFile: string,
+    dryRun: boolean,
+    cityOverride?: string,
+    quiet: boolean = false,
+): Promise<ImportReport | null> {
     const filePath = path.resolve(process.cwd(), jsonFile);
     if (!fs.existsSync(filePath)) {
-        console.error(`❌ File not found: ${filePath}`);
-        process.exit(1);
+        console.error(`   ❌ File not found: ${filePath}`);
+        return null;
     }
-
-    console.log(`\n🌍 LOCALLEY SPOT IMPORT`);
-    console.log(`${"─".repeat(50)}`);
-    console.log(`📁 Source: ${jsonFile}`);
-    console.log(`🔧 Mode: ${dryRun ? "DRY RUN (no changes)" : "LIVE IMPORT"}`);
 
     const rawData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
     const spots: SpotInput[] = Array.isArray(rawData) ? rawData : rawData.spots || [];
 
     if (spots.length === 0) {
-        console.error("❌ No spots found in JSON file");
-        process.exit(1);
+        if (!quiet) console.log(`   ⏭️  No spots in ${path.basename(jsonFile)}, skipping`);
+        return null;
     }
 
-    // Detect city
+    // Detect city — try multiple strategies
     let cityConfig: CityConfig | undefined;
 
     if (cityOverride) {
         cityConfig = getCityBySlug(cityOverride);
     } else {
-        // Try to detect from first spot
+        // Strategy 1: From spot's city field
         const firstSpot = spots[0];
-        const cityGuess = firstSpot.city ||
-            (typeof firstSpot.address === "string" ? firstSpot.address : firstSpot.address?.en);
+        if (firstSpot.city) {
+            cityConfig = getCityByName(firstSpot.city) || getCityByName(firstSpot.city.split(",")[0].trim());
+        }
 
-        if (cityGuess) {
-            cityConfig = getCityByName(cityGuess.split(",").pop()?.trim() || "");
+        // Strategy 2: From address (last part after comma)
+        if (!cityConfig) {
+            const addr = typeof firstSpot.address === "string" ? firstSpot.address : firstSpot.address?.en;
+            if (addr) {
+                // Try each comma-separated part of the address
+                const parts = addr.split(",").map((p: string) => p.trim());
+                for (const part of parts.reverse()) {
+                    cityConfig = getCityByName(part);
+                    if (cityConfig) break;
+                }
+            }
+        }
+
+        // Strategy 3: From filename (e.g., "seoul-spots-batch1.json" → "seoul", "hong-kong-curated-..." → "hong-kong")
+        if (!cityConfig) {
+            const filename = path.basename(jsonFile, ".json");
+            // Known slug patterns in filenames
+            const FILENAME_SLUG_MAP: Record<string, string> = {
+                "bali-ubud": "bali-ubud",
+                "hongkong": "hong-kong",
+                "hong-kong": "hong-kong",
+                "ho-chi-minh": "ho-chi-minh",
+                "chiang-mai": "chiang-mai",
+                "kuala-lumpur": "kuala-lumpur",
+                "seoul": "seoul",
+                "tokyo": "tokyo",
+                "bangkok": "bangkok",
+                "singapore": "singapore",
+                "taipei": "taipei",
+                "osaka": "osaka",
+                "kyoto": "kyoto",
+                "busan": "busan",
+                "hanoi": "hanoi",
+            };
+            for (const [prefix, slug] of Object.entries(FILENAME_SLUG_MAP)) {
+                if (filename.startsWith(prefix)) {
+                    cityConfig = getCityBySlug(slug);
+                    if (cityConfig) break;
+                }
+            }
         }
     }
 
     if (!cityConfig) {
-        console.error("❌ Could not detect city. Use --city=slug to specify.");
-        console.log("   Available: seoul, tokyo, bangkok, singapore, osaka, kyoto, etc.");
-        process.exit(1);
+        console.error(`   ❌ Could not detect city for ${path.basename(jsonFile)}. Use --city=slug.`);
+        return null;
     }
 
-    console.log(`🏙️  City: ${cityConfig.name} (Ring ${cityConfig.ring})`);
-    console.log(`📊 Spots in file: ${spots.length}`);
-    console.log(`${"─".repeat(50)}\n`);
+    if (!quiet) {
+        console.log(`   📁 ${path.basename(jsonFile)} → ${cityConfig.name} (${spots.length} spots)`);
+    }
 
     // Run import
     const report = await importSpots(supabase, spots, cityConfig, dryRun);
     report.source = jsonFile;
 
-    // Print report
+    if (!quiet) {
+        console.log(`      ✅ ${report.summary.inserted} inserted, 🔄 ${report.summary.updated} updated, ⏭️ ${report.summary.skipped} skipped, ❌ ${report.summary.errors} errors`);
+    }
+
+    return report;
+}
+
+/**
+ * Print a detailed report for a single import.
+ */
+function printDetailedReport(report: ImportReport, cityName: string) {
     console.log(`\n${"═".repeat(50)}`);
-    console.log(`📋 IMPORT REPORT: ${cityConfig.name}`);
+    console.log(`📋 IMPORT REPORT: ${cityName}`);
     console.log(`${"═".repeat(50)}`);
 
     console.log(`\n📈 SUMMARY`);
@@ -468,7 +479,6 @@ async function main() {
     console.log(`   Target:  ${report.targetComparison.targetMin}-${report.targetComparison.targetIdeal} spots`);
     console.log(`   Progress: ${report.targetComparison.percentComplete}%`);
 
-    // Quality issues
     const hasIssues = Object.values(report.qualityIssues).some(arr => arr.length > 0);
     if (hasIssues) {
         console.log(`\n⚠️  QUALITY ISSUES`);
@@ -485,19 +495,161 @@ async function main() {
             console.log(`   🏷️  Invalid category: ${report.qualityIssues.invalidCategory.length}`);
         }
     }
+}
 
-    // Save report
-    const reportDir = path.join(process.cwd(), "reports");
-    if (!fs.existsSync(reportDir)) {
-        fs.mkdirSync(reportDir, { recursive: true });
+async function main() {
+    const args = process.argv.slice(2);
+
+    if (args.length === 0 || args.includes("--help")) {
+        console.log(`
+╔════════════════════════════════════════════════════════════╗
+║              LOCALLEY SPOT IMPORT TOOL                     ║
+╠════════════════════════════════════════════════════════════╣
+║  Usage:                                                    ║
+║    npx tsx scripts/import-spots.ts <path> [options]        ║
+║                                                            ║
+║  Path can be a single JSON file or a directory of JSONs.   ║
+║                                                            ║
+║  Options:                                                  ║
+║    --dry-run    Validate without inserting                 ║
+║    --city=slug  Override city detection                    ║
+║                                                            ║
+║  Examples:                                                 ║
+║    npx tsx scripts/import-spots.ts data/osaka-spots.json   ║
+║    npx tsx scripts/import-spots.ts data/enriched/          ║
+║    npx tsx scripts/import-spots.ts data/enriched/ --dry-run║
+╚════════════════════════════════════════════════════════════╝
+        `);
+        process.exit(0);
     }
 
-    const reportName = `import_${cityConfig.slug}_${new Date().toISOString().split("T")[0]}.json`;
-    const reportPath = path.join(reportDir, reportName);
-    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+    const inputPath = args.find(a => !a.startsWith("--"));
+    const dryRun = args.includes("--dry-run");
+    const cityOverride = args.find(a => a.startsWith("--city="))?.split("=")[1];
 
-    console.log(`\n💾 Report saved: ${reportPath}`);
-    console.log(`${"═".repeat(50)}\n`);
+    if (!inputPath) {
+        console.error("❌ No file or directory specified");
+        process.exit(1);
+    }
+
+    // Load environment
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+        console.error("❌ Missing Supabase credentials in .env.local");
+        process.exit(1);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const resolvedPath = path.resolve(process.cwd(), inputPath);
+
+    console.log(`\n🌍 LOCALLEY SPOT IMPORT`);
+    console.log(`${"─".repeat(50)}`);
+    console.log(`🔧 Mode: ${dryRun ? "DRY RUN (no changes)" : "LIVE IMPORT"}`);
+
+    // Check if directory or file
+    const isDirectory = fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory();
+
+    if (isDirectory) {
+        // ── DIRECTORY MODE: import all JSON files in the directory ──
+        const jsonFiles = fs.readdirSync(resolvedPath)
+            .filter(f => f.endsWith(".json") && !f.startsWith("_"))
+            .sort();
+
+        console.log(`📂 Directory: ${inputPath}`);
+        console.log(`📊 Found ${jsonFiles.length} JSON files`);
+        console.log(`${"─".repeat(50)}\n`);
+
+        let totalInserted = 0;
+        let totalUpdated = 0;
+        let totalSkipped = 0;
+        let totalErrors = 0;
+        let totalSpots = 0;
+        let filesProcessed = 0;
+        let filesFailed = 0;
+        const citySummary: Record<string, { inserted: number; updated: number; skipped: number; errors: number; total: number }> = {};
+
+        for (const file of jsonFiles) {
+            const filePath = path.join(inputPath, file);
+            const report = await importSingleFile(supabase, filePath, dryRun, cityOverride, false);
+
+            if (report) {
+                filesProcessed++;
+                totalInserted += report.summary.inserted;
+                totalUpdated += report.summary.updated;
+                totalSkipped += report.summary.skipped;
+                totalErrors += report.summary.errors;
+                totalSpots += report.summary.totalInput;
+
+                // Aggregate by city
+                const city = report.city;
+                if (!citySummary[city]) {
+                    citySummary[city] = { inserted: 0, updated: 0, skipped: 0, errors: 0, total: 0 };
+                }
+                citySummary[city].inserted += report.summary.inserted;
+                citySummary[city].updated += report.summary.updated;
+                citySummary[city].skipped += report.summary.skipped;
+                citySummary[city].errors += report.summary.errors;
+                citySummary[city].total += report.summary.totalInput;
+            } else {
+                filesFailed++;
+            }
+        }
+
+        // Print aggregate summary
+        console.log(`\n${"═".repeat(60)}`);
+        console.log(`📋 BATCH IMPORT SUMMARY`);
+        console.log(`${"═".repeat(60)}`);
+        console.log(`\n📊 TOTALS`);
+        console.log(`   Files processed: ${filesProcessed} / ${jsonFiles.length}${filesFailed > 0 ? ` (${filesFailed} failed)` : ""}`);
+        console.log(`   Total spots:     ${totalSpots}`);
+        console.log(`   ✅ Inserted:     ${totalInserted}`);
+        console.log(`   🔄 Updated:      ${totalUpdated}`);
+        console.log(`   ⏭️  Skipped:      ${totalSkipped}`);
+        console.log(`   ❌ Errors:       ${totalErrors}`);
+
+        console.log(`\n🏙️  PER-CITY BREAKDOWN`);
+        const sortedCities = Object.entries(citySummary).sort((a, b) => b[1].total - a[1].total);
+        for (const [city, stats] of sortedCities) {
+            console.log(`   ${city.padEnd(16)} ${stats.total.toString().padStart(4)} spots → ✅ ${stats.inserted} new, 🔄 ${stats.updated} updated${stats.errors > 0 ? `, ❌ ${stats.errors} errors` : ""}`);
+        }
+
+        console.log(`\n${"═".repeat(60)}\n`);
+    } else {
+        // ── SINGLE FILE MODE: existing behavior ──
+        if (!fs.existsSync(resolvedPath)) {
+            console.error(`❌ File not found: ${resolvedPath}`);
+            process.exit(1);
+        }
+
+        console.log(`📁 Source: ${inputPath}`);
+        console.log(`${"─".repeat(50)}\n`);
+
+        const report = await importSingleFile(supabase, inputPath, dryRun, cityOverride, true);
+
+        if (!report) {
+            console.error("❌ Import failed");
+            process.exit(1);
+        }
+
+        // Detect city name from report
+        const cityName = report.city || "Unknown";
+        printDetailedReport(report, cityName);
+
+        // Save report
+        const reportDir = path.join(process.cwd(), "reports");
+        if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+        }
+
+        const reportName = `import_${cityName.toLowerCase().replace(/\s+/g, "-")}_${new Date().toISOString().split("T")[0]}.json`;
+        const reportPath = path.join(reportDir, reportName);
+        fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+
+        console.log(`\n💾 Report saved: ${reportPath}`);
+        console.log(`${"═".repeat(50)}\n`);
+    }
 }
 
 main().catch(err => {

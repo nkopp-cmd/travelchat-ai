@@ -7,9 +7,10 @@ import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { TIER_CONFIGS } from '@/lib/subscription';
-import { isCitySupported, getSupportedCityNames } from '@/lib/supported-cities';
+import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
+import { geocodeItineraryActivities } from '@/lib/geocoding';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -68,7 +69,7 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
           "time": "string (e.g., '09:00 AM')",
           "type": "morning" | "afternoon" | "evening",
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
-          "address": "string (full address with district/neighborhood)",
+          "address": "string (place name + district + city, e.g. 'Yongkang Beef Noodle, Da'an District, Taipei' — short and geocode-friendly, NO street numbers or lane details)",
           "description": "string (why it's special + what to order/see/do + insider tips - all in one cohesive description)",
           "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",
           "localleyScore": number (1-6),
@@ -93,7 +94,7 @@ EXAMPLE of a GOOD activity:
   "time": "12:00 PM",
   "type": "afternoon",
   "name": "Yongkang Beef Noodle",
-  "address": "No. 17, Lane 31, Section 2, Jinshan South Road, Da'an District, Taipei",
+  "address": "Yongkang Beef Noodle, Da'an District, Taipei",
   "description": "This legendary shop has been serving Taiwan's best beef noodle soup since 1963. Order the half-spicy braised beef noodles - the broth is simmered for 48 hours. Go around 11:30 AM to beat the lunch rush. Baby-friendly with high chairs available.",
   "category": "restaurant",
   "localleyScore": 5,
@@ -162,11 +163,12 @@ export async function POST(req: NextRequest) {
     const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = validation.data;
 
     // Validate city is supported
-    const normalizedCity = isCitySupported(city);
-    if (!normalizedCity) {
-      const supportedCities = getSupportedCityNames();
-      return Errors.validationError(`We don't have curated local spots for "${city}" yet. Try one of our supported cities: ${supportedCities.join(", ")}`);
+    const cityValidation = validateCityForItinerary(city);
+    if (!cityValidation.valid) {
+      return Errors.validationError(cityValidation.error!);
     }
+    const cityConfig = cityValidation.city!;
+    const normalizedCity = cityConfig.name;
 
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();
@@ -240,6 +242,14 @@ Make it exciting, authentic, and full of hidden gems!
     } catch (parseError) {
       console.error("Failed to parse OpenAI response:", rawContent);
       throw new Error("AI generated invalid response format. Please try again.");
+    }
+
+    // Geocode activities to store lat/lng for instant map rendering
+    try {
+      itineraryData.dailyPlans = await geocodeItineraryActivities(itineraryData.dailyPlans, normalizedCity);
+    } catch (geoError) {
+      console.error('[generate] Geocoding failed (non-fatal):', geoError);
+      // Continue without geocoding — maps will fall back to display-time geocoding
     }
 
     // Add thumbnail images to activities

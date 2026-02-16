@@ -1,0 +1,758 @@
+{
+  "city": "Bangkok",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:45:01.857Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Japanese Food Street at One Bangkok"
+      },
+      "description": {
+        "en": "Fresh uni and sashimi in Mitsukoshi Depachika."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Lumphini",
+      "address": {
+        "en": "PGGX+63H, Lumphini, Pathum Wan, Bangkok 10330, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.725572999999999,
+      "longitude": 100.54774979999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ73pgRACf4jAREFnSfduiTKE"
+    },
+    {
+      "name": {
+        "en": "Dior Café by Mauro Colagreco"
+      },
+      "description": {
+        "en": "Seasonal fine dining with nature-inspired menus."
+      },
+      "city": "Bangkok",
+      "neighborhood": "แขวงลุมพินี",
+      "address": {
+        "en": "No, 1029 ถนน เพลินจิต แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7441549,
+      "longitude": 100.5451992,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJhdVYeyyf4jARNIDGrWKzPvU"
+    },
+    {
+      "name": {
+        "en": "Le Normandie"
+      },
+      "description": {
+        "en": "Gourmet French restaurant with Chao Phraya River views, established in 1958."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Bang Rak",
+      "address": {
+        "en": "48 Oriental Ave, Khwaeng Bang Rak, Khet Bang Rak, Krung Thep Maha Nakhon 10500, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.723665800000001,
+      "longitude": 100.51429329999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJF0QAycSY4jARXiIStvWF63w"
+    },
+    {
+      "name": {
+        "en": "Sorn"
+      },
+      "description": {
+        "en": "Popular spot specializing in Thai cuisine."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Khlong Tan Nuea",
+      "address": {
+        "en": "56 Sukhumvit 26, Khwaeng Khlong Tan Nuea, Khet Khlong Toei, Krung Thep Maha Nakhon 10110, Thailand"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7231004,
+      "longitude": 100.5685251,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJWfYJ3QWf4jAR9erXv7kK7sA"
+    },
+    {
+      "name": {
+        "en": "Hong Sieng Kong in Talat Noi"
+      },
+      "description": {
+        "en": "Riverside antique gallery cafe."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Talat Noi",
+      "address": {
+        "en": "734, 736 Soi Wanit 2, Khwaeng Talat Noi, Khet Samphanthawong, Krung Thep Maha Nakhon 10100, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7347953,
+      "longitude": 100.5115915,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ580MFqCZ4jARh5fpv9GvfSs"
+    },
+    {
+      "name": {
+        "en": "Kurasu Thonglor"
+      },
+      "description": {
+        "en": "Kyoto-style pour-over in sleek space."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Districts",
+      "address": {
+        "en": "1109/2 Sukhumvit road Khlong Tan Nue Sub, Districts, เขตวัฒนา กรุงเทพมหานคร 10110, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7233451,
+      "longitude": 100.5801451,
+      "price_tier": "$$",
+      "google_place_id": "ChIJY_tN0qCf4jARTp6Wg5ZCu0w"
+    },
+    {
+      "name": {
+        "en": "Pink Rabbit Café"
+      },
+      "description": {
+        "en": "Retro tea room decor spot offering creamy cheesecake."
+      },
+      "city": "Bangkok",
+      "neighborhood": "พระบรมมหาราชวัง",
+      "address": {
+        "en": "เลขที่ 378 Thanon Maha Rat, พระบรมมหาราชวัง Khet Phra Nakhon, Krung Thep Maha Nakhon 10200, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7449359,
+      "longitude": 100.492024,
+      "price_tier": "$",
+      "google_place_id": "ChIJv9Qyc9uZ4jAR7LyLQfsLySI"
+    },
+    {
+      "name": {
+        "en": "Cache Cache"
+      },
+      "description": {
+        "en": "Chic French pastries spot."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Chakkrawat",
+      "address": {
+        "en": "878/2-3 Soi Shun Lee, Khwaeng Chakkrawat, Khet Samphanthawong, Krung Thep Maha Nakhon 10100, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.739006999999999,
+      "longitude": 100.5051948,
+      "price_tier": "$",
+      "google_place_id": "ChIJB7tejTGZ4jARaE24cMXI9BQ"
+    },
+    {
+      "name": {
+        "en": "Casa Formosa Taiwan Tea House"
+      },
+      "description": {
+        "en": "Serene spot for top-tier oolong from a passionate owner."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Samphanthawong",
+      "address": {
+        "en": "470 Soi Wanit 1, Khwaeng Samphanthawong, Khet Samphanthawong, Krung Thep Maha Nakhon 10100, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.738470099999999,
+      "longitude": 100.50913969999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ1_Pb1BuZ4jAR7X3URGNuC0s"
+    },
+    {
+      "name": {
+        "en": "Dior Gold House"
+      },
+      "description": {
+        "en": "Gilded concept store with Café Dior offering seasonal desserts like Dior cake."
+      },
+      "city": "Bangkok",
+      "neighborhood": "แขวงลุมพินี",
+      "address": {
+        "en": "No, 1029 ถนน เพลินจิต แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7442114,
+      "longitude": 100.54515040000001,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJpbLRUCmf4jARzjE4S_Nh2-8"
+    },
+    {
+      "name": {
+        "en": "Rough & Round"
+      },
+      "description": {
+        "en": "Minimalist spot in Yaowarat with specialty brews amid retro decor."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Samphanthawong",
+      "address": {
+        "en": "496/4 ถนน ทรงวาด Khwaeng Samphanthawong, Khet Samphanthawong, Krung Thep Maha Nakhon 10100, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.737821600000002,
+      "longitude": 100.5092275,
+      "price_tier": "$",
+      "google_place_id": "ChIJe5JGiGCZ4jARPMY2_7VXpMk"
+    },
+    {
+      "name": {
+        "en": "Hidden Café in Bang Krachao"
+      },
+      "description": {
+        "en": "At the park's heart, a hidden café roasts beans over wood fire, pouring coffee into handcrafted clay cups. Time truly slows here."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Amphoe Phra Pradaeng",
+      "address": {
+        "en": "777 เพชรหึงษ์ 26 Tambon Bang Nam Phueng, Amphoe Phra Pradaeng, Chang Wat Samut Prakan 10130, Thailand"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.675453099999999,
+      "longitude": 100.5806595,
+      "price_tier": "$",
+      "google_place_id": "ChIJ2V87akeh4jARjVjd_Vnch_w"
+    },
+    {
+      "name": {
+        "en": "Dusit Central Park Rooftop Bar"
+      },
+      "description": {
+        "en": "Cocktails with park views."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Si Lom",
+      "address": {
+        "en": "946 Thanon Rama IV, Si Lom, Khet Bang Rak, Krung Thep Maha Nakhon 10500, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7283064,
+      "longitude": 100.53754529999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJe0H3CRSf4jAR_zOGf06ufiw"
+    },
+    {
+      "name": {
+        "en": "Khlong Ong Ang Walking Street Bars"
+      },
+      "description": {
+        "en": "Live music and waterside drinks."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Wang Burapha Phirom",
+      "address": {
+        "en": "PGV3+Q4M, Wang Burapha Phirom, Phra Nakhon, Bangkok 10200, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7444559,
+      "longitude": 100.5028107,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-_8N6myZ4jARef57vPkJ2ls"
+    },
+    {
+      "name": {
+        "en": "Tropic City"
+      },
+      "description": {
+        "en": "Chic bar that comes alive at night with dining and drinks."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Bang Rak",
+      "address": {
+        "en": "672, 65 Soi Charoen Krung 28, Khwaeng Bang Rak, Khet Bang Rak, Krung Thep Maha Nakhon 10500, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.730683500000001,
+      "longitude": 100.51530989999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJTcCxddmY4jAR6diNM1uwwWI"
+    },
+    {
+      "name": {
+        "en": "Pastel Rooftop"
+      },
+      "description": {
+        "en": "Mediterranean-infused rooftop bar with panoramic views and live music."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Khlong Toei Nuea",
+      "address": {
+        "en": "22nd floor, Aira Hotel, 14 Soi Sukhumvit 11, Khwaeng Khlong Toei Nuea, Watthana, Krung Thep Maha Nakhon 10110, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7425924,
+      "longitude": 100.55662660000002,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJbY9lxyKf4jARNf9VogDC-jA"
+    },
+    {
+      "name": {
+        "en": "Scarlett Rooftop"
+      },
+      "description": {
+        "en": "Intimate wine bar in Silom with outdoor lounge and city vistas."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Suriya Wong",
+      "address": {
+        "en": "188 Si Lom Rd, Khwaeng Suriya Wong, Khet Bang Rak, Krung Thep Maha Nakhon 10500, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.726056,
+      "longitude": 100.525876,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJwb3uUy2f4jAR5jRfKS19D9w"
+    },
+    {
+      "name": {
+        "en": "Red Square"
+      },
+      "description": {
+        "en": "Rooftop bar offering front-row skyline views at night."
+      },
+      "city": "Bangkok",
+      "neighborhood": "แขวงคลองเตย",
+      "address": {
+        "en": "25th floor of Novotel Bangkok, 27 ซ. สุขุมวิท 4 แขวงคลองเตย Klongtoey, กรุงเทพมหานคร 10110, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7392776,
+      "longitude": 100.5532563,
+      "price_tier": "$$",
+      "google_place_id": "ChIJdeGRKy2f4jARLrtv6T5752A"
+    },
+    {
+      "name": {
+        "en": "SOL and LUNA"
+      },
+      "description": {
+        "en": "Rooftop venues providing 360-degree views and sunset experiences."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Khlong Tan Nuea",
+      "address": {
+        "en": "1015 29 ซอย ปรีดี พนมยงค์ 45 Khwaeng Khlong Tan Nuea, Watthana, Krung Thep Maha Nakhon 10110, Thailand"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7365953,
+      "longitude": 100.5976513,
+      "price_tier": "$$",
+      "google_place_id": "ChIJl-02Jy6f4jARk-QWUgmgNI8"
+    },
+    {
+      "name": {
+        "en": "One Bangkok The STOREYS"
+      },
+      "description": {
+        "en": "Interactive retail with music zones and souvenirs."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Lumphini",
+      "address": {
+        "en": "The Storeys, One Bangkok, Thanon Witthayu, Khwaeng Lumphini, Pathum Wan, Krung Thep Maha Nakhon 10330, Thailand"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7266121,
+      "longitude": 100.5459949,
+      "price_tier": "$$",
+      "google_place_id": "ChIJh5QYIgCf4jARLNNDArDIrNw"
+    },
+    {
+      "name": {
+        "en": "LV The Place Bangkok"
+      },
+      "description": {
+        "en": "Fashion exhibition with trunk history."
+      },
+      "city": "Bangkok",
+      "neighborhood": "แขวงลุมพินี",
+      "address": {
+        "en": "Unit 2F-S01-A, Second Floor, Unit A, 5th Floor Gaysorn Amarin, 502 ถนน เพลินจิต แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330, Thailand"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7439979,
+      "longitude": 100.5413947,
+      "price_tier": "$$",
+      "google_place_id": "ChIJiREq88Gf4jARC01fdjchy44"
+    },
+    {
+      "name": {
+        "en": "Road of Cinnamon"
+      },
+      "description": {
+        "en": "Indie gifts shop with handcrafted soaps."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Chakkrawat",
+      "address": {
+        "en": "Thái Lan, 1326 Song Wat Rd, Khwaeng Chakkrawat, Khet Samphanthawong, Krung Thep Maha Nakhon 10100, Thailand"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7376276,
+      "longitude": 100.50798139999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJY4FdUL2Z4jAR6YioowQMOY4"
+    },
+    {
+      "name": {
+        "en": "Copenn Songwat"
+      },
+      "description": {
+        "en": "Minimalist Thai fragrances spot."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Chakkrawat",
+      "address": {
+        "en": "1452 Song Wat Rd, Khwaeng Chakkrawat, Khet Samphanthawong, Krung Thep Maha Nakhon 10100, Thailand"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.738377199999999,
+      "longitude": 100.5068311,
+      "price_tier": "$",
+      "google_place_id": "ChIJdXt9m_SZ4jARu3PjysUvr2E"
+    },
+    {
+      "name": {
+        "en": "Dusit Central Park"
+      },
+      "description": {
+        "en": "Compact mall with sky garden, luxury shops, and dining."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Si Lom",
+      "address": {
+        "en": "946 Thanon Rama IV, Si Lom, Khet Bang Rak, Krung Thep Maha Nakhon 10500, Thailand"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.7283064,
+      "longitude": 100.53754529999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJe0H3CRSf4jAR_zOGf06ufiw"
+    },
+    {
+      "name": {
+        "en": "Space and Time Cube"
+      },
+      "description": {
+        "en": "Immersive tech-art with 27 themed rooms and holograms."
+      },
+      "city": "Bangkok",
+      "neighborhood": "Khwaeng Bang Wa",
+      "address": {
+        "en": "607 Phet Kasem Rd, Khwaeng Bang Wa, Khet Phasi Charoen, Krung Thep Maha Nakhon 10160, Thailand"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 13.711968200000001,
+      "longitude": 100.43520919999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJwf47m8CZ4jARLTs_Bk0eaBs"
+    }
+  ]
+}

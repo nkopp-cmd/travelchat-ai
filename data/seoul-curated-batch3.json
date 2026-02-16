@@ -1,0 +1,463 @@
+{
+  "city": "Seoul",
+  "batch": 3,
+  "generatedAt": "2026-01-28T05:24:45.357Z",
+  "spots": [
+    {
+      "name": {
+        "en": "MAISON DE PARFUM 121 Le mal du pays"
+      },
+      "description": {
+        "en": "Custom fragrance creation by blending scents and adding leather labels."
+      },
+      "city": "Seoul",
+      "neighborhood": "Wausan-ro 13-gil",
+      "address": {
+        "en": "40 Wausan-ro 13-gil, Mapo-gu, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5488682,
+      "longitude": 126.92133129999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ5QcxZ-6ZfDUR4VyvF2r29hA"
+    },
+    {
+      "name": {
+        "en": "Acorn Caricature at Dotori"
+      },
+      "description": {
+        "en": "Minimalistic caricatures, including from photos for pets."
+      },
+      "city": "Seoul",
+      "neighborhood": "Samcheong-ro",
+      "address": {
+        "en": "99 Samcheong-ro, Samcheong-dong, Jongno District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.584312,
+      "longitude": 126.98187779999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJw6bnApWjfDURDyUHn1xFzc8"
+    },
+    {
+      "name": {
+        "en": "Seochon Neighborhood Walk"
+      },
+      "description": {
+        "en": "Quiet alleys near Gyeongbokgung with hanok restaurants, indie galleries, and hidden courtyards."
+      },
+      "city": "Seoul",
+      "neighborhood": "Tongui-dong",
+      "address": {
+        "en": "28-1 Tongui-dong, Jongno District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5786683,
+      "longitude": 126.97310700000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJW38d4qqjfDURgKFJWUkq3Mk"
+    },
+    {
+      "name": {
+        "en": "Sounds Forest at The Hyundai Seoul"
+      },
+      "description": {
+        "en": "3,300 sqm green oasis with lush foliage."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yeouido-dong",
+      "address": {
+        "en": "22 Yeouido-dong, Yeongdeungpo District, Seoul, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.525999399999996,
+      "longitude": 126.92904360000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-eygVQOffDURW-j6WSSty3E"
+    },
+    {
+      "name": {
+        "en": "Seosomun Historical Park"
+      },
+      "description": {
+        "en": "Seasonal plant life and reflection areas."
+      },
+      "city": "Seoul",
+      "neighborhood": "Chilpae-ro",
+      "address": {
+        "en": "5 Chilpae-ro, Jung District, Seoul, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.560672,
+      "longitude": 126.96941629999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJkSeM5ImifDURN5SSmriVLXo"
+    },
+    {
+      "name": {
+        "en": "Cheong Wa Dae (Blue House)"
+      },
+      "description": {
+        "en": "Historic presidential residence with free admission and artifacts."
+      },
+      "city": "Seoul",
+      "neighborhood": "Cheongwadae-ro",
+      "address": {
+        "en": "1 Cheongwadae-ro, Jongno District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5866076,
+      "longitude": 126.97481099999997,
+      "price_tier": "$",
+      "google_place_id": "ChIJa6GU77eifDUR3K3qNfHVFgs"
+    },
+    {
+      "name": {
+        "en": "Deoksugung Palace Dondeokjeon Hall"
+      },
+      "description": {
+        "en": "Restored Western-style hall with guard ceremonies."
+      },
+      "city": "Seoul",
+      "neighborhood": "Sejong-daero",
+      "address": {
+        "en": "99 Sejong-daero, Jung District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5671725,
+      "longitude": 126.9737232,
+      "price_tier": "$",
+      "google_place_id": "ChIJvSl3ZI-jfDURkomajktECJU"
+    },
+    {
+      "name": {
+        "en": "Gwangjang Market"
+      },
+      "description": {
+        "en": "Traditional street eats like bindaetteok pancakes."
+      },
+      "city": "Seoul",
+      "neighborhood": "Changgyeonggung-ro",
+      "address": {
+        "en": "88 Changgyeonggung-ro, Jongno District, Seoul, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.570039799999996,
+      "longitude": 126.99960360000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJm3V0fu2ifDURRJ8IMUijVtY"
+    },
+    {
+      "name": {
+        "en": "Dongmyo Flea Market"
+      },
+      "description": {
+        "en": "Mecca for K-vintage clothing and accessories."
+      },
+      "city": "Seoul",
+      "neighborhood": "Sungin-dong",
+      "address": {
+        "en": "102-8 Sungin-dong, Jongno District, Seoul, South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Vintage",
+        "Thrift"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5732171,
+      "longitude": 127.0176409,
+      "price_tier": "$",
+      "google_place_id": "ChIJE_OSzJKjfDURqPqIzTBFnuI"
+    },
+    {
+      "name": {
+        "en": "INSPIRE Entertainment Resort Le Space"
+      },
+      "description": {
+        "en": "Immersive digital art and music exhibitions."
+      },
+      "city": "Seoul",
+      "neighborhood": "공항문화로",
+      "address": {
+        "en": "South Korea, Incheon, Jung-gu, 공항문화로 127"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.4656729,
+      "longitude": 126.38914609999998,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ4bBgb5effDURolxQYzHNszU"
+    },
+    {
+      "name": {
+        "en": "Real K-POP Dance Experience"
+      },
+      "description": {
+        "en": "Hands-on dance classes in Seoul."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yanghwa-ro 11-gil",
+      "address": {
+        "en": "42 Yanghwa-ro 11-gil, Mapo-gu, Seoul, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.55241040000001,
+      "longitude": 126.9144518,
+      "price_tier": "$$",
+      "google_place_id": "ChIJAV_3NaiZfDURvOTsNgmIpAQ"
+    },
+    {
+      "name": {
+        "en": "Luxury Su Noraebang"
+      },
+      "description": {
+        "en": "24-hour affordable karaoke for singing late into the night."
+      },
+      "city": "Seoul",
+      "neighborhood": "Eoulmadang-ro",
+      "address": {
+        "en": "67 Eoulmadang-ro, Mapo-gu, Seoul, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5511444,
+      "longitude": 126.92111179999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJHf8LudqYfDUR4AAwAqVRKag"
+    },
+    {
+      "name": {
+        "en": "K-Pop Dance Classes"
+      },
+      "description": {
+        "en": "Learning iconic choreography at studios like 1Million Dance Studio."
+      },
+      "city": "Seoul",
+      "neighborhood": "Yanghwa-ro 11-gil",
+      "address": {
+        "en": "42 Yanghwa-ro 11-gil, Mapo-gu, Seoul, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.55241040000001,
+      "longitude": 126.9144518,
+      "price_tier": "$",
+      "google_place_id": "ChIJAV_3NaiZfDURvOTsNgmIpAQ"
+    },
+    {
+      "name": {
+        "en": "HYBE Insight"
+      },
+      "description": {
+        "en": "Interactive museum for BTS and HYBE artists with AR experiences and merchandise."
+      },
+      "city": "Seoul",
+      "neighborhood": "Samseong-dong",
+      "address": {
+        "en": "South Korea, Seoul, Samseong-dong, 160-12 KR 서울특별시 강남구 봉은사로 606"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.513905199999996,
+      "longitude": 127.0612853,
+      "price_tier": "$$",
+      "google_place_id": "ChIJD8pZ_52lfDUR-ky_wCM0u54"
+    },
+    {
+      "name": {
+        "en": "Seoul Sky Observatory"
+      },
+      "description": {
+        "en": "Panoramic views from 123 stories high with glass floors and sky bridges."
+      },
+      "city": "Seoul",
+      "neighborhood": "Olympic-ro",
+      "address": {
+        "en": "300 Olympic-ro, Songpa District, Seoul, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Entertainment"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5125295,
+      "longitude": 127.10230500000002,
+      "price_tier": "$$",
+      "google_place_id": "ChIJu7dpc45FezURhLMS5U5eaJk"
+    }
+  ]
+}

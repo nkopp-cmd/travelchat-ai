@@ -1,0 +1,561 @@
+{
+  "city": "bangkok",
+  "batch": 1,
+  "spots": [
+    {
+      "name": {
+        "en": "Chinatown Yaowarat Road",
+        "th": "เยาวราช"
+      },
+      "description": {
+        "en": "Legendary street food strip that comes alive at night. Gold shops by day, seafood and noodles by night.",
+        "th": "ถนนอาหารริมทางในตำนานที่มีชีวิตชีวาในตอนกลางคืน ร้านทองกลางวัน อาหารทะเลและก๋วยเตี๋ยวกลางคืน"
+      },
+      "address": {
+        "en": "Yaowarat Road, Samphanthawong, Bangkok",
+        "th": "ถนนเยาวราช เขตสัมพันธวงศ์ กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Street Food",
+        "Chinatown",
+        "Night"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening 7-10pm",
+      "tips": [
+        "Best after 6pm",
+        "Try pad thai and seafood",
+        "Wear comfortable shoes"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening 7-10pm"
+      },
+      "latitude": 13.7398,
+      "longitude": 100.5107
+    },
+    {
+      "name": {
+        "en": "Khao San Road",
+        "th": "ถนนข้าวสาร"
+      },
+      "description": {
+        "en": "Famous backpacker street with bars, food, and chaos. Tourist hub but quintessential Bangkok experience.",
+        "th": "ถนนแบ็คแพ็คเกอร์ชื่อดังมีบาร์ อาหาร และความวุ่นวาย ศูนย์กลางนักท่องเที่ยวแต่เป็นประสบการณ์กรุงเทพฯ แท้ๆ"
+      },
+      "address": {
+        "en": "Khao San Road, Phra Nakhon, Bangkok",
+        "th": "ถนนข้าวสาร เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Backpacker",
+        "Bars",
+        "Street Food"
+      ],
+      "localley_score": 2,
+      "local_percentage": 20,
+      "best_time": "Night",
+      "tips": [
+        "Very touristy",
+        "Good for people watching",
+        "Cheap drinks"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 13.7588,
+      "longitude": 100.4976
+    },
+    {
+      "name": {
+        "en": "Chatuchak Weekend Market",
+        "th": "ตลาดนัดจตุจักร"
+      },
+      "description": {
+        "en": "One of world's largest weekend markets. 15,000 stalls selling everything imaginable.",
+        "th": "หนึ่งในตลาดนัดสุดสัปดาห์ที่ใหญ่ที่สุดในโลก มีร้านค้า 15,000 ร้านขายทุกอย่าง"
+      },
+      "address": {
+        "en": "Chatuchak, Bangkok",
+        "th": "จตุจักร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Weekend",
+        "Shopping",
+        "Massive"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Saturday/Sunday morning",
+      "tips": [
+        "Go early to avoid heat",
+        "Bring cash",
+        "Get map at entrance"
+      ],
+      "neighborhood": "Chatuchak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Saturday/Sunday morning"
+      },
+      "latitude": 13.8003,
+      "longitude": 100.5511
+    },
+    {
+      "name": {
+        "en": "Wat Pho Temple",
+        "th": "วัดโพธิ์"
+      },
+      "description": {
+        "en": "Temple of the Reclining Buddha. 46-meter golden Buddha and traditional Thai massage school.",
+        "th": "วัดพระพุทธไสยาส พระพุทธรูปทอง 46 เมตรและโรงเรียนนวดไทยแผนโบราณ"
+      },
+      "address": {
+        "en": "Wat Pho, Phra Nakhon, Bangkok",
+        "th": "วัดโพธิ์ เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic",
+        "Massage"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_time": "Morning",
+      "tips": [
+        "Dress modestly",
+        "Get temple massage",
+        "Less crowded at opening"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.17,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7463,
+      "longitude": 100.4927
+    },
+    {
+      "name": {
+        "en": "Grand Palace",
+        "th": "พระบรมมหาราชวัง"
+      },
+      "description": {
+        "en": "Former royal residence and Thailand's most sacred site. Emerald Buddha temple within.",
+        "th": "พระราชวังเดิมและสถานที่ศักดิ์สิทธิ์ที่สุดของไทย มีวัดพระแก้วอยู่ภายใน"
+      },
+      "address": {
+        "en": "Grand Palace, Phra Nakhon, Bangkok",
+        "th": "พระบรมมหาราชวัง เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Palace",
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 25,
+      "best_time": "Early morning",
+      "tips": [
+        "Strict dress code",
+        "Arrive at opening",
+        "Beware of scams nearby"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.14,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 13.75,
+      "longitude": 100.4914
+    },
+    {
+      "name": {
+        "en": "Soi Rambuttri",
+        "th": "ซอยรามบุตรี"
+      },
+      "description": {
+        "en": "Quieter alternative to Khao San Road. Local bars and massage shops in parallel alley.",
+        "th": "ทางเลือกที่เงียบกว่าถนนข้าวสาร บาร์ท้องถิ่นและร้านนวดในซอยคู่ขนาน"
+      },
+      "address": {
+        "en": "Soi Rambuttri, Phra Nakhon, Bangkok",
+        "th": "ซอยรามบุตรี เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Relaxed",
+        "Local"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Evening",
+      "tips": [
+        "More relaxed than Khao San",
+        "Good massage shops",
+        "Temple views"
+      ],
+      "neighborhood": "Banglamphu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7594,
+      "longitude": 100.4981
+    },
+    {
+      "name": {
+        "en": "Thonglor Nightlife",
+        "th": "ทองหล่อ"
+      },
+      "description": {
+        "en": "Upscale entertainment district for young Bangkok elite. Craft cocktails, clubs, and trendy dining.",
+        "th": "ย่านบันเทิงระดับไฮเอนด์สำหรับคนรุ่นใหม่ไฮโซกรุงเทพฯ ค็อกเทลคราฟท์ คลับ และร้านอาหารเทรนดี้"
+      },
+      "address": {
+        "en": "Thonglor, Watthana, Bangkok",
+        "th": "ทองหล่อ เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Upscale",
+        "Cocktails",
+        "Clubs"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Late night",
+      "tips": [
+        "Thai elite hangout",
+        "Dress smart",
+        "Expensive"
+      ],
+      "neighborhood": "Thonglor",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7242,
+      "longitude": 100.5785
+    },
+    {
+      "name": {
+        "en": "Ekkamai Entertainment",
+        "th": "เอกมัย"
+      },
+      "description": {
+        "en": "Slightly more accessible than Thonglor. Live music venues and creative spaces.",
+        "th": "เข้าถึงง่ายกว่าทองหล่อเล็กน้อย มีสถานที่แสดงดนตรีสดและพื้นที่สร้างสรรค์"
+      },
+      "address": {
+        "en": "Ekkamai, Watthana, Bangkok",
+        "th": "เอกมัย เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Live Music",
+        "Creative",
+        "Bars"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "More local than Thonglor",
+        "Good live music",
+        "Hipster scene"
+      ],
+      "neighborhood": "Ekkamai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7195,
+      "longitude": 100.5851
+    },
+    {
+      "name": {
+        "en": "RCA Entertainment Zone",
+        "th": "อาร์ซีเอ"
+      },
+      "description": {
+        "en": "Royal City Avenue club district. Large clubs and Thai party culture.",
+        "th": "ย่านคลับรอยัลซิตี้อเวนิว คลับใหญ่และวัฒนธรรมปาร์ตี้ไทย"
+      },
+      "address": {
+        "en": "RCA, Huai Khwang, Bangkok",
+        "th": "อาร์ซีเอ เขตห้วยขวาง กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Clubs",
+        "Party",
+        "Thai"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "After midnight",
+      "tips": [
+        "Thai club culture",
+        "Goes until 4am",
+        "Dress code varies"
+      ],
+      "neighborhood": "Huai Khwang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "After midnight"
+      },
+      "latitude": 13.7511,
+      "longitude": 100.5758
+    },
+    {
+      "name": {
+        "en": "Siam Square",
+        "th": "สยามสแควร์"
+      },
+      "description": {
+        "en": "Teen shopping and street food hub. Thai youth culture and affordable fashion.",
+        "th": "ศูนย์กลางช้อปปิ้งวัยรุ่นและสตรีทฟู้ด วัฒนธรรมวัยรุ่นไทยและแฟชั่นราคาถูก"
+      },
+      "address": {
+        "en": "Siam Square, Pathum Wan, Bangkok",
+        "th": "สยามสแควร์ เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Youth",
+        "Fashion",
+        "Street Food"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Thai teen hangout",
+        "Cheap fashion",
+        "Good street food"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7457,
+      "longitude": 100.5334
+    },
+    {
+      "name": {
+        "en": "MBK Center",
+        "th": "ศูนย์การค้าเอ็มบีเค"
+      },
+      "description": {
+        "en": "Classic Bangkok shopping mall. Electronics, clothes, and bargaining culture.",
+        "th": "ห้างคลาสสิกกรุงเทพฯ อิเล็กทรอนิกส์ เสื้อผ้า และวัฒนธรรมการต่อรองราคา"
+      },
+      "address": {
+        "en": "MBK Center, Pathum Wan, Bangkok",
+        "th": "เอ็มบีเค เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Electronics",
+        "Bargaining"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Bargain expected",
+        "Phone accessories",
+        "Food court upstairs"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7442,
+      "longitude": 100.5301
+    },
+    {
+      "name": {
+        "en": "Pratunam Market",
+        "th": "ตลาดประตูน้ำ"
+      },
+      "description": {
+        "en": "Wholesale clothing market. Cheap fashion for bulk buyers and bargain hunters.",
+        "th": "ตลาดค้าส่งเสื้อผ้า แฟชั่นราคาถูกสำหรับผู้ซื้อจำนวนมากและนักล่าของถูก"
+      },
+      "address": {
+        "en": "Pratunam, Ratchathewi, Bangkok",
+        "th": "ประตูน้ำ เขตราชเทวี กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Wholesale",
+        "Fashion",
+        "Cheap"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Bulk prices",
+        "Very cheap",
+        "Crowded"
+      ],
+      "neighborhood": "Pratunam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7523,
+      "longitude": 100.5405
+    },
+    {
+      "name": {
+        "en": "Silom Soi 4",
+        "th": "ซอยสี่ สีลม"
+      },
+      "description": {
+        "en": "Bangkok's main LGBTQ+ nightlife street. Bars, clubs, and welcoming atmosphere.",
+        "th": "ถนนไนท์ไลฟ์ LGBTQ+ หลักของกรุงเทพฯ บาร์ คลับ และบรรยากาศต้อนรับ"
+      },
+      "address": {
+        "en": "Silom Soi 4, Bang Rak, Bangkok",
+        "th": "ซอย 4 สีลม เขตบางรัก กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "LGBTQ+",
+        "Bars",
+        "Clubs"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Late night",
+      "tips": [
+        "LGBTQ+ friendly",
+        "Welcoming atmosphere",
+        "After midnight"
+      ],
+      "neighborhood": "Silom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7286,
+      "longitude": 100.5329
+    },
+    {
+      "name": {
+        "en": "Patpong Night Market",
+        "th": "ตลาดกลางคืนพัฒน์พงษ์"
+      },
+      "description": {
+        "en": "Famous night market and red light district. Mixed experience with bargain shopping.",
+        "th": "ตลาดกลางคืนและย่านโคมแดงชื่อดัง ประสบการณ์ผสมผสานกับการช้อปปิ้งราคาถูก"
+      },
+      "address": {
+        "en": "Patpong, Bang Rak, Bangkok",
+        "th": "พัฒน์พงษ์ เขตบางรัก กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Bargain",
+        "Entertainment"
+      ],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "Night",
+      "tips": [
+        "Bargain hard",
+        "Watch for scams",
+        "Mixed crowd"
+      ],
+      "neighborhood": "Silom",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 13.7289,
+      "longitude": 100.5292
+    },
+    {
+      "name": {
+        "en": "Or Tor Kor Market",
+        "th": "ตลาด อ.ต.ก."
+      },
+      "description": {
+        "en": "Premium fresh market near Chatuchak. Best quality Thai fruits and prepared foods.",
+        "th": "ตลาดสดระดับพรีเมียมใกล้จตุจักร ผลไม้ไทยคุณภาพดีที่สุดและอาหารสำเร็จรูป"
+      },
+      "address": {
+        "en": "Or Tor Kor, Chatuchak, Bangkok",
+        "th": "ตลาด อ.ต.ก. จตุจักร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Premium",
+        "Fresh",
+        "Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Best Thai fruits",
+        "Premium quality",
+        "Near Chatuchak"
+      ],
+      "neighborhood": "Chatuchak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7971,
+      "longitude": 100.5476
+    }
+  ]
+}

@@ -1,0 +1,755 @@
+{
+  "city": "Kyoto",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:46:27.525Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Fushimi Inari Shrine"
+      },
+      "description": {
+        "en": "Iconic thousands of vermillion torii gates winding up mountain - visit at dawn or dusk to avoid crowds."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Fukakusa Yabunouchichō",
+      "address": {
+        "en": "68 Fukakusa Yabunouchichō, Fushimi Ward, Kyoto, 612-0882, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.9676945,
+      "longitude": 135.7791876,
+      "price_tier": "$",
+      "google_place_id": "ChIJIW0uPRUPAWAR6eI6dRzKGns"
+    },
+    {
+      "name": {
+        "en": "Kinkaku-ji (Golden Pavilion)"
+      },
+      "description": {
+        "en": "Stunning gold-leaf covered temple reflected in pond - one of Japan's most photographed sites."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kinkakujichō",
+      "address": {
+        "en": "1 Kinkakujichō, Kita Ward, Kyoto, 603-8361, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.03937,
+      "longitude": 135.7292431,
+      "price_tier": "$",
+      "google_place_id": "ChIJvUbrwCCoAWARX2QiHCsn5A4"
+    },
+    {
+      "name": {
+        "en": "Kiyomizu-dera Temple"
+      },
+      "description": {
+        "en": "UNESCO site with famous wooden stage views, Otowa Waterfall wish-making, and approach lined with shops/cafes."
+      },
+      "city": "Kyoto",
+      "neighborhood": "1-chōme",
+      "address": {
+        "en": "1-chōme-294 Kiyomizu, Higashiyama Ward, Kyoto, 605-0862, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.9946662,
+      "longitude": 135.784661,
+      "price_tier": "$",
+      "google_place_id": "ChIJB_vchdMIAWARujTEUIZlr2I"
+    },
+    {
+      "name": {
+        "en": "Kenninji Temple"
+      },
+      "description": {
+        "en": "Kyoto's oldest Zen temple (1202) at end of Hanamikoji Street - introduced tea culture to Japan."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Komatsuchō",
+      "address": {
+        "en": "５８４番地 Komatsuchō, Higashiyama Ward, Kyoto, 605-0811, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0000363,
+      "longitude": 135.77356319999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJJ3srJMEIAWARUrvFhhmPYH4"
+    },
+    {
+      "name": {
+        "en": "Yasaka Shrine"
+      },
+      "description": {
+        "en": "Gateway to Gion with hidden corners most tourists miss - magical lantern ambiance in evening."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Gionmachi Kitagawa",
+      "address": {
+        "en": "625 Gionmachi Kitagawa, Higashiyama Ward, Kyoto, 605-0073, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0036559,
+      "longitude": 135.7785534,
+      "price_tier": "$",
+      "google_place_id": "ChIJqewQoHkIAWAR6RokWp3Iesc"
+    },
+    {
+      "name": {
+        "en": "Nanzen-ji Temple"
+      },
+      "description": {
+        "en": "Huge Zen temple with stunning entrance gate and beautiful brick aqueduct running through grounds. Peaceful and not overly crowded."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nanzenji Fukuchichō",
+      "address": {
+        "en": "86 Nanzenji Fukuchichō, Sakyo Ward, Kyoto, 606-8435, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0114138,
+      "longitude": 135.7944841,
+      "price_tier": "$",
+      "google_place_id": "ChIJ_fuXcyEJAWARTQDnx6Q5szg"
+    },
+    {
+      "name": {
+        "en": "Tenryuji Temple"
+      },
+      "description": {
+        "en": "Zen temple in Arashiyama with famous dragon painting and beautiful garden overlooking bamboo grove."
+      },
+      "city": "Kyoto",
+      "neighborhood": "６８",
+      "address": {
+        "en": "Japan, 〒616-8385 京都府京都市右京区嵯峨天龍寺芒ノ馬場町６８"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0158379,
+      "longitude": 135.6737654,
+      "price_tier": "$",
+      "google_place_id": "ChIJk54PuAGqAWARwEgz_9o-nM0"
+    },
+    {
+      "name": {
+        "en": "Nonomiya Shrine"
+      },
+      "description": {
+        "en": "Matchmaking shrine with beautiful moss garden in Arashiyama bamboo forest area."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Sagatenryūji Tateishichō",
+      "address": {
+        "en": "1 Sagatenryūji Tateishichō, Ukyo Ward, Kyoto, 616-8375, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0177328,
+      "longitude": 135.67414739999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJzxhqKACrAWAR0KOlojJHbYM"
+    },
+    {
+      "name": {
+        "en": "Rokkakudo Temple"
+      },
+      "description": {
+        "en": "Origin of ikebana flower arranging art - built in 587 according to Shotoku Taishi's instructions."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Dōnomaechō",
+      "address": {
+        "en": "248 Dōnomaechō, Nakagyo Ward, Kyoto, 604-8134, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0077132,
+      "longitude": 135.76025629999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJS4iqNYUIAWARyFYH6TVLWsU"
+    },
+    {
+      "name": {
+        "en": "Seimei Shrine"
+      },
+      "description": {
+        "en": "Mystical shrine with ancient cosmology symbols and legendary well - dedicated to famous onmyoji."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Seimeichō",
+      "address": {
+        "en": "806 Seimeichō, Kamigyo Ward, Kyoto, 602-8222, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.02776,
+      "longitude": 135.7511802,
+      "price_tier": "$",
+      "google_place_id": "ChIJUXmPed8HAWAR0BFoGpHqivI"
+    },
+    {
+      "name": {
+        "en": "Yoshida Hill Temples"
+      },
+      "description": {
+        "en": "Cluster of quiet temples including Takenaka Inari (red torii tunnel) and Yoshida-jinja - almost empty despite being beautiful."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Yoshidakaguraokachō",
+      "address": {
+        "en": "30 Yoshidakaguraokachō, Sakyo Ward, Kyoto, 606-8311, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.025284299999996,
+      "longitude": 135.78470199999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJA4Pi1_gIAWARjoS9UxmAvsI"
+    },
+    {
+      "name": {
+        "en": "Hanamikoji Street"
+      },
+      "description": {
+        "en": "Heart of Gion with traditional wooden machiya houses, teahouses, and chance to spot geiko/maiko heading to appointments."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Higashiyama Ward",
+      "address": {
+        "en": "Hanamikoji-dori, Higashiyama Ward, Kyoto, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0054928,
+      "longitude": 135.7752402,
+      "price_tier": "$",
+      "google_place_id": "ChIJpbbNCeoIAWARwF2GEvKOAOw"
+    },
+    {
+      "name": {
+        "en": "Shirakawa Area"
+      },
+      "description": {
+        "en": "Picturesque canal lined with weeping willows, cherry trees, and high-class ochaya. Quieter than Hanamikoji, especially evening."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Motoyoshichō",
+      "address": {
+        "en": "Japan, 〒605-0087 Kyoto, Higashiyama Ward, Motoyoshichō, 白川筋"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0054778,
+      "longitude": 135.7736473,
+      "price_tier": "$",
+      "google_place_id": "ChIJh8ezaNwJAWARmKlGTSmqPJc"
+    },
+    {
+      "name": {
+        "en": "Gion Tatsumi Bridge"
+      },
+      "description": {
+        "en": "Historic small wooden bridge perfect for peaceful pause amid canal beauty."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kiyomotochō",
+      "address": {
+        "en": "Japan, 〒605-0084 Kyoto, Higashiyama Ward, Kiyomotochō, ３７２ 祇園巽橋"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.00557450000001,
+      "longitude": 135.7745134,
+      "price_tier": "$",
+      "google_place_id": "ChIJq_lDMQ4JAWARKKF3f4LIttc"
+    },
+    {
+      "name": {
+        "en": "Shirakawa Minami-dori"
+      },
+      "description": {
+        "en": "Less crowded but incredibly photogenic alley in Gion perfect for atmospheric wandering."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Motoyoshichō",
+      "address": {
+        "en": "Japan, 〒605-0087 Kyoto, Higashiyama Ward, Motoyoshichō, 白川筋"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0054778,
+      "longitude": 135.7736473,
+      "price_tier": "$",
+      "google_place_id": "ChIJh8ezaNwJAWARmKlGTSmqPJc"
+    },
+    {
+      "name": {
+        "en": "Gion Corner Cultural Show"
+      },
+      "description": {
+        "en": "Daily performances introducing tea ceremony, ikebana, bunraku, and maiko dances - good intro for foreign visitors."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Gionmachi Minamigawa",
+      "address": {
+        "en": "570-2 Gionmachi Minamigawa, Higashiyama Ward, Kyoto, 605-0074, Japan"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.001396799999995,
+      "longitude": 135.7755067,
+      "price_tier": "$$",
+      "google_place_id": "ChIJfwHp8MAIAWARSg0O3EYOO7o"
+    },
+    {
+      "name": {
+        "en": "Miyako Odori (April)"
+      },
+      "description": {
+        "en": "Daily dance performances by maiko during cherry blossom season - rare cultural experience."
+      },
+      "city": "Kyoto",
+      "neighborhood": "",
+      "address": {
+        "en": "Miyako Odori (April), Kyoto"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$$$"
+    },
+    {
+      "name": {
+        "en": "Gion Tsujiri"
+      },
+      "description": {
+        "en": "Traditional tea house since 1860 with excellent matcha parfaits and sweets - go if line isn't too long."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Gionmachi Minamigawa",
+      "address": {
+        "en": "573-3 Gionmachi Minamigawa, Higashiyama Ward, Kyoto, 605-0074, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.003665,
+      "longitude": 135.774477,
+      "price_tier": "$$",
+      "google_place_id": "ChIJgUSxvcEIAWARVGK_421AjWo"
+    },
+    {
+      "name": {
+        "en": "Saryo Tsujiri (Uji)"
+      },
+      "description": {
+        "en": "Matcha heaven with parfaits, soft serve, and lattes - pilgrimage for green tea fans."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Higashishiokōjichō",
+      "address": {
+        "en": "Japan, 〒600-8555 Kyoto, Shimogyo Ward, Higashishiokōjichō, ９０１ ジェイアール京都伊勢丹 6階"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.986255899999996,
+      "longitude": 135.7578016,
+      "price_tier": "$$",
+      "google_place_id": "ChIJKRpFOpoIAWARlAeKerH79z8"
+    },
+    {
+      "name": {
+        "en": "Vermillion Cafe & Gallery"
+      },
+      "description": {
+        "en": "Quaint café along Shirakawa Canal with art displays and serene views - perfect matcha latte spot."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Fukakusa Kaidoguchichō",
+      "address": {
+        "en": "5-31 Fukakusa Kaidoguchichō, Fushimi Ward, Kyoto, 612-0805, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.9684193,
+      "longitude": 135.7741523,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ7V6ukxUPAWAR1z7SkqVGAA0"
+    },
+    {
+      "name": {
+        "en": "Jouvencelle Gion"
+      },
+      "description": {
+        "en": "Cozy sweets café famous for Gion Fondue - rich matcha chocolate fondue with seasonal fruit, mochi, cake."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kiyoichō",
+      "address": {
+        "en": "Japan, 〒605-0821 Kyoto, Higashiyama Ward, Kiyoichō, ４８２ 京ばんビル 2F"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0019888,
+      "longitude": 135.7784031,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ0y51hsQIAWARwu1aodBpstw"
+    },
+    {
+      "name": {
+        "en": "Kaboku Cafe"
+      },
+      "description": {
+        "en": "Excellent green tea and desserts in peaceful setting."
+      },
+      "city": "Kyoto",
+      "neighborhood": "52",
+      "address": {
+        "en": "52-52 Tokiwagichō, Nakagyo Ward, Kyoto, 604-0915, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0144485,
+      "longitude": 135.7673381,
+      "price_tier": "$$",
+      "google_place_id": "ChIJcadqE4wIAWAR2BeU0_UOXtE"
+    },
+    {
+      "name": {
+        "en": "Efish Café"
+      },
+      "description": {
+        "en": "Minimalist riverside café along Kamo River - homemade cake and relaxing views."
+      },
+      "city": "Kyoto",
+      "neighborhood": "798",
+      "address": {
+        "en": "798 Nishihashizumecho, Shimogyo Ward, Kyoto, 600-8029, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 34.9952569,
+      "longitude": 135.7673867,
+      "price_tier": "$$",
+      "google_place_id": "ChIJAQB0dbkIAWARDoOSdBzGfgs"
+    },
+    {
+      "name": {
+        "en": "Kitagawa Hanbee Shoten"
+      },
+      "description": {
+        "en": "Historic tea merchant's stylish townhouse café with tea tasting sets (5 teas + snacks) - transforms to tea cocktail bar at night."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Gionmachi Minamigawa",
+      "address": {
+        "en": "570-188 Gionmachi Minamigawa, Higashiyama Ward, Kyoto, 605-0074, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.002736,
+      "longitude": 135.77648499999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ08ObwsMIAWAR5PvMO9ELOf8"
+    },
+    {
+      "name": {
+        "en": "Nishiki Market"
+      },
+      "description": {
+        "en": "Kyoto's kitchen - 400-year-old covered market with pickles, tofu, seasonal delicacies, and street food."
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nakagyo Ward",
+      "address": {
+        "en": "Higashiuoyacho, Nakagyo Ward, Kyoto, 604-8055, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0050258,
+      "longitude": 135.764723,
+      "price_tier": "$$",
+      "google_place_id": "ChIJT8uMzZwIAWARnGzsARCjnrY"
+    }
+  ]
+}

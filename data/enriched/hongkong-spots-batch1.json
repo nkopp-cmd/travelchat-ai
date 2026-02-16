@@ -1,0 +1,561 @@
+{
+  "city": "hong_kong",
+  "batch": 1,
+  "spots": [
+    {
+      "name": {
+        "en": "Temple Street Night Market",
+        "zh": "廟街夜市"
+      },
+      "description": {
+        "en": "Famous night market in Yau Ma Tei. Fortune tellers and street food.",
+        "zh": "油麻地著名夜市。算命和街頭小吃。"
+      },
+      "address": {
+        "en": "Temple Street, Yau Ma Tei, Kowloon",
+        "zh": "九龍油麻地廟街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Fortune Telling",
+        "Street Food"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Fortune tellers",
+        "Bargain expected",
+        "Dai pai dong nearby"
+      ],
+      "neighborhood": "Yau Ma Tei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3064,
+      "longitude": 114.17
+    },
+    {
+      "name": {
+        "en": "Ladies' Market",
+        "zh": "女人街"
+      },
+      "description": {
+        "en": "Bargain shopping street in Mong Kok. Clothes and accessories.",
+        "zh": "旺角廉價購物街。衣服和配飾。"
+      },
+      "address": {
+        "en": "Tung Choi Street, Mong Kok, Kowloon",
+        "zh": "九龍旺角通菜街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Street Market",
+        "Bargain",
+        "Fashion"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Afternoon",
+      "tips": [
+        "Bargain hard",
+        "Fake goods common",
+        "Tourist focused"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3175,
+      "longitude": 114.1709
+    },
+    {
+      "name": {
+        "en": "Goldfish Market",
+        "zh": "金魚街"
+      },
+      "description": {
+        "en": "Unique pet fish market. Bags of fish displayed.",
+        "zh": "獨特的觀賞魚市場。袋裝魚展示。"
+      },
+      "address": {
+        "en": "Tung Choi Street North, Mong Kok, Kowloon",
+        "zh": "九龍旺角通菜街北"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Pet",
+        "Unique",
+        "Fish"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Unique sight",
+        "Photo worthy",
+        "Local pet culture"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3229,
+      "longitude": 114.1698
+    },
+    {
+      "name": {
+        "en": "Flower Market",
+        "zh": "花墟"
+      },
+      "description": {
+        "en": "Street of flower shops. Fresh blooms daily.",
+        "zh": "花店街。每日新鮮花卉。"
+      },
+      "address": {
+        "en": "Flower Market Road, Prince Edward, Kowloon",
+        "zh": "九龍太子花墟道"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flowers",
+        "Traditional",
+        "Daily"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Chinese New Year crazy",
+        "Fresh flowers",
+        "Near bird garden"
+      ],
+      "neighborhood": "Prince Edward",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3252,
+      "longitude": 114.1727
+    },
+    {
+      "name": {
+        "en": "Yuen Po Street Bird Garden",
+        "zh": "園圃街雀鳥花園"
+      },
+      "description": {
+        "en": "Traditional bird garden. Elderly men with songbirds.",
+        "zh": "傳統雀鳥花園。老人與鳴禽。"
+      },
+      "address": {
+        "en": "Yuen Po Street, Prince Edward, Kowloon",
+        "zh": "九龍太子園圃街"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Traditional",
+        "Birds",
+        "Unique"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Traditional culture",
+        "Morning best",
+        "Near flower market"
+      ],
+      "neighborhood": "Prince Edward",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3259,
+      "longitude": 114.1738
+    },
+    {
+      "name": {
+        "en": "Sneaker Street",
+        "zh": "波鞋街"
+      },
+      "description": {
+        "en": "Street dedicated to sports shoes. All brands.",
+        "zh": "運動鞋專賣街。所有品牌。"
+      },
+      "address": {
+        "en": "Fa Yuen Street, Mong Kok, Kowloon",
+        "zh": "九龍旺角花園街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Sneakers",
+        "Sports",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "All sneaker brands",
+        "Compare prices",
+        "Near Ladies Market"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3172,
+      "longitude": 114.1715
+    },
+    {
+      "name": {
+        "en": "Mong Kok Computer Centre",
+        "zh": "旺角電腦中心"
+      },
+      "description": {
+        "en": "Electronics mall in Mong Kok. Computer parts.",
+        "zh": "旺角電子商場。電腦配件。"
+      },
+      "address": {
+        "en": "8A Nelson Street, Mong Kok, Kowloon",
+        "zh": "九龍旺角奶路臣街8A號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Computers",
+        "Tech"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Computer parts",
+        "Tech repairs",
+        "Local tech hub"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3185,
+      "longitude": 114.1711
+    },
+    {
+      "name": {
+        "en": "Sham Shui Po Electronics",
+        "zh": "深水埗電子街"
+      },
+      "description": {
+        "en": "Cheap electronics district. Components and gadgets.",
+        "zh": "廉價電子區。零件和小玩意。"
+      },
+      "address": {
+        "en": "Apliu Street, Sham Shui Po, Kowloon",
+        "zh": "九龍深水埗鴨寮街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Cheap",
+        "Components"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very cheap",
+        "Second hand too",
+        "Haggle expected"
+      ],
+      "neighborhood": "Sham Shui Po",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3286,
+      "longitude": 114.1641
+    },
+    {
+      "name": {
+        "en": "Golden Computer Arcade",
+        "zh": "黃金電腦商場"
+      },
+      "description": {
+        "en": "Major computer mall in Sham Shui Po.",
+        "zh": "深水埗主要電腦商場。"
+      },
+      "address": {
+        "en": "146 Fuk Wah Street, Sham Shui Po, Kowloon",
+        "zh": "九龍深水埗福華街146號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Computers",
+        "Mall",
+        "Tech"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Computer builds",
+        "Good prices",
+        "Local favorite"
+      ],
+      "neighborhood": "Sham Shui Po",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.332,
+      "longitude": 114.162
+    },
+    {
+      "name": {
+        "en": "Fabric Market Sham Shui Po",
+        "zh": "深水埗布料市場"
+      },
+      "description": {
+        "en": "Wholesale fabric shops. Buttons and ribbons.",
+        "zh": "布料批發店。鈕扣和緞帶。"
+      },
+      "address": {
+        "en": "Ki Lung Street, Sham Shui Po, Kowloon",
+        "zh": "九龍深水埗基隆街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fabric",
+        "Wholesale",
+        "Craft"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Fabric paradise",
+        "Craft supplies",
+        "Wholesale prices"
+      ],
+      "neighborhood": "Sham Shui Po",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3276,
+      "longitude": 114.1584
+    },
+    {
+      "name": {
+        "en": "Bead Street Sham Shui Po",
+        "zh": "深水埗珠仔街"
+      },
+      "description": {
+        "en": "Beads and accessories supplies. DIY jewelry.",
+        "zh": "珠子和配飾用品。DIY首飾。"
+      },
+      "address": {
+        "en": "Yu Chau Street, Sham Shui Po, Kowloon",
+        "zh": "九龍深水埗汝州街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Beads",
+        "Craft",
+        "DIY"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Jewelry making",
+        "Wholesale",
+        "Craft supplies"
+      ],
+      "neighborhood": "Sham Shui Po",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3297,
+      "longitude": 114.1617
+    },
+    {
+      "name": {
+        "en": "Leather Street",
+        "zh": "皮革街"
+      },
+      "description": {
+        "en": "Leather goods and supplies. Custom leather.",
+        "zh": "皮革用品。定制皮革。"
+      },
+      "address": {
+        "en": "Tai Nan Street, Sham Shui Po, Kowloon",
+        "zh": "九龍深水埗大南街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Leather",
+        "Craft",
+        "Custom"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Leather supplies",
+        "Custom goods",
+        "Traditional craft"
+      ],
+      "neighborhood": "Sham Shui Po",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3277,
+      "longitude": 114.1636
+    },
+    {
+      "name": {
+        "en": "Tin Hau Temple Yau Ma Tei",
+        "zh": "油麻地天后廟"
+      },
+      "description": {
+        "en": "Historic temple complex. Multiple deities.",
+        "zh": "歷史廟宇群。多個神祇。"
+      },
+      "address": {
+        "en": "Temple Street, Yau Ma Tei, Kowloon",
+        "zh": "九龍油麻地廟街"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic",
+        "Multiple Gods"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Temple complex",
+        "Fortune sticks",
+        "Near night market"
+      ],
+      "neighborhood": "Yau Ma Tei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3099,
+      "longitude": 114.1707
+    },
+    {
+      "name": {
+        "en": "Jade Market",
+        "zh": "玉器市場"
+      },
+      "description": {
+        "en": "Traditional jade trading area. Many stalls.",
+        "zh": "傳統玉器交易區。許多攤位。"
+      },
+      "address": {
+        "en": "Kansu Street, Yau Ma Tei, Kowloon",
+        "zh": "九龍油麻地甘肅街"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Jade",
+        "Traditional",
+        "Trading"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Know jade before buying",
+        "Morning better",
+        "Many fakes"
+      ],
+      "neighborhood": "Yau Ma Tei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3264,
+      "longitude": 114.16
+    },
+    {
+      "name": {
+        "en": "Shanghai Street",
+        "zh": "上海街"
+      },
+      "description": {
+        "en": "Traditional kitchenware and supplies street.",
+        "zh": "傳統廚具用品街。"
+      },
+      "address": {
+        "en": "Shanghai Street, Yau Ma Tei, Kowloon",
+        "zh": "九龍油麻地上海街"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Kitchenware",
+        "Traditional",
+        "Wholesale"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Kitchen supplies",
+        "Dim sum baskets",
+        "Restaurant equipment"
+      ],
+      "neighborhood": "Yau Ma Tei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3077,
+      "longitude": 114.1698
+    }
+  ]
+}

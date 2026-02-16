@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-02-11T13:04:37.894Z",
+  "summary": {
+    "totalFiles": 172,
+    "totalSpots": 3385,
+    "byCity": {
+      "Ubud, Bali": 55,
+      "Bangkok": 55,
+      "bangkok": 414,
+      "Busan": 102,
+      "Chiang Mai": 44,
+      "Hanoi": 43,
+      "Ho Chi Minh City": 52,
+      "Hong Kong": 51,
+      "hong_kong": 215,
+      "Kuala Lumpur": 44,
+      "Kyoto": 48,
+      "kyoto": 215,
+      "Osaka": 40,
+      "osaka": 210,
+      "Seoul": 145,
+      "seoul": 391,
+      "Singapore": 66,
+      "singapore": 415,
+      "Taipei": 96,
+      "taipei": 215,
+      "Tokyo": 64,
+      "tokyo": 405
+    }
+  },
+  "beforeGaps": {
+    "missingCoordinates": 2488,
+    "missingLocalName": 890,
+    "missingPhotos": 3370,
+    "missingTips": 890,
+    "weakTips": 890,
+    "missingBestTime": 894,
+    "missingSubcategories": 58,
+    "missingVerified": 2480,
+    "missingTrendingScore": 2480,
+    "placeholderAddresses": 706
+  },
+  "afterGaps": {
+    "missingCoordinates": 2408,
+    "missingLocalName": 797,
+    "missingPhotos": 3370,
+    "missingTips": 890,
+    "weakTips": 890,
+    "missingBestTime": 894,
+    "missingSubcategories": 20,
+    "missingVerified": 0,
+    "missingTrendingScore": 0,
+    "placeholderAddresses": 666
+  },
+  "crossReferenceMatches": 80,
+  "enrichmentActions": {
+    "subcategories_inferred": 37,
+    "localname_from_crossref": 93,
+    "photos_array_added": 2480,
+    "verified_defaulted": 2480,
+    "trending_calculated": 2480,
+    "address_upgraded": 48,
+    "coordinates_from_crossref": 80,
+    "subcategories_from_crossref": 1,
+    "neighborhood_from_crossref": 4
+  }
+}

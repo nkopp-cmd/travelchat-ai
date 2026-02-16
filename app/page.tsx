@@ -178,7 +178,9 @@ export default function LandingPage() {
           {/* Section header */}
           <div className="text-center mb-16">
             <p className="text-violet-400 text-lg md:text-xl font-bold tracking-[0.25em] uppercase mb-6">Why Localley</p>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Travel Like a Local, Not a Tourist</h2>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Travel Like a Local,<br className="md:hidden" /> Not a Tourist
+            </h2>
             <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">Powered by AI and verified by real locals</p>
           </div>
 
