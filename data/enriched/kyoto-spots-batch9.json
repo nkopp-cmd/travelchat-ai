@@ -1,0 +1,742 @@
+{
+  "city": "kyoto",
+  "batch": 9,
+  "spots": [
+    {
+      "name": {
+        "en": "Shisen-do Temple",
+        "ja": "詩仙堂"
+      },
+      "description": {
+        "en": "Hermitage with beautiful garden.",
+        "ja": "美しい庭園のある隠居所。"
+      },
+      "address": {
+        "en": "27 Ichijoji Monguchi-cho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区一乗寺門口町27"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Garden",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Autumn",
+      "tips": [
+        "Beautiful garden",
+        "Autumn colors",
+        "Quiet spot"
+      ],
+      "neighborhood": "Ichijoji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0437,
+      "longitude": 135.7962
+    },
+    {
+      "name": {
+        "en": "Manshu-in Temple",
+        "ja": "曼殊院"
+      },
+      "description": {
+        "en": "Monzeki temple with autumn colors.",
+        "ja": "紅葉の美しい門跡寺院。"
+      },
+      "address": {
+        "en": "42 Takenouchi-cho, Ichijoji, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区一乗寺竹ノ内町42"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Autumn",
+        "Imperial"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Autumn",
+      "tips": [
+        "Stunning autumn",
+        "Imperial connection",
+        "Near Shisen-do"
+      ],
+      "neighborhood": "Ichijoji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0489,
+      "longitude": 135.8031
+    },
+    {
+      "name": {
+        "en": "Ichijoji Ramen Street",
+        "ja": "一乗寺ラーメン街道"
+      },
+      "description": {
+        "en": "Famous ramen shop concentration.",
+        "ja": "有名なラーメン店の集中地。"
+      },
+      "address": {
+        "en": "Ichijoji, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区一乗寺"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Ramen",
+        "Famous",
+        "Multiple"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Ramen heaven",
+        "Many shops",
+        "Student area"
+      ],
+      "neighborhood": "Ichijoji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0442,
+      "longitude": 135.7874
+    },
+    {
+      "name": {
+        "en": "Takaragaike Park",
+        "ja": "宝ヶ池公園"
+      },
+      "description": {
+        "en": "Large park with pond. Local recreation.",
+        "ja": "池のある大きな公園。地元のレクリエーション。"
+      },
+      "address": {
+        "en": "Matsugasaki, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区松ヶ崎"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Pond",
+        "Recreation"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Duck pond",
+        "Running paths",
+        "Very local"
+      ],
+      "neighborhood": "Iwakura",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0619,
+      "longitude": 135.7791
+    },
+    {
+      "name": {
+        "en": "Kyoto International Conference Center",
+        "ja": "国立京都国際会館"
+      },
+      "description": {
+        "en": "Iconic modernist building. Garden views.",
+        "ja": "象徴的なモダニズム建築。庭園の眺め。"
+      },
+      "address": {
+        "en": "Takaragaike, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区宝ヶ池"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Modern",
+        "Landmark"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Modernist design",
+        "Garden views",
+        "Near park"
+      ],
+      "neighborhood": "Iwakura",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0611,
+      "longitude": 135.7831
+    },
+    {
+      "name": {
+        "en": "Shugakuin Imperial Villa",
+        "ja": "修学院離宮"
+      },
+      "description": {
+        "en": "Imperial villa with mountain views. Reservation required.",
+        "ja": "山の眺めの皇室別荘。要予約。"
+      },
+      "address": {
+        "en": "Shugakuin, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区修学院"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Imperial",
+        "Villa",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Autumn",
+      "tips": [
+        "Book IHA",
+        "Guided tours",
+        "Stunning views"
+      ],
+      "neighborhood": "Shugakuin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0528,
+      "longitude": 135.7925
+    },
+    {
+      "name": {
+        "en": "Katsura Imperial Villa",
+        "ja": "桂離宮"
+      },
+      "description": {
+        "en": "Perfect Japanese garden architecture.",
+        "ja": "完璧な日本庭園建築。"
+      },
+      "address": {
+        "en": "Katsura, Nishikyo-ku, Kyoto",
+        "ja": "京都市西京区桂"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Imperial",
+        "Villa",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Any",
+      "tips": [
+        "Book early",
+        "IHA reservation",
+        "Architecture masterpiece"
+      ],
+      "neighborhood": "Katsura",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.9839,
+      "longitude": 135.7103
+    },
+    {
+      "name": {
+        "en": "Sento Imperial Palace",
+        "ja": "仙洞御所"
+      },
+      "description": {
+        "en": "Retired emperor's palace. Beautiful gardens.",
+        "ja": "退位した天皇の御所。美しい庭園。"
+      },
+      "address": {
+        "en": "Kyoto Gyoen, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区京都御苑"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Imperial",
+        "Palace",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Autumn",
+      "tips": [
+        "IHA reservation",
+        "In Imperial Park",
+        "Beautiful ponds"
+      ],
+      "neighborhood": "Kyoto Gyoen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.0217,
+      "longitude": 135.7656
+    },
+    {
+      "name": {
+        "en": "Haradani-en Garden",
+        "ja": "原谷苑"
+      },
+      "description": {
+        "en": "Private weeping cherry garden. Spring only.",
+        "ja": "私設の枝垂桜庭園。春のみ。"
+      },
+      "address": {
+        "en": "Haradani, Kita-ku, Kyoto",
+        "ja": "京都市北区原谷"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Cherry",
+        "Seasonal"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "April",
+      "tips": [
+        "Weeping cherries",
+        "Spring only",
+        "Taxi access"
+      ],
+      "neighborhood": "Kita",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "April"
+      },
+      "latitude": 35.0441,
+      "longitude": 135.7143
+    },
+    {
+      "name": {
+        "en": "Kyoto Illuminations",
+        "ja": "京都イルミネーション"
+      },
+      "description": {
+        "en": "Winter light events at temples.",
+        "ja": "寺院での冬のライトアップ。"
+      },
+      "address": {
+        "en": "Various temples, Kyoto",
+        "ja": "京都市各寺院"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "Night"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "December",
+      "tips": [
+        "Many temples",
+        "Winter special",
+        "Night access"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "December"
+      }
+    },
+    {
+      "name": {
+        "en": "Higashiyama Hanatoro",
+        "ja": "東山花灯路"
+      },
+      "description": {
+        "en": "Spring lantern festival. Path illumination.",
+        "ja": "春の灯籠祭り。道のライトアップ。"
+      },
+      "address": {
+        "en": "Higashiyama, Kyoto",
+        "ja": "京都市東山"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Festival",
+        "Lantern",
+        "Spring"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "March",
+      "tips": [
+        "Evening walk",
+        "Lantern lit paths",
+        "March event"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "March"
+      },
+      "latitude": 34.9899,
+      "longitude": 135.7545
+    },
+    {
+      "name": {
+        "en": "Arashiyama Hanatoro",
+        "ja": "嵐山花灯路"
+      },
+      "description": {
+        "en": "December lantern festival. Bamboo lit.",
+        "ja": "12月の灯籠祭り。竹林ライトアップ。"
+      },
+      "address": {
+        "en": "Arashiyama, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵐山"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Festival",
+        "Lantern",
+        "Winter"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "December",
+      "tips": [
+        "Bamboo grove lit",
+        "December nights",
+        "Magical atmosphere"
+      ],
+      "neighborhood": "Arashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "December"
+      },
+      "latitude": 35.0173,
+      "longitude": 135.7682
+    },
+    {
+      "name": {
+        "en": "Daigo-ji Temple",
+        "ja": "醍醐寺"
+      },
+      "description": {
+        "en": "Famous cherry blossom temple. UNESCO.",
+        "ja": "有名な桜の寺。ユネスコ。"
+      },
+      "address": {
+        "en": "22 Daigohigashiojicho, Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区醍醐東大路町22"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Cherry",
+        "UNESCO"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "April",
+      "tips": [
+        "Hideyoshi's cherries",
+        "Large grounds",
+        "Spring crowded"
+      ],
+      "neighborhood": "Daigo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "April"
+      },
+      "latitude": 34.9513,
+      "longitude": 135.8209
+    },
+    {
+      "name": {
+        "en": "Uji Byodo-in Area",
+        "ja": "宇治平等院エリア"
+      },
+      "description": {
+        "en": "Historic town with tea and temples.",
+        "ja": "お茶と寺院の歴史的な町。"
+      },
+      "address": {
+        "en": "Uji, Kyoto",
+        "ja": "京都府宇治市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Town",
+        "Tea",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Green tea origin",
+        "Byodo-in temple",
+        "Riverside walk"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Uji Matcha Experience",
+        "ja": "宇治抹茶体験"
+      },
+      "description": {
+        "en": "Tea tasting in matcha birthplace.",
+        "ja": "抹茶発祥の地でのお茶体験。"
+      },
+      "address": {
+        "en": "Uji, Kyoto",
+        "ja": "京都府宇治市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Tea",
+        "Experience",
+        "Matcha"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Tea shops",
+        "Matcha sweets",
+        "Historic tea area"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0034,
+      "longitude": 135.7643
+    },
+    {
+      "name": {
+        "en": "Mimurotoji Temple",
+        "ja": "三室戸寺"
+      },
+      "description": {
+        "en": "Hydrangea temple. June flowers.",
+        "ja": "紫陽花の寺。6月の花。"
+      },
+      "address": {
+        "en": "Todou Shigatani, Uji, Kyoto",
+        "ja": "京都府宇治市莵道滋賀谷"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Hydrangea",
+        "Flowers"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "June",
+      "tips": [
+        "10000 hydrangeas",
+        "June best",
+        "Near Uji"
+      ],
+      "neighborhood": "Uji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "June"
+      },
+      "latitude": 34.8998,
+      "longitude": 135.8187
+    },
+    {
+      "name": {
+        "en": "Kyoto University Area",
+        "ja": "京都大学エリア"
+      },
+      "description": {
+        "en": "Student district. Cafes and bookshops.",
+        "ja": "学生街。カフェと書店。"
+      },
+      "address": {
+        "en": "Yoshida, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区吉田"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "University",
+        "Student",
+        "Cafes"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Student atmosphere",
+        "Cheap eats",
+        "Bookshops"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0208,
+      "longitude": 135.7725
+    },
+    {
+      "name": {
+        "en": "Demachi Masugata Shotengai",
+        "ja": "出町桝形商店街"
+      },
+      "description": {
+        "en": "Local shopping arcade. Student favorite.",
+        "ja": "地元の商店街。学生に人気。"
+      },
+      "address": {
+        "en": "Demachi, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区出町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Arcade",
+        "Local",
+        "Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Futaba tofu",
+        "Local shops",
+        "Tamako anime"
+      ],
+      "neighborhood": "Demachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0303,
+      "longitude": 135.7689
+    },
+    {
+      "name": {
+        "en": "Demachi Futaba",
+        "ja": "出町ふたば"
+      },
+      "description": {
+        "en": "Famous mochi shop. Long queues.",
+        "ja": "有名な餅店。長い行列。"
+      },
+      "address": {
+        "en": "Demachi, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区出町"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Mochi",
+        "Famous",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Mame mochi famous",
+        "Queue early",
+        "Since 1899"
+      ],
+      "neighborhood": "Demachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0301,
+      "longitude": 135.7696
+    },
+    {
+      "name": {
+        "en": "Shimogamo Shrine Area",
+        "ja": "下鴨神社エリア"
+      },
+      "description": {
+        "en": "Ancient forest and shrine complex.",
+        "ja": "古代の森と神社複合体。"
+      },
+      "address": {
+        "en": "Shimogamo, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区下鴨"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Forest",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Tadasu no Mori",
+        "Ancient forest",
+        "UNESCO site"
+      ],
+      "neighborhood": "Shimogamo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.037,
+      "longitude": 135.7725
+    }
+  ]
+}

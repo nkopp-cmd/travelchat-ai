@@ -1,0 +1,746 @@
+{
+  "city": "bangkok",
+  "batch": 4,
+  "spots": [
+    {
+      "name": {
+        "en": "Gaysorn Village",
+        "th": "เกษรวิลเลจ"
+      },
+      "description": {
+        "en": "Ultra-luxury mall near Erawan. Designer boutiques and fine dining.",
+        "th": "ห้างหรูสุดใกล้เอราวัณ บูติกดีไซเนอร์และอาหารชั้นเลิศ"
+      },
+      "address": {
+        "en": "Gaysorn, Pathum Wan, Bangkok",
+        "th": "เกษรวิลเลจ เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Designer",
+        "Fine Dining"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very high end",
+        "Quiet compared to neighbors",
+        "Good Thai restaurants"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7451,
+      "longitude": 100.5407
+    },
+    {
+      "name": {
+        "en": "Siam Paragon",
+        "th": "สยามพารากอน"
+      },
+      "description": {
+        "en": "Upscale shopping center with aquarium. Luxury brands and SEA Life.",
+        "th": "ศูนย์การค้าระดับไฮเอนด์มีพิพิธภัณฑ์สัตว์น้ำ แบรนด์หรูและซีไลฟ์"
+      },
+      "address": {
+        "en": "Siam Paragon, Pathum Wan, Bangkok",
+        "th": "สยามพารากอน เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Aquarium",
+        "Mall"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "SEA Life aquarium",
+        "Luxury brands",
+        "Good food court"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7468,
+      "longitude": 100.535
+    },
+    {
+      "name": {
+        "en": "Siam Discovery",
+        "th": "สยามดิสคัฟเวอรี่"
+      },
+      "description": {
+        "en": "Design-focused lifestyle mall. Madame Tussauds and creative retail.",
+        "th": "ห้างไลฟ์สไตล์เน้นดีไซน์ มาดามทุสโซและค้าปลีกสร้างสรรค์"
+      },
+      "address": {
+        "en": "Siam Discovery, Pathum Wan, Bangkok",
+        "th": "สยามดิสคัฟเวอรี่ เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Design",
+        "Lifestyle",
+        "Creative"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Design focus",
+        "ODS experimental retail",
+        "Thai designers"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7467,
+      "longitude": 100.5317
+    },
+    {
+      "name": {
+        "en": "Siam Center",
+        "th": "สยามเซ็นเตอร์"
+      },
+      "description": {
+        "en": "Youth fashion mall connected to Siam complex. Thai and international brands.",
+        "th": "ห้างแฟชั่นวัยรุ่นเชื่อมต่อกับสยาม แบรนด์ไทยและต่างประเทศ"
+      },
+      "address": {
+        "en": "Siam Center, Pathum Wan, Bangkok",
+        "th": "สยามเซ็นเตอร์ เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Fashion",
+        "Youth",
+        "Thai Brands"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Thai fashion",
+        "Youth oriented",
+        "Connected to complex"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7463,
+      "longitude": 100.5328
+    },
+    {
+      "name": {
+        "en": "Platinum Fashion Mall",
+        "th": "แพลทินัม แฟชั่น มอลล์"
+      },
+      "description": {
+        "en": "Wholesale fashion mall in Pratunam. Thousands of small shops.",
+        "th": "ห้างแฟชั่นค้าส่งในประตูน้ำ ร้านเล็กๆ หลายพันร้าน"
+      },
+      "address": {
+        "en": "Platinum Mall, Ratchathewi, Bangkok",
+        "th": "แพลทินัม เขตราชเทวี กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Wholesale",
+        "Fashion",
+        "Bargain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Bulk discounts",
+        "Very cheap",
+        "Air conditioned"
+      ],
+      "neighborhood": "Pratunam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.75,
+      "longitude": 100.5394
+    },
+    {
+      "name": {
+        "en": "Pantip Plaza Electronics",
+        "th": "พันธุ์ทิพย์ พลาซ่า"
+      },
+      "description": {
+        "en": "IT and electronics mall. Computer parts and software.",
+        "th": "ห้างไอทีและอิเล็กทรอนิกส์ อุปกรณ์คอมพิวเตอร์และซอฟต์แวร์"
+      },
+      "address": {
+        "en": "Pantip Plaza, Ratchathewi, Bangkok",
+        "th": "พันธุ์ทิพย์ เขตราชเทวี กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "IT",
+        "Computer"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Computer parts",
+        "Bargain hard",
+        "Tech repairs"
+      ],
+      "neighborhood": "Pratunam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7504,
+      "longitude": 100.5373
+    },
+    {
+      "name": {
+        "en": "Baiyoke Tower Sky Restaurant",
+        "th": "ใบหยกทาวเวอร์"
+      },
+      "description": {
+        "en": "Tallest building in Bangkok with observation deck. 360-degree city views.",
+        "th": "ตึกที่สูงที่สุดในกรุงเทพฯ มีจุดชมวิว วิว 360 องศา"
+      },
+      "address": {
+        "en": "Baiyoke Tower, Ratchathewi, Bangkok",
+        "th": "ใบหยกทาวเวอร์ เขตราชเทวี กรุงเทพฯ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Views",
+        "Observation",
+        "Buffet"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Sunset",
+      "tips": [
+        "Sky buffet",
+        "360 views",
+        "Rotating deck"
+      ],
+      "neighborhood": "Pratunam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 13.7544,
+      "longitude": 100.5403
+    },
+    {
+      "name": {
+        "en": "Indra Square",
+        "th": "อินทรา สแควร์"
+      },
+      "description": {
+        "en": "Wholesale market near Pratunam. Clothing and accessories.",
+        "th": "ตลาดค้าส่งใกล้ประตูน้ำ เสื้อผ้าและเครื่องประดับ"
+      },
+      "address": {
+        "en": "Indra Square, Ratchathewi, Bangkok",
+        "th": "อินทรา สแควร์ เขตราชเทวี กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Wholesale",
+        "Fashion",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Wholesale prices",
+        "Very local",
+        "Near Pratunam"
+      ],
+      "neighborhood": "Pratunam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7534,
+      "longitude": 100.5409
+    },
+    {
+      "name": {
+        "en": "Bobae Market",
+        "th": "ตลาดโบ๊เบ๊"
+      },
+      "description": {
+        "en": "Oldest wholesale clothing market. Pre-dawn trading for retailers.",
+        "th": "ตลาดค้าส่งเสื้อผ้าเก่าแก่ที่สุด ซื้อขายก่อนรุ่งสางสำหรับร้านค้าปลีก"
+      },
+      "address": {
+        "en": "Bobae Tower, Phra Nakhon, Bangkok",
+        "th": "โบ๊เบ๊ทาวเวอร์ เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Wholesale",
+        "Fashion",
+        "Dawn"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "3-7am",
+      "tips": [
+        "Very early hours",
+        "Wholesale only",
+        "Cash only"
+      ],
+      "neighborhood": "Phra Nakhon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.4,
+      "best_times": {
+        "en": "3-7am"
+      },
+      "latitude": 13.7534,
+      "longitude": 100.516
+    },
+    {
+      "name": {
+        "en": "Saphan Lek Thieves Market",
+        "th": "สะพานเหล็ก"
+      },
+      "description": {
+        "en": "Electronics and toy market under expressway. Second-hand and new goods.",
+        "th": "ตลาดอิเล็กทรอนิกส์และของเล่นใต้ทางด่วน ของมือสองและใหม่"
+      },
+      "address": {
+        "en": "Saphan Lek, Phra Nakhon, Bangkok",
+        "th": "สะพานเหล็ก เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Electronics",
+        "Toys",
+        "Second-hand"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Bargain hard",
+        "Old electronics",
+        "Toys and games"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7454,
+      "longitude": 100.5024
+    },
+    {
+      "name": {
+        "en": "Nakhon Kasem Thieves Market",
+        "th": "นครเกษม"
+      },
+      "description": {
+        "en": "Antique and second-hand market. Musical instruments and vintage finds.",
+        "th": "ตลาดของเก่าและมือสอง เครื่องดนตรีและของวินเทจ"
+      },
+      "address": {
+        "en": "Nakhon Kasem, Samphanthawong, Bangkok",
+        "th": "นครเกษม เขตสัมพันธวงศ์ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Antiques",
+        "Music",
+        "Vintage"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Musical instruments",
+        "Antiques",
+        "Bargain expected"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7451,
+      "longitude": 100.5044
+    },
+    {
+      "name": {
+        "en": "Chinatown Soi Issaranuphap",
+        "th": "ซอยอิสรานุภาพ"
+      },
+      "description": {
+        "en": "Narrow alley with dried goods and traditional shops. Authentic Chinatown experience.",
+        "th": "ซอยแคบมีของแห้งและร้านดั้งเดิม ประสบการณ์ไชน่าทาวน์แท้"
+      },
+      "address": {
+        "en": "Soi Issaranuphap, Samphanthawong, Bangkok",
+        "th": "ซอยอิสรานุภาพ เขตสัมพันธวงศ์ กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Traditional",
+        "Dried Goods",
+        "Authentic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Very narrow",
+        "Traditional shops",
+        "Local atmosphere"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7406,
+      "longitude": 100.5081
+    },
+    {
+      "name": {
+        "en": "Wat Mangkon Kamalawat",
+        "th": "วัดมังกรกมลาวาส"
+      },
+      "description": {
+        "en": "Chinatown's largest Chinese temple. Dragon architecture and incense.",
+        "th": "วัดจีนที่ใหญ่ที่สุดในไชน่าทาวน์ สถาปัตยกรรมมังกรและธูป"
+      },
+      "address": {
+        "en": "Wat Mangkon, Samphanthawong, Bangkok",
+        "th": "วัดมังกรฯ เขตสัมพันธวงศ์ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Chinese",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Chinese temple",
+        "Incense burning",
+        "MRT connected"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7395,
+      "longitude": 100.5058
+    },
+    {
+      "name": {
+        "en": "Chinatown Gold Shops",
+        "th": "ร้านทองเยาวราช"
+      },
+      "description": {
+        "en": "Gold jewelry shops along Yaowarat. Thai gold trading center.",
+        "th": "ร้านทองเครื่องประดับตลอดเยาวราช ศูนย์ซื้อขายทองไทย"
+      },
+      "address": {
+        "en": "Yaowarat Road, Samphanthawong, Bangkok",
+        "th": "ถนนเยาวราช เขตสัมพันธวงศ์ กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Gold",
+        "Jewelry",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Daytime",
+      "tips": [
+        "Thai gold standard",
+        "Compare prices",
+        "Serious buying"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Daytime"
+      },
+      "latitude": 13.7431,
+      "longitude": 100.5064
+    },
+    {
+      "name": {
+        "en": "Hua Lamphong Station",
+        "th": "สถานีหัวลำโพง"
+      },
+      "description": {
+        "en": "Bangkok's historic main railway station. Beautiful architecture being preserved.",
+        "th": "สถานีรถไฟหลักประวัติศาสตร์ของกรุงเทพฯ สถาปัตยกรรมสวยงามกำลังอนุรักษ์"
+      },
+      "address": {
+        "en": "Hua Lamphong, Pathum Wan, Bangkok",
+        "th": "หัวลำโพง เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Historic",
+        "Transport"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Anytime",
+      "tips": [
+        "Historic building",
+        "Photo opportunity",
+        "Near Chinatown"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "latitude": 13.7393,
+      "longitude": 100.5166
+    },
+    {
+      "name": {
+        "en": "Soi Nana Chinatown",
+        "th": "ซอยนานา ไชน่าทาวน์"
+      },
+      "description": {
+        "en": "Emerging creative street in old Chinatown. Cafes, bars, and galleries.",
+        "th": "ถนนสร้างสรรค์ใหม่ในไชน่าทาวน์เก่า คาเฟ่ บาร์ และแกลเลอรี่"
+      },
+      "address": {
+        "en": "Soi Nana, Samphanthawong, Bangkok",
+        "th": "ซอยนานา เขตสัมพันธวงศ์ กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Creative",
+        "Bars",
+        "Emerging"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "New scene",
+        "Creative bars",
+        "Thai hipsters"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7394,
+      "longitude": 100.5143
+    },
+    {
+      "name": {
+        "en": "Old Town Rattanakosin Walking",
+        "th": "เดินเล่นรัตนโกสินทร์"
+      },
+      "description": {
+        "en": "Historic royal island walking tour. Temples, palaces, and old Bangkok.",
+        "th": "เดินทัวร์เกาะราชวงศ์ประวัติศาสตร์ วัด วัง และกรุงเทพฯ เก่า"
+      },
+      "address": {
+        "en": "Rattanakosin Island, Bangkok",
+        "th": "เกาะรัตนโกสินทร์ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Walking",
+        "Historic",
+        "Royal"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Walking distance",
+        "Multiple temples",
+        "Historic area"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7517,
+      "longitude": 100.6745
+    },
+    {
+      "name": {
+        "en": "Sanam Luang Royal Field",
+        "th": "สนามหลวง"
+      },
+      "description": {
+        "en": "Royal ceremonial ground near Grand Palace. Kite flying and historic events.",
+        "th": "สนามพิธีหลวงใกล้พระบรมมหาราชวัง เล่นว่าวและงานประวัติศาสตร์"
+      },
+      "address": {
+        "en": "Sanam Luang, Phra Nakhon, Bangkok",
+        "th": "สนามหลวง เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Royal",
+        "Historic",
+        "Open Space"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Royal ceremonies",
+        "Kite season",
+        "Near palace"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7551,
+      "longitude": 100.4931
+    },
+    {
+      "name": {
+        "en": "National Museum Bangkok",
+        "th": "พิพิธภัณฑสถานแห่งชาติ"
+      },
+      "description": {
+        "en": "Thailand's largest museum of art and history. Royal collection and artifacts.",
+        "th": "พิพิธภัณฑ์ศิลปะและประวัติศาสตร์ที่ใหญ่ที่สุดของไทย คอลเลกชันหลวงและวัตถุโบราณ"
+      },
+      "address": {
+        "en": "National Museum, Phra Nakhon, Bangkok",
+        "th": "พิพิธภัณฑสถานฯ เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "History",
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "English tours Wednesday/Thursday",
+        "Closed Monday",
+        "Large collection"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7576,
+      "longitude": 100.4925
+    },
+    {
+      "name": {
+        "en": "Thammasat University",
+        "th": "มหาวิทยาลัยธรรมศาสตร์"
+      },
+      "description": {
+        "en": "Historic university with political significance. Riverside campus near old town.",
+        "th": "มหาวิทยาลัยประวัติศาสตร์มีความสำคัญทางการเมือง วิทยาเขตริมแม่น้ำใกล้เมืองเก่า"
+      },
+      "address": {
+        "en": "Thammasat University, Phra Nakhon, Bangkok",
+        "th": "มธ. เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "University",
+        "Historic",
+        "Political"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekday",
+      "tips": [
+        "Political history",
+        "River views",
+        "Student canteen"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 13.7576,
+      "longitude": 100.4906
+    }
+  ]
+}

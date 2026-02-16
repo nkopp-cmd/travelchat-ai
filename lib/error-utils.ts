@@ -30,10 +30,12 @@ export function getErrorMessage(error: unknown): string {
       }
     }
 
-    // Try to stringify the object (but don't return [object Object])
+    // Try to stringify the object (but don't return [object Object] or raw JSON)
     try {
       const str = JSON.stringify(error);
-      if (str !== "{}" && str.length < 200) {
+      // Only return stringify result if it's a user-friendly message
+      // Avoid returning raw JSON objects to users
+      if (str !== "{}" && str.length < 200 && !str.startsWith("{")) {
         return str;
       }
     } catch {

@@ -1,49 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
 /**
- * Validate that a string is a valid image source (base64 data URL or external URL)
+ * Validate that a string is a valid image source (HTTPS URL or local path)
  */
 function validateImageSource(data: string): boolean {
-    // Accept external image URLs (Unsplash, Pexels, TripAdvisor, etc.)
-    if (data.startsWith('https://images.unsplash.com/') ||
-        data.startsWith('https://images.pexels.com/') ||
-        data.startsWith('https://media-cdn.tripadvisor.com/') ||
-        data.startsWith('https://')) {
-        // Basic URL validation - check it looks like an image URL
-        const url = data.toLowerCase();
-        const hasImageExtension = url.includes('.jpg') || url.includes('.jpeg') ||
-                                  url.includes('.png') || url.includes('.webp') ||
-                                  url.includes('fit=crop') || url.includes('/photo');
-        return hasImageExtension || url.includes('unsplash') || url.includes('pexels');
-    }
-
-    // Accept base64-encoded data URLs
-    if (data.startsWith('data:image/')) {
-        // Check it has base64 encoding
-        if (!data.includes(';base64,')) return false;
-
-        // Extract and validate base64 content
-        const base64Part = data.split(',')[1];
-        if (!base64Part) return false;
-
-        // Check length is reasonable (not empty, not too large)
-        // Min: 100 chars (~75 bytes), Max: 10MB (~7.5MB base64)
-        if (base64Part.length < 100 || base64Part.length > 10_000_000) {
-            return false;
-        }
-
-        // Validate base64 characters
-        const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
-        if (!base64Regex.test(base64Part)) {
-            return false;
-        }
-
+    // Accept local placeholder paths
+    if (data.startsWith('/images/')) {
         return true;
     }
 
+    // Accept HTTPS URLs from known image providers
+    if (data.startsWith('https://')) {
+        const url = data.toLowerCase();
+        // Known trusted image domains
+        const trustedDomains = [
+            'unsplash.com', 'pexels.com', 'supabase.co',
+            'tripadvisor.com', 'fal.media', 'fal.run',
+            'googleusercontent.com', 'googleapis.com',
+        ];
+        if (trustedDomains.some(domain => url.includes(domain))) {
+            return true;
+        }
+        // Generic HTTPS image URL — check for image indicators
+        const hasImageIndicator = url.includes('.jpg') || url.includes('.jpeg') ||
+                                  url.includes('.png') || url.includes('.webp') ||
+                                  url.includes('.svg') || url.includes('fit=crop') ||
+                                  url.includes('/photo') || url.includes('/image');
+        return hasImageIndicator;
+    }
+
+    // Reject base64 data URLs and anything else
+    // Base64 caused 413 Payload Too Large errors
     return false;
 }
 
@@ -101,7 +91,7 @@ export async function PATCH(
             }
         }
 
-        const supabase = await createSupabaseServerClient();
+        const supabase = createSupabaseAdmin();
 
         // First verify the itinerary belongs to the user
         const { data: itinerary, error: fetchError } = await supabase
@@ -181,7 +171,7 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const supabase = await createSupabaseServerClient();
+        const supabase = createSupabaseAdmin();
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")

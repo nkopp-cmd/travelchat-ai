@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 6,
+  "spots": [
+    {
+      "name": {
+        "en": "Akihabara Electric Town",
+        "ja": "秋葉原電気街"
+      },
+      "description": {
+        "en": "World-famous electronics and anime district. Beyond the tourist shops lie specialist stores for serious collectors.",
+        "ja": "世界的に有名な電気街とアニメの街。観光客向けの店の奥に本格的なコレクター向け専門店がある。"
+      },
+      "address": {
+        "en": "Akihabara, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区秋葉原"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Anime",
+        "Otaku"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Afternoon",
+      "tips": [
+        "Go beyond main street",
+        "Specialist shops on upper floors",
+        "Tax-free shopping"
+      ],
+      "neighborhood": "Akihabara",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6992,
+      "longitude": 139.7726
+    },
+    {
+      "name": {
+        "en": "Akihabara Radio Kaikan",
+        "ja": "秋葉原ラジオ会館"
+      },
+      "description": {
+        "en": "Multi-floor building packed with figure shops and collectibles. Serious otaku shopping destination.",
+        "ja": "フィギュアショップとコレクターズアイテムが詰まった多層ビル。本格的なオタクのショッピング先。"
+      },
+      "address": {
+        "en": "1-15-16 Sotokanda, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区外神田1-15-16"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Figures",
+        "Anime",
+        "Collectibles"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Multiple specialized floors",
+        "Rare figures",
+        "Price compare between floors"
+      ],
+      "neighborhood": "Akihabara",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6979,
+      "longitude": 139.7719
+    },
+    {
+      "name": {
+        "en": "Kanda Myojin Shrine",
+        "ja": "神田明神"
+      },
+      "description": {
+        "en": "Historic shrine popular for business success prayers. IT workers come for tech-themed omamori charms.",
+        "ja": "商売繁盛の祈願で人気の歴史ある神社。IT関係者がテック系お守りを求めて訪れる。"
+      },
+      "address": {
+        "en": "2-16-2 Sotokanda, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区外神田2-16-2"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Historic",
+        "Tech"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "IT-themed charms",
+        "Near Akihabara",
+        "Beautiful architecture"
+      ],
+      "neighborhood": "Kanda",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.7019,
+      "longitude": 139.7677
+    },
+    {
+      "name": {
+        "en": "Kanda Used Book District",
+        "ja": "神田古書店街"
+      },
+      "description": {
+        "en": "World's largest concentration of used bookshops. Specialists in everything from rare prints to manga.",
+        "ja": "世界最大の古書店街。稀覯本から漫画まで専門店が集まる。"
+      },
+      "address": {
+        "en": "Jimbocho, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区神保町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Books",
+        "Vintage",
+        "Cultural"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "180+ bookshops",
+        "Specialist subjects",
+        "Book festival in October"
+      ],
+      "neighborhood": "Jimbocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6959,
+      "longitude": 139.7586
+    },
+    {
+      "name": {
+        "en": "Jimbocho Curry Row",
+        "ja": "神保町カレー通り"
+      },
+      "description": {
+        "en": "Hidden curry restaurant cluster near bookshops. Students and salarymen's affordable lunch spot.",
+        "ja": "古書店街近くの隠れたカレー店街。学生とサラリーマンの手頃なランチスポット。"
+      },
+      "address": {
+        "en": "Jimbocho, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区神保町"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Curry",
+        "Affordable",
+        "Lunch"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Famous curry district",
+        "Student prices",
+        "Ethiopian curry popular"
+      ],
+      "neighborhood": "Jimbocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 35.696,
+      "longitude": 139.7569
+    },
+    {
+      "name": {
+        "en": "Imperial Palace East Gardens",
+        "ja": "皇居東御苑"
+      },
+      "description": {
+        "en": "Free public gardens within Imperial Palace grounds. Seasonal flowers and historic castle ruins.",
+        "ja": "皇居内の無料公開庭園。季節の花と歴史的な城跡。"
+      },
+      "address": {
+        "en": "1-1 Chiyoda, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区千代田1-1"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Historic",
+        "Free"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Morning",
+      "tips": [
+        "Free admission",
+        "Closed Mondays/Fridays",
+        "Former Edo Castle"
+      ],
+      "neighborhood": "Marunouchi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6867,
+      "longitude": 139.7574
+    },
+    {
+      "name": {
+        "en": "Marunouchi Brick Square",
+        "ja": "丸の内ブリックスクエア"
+      },
+      "description": {
+        "en": "Elegant shopping complex with preserved historic facades. High-end dining near Tokyo Station.",
+        "ja": "歴史的なファサードを保存したエレガントなショッピング施設。東京駅近くの高級ダイニング。"
+      },
+      "address": {
+        "en": "2-6-1 Marunouchi, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区丸の内2-6-1"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Upscale",
+        "Historic",
+        "Dining"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Historic architecture",
+        "Christmas illuminations",
+        "Business district dining"
+      ],
+      "neighborhood": "Marunouchi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.679,
+      "longitude": 139.7631
+    },
+    {
+      "name": {
+        "en": "Tokyo Station Ramen Street",
+        "ja": "東京駅ラーメンストリート"
+      },
+      "description": {
+        "en": "Eight famous ramen shops in Tokyo Station basement. Sample regional ramen styles without traveling.",
+        "ja": "東京駅地下の有名ラーメン店8軒。旅行せずに各地のラーメンを味わえる。"
+      },
+      "address": {
+        "en": "Tokyo Station, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区東京駅"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Ramen",
+        "Station",
+        "Variety"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Lunch/Dinner",
+      "tips": [
+        "Famous regional shops",
+        "Avoid peak hours",
+        "First Avenue underground"
+      ],
+      "neighborhood": "Marunouchi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Lunch/Dinner"
+      },
+      "latitude": 35.6812,
+      "longitude": 139.766
+    },
+    {
+      "name": {
+        "en": "Nihonbashi Coredo",
+        "ja": "日本橋コレド"
+      },
+      "description": {
+        "en": "Modern shopping complex preserving Edo-era merchant traditions. Traditional crafts meet contemporary design.",
+        "ja": "江戸時代の商人の伝統を守るモダンなショッピング施設。伝統工芸と現代デザインの融合。"
+      },
+      "address": {
+        "en": "Nihonbashi, Chuo-ku, Tokyo",
+        "ja": "東京都中央区日本橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Traditional",
+        "Modern",
+        "Crafts"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Traditional craft shops",
+        "Historic merchant area",
+        "Edo-era heritage"
+      ],
+      "neighborhood": "Nihonbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6813,
+      "longitude": 139.7731
+    },
+    {
+      "name": {
+        "en": "Ningyocho Old Town",
+        "ja": "人形町下町"
+      },
+      "description": {
+        "en": "Historic neighborhood with Edo-period atmosphere. Traditional sweets shops and old restaurants.",
+        "ja": "江戸時代の雰囲気が残る歴史的な街。伝統的な和菓子店と老舗レストラン。"
+      },
+      "address": {
+        "en": "Ningyocho, Chuo-ku, Tokyo",
+        "ja": "東京都中央区人形町"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Traditional",
+        "Sweets"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Old Tokyo atmosphere",
+        "Traditional sweets",
+        "Avoid weekday lunch rush"
+      ],
+      "neighborhood": "Ningyocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6863,
+      "longitude": 139.7822
+    },
+    {
+      "name": {
+        "en": "Suitengu Shrine",
+        "ja": "水天宮"
+      },
+      "description": {
+        "en": "Shrine famous for safe childbirth prayers. Pregnant women and new mothers visit for blessings.",
+        "ja": "安産祈願で有名な神社。妊婦や新米ママが祝福を求めて訪れる。"
+      },
+      "address": {
+        "en": "2-4-1 Nihonbashi-Kakigaracho, Chuo-ku, Tokyo",
+        "ja": "東京都中央区日本橋蛎殻町2-4-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Traditional",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Safe birth prayers",
+        "Dog day visits popular",
+        "Modern building"
+      ],
+      "neighborhood": "Ningyocho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6835,
+      "longitude": 139.7852
+    },
+    {
+      "name": {
+        "en": "Ginza Six",
+        "ja": "ギンザシックス"
+      },
+      "description": {
+        "en": "Luxury shopping complex with rooftop garden. High fashion and Kusama art installation.",
+        "ja": "屋上庭園のある高級ショッピング施設。ハイファッションと草間弥生のアート。"
+      },
+      "address": {
+        "en": "6-10-1 Ginza, Chuo-ku, Tokyo",
+        "ja": "東京都中央区銀座6-10-1"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Fashion",
+        "Art"
+      ],
+      "localley_score": 2,
+      "local_percentage": 40,
+      "best_time": "Afternoon",
+      "tips": [
+        "Kusama installation",
+        "Rooftop garden",
+        "Basement food hall"
+      ],
+      "neighborhood": "Ginza",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6695,
+      "longitude": 139.764
+    },
+    {
+      "name": {
+        "en": "Ginza Back Alleys",
+        "ja": "銀座路地裏"
+      },
+      "description": {
+        "en": "Hidden bars and restaurants behind Ginza's main streets. Where salarymen escape after work.",
+        "ja": "銀座のメインストリートの裏にある隠れたバーとレストラン。サラリーマンの仕事帰りの逃げ場。"
+      },
+      "address": {
+        "en": "Ginza, Chuo-ku, Tokyo",
+        "ja": "東京都中央区銀座"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Hidden",
+        "Business"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Behind main streets",
+        "Salaryman crowd",
+        "Intimate bars"
+      ],
+      "neighborhood": "Ginza",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.672,
+      "longitude": 139.7647
+    },
+    {
+      "name": {
+        "en": "Tsukiji Hongwanji Temple",
+        "ja": "築地本願寺"
+      },
+      "description": {
+        "en": "Buddhist temple with unusual Indian-influenced architecture. Pipe organ concerts and temple cafe.",
+        "ja": "インド風の珍しい建築の仏教寺院。パイプオルガンコンサートとお寺カフェ。"
+      },
+      "address": {
+        "en": "3-15-1 Tsukiji, Chuo-ku, Tokyo",
+        "ja": "東京都中央区築地3-15-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Architecture",
+        "Unique"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Unusual architecture",
+        "Morning organ concerts",
+        "Temple breakfast"
+      ],
+      "neighborhood": "Tsukiji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6666,
+      "longitude": 139.7721
+    },
+    {
+      "name": {
+        "en": "Tsukishima Monja Street",
+        "ja": "月島もんじゃストリート"
+      },
+      "description": {
+        "en": "Street dedicated to Tokyo's monjayaki pancakes. Over 70 restaurants serving the local specialty.",
+        "ja": "東京のもんじゃ焼きに特化した通り。70以上の店が地元の名物を提供。"
+      },
+      "address": {
+        "en": "Tsukishima, Chuo-ku, Tokyo",
+        "ja": "東京都中央区月島"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Monjayaki",
+        "Local",
+        "Street"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Tokyo specialty",
+        "70+ restaurants",
+        "DIY cooking"
+      ],
+      "neighborhood": "Tsukishima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6643,
+      "longitude": 139.7825
+    },
+    {
+      "name": {
+        "en": "Kachidoki Bridge",
+        "ja": "勝どき橋"
+      },
+      "description": {
+        "en": "Art deco bridge with views of Tokyo's waterfront. Evening walks with skyline views.",
+        "ja": "東京のウォーターフロントが見えるアールデコ調の橋。スカイラインを眺める夕方の散歩。"
+      },
+      "address": {
+        "en": "Kachidoki Bridge, Chuo-ku, Tokyo",
+        "ja": "東京都中央区勝どき橋"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Bridge",
+        "Views",
+        "Architecture"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Art deco design",
+        "Former drawbridge",
+        "Skyline views"
+      ],
+      "neighborhood": "Kachidoki",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6622,
+      "longitude": 139.7748
+    },
+    {
+      "name": {
+        "en": "Toyosu Market Visitor Gallery",
+        "ja": "豊洲市場見学者ギャラリー"
+      },
+      "description": {
+        "en": "New wholesale market replacing Tsukiji. Watch tuna auctions from elevated gallery.",
+        "ja": "築地を引き継いだ新しい卸売市場。高架ギャラリーからマグロのセリを見学。"
+      },
+      "address": {
+        "en": "6-6-1 Toyosu, Koto-ku, Tokyo",
+        "ja": "東京都江東区豊洲6-6-1"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Fish",
+        "Wholesale",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "5:30-6:30am",
+      "tips": [
+        "Book tuna auction viewing",
+        "Modern facilities",
+        "Sushi breakfast"
+      ],
+      "neighborhood": "Toyosu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "5:30-6:30am"
+      },
+      "latitude": 35.6467,
+      "longitude": 139.7861
+    },
+    {
+      "name": {
+        "en": "teamLab Planets",
+        "ja": "チームラボプラネッツ"
+      },
+      "description": {
+        "en": "Immersive digital art museum where you walk through water. Barefoot sensory experience.",
+        "ja": "水の中を歩く没入型デジタルアートミュージアム。裸足で体感する体験。"
+      },
+      "address": {
+        "en": "6-1-16 Toyosu, Koto-ku, Tokyo",
+        "ja": "東京都江東区豊洲6-1-16"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Digital Art",
+        "Immersive",
+        "Modern"
+      ],
+      "localley_score": 2,
+      "local_percentage": 35,
+      "best_time": "Weekday evening",
+      "tips": [
+        "Book in advance",
+        "Wear shorts/skirts",
+        "Lockers provided"
+      ],
+      "neighborhood": "Toyosu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.2,
+      "best_times": {
+        "en": "Weekday evening"
+      },
+      "latitude": 35.6494,
+      "longitude": 139.7897
+    },
+    {
+      "name": {
+        "en": "Odaiba Seaside Park",
+        "ja": "お台場海浜公園"
+      },
+      "description": {
+        "en": "Artificial beach with Rainbow Bridge views. Tokyo's waterfront leisure destination.",
+        "ja": "レインボーブリッジが見える人工ビーチ。東京のウォーターフロントレジャー地。"
+      },
+      "address": {
+        "en": "Daiba, Minato-ku, Tokyo",
+        "ja": "東京都港区台場"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Views",
+        "Waterfront"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Sunset",
+      "tips": [
+        "Rainbow Bridge views",
+        "Statue of Liberty replica",
+        "Summer fireworks"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.36,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 35.6311,
+      "longitude": 139.7774
+    },
+    {
+      "name": {
+        "en": "Oedo Onsen Monogatari",
+        "ja": "大江戸温泉物語"
+      },
+      "description": {
+        "en": "Edo-themed hot spring theme park. Wear yukata and explore festival-style food stalls.",
+        "ja": "江戸時代をテーマにした温泉テーマパーク。浴衣を着て祭り風の屋台を探索。"
+      },
+      "address": {
+        "en": "2-6-3 Aomi, Koto-ku, Tokyo",
+        "ja": "東京都江東区青海2-6-3"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Onsen",
+        "Theme Park",
+        "Traditional"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Yukata provided",
+        "Multiple bath types",
+        "Night rates cheaper"
+      ],
+      "neighborhood": "Odaiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6157,
+      "longitude": 139.7778
+    }
+  ]
+}

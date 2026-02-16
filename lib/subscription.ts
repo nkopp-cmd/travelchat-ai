@@ -30,6 +30,7 @@ export interface SubscriptionFeatures {
 
     // AI features
     aiBackgrounds: boolean;
+    imageProvider: "none" | "seedream" | "gemini";
     smartScheduling: boolean;
     weatherIntegration: boolean;
 
@@ -72,6 +73,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             pdfExport: "watermarked",
             emailExport: false,
             aiBackgrounds: false,
+            imageProvider: "none",
             smartScheduling: false,
             weatherIntegration: false,
             collaborativeTrips: false,
@@ -99,6 +101,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             pdfExport: "clean",
             emailExport: true,
             aiBackgrounds: true,
+            imageProvider: "seedream",
             smartScheduling: false,
             weatherIntegration: true,
             collaborativeTrips: false,
@@ -126,6 +129,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             pdfExport: "branded",
             emailExport: true,
             aiBackgrounds: true,
+            imageProvider: "gemini",
             smartScheduling: true,
             weatherIntegration: true,
             collaborativeTrips: true,
@@ -270,6 +274,11 @@ export function getUpgradePrompt(feature: keyof SubscriptionFeatures): {
         showAds: {
             title: "Ad-Free Experience",
             description: "Enjoy Localley without any advertisements",
+            suggestedTier: "pro",
+        },
+        imageProvider: {
+            title: "AI Image Generation",
+            description: "Generate beautiful AI images for your travel stories",
             suggestedTier: "pro",
         },
     };

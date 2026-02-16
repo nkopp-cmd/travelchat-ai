@@ -1,0 +1,587 @@
+{
+  "city": "Kuala Lumpur",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:46:00.096Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Botak Liquor"
+      },
+      "description": {
+        "en": "Spiral staircase from Chocha Foodstore to plant-filled verdant setting with mishmash furniture."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "156, Jalan Petaling, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1408367,
+      "longitude": 101.69812999999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJf2sUidpJzDERQWO_vdK3yqM"
+    },
+    {
+      "name": {
+        "en": "Jao Tim"
+      },
+      "description": {
+        "en": "Old Chinese shophouse converted to chill space with live music and cocktails."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "61, Jalan Sultan, City Centre, 50000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1431389,
+      "longitude": 101.69872699999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJJZbJ8NBJzDERb9JhvTrso80"
+    },
+    {
+      "name": {
+        "en": "Marini's on 57"
+      },
+      "description": {
+        "en": "Iconic 57th floor of Petronas Tower 3 - eye-to-eye with Twin Towers. Italian bar bites and award-winning mixologists."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur City Centre",
+      "address": {
+        "en": "Level 57, Menara 3, Petronas, Persiaran KLCC, Kuala Lumpur City Centre, 50088 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1566118000000003,
+      "longitude": 101.71159209999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJY0pAodY3zDERpLoOdZbQ0UM"
+    },
+    {
+      "name": {
+        "en": "SkyBar (Traders Hotel)"
+      },
+      "description": {
+        "en": "Iconic 33rd floor bar transformed in 2025 - decade-long must-visit destination."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur City Centre",
+      "address": {
+        "en": "Traders Hotel Kuala Lumpur, Kuala Lumpur City Centre, 50088 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1539243,
+      "longitude": 101.71488719999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJtYUqqdM3zDERoeZmz29cmf0"
+    },
+    {
+      "name": {
+        "en": "Sky51 (EQ Hotel)"
+      },
+      "description": {
+        "en": "Panoramic skyline views with refined cocktails and sophisticated ambiance."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur",
+      "address": {
+        "en": "EQ, Equatorial Plaza, Jln Sultan Ismail, Kuala Lumpur, 50250 Kuala Lumpur, Wilayah Persekutuan, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1528644999999997,
+      "longitude": 101.7097092,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJIZ4x2cg3zDEREXUaTecv4oQ"
+    },
+    {
+      "name": {
+        "en": "Vertigo (Banyan Tree)"
+      },
+      "description": {
+        "en": "59th floor with sweeping views, Asian-inspired cocktails and tapas."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Vertigo",
+      "address": {
+        "en": "Level 59, Banyan Tree Kuala Lumpur, 2, Jalan Conlay, Vertigo, 50450 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1504925,
+      "longitude": 101.71374829999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJkZyVV3c3zDERNwTppmJQ1Ys"
+    },
+    {
+      "name": {
+        "en": "Helipad KL"
+      },
+      "description": {
+        "en": "Actual helipad turned rooftop bar on 34th floor - 360° views in casual setting."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Bukit Bintang",
+      "address": {
+        "en": "34 Menara KH, Jln Sultan Ismail, Bukit Bintang, 50450 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1511918999999997,
+      "longitude": 101.70989850000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJXTlxKys2zDERpbkAcBpAmLE"
+    },
+    {
+      "name": {
+        "en": "Fuego (Troika)"
+      },
+      "description": {
+        "en": "Latin American cuisine with open terrace and stunning Petronas views."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur",
+      "address": {
+        "en": "Level 23A Tower B, The Troika, 19, Persiaran KLCC, Kuala Lumpur, 50450 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.158464,
+      "longitude": 101.71819219999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJw9z919E3zDERJQtm_navO_s"
+    },
+    {
+      "name": {
+        "en": "Mesa on 51"
+      },
+      "description": {
+        "en": "New 2024 from Marini's group - big breezy rooftop perfect for dancing with great cocktails."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur City Centre",
+      "address": {
+        "en": "Mesa on 51, Level 51, Permata Sapura Tower, Lot 91, Jalan Pinang, Kuala Lumpur City Centre, 50088 KL, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1530671999999997,
+      "longitude": 101.71378569999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJi7UevuM3zDERy0FrCSzOR_Q"
+    },
+    {
+      "name": {
+        "en": "Petronas Twin Towers"
+      },
+      "description": {
+        "en": "Iconic 88-floor towers with Skybridge and observation deck. Book tickets in advance online."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur City Centre",
+      "address": {
+        "en": "Lower Ground (Concourse) Level, Menara Berkembar Petronas, Kuala Lumpur City Centre, 50088 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction",
+        "Tourist"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1574693,
+      "longitude": 101.7115639,
+      "price_tier": "$$",
+      "google_place_id": "ChIJH5xmLdE3zDERVpCKfNH9Op4"
+    },
+    {
+      "name": {
+        "en": "Merdeka 118"
+      },
+      "description": {
+        "en": "World's 2nd tallest building (679m) - new KL icon visible from across Chinatown."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "Presint Merdeka 118, City Centre, 50118 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction",
+        "Tourist"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1418445,
+      "longitude": 101.7006433,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ8dfhij5JzDERYoQs1Ff8HjI"
+    },
+    {
+      "name": {
+        "en": "KL Tower"
+      },
+      "description": {
+        "en": "Communications tower with observation deck and revolving restaurant - light show visible from Jann Bar."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Kuala Lumpur",
+      "address": {
+        "en": "2 Jalan Punchak, Off, Jalan P. Ramlee, Kuala Lumpur, 50250 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction",
+        "Tourist"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1528761999999997,
+      "longitude": 101.7038516,
+      "price_tier": "$$",
+      "google_place_id": "ChIJE1jNHStIzDERujrDO85YYBA"
+    },
+    {
+      "name": {
+        "en": "Batu Caves"
+      },
+      "description": {
+        "en": "Hindu temple complex in limestone caves with 272 rainbow-painted steps and giant Murugan statue."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Gombak",
+      "address": {
+        "en": "Gombak, 68100 Batu Caves, Selangor, Malaysia"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction",
+        "Tourist"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.2378844,
+      "longitude": 101.6840385,
+      "price_tier": "$",
+      "google_place_id": "ChIJBahJiQxHzDER-Z5vs7Lrv_I"
+    },
+    {
+      "name": {
+        "en": "Sin Sze Si Ya Temple"
+      },
+      "description": {
+        "en": "Traditional Taoist temple in Chinatown - peaceful historical site."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "City Centre",
+      "address": {
+        "en": "113A, Jalan Tun H S Lee, City Centre, 50050 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1455461,
+      "longitude": 101.6964474,
+      "price_tier": "$",
+      "google_place_id": "ChIJh6BgydFJzDERNDpCGS808VM"
+    },
+    {
+      "name": {
+        "en": "Thean Hou Temple"
+      },
+      "description": {
+        "en": "Six-tiered Chinese temple with city views - especially beautiful during festivals."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Taman Persiaran Desa",
+      "address": {
+        "en": "65, Persiaran Endah, Taman Persiaran Desa, 50460 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1219525000000004,
+      "longitude": 101.6876678,
+      "price_tier": "$",
+      "google_place_id": "ChIJqSc-d_JJzDERbOlsCf-UmNs"
+    },
+    {
+      "name": {
+        "en": "Islamic Arts Museum"
+      },
+      "description": {
+        "en": "Beautiful collection of Islamic art and architecture in stunning building."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Tasik Perdana",
+      "address": {
+        "en": "Islamic Arts Museum Malaysia, Jalan Lembah, Tasik Perdana, 50480 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1418458,
+      "longitude": 101.68999919999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJq6qqqslJzDERi7V1y0B-5Xw"
+    },
+    {
+      "name": {
+        "en": "Bukit Bintang"
+      },
+      "description": {
+        "en": "KL's main shopping and entertainment district with malls, restaurants, and nightlife."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Bukit Bintang",
+      "address": {
+        "en": "Bukit Bintang, Kuala Lumpur, Federal Territory of Kuala Lumpur, Malaysia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.1467855,
+      "longitude": 101.7113043,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ2S0HAyo2zDERg94Jy1u7n78"
+    },
+    {
+      "name": {
+        "en": "Bangsar"
+      },
+      "description": {
+        "en": "Trendy neighborhood with expat crowd, cafes, rooftop bars like Mantra, and boutique shops."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Bangsar",
+      "address": {
+        "en": "Bangsar, 59000 Kuala Lumpur, Federal Territory of Kuala Lumpur, Malaysia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.12901,
+      "longitude": 101.6797838,
+      "price_tier": "$$",
+      "google_place_id": "ChIJgYzXN5RJzDERtEGJHr9etFY"
+    },
+    {
+      "name": {
+        "en": "TTDI"
+      },
+      "description": {
+        "en": "Residential area becoming cocktail destination with Penrose KL and local favorite spots."
+      },
+      "city": "Kuala Lumpur",
+      "neighborhood": "Taman Tun Dr Ismail",
+      "address": {
+        "en": "Taman Tun Dr Ismail, 60000 Kuala Lumpur, Federal Territory of Kuala Lumpur, Malaysia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 3.146122,
+      "longitude": 101.62554589999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJUWiJIi9JzDERMMykuHgFP3w"
+    }
+  ]
+}

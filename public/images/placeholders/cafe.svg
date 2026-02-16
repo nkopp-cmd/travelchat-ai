@@ -1,0 +1,26 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fffbeb"/>
+      <stop offset="100%" style="stop-color:#fef3c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="3" cy="3" r="1.5" fill="#d97706" opacity="0.1"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#dots)"/>
+  <!-- Coffee cup icon -->
+  <g transform="translate(400, 260)">
+    <!-- Cup body -->
+    <path d="M-50,-40 L-40,60 Q-40,80 0,80 Q40,80 40,60 L50,-40 Z" stroke="#b45309" stroke-width="5" fill="none"/>
+    <!-- Handle -->
+    <path d="M50,-20 Q80,-20 80,20 Q80,50 50,50" stroke="#b45309" stroke-width="5" fill="none"/>
+    <!-- Steam -->
+    <path d="M-20,-60 Q-25,-75 -15,-85 Q-5,-95 -10,-110" stroke="#b45309" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.5"/>
+    <path d="M10,-60 Q5,-75 15,-85 Q25,-95 20,-110" stroke="#b45309" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.5"/>
+  </g>
+  <text x="400" y="410" text-anchor="middle" fill="#b45309" font-family="system-ui, sans-serif" font-size="20" font-weight="500" opacity="0.7">Local Cafe</text>
+  <circle cx="100" cy="100" r="50" fill="#d97706" opacity="0.05"/>
+  <circle cx="700" cy="500" r="70" fill="#b45309" opacity="0.05"/>
+</svg>

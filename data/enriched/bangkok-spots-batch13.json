@@ -1,0 +1,744 @@
+{
+  "city": "bangkok",
+  "batch": 13,
+  "spots": [
+    {
+      "name": {
+        "en": "Tha Maharaj",
+        "th": "ท่ามหาราช"
+      },
+      "description": {
+        "en": "Riverside lifestyle mall near Grand Palace. Food and river views.",
+        "th": "ห้างไลฟ์สไตล์ริมน้ำใกล้พระบรมมหาราชวัง อาหารและวิวแม่น้ำ"
+      },
+      "address": {
+        "en": "Tha Maharaj, Phra Nakhon, Bangkok",
+        "th": "ท่ามหาราช พระนคร กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Riverside",
+        "Mall",
+        "Food"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "River views",
+        "Near temples",
+        "Good sunset"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7549,
+      "longitude": 100.4887
+    },
+    {
+      "name": {
+        "en": "Tha Prachan Amulet Market",
+        "th": "ตลาดพระเครื่องท่าพระจันทร์"
+      },
+      "description": {
+        "en": "Buddhist amulet market near university. Serious collectors only.",
+        "th": "ตลาดพระเครื่องใกล้มหาวิทยาลัย สำหรับนักสะสมจริงจังเท่านั้น"
+      },
+      "address": {
+        "en": "Tha Prachan, Bangkok",
+        "th": "ท่าพระจันทร์ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Amulets",
+        "Buddhist",
+        "Collectors"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "For collectors",
+        "Many fakes",
+        "Know what you want"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.755,
+      "longitude": 100.4895
+    },
+    {
+      "name": {
+        "en": "Thammasat University Riverfront",
+        "th": "มหาวิทยาลัยธรรมศาสตร์ริมน้ำ"
+      },
+      "description": {
+        "en": "Historic university campus. Riverside walking and cheap eats.",
+        "th": "วิทยาเขตมหาวิทยาลัยประวัติศาสตร์ เดินริมน้ำและอาหารราคาถูก"
+      },
+      "address": {
+        "en": "Thammasat University, Bangkok",
+        "th": "มหาวิทยาลัยธรรมศาสตร์ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "University",
+        "Riverside",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Student food",
+        "River views",
+        "Thai history"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7566,
+      "longitude": 100.4924
+    },
+    {
+      "name": {
+        "en": "Saranrom Park",
+        "th": "สวนสราญรมย์"
+      },
+      "description": {
+        "en": "Royal park near Grand Palace. Morning exercise and relaxation.",
+        "th": "สวนหลวงใกล้พระบรมมหาราชวัง ออกกำลังเช้าและพักผ่อน"
+      },
+      "address": {
+        "en": "Charoen Krung Road, Bangkok",
+        "th": "ถนนเจริญกรุง กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Royal",
+        "Morning"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Morning exercise",
+        "Near palace",
+        "Quiet spot"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7484,
+      "longitude": 100.4953
+    },
+    {
+      "name": {
+        "en": "Ong Ang Canal Walking Street",
+        "th": "ถนนคนเดินคลององอาง"
+      },
+      "description": {
+        "en": "Revitalized canal with murals. Weekend walking street market.",
+        "th": "คลองฟื้นฟูมีจิตรกรรมฝาผนัง ตลาดถนนคนเดินสุดสัปดาห์"
+      },
+      "address": {
+        "en": "Ong Ang Canal, Bangkok",
+        "th": "คลององอาง กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Canal",
+        "Art",
+        "Walking Street"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Weekend evening",
+      "tips": [
+        "Street art",
+        "Night market",
+        "Revitalized area"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Weekend evening"
+      },
+      "latitude": 13.7468,
+      "longitude": 100.5039
+    },
+    {
+      "name": {
+        "en": "Phahurat Gold Shops",
+        "th": "ร้านทองพาหุรัด"
+      },
+      "description": {
+        "en": "Gold jewelry district near Little India. Thai gold designs.",
+        "th": "ย่านเครื่องประดับทองใกล้ลิตเติ้ลอินเดีย ดีไซน์ทองไทย"
+      },
+      "address": {
+        "en": "Pahurat, Bangkok",
+        "th": "พาหุรัด กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Gold",
+        "Jewelry",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Thai gold",
+        "Compare prices",
+        "Near fabric market"
+      ],
+      "neighborhood": "Pahurat",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7447,
+      "longitude": 100.5002
+    },
+    {
+      "name": {
+        "en": "Saphan Phut Night Market",
+        "th": "ตลาดสะพานพุทธ"
+      },
+      "description": {
+        "en": "Late night market for clothes. Very local Bangkok.",
+        "th": "ตลาดดึกเสื้อผ้า กรุงเทพท้องถิ่นมาก"
+      },
+      "address": {
+        "en": "Saphan Phut, Phra Nakhon, Bangkok",
+        "th": "สะพานพุทธ พระนคร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Clothes",
+        "Late"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "After midnight",
+      "tips": [
+        "After midnight",
+        "Very cheap",
+        "Local teens"
+      ],
+      "neighborhood": "Phra Nakhon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "After midnight"
+      },
+      "latitude": 13.7412,
+      "longitude": 100.4976
+    },
+    {
+      "name": {
+        "en": "Gourmet Market Siam Paragon",
+        "th": "กูร์เมต์มาร์เก็ต สยามพารากอน"
+      },
+      "description": {
+        "en": "Upscale supermarket with imported foods. Thai and international.",
+        "th": "ซูเปอร์มาร์เก็ตหรูอาหารนำเข้า ไทยและนานาชาติ"
+      },
+      "address": {
+        "en": "Siam Paragon, Bangkok",
+        "th": "สยามพารากอน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Supermarket",
+        "Gourmet",
+        "Imported"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Good souvenirs",
+        "Thai snacks",
+        "Food court"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7468,
+      "longitude": 100.535
+    },
+    {
+      "name": {
+        "en": "MBK Center",
+        "th": "เอ็มบีเค เซ็นเตอร์"
+      },
+      "description": {
+        "en": "Massive mall with small shops. Electronics and fashion bargains.",
+        "th": "ห้างใหญ่มากร้านเล็ก อิเล็กทรอนิกส์และแฟชั่นราคาถูก"
+      },
+      "address": {
+        "en": "MBK Center, Pathum Wan, Bangkok",
+        "th": "เอ็มบีเค เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Electronics",
+        "Bargains"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Bargain hard",
+        "Phone repairs",
+        "Cheap fashion"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7442,
+      "longitude": 100.5301
+    },
+    {
+      "name": {
+        "en": "Jim Thompson House",
+        "th": "บ้านจิม ทอมป์สัน"
+      },
+      "description": {
+        "en": "Thai silk entrepreneur's house museum. Beautiful Thai architecture.",
+        "th": "พิพิธภัณฑ์บ้านผู้ประกอบการผ้าไหมไทย สถาปัตยกรรมไทยสวยงาม"
+      },
+      "address": {
+        "en": "Jim Thompson House, Pathum Wan, Bangkok",
+        "th": "บ้านจิม ทอมป์สัน เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Architecture",
+        "Silk"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Guided tours",
+        "Thai architecture",
+        "Silk shop"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7492,
+      "longitude": 100.5283
+    },
+    {
+      "name": {
+        "en": "Bangkok Art and Culture Centre",
+        "th": "หอศิลปวัฒนธรรมแห่งกรุงเทพมหานคร"
+      },
+      "description": {
+        "en": "Free contemporary art museum. Multiple galleries and cafes.",
+        "th": "พิพิธภัณฑ์ศิลปะร่วมสมัยฟรี หลายแกลเลอรี่และคาเฟ่"
+      },
+      "address": {
+        "en": "Pathumwan Intersection, Bangkok",
+        "th": "สี่แยกปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Free",
+        "Contemporary"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Multiple floors",
+        "Good cafe"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7468,
+      "longitude": 100.5303
+    },
+    {
+      "name": {
+        "en": "Siam Square Shopping",
+        "th": "สยามสแควร์"
+      },
+      "description": {
+        "en": "Youth shopping area with small shops. Teen fashion and trends.",
+        "th": "พื้นที่ช้อปปิ้งเยาวชนร้านเล็ก แฟชั่นวัยรุ่นและเทรนด์"
+      },
+      "address": {
+        "en": "Siam Square, Bangkok",
+        "th": "สยามสแควร์ กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Youth",
+        "Fashion",
+        "Trendy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Teen fashion",
+        "Student area",
+        "Cheap food"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7446,
+      "longitude": 100.5331
+    },
+    {
+      "name": {
+        "en": "Chulalongkorn University",
+        "th": "จุฬาลงกรณ์มหาวิทยาลัย"
+      },
+      "description": {
+        "en": "Thailand's top university. Beautiful campus for walking.",
+        "th": "มหาวิทยาลัยชั้นนำของไทย วิทยาเขตสวยสำหรับเดิน"
+      },
+      "address": {
+        "en": "Phayathai Road, Bangkok",
+        "th": "ถนนพญาไท กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "University",
+        "Architecture",
+        "Walking"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Nice campus",
+        "Student food",
+        "Historic buildings"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7397,
+      "longitude": 100.5324
+    },
+    {
+      "name": {
+        "en": "Samyan Mitrtown",
+        "th": "สามย่านมิตรทาวน์"
+      },
+      "description": {
+        "en": "Modern mixed-use development. 24-hour food court and co-working.",
+        "th": "การพัฒนาผสมผสานสมัยใหม่ ศูนย์อาหาร 24 ชั่วโมงและโคเวิร์กกิ้ง"
+      },
+      "address": {
+        "en": "Rama IV Road, Bangkok",
+        "th": "ถนนพระราม 4 กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "24-hour",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Any time",
+      "tips": [
+        "24-hour food",
+        "Near Chula",
+        "Modern design"
+      ],
+      "neighborhood": "Samyan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Any time"
+      },
+      "latitude": 13.7343,
+      "longitude": 100.5283
+    },
+    {
+      "name": {
+        "en": "Suan Lum Night Bazaar Ratchadaphisek",
+        "th": "สวนลุมไนท์บาซาร์ รัชดาภิเษก"
+      },
+      "description": {
+        "en": "Night market with bars and shopping. Young Bangkok nightlife.",
+        "th": "ตลาดกลางคืนมีบาร์และช้อปปิ้ง ไนท์ไลฟ์คนหนุ่มสาวกรุงเทพ"
+      },
+      "address": {
+        "en": "Ratchadaphisek Road, Bangkok",
+        "th": "ถนนรัชดาภิเษก กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Night Market",
+        "Bars",
+        "Young"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Night market",
+        "Bars nearby",
+        "Local crowd"
+      ],
+      "neighborhood": "Ratchada",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.8031,
+      "longitude": 100.5744
+    },
+    {
+      "name": {
+        "en": "Esplanade Ratchada",
+        "th": "เอสพลานาด รัชดา"
+      },
+      "description": {
+        "en": "Entertainment mall with cinemas. Near famous night market.",
+        "th": "ห้างบันเทิงมีโรงภาพยนตร์ ใกล้ตลาดกลางคืนชื่อดัง"
+      },
+      "address": {
+        "en": "Ratchadaphisek Road, Bangkok",
+        "th": "ถนนรัชดาภิเษก กรุงเทพฯ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Mall",
+        "Cinema",
+        "Entertainment"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Good cinemas",
+        "Night market view",
+        "Food options"
+      ],
+      "neighborhood": "Ratchada",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Train Night Market Ratchada",
+        "th": "ตลาดรถไฟรัชดา"
+      },
+      "description": {
+        "en": "Famous colorful tent market. Instagram famous night scene.",
+        "th": "ตลาดเต็นท์สีสันชื่อดัง ฉากกลางคืนโด่งดังอินสตาแกรม"
+      },
+      "address": {
+        "en": "Behind Esplanade, Bangkok",
+        "th": "หลังเอสพลานาด กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Instagram",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Photo from car park",
+        "Cheap food",
+        "Very crowded"
+      ],
+      "neighborhood": "Ratchada",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7672,
+      "longitude": 100.5686
+    },
+    {
+      "name": {
+        "en": "Huai Khwang Night Food",
+        "th": "ห้วยขวางอาหารกลางคืน"
+      },
+      "description": {
+        "en": "24-hour food area near Ratchada. Late night eating spot.",
+        "th": "พื้นที่อาหาร 24 ชั่วโมงใกล้รัชดา จุดกินดึก"
+      },
+      "address": {
+        "en": "Huai Khwang, Bangkok",
+        "th": "ห้วยขวาง กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "24-hour",
+        "Late Night",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late night",
+      "tips": [
+        "24-hour food",
+        "After clubs",
+        "Local favorites"
+      ],
+      "neighborhood": "Huai Khwang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Late night"
+      },
+      "latitude": 13.7786,
+      "longitude": 100.5746
+    },
+    {
+      "name": {
+        "en": "MRT Thai Cultural Centre",
+        "th": "รฟม.ศูนย์วัฒนธรรมแห่งประเทศไทย"
+      },
+      "description": {
+        "en": "Cultural center with performances. Traditional Thai shows.",
+        "th": "ศูนย์วัฒนธรรมมีการแสดง การแสดงไทยดั้งเดิม"
+      },
+      "address": {
+        "en": "Ratchadaphisek Road, Bangkok",
+        "th": "ถนนรัชดาภิเษก กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Performing Arts",
+        "Traditional",
+        "Shows"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Check schedule",
+        "Thai dance",
+        "Cultural shows"
+      ],
+      "neighborhood": "Ratchada",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.7003,
+      "longitude": 100.493
+    },
+    {
+      "name": {
+        "en": "Rot Fai Market Srinakarin",
+        "th": "ตลาดรถไฟ ศรีนครินทร์"
+      },
+      "description": {
+        "en": "Original train market with vintage items. Bigger and more local.",
+        "th": "ตลาดรถไฟต้นตำรับของวินเทจ ใหญ่กว่าและท้องถิ่นมากกว่า"
+      },
+      "address": {
+        "en": "Srinakarin, Prawet, Bangkok",
+        "th": "ศรีนครินทร์ เขตประเวศ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Vintage",
+        "Original"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Weekend evening",
+      "tips": [
+        "Vintage cars",
+        "Bigger market",
+        "More local"
+      ],
+      "neighborhood": "Srinakarin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Weekend evening"
+      },
+      "latitude": 13.7141,
+      "longitude": 100.6691
+    }
+  ]
+}

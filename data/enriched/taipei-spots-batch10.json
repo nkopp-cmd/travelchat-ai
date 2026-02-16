@@ -1,0 +1,742 @@
+{
+  "city": "taipei",
+  "batch": 10,
+  "spots": [
+    {
+      "name": {
+        "en": "Banqiao 435 Art Zone",
+        "zh": "板橋435藝文特區"
+      },
+      "description": {
+        "en": "Creative arts zone. Former military site.",
+        "zh": "創意藝術區。前軍事場地。"
+      },
+      "address": {
+        "en": "435 Zhongzheng Road, Banqiao District, New Taipei",
+        "zh": "新北市板橋區中正路435號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Creative",
+        "Markets"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Weekend markets",
+        "Art exhibitions",
+        "Free entry"
+      ],
+      "neighborhood": "Banqiao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0243,
+      "longitude": 121.4519
+    },
+    {
+      "name": {
+        "en": "Xizhi Night Market",
+        "zh": "汐止夜市"
+      },
+      "description": {
+        "en": "Local night market in Xizhi.",
+        "zh": "汐止的當地夜市。"
+      },
+      "address": {
+        "en": "Xizhi District, New Taipei",
+        "zh": "新北市汐止區"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Night Market",
+        "Local",
+        "New Taipei"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Very local",
+        "No tourists",
+        "Authentic"
+      ],
+      "neighborhood": "Xizhi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0653,
+      "longitude": 121.6562
+    },
+    {
+      "name": {
+        "en": "Shenkeng Old Street",
+        "zh": "深坑老街"
+      },
+      "description": {
+        "en": "Famous for stinky tofu. Historic street.",
+        "zh": "以臭豆腐聞名。歷史街道。"
+      },
+      "address": {
+        "en": "Shenkeng District, New Taipei",
+        "zh": "新北市深坑區"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Stinky Tofu",
+        "Old Street",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Stinky tofu capital",
+        "Many varieties",
+        "Day trip from Taipei"
+      ],
+      "neighborhood": "Shenkeng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.0014,
+      "longitude": 121.6162
+    },
+    {
+      "name": {
+        "en": "Jingtong Old Street",
+        "zh": "菁桐老街"
+      },
+      "description": {
+        "en": "End of Pingxi rail line. Sky lantern town.",
+        "zh": "平溪線終點。天燈小鎮。"
+      },
+      "address": {
+        "en": "Jingtong, Pingxi District, New Taipei",
+        "zh": "新北市平溪區菁桐"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Train",
+        "Old Street",
+        "Sky Lanterns"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Train station",
+        "Smaller than Shifen",
+        "Coal mining history"
+      ],
+      "neighborhood": "Pingxi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.024,
+      "longitude": 121.7245
+    },
+    {
+      "name": {
+        "en": "Houtong Cat Village",
+        "zh": "猴硐貓村"
+      },
+      "description": {
+        "en": "Village famous for cats. Former mining town.",
+        "zh": "以貓聞名的村莊。前礦業小鎮。"
+      },
+      "address": {
+        "en": "Houtong, Ruifang District, New Taipei",
+        "zh": "新北市瑞芳區猴硐"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Cats",
+        "Village",
+        "Mining"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Many cats",
+        "Cat bridge",
+        "Former coal mine"
+      ],
+      "neighborhood": "Ruifang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0871,
+      "longitude": 121.8266
+    },
+    {
+      "name": {
+        "en": "Jinguashi Gold Museum",
+        "zh": "黃金博物館"
+      },
+      "description": {
+        "en": "Former gold mining town. Historic museum.",
+        "zh": "前金礦小鎮。歷史博物館。"
+      },
+      "address": {
+        "en": "8 Jinguang Road, Ruifang District, New Taipei",
+        "zh": "新北市瑞芳區金光路8號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Mining",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Gold mining history",
+        "Touch gold bar",
+        "Near Jiufen"
+      ],
+      "neighborhood": "Ruifang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1074,
+      "longitude": 121.8577
+    },
+    {
+      "name": {
+        "en": "Bitou Cape Trail",
+        "zh": "鼻頭角步道"
+      },
+      "description": {
+        "en": "Coastal trail with sea views. Northeast coast.",
+        "zh": "有海景的海岸步道。東北海岸。"
+      },
+      "address": {
+        "en": "Bitou, Ruifang District, New Taipei",
+        "zh": "新北市瑞芳區鼻頭"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Trail",
+        "Coastal",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Beautiful coast",
+        "Clear day best",
+        "Near Jiufen"
+      ],
+      "neighborhood": "Ruifang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.1234,
+      "longitude": 121.9211
+    },
+    {
+      "name": {
+        "en": "Longdong Rock Climbing",
+        "zh": "龍洞攀岩"
+      },
+      "description": {
+        "en": "Taiwan's best outdoor climbing. Sea cliffs.",
+        "zh": "台灣最佳戶外攀岩。海崖。"
+      },
+      "address": {
+        "en": "Longdong, Gongliao District, New Taipei",
+        "zh": "新北市貢寮區龍洞"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Rock Climbing",
+        "Extreme",
+        "Coastal"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Best climbing spot",
+        "Various difficulty",
+        "Bring equipment"
+      ],
+      "neighborhood": "Gongliao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.1143,
+      "longitude": 121.9127
+    },
+    {
+      "name": {
+        "en": "Caoling Historic Trail",
+        "zh": "草嶺古道"
+      },
+      "description": {
+        "en": "Historic mountain trail. Silver grass in autumn.",
+        "zh": "歷史山徑。秋天芒草。"
+      },
+      "address": {
+        "en": "Caoling, Gongliao District, New Taipei",
+        "zh": "新北市貢寮區草嶺"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Historic",
+        "Autumn"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Autumn",
+      "tips": [
+        "Silver grass autumn",
+        "Historic route",
+        "Train accessible"
+      ],
+      "neighborhood": "Gongliao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 24.9911,
+      "longitude": 121.9242
+    },
+    {
+      "name": {
+        "en": "Sanzhi Skywalk",
+        "zh": "三芝天空步道"
+      },
+      "description": {
+        "en": "Elevated walkway in mountains.",
+        "zh": "山區的高架步道。"
+      },
+      "address": {
+        "en": "Sanzhi District, New Taipei",
+        "zh": "新北市三芝區"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walkway",
+        "Mountain",
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Mountain views",
+        "Easy walk",
+        "Near coast"
+      ],
+      "neighborhood": "Sanzhi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.258,
+      "longitude": 121.5009
+    },
+    {
+      "name": {
+        "en": "Baishawan Beach",
+        "zh": "白沙灣"
+      },
+      "description": {
+        "en": "Popular beach in north coast.",
+        "zh": "北海岸熱門海灘。"
+      },
+      "address": {
+        "en": "Shimen District, New Taipei",
+        "zh": "新北市石門區白沙灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Popular",
+        "North Coast"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Summer",
+      "tips": [
+        "Summer beach",
+        "Water sports",
+        "Can be crowded"
+      ],
+      "neighborhood": "Shimen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Summer"
+      },
+      "latitude": 25.2846,
+      "longitude": 121.5152
+    },
+    {
+      "name": {
+        "en": "Shimen Arch",
+        "zh": "石門洞"
+      },
+      "description": {
+        "en": "Natural sea arch. Coastal landmark.",
+        "zh": "天然海蝕拱門。海岸地標。"
+      },
+      "address": {
+        "en": "Shimen District, New Taipei",
+        "zh": "新北市石門區"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Natural",
+        "Arch",
+        "Coastal"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Photo spot",
+        "Natural formation",
+        "Near beaches"
+      ],
+      "neighborhood": "Shimen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1063,
+      "longitude": 121.6064
+    },
+    {
+      "name": {
+        "en": "Fugui Cape Lighthouse",
+        "zh": "富貴角燈塔"
+      },
+      "description": {
+        "en": "Northernmost point of Taiwan. Octagonal lighthouse.",
+        "zh": "台灣最北點。八角燈塔。"
+      },
+      "address": {
+        "en": "Fugui Cape, Shimen District, New Taipei",
+        "zh": "新北市石門區富貴角"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Lighthouse",
+        "Northernmost",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Taiwan's north point",
+        "Nice walk",
+        "Coastal views"
+      ],
+      "neighborhood": "Shimen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.2982,
+      "longitude": 121.5366
+    },
+    {
+      "name": {
+        "en": "Laomei Green Reef",
+        "zh": "老梅綠石槽"
+      },
+      "description": {
+        "en": "Green algae covered rocks. Spring only.",
+        "zh": "綠藻覆蓋的岩石。僅限春天。"
+      },
+      "address": {
+        "en": "Laomei, Shimen District, New Taipei",
+        "zh": "新北市石門區老梅"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Seasonal",
+        "Natural",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Spring",
+      "tips": [
+        "March-May only",
+        "Green algae",
+        "Popular photo spot"
+      ],
+      "neighborhood": "Shimen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 25.2893,
+      "longitude": 121.5459
+    },
+    {
+      "name": {
+        "en": "Jinshan Old Street",
+        "zh": "金山老街"
+      },
+      "description": {
+        "en": "Coastal town with duck specialty.",
+        "zh": "有鴨肉特產的海岸小鎮。"
+      },
+      "address": {
+        "en": "Jinshan District, New Taipei",
+        "zh": "新北市金山區金山老街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Old Street",
+        "Duck",
+        "Coastal"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Famous duck",
+        "Free serving style",
+        "Near hot springs"
+      ],
+      "neighborhood": "Jinshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.2205,
+      "longitude": 121.6404
+    },
+    {
+      "name": {
+        "en": "Yangmingshan Hot Springs Hotels",
+        "zh": "陽明山溫泉旅館"
+      },
+      "description": {
+        "en": "Mountain hot spring resorts.",
+        "zh": "山區溫泉度假村。"
+      },
+      "address": {
+        "en": "Yangmingshan, Beitou District, Taipei",
+        "zh": "台北市北投區陽明山"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Hot Springs",
+        "Resort",
+        "Mountain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Private rooms",
+        "Mountain setting",
+        "Various price ranges"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.1481,
+      "longitude": 121.5493
+    },
+    {
+      "name": {
+        "en": "Wuling Farm",
+        "zh": "武陵農場"
+      },
+      "description": {
+        "en": "Mountain farm famous for cherry blossoms.",
+        "zh": "以櫻花聞名的山區農場。"
+      },
+      "address": {
+        "en": "Wuling, Heping District, Taichung",
+        "zh": "台中市和平區武陵"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Farm",
+        "Cherry Blossom",
+        "Mountain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Spring",
+      "tips": [
+        "Best cherry blossoms",
+        "Reservations needed spring",
+        "Day trip from Taipei"
+      ],
+      "neighborhood": "Mountain",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Spring"
+      }
+    },
+    {
+      "name": {
+        "en": "Qingjing Farm",
+        "zh": "清境農場"
+      },
+      "description": {
+        "en": "Mountain sheep farm. European atmosphere.",
+        "zh": "山區綿羊農場。歐洲氛圍。"
+      },
+      "address": {
+        "en": "Qingjing, Ren'ai Township, Nantou",
+        "zh": "南投縣仁愛鄉清境"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Farm",
+        "Mountain",
+        "Family"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Sheep shows",
+        "Mountain views",
+        "Overnight stay recommended"
+      ],
+      "neighborhood": "Mountain",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Jiufen A-Mei Tea House",
+        "zh": "阿妹茶樓"
+      },
+      "description": {
+        "en": "Iconic tea house overlooking sea.",
+        "zh": "俯瞰大海的標誌性茶樓。"
+      },
+      "address": {
+        "en": "Jiufen, Ruifang District, New Taipei",
+        "zh": "新北市瑞芳區九份"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Tea House",
+        "Iconic",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Evening",
+      "tips": [
+        "Spirited Away inspiration",
+        "Sea views",
+        "Very popular"
+      ],
+      "neighborhood": "Jiufen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.1085,
+      "longitude": 121.8437
+    },
+    {
+      "name": {
+        "en": "Pinglin Tea Museum",
+        "zh": "坪林茶業博物館"
+      },
+      "description": {
+        "en": "Tea culture museum. Wenshan Baozhong area.",
+        "zh": "茶文化博物館。文山包種區。"
+      },
+      "address": {
+        "en": "Pinglin District, New Taipei",
+        "zh": "新北市坪林區"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Tea",
+        "Culture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Tea culture",
+        "Baozhong area",
+        "Scenic drive"
+      ],
+      "neighborhood": "Pinglin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 24.9341,
+      "longitude": 121.7126
+    }
+  ]
+}

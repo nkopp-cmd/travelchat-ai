@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Calendar, Bookmark, Check } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { validateCityForItinerary } from "@/lib/cities";
 
 interface ItineraryPreviewProps {
     content: string;
@@ -42,6 +43,14 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
             city = cityFirstMatch[1].trim();
         } else if (cityColonMatch) {
             city = cityColonMatch[1].trim();
+        }
+
+        // Validate against known cities — catches cases regex missed
+        if (!city || city === "Unknown City") {
+            const validation = validateCityForItinerary(fullTitle);
+            if (validation.valid && validation.city) {
+                city = validation.city.name;
+            }
         }
 
         // Create SHORT title (3-5 words max) following form itinerary format
@@ -165,18 +174,24 @@ export function ItineraryPreview({ content }: ItineraryPreviewProps) {
                 day: index + 1,
                 theme: day.day,
                 activities: day.activities.map((act, actIndex) => {
-                    // Try to extract address from description (multiple patterns)
+                    // Extract address from description (robust multi-pattern)
                     let extractedAddress = "";
 
-                    // Pattern 1: "Located at [address]"
-                    const locatedAtMatch = act.description.match(/Located at ([^.]+)/i);
-                    if (locatedAtMatch) {
-                        extractedAddress = locatedAtMatch[1].trim();
+                    // Pattern 1: "Address: [address]" (new structured format from chat prompt)
+                    const addressLineMatch = act.description.match(/Address:\s*(.+?)(?:\n|$)/i);
+                    if (addressLineMatch) {
+                        extractedAddress = addressLineMatch[1].trim();
                     } else {
-                        // Pattern 2: Address with Street/Road/District/Building
-                        const addressMatch = act.description.match(/(?:at|in|address:|@)\s+([^.]+(?:Street|Road|Ave|Avenue|District|Building|Ward|Area)[^.]*)/i);
-                        if (addressMatch) {
-                            extractedAddress = addressMatch[1].trim();
+                        // Pattern 2: "Located at [address]" (legacy format)
+                        const locatedAtMatch = act.description.match(/Located at\s+([^.]+)/i);
+                        if (locatedAtMatch) {
+                            extractedAddress = locatedAtMatch[1].trim();
+                        } else {
+                            // Pattern 3: "in [District]" pattern
+                            const inMatch = act.description.match(/\bin\s+([A-Z][^,.]+(?:,\s*[A-Z][^,.]+)?)/);
+                            if (inMatch) {
+                                extractedAddress = `${inMatch[1].trim()}, ${city}`;
+                            }
                         }
                     }
 

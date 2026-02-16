@@ -1,0 +1,757 @@
+{
+  "city": "Ubud, Bali",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:49:18.797Z",
+  "spots": [
+    {
+      "name": {
+        "en": "FINNS Beach Club"
+      },
+      "description": {
+        "en": "World's best beach club claim. 4 pools (2 family, 1 adults-only oceanfront), 11 bars, 7 kitchens. Daily DJs, massive parties. Berawa Beach."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Pantai Berawa No.99",
+      "address": {
+        "en": "Jl. Pantai Berawa No.99, Canggu, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6667652,
+      "longitude": 115.13939839999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJSRrSTuNH0i0RX7GpKfK5k0k"
+    },
+    {
+      "name": {
+        "en": "Atlas Beach Club"
+      },
+      "description": {
+        "en": "World's largest beach club. Massive pool area, dedicated dance floors, retail arcade. Waterbomb events, international DJs. Near Berawa Beach."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Pantai Berawa No.88",
+      "address": {
+        "en": "Jl. Pantai Berawa No.88, Tibubeneng, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.665529,
+      "longitude": 115.13812370000001,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJhY50BH9H0i0RCdXsyoE0uGU"
+    },
+    {
+      "name": {
+        "en": "The Lawn Canggu"
+      },
+      "description": {
+        "en": "Beachfront infinity pool, famous frosé. Sunset deck captures west coast from Uluwatu to Tanah Lot. Share plates to intimate dinners."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Pura Dalem",
+      "address": {
+        "en": "Jl. Pura Dalem, Canggu, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6585236,
+      "longitude": 115.12961670000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJiQdg1YdH0i0R8ANUMzZizN0"
+    },
+    {
+      "name": {
+        "en": "La Brisa"
+      },
+      "description": {
+        "en": "Boho beach vibes on Echo Beach. Reclaimed fishing boat wood construction, eco-friendly. Rustic Spanish food, Sunday market atmosphere. Kids play zone."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Pantai Batu Mejan",
+      "address": {
+        "en": "Jl. Pantai Batu Mejan, Canggu, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.654172899999999,
+      "longitude": 115.1258092,
+      "price_tier": "$$",
+      "google_place_id": "ChIJrfg6aXY40i0RKbzqxLedkoY"
+    },
+    {
+      "name": {
+        "en": "Cafe Del Mar"
+      },
+      "description": {
+        "en": "Ibiza's iconic white-and-blue aesthetic in Canggu. Large infinity pool, Mediterranean architecture, lounge music focus."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Subak Sari",
+      "address": {
+        "en": "Jl. Subak Sari, Canggu, Tibubeneng, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.670779399999999,
+      "longitude": 115.1445364,
+      "price_tier": "$$",
+      "google_place_id": "ChIJNZqbECdH0i0RYmnZfbP4rPY"
+    },
+    {
+      "name": {
+        "en": "Luna Beach Club"
+      },
+      "description": {
+        "en": "Family-friendly new Canggu spot. Lagoon-style pool, mocktails for kids, live music evenings."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Kayangan",
+      "address": {
+        "en": "Jl. Kayangan, Beraban, Kec. Kediri, Kabupaten Tabanan, Bali 82121, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6306865,
+      "longitude": 115.10061280000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJlWNBrHM50i0RMsrwIzRM6fs"
+    },
+    {
+      "name": {
+        "en": "Potato Head Beach Club"
+      },
+      "description": {
+        "en": "Creative village not just beach club. Recycled window facade, infinity pool, eco-initiatives. Kid and pet friendly. Sustainability workshops, yoga."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Petitenget No.51B",
+      "address": {
+        "en": "Jl. Petitenget No.51B, Seminyak, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6794353,
+      "longitude": 115.1499342,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ_XZL_xFH0i0RTo0EWBqsnRs"
+    },
+    {
+      "name": {
+        "en": "KU DE TA"
+      },
+      "description": {
+        "en": "Seminyak icon for 20+ years. Set beach club standard. White Party legendary. Wood-fired pizzas to world cuisine. Gluten-free, vegan options."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Kayu Aya No.9",
+      "address": {
+        "en": "Jl. Kayu Aya No.9, Seminyak, Kec. Kuta, Kabupaten Badung, Bali, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6871361,
+      "longitude": 115.15475019999998,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ5esTIBtH0i0RaqMKf-MsMZE"
+    },
+    {
+      "name": {
+        "en": "Mrs. Sippy"
+      },
+      "description": {
+        "en": "Family-friendly with huge saltwater pool. Triple-tier diving board, vintage pink tiles. Happy Hour deals, wood-fired pizzas."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Taman Ganesha",
+      "address": {
+        "en": "Jl. Taman Ganesha, Gang Gagak 8 Kerobokan Kelod Kuta Utara Kerobokan Kelod, Seminyak, Kec. Kuta Utara, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6795887,
+      "longitude": 115.15124670000002,
+      "price_tier": "$$",
+      "google_place_id": "ChIJq5502A1H0i0RJnXh3jKUnzI"
+    },
+    {
+      "name": {
+        "en": "Ocean Grand"
+      },
+      "description": {
+        "en": "Newer Seminyak club with direct beach access. No minimum spend, perfect for families and casual hangouts."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Grand Seminyak",
+      "address": {
+        "en": "Grand Seminyak, Jl. Camplung Tanduk Jl. Dhyana Pura, Seminyak, Kec. Kuta, Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.6926617,
+      "longitude": 115.1588685,
+      "price_tier": "$$",
+      "google_place_id": "ChIJoQpRpNJH0i0RAMW974pe3wU"
+    },
+    {
+      "name": {
+        "en": "Single Fin"
+      },
+      "description": {
+        "en": "Iconic cliff bar overlooking famous surf break. Multi-level, casual surfer vibe. Sunday Sessions legendary - arrive before 4pm."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Pantai Suluban",
+      "address": {
+        "en": "Pantai Suluban, Black Machine Surf And Coffee, Jl. Mamo No.201, Pecatu, Kec. Kuta Sel., Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.8149471,
+      "longitude": 115.08884069999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ0aNPQ_lP0i0RtPlHW6trMHM"
+    },
+    {
+      "name": {
+        "en": "Savaya Bali"
+      },
+      "description": {
+        "en": "100m above ocean on cliff. Two infinity pools, Cube Bar over edge. Calvin Harris, Diplo perform. Luxe dayclub, book tickets online."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Belimbing Sari",
+      "address": {
+        "en": "Jl. Belimbing Sari, Banjar Tambiyak, Pecatu, Uluwatu, Kabupaten Badung, Bali 80364, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.846474299999999,
+      "longitude": 115.1407208,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJrV__rE5b0i0RXnKoLXZQDEk"
+    },
+    {
+      "name": {
+        "en": "Ulu Cliffhouse"
+      },
+      "description": {
+        "en": "Bingin hipster hotspot. Infinity pool, cliffside ocean deck. Dance until late. Premium daybeds and cabanas."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Ulu Cliffhouse",
+      "address": {
+        "en": "Ulu Cliffhouse, Pecatu, South Kuta, Badung Regency, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.8139684,
+      "longitude": 115.09162219999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJ6cpvxfhP0i0Rn7Ee9JnNiTc"
+    },
+    {
+      "name": {
+        "en": "Sunday's Beach Club"
+      },
+      "description": {
+        "en": "Secluded beach access, eco-conscious luxury. Sustainable tourism leader. Calm escape."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Pantai Sel. Gau Banjar Wijaya Kusuma",
+      "address": {
+        "en": "Jl. Pantai Sel. Gau Banjar Wijaya Kusuma, Ungasan, Kec. Kuta Sel., Kabupaten Badung, Bali 80362, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.8457698,
+      "longitude": 115.1496913,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJP--nKwVb0i0Rg3rWxKwGj7M"
+    },
+    {
+      "name": {
+        "en": "Tropical Temptation"
+      },
+      "description": {
+        "en": "Melasti Beach with oceanfront seating, Indian Ocean views. Bohemian-styled, multiple pools. Adult-only, free entry for regular seating."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Melasti Beach 88",
+      "address": {
+        "en": "Melasti Beach 88, Uluwatu, Ungasan, Kec. Kuta Sel., Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.8481936,
+      "longitude": 115.16038089999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJk41ld9Fb0i0RStb1NFpDAno"
+    },
+    {
+      "name": {
+        "en": "El Kabron"
+      },
+      "description": {
+        "en": "Dramatic cliff perch, Andalusian-inspired Spanish design. Romantic oceanview. Paella, seafood. No direct beach but Bingin Beach views."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Pantai Cemongkak",
+      "address": {
+        "en": "Jl. Pantai Cemongkak, Pecatu, Kec. Kuta Sel., Kabupaten Badung, Bali 80361, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.8018997,
+      "longitude": 115.1173509,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJGYdvhUBF0i0RnjYUd0m8u58"
+    },
+    {
+      "name": {
+        "en": "Tirta Empul"
+      },
+      "description": {
+        "en": "Sacred water purification temple. Melukat ceremony with local priest. Can be crowded - arrive early."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Tampaksiring",
+      "address": {
+        "en": "Tampaksiring, Gianyar Regency, Bali 80552, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.4156589,
+      "longitude": 115.3153284,
+      "price_tier": "$",
+      "google_place_id": "ChIJtTFh4PQY0i0RwewUdwFaolM"
+    },
+    {
+      "name": {
+        "en": "Goa Gajah (Elephant Cave)"
+      },
+      "description": {
+        "en": "11th century meditation site. Carved spots for meditators, big garden, jungle river. 15 min from Ubud center. Peaceful."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Bedulu",
+      "address": {
+        "en": "Bedulu, Blahbatuh, Gianyar Regency, Bali, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.523437800000002,
+      "longitude": 115.28715679999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJu4w-njEW0i0RRaWY9_yFb88"
+    },
+    {
+      "name": {
+        "en": "Pura Gunung Kawi Sebatu"
+      },
+      "description": {
+        "en": "Less famous water temple. Private ceremonies possible without Tirta Empul crowds. Peaceful meditation spot."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Kusuma Yudha",
+      "address": {
+        "en": "Jl. Kusuma Yudha, Sebatu, Kec. Tegallalang, Kabupaten Gianyar, Bali 80561, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.4046003,
+      "longitude": 115.29345830000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJ6WxHo60Y0i0RCfAEsPZKqkQ"
+    },
+    {
+      "name": {
+        "en": "Pura Gunung Lebah"
+      },
+      "description": {
+        "en": "End of Campuhan Ridge Walk. 8th century carvings dedicated to Batur goddess. Far from main roads."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Ubud No.23",
+      "address": {
+        "en": "Jl. Raya Ubud No.23, Sayan, Kec. Payangan, Kabupaten Gianyar, Bali 80571, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.504028200000002,
+      "longitude": 115.25461990000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJBSrHCj490i0RXBAQSVo0mpc"
+    },
+    {
+      "name": {
+        "en": "Besakih Temple"
+      },
+      "description": {
+        "en": "Mother Temple of Bali. Massive complex, gets more impressive higher you climb. Entry recently adjusted - fewer tourists know."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Besakih",
+      "address": {
+        "en": "Besakih, Kec. Rendang, Kabupaten Karangasem, Bali 80863, Indonesia"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.3739976,
+      "longitude": 115.45255669999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJt7JIN74c0i0RSrvRjHk5_As"
+    },
+    {
+      "name": {
+        "en": "Tegallalang Rice Terrace"
+      },
+      "description": {
+        "en": "Famous tiered rice paddies. Iconic swings, Instagram spots. Very crowded but stunning."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Tegallalang",
+      "address": {
+        "en": "Jl. Raya Tegallalang, Tegallalang, Kec. Tegallalang, Kabupaten Gianyar, Bali 80561, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.431711199999999,
+      "longitude": 115.279303,
+      "price_tier": "$",
+      "google_place_id": "ChIJ4wD5Iwsi0i0R7QRsOGmJGo0"
+    },
+    {
+      "name": {
+        "en": "Jatiluwih Rice Terrace"
+      },
+      "description": {
+        "en": "UNESCO site, vast and less touristy than Tegallalang. Small trails lead to empty fields. Tabanan region."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Jatiluwih Kawan",
+      "address": {
+        "en": "Jl. Jatiluwih Kawan, Jatiluwih, Kec. Penebel, Kabupaten Tabanan, Bali 82152, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.3700942,
+      "longitude": 115.1312269,
+      "price_tier": "$",
+      "google_place_id": "ChIJ-9cMAqsn0i0RmoPm81-HDy8"
+    },
+    {
+      "name": {
+        "en": "Campuhan Ridge Walk"
+      },
+      "description": {
+        "en": "Surreal rolling hills and river views. Ends at Pura Gunung Lebah temple. Best early morning or late afternoon."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "Jl. Raya Ubud",
+      "address": {
+        "en": "Jl. Raya Ubud, Kelusa, Kec. Payangan, Kabupaten Gianyar, Bali, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5035806,
+      "longitude": 115.25475789999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ9XP0yms90i0Rn8QbqnT9E3w"
+    },
+    {
+      "name": {
+        "en": "Sweet Orange Trail"
+      },
+      "description": {
+        "en": "Secret rice terraces near Ubud center. Sign says \"secret rice terraces.\" Sweet Orange restaurant at end with paddock views."
+      },
+      "city": "Ubud, Bali",
+      "neighborhood": "F7W6+652",
+      "address": {
+        "en": "F7W6+652, Ubud, Gianyar Regency, Bali 80571, Indonesia"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": -8.5044755,
+      "longitude": 115.26038699999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJh4-c_1s90i0RS5PcfNbXOFM"
+    }
+  ]
+}

@@ -24,6 +24,11 @@ export interface CityConfig {
     timezone: string;
     languages: string[];
     currency: string;
+    // Geocoding - city center for map fallback & geocoder bias
+    center: { lat: number; lng: number };
+    // UI metadata
+    vibe?: string;
+    heroImage?: string;
 }
 
 export interface CityStats {
@@ -90,6 +95,9 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 37.5665, lng: 126.9780 },
+        vibe: "K-culture & nightlife",
+        heroImage: "https://images.unsplash.com/photo-1583833008338-31a6657917ab?w=400",
     },
     {
         slug: "tokyo",
@@ -111,6 +119,9 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 35.6762, lng: 139.6503 },
+        vibe: "Tradition meets tech",
+        heroImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400",
     },
     {
         slug: "bangkok",
@@ -132,6 +143,9 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Bangkok",
         languages: ["th", "en"],
         currency: "THB",
+        center: { lat: 13.7563, lng: 100.5018 },
+        vibe: "Street food paradise",
+        heroImage: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400",
     },
     {
         slug: "singapore",
@@ -153,6 +167,9 @@ const RING_1_CITIES: CityConfig[] = [
         timezone: "Asia/Singapore",
         languages: ["en", "zh", "ms", "ta"],
         currency: "SGD",
+        center: { lat: 1.3521, lng: 103.8198 },
+        vibe: "Modern melting pot",
+        heroImage: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400",
     },
 ];
 
@@ -168,7 +185,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -180,6 +197,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 34.6937, lng: 135.5023 },
+        vibe: "Food & fun capital",
+        heroImage: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=400",
     },
     {
         slug: "kyoto",
@@ -188,7 +208,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -200,6 +220,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 35.0116, lng: 135.7681 },
+        vibe: "Ancient temples & tea",
+        heroImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400",
     },
     // Taiwan
     {
@@ -209,7 +232,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "TW",
         emoji: "🇹🇼",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -221,6 +244,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Taipei",
         languages: ["zh", "en"],
         currency: "TWD",
+        center: { lat: 25.0330, lng: 121.5654 },
+        vibe: "Night markets & bubble tea",
+        heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=400",
     },
     // Hong Kong
     {
@@ -230,7 +256,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "HK",
         emoji: "🇭🇰",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -242,6 +268,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Hong_Kong",
         languages: ["zh", "en"],
         currency: "HKD",
+        center: { lat: 22.3193, lng: 114.1694 },
+        vibe: "Dim sum & skyline views",
+        heroImage: "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=400",
     },
     // Korea
     {
@@ -251,7 +280,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "KR",
         emoji: "🇰🇷",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -263,6 +292,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 35.1796, lng: 129.0756 },
+        vibe: "Beaches & seafood",
+        heroImage: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=400",
     },
     {
         slug: "jeju",
@@ -271,7 +303,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "KR",
         emoji: "🇰🇷",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -283,6 +315,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 33.4996, lng: 126.5312 },
+        vibe: "Island paradise",
+        heroImage: "https://images.unsplash.com/photo-1616798249081-30877e213b16?w=400",
     },
     // Vietnam
     {
@@ -292,7 +327,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "VN",
         emoji: "🇻🇳",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -303,6 +338,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Ho_Chi_Minh",
         languages: ["vi", "en"],
         currency: "VND",
+        center: { lat: 21.0278, lng: 105.8342 },
+        vibe: "Old Quarter charm",
+        heroImage: "https://images.unsplash.com/photo-1506236506587-53051b4197be?w=400",
     },
     {
         slug: "ho-chi-minh",
@@ -311,7 +349,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "VN",
         emoji: "🇻🇳",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -323,6 +361,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Ho_Chi_Minh",
         languages: ["vi", "en"],
         currency: "VND",
+        center: { lat: 10.8231, lng: 106.6297 },
+        vibe: "Saigon hustle & buzz",
+        heroImage: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400",
     },
     // Malaysia
     {
@@ -332,7 +373,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "MY",
         emoji: "🇲🇾",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 150, ideal: 300 },
             templates: { min: 6, ideal: 10 },
@@ -344,6 +385,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Kuala_Lumpur",
         languages: ["ms", "en", "zh"],
         currency: "MYR",
+        center: { lat: 3.1390, lng: 101.6869 },
+        vibe: "Towers & hawker stalls",
+        heroImage: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=400",
     },
     // Indonesia (Bali split)
     {
@@ -353,7 +397,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "ID",
         emoji: "🇮🇩",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 120, ideal: 200 },
             templates: { min: 6, ideal: 10 },
@@ -365,6 +409,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Makassar",
         languages: ["id", "en"],
         currency: "IDR",
+        center: { lat: -8.5069, lng: 115.2625 },
+        vibe: "Rice terraces & yoga",
+        heroImage: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400",
     },
     {
         slug: "bali-canggu",
@@ -373,7 +420,7 @@ const RING_2_CITIES: CityConfig[] = [
         countryCode: "ID",
         emoji: "🇮🇩",
         ring: 2,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 120, ideal: 200 },
             templates: { min: 6, ideal: 10 },
@@ -384,6 +431,9 @@ const RING_2_CITIES: CityConfig[] = [
         timezone: "Asia/Makassar",
         languages: ["id", "en"],
         currency: "IDR",
+        center: { lat: -8.6478, lng: 115.1385 },
+        vibe: "Surf & beach vibes",
+        heroImage: "https://images.unsplash.com/photo-1724568834710-d5db3faab7e8?w=400",
     },
 ];
 
@@ -398,7 +448,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "TH",
         emoji: "🇹🇭",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -410,6 +460,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Bangkok",
         languages: ["th", "en"],
         currency: "THB",
+        center: { lat: 18.7883, lng: 98.9853 },
+        vibe: "Temples & digital nomads",
+        heroImage: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=400",
     },
     {
         slug: "da-nang",
@@ -418,7 +471,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "VN",
         emoji: "🇻🇳",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -429,6 +482,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Ho_Chi_Minh",
         languages: ["vi", "en"],
         currency: "VND",
+        center: { lat: 16.0544, lng: 108.2022 },
+        vibe: "Dragon Bridge & beaches",
+        heroImage: "https://images.unsplash.com/photo-1701396173275-835886dd72ce?w=400",
     },
     {
         slug: "penang",
@@ -437,7 +493,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "MY",
         emoji: "🇲🇾",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -448,6 +504,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Kuala_Lumpur",
         languages: ["ms", "en", "zh"],
         currency: "MYR",
+        center: { lat: 5.4164, lng: 100.3327 },
+        vibe: "Street art & hawker food",
+        heroImage: "https://images.unsplash.com/photo-1650163410135-e5355b4ff33e?w=400",
     },
     {
         slug: "nara",
@@ -456,7 +515,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -467,6 +526,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 34.6851, lng: 135.8048 },
+        vibe: "Deer park & ancient temples",
+        heroImage: "https://images.unsplash.com/photo-1720573166278-4ac6ba745a2a?w=400",
     },
     {
         slug: "kanazawa",
@@ -475,7 +537,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -486,6 +548,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 36.5613, lng: 136.6562 },
+        vibe: "Samurai gardens",
+        heroImage: "https://images.unsplash.com/photo-1627304827615-3a05fafaed7a?w=400",
     },
     {
         slug: "gyeongju",
@@ -494,7 +559,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "KR",
         emoji: "🇰🇷",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -505,6 +570,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Seoul",
         languages: ["ko", "en"],
         currency: "KRW",
+        center: { lat: 35.8562, lng: 129.2247 },
+        vibe: "Ancient kingdom ruins",
+        heroImage: "https://images.unsplash.com/photo-1684134549350-be5fd0d8feaa?w=400",
     },
     {
         slug: "sapporo",
@@ -513,7 +581,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -524,6 +592,9 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 43.0618, lng: 141.3545 },
+        vibe: "Snow & ramen paradise",
+        heroImage: "https://images.unsplash.com/photo-1736156725121-027231636f9d?w=400",
     },
     {
         slug: "okinawa",
@@ -532,7 +603,7 @@ const RING_3_CITIES: CityConfig[] = [
         countryCode: "JP",
         emoji: "🇯🇵",
         ring: 3,
-        isEnabled: false,
+        isEnabled: true,
         targets: {
             spots: { min: 80, ideal: 150 },
             templates: { min: 4, ideal: 8 },
@@ -543,6 +614,129 @@ const RING_3_CITIES: CityConfig[] = [
         timezone: "Asia/Tokyo",
         languages: ["ja", "en"],
         currency: "JPY",
+        center: { lat: 26.3344, lng: 127.8056 },
+        vibe: "Tropical island escape",
+        heroImage: "https://images.unsplash.com/photo-1664888882993-5bc4b906db5e?w=400",
+    },
+    // Philippines
+    {
+        slug: "manila",
+        name: "Manila",
+        country: "Philippines",
+        countryCode: "PH",
+        emoji: "🇵🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Makati", "BGC", "Intramuros", "Binondo", "Poblacion",
+            "Quezon City", "Escolta", "Maginhawa"
+        ],
+        timezone: "Asia/Manila",
+        languages: ["tl", "en"],
+        currency: "PHP",
+        center: { lat: 14.5995, lng: 120.9842 },
+        vibe: "Street food & nightlife",
+        heroImage: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=400",
+    },
+    // Thailand (South)
+    {
+        slug: "phuket",
+        name: "Phuket",
+        country: "Thailand",
+        countryCode: "TH",
+        emoji: "🇹🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Old Town", "Patong", "Kata", "Karon", "Rawai",
+            "Kamala", "Surin", "Bang Tao"
+        ],
+        timezone: "Asia/Bangkok",
+        languages: ["th", "en"],
+        currency: "THB",
+        center: { lat: 7.8804, lng: 98.3923 },
+        vibe: "Islands & old town charm",
+        heroImage: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=400",
+    },
+    // Cambodia
+    {
+        slug: "siem-reap",
+        name: "Siem Reap",
+        country: "Cambodia",
+        countryCode: "KH",
+        emoji: "🇰🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Old Market", "Pub Street", "Wat Bo", "Sivatha",
+            "Charles de Gaulle", "Angkor Area"
+        ],
+        timezone: "Asia/Phnom_Penh",
+        languages: ["km", "en"],
+        currency: "KHR",
+        center: { lat: 13.3671, lng: 103.8448 },
+        vibe: "Temples & local cuisine",
+        heroImage: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400",
+    },
+    // Vietnam (Central)
+    {
+        slug: "hoi-an",
+        name: "Hoi An",
+        country: "Vietnam",
+        countryCode: "VN",
+        emoji: "🇻🇳",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Ancient Town", "An Bang Beach", "Cam Nam", "Tra Que",
+            "Cua Dai", "An Hoi"
+        ],
+        timezone: "Asia/Ho_Chi_Minh",
+        languages: ["vi", "en"],
+        currency: "VND",
+        center: { lat: 15.8801, lng: 108.3380 },
+        vibe: "Lanterns & local cooking",
+        heroImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400",
+    },
+    // Laos
+    {
+        slug: "luang-prabang",
+        name: "Luang Prabang",
+        country: "Laos",
+        countryCode: "LA",
+        emoji: "🇱🇦",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Old Town", "Mekong Riverside", "Night Market", "Phousi Hill",
+            "Ban Xang Khong", "Xieng Thong"
+        ],
+        timezone: "Asia/Vientiane",
+        languages: ["lo", "en"],
+        currency: "LAK",
+        center: { lat: 19.8857, lng: 102.1347 },
+        vibe: "Monks & Mekong sunsets",
+        heroImage: "https://images.unsplash.com/photo-1583417267826-aebc4d1542e1?w=400",
     },
 ];
 
@@ -643,4 +837,43 @@ export function getCoverageMessage(
             message: `Exploring ${city.name} - new city, expanding weekly`,
         };
     }
+}
+
+/**
+ * Validate city for itinerary generation
+ * Supports exact match, slug match, and partial match
+ */
+export function validateCityForItinerary(input: string): {
+    valid: boolean;
+    city?: CityConfig;
+    error?: string;
+} {
+    const normalized = input.toLowerCase().trim();
+
+    // Try exact name match
+    let city = ENABLED_CITIES.find(c => c.name.toLowerCase() === normalized);
+
+    // Try slug match
+    if (!city) {
+        city = ENABLED_CITIES.find(c => c.slug === normalized);
+    }
+
+    // Try partial match (input contains city name or city name contains input)
+    if (!city) {
+        city = ENABLED_CITIES.find(c =>
+            normalized.includes(c.name.toLowerCase()) ||
+            c.name.toLowerCase().includes(normalized)
+        );
+    }
+
+    if (!city) {
+        const suggestions = ENABLED_CITIES.slice(0, 5).map(c => c.name).join(", ");
+        return { valid: false, error: `City "${input}" not supported. Try: ${suggestions}...` };
+    }
+
+    if (!city.isEnabled) {
+        return { valid: false, error: `${city.name} is coming soon!` };
+    }
+
+    return { valid: true, city };
 }

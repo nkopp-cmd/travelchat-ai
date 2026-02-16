@@ -1,0 +1,759 @@
+{
+  "city": "Tokyo",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:43:59.430Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Oimachi Yokocho Alleys"
+      },
+      "description": {
+        "en": "Yakitori and standing bar eats in narrow streets."
+      },
+      "city": "Tokyo",
+      "neighborhood": "25",
+      "address": {
+        "en": "1-chōme-25-25 Shibuya, Tokyo 150-0002, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6599499,
+      "longitude": 139.70153299999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJpwDSAViLGGARVaJ_WUwQrt8"
+    },
+    {
+      "name": {
+        "en": "Yanaka Ginza Shopping Street",
+        "ja": "谷中銀座商店街"
+      },
+      "description": {
+        "en": "Lively retro street with menchi-katsu vendors, wagashi shops, and old-town shitamachi spirit."
+      },
+      "city": "Tokyo",
+      "neighborhood": "13",
+      "address": {
+        "en": "3-chōme-13-1 Yanaka, Taito City, Tokyo 110-0001, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7276934,
+      "longitude": 139.7657232,
+      "price_tier": "$",
+      "google_place_id": "ChIJPYwFnNGNGGARYEeXwiYQPe8"
+    },
+    {
+      "name": {
+        "en": "Kagurazaka French Bistros"
+      },
+      "description": {
+        "en": "Tokyo's \"Little Paris\" with cobblestone streets, French patisseries, creperies, and Michelin-starred kaiseki."
+      },
+      "city": "Tokyo",
+      "neighborhood": "4-chōme",
+      "address": {
+        "en": "4-chōme-2 Kagurazaka, Shinjuku City, Tokyo 162-0825, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.70188110000001,
+      "longitude": 139.73970409999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJHw-KilqMGGARWP-CLnM4__I"
+    },
+    {
+      "name": {
+        "en": "Jiyugaoka Sweets Forest",
+        "ja": "自由が丘スイーツフォレスト"
+      },
+      "description": {
+        "en": "Tokyo's \"mecca for sweets\" - food court dedicated to desserts with variety of patisseries under one roof."
+      },
+      "city": "Tokyo",
+      "neighborhood": "25",
+      "address": {
+        "en": "Japan, 〒152-0034 Tokyo, Meguro City, Midorigaoka, 2-chōme−25−７ ラ・クール自由が丘 2F"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6078042,
+      "longitude": 139.671478,
+      "price_tier": "$$",
+      "google_place_id": "ChIJVcEl6CH1GGARVtDVIPGqrTw"
+    },
+    {
+      "name": {
+        "en": "Kosoan (Jiyugaoka)"
+      },
+      "description": {
+        "en": "Traditional teahouse in a serene Japanese garden with seasonal wagashi sweets."
+      },
+      "city": "Tokyo",
+      "neighborhood": "24",
+      "address": {
+        "en": "1-chōme-24-23 Jiyūgaoka, Meguro City, Tokyo 152-0035, Japan"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6106826,
+      "longitude": 139.6685775,
+      "price_tier": "$$",
+      "google_place_id": "ChIJZavgMeD0GGAREgmvMTAUx-0"
+    },
+    {
+      "name": {
+        "en": "Ayu Ramen (Jiyugaoka)"
+      },
+      "description": {
+        "en": "Beloved ramen shop with unique broth made from sweet fish (ayu)."
+      },
+      "city": "Tokyo",
+      "neighborhood": "15",
+      "address": {
+        "en": "Japan, 〒158-0094 Tokyo, Setagaya City, Tamagawa, 3-chōme−15−１２ 玉川三丁目マンション 102号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6150946,
+      "longitude": 139.6254295,
+      "price_tier": "$",
+      "google_place_id": "ChIJ4eWkEBT0GGARSIvmbZ3EuAQ"
+    },
+    {
+      "name": {
+        "en": "Coffee Seibu in Shinjuku"
+      },
+      "description": {
+        "en": "Old-school kissaten with retro vibes from the 1960s with beautiful décor."
+      },
+      "city": "Tokyo",
+      "neighborhood": "6",
+      "address": {
+        "en": "Japan, 〒160-0021 Tokyo, Shinjuku City, Kabukichō, 1-chōme−6−１２ ハナミチ東京歌舞伎町2階"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6939249,
+      "longitude": 139.7030087,
+      "price_tier": "$",
+      "google_place_id": "ChIJr9bGZtqMGGAR2wUbK41Ofrk"
+    },
+    {
+      "name": {
+        "en": "Café de L'Ambre (Ginza)"
+      },
+      "description": {
+        "en": "Legendary 1948 kissaten known for aged coffee beans stored 10-15 years before roasting. Nel drip perfection in a time-capsule setting."
+      },
+      "city": "Tokyo",
+      "neighborhood": "10",
+      "address": {
+        "en": "8-chōme-10-15 Ginza, Chuo City, Tokyo 104-0061, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6679572,
+      "longitude": 139.76234019999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJZxiNeeiLGGARH3hUjIwOpSs"
+    },
+    {
+      "name": {
+        "en": "Chatei Hatou (Shibuya)"
+      },
+      "description": {
+        "en": "Upscale kissaten with velvet chairs, jazz vinyls, signature chiffon cakes in Earl Grey, Caramel, and Orange flavors. Absolute favorite."
+      },
+      "city": "Tokyo",
+      "neighborhood": "15",
+      "address": {
+        "en": "1-chōme-15-19 Shibuya, Tokyo 150-0002, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.660461399999996,
+      "longitude": 139.7027761,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJGQivCliLGGARQGD2vV8CIII"
+    },
+    {
+      "name": {
+        "en": "Royal Coffee Shop (Yurakucho)"
+      },
+      "description": {
+        "en": "Hidden basement kissaten since 1965 with marble floors, cracked vinyl seats, and business crowd regulars. 2 min from station but only \"those in the know\" find it."
+      },
+      "city": "Tokyo",
+      "neighborhood": "10",
+      "address": {
+        "en": "Japan, 〒100-0006 Tokyo, Chiyoda City, Yūrakuchō, 2-chōme−10−１ 東京交通会館 B1F"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6748549,
+      "longitude": 139.7638825,
+      "price_tier": "$$",
+      "google_place_id": "ChIJSW2PPeWLGGARksvKhMH03XQ"
+    },
+    {
+      "name": {
+        "en": "Tricolore Honten (Ginza)"
+      },
+      "description": {
+        "en": "Historic 1936 kissaten famous for cafe au laits poured tableside and fresh-filled éclairs - crispy outside, creamy inside."
+      },
+      "city": "Tokyo",
+      "neighborhood": "9",
+      "address": {
+        "en": "5-chōme-9-17 Ginza, Chuo City, Tokyo 104-0061, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6702154,
+      "longitude": 139.7650596,
+      "price_tier": "$$",
+      "google_place_id": "ChIJC2oNCO-LGGARxV0IFmgNzJU"
+    },
+    {
+      "name": {
+        "en": "Kissa Shinkai (Kita City)"
+      },
+      "description": {
+        "en": "Quirky coffee shop inside a 70-year-old public bathhouse with cobalt \"deep sea\" walls and signature Shinkai Jelly and secret recipe pudding."
+      },
+      "city": "Tokyo",
+      "neighborhood": "14",
+      "address": {
+        "en": "1-chōme-14-2 Jūjōnakahara, Kita City, Tokyo 114-0031, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.762789,
+      "longitude": 139.7202366,
+      "price_tier": "$$",
+      "google_place_id": "ChIJr4fL0yeTGGARhLo_V3yYdEE"
+    },
+    {
+      "name": {
+        "en": "Toronto Kissaten (Taito)"
+      },
+      "description": {
+        "en": "Family-run Showa-era spot since 1965 known for classic yoshoku dishes - regulars of all ages have been coming since opening day."
+      },
+      "city": "Tokyo",
+      "neighborhood": "6",
+      "address": {
+        "en": "Japan, 〒110-0013 Tokyo, Taito City, Iriya, 1-chōme−6−１６ 松田ビル"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.719835499999995,
+      "longitude": 139.7845211,
+      "price_tier": "$",
+      "google_place_id": "ChIJDawJP5COGGARu3ucQ4V4DXE"
+    },
+    {
+      "name": {
+        "en": "LADRIO (Shinjuku)"
+      },
+      "description": {
+        "en": "Hidden beneath elevated train tracks with nel drip dark roast, Showa-era jazz, buttery toast on thick porcelain, and morning newspapers locals read cover to cover."
+      },
+      "city": "Tokyo",
+      "neighborhood": "3",
+      "address": {
+        "en": "1-chōme-3-3 Kanda Jinbōchō, Chiyoda City, Tokyo 101-0051, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6956391,
+      "longitude": 139.75979949999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJrZPAHBGMGGARge1vNIrQh80"
+    },
+    {
+      "name": {
+        "en": "Aroumu (Koenji)"
+      },
+      "description": {
+        "en": "Early-opening kissaten (7am-4pm) with smoking allowed, cash only, and devoted neighborhood regulars. Closed Sundays."
+      },
+      "city": "Tokyo",
+      "neighborhood": "52",
+      "address": {
+        "en": "Japan, 〒166-0003 Tokyo, Suginami City, Kōenjiminami, 2-chōme−52−１２ 光コーポ"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.702096499999996,
+      "longitude": 139.6520481,
+      "price_tier": "$",
+      "google_place_id": "ChIJSTBIs4nyGGARfYJBQy1bpYU"
+    },
+    {
+      "name": {
+        "en": "Sunny Cafe (Asakusa)"
+      },
+      "description": {
+        "en": "Intimate kissaten with only a few seats including bar counter. Famous for thick buttered toast available all day (not just morning set)."
+      },
+      "city": "Tokyo",
+      "neighborhood": "7",
+      "address": {
+        "en": "2-chōme-7-13 Asakusa, Taito City, Tokyo 111-0032, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7146413,
+      "longitude": 139.7944766,
+      "price_tier": "$",
+      "google_place_id": "ChIJrys7QMCOGGARpmebqfU8myg"
+    },
+    {
+      "name": {
+        "en": "Coffee Hatoya (Asakusa)"
+      },
+      "description": {
+        "en": "Long-established corner spot on Shin-Nakamise Street with retro decor, analog cash register, and fluffy slightly-charred pancakes."
+      },
+      "city": "Tokyo",
+      "neighborhood": "23",
+      "address": {
+        "en": "1-chōme-23-8 Asakusa, Taito City, Tokyo 111-0032, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7123223,
+      "longitude": 139.7936,
+      "price_tier": "$",
+      "google_place_id": "ChIJk2ELnMCOGGARLga65hz-9L8"
+    },
+    {
+      "name": {
+        "en": "rébon Kaisaiyu (Taito)"
+      },
+      "description": {
+        "en": "Stunning 100-year-old public bathhouse turned roastery-cafe. History preserved as place for original coffee and community connection."
+      },
+      "city": "Tokyo",
+      "neighborhood": "17",
+      "address": {
+        "en": "2-chōme-17-11 Shitaya, Taito City, Tokyo 110-0004, Japan"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.7222572,
+      "longitude": 139.7848229,
+      "price_tier": "$$",
+      "google_place_id": "ChIJUVVMjpWPGGARXLtgZ_FrUto"
+    },
+    {
+      "name": {
+        "en": "Tomunekogo (Kichijoji)"
+      },
+      "description": {
+        "en": "Unique kissaten where talking and photos are not allowed - everything for the relaxed well-being of guests."
+      },
+      "city": "Tokyo",
+      "neighborhood": "32",
+      "address": {
+        "en": "Japan, 〒181-0001 Tokyo, Mitaka, Inokashira, 3-chōme−32−１６ セブンスターマンション 102"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.697840299999996,
+      "longitude": 139.58159,
+      "price_tier": "$",
+      "google_place_id": "ChIJByu8yjvuGGARqIheA_8y1sw"
+    },
+    {
+      "name": {
+        "en": "Hoshino Coffee"
+      },
+      "description": {
+        "en": "Chain kissaten with five breakfast \"morning set\" options including French toast - reliable quality across locations."
+      },
+      "city": "Tokyo",
+      "neighborhood": "17",
+      "address": {
+        "en": "Japan, 〒160-0022 Tokyo, Shinjuku City, Shinjuku, 3-chōme−17−５ ニュー富士ビル 2F"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6918358,
+      "longitude": 139.70323869999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJe3OxOdqMGGARr_ILFsA6uys"
+    },
+    {
+      "name": {
+        "en": "Oimachi Yokocho Alleys"
+      },
+      "description": {
+        "en": "Local bars for evening drinks and culture."
+      },
+      "city": "Tokyo",
+      "neighborhood": "25",
+      "address": {
+        "en": "1-chōme-25-25 Shibuya, Tokyo 150-0002, Japan"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6599499,
+      "longitude": 139.70153299999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJpwDSAViLGGARVaJ_WUwQrt8"
+    },
+    {
+      "name": {
+        "en": "Yona Yona Tokyo Brewery"
+      },
+      "description": {
+        "en": "Brewery-restaurant offering 36 taps of craft beers and elevated pub grub."
+      },
+      "city": "Tokyo",
+      "neighborhood": "28",
+      "address": {
+        "en": "Japan, 〒160-0022 Tokyo, Shinjuku City, Shinjuku, 3-chōme−28−１０ ヒューマックスパビリオン新宿東口 B1F"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6910992,
+      "longitude": 139.7027101,
+      "price_tier": "$$",
+      "google_place_id": "ChIJtYUoaNqMGGARrvdwnKiCH1M"
+    },
+    {
+      "name": {
+        "en": "Oimachi Tracks Rooftop Bar"
+      },
+      "description": {
+        "en": "26th-floor rooftop bar at Hotel Metropolitan with views over train depot."
+      },
+      "city": "Tokyo",
+      "neighborhood": "1",
+      "address": {
+        "en": "2-chōme-1-1 Hiromachi, Shinagawa City, Tokyo 140-0005, Japan"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6082956,
+      "longitude": 139.7331433,
+      "price_tier": "$$",
+      "google_place_id": "ChIJZwteBwCLGGAR0zuRb9cuqyo"
+    },
+    {
+      "name": {
+        "en": "Shibuya Center Gai"
+      },
+      "description": {
+        "en": "Trendy fashion and narrow street shops."
+      },
+      "city": "Tokyo",
+      "neighborhood": "Udagawachō",
+      "address": {
+        "en": "Shibuya Center-Gai, Udagawachō, Shibuya, Tokyo 150-0042, Japan"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6604139,
+      "longitude": 139.698578,
+      "price_tier": "$$",
+      "google_place_id": "ChIJI0xlZamMGGARVz2RF8H9Vz8"
+    },
+    {
+      "name": {
+        "en": "Tsutaya Shibuya Pop-Up"
+      },
+      "description": {
+        "en": "Exclusive merch in a trendy bookstore."
+      },
+      "city": "Tokyo",
+      "neighborhood": "21",
+      "address": {
+        "en": "Japan, 〒150-0042 Tokyo, Shibuya, Udagawachō, 21−６ Q Front, B2F-8F"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.6598578,
+      "longitude": 139.7003513,
+      "price_tier": "$$",
+      "google_place_id": "ChIJJzxHGaiMGGARtLUieZDgbRY"
+    }
+  ]
+}

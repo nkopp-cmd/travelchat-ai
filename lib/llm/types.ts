@@ -75,6 +75,8 @@ export interface Activity {
   duration: string;
   cost: string;
   thumbnail?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface DailyPlan {

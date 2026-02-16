@@ -1,0 +1,738 @@
+{
+  "city": "osaka",
+  "batch": 9,
+  "spots": [
+    {
+      "name": {
+        "en": "Eki Marche Shin-Osaka",
+        "ja": "エキマルシェ新大阪"
+      },
+      "description": {
+        "en": "Shopping in shinkansen station.",
+        "ja": "新幹線駅のショッピング。"
+      },
+      "address": {
+        "en": "Shin-Osaka Station, Yodogawa-ku, Osaka",
+        "ja": "大阪市淀川区新大阪駅"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Station",
+        "Souvenirs",
+        "Food"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Any",
+      "tips": [
+        "Last minute souvenirs",
+        "Good food options",
+        "Before train"
+      ],
+      "neighborhood": "Shin-Osaka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.7343,
+      "longitude": 135.5017
+    },
+    {
+      "name": {
+        "en": "Namba Walk",
+        "ja": "なんばウォーク"
+      },
+      "description": {
+        "en": "Underground shopping arcade.",
+        "ja": "地下ショッピングアーケード。"
+      },
+      "address": {
+        "en": "Namba, Chuo-ku, Osaka",
+        "ja": "大阪市中央区難波"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Underground",
+        "Arcade",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Long underground",
+        "Many shops",
+        "Connects stations"
+      ],
+      "neighborhood": "Namba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6671,
+      "longitude": 135.5023
+    },
+    {
+      "name": {
+        "en": "Crysta Nagahori",
+        "ja": "クリスタ長堀"
+      },
+      "description": {
+        "en": "Underground shopping street.",
+        "ja": "地下ショッピングストリート。"
+      },
+      "address": {
+        "en": "Shinsaibashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区心斎橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Underground",
+        "Shopping",
+        "Long"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very long",
+        "Modern shops",
+        "Near Shinsaibashi"
+      ],
+      "neighborhood": "Shinsaibashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6752,
+      "longitude": 135.5028
+    },
+    {
+      "name": {
+        "en": "Depachika Food Halls",
+        "ja": "デパ地下"
+      },
+      "description": {
+        "en": "Department store basement food halls.",
+        "ja": "デパート地下の食品売り場。"
+      },
+      "address": {
+        "en": "Various department stores, Osaka",
+        "ja": "大阪市各デパート"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Food Hall",
+        "Department Store",
+        "Quality"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "High quality",
+        "Bento boxes",
+        "Evening discounts"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Manga Kissa Culture",
+        "ja": "漫画喫茶文化"
+      },
+      "description": {
+        "en": "Manga cafes for reading and sleeping.",
+        "ja": "読書と仮眠の漫画喫茶。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Manga",
+        "Cafe",
+        "Unique"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Any",
+      "tips": [
+        "Cheap accommodation",
+        "24 hours",
+        "Free drinks"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Any"
+      }
+    },
+    {
+      "name": {
+        "en": "Karaoke Spots",
+        "ja": "カラオケ"
+      },
+      "description": {
+        "en": "Karaoke culture in Osaka.",
+        "ja": "大阪のカラオケ文化。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Karaoke",
+        "Nightlife",
+        "Fun"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Night",
+      "tips": [
+        "Many chains",
+        "All night options",
+        "Drink included"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 34.5738,
+      "longitude": 135.4994
+    },
+    {
+      "name": {
+        "en": "Round1 Entertainment",
+        "ja": "ラウンドワン"
+      },
+      "description": {
+        "en": "Entertainment complex. Bowling and games.",
+        "ja": "エンターテイメント施設。ボウリングとゲーム。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Games",
+        "Bowling",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Many games",
+        "Bowling",
+        "Sports activities"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.5569,
+      "longitude": 135.5365
+    },
+    {
+      "name": {
+        "en": "Sento Public Baths",
+        "ja": "銭湯"
+      },
+      "description": {
+        "en": "Traditional public bathhouses.",
+        "ja": "伝統的な公衆浴場。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Bath",
+        "Traditional",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Very cheap",
+        "Local experience",
+        "Bring small towel"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.693,
+      "longitude": 135.5052
+    },
+    {
+      "name": {
+        "en": "Super Sento",
+        "ja": "スーパー銭湯"
+      },
+      "description": {
+        "en": "Modern super bathhouses.",
+        "ja": "近代的なスーパー銭湯。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Bath",
+        "Modern",
+        "Relaxation"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Many baths",
+        "Restaurants",
+        "Relaxation"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Eki-ben Station Bento",
+        "ja": "駅弁"
+      },
+      "description": {
+        "en": "Train station bento boxes.",
+        "ja": "駅の弁当。"
+      },
+      "address": {
+        "en": "Osaka stations",
+        "ja": "大阪各駅"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Bento",
+        "Station",
+        "Travel"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Any",
+      "tips": [
+        "Regional specialties",
+        "Train travel",
+        "Great variety"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.739,
+      "longitude": 135.5171
+    },
+    {
+      "name": {
+        "en": "Konbini Culture",
+        "ja": "コンビニ文化"
+      },
+      "description": {
+        "en": "24-hour convenience stores.",
+        "ja": "24時間コンビニエンスストア。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Convenience",
+        "24 Hours",
+        "Unique"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Any",
+      "tips": [
+        "Great food",
+        "ATMs",
+        "Services"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Any"
+      }
+    },
+    {
+      "name": {
+        "en": "100 Yen Shops",
+        "ja": "100均"
+      },
+      "description": {
+        "en": "Everything for 100 yen.",
+        "ja": "全て100円。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Discount",
+        "Variety",
+        "Cheap"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Any",
+      "tips": [
+        "Great souvenirs",
+        "Daiso/Seria/CanDo",
+        "Amazing variety"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.5759,
+      "longitude": 135.54
+    },
+    {
+      "name": {
+        "en": "Don Quijote Umeda",
+        "ja": "ドン・キホーテ梅田"
+      },
+      "description": {
+        "en": "24-hour discount store in Umeda.",
+        "ja": "梅田の24時間ディスカウントストア。"
+      },
+      "address": {
+        "en": "Umeda, Kita-ku, Osaka",
+        "ja": "大阪市北区梅田"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Discount",
+        "24 Hours",
+        "Everything"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Night",
+      "tips": [
+        "24 hours",
+        "Tax free",
+        "Crazy selection"
+      ],
+      "neighborhood": "Umeda",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 34.6112,
+      "longitude": 135.5957
+    },
+    {
+      "name": {
+        "en": "Book Off",
+        "ja": "ブックオフ"
+      },
+      "description": {
+        "en": "Second hand books and media.",
+        "ja": "中古の本とメディア。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Books",
+        "Second Hand",
+        "Media"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Any",
+      "tips": [
+        "Cheap books",
+        "CDs/DVDs",
+        "Video games"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.5713,
+      "longitude": 135.4679
+    },
+    {
+      "name": {
+        "en": "Hard Off",
+        "ja": "ハードオフ"
+      },
+      "description": {
+        "en": "Second hand electronics and instruments.",
+        "ja": "中古の電化製品と楽器。"
+      },
+      "address": {
+        "en": "Various locations, Osaka",
+        "ja": "大阪市各地"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Second Hand",
+        "Music"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Any",
+      "tips": [
+        "Cheap gear",
+        "Musical instruments",
+        "Electronics"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.5639,
+      "longitude": 135.5137
+    },
+    {
+      "name": {
+        "en": "Mandarake Osaka",
+        "ja": "まんだらけ大阪"
+      },
+      "description": {
+        "en": "Vintage manga and anime goods.",
+        "ja": "ヴィンテージの漫画とアニメグッズ。"
+      },
+      "address": {
+        "en": "Nipponbashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区日本橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Anime",
+        "Vintage",
+        "Manga"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Vintage goods",
+        "Rare finds",
+        "Multiple floors"
+      ],
+      "neighborhood": "Nipponbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6591,
+      "longitude": 135.5056
+    },
+    {
+      "name": {
+        "en": "Animate Osaka",
+        "ja": "アニメイト大阪"
+      },
+      "description": {
+        "en": "Major anime goods store.",
+        "ja": "主要なアニメグッズ店。"
+      },
+      "address": {
+        "en": "Nipponbashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区日本橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Anime",
+        "Goods",
+        "Major"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Latest goods",
+        "Multiple floors",
+        "Events"
+      ],
+      "neighborhood": "Nipponbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6605,
+      "longitude": 135.5047
+    },
+    {
+      "name": {
+        "en": "Joshin Super Kids Land",
+        "ja": "上新電機スーパーキッズランド"
+      },
+      "description": {
+        "en": "Toys and model store.",
+        "ja": "おもちゃとモデルの店。"
+      },
+      "address": {
+        "en": "Nipponbashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区日本橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Toys",
+        "Models",
+        "Electronics"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Model kits",
+        "Train models",
+        "Multiple floors"
+      ],
+      "neighborhood": "Nipponbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6593,
+      "longitude": 135.5056
+    },
+    {
+      "name": {
+        "en": "Yodobashi Camera Umeda",
+        "ja": "ヨドバシカメラ梅田"
+      },
+      "description": {
+        "en": "Giant electronics store.",
+        "ja": "巨大な電気店。"
+      },
+      "address": {
+        "en": "1-1 Ofuka-cho, Kita-ku, Osaka",
+        "ja": "大阪市北区大深町1-1"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Giant",
+        "Everything"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Huge store",
+        "Tax free",
+        "Restaurant floor"
+      ],
+      "neighborhood": "Umeda",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.7042,
+      "longitude": 135.4964
+    },
+    {
+      "name": {
+        "en": "Bic Camera Namba",
+        "ja": "ビックカメラなんば"
+      },
+      "description": {
+        "en": "Large electronics retailer.",
+        "ja": "大型電気店。"
+      },
+      "address": {
+        "en": "Namba, Chuo-ku, Osaka",
+        "ja": "大阪市中央区難波"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Electronics",
+        "Large",
+        "Tax Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Tax free",
+        "Many floors",
+        "Near station"
+      ],
+      "neighborhood": "Namba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6662,
+      "longitude": 135.5003
+    }
+  ]
+}

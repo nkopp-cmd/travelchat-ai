@@ -57,3 +57,10 @@ lint_*.txt
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# data pipeline caches and reports
+data/.enrichment-cache.json
+reports/
+
+# junk / temp files
+nul

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import type { Location } from "./map";
+import { AlertCircle } from "lucide-react";
 
 // Declare kakao maps types
 declare global {
@@ -80,50 +81,104 @@ interface KakaoMapProps {
     zoom: number;
     markers: Location[];
     onMarkerClick?: (marker: Location, index: number) => void;
+    onError?: (error: string) => void;
 }
 
 // Track script loading state globally
 let kakaoScriptLoaded = false;
 let kakaoScriptLoading = false;
-const loadCallbacks: (() => void)[] = [];
+let kakaoMapsDisabled = false; // Session-level flag: once Kakao fails, don't retry
+const loadCallbacks: Array<{ resolve: () => void; reject: (err: Error) => void }> = [];
+
+// Timeout for SDK initialization (10 seconds)
+const INIT_TIMEOUT = 10000;
 
 function loadKakaoScript(): Promise<void> {
     return new Promise((resolve, reject) => {
+        // If Kakao Maps previously failed this session, fail fast — don't spam their servers
+        if (kakaoMapsDisabled) {
+            reject(new Error("Kakao Maps is disabled for this session (previous load failed)."));
+            return;
+        }
+
+        // Already loaded successfully
         if (kakaoScriptLoaded && window.kakao?.maps) {
             resolve();
             return;
         }
 
-        loadCallbacks.push(resolve);
+        // Add to callback queue
+        loadCallbacks.push({ resolve, reject });
 
+        // Already loading, wait for it
         if (kakaoScriptLoading) {
             return;
         }
 
         const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAPS_APP_KEY;
         if (!apiKey) {
-            reject(new Error("Kakao Maps API key not configured. Set NEXT_PUBLIC_KAKAO_MAPS_APP_KEY in your environment."));
+            kakaoMapsDisabled = true;
+            const error = new Error("Kakao Maps API key not configured. Set NEXT_PUBLIC_KAKAO_MAPS_APP_KEY in your environment.");
+            loadCallbacks.forEach((cb) => cb.reject(error));
+            loadCallbacks.length = 0;
             return;
         }
 
         kakaoScriptLoading = true;
 
+        // Set up timeout to detect stuck initialization
+        const timeoutId = setTimeout(() => {
+            if (!kakaoScriptLoaded) {
+                kakaoScriptLoading = false;
+                kakaoMapsDisabled = true; // Don't retry after timeout
+                const error = new Error(
+                    "Kakao Maps SDK timed out. Please verify:\n" +
+                    "1. '카카오맵' feature is ON at https://developers.kakao.com/console\n" +
+                    "2. Your domain is registered in the app platform settings\n" +
+                    "3. You're using the JavaScript key (not REST API key)"
+                );
+                loadCallbacks.forEach((cb) => cb.reject(error));
+                loadCallbacks.length = 0;
+            }
+        }, INIT_TIMEOUT);
+
         const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
         script.async = true;
 
         script.onload = () => {
+            // Check if kakao maps module is available
+            // If '카카오맵' feature is not enabled in Kakao Developer Console,
+            // the script loads but maps.load() won't be available
+            if (!window.kakao?.maps?.load) {
+                clearTimeout(timeoutId);
+                kakaoScriptLoading = false;
+                kakaoMapsDisabled = true; // Don't retry — feature is not enabled
+                const error = new Error(
+                    "Kakao Maps SDK loaded but maps API not available.\n" +
+                    "Enable '카카오맵' feature at: https://developers.kakao.com/console → App → 카카오맵 → ON"
+                );
+                loadCallbacks.forEach((cb) => cb.reject(error));
+                loadCallbacks.length = 0;
+                return;
+            }
+
             window.kakao.maps.load(() => {
+                clearTimeout(timeoutId);
                 kakaoScriptLoaded = true;
                 kakaoScriptLoading = false;
-                loadCallbacks.forEach((cb) => cb());
+                loadCallbacks.forEach((cb) => cb.resolve());
                 loadCallbacks.length = 0;
             });
         };
 
         script.onerror = () => {
+            clearTimeout(timeoutId);
             kakaoScriptLoading = false;
-            reject(new Error("Failed to load Kakao Maps SDK"));
+            kakaoMapsDisabled = true; // Don't retry after network error
+            const error = new Error("Failed to load Kakao Maps SDK. Check your network connection.");
+            loadCallbacks.forEach((cb) => cb.reject(error));
+            loadCallbacks.length = 0;
         };
 
         document.head.appendChild(script);
@@ -186,16 +241,17 @@ export default function KakaoMap({
     zoom,
     markers,
     onMarkerClick,
+    onError,
 }: KakaoMapProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<KakaoMap | null>(null);
     const markersRef = useRef<KakaoCustomOverlay[]>([]);
     const infoWindowRef = useRef<KakaoInfoWindow | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Initialize map
     useEffect(() => {
-        if (!containerRef.current) return;
-
         let mounted = true;
 
         loadKakaoScript()
@@ -212,9 +268,18 @@ export default function KakaoMap({
                 });
 
                 mapRef.current = map;
+                setIsLoading(false);
             })
-            .catch((error) => {
-                console.error("Kakao Maps initialization error:", error);
+            .catch((err) => {
+                console.error("Kakao Maps initialization error:", err);
+                if (mounted) {
+                    const errorMessage = err instanceof Error ? err.message : "Failed to load map";
+                    setError(errorMessage);
+                    setIsLoading(false);
+                    if (onError) {
+                        onError(errorMessage);
+                    }
+                }
             });
 
         return () => {
@@ -315,11 +380,37 @@ export default function KakaoMap({
         }
     }, [markers, handleMarkerClick]);
 
+    // Always render the container so containerRef is available for useEffect.
+    // Overlay loading/error states on top with position: absolute.
     return (
-        <div
-            ref={containerRef}
-            className="w-full h-full"
-            style={{ minHeight: "300px" }}
-        />
+        <div className="relative w-full h-full" style={{ minHeight: "300px" }}>
+            {/* Map container — always mounted so ref is never null */}
+            <div
+                ref={containerRef}
+                className="w-full h-full"
+                style={{ minHeight: "300px" }}
+            />
+
+            {/* Loading overlay */}
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/30 rounded-xl z-10">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                        <p className="text-muted-foreground text-sm">Loading Kakao Maps...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Error overlay */}
+            {error && !isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/30 rounded-xl z-10 p-6">
+                    <div className="text-center max-w-md">
+                        <AlertCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+                        <p className="font-medium text-foreground">Map failed to load</p>
+                        <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">{error}</p>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

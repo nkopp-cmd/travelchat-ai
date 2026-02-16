@@ -1,0 +1,740 @@
+{
+  "city": "tokyo",
+  "batch": 17,
+  "spots": [
+    {
+      "name": {
+        "en": "Tachikawa Showa Memorial Park",
+        "ja": "立川昭和記念公園"
+      },
+      "description": {
+        "en": "Massive former military base turned national park. Cycling, gardens, and seasonal flowers.",
+        "ja": "元軍用地が国営公園に。サイクリング、庭園、季節の花。"
+      },
+      "address": {
+        "en": "3173 Midori-cho, Tachikawa-shi, Tokyo",
+        "ja": "東京都立川市緑町3173"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "National",
+        "Cycling"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Spring/Autumn",
+      "tips": [
+        "Huge park",
+        "Bike rentals",
+        "Cosmos in autumn"
+      ],
+      "neighborhood": "Tachikawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Spring/Autumn"
+      },
+      "latitude": 35.6994,
+      "longitude": 139.4125
+    },
+    {
+      "name": {
+        "en": "Tachikawa Green Springs",
+        "ja": "立川グリーンスプリングス"
+      },
+      "description": {
+        "en": "New cultural complex with Sorano Hotel. Art, dining, and public spaces.",
+        "ja": "ソラノホテルがある新しい文化施設。アート、ダイニング、公共スペース。"
+      },
+      "address": {
+        "en": "3-1 Midori-cho, Tachikawa-shi, Tokyo",
+        "ja": "東京都立川市緑町3-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Complex",
+        "Art",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "New development",
+        "Play! Museum",
+        "Modern architecture"
+      ],
+      "neighborhood": "Tachikawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.7075,
+      "longitude": 139.4044
+    },
+    {
+      "name": {
+        "en": "Fuchu Keibajo Horse Racing",
+        "ja": "府中競馬場"
+      },
+      "description": {
+        "en": "Tokyo Racecourse for major horse races. Japan Cup and local racing culture.",
+        "ja": "主要競馬の東京競馬場。ジャパンカップと地元の競馬文化。"
+      },
+      "address": {
+        "en": "1-1 Hiyoshi-cho, Fuchu-shi, Tokyo",
+        "ja": "東京都府中市日吉町1-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Horse Racing",
+        "Sports",
+        "Betting"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Race days",
+      "tips": [
+        "Major races",
+        "Family friendly",
+        "Japan Cup November"
+      ],
+      "neighborhood": "Fuchu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Race days"
+      }
+    },
+    {
+      "name": {
+        "en": "Fuchu Okunitama Shrine",
+        "ja": "府中大國魂神社"
+      },
+      "description": {
+        "en": "Historic shrine protecting Musashi Province. Major festivals and traditional events.",
+        "ja": "武蔵国を守る歴史的な神社。主要な祭りと伝統的な行事。"
+      },
+      "address": {
+        "en": "3-1 Miyamachi, Fuchu-shi, Tokyo",
+        "ja": "東京都府中市宮町3-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Historic",
+        "Festival"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Festival days",
+      "tips": [
+        "1900+ years old",
+        "Kurayami Festival",
+        "Historic significance"
+      ],
+      "neighborhood": "Fuchu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Festival days"
+      },
+      "latitude": 35.6687,
+      "longitude": 139.4787
+    },
+    {
+      "name": {
+        "en": "Suntory Musashino Brewery",
+        "ja": "サントリー武蔵野ビール工場"
+      },
+      "description": {
+        "en": "Beer brewery with tours and tastings. Premium Malts production facility.",
+        "ja": "ツアーと試飲ができるビール工場。ザ・プレミアム・モルツ製造施設。"
+      },
+      "address": {
+        "en": "3-1-1 Yazaki-cho, Fuchu-shi, Tokyo",
+        "ja": "東京都府中市矢崎町3-1-1"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Beer",
+        "Factory Tour",
+        "Tasting"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Tour times",
+      "tips": [
+        "Free tours",
+        "Beer tasting",
+        "Reservation required"
+      ],
+      "neighborhood": "Fuchu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Tour times"
+      },
+      "latitude": 35.6601,
+      "longitude": 139.477
+    },
+    {
+      "name": {
+        "en": "Higashimurayama Totoro Forest",
+        "ja": "東村山トトロの森"
+      },
+      "description": {
+        "en": "Forest that inspired My Neighbor Totoro. Conservation area with walking trails.",
+        "ja": "となりのトトロのインスピレーションになった森。散策路がある保護区。"
+      },
+      "address": {
+        "en": "Higashimurayama, Tokyo",
+        "ja": "東京都東村山市"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Forest",
+        "Ghibli",
+        "Walking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Any season",
+      "tips": [
+        "Ghibli inspiration",
+        "Nature walks",
+        "Conservation area"
+      ],
+      "neighborhood": "Higashimurayama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Any season"
+      },
+      "latitude": 35.7689,
+      "longitude": 139.4845
+    },
+    {
+      "name": {
+        "en": "Tama Zoo",
+        "ja": "多摩動物公園"
+      },
+      "description": {
+        "en": "Large zoo with African and Asian zones. Safari-style exhibits in hilly terrain.",
+        "ja": "アフリカとアジアゾーンがある大きな動物園。丘陵地にサファリ風の展示。"
+      },
+      "address": {
+        "en": "7-1-1 Hodokubo, Hino-shi, Tokyo",
+        "ja": "東京都日野市程久保7-1-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Zoo",
+        "Family",
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Very large",
+        "Lion bus safari",
+        "Hilly terrain"
+      ],
+      "neighborhood": "Hino",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6507,
+      "longitude": 139.4009
+    },
+    {
+      "name": {
+        "en": "Keio Rail Land",
+        "ja": "京王れーるランド"
+      },
+      "description": {
+        "en": "Train museum for children near Tama Zoo. Historic Keio trains and simulators.",
+        "ja": "多摩動物公園近くの子供向け鉄道博物館。歴史的な京王電車とシミュレーター。"
+      },
+      "address": {
+        "en": "3-36-39 Hodokubo, Hino-shi, Tokyo",
+        "ja": "東京都日野市程久保3-36-39"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Train",
+        "Children",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Weekend",
+      "tips": [
+        "Kids train museum",
+        "Near Tama Zoo",
+        "Train simulators"
+      ],
+      "neighborhood": "Hino",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.649,
+      "longitude": 139.4046
+    },
+    {
+      "name": {
+        "en": "Takao-san Mountain",
+        "ja": "高尾山"
+      },
+      "description": {
+        "en": "Sacred mountain accessible from Tokyo. Multiple hiking trails and temple.",
+        "ja": "東京からアクセスできる霊山。複数のハイキングコースと寺院。"
+      },
+      "address": {
+        "en": "Takao-machi, Hachioji-shi, Tokyo",
+        "ja": "東京都八王子市高尾町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Mountain",
+        "Hiking",
+        "Temple"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Autumn",
+      "tips": [
+        "Cable car available",
+        "Multiple trails",
+        "Very crowded autumn"
+      ],
+      "neighborhood": "Hachioji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Autumn"
+      },
+      "latitude": 35.6311,
+      "longitude": 139.2561
+    },
+    {
+      "name": {
+        "en": "Takao Trick Art Museum",
+        "ja": "高尾トリックアート美術館"
+      },
+      "description": {
+        "en": "Optical illusion art museum at Mt. Takao base. Photo opportunities with 3D art.",
+        "ja": "高尾山麓のだまし絵美術館。3Dアートでの写真撮影。"
+      },
+      "address": {
+        "en": "1786 Takao-machi, Hachioji-shi, Tokyo",
+        "ja": "東京都八王子市高尾町1786"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Fun",
+        "Photos"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Any time",
+      "tips": [
+        "Photo fun",
+        "Near cable car",
+        "All ages"
+      ],
+      "neighborhood": "Hachioji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Any time"
+      }
+    },
+    {
+      "name": {
+        "en": "Hachioji Castle Ruins",
+        "ja": "八王子城跡"
+      },
+      "description": {
+        "en": "Mountain castle ruins with hiking. Historic site from Sengoku period.",
+        "ja": "ハイキングができる山城跡。戦国時代の史跡。"
+      },
+      "address": {
+        "en": "Motohachoji-machi, Hachioji-shi, Tokyo",
+        "ja": "東京都八王子市元八王子町"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Castle",
+        "Historic",
+        "Hiking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Sengoku history",
+        "Mountain hiking",
+        "Less crowded"
+      ],
+      "neighborhood": "Hachioji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.6573,
+      "longitude": 139.2661
+    },
+    {
+      "name": {
+        "en": "Okutama Lake",
+        "ja": "奥多摩湖"
+      },
+      "description": {
+        "en": "Mountain lake at Tokyo's western border. Hiking, camping, and nature escape.",
+        "ja": "東京西端の山間の湖。ハイキング、キャンプ、自然への逃避。"
+      },
+      "address": {
+        "en": "Okutama-machi, Nishitama-gun, Tokyo",
+        "ja": "東京都西多摩郡奥多摩町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Lake",
+        "Mountain",
+        "Camping"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Summer",
+      "tips": [
+        "Mountain retreat",
+        "Camping available",
+        "Far from center"
+      ],
+      "neighborhood": "Okutama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Summer"
+      },
+      "latitude": 35.8097,
+      "longitude": 139.0962
+    },
+    {
+      "name": {
+        "en": "Okutama Nippara Caves",
+        "ja": "奥多摩日原鍾乳洞"
+      },
+      "description": {
+        "en": "Limestone caves in Tokyo's mountains. Underground exploration in nature.",
+        "ja": "東京の山中の石灰洞。自然の中の地下探検。"
+      },
+      "address": {
+        "en": "Nippara, Okutama-machi, Tokyo",
+        "ja": "東京都奥多摩町日原"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Cave",
+        "Nature",
+        "Adventure"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Any season",
+      "tips": [
+        "Cool in summer",
+        "1km inside",
+        "Bring jacket"
+      ],
+      "neighborhood": "Okutama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Any season"
+      },
+      "latitude": 35.8189,
+      "longitude": 139.0855
+    },
+    {
+      "name": {
+        "en": "Mitake-san Mountain",
+        "ja": "御岳山"
+      },
+      "description": {
+        "en": "Sacred mountain with ancient shrine. Cable car access and rock gardens.",
+        "ja": "古い神社がある霊山。ケーブルカーアクセスと岩石園。"
+      },
+      "address": {
+        "en": "Mitake-san, Ome-shi, Tokyo",
+        "ja": "東京都青梅市御岳山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Mountain",
+        "Shrine",
+        "Hiking"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Spring/Autumn",
+      "tips": [
+        "Musashi Mitake Shrine",
+        "Rock garden",
+        "Cable car"
+      ],
+      "neighborhood": "Ome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Spring/Autumn"
+      },
+      "latitude": 35.5853,
+      "longitude": 139.6825
+    },
+    {
+      "name": {
+        "en": "Ome Railway Park",
+        "ja": "青梅鉄道公園"
+      },
+      "description": {
+        "en": "Outdoor railway museum with historic trains. Steam locomotives and train exhibits.",
+        "ja": "歴史的な電車がある野外鉄道博物館。蒸気機関車と鉄道展示。"
+      },
+      "address": {
+        "en": "2-155 Katsunuma, Ome-shi, Tokyo",
+        "ja": "東京都青梅市勝沼2-155"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Train",
+        "Museum",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Weekend",
+      "tips": [
+        "Historic trains",
+        "Family friendly",
+        "Cheap admission"
+      ],
+      "neighborhood": "Ome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.7926,
+      "longitude": 139.2632
+    },
+    {
+      "name": {
+        "en": "Ome Showa Retro Town",
+        "ja": "青梅昭和レトロ商品博物館"
+      },
+      "description": {
+        "en": "Town preserving Showa-era movie posters and atmosphere. Nostalgic shopping street.",
+        "ja": "昭和時代の映画ポスターと雰囲気を残す街。ノスタルジックな商店街。"
+      },
+      "address": {
+        "en": "Ome, Tokyo",
+        "ja": "東京都青梅市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Retro",
+        "Showa",
+        "Nostalgic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Movie poster town",
+        "Showa atmosphere",
+        "Small museums"
+      ],
+      "neighborhood": "Ome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Akishima Showa-no-Mori",
+        "ja": "昭島昭和の森"
+      },
+      "description": {
+        "en": "Large golf course and park complex. Pool and sports facilities.",
+        "ja": "大きなゴルフコースと公園の複合施設。プールとスポーツ施設。"
+      },
+      "address": {
+        "en": "Akishima, Tokyo",
+        "ja": "東京都昭島市"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Golf",
+        "Pool",
+        "Sports"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Weekend",
+      "tips": [
+        "Golf course",
+        "Summer pool",
+        "Sports facilities"
+      ],
+      "neighborhood": "Akishima",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.7058,
+      "longitude": 139.3536
+    },
+    {
+      "name": {
+        "en": "Hamura Zoo",
+        "ja": "羽村市動物公園"
+      },
+      "description": {
+        "en": "Small local zoo with reasonable prices. Family destination in western Tokyo.",
+        "ja": "リーズナブルな価格の小さな地元の動物園。東京西部のファミリー向けスポット。"
+      },
+      "address": {
+        "en": "4-122 Haneno, Hamura-shi, Tokyo",
+        "ja": "東京都羽村市羽4122"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Zoo",
+        "Local",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Weekend",
+      "tips": [
+        "Small but nice",
+        "Very cheap",
+        "Local families"
+      ],
+      "neighborhood": "Hamura",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.767,
+      "longitude": 139.3292
+    },
+    {
+      "name": {
+        "en": "Ome Plum Festival",
+        "ja": "青梅梅まつり"
+      },
+      "description": {
+        "en": "Plum blossom festival in February-March. Traditional flower viewing destination.",
+        "ja": "2〜3月の梅まつり。伝統的な花見スポット。"
+      },
+      "address": {
+        "en": "Yoshino, Ome-shi, Tokyo",
+        "ja": "東京都青梅市吉野"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Festival",
+        "Flowers",
+        "Seasonal"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "February-March",
+      "tips": [
+        "Plum blossoms",
+        "Before cherry season",
+        "Traditional"
+      ],
+      "neighborhood": "Ome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "February-March"
+      },
+      "latitude": 35.772,
+      "longitude": 139.2935
+    },
+    {
+      "name": {
+        "en": "Hinode-san Mountain",
+        "ja": "日の出山"
+      },
+      "description": {
+        "en": "Mountain for sunrise viewing. Popular New Year's dawn hike.",
+        "ja": "日の出を見る山。人気の正月ご来光ハイキング。"
+      },
+      "address": {
+        "en": "Hinode-machi, Nishitama-gun, Tokyo",
+        "ja": "東京都西多摩郡日の出町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Mountain",
+        "Sunrise",
+        "Hiking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "New Year's",
+      "tips": [
+        "Sunrise mountain",
+        "New Year tradition",
+        "Night hiking"
+      ],
+      "neighborhood": "Hinode",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "New Year's"
+      },
+      "latitude": 35.7812,
+      "longitude": 139.1675
+    }
+  ]
+}

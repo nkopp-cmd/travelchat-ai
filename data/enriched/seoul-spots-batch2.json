@@ -1,0 +1,744 @@
+{
+  "city": "seoul",
+  "batch": 2,
+  "spots": [
+    {
+      "name": {
+        "en": "Ikseon-dong Hanok Cafes",
+        "ko": "익선동 한옥 카페거리"
+      },
+      "description": {
+        "en": "Traditional hanok houses converted into trendy cafes and boutiques. The narrow alleyways feel worlds away from nearby Jongno's bustle, with locals sipping specialty coffee in century-old courtyards.",
+        "ko": "전통 한옥을 개조한 트렌디한 카페와 부티크 거리. 종로의 번잡함과는 다른 세계 같은 좁은 골목에서 100년 된 마당에서 스페셜티 커피를 마시는 현지인들."
+      },
+      "address": {
+        "en": "Ikseon-dong, Jongno-gu, Seoul",
+        "ko": "서울 종로구 익선동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Historic",
+        "Photo Spot"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon weekdays",
+      "tips": [
+        "Visit Cheong Su Dang for traditional Korean desserts",
+        "Weekends get extremely crowded",
+        "Best photo spots are deeper in the alleys"
+      ],
+      "neighborhood": "Jongno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon weekdays"
+      },
+      "latitude": 37.5744,
+      "longitude": 126.9896
+    },
+    {
+      "name": {
+        "en": "Mangwon Market",
+        "ko": "망원시장"
+      },
+      "description": {
+        "en": "Beloved neighborhood market that's become a foodie destination. Unlike touristy Gwangjang, Mangwon keeps its local soul with grandmas selling homemade banchan and young vendors with modern twists.",
+        "ko": "맛집 명소가 된 사랑받는 동네 시장. 관광객 많은 광장시장과 달리 할머니들의 수제 반찬과 젊은 상인들의 현대적 음식이 공존하는 로컬 시장."
+      },
+      "address": {
+        "en": "Mangwon-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 망원동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Food Market",
+        "Local Favorite",
+        "Street Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late morning",
+      "tips": [
+        "Try the famous croquettes at the entrance",
+        "Bring cash - many vendors don't take cards",
+        "The 2nd floor food court is hidden gem"
+      ],
+      "neighborhood": "Mangwon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Late morning"
+      },
+      "latitude": 37.5566,
+      "longitude": 126.9061
+    },
+    {
+      "name": {
+        "en": "Seongsu Café Street",
+        "ko": "성수동 카페거리"
+      },
+      "description": {
+        "en": "Seoul's Brooklyn - former factories and warehouses transformed into Instagram-worthy cafes and concept stores. Industrial chic meets specialty coffee in Korea's hottest creative district.",
+        "ko": "서울의 브루클린 - 공장과 창고가 인스타그래머블 카페와 컨셉 스토어로 변신. 한국에서 가장 핫한 크리에이티브 지구에서 만나는 인더스트리얼 시크와 스페셜티 커피."
+      },
+      "address": {
+        "en": "Seongsu-dong, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 성수동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Industrial",
+        "Trendy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Onion Cafe is famous but always packed - try Mesh Coffee instead",
+        "Walk along the railroad tracks for hidden spots",
+        "Many stores closed on Mondays"
+      ],
+      "neighborhood": "Seongsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5442,
+      "longitude": 127.0634
+    },
+    {
+      "name": {
+        "en": "Yeonnam-dong 239",
+        "ko": "연남동 239"
+      },
+      "description": {
+        "en": "A linear park built on old railroad tracks, nicknamed 'Gyeongui Line Forest Park'. The surrounding neighborhood has quirky indie shops, vintage stores, and some of Seoul's best independent restaurants.",
+        "ko": "옛 철길 위에 만든 선형 공원, 경의선 숲길. 주변 동네에는 개성 있는 인디 숍, 빈티지 스토어, 서울 최고의 독립 레스토랑들이 자리하고 있다."
+      },
+      "address": {
+        "en": "Yeonnam-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 연남동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Walking",
+        "Neighborhood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Early evening",
+      "tips": [
+        "The park is best walked from Hongdae to Gajwa",
+        "Street performers on weekends",
+        "Try the restaurants on the side streets, not main road"
+      ],
+      "neighborhood": "Yeonnam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Early evening"
+      },
+      "latitude": 37.5626,
+      "longitude": 126.922
+    },
+    {
+      "name": {
+        "en": "Samcheong-dong Art Galleries",
+        "ko": "삼청동 갤러리 거리"
+      },
+      "description": {
+        "en": "Gallery-hopping paradise between Gyeongbokgung and Bukchon. Dozens of small contemporary art galleries, traditional craft shops, and understated cafes line the sloping streets.",
+        "ko": "경복궁과 북촌 사이 갤러리 호핑 천국. 수십 개의 소규모 현대 미술 갤러리, 전통 공예점, 절제된 카페들이 경사진 거리를 따라 늘어서 있다."
+      },
+      "address": {
+        "en": "Samcheong-dong, Jongno-gu, Seoul",
+        "ko": "서울 종로구 삼청동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art Gallery",
+        "Walking",
+        "Traditional"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Weekday afternoon",
+      "tips": [
+        "Most galleries are free",
+        "Walk up toward the Blue House for quieter spots",
+        "Combine with Bukchon Hanok Village visit"
+      ],
+      "neighborhood": "Samcheong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Weekday afternoon"
+      },
+      "latitude": 37.5896,
+      "longitude": 126.9811
+    },
+    {
+      "name": {
+        "en": "Ttukseom Hangang Park",
+        "ko": "뚝섬한강공원"
+      },
+      "description": {
+        "en": "Local favorite Han River park away from the tourist crowds at Yeouido. Rent bikes, order fried chicken delivery to your picnic mat, and watch Seoul's skyline light up at sunset.",
+        "ko": "여의도의 관광객 인파를 피한 현지인 선호 한강공원. 자전거를 빌리고, 피크닉 매트에 치킨을 배달시키고, 해질녘 서울 스카이라인이 빛나는 것을 감상하라."
+      },
+      "address": {
+        "en": "Ttukseom-ro, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 뚝섬로"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Riverside",
+        "Picnic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Use Baedal Minjok app to order chicken delivery to your spot",
+        "Convenience store by entrance for beer",
+        "Water sports rental available in summer"
+      ],
+      "neighborhood": "Seongsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5298,
+      "longitude": 127.0681
+    },
+    {
+      "name": {
+        "en": "Euljiro Nogari Alley",
+        "ko": "을지로 노가리골목"
+      },
+      "description": {
+        "en": "Time-capsule drinking alley where ajusshis (older men) have been eating dried pollack and drinking soju for decades. Join the plastic chairs and low tables for Seoul's most authentic drinking experience.",
+        "ko": "수십 년간 아저씨들이 노가리와 소주를 즐겨온 타임캡슐 같은 골목. 플라스틱 의자와 낮은 테이블에서 서울에서 가장 진정한 술자리를 경험하라."
+      },
+      "address": {
+        "en": "Eulji-ro 3-ga, Jung-gu, Seoul",
+        "ko": "서울 중구 을지로3가"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar",
+        "Traditional",
+        "Local Institution"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Evening after 7pm",
+      "tips": [
+        "Nogari is dried young pollack - it's the signature snack",
+        "Mix soju with beer for 'somaek'",
+        "Cash preferred at older establishments"
+      ],
+      "neighborhood": "Euljiro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.38,
+      "best_times": {
+        "en": "Evening after 7pm"
+      },
+      "latitude": 37.5668,
+      "longitude": 127
+    },
+    {
+      "name": {
+        "en": "Gwangjang Market Bindaetteok",
+        "ko": "광장시장 빈대떡"
+      },
+      "description": {
+        "en": "Korea's oldest permanent market, famous for mung bean pancakes fried to order. The food alley gets packed, but finding a spot at a pojangmacha-style stall is worth the hunt.",
+        "ko": "한국에서 가장 오래된 상설시장, 즉석에서 부쳐주는 녹두전으로 유명. 먹자골목은 붐비지만 포장마차 스타일 좌판을 찾는 건 그만한 가치가 있다."
+      },
+      "address": {
+        "en": "Jongno 4-ga, Jongno-gu, Seoul",
+        "ko": "서울 종로구 종로4가"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Market Food",
+        "Traditional",
+        "Must Try"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late morning to lunch",
+      "tips": [
+        "Order bindaetteok with makgeolli rice wine",
+        "Mayak kimbap (addictive mini kimbap) is from here",
+        "Go deeper into market for fewer tourists"
+      ],
+      "neighborhood": "Jongno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Late morning to lunch"
+      },
+      "latitude": 37.5704,
+      "longitude": 126.9977
+    },
+    {
+      "name": {
+        "en": "Seoul Forest",
+        "ko": "서울숲"
+      },
+      "description": {
+        "en": "Massive urban park that locals use for everything from morning runs to weekend picnics. The deer enclosure and butterfly garden are family favorites, while the Han River-side paths draw cyclists.",
+        "ko": "현지인들이 아침 조깅부터 주말 피크닉까지 즐기는 대규모 도심 공원. 사슴 우리와 나비 정원은 가족 인기 코스, 한강변 길은 자전거족이 즐겨 찾는다."
+      },
+      "address": {
+        "en": "Ttukseom-ro, Seongdong-gu, Seoul",
+        "ko": "서울 성동구 뚝섬로"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Nature",
+        "Family Friendly"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning or late afternoon",
+      "tips": [
+        "Rent bikes at the entrance",
+        "The cafe near the deer area has good views",
+        "Underbridge Market on weekends"
+      ],
+      "neighborhood": "Seongsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning or late afternoon"
+      },
+      "latitude": 37.5436,
+      "longitude": 127.0447
+    },
+    {
+      "name": {
+        "en": "Hapjeong Mecenatpolis",
+        "ko": "합정 메세나폴리스"
+      },
+      "description": {
+        "en": "Underground mall and cultural complex with one of Seoul's best food courts. Locals come for the diverse dining options and bookstore cafe, avoiding the chaos of nearby Hongdae.",
+        "ko": "서울 최고의 푸드코트가 있는 지하 쇼핑몰 겸 문화 복합단지. 현지인들은 다양한 식당과 북카페를 위해, 근처 홍대의 혼잡을 피해 이곳을 찾는다."
+      },
+      "address": {
+        "en": "Yanghwa-ro, Mapo-gu, Seoul",
+        "ko": "서울 마포구 양화로"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Food Court",
+        "Books"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Lunch or dinner time",
+      "tips": [
+        "Arc N Book is a stunning bookstore-cafe",
+        "Food court has great variety",
+        "Connected directly to subway exit"
+      ],
+      "neighborhood": "Hapjeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Lunch or dinner time"
+      },
+      "latitude": 37.5449,
+      "longitude": 126.9057
+    },
+    {
+      "name": {
+        "en": "Changshin-dong Sewing Village",
+        "ko": "창신동 봉제마을"
+      },
+      "description": {
+        "en": "Hillside neighborhood where Seoul's garment industry still hums. Wander past small sewing workshops, rooftop views of Dongdaemun, and newly opened artist studios bringing fresh energy.",
+        "ko": "서울 봉제산업이 여전히 살아있는 언덕 동네. 작은 봉제 공장들, 동대문 전망의 옥상들, 새로운 활력을 불어넣는 아티스트 스튜디오를 거닐어보라."
+      },
+      "address": {
+        "en": "Changshin-dong, Jongno-gu, Seoul",
+        "ko": "서울 종로구 창신동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Local Life",
+        "Walking",
+        "Hidden"
+      ],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Take the Naksan Park stairs for views",
+        "Small cafes are opening in converted workshops",
+        "Respectful photography - it's a working neighborhood"
+      ],
+      "neighborhood": "Dongdaemun",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.39,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Mapo Galbi Alley",
+        "ko": "마포 갈비골목"
+      },
+      "description": {
+        "en": "Carnivore's paradise where generations of Seoulites have celebrated with grilled pork ribs. These old-school joints serve meat the traditional way - charcoal grills and minimal fuss.",
+        "ko": "여러 세대의 서울 사람들이 돼지갈비로 축하 자리를 가져온 육식주의자의 천국. 숯불 구이와 미니멀한 세팅으로 전통 방식대로 고기를 내는 오래된 맛집들."
+      },
+      "address": {
+        "en": "Mapo-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 마포동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "BBQ",
+        "Traditional",
+        "Local Institution"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Dinner",
+      "tips": [
+        "Come hungry - portions are large",
+        "Dwaeji galbi (pork ribs) is the specialty",
+        "Older restaurants have more character"
+      ],
+      "neighborhood": "Mapo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 37.5367,
+      "longitude": 126.9429
+    },
+    {
+      "name": {
+        "en": "Cheongdam Luxury Row",
+        "ko": "청담 명품거리"
+      },
+      "description": {
+        "en": "Seoul's answer to Rodeo Drive, where K-pop idols shop and luxury brands have their Korean flagships. Even window shopping reveals Korean high fashion and celebrity culture.",
+        "ko": "케이팝 아이돌이 쇼핑하고 명품 브랜드가 한국 플래그십을 둔 서울의 로데오 드라이브. 윈도우 쇼핑만으로도 한국 하이패션과 셀럽 문화를 엿볼 수 있다."
+      },
+      "address": {
+        "en": "Cheongdam-dong, Gangnam-gu, Seoul",
+        "ko": "서울 강남구 청담동"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Fashion",
+        "Celebrity Spotting"
+      ],
+      "localley_score": 2,
+      "local_percentage": 40,
+      "best_time": "Afternoon",
+      "tips": [
+        "SM Entertainment building nearby for K-pop fans",
+        "Cafes here cater to influencers",
+        "Dress well to blend in"
+      ],
+      "neighborhood": "Cheongdam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5258,
+      "longitude": 127.0523
+    },
+    {
+      "name": {
+        "en": "Noryangjin Fish Market",
+        "ko": "노량진 수산시장"
+      },
+      "description": {
+        "en": "Wholesale fish market where you pick your seafood live from tanks, then have it prepared upstairs. An authentic, chaotic experience far from tourist-polished markets.",
+        "ko": "수조에서 직접 해산물을 골라 위층에서 조리해 먹는 도매 수산시장. 관광객용으로 다듬어진 시장과는 거리가 먼, 날것의 혼돈스러운 경험."
+      },
+      "address": {
+        "en": "Nodeul-ro, Dongjak-gu, Seoul",
+        "ko": "서울 동작구 노들로"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Seafood",
+        "Market",
+        "Experience"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Early morning or late night",
+      "tips": [
+        "Negotiate prices - it's expected",
+        "Pay for fish downstairs, cooking fee upstairs",
+        "Open 24 hours but best selection early AM"
+      ],
+      "neighborhood": "Noryangjin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Early morning or late night"
+      },
+      "latitude": 37.5135,
+      "longitude": 126.9382
+    },
+    {
+      "name": {
+        "en": "Namsan Outdoor Library",
+        "ko": "남산 야외도서관"
+      },
+      "description": {
+        "en": "Open-air reading space on Namsan mountain with city views. Locals bring books, grab a blanket, and spend hours here - a peaceful escape minutes from downtown chaos.",
+        "ko": "남산에서 도시 전망과 함께하는 야외 독서 공간. 현지인들은 책을 가져와 담요를 깔고 몇 시간을 보낸다 - 도심의 혼잡에서 몇 분 거리의 평화로운 도피처."
+      },
+      "address": {
+        "en": "Namsan Park, Jung-gu, Seoul",
+        "ko": "서울 중구 남산공원"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Reading",
+        "Scenic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Late afternoon",
+      "tips": [
+        "Bring your own book - limited selection",
+        "Take the cable car up and walk down",
+        "Perfect for sunset watching"
+      ],
+      "neighborhood": "Namsan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Late afternoon"
+      },
+      "latitude": 37.5505,
+      "longitude": 126.9916
+    },
+    {
+      "name": {
+        "en": "Sinchon Rodeo Street",
+        "ko": "신촌 로데오거리"
+      },
+      "description": {
+        "en": "University district hub where Yonsei and Ewha students gather. Affordable restaurants, noraebang (karaoke), and late-night energy make this Seoul's authentic college town experience.",
+        "ko": "연세대, 이화여대 학생들이 모이는 대학가 중심지. 저렴한 식당, 노래방, 밤늦은 활기가 서울의 진정한 대학가 경험을 선사한다."
+      },
+      "address": {
+        "en": "Sinchon-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 신촌동"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "University District",
+        "Karaoke",
+        "Late Night"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Noraebang is cheap and fun here",
+        "Many 24-hour restaurants",
+        "Ewha shopping street nearby for fashion"
+      ],
+      "neighborhood": "Sinchon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5652,
+      "longitude": 126.9392
+    },
+    {
+      "name": {
+        "en": "Bukhansan Ui-dong Entrance",
+        "ko": "북한산 우이동 입구"
+      },
+      "description": {
+        "en": "Less crowded entrance to Seoul's beloved national park. Serious hikers and weekend warriors alike use these trails, with restaurants at the base serving mountain-hiker staples like pajeon.",
+        "ko": "서울 시민이 사랑하는 국립공원의 덜 붐비는 입구. 진지한 등산객과 주말 하이커 모두 이 코스를 이용하며, 입구의 식당들은 파전 같은 등산객 음식을 낸다."
+      },
+      "address": {
+        "en": "Ui-dong, Gangbuk-gu, Seoul",
+        "ko": "서울 강북구 우이동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Nature",
+        "Local Favorite"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Early morning",
+      "tips": [
+        "Bring proper hiking shoes - trails are rocky",
+        "Pajeon restaurants at entrance are a tradition",
+        "Download trail map - signal can be spotty"
+      ],
+      "neighborhood": "Ui-dong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 37.6575,
+      "longitude": 127.009
+    },
+    {
+      "name": {
+        "en": "Jamsil Lotte World Mall Rooftop",
+        "ko": "잠실 롯데월드몰 옥상정원"
+      },
+      "description": {
+        "en": "Rooftop garden atop the mega-mall with views of Lotte Tower and Seokchon Lake. Locals come for evening strolls and seasonal illuminations away from the shopping chaos below.",
+        "ko": "롯데타워와 석촌호수가 보이는 메가몰 옥상 정원. 현지인들은 저녁 산책과 계절별 일루미네이션을 즐기러 아래층 쇼핑 혼잡을 피해 이곳을 찾는다."
+      },
+      "address": {
+        "en": "Olympic-ro, Songpa-gu, Seoul",
+        "ko": "서울 송파구 올림픽로"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Rooftop",
+        "Scenic",
+        "Evening"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Free entry to rooftop garden",
+        "Best views at blue hour",
+        "Combine with Seokchon Lake cherry blossoms in spring"
+      ],
+      "neighborhood": "Jamsil",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5144,
+      "longitude": 127.1038
+    },
+    {
+      "name": {
+        "en": "Itaewon Antique Street",
+        "ko": "이태원 앤틱거리"
+      },
+      "description": {
+        "en": "Cluster of antique and vintage furniture shops that's survived Itaewon's gentrification. Interior designers and collectors hunt for Korean and international vintage pieces here.",
+        "ko": "이태원 젠트리피케이션을 견뎌낸 앤틱 및 빈티지 가구점 밀집 거리. 인테리어 디자이너와 수집가들이 한국 및 해외 빈티지 제품을 찾아 이곳을 누빈다."
+      },
+      "address": {
+        "en": "Itaewon-dong, Yongsan-gu, Seoul",
+        "ko": "서울 용산구 이태원동"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Antiques",
+        "Vintage",
+        "Interior"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Bargaining is acceptable",
+        "Quality varies widely - inspect carefully",
+        "Some shops offer international shipping"
+      ],
+      "neighborhood": "Itaewon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5384,
+      "longitude": 126.992
+    },
+    {
+      "name": {
+        "en": "Jongno 3-ga Pojangmacha",
+        "ko": "종로3가 포장마차"
+      },
+      "description": {
+        "en": "Iconic street food tents where office workers decompress with soju and odeng (fish cake soup). This LGBTQ+-friendly area has old-school drinking culture at its most authentic.",
+        "ko": "직장인들이 소주와 오뎅으로 스트레스를 푸는 상징적인 길거리 포장마차. LGBTQ+ 친화적인 이 지역에서 가장 정통적인 오래된 술 문화를 경험할 수 있다."
+      },
+      "address": {
+        "en": "Jongno 3-ga, Jongno-gu, Seoul",
+        "ko": "서울 종로구 종로3가"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Street Food",
+        "Bar",
+        "LGBTQ+ Friendly"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late evening",
+      "tips": [
+        "Odeng broth is free and warming",
+        "This area is known as LGBTQ+ friendly",
+        "Tents close when it rains"
+      ],
+      "neighborhood": "Jongno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Late evening"
+      },
+      "latitude": 37.5707,
+      "longitude": 126.992
+    }
+  ]
+}

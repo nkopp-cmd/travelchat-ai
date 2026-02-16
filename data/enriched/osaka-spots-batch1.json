@@ -1,0 +1,561 @@
+{
+  "city": "osaka",
+  "batch": 1,
+  "spots": [
+    {
+      "name": {
+        "en": "Dotonbori",
+        "ja": "道頓堀"
+      },
+      "description": {
+        "en": "Iconic entertainment district. Glico sign.",
+        "ja": "象徴的な繁華街。グリコの看板。"
+      },
+      "address": {
+        "en": "Dotonbori, Chuo-ku, Osaka",
+        "ja": "大阪市中央区道頓堀"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Iconic",
+        "Nightlife",
+        "Food"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Glico sign photo",
+        "Canal cruise",
+        "Night best"
+      ],
+      "neighborhood": "Namba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.669,
+      "longitude": 135.5016
+    },
+    {
+      "name": {
+        "en": "Shinsaibashi Shopping Street",
+        "ja": "心斎橋筋商店街"
+      },
+      "description": {
+        "en": "Covered shopping arcade. Major shopping.",
+        "ja": "屋根付き商店街。主要ショッピング。"
+      },
+      "address": {
+        "en": "Shinsaibashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区心斎橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Arcade",
+        "Shopping",
+        "Fashion"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Long arcade",
+        "Many shops",
+        "Connected to Namba"
+      ],
+      "neighborhood": "Shinsaibashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6733,
+      "longitude": 135.5015
+    },
+    {
+      "name": {
+        "en": "Kuromon Market",
+        "ja": "黒門市場"
+      },
+      "description": {
+        "en": "Kitchen of Osaka. Fresh seafood.",
+        "ja": "大阪の台所。新鮮な海鮮。"
+      },
+      "address": {
+        "en": "2 Chome Nipponbashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区日本橋2丁目"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Food Market",
+        "Seafood",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Morning",
+      "tips": [
+        "Fresh sashimi",
+        "Morning best",
+        "Eat as you go"
+      ],
+      "neighborhood": "Nipponbashi",
+      "latitude": 34.6653529,
+      "longitude": 135.5062406,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Shinsekai",
+        "ja": "新世界"
+      },
+      "description": {
+        "en": "Retro entertainment district. Kushikatsu famous.",
+        "ja": "レトロな繁華街。串カツで有名。"
+      },
+      "address": {
+        "en": "Shinsekai, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区新世界"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Retro",
+        "Kushikatsu",
+        "Local"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Kushikatsu everywhere",
+        "Tsutenkaku Tower",
+        "Retro vibe"
+      ],
+      "neighborhood": "Shinsekai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.6521,
+      "longitude": 135.5062
+    },
+    {
+      "name": {
+        "en": "Tsutenkaku Tower",
+        "ja": "通天閣"
+      },
+      "description": {
+        "en": "Iconic tower in Shinsekai. Symbol of Osaka.",
+        "ja": "新世界の象徴的なタワー。大阪のシンボル。"
+      },
+      "address": {
+        "en": "1-18-6 Ebisuhigashi, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区恵美須東1-18-6"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Tower",
+        "Iconic",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Touch Billiken for luck",
+        "Night illumination",
+        "Retro area"
+      ],
+      "neighborhood": "Shinsekai",
+      "latitude": 34.6524992,
+      "longitude": 135.50630580000004,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Osaka Castle",
+        "ja": "大阪城"
+      },
+      "description": {
+        "en": "Iconic castle and park. Must-see landmark.",
+        "ja": "象徴的な城と公園。必見のランドマーク。"
+      },
+      "address": {
+        "en": "1-1 Osakajo, Chuo-ku, Osaka",
+        "ja": "大阪市中央区大阪城1-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Castle",
+        "Historic",
+        "Park"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Cherry blossom spot",
+        "Museum inside",
+        "Park is free"
+      ],
+      "neighborhood": "Osaka Castle",
+      "latitude": 34.6872571,
+      "longitude": 135.5258546,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Osaka Castle Park",
+        "ja": "大阪城公園"
+      },
+      "description": {
+        "en": "Large park around castle. Cherry blossoms.",
+        "ja": "城周辺の大きな公園。桜の名所。"
+      },
+      "address": {
+        "en": "Osakajo, Chuo-ku, Osaka",
+        "ja": "大阪市中央区大阪城"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Cherry Blossom",
+        "Large"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Spring",
+      "tips": [
+        "Cherry blossom picnics",
+        "Free park",
+        "Running popular"
+      ],
+      "neighborhood": "Osaka Castle",
+      "latitude": 34.6864797,
+      "longitude": 135.5262114,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Spring"
+      }
+    },
+    {
+      "name": {
+        "en": "Umeda Sky Building",
+        "ja": "梅田スカイビル"
+      },
+      "description": {
+        "en": "Twin tower with floating garden observatory.",
+        "ja": "空中庭園展望台のあるツインタワー。"
+      },
+      "address": {
+        "en": "1-1-88 Oyodonaka, Kita-ku, Osaka",
+        "ja": "大阪市北区大淀中1-1-88"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Observatory",
+        "Iconic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Sunset",
+      "tips": [
+        "Sunset views best",
+        "Unique architecture",
+        "Night recommended"
+      ],
+      "neighborhood": "Umeda",
+      "latitude": 34.7052872,
+      "longitude": 135.4896527,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Sunset"
+      }
+    },
+    {
+      "name": {
+        "en": "Namba Parks",
+        "ja": "なんばパークス"
+      },
+      "description": {
+        "en": "Shopping complex with rooftop garden.",
+        "ja": "屋上庭園付きショッピング施設。"
+      },
+      "address": {
+        "en": "2-10-70 Nanbanaka, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区難波中2-10-70"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Garden",
+        "Unique"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Terraced garden",
+        "Good restaurants",
+        "Near station"
+      ],
+      "neighborhood": "Namba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6606,
+      "longitude": 135.5019
+    },
+    {
+      "name": {
+        "en": "Amerika-mura",
+        "ja": "アメリカ村"
+      },
+      "description": {
+        "en": "Youth culture district. Vintage and street fashion.",
+        "ja": "若者文化地区。ヴィンテージとストリートファッション。"
+      },
+      "address": {
+        "en": "Shinsaibashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区心斎橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Youth",
+        "Vintage",
+        "Street Fashion"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Vintage shops",
+        "Street food",
+        "Youth culture"
+      ],
+      "neighborhood": "Shinsaibashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.672,
+      "longitude": 135.4988
+    },
+    {
+      "name": {
+        "en": "Hozenji Temple",
+        "ja": "法善寺"
+      },
+      "description": {
+        "en": "Moss-covered Buddha. Hidden gem.",
+        "ja": "苔に覆われた仏様。隠れた名所。"
+      },
+      "address": {
+        "en": "1-2-16 Nanba, Chuo-ku, Osaka",
+        "ja": "大阪市中央区難波1-2-16"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Hidden",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Splash water on Buddha",
+        "Moss covered",
+        "Romantic alley"
+      ],
+      "neighborhood": "Namba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.668,
+      "longitude": 135.5024
+    },
+    {
+      "name": {
+        "en": "Hozenji Yokocho",
+        "ja": "法善寺横丁"
+      },
+      "description": {
+        "en": "Atmospheric alley with restaurants.",
+        "ja": "雰囲気のある飲食店横丁。"
+      },
+      "address": {
+        "en": "Nanba, Chuo-ku, Osaka",
+        "ja": "大阪市中央区難波"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Alley",
+        "Restaurants",
+        "Atmospheric"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Evening",
+      "tips": [
+        "Traditional feel",
+        "Near temple",
+        "Night atmosphere"
+      ],
+      "neighborhood": "Namba",
+      "latitude": 34.6681187,
+      "longitude": 135.50261039999998,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Tennoji Zoo",
+        "ja": "天王寺動物園"
+      },
+      "description": {
+        "en": "Historic zoo in Tennoji Park.",
+        "ja": "天王寺公園内の歴史ある動物園。"
+      },
+      "address": {
+        "en": "1-108 Chausuyamacho, Tennoji-ku, Osaka",
+        "ja": "大阪市天王寺区茶臼山町1-108"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Zoo",
+        "Family",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Cheap entry",
+        "Near Shinsekai",
+        "Family friendly"
+      ],
+      "neighborhood": "Tennoji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.6513,
+      "longitude": 135.5104
+    },
+    {
+      "name": {
+        "en": "Tennoji Park",
+        "ja": "天王寺公園"
+      },
+      "description": {
+        "en": "Large park with garden and zoo.",
+        "ja": "庭園と動物園のある大きな公園。"
+      },
+      "address": {
+        "en": "Chausuyamacho, Tennoji-ku, Osaka",
+        "ja": "大阪市天王寺区茶臼山町"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Garden",
+        "Large"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Keitakuen garden",
+        "Near zoo",
+        "Nice walks"
+      ],
+      "neighborhood": "Tennoji",
+      "latitude": 34.6507248,
+      "longitude": 135.51041510000002,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Abeno Harukas",
+        "ja": "あべのハルカス"
+      },
+      "description": {
+        "en": "Japan's tallest building. Observation deck.",
+        "ja": "日本一高いビル。展望台。"
+      },
+      "address": {
+        "en": "1-1-43 Abenosuji, Abeno-ku, Osaka",
+        "ja": "大阪市阿倍野区阿倍野筋1-1-43"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Skyscraper",
+        "Observatory",
+        "Shopping"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Sunset",
+      "tips": [
+        "300m observation deck",
+        "Department store",
+        "Clear day best"
+      ],
+      "neighborhood": "Tennoji",
+      "latitude": 34.6460706,
+      "longitude": 135.5134771,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Sunset"
+      }
+    }
+  ]
+}

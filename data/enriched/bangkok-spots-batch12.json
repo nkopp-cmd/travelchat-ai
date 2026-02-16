@@ -1,0 +1,742 @@
+{
+  "city": "bangkok",
+  "batch": 12,
+  "spots": [
+    {
+      "name": {
+        "en": "Pahurat Little India",
+        "th": "พาหุรัด ลิตเติ้ลอินเดีย"
+      },
+      "description": {
+        "en": "Indian community and fabric market. Saris, spices, and Indian food.",
+        "th": "ชุมชนอินเดียและตลาดผ้า ส่าหรี เครื่องเทศ และอาหารอินเดีย"
+      },
+      "address": {
+        "en": "Pahurat Road, Bangkok",
+        "th": "ถนนพาหุรัด กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Indian",
+        "Fabric",
+        "Community"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Fabric shopping",
+        "Indian food",
+        "Near Chinatown"
+      ],
+      "neighborhood": "Pahurat",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7447,
+      "longitude": 100.5002
+    },
+    {
+      "name": {
+        "en": "Pak Khlong Talat Flower Market",
+        "th": "ปากคลองตลาด"
+      },
+      "description": {
+        "en": "24-hour wholesale flower market. Best at night for photography.",
+        "th": "ตลาดขายส่งดอกไม้ 24 ชั่วโมง ดีที่สุดกลางคืนสำหรับถ่ายภาพ"
+      },
+      "address": {
+        "en": "Pak Khlong Talat, Phra Nakhon, Bangkok",
+        "th": "ปากคลองตลาด เขตพระนคร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Flowers",
+        "24-hour",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Night 2-4am",
+      "tips": [
+        "Best at night",
+        "Wholesale prices",
+        "Great photos"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Night 2-4am"
+      },
+      "latitude": 13.7417,
+      "longitude": 100.4963
+    },
+    {
+      "name": {
+        "en": "Memorial Bridge Night Market",
+        "th": "ตลาดนัดสะพานพุทธ"
+      },
+      "description": {
+        "en": "Weekend night market by historic bridge. Cheap clothes and food.",
+        "th": "ตลาดนัดกลางคืนสุดสัปดาห์ริมสะพานประวัติศาสตร์ เสื้อผ้าราคาถูกและอาหาร"
+      },
+      "address": {
+        "en": "Memorial Bridge, Bangkok",
+        "th": "สะพานพุทธ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Cheap",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekend nights",
+      "tips": [
+        "Very cheap",
+        "Weekend only",
+        "Locals shopping"
+      ],
+      "neighborhood": "Phra Nakhon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Weekend nights"
+      },
+      "latitude": 13.7393,
+      "longitude": 100.4976
+    },
+    {
+      "name": {
+        "en": "Klong San Market",
+        "th": "ตลาดคลองสาน"
+      },
+      "description": {
+        "en": "Local market in Thonburi side. Fresh food and daily necessities.",
+        "th": "ตลาดท้องถิ่นฝั่งธนบุรี อาหารสดและของใช้ประจำวัน"
+      },
+      "address": {
+        "en": "Klong San, Bangkok",
+        "th": "คลองสาน กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local",
+        "Fresh",
+        "Daily"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Very local",
+        "Fresh food",
+        "Thonburi side"
+      ],
+      "neighborhood": "Klong San",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7289,
+      "longitude": 100.5101
+    },
+    {
+      "name": {
+        "en": "Icon Siam Mall",
+        "th": "ไอคอนสยาม"
+      },
+      "description": {
+        "en": "Luxury riverside mall with indoor floating market. Modern Bangkok showcase.",
+        "th": "ห้างหรูริมน้ำมีตลาดน้ำในร่ม โชว์เคสกรุงเทพสมัยใหม่"
+      },
+      "address": {
+        "en": "Charoen Nakhon Road, Bangkok",
+        "th": "ถนนเจริญนคร กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Mall",
+        "Riverside"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Indoor market",
+        "Free shuttle boat",
+        "River views"
+      ],
+      "neighborhood": "Klong San",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7268,
+      "longitude": 100.5103
+    },
+    {
+      "name": {
+        "en": "Lhong 1919 Heritage",
+        "th": "ล้ง 1919"
+      },
+      "description": {
+        "en": "Restored Chinese pier turned cultural space. Art and riverside dining.",
+        "th": "ท่าเรือจีนบูรณะกลายเป็นพื้นที่วัฒนธรรม ศิลปะและอาหารริมน้ำ"
+      },
+      "address": {
+        "en": "Chiang Mai Road, Bangkok",
+        "th": "ถนนเชียงใหม่ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Heritage",
+        "Chinese",
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Historic pier",
+        "Good photos",
+        "Chinese shrine"
+      ],
+      "neighborhood": "Klong San",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7341,
+      "longitude": 100.508
+    },
+    {
+      "name": {
+        "en": "Wat Kalayanamit",
+        "th": "วัดกัลยาณมิตร"
+      },
+      "description": {
+        "en": "Large temple with giant Buddha. Thonburi side riverfront.",
+        "th": "วัดใหญ่กับพระพุทธรูปยักษ์ ริมน้ำฝั่งธนบุรี"
+      },
+      "address": {
+        "en": "Thonburi, Bangkok",
+        "th": "ธนบุรี กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Buddha",
+        "Riverside"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Giant Buddha",
+        "Less tourists",
+        "River access"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7401,
+      "longitude": 100.4912
+    },
+    {
+      "name": {
+        "en": "Santa Cruz Church",
+        "th": "โบสถ์ซางตาครูส"
+      },
+      "description": {
+        "en": "Historic Portuguese church. Mixed Thai-Portuguese community.",
+        "th": "โบสถ์โปรตุเกสประวัติศาสตร์ ชุมชนไทย-โปรตุเกสผสม"
+      },
+      "address": {
+        "en": "Kudi Chin, Bangkok",
+        "th": "กุฎีจีน กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Church",
+        "Portuguese",
+        "Historic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Historic church",
+        "Old community",
+        "Portuguese cakes"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7389,
+      "longitude": 100.4938
+    },
+    {
+      "name": {
+        "en": "Kudi Chin Community",
+        "th": "ชุมชนกุฎีจีน"
+      },
+      "description": {
+        "en": "Historic Portuguese-Thai neighborhood. Traditional desserts and old houses.",
+        "th": "ย่านโปรตุเกส-ไทยประวัติศาสตร์ ขนมดั้งเดิมและบ้านเก่า"
+      },
+      "address": {
+        "en": "Kudi Chin, Thonburi, Bangkok",
+        "th": "กุฎีจีน ธนบุรี กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Community",
+        "Historic",
+        "Portuguese"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Try Khanom Farang",
+        "Old houses",
+        "Riverside walk"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Wat Prayurawongsawat",
+        "th": "วัดประยุรวงศาวาส"
+      },
+      "description": {
+        "en": "White temple with turtle pond. UNESCO heritage conservation.",
+        "th": "วัดขาวมีสระเต่า อนุรักษ์มรดกยูเนสโก"
+      },
+      "address": {
+        "en": "Thonburi, Bangkok",
+        "th": "ธนบุรี กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Turtles"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Feed turtles",
+        "UNESCO award",
+        "White pagoda"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7368,
+      "longitude": 100.4954
+    },
+    {
+      "name": {
+        "en": "Artist House Klong Bang Luang",
+        "th": "บ้านศิลปิน คลองบางหลวง"
+      },
+      "description": {
+        "en": "Traditional puppet shows by canal. Art community in wooden house.",
+        "th": "การแสดงหุ่นดั้งเดิมริมคลอง ชุมชนศิลปะในบ้านไม้"
+      },
+      "address": {
+        "en": "Klong Bang Luang, Bangkok",
+        "th": "คลองบางหลวง กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Puppets",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon 2pm",
+      "tips": [
+        "Free puppet shows",
+        "Canal community",
+        "Weekends best"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon 2pm"
+      },
+      "latitude": 13.7105,
+      "longitude": 100.6497
+    },
+    {
+      "name": {
+        "en": "Wat Hong Rattanaram",
+        "th": "วัดหงษ์รัตนาราม"
+      },
+      "description": {
+        "en": "Ancient temple with beautiful murals. Hidden gem in Thonburi.",
+        "th": "วัดโบราณมีจิตรกรรมฝาผนังสวย อัญมณีซ่อนเร้นในธนบุรี"
+      },
+      "address": {
+        "en": "Thonburi, Bangkok",
+        "th": "ธนบุรี กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Murals",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Beautiful murals",
+        "Very quiet",
+        "Local temple"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7394,
+      "longitude": 100.4878
+    },
+    {
+      "name": {
+        "en": "Khlong Lat Mayom Floating Market",
+        "th": "ตลาดน้ำคลองลัดมะยม"
+      },
+      "description": {
+        "en": "Authentic local floating market. Weekend only, mostly Thai.",
+        "th": "ตลาดน้ำท้องถิ่นแท้ สุดสัปดาห์เท่านั้น ส่วนใหญ่คนไทย"
+      },
+      "address": {
+        "en": "Klong Lat Mayom, Bangkok",
+        "th": "คลองลัดมะยม กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Floating Market",
+        "Local",
+        "Weekend"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Weekend morning",
+      "tips": [
+        "Local market",
+        "Thai food",
+        "Less touristy"
+      ],
+      "neighborhood": "Taling Chan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Weekend morning"
+      },
+      "latitude": 13.7611,
+      "longitude": 100.4157
+    },
+    {
+      "name": {
+        "en": "Taling Chan Floating Market",
+        "th": "ตลาดน้ำตลิ่งชัน"
+      },
+      "description": {
+        "en": "Weekend floating market west of city. Seafood on boats.",
+        "th": "ตลาดน้ำสุดสัปดาห์ตะวันตกของเมือง อาหารทะเลบนเรือ"
+      },
+      "address": {
+        "en": "Taling Chan, Bangkok",
+        "th": "ตลิ่งชัน กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Floating Market",
+        "Seafood",
+        "Weekend"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Weekend morning",
+      "tips": [
+        "Eat on boats",
+        "Weekend only",
+        "Locals go"
+      ],
+      "neighborhood": "Taling Chan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Weekend morning"
+      },
+      "latitude": 13.7764,
+      "longitude": 100.4566
+    },
+    {
+      "name": {
+        "en": "Wat Arun Sunset Viewpoint",
+        "th": "จุดชมวิววัดอรุณ"
+      },
+      "description": {
+        "en": "Best sunset views of Temple of Dawn. Multiple riverside spots.",
+        "th": "วิวพระอาทิตย์ตกวัดอรุณที่ดีที่สุด หลายจุดริมน้ำ"
+      },
+      "address": {
+        "en": "Maharaj Pier area, Bangkok",
+        "th": "บริเวณท่ามหาราช กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Viewpoint",
+        "Sunset",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Sunset",
+      "tips": [
+        "Riverside bars",
+        "Best at sunset",
+        "Free views"
+      ],
+      "neighborhood": "Rattanakosin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Sunset"
+      }
+    },
+    {
+      "name": {
+        "en": "Baan Silapin Artist House",
+        "th": "บ้านศิลปิน"
+      },
+      "description": {
+        "en": "Another artist community venue. Traditional Thai arts.",
+        "th": "สถานที่ชุมชนศิลปินอีกแห่ง ศิลปะไทยดั้งเดิม"
+      },
+      "address": {
+        "en": "Klong Bang Luang, Bangkok",
+        "th": "คลองบางหลวง กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Traditional",
+        "Community"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Art shows",
+        "Traditional crafts",
+        "Canal setting"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7313,
+      "longitude": 100.4632
+    },
+    {
+      "name": {
+        "en": "Wat Rakhang Kositaram",
+        "th": "วัดระฆังโฆสิตาราม"
+      },
+      "description": {
+        "en": "Historic temple with ancient library. Bell temple near river.",
+        "th": "วัดประวัติศาสตร์มีหอสมุดโบราณ วัดระฆังใกล้แม่น้ำ"
+      },
+      "address": {
+        "en": "Arun Amarin Road, Bangkok",
+        "th": "ถนนอรุณอมรินทร์ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Historic",
+        "Library"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Ancient library",
+        "Ring the bells",
+        "Near Wat Arun"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7523,
+      "longitude": 100.4856
+    },
+    {
+      "name": {
+        "en": "Siriraj Medical Museum",
+        "th": "พิพิธภัณฑ์การแพทย์ศิริราช"
+      },
+      "description": {
+        "en": "Unique medical and forensic museum. Not for faint-hearted.",
+        "th": "พิพิธภัณฑ์การแพทย์และนิติเวชเฉพาะตัว ไม่เหมาะกับคนใจไม่แข็ง"
+      },
+      "address": {
+        "en": "Siriraj Hospital, Bangkok",
+        "th": "โรงพยาบาลศิริราช กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Medical",
+        "Unique"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Forensic exhibits",
+        "Medical history",
+        "Not for kids"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7587,
+      "longitude": 100.4855
+    },
+    {
+      "name": {
+        "en": "Royal Barge Museum",
+        "th": "พิพิธภัณฑ์เรือพระราชพิธี"
+      },
+      "description": {
+        "en": "Ceremonial boats for royal processions. Impressive craftsmanship.",
+        "th": "เรือพิธีสำหรับขบวนพระราชพิธี ฝีมือช่างน่าประทับใจ"
+      },
+      "address": {
+        "en": "Arun Amarin Road, Bangkok",
+        "th": "ถนนอรุณอมรินทร์ กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Royal",
+        "Boats"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Royal boats",
+        "Thai craftsmanship",
+        "Unique museum"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.762,
+      "longitude": 100.4846
+    },
+    {
+      "name": {
+        "en": "Wang Lang Market",
+        "th": "ตลาดวังหลัง"
+      },
+      "description": {
+        "en": "Local market near Siriraj. Cheap food and clothes.",
+        "th": "ตลาดท้องถิ่นใกล้ศิริราช อาหารและเสื้อผ้าราคาถูก"
+      },
+      "address": {
+        "en": "Wang Lang, Bangkok",
+        "th": "วังหลัง กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Local",
+        "Food",
+        "Cheap"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Cheap food",
+        "Local market",
+        "University crowd"
+      ],
+      "neighborhood": "Thonburi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 13.7557,
+      "longitude": 100.4852
+    }
+  ]
+}

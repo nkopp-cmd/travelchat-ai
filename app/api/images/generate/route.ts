@@ -8,7 +8,7 @@ import {
     generateItineraryCover,
     isImagenAvailable,
 } from "@/lib/imagen";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { checkAndIncrementUsage, getUserTier } from "@/lib/usage-tracking";
 import { TIER_CONFIGS } from "@/lib/subscription";
@@ -102,19 +102,26 @@ export async function POST(req: NextRequest) {
 
         // Check cache first if cacheKey provided
         if (cacheKey) {
-            const supabase = await createSupabaseServerClient();
+            const supabase = createSupabaseAdmin();
             const { data: cached } = await supabase.storage
                 .from("generated-images")
-                .download(`${userId}/${cacheKey}.png`);
+                .list(userId, { search: `${cacheKey}.png` });
 
-            if (cached) {
-                const buffer = await cached.arrayBuffer();
-                const base64 = Buffer.from(buffer).toString("base64");
-                return NextResponse.json({
-                    success: true,
-                    image: base64,
-                    cached: true,
-                });
+            if (cached && cached.length > 0) {
+                // Download the cached image
+                const { data: blob } = await supabase.storage
+                    .from("generated-images")
+                    .download(`${userId}/${cacheKey}.png`);
+
+                if (blob) {
+                    const buffer = await blob.arrayBuffer();
+                    const base64 = Buffer.from(buffer).toString("base64");
+                    return NextResponse.json({
+                        success: true,
+                        image: base64,
+                        cached: true,
+                    });
+                }
             }
         }
 
@@ -195,15 +202,29 @@ export async function POST(req: NextRequest) {
 
         // Cache the image if cacheKey provided
         if (cacheKey) {
-            const supabase = await createSupabaseServerClient();
-            const buffer = Buffer.from(imageBase64, "base64");
+            try {
+                const supabase = createSupabaseAdmin();
+                const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+                const buffer = Buffer.from(cleanBase64, "base64");
 
-            await supabase.storage
-                .from("generated-images")
-                .upload(`${userId}/${cacheKey}.png`, buffer, {
-                    contentType: "image/png",
-                    upsert: true,
-                });
+                const { error: uploadError } = await supabase.storage
+                    .from("generated-images")
+                    .upload(`${userId}/${cacheKey}.png`, buffer, {
+                        contentType: "image/png",
+                        upsert: true,
+                    });
+
+                if (uploadError) {
+                    console.error("[IMAGE_GEN] Cache upload failed:", {
+                        message: uploadError.message,
+                        name: uploadError.name,
+                        storageKey: `${userId}/${cacheKey}.png`,
+                        bufferSize: buffer.length,
+                    });
+                }
+            } catch (cacheError) {
+                console.error("[IMAGE_GEN] Cache upload error:", cacheError);
+            }
         }
 
         return NextResponse.json({

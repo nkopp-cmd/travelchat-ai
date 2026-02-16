@@ -1,0 +1,763 @@
+{
+  "city": "Busan",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:24:57.752Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Nampo-dong Night Scene"
+      },
+      "description": {
+        "en": "Historic district with bustling nightlife, BIFF Square, and Gukje Market nearby."
+      },
+      "city": "Busan",
+      "neighborhood": "Bupyeong 1-gil",
+      "address": {
+        "en": "South Korea, Busan, Jung-gu, Bupyeong 1-gil, 12 7층"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0999579,
+      "longitude": 129.0258713,
+      "price_tier": "$",
+      "google_place_id": "ChIJXdj2P63paDUR2MfITF4I-vU"
+    },
+    {
+      "name": {
+        "en": "Haeundae Sky Capsule"
+      },
+      "description": {
+        "en": "Colorful retro-looking pods on elevated 2km coastal track with spectacular ocean and city views. Book in advance!"
+      },
+      "city": "Busan",
+      "neighborhood": "Cheongsapo-ro",
+      "address": {
+        "en": "South Korea, Busan, Haeundae, Cheongsapo-ro, 116 청사포정거장 2F"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1613733,
+      "longitude": 129.1918758,
+      "price_tier": "$$",
+      "google_place_id": "ChIJswP7EdKNaDURw-a1ZgZ_-Uk"
+    },
+    {
+      "name": {
+        "en": "Haeundae Beach Train"
+      },
+      "description": {
+        "en": "Eco-friendly battery-charged train along former railway line with 6 stops to Songjeong Beach."
+      },
+      "city": "Busan",
+      "neighborhood": "Dalmaji-gil 62beon-gil",
+      "address": {
+        "en": "13 Dalmaji-gil 62beon-gil, Haeundae, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.158284,
+      "longitude": 129.17276719999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJfdIYWwuNaDURDx-eqtUjCkg"
+    },
+    {
+      "name": {
+        "en": "Songdo Marine Cable Car"
+      },
+      "description": {
+        "en": "Glass-bottom cars with AR screens over Songdo Beach - dramatic coastal views and storytelling."
+      },
+      "city": "Busan",
+      "neighborhood": "Songdohaebyeon-ro",
+      "address": {
+        "en": "171 Songdohaebyeon-ro, Seo-gu, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.0763876,
+      "longitude": 129.0236199,
+      "price_tier": "$$",
+      "google_place_id": "ChIJQehEaUToaDURU7CTL4IJmZY"
+    },
+    {
+      "name": {
+        "en": "Busan X the Sky (LCT Tower)"
+      },
+      "description": {
+        "en": "South Korea's highest observatory at 100+ floors - panoramic night views and coffee with skyline."
+      },
+      "city": "Busan",
+      "neighborhood": "Dalmaji-gil",
+      "address": {
+        "en": "30 Dalmaji-gil, Haeundae, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1594862,
+      "longitude": 129.1701677,
+      "price_tier": "$$",
+      "google_place_id": "ChIJnbg-nA2NaDUR3DK_vogcxaI"
+    },
+    {
+      "name": {
+        "en": "Oryukdo Skywalk"
+      },
+      "description": {
+        "en": "35-meter high glass walkway overlooking the five/six islets (Oryukdo) - mystical in foggy weather."
+      },
+      "city": "Busan",
+      "neighborhood": "Oryukdo-ro",
+      "address": {
+        "en": "137 Oryukdo-ro, Nam-gu, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1006767,
+      "longitude": 129.12440089999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJVRLdCsjtaDURcdummQTLnRk"
+    },
+    {
+      "name": {
+        "en": "Diamond/Busan Tower"
+      },
+      "description": {
+        "en": "Iconic observation tower with spectacular city views from Yongdusan Park."
+      },
+      "city": "Busan",
+      "neighborhood": "Yongdusan-gil",
+      "address": {
+        "en": "37-55 Yongdusan-gil, Jung-gu, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1011934,
+      "longitude": 129.0323676,
+      "price_tier": "$",
+      "google_place_id": "ChIJq0OD23TpaDURTv9SBp0VWtI"
+    },
+    {
+      "name": {
+        "en": "Spa Land (Centum City)"
+      },
+      "description": {
+        "en": "Modern Korean spa (jjimjilbang) inside world's largest department store - relax with locals."
+      },
+      "city": "Busan",
+      "neighborhood": "Centum nam-daero",
+      "address": {
+        "en": "35 Centum nam-daero, Haeundae, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.168233799999996,
+      "longitude": 129.1295279,
+      "price_tier": "$$",
+      "google_place_id": "ChIJDT_5v8aSaDURXW8rEbumGh8"
+    },
+    {
+      "name": {
+        "en": "Bay 101"
+      },
+      "description": {
+        "en": "Chic waterfront complex with cafés, restaurants, marina, and yacht club beneath Marine City skyscrapers."
+      },
+      "city": "Busan",
+      "neighborhood": "Dongbaek-ro",
+      "address": {
+        "en": "52 Dongbaek-ro, Haeundae, Busan, South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1565954,
+      "longitude": 129.1520357,
+      "price_tier": "$$",
+      "google_place_id": "ChIJcSqHWSKTaDURtVMxseKq6zY"
+    },
+    {
+      "name": {
+        "en": "Catamaran Sunset Tour"
+      },
+      "description": {
+        "en": "Sunset cruise from Suyeong Bay with drinks, finger food, and views of Haeundae, Gwangalli, and glowing Diamond Bridge."
+      },
+      "city": "Busan",
+      "neighborhood": "해운대해변로",
+      "address": {
+        "en": "1번, 수영만요트경기장, 84 해운대해변로 GATE, 해운대구 부산광역시 South Korea"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Activities"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.158865399999996,
+      "longitude": 129.1418666,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJb4La_HKTaDURxZQEPJ0epjc"
+    },
+    {
+      "name": {
+        "en": "Igidae Coastal Trail"
+      },
+      "description": {
+        "en": "4.7km cliffside walk from Oryukdo Skywalk to Dongsaengmal with panoramic sea views - one of Korea's most scenic coastal paths."
+      },
+      "city": "Busan",
+      "neighborhood": "Yongho-dong",
+      "address": {
+        "en": "산 129-1 Yongho-dong, Nam-gu, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1180695,
+      "longitude": 129.12785119999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJr8BQxRrtaDURxZ_nt-crZ6Y"
+    },
+    {
+      "name": {
+        "en": "Taejongdae Resort Park"
+      },
+      "description": {
+        "en": "Forest train, lighthouse cliffs, and dramatic ocean vistas on Yeongdo Island peninsula."
+      },
+      "city": "Busan",
+      "neighborhood": "Jeonmang-ro",
+      "address": {
+        "en": "24 Jeonmang-ro, Yeongdo-gu, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.05307,
+      "longitude": 129.0872,
+      "price_tier": "$",
+      "google_place_id": "ChIJOfX1e0zpaDURWq5Hp5x4-SM"
+    },
+    {
+      "name": {
+        "en": "Ahopsan Bamboo Forest"
+      },
+      "description": {
+        "en": "Serene bamboo paths featured in K-dramas like \"The King: Eternal Monarch\" - 13 scenic sites on the map."
+      },
+      "city": "Busan",
+      "neighborhood": "Midong-gil",
+      "address": {
+        "en": "37-1 Midong-gil, Cheolma-myeon, Gijang, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.2871145,
+      "longitude": 129.1715058,
+      "price_tier": "$",
+      "google_place_id": "ChIJvwshtPWPaDURXGTmHCbG_e0"
+    },
+    {
+      "name": {
+        "en": "Geumjeongsan Fortress Trail"
+      },
+      "description": {
+        "en": "Korea's longest ropeway (1,260m) to mountain summit with expansive city views and ancient fortress walls hiking."
+      },
+      "city": "Busan",
+      "neighborhood": "Bungmun-ro",
+      "address": {
+        "en": "122 Bungmun-ro, Geumjeong-gu, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.2755,
+      "longitude": 129.05750419999998,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ7ztOx7iWaDUR6oJ8Q9YrYA0"
+    },
+    {
+      "name": {
+        "en": "Oncheoncheon Stream Walk"
+      },
+      "description": {
+        "en": "Urban stream lined with cherry blossoms in spring and street art year-round - peaceful city escape."
+      },
+      "city": "Busan",
+      "neighborhood": "Oncheoncheon-ro",
+      "address": {
+        "en": "451 Oncheoncheon-ro, Allak-dong, Dongnae-gu, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.191586099999995,
+      "longitude": 129.1019612,
+      "price_tier": "$",
+      "google_place_id": "ChIJqTWmyHGTaDURNB1yCB9YHs0"
+    },
+    {
+      "name": {
+        "en": "Nakdong Estuary Ecological Park"
+      },
+      "description": {
+        "en": "Connected to Dadaepo Beach with sunset boardwalks locals love - migratory bird watching spot."
+      },
+      "city": "Busan",
+      "neighborhood": "Nakdongnam-ro",
+      "address": {
+        "en": "1240 Nakdongnam-ro, Saha-gu, Busan, South Korea"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.104496999999995,
+      "longitude": 128.9459942,
+      "price_tier": "$",
+      "google_place_id": "ChIJmTI2Vf3CaDURTqv-S1LtdRE"
+    },
+    {
+      "name": {
+        "en": "Haedong Yonggungsa Temple"
+      },
+      "description": {
+        "en": "Stunning seaside temple perched on cliffs - one of Korea's few oceanfront temples with dramatic setting."
+      },
+      "city": "Busan",
+      "neighborhood": "Yonggung-gil",
+      "address": {
+        "en": "86 Yonggung-gil, Gijang, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1884543,
+      "longitude": 129.2231109,
+      "price_tier": "$",
+      "google_place_id": "ChIJwabeuxuMaDURXC4Rb21AQaE"
+    },
+    {
+      "name": {
+        "en": "UN Memorial Cemetery"
+      },
+      "description": {
+        "en": "Reflects Busan's role in Korean War and international history - peaceful and moving tribute."
+      },
+      "city": "Busan",
+      "neighborhood": "UN pyeonghwa-ro",
+      "address": {
+        "en": "93 UN pyeonghwa-ro, Nam-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.127812,
+      "longitude": 129.09571259999998,
+      "price_tier": "$",
+      "google_place_id": "ChIJ1WBtuBHsaDURHweTBgdwaKU"
+    },
+    {
+      "name": {
+        "en": "Busan Film Centre"
+      },
+      "description": {
+        "en": "Futuristically designed with world's longest cantilever roof - hosts annual BIFF and nightly LED light shows."
+      },
+      "city": "Busan",
+      "neighborhood": "Suyeonggangbyeon-daero",
+      "address": {
+        "en": "120 Suyeonggangbyeon-daero, Haeundae, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.171177799999995,
+      "longitude": 129.1271956,
+      "price_tier": "$",
+      "google_place_id": "ChIJD2H59MOSaDURcTxRbHWyNqI"
+    },
+    {
+      "name": {
+        "en": "Bosu Dong Book Street"
+      },
+      "description": {
+        "en": "Historic alley created during Korean War for book access - now charming secondhand bookshop street."
+      },
+      "city": "Busan",
+      "neighborhood": "Bosu-dong 1(il)-ga",
+      "address": {
+        "en": "Bosu-dong 1(il)-ga, Jung-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1031252,
+      "longitude": 129.0274609,
+      "price_tier": "$",
+      "google_place_id": "ChIJZVDztJ_paDURgAwXDlRwUZo"
+    },
+    {
+      "name": {
+        "en": "Gukje Market"
+      },
+      "description": {
+        "en": "Massive traditional market with everything from clothing to souvenirs to local treats."
+      },
+      "city": "Busan",
+      "neighborhood": "Gukjesijang 2-gil",
+      "address": {
+        "en": "55 Gukjesijang 2-gil, Jung-gu, Busan, South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1013575,
+      "longitude": 129.0281978,
+      "price_tier": "$",
+      "google_place_id": "ChIJfYLMelSTaDURFlCRfk5W1PA"
+    },
+    {
+      "name": {
+        "en": "Shinsegae Centum City"
+      },
+      "description": {
+        "en": "World's largest department store with free rooftop theme park featuring dinosaurs, pirate ships, African village."
+      },
+      "city": "Busan",
+      "neighborhood": "Centum nam-daero",
+      "address": {
+        "en": "35 Centum nam-daero, Haeundae, Busan, South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1689218,
+      "longitude": 129.1296311,
+      "price_tier": "$$",
+      "google_place_id": "ChIJSSw7slWTaDURjMs-oU61YYc"
+    },
+    {
+      "name": {
+        "en": "Seomyeon Underground Shopping"
+      },
+      "description": {
+        "en": "Youth fashion hub with trendy Korean styles at affordable prices."
+      },
+      "city": "Busan",
+      "neighborhood": "Jungang-daero",
+      "address": {
+        "en": "지하 717 Jungang-daero, Busanjin District, Busan, South Korea"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.1562986,
+      "longitude": 129.059155,
+      "price_tier": "$",
+      "google_place_id": "ChIJS2MRDG_raDUR0VNDeM8rmC0"
+    },
+    {
+      "name": {
+        "en": "Dadaepo Drone Shows"
+      },
+      "description": {
+        "en": "New 2025 weekend light + music drone shows with synchronized sunset visuals."
+      },
+      "city": "Busan",
+      "neighborhood": "Millak-dong",
+      "address": {
+        "en": "209-2 Millak-dong, Suyeong-gu, Busan, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "New",
+        "Trending"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 35.154965,
+      "longitude": 129.12248879999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJH8x6RADtaDURYIP-6DbuhXc"
+    },
+    {
+      "name": {
+        "en": "Seongsu Village Pop-ups (Seomyeon)"
+      },
+      "description": {
+        "en": "Seoul's trendy Seongsu vibe comes to Busan - temporary cafés, markets, fashion brands drawing Gen Z."
+      },
+      "city": "Busan",
+      "neighborhood": "Sejong-daero",
+      "address": {
+        "en": "172 Sejong-daero, Sejongno, Jongno District, Seoul, South Korea"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "New",
+        "Trending"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5710085,
+      "longitude": 126.9768074,
+      "price_tier": "$$",
+      "google_place_id": "ChIJBcn0XwCjfDURBGZWmlNOseA"
+    }
+  ]
+}

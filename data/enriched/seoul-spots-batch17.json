@@ -1,0 +1,740 @@
+{
+  "city": "seoul",
+  "batch": 17,
+  "spots": [
+    {
+      "name": {
+        "en": "Pyeongchang-dong Art Valley",
+        "ko": "평창동 예술골짜기"
+      },
+      "description": {
+        "en": "Wealthy hillside area with private galleries and art spaces. See how Seoul's elite live among contemporary art collections.",
+        "ko": "개인 갤러리와 아트 스페이스가 있는 부유한 언덕 지역. 서울의 엘리트가 현대 미술 컬렉션 사이에서 어떻게 사는지 보라."
+      },
+      "address": {
+        "en": "Pyeongchang-dong, Jongno-gu, Seoul",
+        "ko": "서울 종로구 평창동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Wealthy",
+        "Private Galleries"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Private galleries",
+        "Wealthy residential area",
+        "Near Bukhansan"
+      ],
+      "neighborhood": "Pyeongchang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.616,
+      "longitude": 126.9676
+    },
+    {
+      "name": {
+        "en": "Sangam DMC Media Town",
+        "ko": "상암 DMC 미디어타운"
+      },
+      "description": {
+        "en": "Modern media district with broadcast headquarters. See where Korean TV dramas and variety shows are produced.",
+        "ko": "방송사 본사가 있는 현대적 미디어 지구. 한국 TV 드라마와 예능이 제작되는 곳을 보라."
+      },
+      "address": {
+        "en": "Digital Media City, Mapo-gu, Seoul",
+        "ko": "서울 마포구 디지털미디어시티"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Media",
+        "TV Production",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "MBC, SBS headquarters",
+        "Modern development",
+        "K-drama production"
+      ],
+      "neighborhood": "Sangam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5774,
+      "longitude": 126.8981
+    },
+    {
+      "name": {
+        "en": "Gusan-dong Hanok Cafe",
+        "ko": "구산동 한옥카페"
+      },
+      "description": {
+        "en": "Converted hanok house cafe in quiet Eunpyeong. Experience traditional architecture with modern coffee culture.",
+        "ko": "조용한 은평의 개조된 한옥 카페. 현대 커피 문화와 함께 전통 건축을 경험하라."
+      },
+      "address": {
+        "en": "Gusan-dong, Eunpyeong-gu, Seoul",
+        "ko": "서울 은평구 구산동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hanok",
+        "Traditional",
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Hanok architecture",
+        "Quiet neighborhood",
+        "Traditional atmosphere"
+      ],
+      "neighborhood": "Gusan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.6123,
+      "longitude": 126.9083
+    },
+    {
+      "name": {
+        "en": "Bulgwang Station Market Lunch",
+        "ko": "불광역 시장 점심"
+      },
+      "description": {
+        "en": "Market near Bulgwang Station with lunch options. Local workers fill the affordable Korean food spots.",
+        "ko": "점심 옵션이 있는 불광역 근처 시장. 지역 직장인들이 저렴한 한식집을 채운다."
+      },
+      "address": {
+        "en": "Bulgwang Station area, Eunpyeong-gu, Seoul",
+        "ko": "서울 은평구 불광역 일대"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Market",
+        "Lunch",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch",
+      "tips": [
+        "Near Bukhansan entrance",
+        "Local market lunch",
+        "Affordable options"
+      ],
+      "neighborhood": "Bulgwang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Lunch"
+      }
+    },
+    {
+      "name": {
+        "en": "Nogosan Neighborhood",
+        "ko": "노고산동"
+      },
+      "description": {
+        "en": "Hillside neighborhood in Mapo with old Seoul charm. Winding streets and traditional houses survive amid development.",
+        "ko": "옛 서울 정취가 있는 마포의 언덕 동네. 굽이치는 거리와 전통 가옥이 개발 속에서 살아남았다."
+      },
+      "address": {
+        "en": "Nogosan-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 노고산동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Old Seoul",
+        "Hillside",
+        "Traditional"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Old Seoul atmosphere",
+        "Hilly streets",
+        "Disappearing charm"
+      ],
+      "neighborhood": "Nogosan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5536,
+      "longitude": 126.9375
+    },
+    {
+      "name": {
+        "en": "Changjeon-dong Market",
+        "ko": "창전동 시장"
+      },
+      "description": {
+        "en": "Traditional market near Mapo-gu Office. Fresh produce and banchan for local households.",
+        "ko": "마포구청 근처의 전통 시장. 지역 가정을 위한 신선한 농산물과 반찬."
+      },
+      "address": {
+        "en": "Changjeon-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 창전동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional Market",
+        "Local",
+        "Produce"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Local neighborhood market",
+        "Fresh produce",
+        "No English"
+      ],
+      "neighborhood": "Changjeon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.39,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5501,
+      "longitude": 126.9294
+    },
+    {
+      "name": {
+        "en": "Daehung-dong Korean BBQ",
+        "ko": "대흥동 고깃집"
+      },
+      "description": {
+        "en": "BBQ restaurants in residential Mapo serving neighborhood families. No-frills meat with affordable prices.",
+        "ko": "동네 가족을 위한 마포 주거 지역의 고깃집들. 저렴한 가격에 꾸밈없는 고기."
+      },
+      "address": {
+        "en": "Daehung-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 대흥동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "BBQ",
+        "Family",
+        "Budget"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Dinner",
+      "tips": [
+        "Family-friendly BBQ",
+        "Affordable",
+        "Residential area"
+      ],
+      "neighborhood": "Daehung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Dinner"
+      }
+    },
+    {
+      "name": {
+        "en": "Yonggang-dong Local Eats",
+        "ko": "용강동 로컬맛집"
+      },
+      "description": {
+        "en": "Neighborhood restaurants near Yongsan serving local workers. Korean home-style cooking at lunch prices.",
+        "ko": "지역 직장인을 위한 용산 근처의 동네 식당들. 점심 가격에 한식 가정요리."
+      },
+      "address": {
+        "en": "Yonggang-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 용강동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Local",
+        "Korean",
+        "Home-style"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Lunch",
+      "tips": [
+        "Home-style cooking",
+        "Local workers",
+        "Budget-friendly"
+      ],
+      "neighborhood": "Yonggang",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.42,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 37.5416,
+      "longitude": 126.9426
+    },
+    {
+      "name": {
+        "en": "Sinsu-dong Riverside",
+        "ko": "신수동 강변"
+      },
+      "description": {
+        "en": "Residential area along Han River in Mapo. Quieter riverside access than popular parks.",
+        "ko": "마포의 한강변 주거 지역. 인기 공원보다 더 조용한 강변 접근."
+      },
+      "address": {
+        "en": "Sinsu-dong, Mapo-gu, Seoul",
+        "ko": "서울 마포구 신수동"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Riverside",
+        "Quiet",
+        "Residential"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Quieter riverside",
+        "Residential area",
+        "Connected to Han River parks"
+      ],
+      "neighborhood": "Sinsu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5462,
+      "longitude": 126.9359
+    },
+    {
+      "name": {
+        "en": "Bukahyeon-dong Hills",
+        "ko": "북아현동 언덕"
+      },
+      "description": {
+        "en": "Hilly residential area near Sinchon with old Seoul character. Steep streets and traditional houses create unique atmosphere.",
+        "ko": "옛 서울 특색이 있는 신촌 근처의 언덕 주거 지역. 가파른 거리와 전통 가옥이 독특한 분위기를 만든다."
+      },
+      "address": {
+        "en": "Bukahyeon-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 북아현동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Hillside",
+        "Old Seoul",
+        "Residential"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Old Seoul character",
+        "Hilly streets",
+        "Quiet residential"
+      ],
+      "neighborhood": "Bukahyeon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.39,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5634,
+      "longitude": 126.9548
+    },
+    {
+      "name": {
+        "en": "Chungjeongno Station Area",
+        "ko": "충정로역 일대"
+      },
+      "description": {
+        "en": "Area around Chungjeongno Station with mixed commercial and residential. Traditional markets meet modern offices.",
+        "ko": "상업과 주거가 혼합된 충정로역 주변 지역. 전통 시장이 현대 사무실을 만난다."
+      },
+      "address": {
+        "en": "Chungjeongno Station, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 충정로역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Mixed",
+        "Local",
+        "Transit"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Mix of old and new",
+        "Good lunch options",
+        "Transit hub"
+      ],
+      "neighborhood": "Chungjeongno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 37.5594,
+      "longitude": 126.9629
+    },
+    {
+      "name": {
+        "en": "Daesin-dong Old Town",
+        "ko": "대신동 구시가"
+      },
+      "description": {
+        "en": "Historic neighborhood in Seodaemun with remaining traditional houses. See old Seoul before it disappears.",
+        "ko": "남아있는 전통 가옥이 있는 서대문의 역사적인 동네. 사라지기 전에 옛 서울을 보라."
+      },
+      "address": {
+        "en": "Daesin-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 대신동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Traditional",
+        "Disappearing"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Old Seoul",
+        "Disappearing neighborhood",
+        "Historic houses"
+      ],
+      "neighborhood": "Daesin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.42,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5654,
+      "longitude": 126.9456
+    },
+    {
+      "name": {
+        "en": "Bongwon-dong Temple Area",
+        "ko": "봉원동 사찰지역"
+      },
+      "description": {
+        "en": "Neighborhood near Bongwon Temple with Buddhist atmosphere. Temple food restaurants and spiritual ambiance.",
+        "ko": "불교적 분위기가 있는 봉원사 근처의 동네. 사찰 음식 식당과 영적인 분위기."
+      },
+      "address": {
+        "en": "Bongwon-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 봉원동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Buddhist",
+        "Peaceful"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Near Bongwon Temple",
+        "Temple food available",
+        "Spiritual atmosphere"
+      ],
+      "neighborhood": "Bongwon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5722,
+      "longitude": 126.9466
+    },
+    {
+      "name": {
+        "en": "Hongje-dong Hills",
+        "ko": "홍제동 언덕"
+      },
+      "description": {
+        "en": "Hilly residential area in Seodaemun with panoramic views. Old apartment complexes and local markets serve longtime residents.",
+        "ko": "파노라마 전망이 있는 서대문의 언덕 주거 지역. 오래된 아파트 단지와 로컬 시장이 오랜 거주민을 맞는다."
+      },
+      "address": {
+        "en": "Hongje-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 홍제동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Hillside",
+        "Views",
+        "Residential"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Good views",
+        "Old residential area",
+        "Local market"
+      ],
+      "neighborhood": "Hongje",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.36,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5871,
+      "longitude": 126.9468
+    },
+    {
+      "name": {
+        "en": "Namgajwa-dong Local Scene",
+        "ko": "남가좌동 로컬"
+      },
+      "description": {
+        "en": "Residential neighborhood in western Seodaemun. Authentic everyday Seoul life in a quiet area.",
+        "ko": "서대문 서쪽의 주거 동네. 조용한 지역에서의 정통 일상 서울 생활."
+      },
+      "address": {
+        "en": "Namgajwa-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 남가좌동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Residential",
+        "Local",
+        "Everyday"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Evening",
+      "tips": [
+        "Very residential",
+        "Authentic local life",
+        "No tourist presence"
+      ],
+      "neighborhood": "Namgajwa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.5766,
+      "longitude": 126.9211
+    },
+    {
+      "name": {
+        "en": "Gajwa-dong Market Street",
+        "ko": "가좌동 시장거리"
+      },
+      "description": {
+        "en": "Market street serving Seodaemun residents. Traditional produce and banchan shops.",
+        "ko": "서대문 주민을 위한 시장 거리. 전통 농산물과 반찬 가게."
+      },
+      "address": {
+        "en": "Gajwa-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 가좌동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional",
+        "Local",
+        "Produce"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Morning",
+      "tips": [
+        "Local market",
+        "Traditional shops",
+        "No English"
+      ],
+      "neighborhood": "Gajwa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5687,
+      "longitude": 126.9151
+    },
+    {
+      "name": {
+        "en": "Yeonhui-dong Quiet Streets",
+        "ko": "연희동 조용한거리"
+      },
+      "description": {
+        "en": "Peaceful residential streets with hidden cafes and restaurants. Writers and artists favor this contemplative neighborhood.",
+        "ko": "숨겨진 카페와 식당이 있는 평화로운 주거 거리. 작가와 예술가들이 이 사색적인 동네를 선호한다."
+      },
+      "address": {
+        "en": "Yeonhui-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 연희동"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden",
+        "Quiet",
+        "Creative"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Quiet atmosphere",
+        "Hidden cafes",
+        "Writer's neighborhood"
+      ],
+      "neighborhood": "Yeonhui",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5723,
+      "longitude": 126.9308
+    },
+    {
+      "name": {
+        "en": "Bukgajwa-dong Residential",
+        "ko": "북가좌동 주거지역"
+      },
+      "description": {
+        "en": "Apartment complex area in northern Seodaemun. Local restaurants and markets serve families.",
+        "ko": "북서대문의 아파트 단지 지역. 로컬 식당과 시장이 가족들을 맞는다."
+      },
+      "address": {
+        "en": "Bukgajwa-dong, Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구 북가좌동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Residential",
+        "Family",
+        "Local"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Evening",
+      "tips": [
+        "Family residential area",
+        "Local restaurants",
+        "Authentic neighborhood"
+      ],
+      "neighborhood": "Bukgajwa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.579,
+      "longitude": 126.9103
+    },
+    {
+      "name": {
+        "en": "DMC Station Complex",
+        "ko": "DMC역 복합단지"
+      },
+      "description": {
+        "en": "Transit and commercial complex at Digital Media City Station. Office workers and media professionals use the restaurants.",
+        "ko": "디지털미디어시티역의 교통 및 상업 복합단지. 직장인과 미디어 전문가들이 식당을 이용한다."
+      },
+      "address": {
+        "en": "DMC Station, Mapo-gu, Seoul",
+        "ko": "서울 마포구 DMC역"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Transit Hub",
+        "Office",
+        "Media"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Media district",
+        "Office worker crowd",
+        "Modern development"
+      ],
+      "neighborhood": "Sangam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 37.5762,
+      "longitude": 126.9015
+    },
+    {
+      "name": {
+        "en": "Mapo Art Center Area",
+        "ko": "마포아트센터 일대"
+      },
+      "description": {
+        "en": "Cultural venue area with surrounding restaurants and cafes. Pre-show dinners and post-performance drinks.",
+        "ko": "주변 식당과 카페가 있는 문화 공연장 지역. 공연 전 저녁과 공연 후 음료."
+      },
+      "address": {
+        "en": "Mapo Art Center, Mapo-gu, Seoul",
+        "ko": "서울 마포구 마포아트센터"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Performance",
+        "Culture",
+        "Dining"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Cultural performances",
+        "Pre-show dining",
+        "Arts center"
+      ],
+      "neighborhood": "Mapo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      }
+    }
+  ]
+}

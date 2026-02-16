@@ -1,0 +1,765 @@
+{
+  "city": "Singapore",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:44:31.433Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Minion Land at USS"
+      },
+      "description": {
+        "en": "Minion-inspired treats like popcorn at Pop-A-Nana."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "8 Sentosa Gateway, Singapore 098269"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2554644,
+      "longitude": 103.82306659999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJB4NLBgAZ2jER49e9UjRVsjw"
+    },
+    {
+      "name": {
+        "en": "Wonderland Upside Down"
+      },
+      "description": {
+        "en": "5-course feast with themed Wonderland dishes."
+      },
+      "city": "Singapore",
+      "neighborhood": "Kallang",
+      "address": {
+        "en": "462 Serangoon Rd, #02-00, Singapore 218141"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.313408,
+      "longitude": 103.85683259999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJLfTZeaEZ2jERk5pZ0EwrYPE"
+    },
+    {
+      "name": {
+        "en": "The Coach Coffee Shop"
+      },
+      "description": {
+        "en": "NYC vibe cafe with menu of grilled cheese, wagyu hotdog, chilli crab soft serve with mantou."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "26 Sentosa Gateway, #01-224/225/226, Singapore 098138"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2565072000000002,
+      "longitude": 103.8204152,
+      "price_tier": "$$",
+      "google_place_id": "ChIJy2LyDWwZ2jERD1C-TcAz4qc"
+    },
+    {
+      "name": {
+        "en": "Maxwell Food Centre"
+      },
+      "description": {
+        "en": "Historic hawker center with legendary Tian Tian chicken rice and local favorites since 1950s."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "1 Kadayanallur St, Singapore 069184"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2803361,
+      "longitude": 103.844767,
+      "price_tier": "$",
+      "google_place_id": "ChIJseQsTQ0Z2jERqpBTWF0Zf84"
+    },
+    {
+      "name": {
+        "en": "Tekka Centre (Little India)"
+      },
+      "description": {
+        "en": "Bustling wet market and hawker center with authentic Indian food, local produce, and cultural immersion."
+      },
+      "city": "Singapore",
+      "neighborhood": "Rochor",
+      "address": {
+        "en": "665 Buffalo Road Zhujiao Centre, Tekka, Market, Singapore 210665"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3063839,
+      "longitude": 103.85070139999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJQ0ge3fEZ2jER3M6bSkGnWec"
+    },
+    {
+      "name": {
+        "en": "SuperPark Singapore Cafe"
+      },
+      "description": {
+        "en": "Hotdogs, pizzas, and slushes in activity park."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "3 Temasek Blvd, #01-488 Suntec City Mall, Singapore 038983"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2961791,
+      "longitude": 103.85860319999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJw39-kD8Z2jERhXXNQV2evt0"
+    },
+    {
+      "name": {
+        "en": "Café Carrera"
+      },
+      "description": {
+        "en": "Design-focused cafe in Porsche Studio with coffee and pastries."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "130 Beach Rd, #01-11 Guoco Midtown, Singapore 189774"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2975378,
+      "longitude": 103.85766369999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJJYbaydMZ2jERRsLIh4GjvRw"
+    },
+    {
+      "name": {
+        "en": "Tiong Bahru Neighborhood Cafes"
+      },
+      "description": {
+        "en": "Art deco housing estate with specialty coffee shops like Forty Hands, Plain Vanilla, and PS Cafe Petit."
+      },
+      "city": "Singapore",
+      "neighborhood": "Bukit Merah",
+      "address": {
+        "en": "27 Yong Siak St, Singapore 168654"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2829582,
+      "longitude": 103.8300416,
+      "price_tier": "$$",
+      "google_place_id": "ChIJz-oaIBYZ2jERBsYqx-LwZ8Y"
+    },
+    {
+      "name": {
+        "en": "Wings of Time Fireworks"
+      },
+      "description": {
+        "en": "Synchronized fireworks symphony at beach."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "60 Siloso Bch Walk, Singapore 098997"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2513337,
+      "longitude": 103.81707720000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ3f__j_kb2jERYEEHaAfmcB8"
+    },
+    {
+      "name": {
+        "en": "SKULLPANDA Showcase Pop-Up"
+      },
+      "description": {
+        "en": "Limited-edition merch at immersive exhibit."
+      },
+      "city": "Singapore",
+      "neighborhood": "Orchard",
+      "address": {
+        "en": "2 Orchard Turn, B2-57 before Wisma Atria from Mrt station ION, Singapore 238801"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3041445999999999,
+      "longitude": 103.83270189999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJTWfcEQAZ2jERRFgrSm5uFx4"
+    },
+    {
+      "name": {
+        "en": "Harry Potter: Visions of Magic"
+      },
+      "description": {
+        "en": "Exclusive magical treasures shop."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "WEAVE, Level B1, Resorts World Sentosa, 8 Sentosa Gateway, Sentosa Island, Singapore 098269"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.256422,
+      "longitude": 103.8200913,
+      "price_tier": "$$",
+      "google_place_id": "ChIJPyMMVgAb2jER8OpjGrmB-kc"
+    },
+    {
+      "name": {
+        "en": "Wiggle Christmas Pop-up"
+      },
+      "description": {
+        "en": "Interactive photo spots with Korean lifestyle merch like tumblers and bags."
+      },
+      "city": "Singapore",
+      "neighborhood": "",
+      "address": {
+        "en": "Wiggle Christmas Pop-up, Singapore"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$"
+    },
+    {
+      "name": {
+        "en": "LOJEL Pop-Up Store"
+      },
+      "description": {
+        "en": "Modern luggage with exclusive promos and giveaways."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "3 Temasek Blvd, #02-309/310/317 Suntec City, Singapore 038983"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.293857,
+      "longitude": 103.85712129999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJxaYcvwAZ2jERSEa7JcjHOdc"
+    },
+    {
+      "name": {
+        "en": "Haji Lane"
+      },
+      "description": {
+        "en": "Narrow street with indie boutiques, vintage shops, quirky cafes, and street art murals in Arab Quarter."
+      },
+      "city": "Singapore",
+      "neighborhood": "Rochor",
+      "address": {
+        "en": "Haji Ln, Singapore"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Retail"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3007065,
+      "longitude": 103.8591356,
+      "price_tier": "$$",
+      "google_place_id": "ChIJyQfG_rAZ2jER6Yr2-WKP3mc"
+    },
+    {
+      "name": {
+        "en": "IMBA Theatre Gallery"
+      },
+      "description": {
+        "en": "Botero art and Nanyang style exhibits."
+      },
+      "city": "Singapore",
+      "neighborhood": "Hougang",
+      "address": {
+        "en": "633 Hougang Ave 8, Singapore 530633"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3698603999999999,
+      "longitude": 103.87924579999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJb9TL3lEW2jEREKPgrUoKzm0"
+    },
+    {
+      "name": {
+        "en": "Sentosa Sensoryscape"
+      },
+      "description": {
+        "en": "Digital light art and AR in nature."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "3 Siloso Rd, #01 3, Singapore 098977"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.25311,
+      "longitude": 103.81877420000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJG2tCUAAb2jER1d8J7MkyD_E"
+    },
+    {
+      "name": {
+        "en": "Dopamine Land"
+      },
+      "description": {
+        "en": "Sensory museum with themed rooms like ball pits and VR."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "26 Sentosa Gateway, #02-204-205, 098269 WEAVE at Resorts World Sentosa, Singapore 098269"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2574466,
+      "longitude": 103.82002539999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ3-Xn2_0b2jERdNSsfIxf15E"
+    },
+    {
+      "name": {
+        "en": "Singapore Odyssea"
+      },
+      "description": {
+        "en": "700-year history immersion with RFID animals."
+      },
+      "city": "Singapore",
+      "neighborhood": "Museum",
+      "address": {
+        "en": "93 Stamford Rd, Singapore 178897"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.296613,
+      "longitude": 103.84850910000002,
+      "price_tier": "$",
+      "google_place_id": "ChIJD1u-EaMZ2jERaLhNfFkR45I"
+    },
+    {
+      "name": {
+        "en": "Light to Night 2026"
+      },
+      "description": {
+        "en": "Interactive art installations and performances in Civic District."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "Singapore 178957"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2902217,
+      "longitude": 103.85151669999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJFQzeR6cZ2jERgM6--iWeY-U"
+    },
+    {
+      "name": {
+        "en": "T5 In the Making Exhibition"
+      },
+      "description": {
+        "en": "Immersive zones on Changi Airport's future."
+      },
+      "city": "Singapore",
+      "neighborhood": "",
+      "address": {
+        "en": "T5 In the Making Exhibition, Singapore"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$"
+    },
+    {
+      "name": {
+        "en": "Spring Blossom"
+      },
+      "description": {
+        "en": "Festive showcase with lantern horses and blooms at Flower Dome."
+      },
+      "city": "Singapore",
+      "neighborhood": "Yishun",
+      "address": {
+        "en": "462C Yishun Ave 6, Singapore 763462"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.4275398,
+      "longitude": 103.85089389999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJsxdvpVwV2jER8fwUgXx9API"
+    },
+    {
+      "name": {
+        "en": "VERSE 2026"
+      },
+      "description": {
+        "en": "Multi-sensory literary festival with digital installations."
+      },
+      "city": "Singapore",
+      "neighborhood": "",
+      "address": {
+        "en": "VERSE 2026, Singapore"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 0,
+      "longitude": 0,
+      "price_tier": "$"
+    },
+    {
+      "name": {
+        "en": "Peacock Power"
+      },
+      "description": {
+        "en": "Exhibition on peacock motif in Asian cultures."
+      },
+      "city": "Singapore",
+      "neighborhood": "Museum",
+      "address": {
+        "en": "39 Armenian St, Singapore 179941"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2943669,
+      "longitude": 103.8490391,
+      "price_tier": "$",
+      "google_place_id": "ChIJWZX956MZ2jERIGdnbs_SgMw"
+    },
+    {
+      "name": {
+        "en": "Demon Slayer Exhibition"
+      },
+      "description": {
+        "en": "Life-sized sets and multi-sensory experiences."
+      },
+      "city": "Singapore",
+      "neighborhood": "Kallang",
+      "address": {
+        "en": "809 French Road, Kitchener Complex, Level 3 XM Store, Singapore 200809"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3084035999999999,
+      "longitude": 103.8622518,
+      "price_tier": "$$",
+      "google_place_id": "ChIJDTmr_FcZ2jER3TnlaAINXzQ"
+    },
+    {
+      "name": {
+        "en": "Singapore Biennale 2025"
+      },
+      "description": {
+        "en": "Contemporary art with over 80 artists in everyday spaces."
+      },
+      "city": "Singapore",
+      "neighborhood": "Queenstown",
+      "address": {
+        "en": "2 Wilton Cl, Singapore 138763"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2991477,
+      "longitude": 103.7949067,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ7_ivdQAb2jERzRyUYgdcjWw"
+    }
+  ]
+}

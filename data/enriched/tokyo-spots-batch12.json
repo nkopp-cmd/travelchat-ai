@@ -1,0 +1,746 @@
+{
+  "city": "tokyo",
+  "batch": 12,
+  "spots": [
+    {
+      "name": {
+        "en": "Tameike-Sanno Business",
+        "ja": "溜池山王ビジネス街"
+      },
+      "description": {
+        "en": "Major business district with underground connections. Office worker lunch spots and evening izakayas.",
+        "ja": "地下接続がある主要ビジネス街。オフィスワーカーのランチスポットと夜の居酒屋。"
+      },
+      "address": {
+        "en": "Tameike-Sanno, Minato-ku, Tokyo",
+        "ja": "東京都港区溜池山王"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Business",
+        "Lunch",
+        "Izakaya"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch/Evening",
+      "tips": [
+        "Office worker food",
+        "Underground mall",
+        "Quality izakayas"
+      ],
+      "neighborhood": "Tameike-Sanno",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Lunch/Evening"
+      },
+      "latitude": 35.673,
+      "longitude": 139.7414
+    },
+    {
+      "name": {
+        "en": "Kasumigaseki Government Area",
+        "ja": "霞が関官庁街"
+      },
+      "description": {
+        "en": "Japan's government ministry district. Impressive buildings and bureaucrat cafeterias.",
+        "ja": "日本の中央省庁街。印象的な建物と官僚カフェテリア。"
+      },
+      "address": {
+        "en": "Kasumigaseki, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区霞が関"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Government",
+        "Architecture",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Weekday lunch",
+      "tips": [
+        "Ministry buildings",
+        "Public cafeterias",
+        "Weekdays only"
+      ],
+      "neighborhood": "Kasumigaseki",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Weekday lunch"
+      },
+      "latitude": 35.6735,
+      "longitude": 139.7502
+    },
+    {
+      "name": {
+        "en": "Hibiya Park",
+        "ja": "日比谷公園"
+      },
+      "description": {
+        "en": "Western-style park near government district. Concerts, gardens, and seasonal flowers.",
+        "ja": "官庁街近くの西洋式公園。コンサート、庭園、季節の花。"
+      },
+      "address": {
+        "en": "1-6 Hibiya-koen, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区日比谷公園1-6"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Western",
+        "Events"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Lunch/Events",
+      "tips": [
+        "Outdoor concerts",
+        "Rose garden",
+        "Office worker lunch"
+      ],
+      "neighborhood": "Hibiya",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Lunch/Events"
+      },
+      "latitude": 35.6764,
+      "longitude": 139.756
+    },
+    {
+      "name": {
+        "en": "Hibiya Godzilla Square",
+        "ja": "日比谷ゴジラスクエア"
+      },
+      "description": {
+        "en": "Godzilla statue in Hibiya redevelopment. Movie theaters and modern shopping.",
+        "ja": "日比谷再開発のゴジラ像。映画館とモダンなショッピング。"
+      },
+      "address": {
+        "en": "Hibiya, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区日比谷"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Movies",
+        "Shopping",
+        "Pop Culture"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Godzilla statue",
+        "TOHO Cinemas",
+        "Restaurant floors"
+      ],
+      "neighborhood": "Hibiya",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6738,
+      "longitude": 139.7605
+    },
+    {
+      "name": {
+        "en": "Yurakucho Under-Tracks",
+        "ja": "有楽町ガード下"
+      },
+      "description": {
+        "en": "Izakayas and bars under railway tracks. Retro drinking atmosphere near business district.",
+        "ja": "鉄道高架下の居酒屋とバー。ビジネス街近くのレトロな飲み雰囲気。"
+      },
+      "address": {
+        "en": "Yurakucho, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区有楽町"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Under-Tracks",
+        "Izakaya",
+        "Retro"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Under the tracks",
+        "Salaryman drinking",
+        "Yakitori spots"
+      ],
+      "neighborhood": "Yurakucho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6737,
+      "longitude": 139.7612
+    },
+    {
+      "name": {
+        "en": "Imperial Hotel Tokyo",
+        "ja": "帝国ホテル東京"
+      },
+      "description": {
+        "en": "Historic luxury hotel with afternoon tea tradition. Frank Lloyd Wright's original replaced but legacy continues.",
+        "ja": "アフタヌーンティーの伝統がある歴史的高級ホテル。フランク・ロイド・ライトのオリジナルは建て替えられたが遺産は続く。"
+      },
+      "address": {
+        "en": "1-1-1 Uchisaiwaicho, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区内幸町1-1-1"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Hotel",
+        "Historic",
+        "Tea"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Historic hotel",
+        "Afternoon tea",
+        "Multiple restaurants"
+      ],
+      "neighborhood": "Hibiya",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6723,
+      "longitude": 139.7584
+    },
+    {
+      "name": {
+        "en": "Shimbashi Karasumori Exit",
+        "ja": "新橋烏森口"
+      },
+      "description": {
+        "en": "Classic salaryman drinking area. TV news interview spot with working class bars.",
+        "ja": "クラシックなサラリーマン飲み屋エリア。労働者階級のバーがあるTVニュースインタビュースポット。"
+      },
+      "address": {
+        "en": "Shimbashi, Minato-ku, Tokyo",
+        "ja": "東京都港区新橋"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Salaryman",
+        "TV Famous",
+        "Cheap"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "After work",
+      "tips": [
+        "Famous TV spot",
+        "Very authentic",
+        "Cheap drinks"
+      ],
+      "neighborhood": "Shimbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "After work"
+      },
+      "latitude": 35.6655,
+      "longitude": 139.7595
+    },
+    {
+      "name": {
+        "en": "Hamamatsucho World Trade Center",
+        "ja": "浜松町世界貿易センタービル"
+      },
+      "description": {
+        "en": "Observatory with Tokyo Tower views. Less crowded alternative viewpoint.",
+        "ja": "東京タワーが見える展望台。混雑が少ない代替ビューポイント。"
+      },
+      "address": {
+        "en": "2-4-1 Hamamatsucho, Minato-ku, Tokyo",
+        "ja": "東京都港区浜松町2-4-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Observatory",
+        "Views",
+        "Business"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Tokyo Tower views",
+        "Less crowded",
+        "Seaside deck"
+      ],
+      "neighborhood": "Hamamatsucho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6565,
+      "longitude": 139.7559
+    },
+    {
+      "name": {
+        "en": "Takeshiba Waterfront",
+        "ja": "竹芝ウォーターフロント"
+      },
+      "description": {
+        "en": "Redeveloped waterfront with island ferry terminal. Modern complex with bay views.",
+        "ja": "島へのフェリーターミナルがある再開発されたウォーターフロント。湾の眺めがあるモダンな複合施設。"
+      },
+      "address": {
+        "en": "Takeshiba, Minato-ku, Tokyo",
+        "ja": "東京都港区竹芝"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Waterfront",
+        "Modern",
+        "Ferry"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Island ferries",
+        "Bay views",
+        "New development"
+      ],
+      "neighborhood": "Takeshiba",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.654,
+      "longitude": 139.7619
+    },
+    {
+      "name": {
+        "en": "Shibaura Canal Area",
+        "ja": "芝浦運河エリア"
+      },
+      "description": {
+        "en": "Former industrial area with warehouses converted to restaurants. Waterfront dining destination.",
+        "ja": "倉庫がレストランに改装された元工業地帯。ウォーターフロントのダイニング先。"
+      },
+      "address": {
+        "en": "Shibaura, Minato-ku, Tokyo",
+        "ja": "東京都港区芝浦"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Waterfront",
+        "Converted",
+        "Dining"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Dinner",
+      "tips": [
+        "Warehouse conversions",
+        "Canal views",
+        "Upscale dining"
+      ],
+      "neighborhood": "Shibaura",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 35.6443,
+      "longitude": 139.7499
+    },
+    {
+      "name": {
+        "en": "Tennozu Isle",
+        "ja": "天王洲アイル"
+      },
+      "description": {
+        "en": "Art-focused waterfront development. Galleries, breweries, and creative spaces.",
+        "ja": "アートに焦点を当てたウォーターフロント開発。ギャラリー、醸造所、クリエイティブスペース。"
+      },
+      "address": {
+        "en": "Tennozu Isle, Shinagawa-ku, Tokyo",
+        "ja": "東京都品川区天王洲アイル"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Waterfront",
+        "Gallery"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Multiple galleries",
+        "T.Y. Harbor brewery",
+        "Art events"
+      ],
+      "neighborhood": "Tennozu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6227,
+      "longitude": 139.7508
+    },
+    {
+      "name": {
+        "en": "Shinagawa Station Ecute",
+        "ja": "品川駅エキュート"
+      },
+      "description": {
+        "en": "Station commercial complex with quality food. Shinkansen hub with excellent eating options.",
+        "ja": "品質の良い食事がある駅商業施設。素晴らしい食事オプションがある新幹線ハブ。"
+      },
+      "address": {
+        "en": "Shinagawa Station, Minato-ku, Tokyo",
+        "ja": "東京都港区品川駅"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Station",
+        "Variety",
+        "Quality"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Any time",
+      "tips": [
+        "Shinkansen access",
+        "Quality food court",
+        "Bento selection"
+      ],
+      "neighborhood": "Shinagawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Any time"
+      },
+      "latitude": 35.628,
+      "longitude": 139.738
+    },
+    {
+      "name": {
+        "en": "Shinagawa Aquarium",
+        "ja": "しながわ水族館"
+      },
+      "description": {
+        "en": "Local aquarium with dolphin shows. Family destination away from central Tokyo.",
+        "ja": "イルカショーがある地元の水族館。中央東京から離れたファミリー向けスポット。"
+      },
+      "address": {
+        "en": "3-2-1 Katsushima, Shinagawa-ku, Tokyo",
+        "ja": "東京都品川区勝島3-2-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Aquarium",
+        "Family",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekend",
+      "tips": [
+        "Less crowded than others",
+        "Dolphin shows",
+        "Local families"
+      ],
+      "neighborhood": "Shinagawa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.5886,
+      "longitude": 139.7375
+    },
+    {
+      "name": {
+        "en": "Gotanda Back Streets",
+        "ja": "五反田裏通り"
+      },
+      "description": {
+        "en": "Working class drinking district. Cheap izakayas and standing bars.",
+        "ja": "労働者階級の飲み屋街。安い居酒屋と立ち飲みバー。"
+      },
+      "address": {
+        "en": "Gotanda, Shinagawa-ku, Tokyo",
+        "ja": "東京都品川区五反田"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Working Class",
+        "Cheap",
+        "Standing Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "Very local",
+        "Cheap drinks",
+        "Standing bars"
+      ],
+      "neighborhood": "Gotanda",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.6263,
+      "longitude": 139.7236
+    },
+    {
+      "name": {
+        "en": "Osaki Gate City",
+        "ja": "大崎ゲートシティ"
+      },
+      "description": {
+        "en": "Modern office complex with gardens. Quiet business area with quality restaurants.",
+        "ja": "庭園があるモダンなオフィス複合施設。品質の良いレストランがある静かなビジネス街。"
+      },
+      "address": {
+        "en": "1-11-1 Osaki, Shinagawa-ku, Tokyo",
+        "ja": "東京都品川区大崎1-11-1"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Business",
+        "Modern",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Office worker spot",
+        "Garden space",
+        "Quality lunch"
+      ],
+      "neighborhood": "Osaki",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 35.6194,
+      "longitude": 139.7308
+    },
+    {
+      "name": {
+        "en": "Meguro Station Dining",
+        "ja": "目黒駅グルメ"
+      },
+      "description": {
+        "en": "Restaurant cluster around Meguro Station. Famous tonkatsu and ramen shops.",
+        "ja": "目黒駅周辺のレストラン群。有名なとんかつとラーメン店。"
+      },
+      "address": {
+        "en": "Meguro, Shinagawa-ku, Tokyo",
+        "ja": "東京都品川区目黒"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Tonkatsu",
+        "Ramen",
+        "Station"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Dinner",
+      "tips": [
+        "Famous tonkatsu",
+        "Multiple ramen shops",
+        "Queue expected"
+      ],
+      "neighborhood": "Meguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 35.6325,
+      "longitude": 139.7158
+    },
+    {
+      "name": {
+        "en": "Meguro Parasitological Museum",
+        "ja": "目黒寄生虫館"
+      },
+      "description": {
+        "en": "World's only parasite museum. Unique and slightly disturbing free attraction.",
+        "ja": "世界唯一の寄生虫博物館。ユニークでやや不気味な無料アトラクション。"
+      },
+      "address": {
+        "en": "4-1-1 Shimomeguro, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区下目黒4-1-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Unique",
+        "Free"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "World's only",
+        "Free admission",
+        "Not for squeamish"
+      ],
+      "neighborhood": "Meguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.6317,
+      "longitude": 139.7067
+    },
+    {
+      "name": {
+        "en": "Naka-Meguro Sakura",
+        "ja": "中目黒桜"
+      },
+      "description": {
+        "en": "Cherry blossom tunnel along Meguro River. Peak sakura with food stalls and crowds.",
+        "ja": "目黒川沿いの桜のトンネル。屋台と人混みのピーク桜。"
+      },
+      "address": {
+        "en": "Naka-Meguro, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区中目黒"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Sakura",
+        "River",
+        "Seasonal"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Late March-April",
+      "tips": [
+        "Extremely crowded",
+        "Evening illuminations",
+        "Food stalls"
+      ],
+      "neighborhood": "Nakameguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Late March-April"
+      },
+      "latitude": 35.6441,
+      "longitude": 139.6988
+    },
+    {
+      "name": {
+        "en": "Gakugei-Daigaku Dining",
+        "ja": "学芸大学グルメ"
+      },
+      "description": {
+        "en": "Residential neighborhood with excellent restaurants. Local favorite dining destination.",
+        "ja": "素晴らしいレストランがある住宅街。地元民に人気の食事スポット。"
+      },
+      "address": {
+        "en": "Takaban, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区鷹番"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Residential",
+        "Quality",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Dinner",
+      "tips": [
+        "Local favorites",
+        "Quality restaurants",
+        "Residential feel"
+      ],
+      "neighborhood": "Gakugei-Daigaku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 35.6278,
+      "longitude": 139.6856
+    },
+    {
+      "name": {
+        "en": "Den-en-Chofu European",
+        "ja": "田園調布ヨーロピアン"
+      },
+      "description": {
+        "en": "Tokyo's most exclusive residential area. European-style streets and upscale boutiques.",
+        "ja": "東京で最も高級な住宅街。ヨーロッパ風の街並みと高級ブティック。"
+      },
+      "address": {
+        "en": "Den-en-Chofu, Ota-ku, Tokyo",
+        "ja": "東京都大田区田園調布"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Upscale",
+        "Residential",
+        "Boutique"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Most exclusive area",
+        "European feel",
+        "Quiet streets"
+      ],
+      "neighborhood": "Den-en-Chofu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.5969,
+      "longitude": 139.6675
+    }
+  ]
+}

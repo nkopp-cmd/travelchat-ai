@@ -1,0 +1,772 @@
+{
+  "city": "Singapore",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:44:31.437Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Pinkmas 2025"
+      },
+      "description": {
+        "en": "Holiday transformation with unlimited ice cream and installations."
+      },
+      "city": "Singapore",
+      "neighborhood": "Marina South",
+      "address": {
+        "en": "18 Marina Gardens Dr, Singapore 018953"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2820384999999999,
+      "longitude": 103.8640088,
+      "price_tier": "$$",
+      "google_place_id": "ChIJK4BmBAMZ2jERgmIaeturmIA"
+    },
+    {
+      "name": {
+        "en": "Into the Modern"
+      },
+      "description": {
+        "en": "Impressionist masterpieces from Boston museum."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "Singapore 178957"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2902217,
+      "longitude": 103.85151669999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJFQzeR6cZ2jERgM6--iWeY-U"
+    },
+    {
+      "name": {
+        "en": "DINOSAURS EXTINCTIONS US"
+      },
+      "description": {
+        "en": "Dinosaur exhibition with fossils and mass extinction explorations."
+      },
+      "city": "Singapore",
+      "neighborhood": "Jurong East",
+      "address": {
+        "en": "15 Science Centre Rd, Singapore 609081"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3331686999999999,
+      "longitude": 103.73564429999999,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJY618FAQQ2jERzo1f5IAj4Bg"
+    },
+    {
+      "name": {
+        "en": "Star Wars Pop-Up Library"
+      },
+      "description": {
+        "en": "Library with robot arm, trivia, and Jedi quiz."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "100 Victoria St, Singapore 188064"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2975884,
+      "longitude": 103.8543081,
+      "price_tier": "$",
+      "google_place_id": "ChIJKaGsJKUZ2jERxa8yhKrdPfI"
+    },
+    {
+      "name": {
+        "en": "Let's Play: The Art and Design of Asian Games"
+      },
+      "description": {
+        "en": "Interactive with game boards and robotic arm for chess."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "1 Empress Pl, Singapore 179555"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2874968999999998,
+      "longitude": 103.8513861,
+      "price_tier": "$$",
+      "google_place_id": "ChIJoZOhmQkZ2jERehLfvKlsoCA"
+    },
+    {
+      "name": {
+        "en": "FRAMED: A Murder Mystery"
+      },
+      "description": {
+        "en": "AI social gaming with puzzles across gallery exhibits."
+      },
+      "city": "Singapore",
+      "neighborhood": "Changi",
+      "address": {
+        "en": "3 Andover Rd, Singapore 509987"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3892992,
+      "longitude": 103.9742728,
+      "price_tier": "$$",
+      "google_place_id": "ChIJdZRSaZc92jERN3DvYrkFVXc"
+    },
+    {
+      "name": {
+        "en": "Borealis at Gardens by the Bay"
+      },
+      "description": {
+        "en": "Immersive light and sound mimicking Northern Lights."
+      },
+      "city": "Singapore",
+      "neighborhood": "Marina South",
+      "address": {
+        "en": "18 Marina Gardens Dr, Singapore 018953"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2815683,
+      "longitude": 103.8636132,
+      "price_tier": "$",
+      "google_place_id": "ChIJMxZ-kwQZ2jERdsqftXeWCWI"
+    },
+    {
+      "name": {
+        "en": "The Hidden Forest at Cloud Forest"
+      },
+      "description": {
+        "en": "Digital art triggering plant growth and animal appearances."
+      },
+      "city": "Singapore",
+      "neighborhood": "Marina South",
+      "address": {
+        "en": "18 Marina Gardens Dr, Singapore 018953"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2838676999999998,
+      "longitude": 103.8660024,
+      "price_tier": "$$",
+      "google_place_id": "ChIJd0VihwEZ2jERKeREhO6G1Qg"
+    },
+    {
+      "name": {
+        "en": "My Little Pony Petals of Friendship"
+      },
+      "description": {
+        "en": "Limited-time event with Chinese-inspired designs at Floral Fantasy."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "18 Marina Gardens Dr, Singapore 018953"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2817383999999998,
+      "longitude": 103.8611877,
+      "price_tier": "$",
+      "google_place_id": "ChIJbf7nMwAZ2jERWNS0iCBvkOQ"
+    },
+    {
+      "name": {
+        "en": "Jurassic World: The Experience"
+      },
+      "description": {
+        "en": "Animatronic dinosaurs and hands-on exhibits at Cloud Forest."
+      },
+      "city": "Singapore",
+      "neighborhood": "Marina South",
+      "address": {
+        "en": "Gardens by the bay, Singapore"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.283857,
+      "longitude": 103.8660295,
+      "price_tier": "$",
+      "google_place_id": "ChIJbUszKQAZ2jERtWh1y3GMR0c"
+    },
+    {
+      "name": {
+        "en": "Titanic: An Immersive Voyage"
+      },
+      "description": {
+        "en": "Exhibition with VR and authentic artifacts."
+      },
+      "city": "Singapore",
+      "neighborhood": "Orchard",
+      "address": {
+        "en": "25 Scotts Rd, Fever Exhibition Hall, Singapore 228220"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3073645,
+      "longitude": 103.83240409999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJYer4slQZ2jERxxwYomKLAHk"
+    },
+    {
+      "name": {
+        "en": "Machu Picchu: Journey to the Lost City"
+      },
+      "description": {
+        "en": "VR adventure to Incan sites with guided experiences."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "51 Telok Ayer St, #3-00 China Square Food Centre, Singapore 048441"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.282991,
+      "longitude": 103.8492521,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ9ZYcx7YZ2jERmLp8fqob6fg"
+    },
+    {
+      "name": {
+        "en": "The Little Prince: The Journey of Stars"
+      },
+      "description": {
+        "en": "Immersive with 3D visuals and storytelling video."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "600 N Bridge Rd, Singapore 188778"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3000342,
+      "longitude": 103.8576382,
+      "price_tier": "$",
+      "google_place_id": "ChIJF4gMIswZ2jERYyQbvOqzL74"
+    },
+    {
+      "name": {
+        "en": "Gillman Barracks",
+        "zh": "吉尔曼军营"
+      },
+      "description": {
+        "en": "Former military barracks converted to contemporary art galleries and artist studios in lush green setting."
+      },
+      "city": "Singapore",
+      "neighborhood": "Bukit Merah",
+      "address": {
+        "en": "9 Lock Rd, Singapore 108937"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Museum"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2783333,
+      "longitude": 103.8044444,
+      "price_tier": "$",
+      "google_place_id": "ChIJd-ET2cUb2jER9nfWEH4mCX0"
+    },
+    {
+      "name": {
+        "en": "Rainforest Wild Asia"
+      },
+      "description": {
+        "en": "Elevated walkways with free-roaming animals."
+      },
+      "city": "Singapore",
+      "neighborhood": "Central Water Catchment",
+      "address": {
+        "en": "20 Mandai Lake Rd, Singapore 729825"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.4092358000000003,
+      "longitude": 103.7809305,
+      "price_tier": "$$",
+      "google_place_id": "ChIJMyaMZAAT2jERij4WhgTCnWA"
+    },
+    {
+      "name": {
+        "en": "Mandai Boardwalk"
+      },
+      "description": {
+        "en": "Scenic path for wildlife spotting."
+      },
+      "city": "Singapore",
+      "neighborhood": "Central Water Catchment",
+      "address": {
+        "en": "80 Mandai Lake Rd, Singapore 729826"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.4056235,
+      "longitude": 103.7911718,
+      "price_tier": "$",
+      "google_place_id": "ChIJBfm8PQAT2jERAhOyYquGt7M"
+    },
+    {
+      "name": {
+        "en": "Singapore Oceanarium"
+      },
+      "description": {
+        "en": "Expanded aquarium with interactive marine ecosystems."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "24 Sentosa Gateway, Sentosa Island, Singapore 098137"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2583209,
+      "longitude": 103.82051469999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJj-3Cq_0b2jERJv2MBkSVsPQ"
+    },
+    {
+      "name": {
+        "en": "Curiosity Cove"
+      },
+      "description": {
+        "en": "Indoor nature-inspired playground with interactive zones."
+      },
+      "city": "Singapore",
+      "neighborhood": "Central Water Catchment",
+      "address": {
+        "en": "80 Mandai Lake Rd, #01-22 Curiosity Cove, Singapore 729826"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.4062095,
+      "longitude": 103.79054819999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5dRbTgAT2jER751YdtJ9uxQ"
+    },
+    {
+      "name": {
+        "en": "Redesigned Hydrodash"
+      },
+      "description": {
+        "en": "Floating aqua park with over 30 obstacles."
+      },
+      "city": "Singapore",
+      "neighborhood": "Southern Islands",
+      "address": {
+        "en": "54 Palawan Beach Walk, The Palawan @ Sentosa, Singapore 098233"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2500643999999999,
+      "longitude": 103.8210532,
+      "price_tier": "$",
+      "google_place_id": "ChIJizo7zEMd2jERxzgFOJoHc2U"
+    },
+    {
+      "name": {
+        "en": "Revamped SuperPark Singapore"
+      },
+      "description": {
+        "en": "Indoor playground with 34 activities including trampolines."
+      },
+      "city": "Singapore",
+      "neighborhood": "Downtown Core",
+      "address": {
+        "en": "3 Temasek Blvd, #01-488 Suntec City Mall, Singapore 038983"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2961791,
+      "longitude": 103.85860319999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJw39-kD8Z2jERhXXNQV2evt0"
+    },
+    {
+      "name": {
+        "en": "Fit&Fun Zone at Changi Airport"
+      },
+      "description": {
+        "en": "Wellness space with colored zones for activities to destress."
+      },
+      "city": "Singapore",
+      "neighborhood": "Changi",
+      "address": {
+        "en": "60 Airport Blvd., Singapore 819643"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.358604,
+      "longitude": 103.98994359999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJ483Qk9YX2jERA0VOQV7d1tY"
+    },
+    {
+      "name": {
+        "en": "Keppel Coastal Trail"
+      },
+      "description": {
+        "en": "Elevated boardwalk with sea views and flora signs."
+      },
+      "city": "Singapore",
+      "neighborhood": "Bukit Merah",
+      "address": {
+        "en": "Singapore"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.2654904999999999,
+      "longitude": 103.80175919999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJC0EUSgAb2jERVKQ5fT1efgs"
+    },
+    {
+      "name": {
+        "en": "Reopened Chinese and Japanese Gardens"
+      },
+      "description": {
+        "en": "Refurbished gardens with pagodas and serene views."
+      },
+      "city": "Singapore",
+      "neighborhood": "Jurong East",
+      "address": {
+        "en": "Boon Lay Wy, Singapore 619795"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.3385395999999998,
+      "longitude": 103.7303578,
+      "price_tier": "$",
+      "google_place_id": "ChIJuZ4kdB0Q2jERdp1SrojDF_I"
+    },
+    {
+      "name": {
+        "en": "New enlarged rope course at Houbii Spot"
+      },
+      "description": {
+        "en": "Expanded course with 74 obstacles at Singapore Zoo."
+      },
+      "city": "Singapore",
+      "neighborhood": "Central Water Catchment",
+      "address": {
+        "en": "80 Mandai Lake Rd, Singapore 729826"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.4035061,
+      "longitude": 103.7951708,
+      "price_tier": "$",
+      "google_place_id": "ChIJk8rY-c4T2jERUt6-Gwk5JbQ"
+    },
+    {
+      "name": {
+        "en": "Colugo Camp"
+      },
+      "description": {
+        "en": "Glamping at Mandai with safari tents and amenities."
+      },
+      "city": "Singapore",
+      "neighborhood": "Central Water Catchment",
+      "address": {
+        "en": "80 Mandai Lake Rd, Singapore 729826"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 1.4060294,
+      "longitude": 103.7895292,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJIyQdcAAT2jER-cL8b4pj7z8"
+    }
+  ]
+}

@@ -1,0 +1,746 @@
+{
+  "city": "singapore",
+  "batch": 4,
+  "spots": [
+    {
+      "name": {
+        "en": "MacRitchie Reservoir Trail",
+        "zh": "麦里芝蓄水池步道"
+      },
+      "description": {
+        "en": "Nature trail with treetop walk. Central jungle experience.",
+        "zh": "有树冠步道的自然小径。中央丛林体验。"
+      },
+      "address": {
+        "en": "MacRitchie Reservoir, Singapore",
+        "zh": "新加坡麦里芝蓄水池"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature",
+        "Hiking",
+        "Reservoir"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "TreeTop Walk free",
+        "Monkeys around",
+        "Bring water"
+      ],
+      "neighborhood": "Central Catchment",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.3448,
+      "longitude": 103.8239
+    },
+    {
+      "name": {
+        "en": "Bukit Timah Nature Reserve",
+        "zh": "武吉知马自然保护区"
+      },
+      "description": {
+        "en": "Primary rainforest in the city. Singapore's highest point.",
+        "zh": "城市中的原始热带雨林。新加坡最高点。"
+      },
+      "address": {
+        "en": "Hindhede Dr, Singapore 589318",
+        "zh": "新加坡兴德道"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Nature",
+        "Rainforest",
+        "Hiking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Primary forest",
+        "Highest hill",
+        "Very local"
+      ],
+      "neighborhood": "Bukit Timah",
+      "latitude": 1.3483882999999999,
+      "longitude": 103.77670099999999,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Southern Ridges Walk",
+        "zh": "南部山脊步道"
+      },
+      "description": {
+        "en": "10km trail connecting parks. Henderson Waves bridge.",
+        "zh": "连接公园的10公里步道。亨德森波浪桥。"
+      },
+      "address": {
+        "en": "Henderson Road, Singapore",
+        "zh": "新加坡亨德森路"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Trail",
+        "Parks",
+        "Bridge"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Sunset",
+      "tips": [
+        "Henderson Waves sunset",
+        "Free walk",
+        "Multiple parks"
+      ],
+      "neighborhood": "Southern Singapore",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 1.3316,
+      "longitude": 103.8389
+    },
+    {
+      "name": {
+        "en": "Fort Canning Park",
+        "zh": "福康宁公园"
+      },
+      "description": {
+        "en": "Historic hilltop park. British colonial history.",
+        "zh": "历史山顶公园。英殖民历史。"
+      },
+      "address": {
+        "en": "Fort Canning Park, Singapore",
+        "zh": "新加坡福康宁公园"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Historic",
+        "Park",
+        "Colonial"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "WWII history",
+        "Spiral staircase photo",
+        "Near Clarke Quay"
+      ],
+      "neighborhood": "Bras Basah",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.294,
+      "longitude": 103.846
+    },
+    {
+      "name": {
+        "en": "East Coast Park",
+        "zh": "东海岸公园"
+      },
+      "description": {
+        "en": "Beach park for cycling and BBQ. Weekend local hangout.",
+        "zh": "骑自行车和烧烤的海滨公园。周末当地人聚集地。"
+      },
+      "address": {
+        "en": "East Coast Park Service Road, Singapore",
+        "zh": "新加坡东海岸公园服务路"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Cycling",
+        "BBQ"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Weekend",
+      "tips": [
+        "Rent bikes",
+        "BBQ pits",
+        "Seafood hawkers"
+      ],
+      "neighborhood": "East Coast",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 1.299,
+      "longitude": 103.9034
+    },
+    {
+      "name": {
+        "en": "Pulau Ubin Island",
+        "zh": "乌敏岛"
+      },
+      "description": {
+        "en": "Rustic island kampong life. Cycling and nature.",
+        "zh": "乡村岛屿甘榜生活。骑自行车和自然。"
+      },
+      "address": {
+        "en": "Pulau Ubin, Singapore",
+        "zh": "新加坡乌敏岛"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Island",
+        "Kampong",
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Bumboat from Changi",
+        "Rent bike on island",
+        "Chek Jawa wetlands"
+      ],
+      "neighborhood": "Pulau Ubin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.4134,
+      "longitude": 103.9659
+    },
+    {
+      "name": {
+        "en": "Chek Jawa Wetlands",
+        "zh": "仄爪哇湿地"
+      },
+      "description": {
+        "en": "Biodiversity wetland on Ubin. Boardwalk nature trail.",
+        "zh": "乌敏岛上的生物多样性湿地。木栈道自然小径。"
+      },
+      "address": {
+        "en": "Chek Jawa, Pulau Ubin, Singapore",
+        "zh": "新加坡乌敏岛仄爪哇"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Wetland",
+        "Biodiversity",
+        "Boardwalk"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Low tide",
+      "tips": [
+        "Check tide times",
+        "Diverse ecosystems",
+        "Bring water"
+      ],
+      "neighborhood": "Pulau Ubin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Low tide"
+      },
+      "latitude": 1.4087,
+      "longitude": 103.9908
+    },
+    {
+      "name": {
+        "en": "Sungei Buloh Wetland Reserve",
+        "zh": "双溪布洛湿地保护区"
+      },
+      "description": {
+        "en": "Bird watching wetlands. Migratory bird site.",
+        "zh": "观鸟湿地。候鸟栖息地。"
+      },
+      "address": {
+        "en": "301 Neo Tiew Crescent, Singapore",
+        "zh": "新加坡牛车弯301号"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Wetland",
+        "Birds",
+        "Nature"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Bird watching",
+        "Sept-Mar best",
+        "Bring binoculars"
+      ],
+      "neighborhood": "Kranji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.4449,
+      "longitude": 103.7243
+    },
+    {
+      "name": {
+        "en": "Gardens by the Bay",
+        "zh": "滨海湾花园"
+      },
+      "description": {
+        "en": "Iconic Supertree Grove. Cloud Forest and Flower Dome.",
+        "zh": "标志性的超级树丛。云雾林和花穹。"
+      },
+      "address": {
+        "en": "18 Marina Gardens Drive, Singapore",
+        "zh": "新加坡滨海花园道18号"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Iconic",
+        "Gardens",
+        "Supertrees"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Light show 7:45/8:45pm",
+        "Outdoor free",
+        "Domes paid"
+      ],
+      "neighborhood": "Marina Bay",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.2815,
+      "longitude": 103.8662
+    },
+    {
+      "name": {
+        "en": "Marina Barrage",
+        "zh": "滨海堤坝"
+      },
+      "description": {
+        "en": "Reservoir dam with kite flying. City skyline views.",
+        "zh": "有放风筝的蓄水池大坝。城市天际线景观。"
+      },
+      "address": {
+        "en": "8 Marina Gardens Drive, Singapore",
+        "zh": "新加坡滨海花园道8号"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Reservoir",
+        "Kites",
+        "Skyline"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Kite flying popular",
+        "Sunset views",
+        "Free"
+      ],
+      "neighborhood": "Marina Bay",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.2814,
+      "longitude": 103.8726
+    },
+    {
+      "name": {
+        "en": "Coney Island Park",
+        "zh": "科尼岛公园"
+      },
+      "description": {
+        "en": "Rustic island park. Cycling and nature walks.",
+        "zh": "乡村岛屿公园。骑自行车和自然漫步。"
+      },
+      "address": {
+        "en": "Coney Island Park, Singapore",
+        "zh": "新加坡科尼岛公园"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Island",
+        "Rustic",
+        "Cycling"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Connected to Punggol",
+        "Rent bikes Punggol",
+        "Beach areas"
+      ],
+      "neighborhood": "Punggol",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.4072,
+      "longitude": 103.9208
+    },
+    {
+      "name": {
+        "en": "Punggol Waterway Park",
+        "zh": "榜鹅水道公园"
+      },
+      "description": {
+        "en": "New waterfront park. Cycling and water activities.",
+        "zh": "新海滨公园。骑自行车和水上活动。"
+      },
+      "address": {
+        "en": "Punggol Waterway Park, Singapore",
+        "zh": "新加坡榜鹅水道公园"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Waterway",
+        "Cycling",
+        "New"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "New town",
+        "Kayaking available",
+        "Evening popular"
+      ],
+      "neighborhood": "Punggol",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.4094,
+      "longitude": 103.9075
+    },
+    {
+      "name": {
+        "en": "Pasir Ris Park",
+        "zh": "巴西立公园"
+      },
+      "description": {
+        "en": "Family beach park in east. Mangroves and playground.",
+        "zh": "东部家庭海滩公园。红树林和游乐场。"
+      },
+      "address": {
+        "en": "Pasir Ris Park, Singapore",
+        "zh": "新加坡巴西立公园"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Family",
+        "Mangroves"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Weekend",
+      "tips": [
+        "Family friendly",
+        "Mangrove boardwalk",
+        "Bird watching"
+      ],
+      "neighborhood": "Pasir Ris",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 1.38,
+      "longitude": 103.9549
+    },
+    {
+      "name": {
+        "en": "Jurong Lake Gardens",
+        "zh": "裕廊湖花园"
+      },
+      "description": {
+        "en": "New lakeside gardens in west. Grasslands and water play.",
+        "zh": "西部新湖畔花园。草地和戏水。"
+      },
+      "address": {
+        "en": "Jurong Lake Gardens, Singapore",
+        "zh": "新加坡裕廊湖花园"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Lake",
+        "Gardens",
+        "West"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "New park",
+        "Water play area",
+        "Near Chinese Garden"
+      ],
+      "neighborhood": "Jurong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.344,
+      "longitude": 103.7263
+    },
+    {
+      "name": {
+        "en": "Labrador Nature Reserve",
+        "zh": "拉柏多自然保护区"
+      },
+      "description": {
+        "en": "WWII history with coastal walk. War bunkers.",
+        "zh": "二战历史和海岸步道。战争地堡。"
+      },
+      "address": {
+        "en": "Labrador Nature Reserve, Singapore",
+        "zh": "新加坡拉柏多自然保护区"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "WWII",
+        "Coastal",
+        "History"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "War history",
+        "Coastal walk",
+        "Near Harbourfront"
+      ],
+      "neighborhood": "Labrador",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.2662,
+      "longitude": 103.8027
+    },
+    {
+      "name": {
+        "en": "Kent Ridge Park",
+        "zh": "肯特岗公园"
+      },
+      "description": {
+        "en": "WWII battle site. Canopy walk and history.",
+        "zh": "二战战场遗址。树冠步道和历史。"
+      },
+      "address": {
+        "en": "Vigilante Drive, Singapore",
+        "zh": "新加坡警卫道"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "WWII",
+        "Canopy",
+        "History"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Battle of Pasir Panjang",
+        "Canopy walk",
+        "Near NUS"
+      ],
+      "neighborhood": "Queenstown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.2845,
+      "longitude": 103.7874
+    },
+    {
+      "name": {
+        "en": "HortPark",
+        "zh": "园艺园林"
+      },
+      "description": {
+        "en": "One-stop gardening hub. Southern Ridges connection.",
+        "zh": "一站式园艺中心。南部山脊连接。"
+      },
+      "address": {
+        "en": "33 Hyderabad Road, Singapore",
+        "zh": "新加坡海德拉巴路33号"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Hub",
+        "Trail"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Gardening cafe",
+        "Southern Ridges start",
+        "Free entry"
+      ],
+      "neighborhood": "Queenstown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.2791,
+      "longitude": 103.7991
+    },
+    {
+      "name": {
+        "en": "Mount Faber Park",
+        "zh": "花柏山公园"
+      },
+      "description": {
+        "en": "Hilltop park with cable car. City views.",
+        "zh": "有缆车的山顶公园。城市景观。"
+      },
+      "address": {
+        "en": "Mount Faber Road, Singapore",
+        "zh": "新加坡花柏山路"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hilltop",
+        "Views",
+        "Cable Car"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Sunset",
+      "tips": [
+        "Cable car to Sentosa",
+        "Sunset views",
+        "Southern Ridges end"
+      ],
+      "neighborhood": "Mount Faber",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 1.2718,
+      "longitude": 103.8175
+    },
+    {
+      "name": {
+        "en": "West Coast Park",
+        "zh": "西海岸公园"
+      },
+      "description": {
+        "en": "Family park with adventure playground. BBQ and cycling.",
+        "zh": "有冒险游乐场的家庭公园。烧烤和骑自行车。"
+      },
+      "address": {
+        "en": "West Coast Park, Singapore",
+        "zh": "新加坡西海岸公园"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Family",
+        "Playground",
+        "BBQ"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekend",
+      "tips": [
+        "Big playground",
+        "BBQ popular",
+        "Near NUS"
+      ],
+      "neighborhood": "West Coast",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 1.3176,
+      "longitude": 103.755
+    },
+    {
+      "name": {
+        "en": "Bishan-Ang Mo Kio Park",
+        "zh": "碧山-宏茂桥公园"
+      },
+      "description": {
+        "en": "Large naturalized river park. Dog run and play areas.",
+        "zh": "大型自然化河流公园。遛狗和游乐区。"
+      },
+      "address": {
+        "en": "1384 Ang Mo Kio Avenue 1, Singapore",
+        "zh": "新加坡宏茂桥1道1384号"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "River",
+        "Dog Run",
+        "Large"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "River playground",
+        "Dog run",
+        "Evening popular"
+      ],
+      "neighborhood": "Bishan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.3643,
+      "longitude": 103.8391
+    }
+  ]
+}

@@ -9,6 +9,7 @@ const isPublicRoute = createRouteMatcher([
     '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
     '/api/itineraries/generate',  // Allow anonymous generation API
     '/api/itineraries/demo',  // Demo itinerary endpoint
+    '/api/cities',  // City listing for destination picker (must work for anonymous users)
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
 ]);

@@ -1,0 +1,22 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5f3ff"/>
+      <stop offset="100%" style="stop-color:#ede9fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="3" cy="3" r="1.5" fill="#8b5cf6" opacity="0.1"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#dots)"/>
+  <!-- Map pin icon -->
+  <g transform="translate(400, 250)">
+    <path d="M0,-80 C-45,-80 -70,-45 -70,0 C-70,35 0,100 0,100 C0,100 70,35 70,0 C70,-45 45,-80 0,-80 Z" fill="#8b5cf6" opacity="0.3" stroke="#7c3aed" stroke-width="3"/>
+    <circle cx="0" cy="-10" r="25" fill="#ffffff" opacity="0.9"/>
+    <circle cx="0" cy="-10" r="12" fill="#8b5cf6" opacity="0.6"/>
+  </g>
+  <text x="400" y="400" text-anchor="middle" fill="#7c3aed" font-family="system-ui, sans-serif" font-size="20" font-weight="500" opacity="0.7">Discover Local Spots</text>
+  <circle cx="100" cy="100" r="50" fill="#8b5cf6" opacity="0.05"/>
+  <circle cx="700" cy="500" r="70" fill="#7c3aed" opacity="0.05"/>
+</svg>

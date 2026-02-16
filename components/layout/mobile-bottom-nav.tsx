@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Plus, Map, User } from "lucide-react";
+import { Compass, MessageCircle, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser } from "@clerk/nextjs";
 
+// Simplified 3-tab navigation for mobile
+// Profile is accessible via top-right avatar menu
 const navItems = [
   {
     href: "/dashboard",
@@ -13,29 +14,23 @@ const navItems = [
     icon: Compass,
   },
   {
-    href: "/itineraries/new",
-    label: "Create",
-    icon: Plus,
-    isCreate: true,
+    href: "/chat",
+    label: "Chat",
+    icon: MessageCircle,
+    isChat: true, // Special elevated styling
   },
   {
     href: "/itineraries",
     label: "My Trips",
     icon: Map,
   },
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: User,
-  },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { isSignedIn } = useUser();
 
   // Don't show on landing page, auth pages, or when using wizard
-  const hiddenPaths = ["/", "/sign-in", "/sign-up"];
+  const hiddenPaths = ["/", "/sign-in", "/sign-up", "/itineraries/new"];
   const isHidden = hiddenPaths.some(path => pathname === path || pathname.startsWith(path + "/"));
 
   if (isHidden) return null;
@@ -55,31 +50,37 @@ export function MobileBottomNav() {
           const isActive = pathname === item.href ||
             (item.href !== "/" && pathname.startsWith(item.href));
 
-          // If not signed in, redirect Profile to sign-in
-          const href = !isSignedIn && item.href === "/profile"
-            ? "/sign-in"
-            : item.href;
+          const href = item.href;
 
-          if (item.isCreate) {
+          // Chat tab gets special elevated styling
+          if (item.isChat) {
             return (
               <Link
                 key={item.href}
                 href={href}
                 className={cn(
-                  "flex flex-col items-center justify-center",
-                  "-mt-4" // Raise the create button
+                  "flex flex-col items-center justify-center gap-1",
+                  "-mt-2" // Slightly elevated
                 )}
               >
                 <div
                   className={cn(
-                    "w-14 h-14 rounded-full flex items-center justify-center",
-                    "bg-gradient-to-br from-violet-600 to-indigo-600",
-                    "shadow-lg shadow-violet-500/40",
-                    "transition-all active:scale-95"
+                    "w-12 h-12 rounded-full flex items-center justify-center",
+                    "transition-all active:scale-95",
+                    isActive
+                      ? "bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/40"
+                      : "bg-gray-800/80"
                   )}
                 >
-                  <item.icon className="h-7 w-7 text-white" strokeWidth={2.5} />
+                  <item.icon className={cn(
+                    "h-6 w-6",
+                    isActive ? "text-white" : "text-gray-400"
+                  )} />
                 </div>
+                <span className={cn(
+                  "text-xs font-medium",
+                  isActive ? "text-violet-400" : "text-gray-500"
+                )}>{item.label}</span>
               </Link>
             );
           }

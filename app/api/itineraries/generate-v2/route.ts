@@ -23,6 +23,7 @@ import { TIER_CONFIGS } from '@/lib/subscription';
 import { getOrchestrator, featureFlags } from '@/lib/llm';
 import type { UserTier, GeneratedItinerary } from '@/lib/llm';
 import { Errors, handleApiError } from '@/lib/api-errors';
+import { geocodeItineraryActivities } from '@/lib/geocoding';
 
 export async function POST(req: NextRequest) {
   try {
@@ -81,8 +82,18 @@ export async function POST(req: NextRequest) {
       return Errors.externalServiceError("LLM orchestration");
     }
 
-    // Add thumbnail images to activities
+    // Geocode activities to store lat/lng for instant map rendering
     const itineraryData = result.data;
+    try {
+      itineraryData.dailyPlans = await geocodeItineraryActivities(
+        itineraryData.dailyPlans,
+        params.city
+      ) as typeof itineraryData.dailyPlans;
+    } catch (geoError) {
+      console.error('[generate-v2] Geocoding failed (non-fatal):', geoError);
+    }
+
+    // Add thumbnail images to activities
     const dailyPlansForThumbnails = itineraryData.dailyPlans as unknown as Parameters<typeof addThumbnailsToItinerary>[0];
 
     // Use AI-generated images for Pro/Premium users, Unsplash for Free

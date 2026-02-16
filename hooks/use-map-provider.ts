@@ -101,8 +101,14 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
             };
         }
 
+        // Env-var gate: set NEXT_PUBLIC_KAKAO_MAPS_ENABLED=false to disable Kakao map rendering
+        // (Kakao REST geocoding still works — this only affects the JavaScript map SDK)
+        const kakaoEnabled = process.env.NEXT_PUBLIC_KAKAO_MAPS_APP_KEY &&
+            process.env.NEXT_PUBLIC_KAKAO_MAPS_ENABLED !== 'false';
+
         // Check by city name first (most reliable)
-        if (city && isKoreanCity(city)) {
+        // map.tsx has auto-fallback to Leaflet if Kakao SDK fails
+        if (city && isKoreanCity(city) && kakaoEnabled) {
             return {
                 provider: 'kakao',
                 needsKakaoSdk: true,
@@ -111,7 +117,7 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
         }
 
         // Check by coordinates as fallback
-        if (lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng)) {
+        if (kakaoEnabled && lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng)) {
             return {
                 provider: 'kakao',
                 needsKakaoSdk: true,

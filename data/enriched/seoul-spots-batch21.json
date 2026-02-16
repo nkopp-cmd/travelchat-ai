@@ -1,0 +1,376 @@
+{
+  "city": "seoul",
+  "batch": 21,
+  "spots": [
+    {
+      "name": {
+        "en": "Apgujeong-dong K-Beauty Flagship",
+        "ko": "압구정동 K뷰티 플래그십"
+      },
+      "description": {
+        "en": "K-beauty brand flagship stores and dermatology clinics. Ground zero for Korean skincare innovation.",
+        "ko": "K뷰티 브랜드 플래그십 스토어와 피부과 클리닉. 한국 스킨케어 혁신의 본거지."
+      },
+      "address": {
+        "en": "Apgujeong-dong, Gangnam-gu, Seoul",
+        "ko": "서울 강남구 압구정동"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "K-Beauty",
+        "Skincare",
+        "Flagship"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Latest K-beauty products",
+        "Dermatology hub",
+        "Free samples"
+      ],
+      "neighborhood": "Apgujeong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.53,
+      "longitude": 127.0313
+    },
+    {
+      "name": {
+        "en": "Cheongdam-dong Gallery",
+        "ko": "청담동 갤러리"
+      },
+      "description": {
+        "en": "Contemporary art galleries in upscale Cheongdam. Korean and international art for collectors.",
+        "ko": "고급 청담의 현대 미술 갤러리. 수집가를 위한 한국 및 해외 미술."
+      },
+      "address": {
+        "en": "Cheongdam-dong, Gangnam-gu, Seoul",
+        "ko": "서울 강남구 청담동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Gallery",
+        "Contemporary"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Contemporary art",
+        "High-end galleries",
+        "Collector scene"
+      ],
+      "neighborhood": "Cheongdam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5258,
+      "longitude": 127.0523
+    },
+    {
+      "name": {
+        "en": "Jamsil Lotte World Tower Observatory",
+        "ko": "잠실 롯데월드타워 전망대"
+      },
+      "description": {
+        "en": "Observation deck at Korea's tallest building. 360-degree views of Seoul from 500 meters up.",
+        "ko": "한국 최고층 빌딩의 전망대. 500미터 상공에서 서울의 360도 전망."
+      },
+      "address": {
+        "en": "Lotte World Tower, Songpa-gu, Seoul",
+        "ko": "서울 송파구 롯데월드타워"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Observatory",
+        "Views",
+        "Landmark"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Sunset",
+      "tips": [
+        "Seoul Sky observation deck",
+        "Book tickets in advance",
+        "Sunset views spectacular"
+      ],
+      "neighborhood": "Jamsil",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 37.5126,
+      "longitude": 127.1027
+    },
+    {
+      "name": {
+        "en": "Songpa-dong Traditional Market",
+        "ko": "송파동 전통시장"
+      },
+      "description": {
+        "en": "Traditional market in historic Songpa area. One of Seoul's oldest trading spots with fresh produce.",
+        "ko": "역사적인 송파 지역의 전통 시장. 신선한 농산물이 있는 서울 최고(最古) 거래처 중 하나."
+      },
+      "address": {
+        "en": "Songpa-dong, Songpa-gu, Seoul",
+        "ko": "서울 송파구 송파동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Traditional",
+        "Historic",
+        "Produce"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Historic market area",
+        "Fresh produce",
+        "Local traders"
+      ],
+      "neighborhood": "Songpa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.72,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 37.5043,
+      "longitude": 127.1157
+    },
+    {
+      "name": {
+        "en": "Olympic Park Gymnastics Arena",
+        "ko": "올림픽공원 체조경기장"
+      },
+      "description": {
+        "en": "Concert and event venue in Olympic Park. K-pop concerts and sports events in historic 1988 Olympic venue.",
+        "ko": "올림픽공원의 콘서트 및 이벤트 공연장. 역사적인 1988년 올림픽 공연장에서 K-pop 콘서트와 스포츠 이벤트."
+      },
+      "address": {
+        "en": "Olympic Park, Songpa-gu, Seoul",
+        "ko": "서울 송파구 올림픽공원"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Concert",
+        "Sports",
+        "K-Pop"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "During events",
+      "tips": [
+        "Major concert venue",
+        "1988 Olympic heritage",
+        "Check event schedule"
+      ],
+      "neighborhood": "Olympic Park",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "During events"
+      },
+      "latitude": 37.5161,
+      "longitude": 127.1309
+    },
+    {
+      "name": {
+        "en": "Garak-dong Agricultural Market",
+        "ko": "가락동 농산물시장"
+      },
+      "description": {
+        "en": "Massive wholesale agricultural market supplying Seoul's restaurants. Pre-dawn trading on enormous scale.",
+        "ko": "서울 식당에 공급하는 대규모 농산물 도매시장. 새벽에 거대한 규모로 거래."
+      },
+      "address": {
+        "en": "Garak-dong, Songpa-gu, Seoul",
+        "ko": "서울 송파구 가락동"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Wholesale",
+        "Agricultural",
+        "Dawn"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "3-6am",
+      "tips": [
+        "Wholesale only",
+        "Enormous scale",
+        "Pre-dawn activity"
+      ],
+      "neighborhood": "Garak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.39,
+      "best_times": {
+        "en": "3-6am"
+      },
+      "latitude": 37.4947,
+      "longitude": 127.1191
+    },
+    {
+      "name": {
+        "en": "Macheon-dong Residential",
+        "ko": "마천동 주거지역"
+      },
+      "description": {
+        "en": "Residential area in far southeast Seoul. Local neighborhood life away from central areas.",
+        "ko": "서울 동남쪽 끝의 주거 지역. 중심 지역에서 떨어진 로컬 동네 생활."
+      },
+      "address": {
+        "en": "Macheon-dong, Songpa-gu, Seoul",
+        "ko": "서울 송파구 마천동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Residential",
+        "Local",
+        "Authentic"
+      ],
+      "localley_score": 6,
+      "local_percentage": 98,
+      "best_time": "Evening",
+      "tips": [
+        "Far from center",
+        "Local life",
+        "Authentic experience"
+      ],
+      "neighborhood": "Macheon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.498,
+      "longitude": 127.1517
+    },
+    {
+      "name": {
+        "en": "Pungnap-dong Historic Site",
+        "ko": "풍납동 역사유적"
+      },
+      "description": {
+        "en": "Ancient Baekje Kingdom earthen fortress remains. Archaeological site in residential neighborhood.",
+        "ko": "고대 백제 왕국의 토성 유적. 주거 지역 내 고고학적 유적지."
+      },
+      "address": {
+        "en": "Pungnap-dong, Songpa-gu, Seoul",
+        "ko": "서울 송파구 풍납동"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Archaeological",
+        "Baekje"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Ancient fortress site",
+        "Baekje Kingdom history",
+        "Archaeological interest"
+      ],
+      "neighborhood": "Pungnap",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 37.5337,
+      "longitude": 127.115
+    },
+    {
+      "name": {
+        "en": "Geoyeo-dong New Town",
+        "ko": "거여동 신도시"
+      },
+      "description": {
+        "en": "Newer development in eastern Songpa. Modern apartments with new dining and shopping options.",
+        "ko": "동부 송파의 신규 개발 지역. 새 식당과 쇼핑 옵션이 있는 현대적 아파트."
+      },
+      "address": {
+        "en": "Geoyeo-dong, Songpa-gu, Seoul",
+        "ko": "서울 송파구 거여동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "New Town",
+        "Modern",
+        "Residential"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Evening",
+      "tips": [
+        "New development",
+        "Modern amenities",
+        "Growing area"
+      ],
+      "neighborhood": "Geoyeo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.4907,
+      "longitude": 127.1469
+    },
+    {
+      "name": {
+        "en": "Wirye New City",
+        "ko": "위례신도시"
+      },
+      "description": {
+        "en": "Brand new planned city at Seoul's border. Modern urban development with all new infrastructure.",
+        "ko": "서울 경계의 신규 계획 도시. 모든 새 인프라가 있는 현대적 도시 개발."
+      },
+      "address": {
+        "en": "Wirye New City, Songpa-gu, Seoul",
+        "ko": "서울 송파구 위례신도시"
+      },
+      "category": "Food",
+      "subcategories": [
+        "New City",
+        "Planned",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Brand new city",
+        "All new infrastructure",
+        "Modern living"
+      ],
+      "neighborhood": "Wirye",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 37.4789,
+      "longitude": 127.1408
+    }
+  ]
+}

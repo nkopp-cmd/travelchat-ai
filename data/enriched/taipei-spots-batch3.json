@@ -1,0 +1,744 @@
+{
+  "city": "taipei",
+  "batch": 3,
+  "spots": [
+    {
+      "name": {
+        "en": "Beitou Hot Spring Museum",
+        "zh": "北投溫泉博物館"
+      },
+      "description": {
+        "en": "Historic Japanese-era bathhouse. Free museum.",
+        "zh": "歷史日治時代澡堂。免費博物館。"
+      },
+      "address": {
+        "en": "2 Zhongshan Road, Beitou District, Taipei",
+        "zh": "台北市北投區中山路2號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Hot Spring",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Beautiful building",
+        "Near hot springs"
+      ],
+      "neighborhood": "Beitou",
+      "latitude": 25.136569400000003,
+      "longitude": 121.50715,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Beitou Public Hot Spring",
+        "zh": "北投公共溫泉"
+      },
+      "description": {
+        "en": "Affordable public hot spring baths. Local experience.",
+        "zh": "平價公共溫泉浴。當地體驗。"
+      },
+      "address": {
+        "en": "Guangming Road, Beitou District, Taipei",
+        "zh": "台北市北投區光明路"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Hot Spring",
+        "Public",
+        "Affordable"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Very cheap",
+        "Bring towel",
+        "Separate gender"
+      ],
+      "neighborhood": "Beitou",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0493,
+      "longitude": 121.5186
+    },
+    {
+      "name": {
+        "en": "Hell Valley (Thermal Valley)",
+        "zh": "地熱谷"
+      },
+      "description": {
+        "en": "Steaming hot spring valley. Volcanic scenery.",
+        "zh": "蒸騰的溫泉谷。火山景觀。"
+      },
+      "address": {
+        "en": "Thermal Valley, Beitou District, Taipei",
+        "zh": "台北市北投區地熱谷"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Spring",
+        "Volcanic",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Steam rising",
+        "Short walk"
+      ],
+      "neighborhood": "Beitou",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.1367,
+      "longitude": 121.5103
+    },
+    {
+      "name": {
+        "en": "Beitou Library",
+        "zh": "北投圖書館"
+      },
+      "description": {
+        "en": "Beautiful green library building. Award winning architecture.",
+        "zh": "美麗的綠色圖書館建築。獲獎建築。"
+      },
+      "address": {
+        "en": "251 Guangming Road, Beitou District, Taipei",
+        "zh": "台北市北投區光明路251號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Library",
+        "Architecture",
+        "Green"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Green building",
+        "Nice park",
+        "Reading space"
+      ],
+      "neighborhood": "Beitou",
+      "latitude": 25.1364397,
+      "longitude": 121.5062909,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Xinbeitou Station",
+        "zh": "新北投車站"
+      },
+      "description": {
+        "en": "Restored historic train station. Japanese era.",
+        "zh": "修復的歷史火車站。日治時代。"
+      },
+      "address": {
+        "en": "Qixing Street, Beitou District, Taipei",
+        "zh": "台北市北投區七星街"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Station",
+        "Japanese"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Restored station",
+        "Photo opportunity",
+        "Free"
+      ],
+      "neighborhood": "Beitou",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.137,
+      "longitude": 121.5032
+    },
+    {
+      "name": {
+        "en": "Elephant Mountain (Xiangshan)",
+        "zh": "象山"
+      },
+      "description": {
+        "en": "Popular hiking trail with Taipei 101 views.",
+        "zh": "可看台北101景觀的熱門步道。"
+      },
+      "address": {
+        "en": "Xiangshan, Xinyi District, Taipei",
+        "zh": "台北市信義區象山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Views",
+        "Sunset"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Sunset",
+      "tips": [
+        "Best 101 view",
+        "Sunset popular",
+        "20 min hike"
+      ],
+      "neighborhood": "Xinyi",
+      "latitude": 25.027223,
+      "longitude": 121.57649889999999,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Sunset"
+      }
+    },
+    {
+      "name": {
+        "en": "Maokong Gondola",
+        "zh": "貓空纜車"
+      },
+      "description": {
+        "en": "Cable car to tea mountain. Night views.",
+        "zh": "到茶山的纜車。夜景。"
+      },
+      "address": {
+        "en": "Maokong, Wenshan District, Taipei",
+        "zh": "台北市文山區貓空"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Gondola",
+        "Tea",
+        "Views"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Crystal cabin option",
+        "Tea houses at top",
+        "Night ride popular"
+      ],
+      "neighborhood": "Wenshan",
+      "latitude": 24.979684,
+      "longitude": 121.5898661,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Maokong Tea Houses",
+        "zh": "貓空茶館"
+      },
+      "description": {
+        "en": "Mountain tea houses with views. Local tea experience.",
+        "zh": "有景觀的山區茶館。當地茶體驗。"
+      },
+      "address": {
+        "en": "Maokong, Wenshan District, Taipei",
+        "zh": "台北市文山區貓空"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Tea",
+        "Views",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Iron Goddess tea",
+        "City views",
+        "Relaxing atmosphere"
+      ],
+      "neighborhood": "Maokong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 24.9691,
+      "longitude": 121.5882
+    },
+    {
+      "name": {
+        "en": "Taipei Zoo",
+        "zh": "台北市立動物園"
+      },
+      "description": {
+        "en": "Large zoo near Maokong. Pandas and local animals.",
+        "zh": "貓空附近的大型動物園。熊貓和本地動物。"
+      },
+      "address": {
+        "en": "30 Xinguang Road Sec 2, Wenshan District, Taipei",
+        "zh": "台北市文山區新光路二段30號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Zoo",
+        "Family",
+        "Pandas"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Pandas popular",
+        "Very large",
+        "Take shuttle"
+      ],
+      "neighborhood": "Wenshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 24.9954,
+      "longitude": 121.5861
+    },
+    {
+      "name": {
+        "en": "Zhinan Temple",
+        "zh": "指南宮"
+      },
+      "description": {
+        "en": "Mountain temple near Maokong. Taoist landmark.",
+        "zh": "貓空附近的山寺。道教地標。"
+      },
+      "address": {
+        "en": "Wanshou Road, Wenshan District, Taipei",
+        "zh": "台北市文山區萬壽路"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Taoist",
+        "Mountain"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Cable car access",
+        "Mountain views",
+        "Multiple temples"
+      ],
+      "neighborhood": "Maokong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 24.9796,
+      "longitude": 121.5881
+    },
+    {
+      "name": {
+        "en": "Taipei Botanical Garden",
+        "zh": "台北植物園"
+      },
+      "description": {
+        "en": "Downtown green oasis. Lotus pond famous.",
+        "zh": "市中心綠洲。蓮花池著名。"
+      },
+      "address": {
+        "en": "53 Nanhai Road, Zhongzheng District, Taipei",
+        "zh": "台北市中正區南海路53號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Botanical",
+        "Lotus"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Lotus in summer",
+        "Morning tai chi"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0322,
+      "longitude": 121.5096
+    },
+    {
+      "name": {
+        "en": "National History Museum",
+        "zh": "國立歷史博物館"
+      },
+      "description": {
+        "en": "History museum in Botanical Garden.",
+        "zh": "植物園內的歷史博物館。"
+      },
+      "address": {
+        "en": "49 Nanhai Road, Zhongzheng District, Taipei",
+        "zh": "台北市中正區南海路49號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "History",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near botanical garden",
+        "Chinese history",
+        "Quiet area"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0399,
+      "longitude": 121.5109
+    },
+    {
+      "name": {
+        "en": "Daan Forest Park",
+        "zh": "大安森林公園"
+      },
+      "description": {
+        "en": "Large urban park. Taipei's Central Park.",
+        "zh": "大型城市公園。台北的中央公園。"
+      },
+      "address": {
+        "en": "1 Xinsheng South Road Sec 2, Da'an District, Taipei",
+        "zh": "台北市大安區新生南路二段1號"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Urban",
+        "Large"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Morning exercise",
+        "Bird watching",
+        "Weekend markets nearby"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0297,
+      "longitude": 121.5358
+    },
+    {
+      "name": {
+        "en": "Yongkang Street",
+        "zh": "永康街"
+      },
+      "description": {
+        "en": "Famous food street. Din Tai Fung original.",
+        "zh": "著名美食街。鼎泰豐原店。"
+      },
+      "address": {
+        "en": "Yongkang Street, Da'an District, Taipei",
+        "zh": "台北市大安區永康街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Food Street",
+        "Famous",
+        "Restaurants"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Lunch",
+      "tips": [
+        "Din Tai Fung original",
+        "Mango shaved ice",
+        "Many options"
+      ],
+      "neighborhood": "Da'an",
+      "latitude": 25.030765,
+      "longitude": 121.529533,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Lunch"
+      }
+    },
+    {
+      "name": {
+        "en": "Din Tai Fung Xinyi",
+        "zh": "鼎泰豐信義店"
+      },
+      "description": {
+        "en": "Famous dumpling restaurant original location.",
+        "zh": "著名餃子餐廳原址。"
+      },
+      "address": {
+        "en": "194 Xinyi Road Sec 2, Da'an District, Taipei",
+        "zh": "台北市大安區信義路二段194號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dumplings",
+        "Famous",
+        "Restaurant"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Lunch",
+      "tips": [
+        "Original location",
+        "Queue expected",
+        "Watch dumpling making"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 25.0335,
+      "longitude": 121.5301
+    },
+    {
+      "name": {
+        "en": "Ice Monster",
+        "zh": "冰館"
+      },
+      "description": {
+        "en": "Famous shaved ice shop. Mango ice legendary.",
+        "zh": "著名刨冰店。芒果冰傳奇。"
+      },
+      "address": {
+        "en": "297 Zhongxiao East Road Sec 4, Da'an District, Taipei",
+        "zh": "台北市大安區忠孝東路四段297號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dessert",
+        "Shaved Ice",
+        "Famous"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Famous mango ice",
+        "Summer must-try",
+        "Large portions"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0383,
+      "longitude": 121.5672
+    },
+    {
+      "name": {
+        "en": "Zhongxiao Dunhua",
+        "zh": "忠孝敦化"
+      },
+      "description": {
+        "en": "Shopping and dining area. Eastern shopping district.",
+        "zh": "購物餐飲區。東區購物區。"
+      },
+      "address": {
+        "en": "Zhongxiao East Road, Da'an District, Taipei",
+        "zh": "台北市大安區忠孝東路"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping",
+        "Dining",
+        "Fashion"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Eastern district",
+        "Many boutiques",
+        "Cafes and bars"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0415,
+      "longitude": 121.5495
+    },
+    {
+      "name": {
+        "en": "Eslite Dunnan",
+        "zh": "誠品敦南店"
+      },
+      "description": {
+        "en": "Flagship bookstore. 24-hour cultural icon.",
+        "zh": "旗艦書店。24小時文化地標。"
+      },
+      "address": {
+        "en": "245 Dunhua South Road Sec 1, Da'an District, Taipei",
+        "zh": "台北市大安區敦化南路一段245號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Bookstore",
+        "24 Hours",
+        "Culture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Late Night",
+      "tips": [
+        "24 hour bookstore",
+        "Cultural icon",
+        "Cafe inside"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Late Night"
+      }
+    },
+    {
+      "name": {
+        "en": "Taipei Fine Arts Museum",
+        "zh": "台北市立美術館"
+      },
+      "description": {
+        "en": "Contemporary art museum. Modern architecture.",
+        "zh": "當代藝術博物館。現代建築。"
+      },
+      "address": {
+        "en": "181 Zhongshan North Road Sec 3, Zhongshan District, Taipei",
+        "zh": "台北市中山區中山北路三段181號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Contemporary Art",
+        "Architecture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free Saturdays",
+        "Good exhibitions",
+        "Nice building"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.072,
+      "longitude": 121.5247
+    },
+    {
+      "name": {
+        "en": "Taipei Expo Park",
+        "zh": "花博公園"
+      },
+      "description": {
+        "en": "Former expo site. Gardens and markets.",
+        "zh": "前花博場地。花園和市集。"
+      },
+      "address": {
+        "en": "Zhongshan North Road Sec 3, Zhongshan District, Taipei",
+        "zh": "台北市中山區中山北路三段"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Gardens",
+        "Markets"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Weekend farmers market",
+        "Nice gardens",
+        "Free entry"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0686,
+      "longitude": 121.5209
+    }
+  ]
+}

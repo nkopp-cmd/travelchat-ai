@@ -1,0 +1,742 @@
+{
+  "city": "osaka",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "Isoji Shopping Arcade",
+        "ja": "五十路商店街"
+      },
+      "description": {
+        "en": "Retro local shopping arcade.",
+        "ja": "レトロな地元商店街。"
+      },
+      "address": {
+        "en": "Taisho-ku, Osaka",
+        "ja": "大阪市大正区"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Arcade",
+        "Retro",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very local",
+        "Showa era vibe",
+        "Off tourist path"
+      ],
+      "neighborhood": "Taisho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6506,
+      "longitude": 135.4696
+    },
+    {
+      "name": {
+        "en": "Taisho Okinawa Town",
+        "ja": "大正沖縄タウン"
+      },
+      "description": {
+        "en": "Okinawan community in Osaka.",
+        "ja": "大阪の沖縄コミュニティ。"
+      },
+      "address": {
+        "en": "Taisho-ku, Osaka",
+        "ja": "大阪市大正区"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Okinawan",
+        "Community",
+        "Food"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Okinawan food",
+        "Awamori bars",
+        "Very local"
+      ],
+      "neighborhood": "Taisho",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.6506,
+      "longitude": 135.4696
+    },
+    {
+      "name": {
+        "en": "Sakuragawa",
+        "ja": "桜川"
+      },
+      "description": {
+        "en": "Local neighborhood near Namba.",
+        "ja": "難波近くの地元の住宅街。"
+      },
+      "address": {
+        "en": "Sakuragawa, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区桜川"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Local",
+        "Residential",
+        "Hidden"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Near Namba",
+        "Local eateries",
+        "Off beaten path"
+      ],
+      "neighborhood": "Naniwa",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.6682,
+      "longitude": 135.4903
+    },
+    {
+      "name": {
+        "en": "Tachibana Shopping Street",
+        "ja": "たちばな商店街"
+      },
+      "description": {
+        "en": "Old school shopping street in Nishinari.",
+        "ja": "西成の昔ながらの商店街。"
+      },
+      "address": {
+        "en": "Nishinari-ku, Osaka",
+        "ja": "大阪市西成区"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Arcade",
+        "Old School",
+        "Cheap"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very cheap",
+        "Showa retro",
+        "Authentic Osaka"
+      ],
+      "neighborhood": "Nishinari",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6445,
+      "longitude": 135.5133
+    },
+    {
+      "name": {
+        "en": "Imamiya Ebisu Shrine",
+        "ja": "今宮戎神社"
+      },
+      "description": {
+        "en": "Business prosperity shrine. January festival.",
+        "ja": "商売繁盛の神社。1月のお祭り。"
+      },
+      "address": {
+        "en": "1-6-10 Ebisunishi, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区恵美須西1-6-10"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Business",
+        "Festival"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "January",
+      "tips": [
+        "Toka Ebisu festival",
+        "Business blessings",
+        "January 9-11"
+      ],
+      "neighborhood": "Shinsekai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "January"
+      },
+      "latitude": 34.6553,
+      "longitude": 135.5023
+    },
+    {
+      "name": {
+        "en": "Toka Ebisu Festival",
+        "ja": "十日戎"
+      },
+      "description": {
+        "en": "New Year business festival. Millions attend.",
+        "ja": "新年の商売繁盛祭り。何百万人も参加。"
+      },
+      "address": {
+        "en": "Imamiya Ebisu Shrine, Osaka",
+        "ja": "今宮戎神社"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Festival",
+        "New Year",
+        "Major"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "January 9-11",
+      "tips": [
+        "January 9-11",
+        "Very crowded",
+        "Lucky bamboo"
+      ],
+      "neighborhood": "Shinsekai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "January 9-11"
+      }
+    },
+    {
+      "name": {
+        "en": "Sanno Shrine",
+        "ja": "山王神社"
+      },
+      "description": {
+        "en": "Local shrine near Tobita.",
+        "ja": "飛田近くの地元の神社。"
+      },
+      "address": {
+        "en": "Sanno, Nishinari-ku, Osaka",
+        "ja": "大阪市西成区山王"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Local",
+        "Small"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Morning",
+      "tips": [
+        "Very local",
+        "Quiet shrine",
+        "Off path"
+      ],
+      "neighborhood": "Nishinari",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.7595,
+      "longitude": 135.5906
+    },
+    {
+      "name": {
+        "en": "Imazato Station Area",
+        "ja": "今里駅周辺"
+      },
+      "description": {
+        "en": "Korean restaurants and local bars.",
+        "ja": "韓国料理店と地元のバー。"
+      },
+      "address": {
+        "en": "Imazato, Higashinari-ku, Osaka",
+        "ja": "大阪市東成区今里"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Korean",
+        "Local",
+        "Nightlife"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Korean food",
+        "Local izakayas",
+        "Off tourist path"
+      ],
+      "neighborhood": "Higashinari",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.6696,
+      "longitude": 135.543
+    },
+    {
+      "name": {
+        "en": "Momoyama Shopping Street",
+        "ja": "桃山商店街"
+      },
+      "description": {
+        "en": "Local shopping arcade near Tennoji.",
+        "ja": "天王寺近くの地元商店街。"
+      },
+      "address": {
+        "en": "Tennoji-ku, Osaka",
+        "ja": "大阪市天王寺区"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Arcade",
+        "Local",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Local shops",
+        "Near Tennoji",
+        "Traditional feel"
+      ],
+      "neighborhood": "Tennoji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6645,
+      "longitude": 135.5034
+    },
+    {
+      "name": {
+        "en": "Tezukayama",
+        "ja": "帝塚山"
+      },
+      "description": {
+        "en": "Upscale residential area. Boutiques.",
+        "ja": "高級住宅街。ブティック。"
+      },
+      "address": {
+        "en": "Tezukayama, Sumiyoshi-ku, Osaka",
+        "ja": "大阪市住吉区帝塚山"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Upscale",
+        "Boutiques",
+        "Cafes"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Nice cafes",
+        "Upscale area",
+        "Quiet streets"
+      ],
+      "neighborhood": "Sumiyoshi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6215,
+      "longitude": 135.4982
+    },
+    {
+      "name": {
+        "en": "Hankai Tramway",
+        "ja": "阪堺電車"
+      },
+      "description": {
+        "en": "Old tram line through south Osaka.",
+        "ja": "大阪南部を走る古い路面電車。"
+      },
+      "address": {
+        "en": "South Osaka",
+        "ja": "大阪市南部"
+      },
+      "category": "Transportation",
+      "subcategories": [
+        "Tram",
+        "Historic",
+        "Scenic"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Any",
+      "tips": [
+        "Old tram",
+        "To Sumiyoshi",
+        "Cheap ride"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.6513,
+      "longitude": 135.504
+    },
+    {
+      "name": {
+        "en": "Sumiyoshi Taisha Tram Stop",
+        "ja": "住吉大社電停"
+      },
+      "description": {
+        "en": "Historic tram stop at shrine.",
+        "ja": "神社の歴史ある電停。"
+      },
+      "address": {
+        "en": "Sumiyoshi Taisha, Sumiyoshi-ku, Osaka",
+        "ja": "大阪市住吉区住吉大社"
+      },
+      "category": "Transportation",
+      "subcategories": [
+        "Tram Stop",
+        "Historic",
+        "Shrine"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Any",
+      "tips": [
+        "Near shrine",
+        "Photo spot",
+        "Retro charm"
+      ],
+      "neighborhood": "Sumiyoshi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.6126,
+      "longitude": 135.4914
+    },
+    {
+      "name": {
+        "en": "Sakaihigashi Station Area",
+        "ja": "堺東駅周辺"
+      },
+      "description": {
+        "en": "Shopping and dining near station.",
+        "ja": "駅近くのショッピングと食事。"
+      },
+      "address": {
+        "en": "Sakaihigashi, Sakai, Osaka",
+        "ja": "大阪府堺市堺東"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Station",
+        "Local",
+        "Dining"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Local dining",
+        "Shopping arcade",
+        "Working class"
+      ],
+      "neighborhood": "Sakai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.5755,
+      "longitude": 135.485
+    },
+    {
+      "name": {
+        "en": "Fujiidera Temple",
+        "ja": "葛井寺"
+      },
+      "description": {
+        "en": "Buddhist temple with national treasure.",
+        "ja": "国宝のある仏教寺院。"
+      },
+      "address": {
+        "en": "Fujiidera, Osaka",
+        "ja": "大阪府藤井寺市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "National Treasure",
+        "Buddhist"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "National treasure Buddha",
+        "Pilgrimage temple",
+        "Local"
+      ],
+      "neighborhood": "Fujiidera",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.5702,
+      "longitude": 135.596
+    },
+    {
+      "name": {
+        "en": "Hiraoka Shrine",
+        "ja": "枚岡神社"
+      },
+      "description": {
+        "en": "Ancient shrine with autumn festival.",
+        "ja": "秋祭りで有名な古い神社。"
+      },
+      "address": {
+        "en": "Higashiosaka, Osaka",
+        "ja": "大阪府東大阪市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Ancient",
+        "Festival"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "October",
+      "tips": [
+        "Autumn festival",
+        "Ancient shrine",
+        "Local worship"
+      ],
+      "neighborhood": "Higashiosaka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.58,
+      "best_times": {
+        "en": "October"
+      },
+      "latitude": 34.6794,
+      "longitude": 135.6009
+    },
+    {
+      "name": {
+        "en": "Higashiosaka",
+        "ja": "東大阪"
+      },
+      "description": {
+        "en": "Industrial city. Factory tours.",
+        "ja": "工業都市。工場見学。"
+      },
+      "address": {
+        "en": "Higashiosaka, Osaka",
+        "ja": "大阪府東大阪市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Industrial",
+        "Local",
+        "Factories"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Weekday",
+      "tips": [
+        "Small factories",
+        "Rugby town",
+        "Manufacturing"
+      ],
+      "neighborhood": "Higashiosaka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 34.6756,
+      "longitude": 135.5813
+    },
+    {
+      "name": {
+        "en": "Yao",
+        "ja": "八尾"
+      },
+      "description": {
+        "en": "Suburban city with local temple.",
+        "ja": "地元の寺がある郊外都市。"
+      },
+      "address": {
+        "en": "Yao, Osaka",
+        "ja": "大阪府八尾市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Suburban",
+        "Temple",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Afternoon",
+      "tips": [
+        "Kyushoji Temple",
+        "Local area",
+        "Off path"
+      ],
+      "neighborhood": "Yao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6174,
+      "longitude": 135.5966
+    },
+    {
+      "name": {
+        "en": "Izumi Sano",
+        "ja": "泉佐野"
+      },
+      "description": {
+        "en": "Town near airport. Fish market.",
+        "ja": "空港近くの町。魚市場。"
+      },
+      "address": {
+        "en": "Izumisano, Osaka",
+        "ja": "大阪府泉佐野市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Fish Market",
+        "Airport",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Fresh fish",
+        "Near airport",
+        "Local market"
+      ],
+      "neighborhood": "Izumisano",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Takoyaki Museum",
+        "ja": "たこ焼きミュージアム"
+      },
+      "description": {
+        "en": "Multiple takoyaki shops in one place.",
+        "ja": "複数のたこ焼き店が一か所に。"
+      },
+      "address": {
+        "en": "Universal City Walk, Osaka",
+        "ja": "ユニバーサルシティウォーク大阪"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Takoyaki",
+        "Multiple",
+        "USJ"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Lunch",
+      "tips": [
+        "Famous shops",
+        "Compare styles",
+        "Near USJ"
+      ],
+      "neighborhood": "Konohana",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 34.6685,
+      "longitude": 135.4375
+    },
+    {
+      "name": {
+        "en": "Bunraku National Theatre",
+        "ja": "国立文楽劇場"
+      },
+      "description": {
+        "en": "Traditional puppet theater. UNESCO heritage.",
+        "ja": "伝統的な人形劇。ユネスコ遺産。"
+      },
+      "address": {
+        "en": "1-12-10 Nipponbashi, Chuo-ku, Osaka",
+        "ja": "大阪市中央区日本橋1-12-10"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Theater",
+        "Bunraku",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "UNESCO heritage",
+        "English headsets",
+        "Traditional art"
+      ],
+      "neighborhood": "Nipponbashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.6673,
+      "longitude": 135.5087
+    }
+  ]
+}

@@ -8,9 +8,9 @@ export default function SettingsLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex">
+        <div className="flex h-full">
             <Sidebar />
-            <div className="flex-1">
+            <div className="flex-1 overflow-y-auto md:rounded-tl-2xl bg-background">
                 {/* Handle post-checkout cache invalidation */}
                 <Suspense fallback={null}>
                     <SubscriptionSuccessHandler />

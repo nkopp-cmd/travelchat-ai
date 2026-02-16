@@ -42,16 +42,41 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Prevent body scroll when chat is open
+  // Prevent body scroll when chat is open (use touch-action for better mobile support)
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+      document.body.style.overscrollBehavior = "none";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      document.body.style.overscrollBehavior = "";
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      document.body.style.overscrollBehavior = "";
     };
+  }, [isOpen]);
+
+  // Handle viewport resize when mobile keyboard opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleViewportResize = () => {
+      const input = document.getElementById('chat-input');
+      if (input && document.activeElement === input) {
+        setTimeout(() => {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    };
+
+    const visualViewport = window.visualViewport;
+    if (visualViewport) {
+      visualViewport.addEventListener('resize', handleViewportResize);
+      return () => {
+        visualViewport.removeEventListener('resize', handleViewportResize);
+      };
+    }
   }, [isOpen]);
 
   // Show notification dot after a delay (to indicate Alley is ready)
@@ -67,6 +92,13 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
   const handleOpen = () => {
     setIsOpen(true);
     setHasUnread(false);
+    // Focus input after animation completes
+    setTimeout(() => {
+      const input = document.getElementById('chat-input');
+      if (input) {
+        input.focus();
+      }
+    }, 350);
   };
 
   const handleClose = () => {
@@ -75,13 +107,13 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
 
   return (
     <>
-      {/* Floating Action Button - Only visible on mobile/tablet */}
+      {/* Floating Action Button - Only visible on tablet (md-lg), hidden on mobile (has Chat tab) and desktop */}
       <Button
         onClick={handleOpen}
         className={cn(
-          "fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-violet-500/30",
+          "fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-violet-500/30",
           "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700",
-          "transition-all duration-300 lg:hidden",
+          "transition-all duration-300 hidden md:flex lg:hidden",
           isOpen && "scale-0 opacity-0",
           !isVisible && !isOpen && "translate-y-24 opacity-0"
         )}
@@ -97,23 +129,23 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
         <span className="absolute inset-0 rounded-full bg-violet-500 animate-ping opacity-20" />
       </Button>
 
-      {/* Bottom Sheet Backdrop */}
+      {/* Bottom Sheet Backdrop - Only on tablet */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm lg:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden md:block lg:hidden animate-in fade-in duration-200"
           onClick={handleClose}
         />
       )}
 
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet - Only on tablet */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 lg:hidden",
+          "fixed inset-x-0 bottom-0 z-50 hidden md:block lg:hidden",
           "transition-transform duration-300 ease-out",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
-        <div className="bg-background rounded-t-3xl shadow-2xl h-[90vh] flex flex-col">
+        <div className="bg-background rounded-t-3xl shadow-2xl flex flex-col" style={{ height: 'calc(100dvh - 64px - env(safe-area-inset-bottom, 0px))' }}>
           {/* Drag Handle */}
           <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
             <div className="w-12 h-1.5 rounded-full bg-muted-foreground/30" />
@@ -141,7 +173,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
           </div>
 
           {/* Chat Content */}
-          <div className="flex-1 min-h-0 p-4">
+          <div className="flex-1 min-h-0 flex flex-col px-4">
             <ChatInterface
               className="h-full"
               itineraryContext={itineraryContext}

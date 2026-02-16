@@ -1,0 +1,705 @@
+{
+  "city": "bangkok",
+  "batch": 3,
+  "spots": [
+    {
+      "name": {
+        "en": "Rot Fai Market Srinakarin",
+        "th": "ตลาดรถไฟศรีนครินทร์"
+      },
+      "description": {
+        "en": "Original Train Night Market with vintage cars and retro goods. Local youth hangout.",
+        "th": "ตลาดนัดรถไฟต้นฉบับมีรถวินเทจและของเรโทร แหล่งแฮงเอาท์ของวัยรุ่น"
+      },
+      "address": {
+        "en": "Srinakarin, Prawet, Bangkok",
+        "th": "ศรีนครินทร์ เขตประเวศ กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Vintage",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Thursday-Sunday night",
+      "tips": [
+        "Original location",
+        "Vintage finds",
+        "Far from center"
+      ],
+      "neighborhood": "Srinakarin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Thursday-Sunday night"
+      },
+      "latitude": 13.7141,
+      "longitude": 100.6691
+    },
+    {
+      "name": {
+        "en": "Wat Benchamabophit Marble Temple",
+        "th": "วัดเบญจมบพิตร"
+      },
+      "description": {
+        "en": "Beautiful marble temple built by King Rama V. Quieter than major temples.",
+        "th": "วัดหินอ่อนสวยงามสร้างโดยรัชกาลที่ 5 เงียบกว่าวัดหลักๆ"
+      },
+      "address": {
+        "en": "Wat Benchamabophit, Dusit, Bangkok",
+        "th": "วัดเบญจมบพิตร เขตดุสิต กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Marble",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Italian marble",
+        "Buddhist art collection",
+        "Less crowded"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7662,
+      "longitude": 100.5138
+    },
+    {
+      "name": {
+        "en": "Dusit Zoo Area",
+        "th": "เขตสวนสัตว์ดุสิต"
+      },
+      "description": {
+        "en": "Former royal gardens and zoo area. Now parks and government buildings.",
+        "th": "พื้นที่สวนหลวงและสวนสัตว์เดิม ปัจจุบันเป็นสวนและอาคารราชการ"
+      },
+      "address": {
+        "en": "Dusit District, Bangkok",
+        "th": "เขตดุสิต กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Royal",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Royal area",
+        "Large grounds",
+        "Government district"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7705,
+      "longitude": 100.5126
+    },
+    {
+      "name": {
+        "en": "Vimanmek Mansion",
+        "th": "พระที่นั่งวิมานเมฆ"
+      },
+      "description": {
+        "en": "World's largest golden teakwood mansion. Former royal residence with museum.",
+        "th": "คฤหาสน์ไม้สักทองที่ใหญ่ที่สุดในโลก พระราชวังเดิมพร้อมพิพิธภัณฑ์"
+      },
+      "address": {
+        "en": "Vimanmek Mansion, Dusit, Bangkok",
+        "th": "พระที่นั่งวิมานเมฆ เขตดุสิต กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Palace",
+        "Museum",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Dress code required",
+        "Guided tours",
+        "Beautiful grounds"
+      ],
+      "neighborhood": "Dusit",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.7742,
+      "longitude": 100.512
+    },
+    {
+      "name": {
+        "en": "Nana Plaza",
+        "th": "นานาพลาซ่า"
+      },
+      "description": {
+        "en": "Multi-story entertainment complex. Part of Bangkok's famous nightlife.",
+        "th": "ศูนย์บันเทิงหลายชั้น ส่วนหนึ่งของไนท์ไลฟ์ชื่อดังกรุงเทพฯ"
+      },
+      "address": {
+        "en": "Nana Plaza, Watthana, Bangkok",
+        "th": "นานาพลาซ่า เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Entertainment",
+        "Complex",
+        "Night"
+      ],
+      "localley_score": 2,
+      "local_percentage": 20,
+      "best_time": "Night",
+      "tips": [
+        "Multi-story",
+        "Tourist area",
+        "Near BTS Nana"
+      ],
+      "neighborhood": "Nana",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 13.7381,
+      "longitude": 100.5519
+    },
+    {
+      "name": {
+        "en": "Sukhumvit Soi 38 Street Food",
+        "th": "สตรีทฟู้ด ซอย 38 สุขุมวิท"
+      },
+      "description": {
+        "en": "Famous late-night street food strip. Pad Thai, satay, and local favorites.",
+        "th": "ซอยสตรีทฟู้ดดึกชื่อดัง ผัดไทย สะเต๊ะ และอาหารโปรดท้องถิ่น"
+      },
+      "address": {
+        "en": "Sukhumvit Soi 38, Bangkok",
+        "th": "ซอย 38 สุขุมวิท กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Street Food",
+        "Late Night",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "After 8pm",
+      "tips": [
+        "Famous for pad thai",
+        "Gets crowded",
+        "Cash only"
+      ],
+      "neighborhood": "Thonglor",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "After 8pm"
+      },
+      "latitude": 13.7201,
+      "longitude": 100.5794
+    },
+    {
+      "name": {
+        "en": "Terminal 21 Mall",
+        "th": "เทอร์มินอล 21"
+      },
+      "description": {
+        "en": "Airport-themed mall with city-themed floors. Famous affordable food court.",
+        "th": "ห้างธีมสนามบินมีชั้นธีมเมืองต่างๆ ศูนย์อาหารราคาถูกชื่อดัง"
+      },
+      "address": {
+        "en": "Terminal 21, Watthana, Bangkok",
+        "th": "เทอร์มินอล 21 เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Themed",
+        "Food Court"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Cheap food court",
+        "City-themed floors",
+        "Good bathrooms"
+      ],
+      "neighborhood": "Asok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7379,
+      "longitude": 100.5604
+    },
+    {
+      "name": {
+        "en": "EmQuartier Mall",
+        "th": "เอ็มควอเทียร์"
+      },
+      "description": {
+        "en": "Luxury mall with rooftop garden. Upscale shopping and dining.",
+        "th": "ห้างหรูมีสวนดาดฟ้า ช้อปปิ้งและอาหารระดับไฮเอนด์"
+      },
+      "address": {
+        "en": "EmQuartier, Watthana, Bangkok",
+        "th": "เอ็มควอเทียร์ เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Mall",
+        "Garden"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Rooftop garden",
+        "Luxury brands",
+        "Good food options"
+      ],
+      "neighborhood": "Phrom Phong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.732,
+      "longitude": 100.5696
+    },
+    {
+      "name": {
+        "en": "Emporium Mall",
+        "th": "ดิเอ็มโพเรียม"
+      },
+      "description": {
+        "en": "Original Emporium luxury mall. Thai high society shopping destination.",
+        "th": "ห้างหรูเอ็มโพเรียมต้นฉบับ จุดหมายช้อปปิ้งไฮโซไทย"
+      },
+      "address": {
+        "en": "Emporium, Watthana, Bangkok",
+        "th": "ดิเอ็มโพเรียม เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Luxury",
+        "Thai Elite",
+        "Mall"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Connected to EmQuartier",
+        "Thai brands",
+        "Good supermarket"
+      ],
+      "neighborhood": "Phrom Phong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7302,
+      "longitude": 100.5689
+    },
+    {
+      "name": {
+        "en": "Benjasiri Park",
+        "th": "สวนเบญจสิริ"
+      },
+      "description": {
+        "en": "Small urban park between malls. Morning exercise and afternoon escape.",
+        "th": "สวนในเมืองเล็กๆ ระหว่างห้าง ออกกำลังกายเช้าและหลบร้อนบ่าย"
+      },
+      "address": {
+        "en": "Benjasiri Park, Watthana, Bangkok",
+        "th": "สวนเบญจสิริ เขตวัฒนา กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Urban",
+        "Exercise"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Early morning",
+      "tips": [
+        "Morning exercise",
+        "Near BTS",
+        "Small but nice"
+      ],
+      "neighborhood": "Phrom Phong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Early morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Khlong Toei Fresh Market",
+        "th": "ตลาดคลองเตย"
+      },
+      "description": {
+        "en": "Bangkok's largest fresh market. Wholesale produce and seafood.",
+        "th": "ตลาดสดที่ใหญ่ที่สุดของกรุงเทพฯ ผักผลไม้และอาหารทะเลขายส่ง"
+      },
+      "address": {
+        "en": "Khlong Toei Market, Khlong Toei, Bangkok",
+        "th": "ตลาดคลองเตย เขตคลองเตย กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Fresh",
+        "Wholesale",
+        "Local"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Early morning",
+      "tips": [
+        "Very early hours",
+        "Wholesale prices",
+        "Real Bangkok"
+      ],
+      "neighborhood": "Khlong Toei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Early morning"
+      },
+      "latitude": 13.7182,
+      "longitude": 100.5607
+    },
+    {
+      "name": {
+        "en": "W District Community",
+        "th": "ดับเบิลยู ดิสทริค"
+      },
+      "description": {
+        "en": "Creative community space in Khlong Toei. Markets, art, and social enterprise.",
+        "th": "พื้นที่ชุมชนสร้างสรรค์ในคลองเตย ตลาด ศิลปะ และวิสาหกิจเพื่อสังคม"
+      },
+      "address": {
+        "en": "W District, Khlong Toei, Bangkok",
+        "th": "ดับเบิลยู ดิสทริค เขตคลองเตย กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Creative",
+        "Community",
+        "Social"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Social enterprise",
+        "Local community",
+        "Good events"
+      ],
+      "neighborhood": "Khlong Toei",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.66,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7135,
+      "longitude": 100.5683
+    },
+    {
+      "name": {
+        "en": "Queen Sirikit Park",
+        "th": "สวนสมเด็จพระนางเจ้าสิริกิติ์"
+      },
+      "description": {
+        "en": "Large park near Sukhumvit. Botanical garden and exercise area.",
+        "th": "สวนใหญ่ใกล้สุขุมวิท สวนพฤกษศาสตร์และพื้นที่ออกกำลังกาย"
+      },
+      "address": {
+        "en": "Queen Sirikit Park, Chatuchak, Bangkok",
+        "th": "สวนสมเด็จฯ เขตจตุจักร กรุงเทพฯ"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Botanical",
+        "Exercise"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Botanical garden",
+        "Near Chatuchak",
+        "Good for running"
+      ],
+      "neighborhood": "Chatuchak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 13.8066,
+      "longitude": 100.5511
+    },
+    {
+      "name": {
+        "en": "Chatuchak JJ Green Market",
+        "th": "เจเจ กรีน"
+      },
+      "description": {
+        "en": "Smaller night market adjacent to Chatuchak. Vintage and second-hand goods.",
+        "th": "ตลาดนัดกลางคืนเล็กๆ ติดจตุจักร ของวินเทจและมือสอง"
+      },
+      "address": {
+        "en": "JJ Green, Chatuchak, Bangkok",
+        "th": "เจเจ กรีน จตุจักร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Vintage",
+        "Second-hand"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Thursday-Sunday night",
+      "tips": [
+        "Vintage goods",
+        "Near main market",
+        "Evening only"
+      ],
+      "neighborhood": "Chatuchak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.64,
+      "best_times": {
+        "en": "Thursday-Sunday night"
+      },
+      "latitude": 13.8679,
+      "longitude": 100.5484
+    },
+    {
+      "name": {
+        "en": "Suan Chatuchak Plant Market",
+        "th": "ตลาดต้นไม้จตุจักร"
+      },
+      "description": {
+        "en": "Plant and garden market on Chatuchak grounds. Wednesday and Thursday specials.",
+        "th": "ตลาดต้นไม้และสวนในพื้นที่จตุจักร พุธและพฤหัสบดีพิเศษ"
+      },
+      "address": {
+        "en": "Chatuchak Plant Market, Bangkok",
+        "th": "ตลาดต้นไม้จตุจักร กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Plants",
+        "Garden",
+        "Weekday"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Wednesday/Thursday",
+      "tips": [
+        "Plant lovers",
+        "Wholesale prices",
+        "Morning best"
+      ],
+      "neighborhood": "Chatuchak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Wednesday/Thursday"
+      }
+    },
+    {
+      "name": {
+        "en": "Mo Chit Bus Terminal Area",
+        "th": "หมอชิต"
+      },
+      "description": {
+        "en": "Northern bus terminal with street food. Gateway to northern Thailand.",
+        "th": "สถานีขนส่งสายเหนือมีสตรีทฟู้ด ประตูสู่ภาคเหนือ"
+      },
+      "address": {
+        "en": "Mo Chit, Chatuchak, Bangkok",
+        "th": "หมอชิต เขตจตุจักร กรุงเทพฯ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Street Food",
+        "Transport",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Anytime",
+      "tips": [
+        "Bus to north",
+        "Cheap food",
+        "Near Chatuchak"
+      ],
+      "neighborhood": "Chatuchak",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "latitude": 13.8026,
+      "longitude": 100.5538
+    },
+    {
+      "name": {
+        "en": "Lat Phrao Night Market",
+        "th": "ตลาดกลางคืนลาดพร้าว"
+      },
+      "description": {
+        "en": "Local night market away from tourist areas. Authentic Thai market experience.",
+        "th": "ตลาดกลางคืนท้องถิ่นห่างจากพื้นที่ท่องเที่ยว ประสบการณ์ตลาดไทยแท้"
+      },
+      "address": {
+        "en": "Lat Phrao, Bangkok",
+        "th": "ลาดพร้าว กรุงเทพฯ"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Night Market",
+        "Local",
+        "Authentic"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Very local",
+        "Zero tourists",
+        "Real prices"
+      ],
+      "neighborhood": "Lat Phrao",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 13.8037,
+      "longitude": 100.5909
+    },
+    {
+      "name": {
+        "en": "Central World Mall",
+        "th": "เซ็นทรัลเวิลด์"
+      },
+      "description": {
+        "en": "Massive shopping complex in Ratchaprasong. One of Southeast Asia's largest malls.",
+        "th": "ศูนย์การค้าขนาดใหญ่ในราชประสงค์ หนึ่งในห้างที่ใหญ่ที่สุดในเอเชียตะวันออกเฉียงใต้"
+      },
+      "address": {
+        "en": "Central World, Pathum Wan, Bangkok",
+        "th": "เซ็นทรัลเวิลด์ เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Massive",
+        "Entertainment"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Huge mall",
+        "Multiple zones",
+        "Good food options"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 13.7466,
+      "longitude": 100.539
+    },
+    {
+      "name": {
+        "en": "Erawan Shrine",
+        "th": "ศาลพระพรหม เอราวัณ"
+      },
+      "description": {
+        "en": "Hindu shrine at Grand Hyatt corner. Constant prayer and Thai dancers.",
+        "th": "ศาลฮินดูที่มุมแกรนด์ไฮแอท มีการสวดมนต์และรำไทยตลอด"
+      },
+      "address": {
+        "en": "Erawan Shrine, Pathum Wan, Bangkok",
+        "th": "ศาลพระพรหม เขตปทุมวัน กรุงเทพฯ"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Hindu",
+        "Prayer"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Anytime",
+      "tips": [
+        "24-hour prayers",
+        "Thai dancers",
+        "Very spiritual"
+      ],
+      "neighborhood": "Siam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "latitude": 13.7443,
+      "longitude": 100.5404
+    }
+  ]
+}

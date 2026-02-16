@@ -1,0 +1,738 @@
+{
+  "city": "taipei",
+  "batch": 8,
+  "spots": [
+    {
+      "name": {
+        "en": "Tien Mu Area",
+        "zh": "天母商圈"
+      },
+      "description": {
+        "en": "Expat neighborhood with international dining.",
+        "zh": "有國際餐飲的外籍人士社區。"
+      },
+      "address": {
+        "en": "Tianmu, Shilin District, Taipei",
+        "zh": "台北市士林區天母"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Expat",
+        "International",
+        "Residential"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "International food",
+        "American school area",
+        "Baseball field"
+      ],
+      "neighborhood": "Tianmu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0493,
+      "longitude": 121.5249
+    },
+    {
+      "name": {
+        "en": "Tianmu Sports Park",
+        "zh": "天母運動公園"
+      },
+      "description": {
+        "en": "Sports complex with baseball stadium.",
+        "zh": "有棒球場的運動中心。"
+      },
+      "address": {
+        "en": "Tianmu, Shilin District, Taipei",
+        "zh": "台北市士林區天母"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Sports",
+        "Baseball",
+        "Park"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Baseball games",
+        "Nice park",
+        "Local exercise"
+      ],
+      "neighborhood": "Tianmu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1163,
+      "longitude": 121.5341
+    },
+    {
+      "name": {
+        "en": "Beitou Plum Garden",
+        "zh": "梅庭"
+      },
+      "description": {
+        "en": "Historic Japanese-era house. Calligraphy exhibitions.",
+        "zh": "歷史日治時代房屋。書法展覽。"
+      },
+      "address": {
+        "en": "6 Zhongshan Road, Beitou District, Taipei",
+        "zh": "台北市北投區中山路6號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Japanese",
+        "Calligraphy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free entry",
+        "Nice garden",
+        "Near hot spring museum"
+      ],
+      "neighborhood": "Beitou",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1369,
+      "longitude": 121.5088
+    },
+    {
+      "name": {
+        "en": "Beitou Museum",
+        "zh": "北投文物館"
+      },
+      "description": {
+        "en": "Japanese inn turned museum. Traditional architecture.",
+        "zh": "日式旅館改建的博物館。傳統建築。"
+      },
+      "address": {
+        "en": "32 Youya Road, Beitou District, Taipei",
+        "zh": "台北市北投區幽雅路32號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Japanese",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Beautiful building",
+        "Tea ceremony",
+        "Japanese era"
+      ],
+      "neighborhood": "Beitou",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1381,
+      "longitude": 121.5145
+    },
+    {
+      "name": {
+        "en": "Shung Ye Museum of Formosan Aborigines",
+        "zh": "順益台灣原住民博物館"
+      },
+      "description": {
+        "en": "Indigenous peoples museum. Cultural artifacts.",
+        "zh": "原住民博物館。文化文物。"
+      },
+      "address": {
+        "en": "282 Zhishan Road Sec 2, Shilin District, Taipei",
+        "zh": "台北市士林區至善路二段282號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Indigenous",
+        "Cultural"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near Palace Museum",
+        "Indigenous culture",
+        "Good collection"
+      ],
+      "neighborhood": "Shilin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.101,
+      "longitude": 121.552
+    },
+    {
+      "name": {
+        "en": "Miniatures Museum of Taiwan",
+        "zh": "袖珍博物館"
+      },
+      "description": {
+        "en": "Museum of miniature art. Detailed dollhouses.",
+        "zh": "袖珍藝術博物館。精細娃娃屋。"
+      },
+      "address": {
+        "en": "B1, 96 Jianguo North Road Sec 1, Zhongshan District, Taipei",
+        "zh": "台北市中山區建國北路一段96號B1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Miniatures",
+        "Unique"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Unique museum",
+        "Amazing detail",
+        "Family friendly"
+      ],
+      "neighborhood": "Zhongshan",
+      "latitude": 25.050421,
+      "longitude": 121.5360584,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Taipei Astronomical Museum",
+        "zh": "台北市立天文科學教育館"
+      },
+      "description": {
+        "en": "Space and astronomy museum. Planetarium.",
+        "zh": "太空和天文博物館。天文館。"
+      },
+      "address": {
+        "en": "363 Jihe Road, Shilin District, Taipei",
+        "zh": "台北市士林區基河路363號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Astronomy",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Planetarium shows",
+        "Kids love it",
+        "Near Science Center"
+      ],
+      "neighborhood": "Shilin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.096,
+      "longitude": 121.5185
+    },
+    {
+      "name": {
+        "en": "National Taiwan Science Education Center",
+        "zh": "國立臺灣科學教育館"
+      },
+      "description": {
+        "en": "Interactive science museum for children.",
+        "zh": "兒童互動科學博物館。"
+      },
+      "address": {
+        "en": "189 Shishang Road, Shilin District, Taipei",
+        "zh": "台北市士林區士商路189號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Science",
+        "Interactive"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Interactive exhibits",
+        "Great for kids",
+        "Near zoo areas"
+      ],
+      "neighborhood": "Shilin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0961,
+      "longitude": 121.5167
+    },
+    {
+      "name": {
+        "en": "Taipei Children's Amusement Park",
+        "zh": "台北市兒童新樂園"
+      },
+      "description": {
+        "en": "Affordable amusement park for families.",
+        "zh": "平價家庭遊樂園。"
+      },
+      "address": {
+        "en": "55 Chengde Road Sec 5, Shilin District, Taipei",
+        "zh": "台北市士林區承德路五段55號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Amusement Park",
+        "Family",
+        "Affordable"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very affordable",
+        "Pay per ride",
+        "Near science museum"
+      ],
+      "neighborhood": "Shilin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0963,
+      "longitude": 121.5147
+    },
+    {
+      "name": {
+        "en": "Brave Aquarium",
+        "zh": "國立海洋科技博物館"
+      },
+      "description": {
+        "en": "Marine science museum in Keelung.",
+        "zh": "基隆的海洋科學博物館。"
+      },
+      "address": {
+        "en": "367 Beining Road, Zhongzheng District, Keelung",
+        "zh": "基隆市中正區北寧路367號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Aquarium",
+        "Science",
+        "Marine"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Regional aquarium",
+        "Day trip",
+        "Near Keelung"
+      ],
+      "neighborhood": "Keelung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Yilan National Center for Traditional Arts",
+        "zh": "宜蘭國立傳統藝術中心"
+      },
+      "description": {
+        "en": "Traditional arts village. Performances and crafts.",
+        "zh": "傳統藝術村。表演和工藝。"
+      },
+      "address": {
+        "en": "201 Wubin Road Sec 2, Wujie Township, Yilan",
+        "zh": "宜蘭縣五結鄉五濱路二段201號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Traditional Arts",
+        "Crafts",
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Traditional crafts",
+        "DIY activities",
+        "Day trip from Taipei"
+      ],
+      "neighborhood": "Yilan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Jiaoxi Hot Springs",
+        "zh": "礁溪溫泉"
+      },
+      "description": {
+        "en": "Hot spring town near Taipei. Public baths.",
+        "zh": "台北附近的溫泉小鎮。公共浴池。"
+      },
+      "address": {
+        "en": "Jiaoxi Township, Yilan",
+        "zh": "宜蘭縣礁溪鄉"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Hot Springs",
+        "Day Trip",
+        "Public"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Easy from Taipei",
+        "Public foot baths",
+        "Many hotels"
+      ],
+      "neighborhood": "Yilan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.043,
+      "longitude": 121.5135
+    },
+    {
+      "name": {
+        "en": "Ximen Night Club Area",
+        "zh": "西門夜店區"
+      },
+      "description": {
+        "en": "Main nightlife district in Ximending.",
+        "zh": "西門町主要夜生活區。"
+      },
+      "address": {
+        "en": "Kunming Street, Wanhua District, Taipei",
+        "zh": "台北市萬華區昆明街"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Clubs",
+        "Nightlife",
+        "Young"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Late Night",
+      "tips": [
+        "Young crowd",
+        "Many clubs",
+        "Weekend busy"
+      ],
+      "neighborhood": "Ximending",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Late Night"
+      },
+      "latitude": 25.0437,
+      "longitude": 121.505
+    },
+    {
+      "name": {
+        "en": "Xinyi Nightlife Area",
+        "zh": "信義夜生活區"
+      },
+      "description": {
+        "en": "Upscale clubs and bars near 101.",
+        "zh": "101附近高檔俱樂部和酒吧。"
+      },
+      "address": {
+        "en": "Songshou Road, Xinyi District, Taipei",
+        "zh": "台北市信義區松壽路"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Upscale",
+        "Clubs",
+        "Bars"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Late Night",
+      "tips": [
+        "Upscale clubs",
+        "Dress code",
+        "ATT 4 FUN area"
+      ],
+      "neighborhood": "Xinyi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Late Night"
+      },
+      "latitude": 25.0359,
+      "longitude": 121.5645
+    },
+    {
+      "name": {
+        "en": "Zhongshan Bar District",
+        "zh": "中山酒吧區"
+      },
+      "description": {
+        "en": "Concentrated bar area near Zhongshan MRT.",
+        "zh": "中山地鐵站附近集中的酒吧區。"
+      },
+      "address": {
+        "en": "Linsen North Road, Zhongshan District, Taipei",
+        "zh": "台北市中山區林森北路"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bars",
+        "Concentrated",
+        "Various"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Many bars",
+        "Different styles",
+        "Near MRT"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0516,
+      "longitude": 121.5248
+    },
+    {
+      "name": {
+        "en": "Daan Craft Beer Bars",
+        "zh": "大安精釀酒吧"
+      },
+      "description": {
+        "en": "Craft beer scene in Da'an district.",
+        "zh": "大安區精釀啤酒場景。"
+      },
+      "address": {
+        "en": "Da'an District, Taipei",
+        "zh": "台北市大安區"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Craft Beer",
+        "Bars",
+        "Hipster"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Local craft beer",
+        "Various venues",
+        "Relaxed vibe"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0265,
+      "longitude": 121.5344
+    },
+    {
+      "name": {
+        "en": "Draft Land",
+        "zh": "Draft Land"
+      },
+      "description": {
+        "en": "Taiwanese craft beer taproom.",
+        "zh": "台灣精釀啤酒酒吧。"
+      },
+      "address": {
+        "en": "8 Lane 248 Zhongxiao East Road Sec 4, Da'an District, Taipei",
+        "zh": "台北市大安區忠孝東路四段248巷8號"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Craft Beer",
+        "Taproom",
+        "Local"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Many taps",
+        "Local beers",
+        "Good selection"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0411,
+      "longitude": 121.554
+    },
+    {
+      "name": {
+        "en": "Revolver Bar",
+        "zh": "左輪酒吧"
+      },
+      "description": {
+        "en": "Live music bar. Rock and jazz.",
+        "zh": "現場音樂酒吧。搖滾和爵士。"
+      },
+      "address": {
+        "en": "1-2 Roosevelt Road Sec 1, Zhongzheng District, Taipei",
+        "zh": "台北市中正區羅斯福路一段1-2號"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Live Music",
+        "Bar",
+        "Rock"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Late Night",
+      "tips": [
+        "Live bands",
+        "Rock music",
+        "Near NTU"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Late Night"
+      },
+      "latitude": 25.0343,
+      "longitude": 121.5174
+    },
+    {
+      "name": {
+        "en": "Riverside Live House",
+        "zh": "河岸留言"
+      },
+      "description": {
+        "en": "Famous live music venue. Indie bands.",
+        "zh": "著名現場音樂場地。獨立樂隊。"
+      },
+      "address": {
+        "en": "2 Alley 244 Roosevelt Road Sec 3, Zhongzheng District, Taipei",
+        "zh": "台北市中正區羅斯福路三段244巷2號"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Live House",
+        "Indie",
+        "Music"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Local bands",
+        "Indie scene",
+        "Check schedule"
+      ],
+      "neighborhood": "Gongguan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "The Wall Live House",
+        "zh": "這牆音樂展演空間"
+      },
+      "description": {
+        "en": "Major live music venue. International acts.",
+        "zh": "主要現場音樂場地。國際演出。"
+      },
+      "address": {
+        "en": "B1, 200 Roosevelt Road Sec 4, Zhongzheng District, Taipei",
+        "zh": "台北市中正區羅斯福路四段200號B1"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Live House",
+        "Major",
+        "International"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Major venue",
+        "International acts",
+        "Check schedule"
+      ],
+      "neighborhood": "Gongguan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      }
+    }
+  ]
+}

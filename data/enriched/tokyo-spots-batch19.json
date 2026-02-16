@@ -1,0 +1,744 @@
+{
+  "city": "tokyo",
+  "batch": 19,
+  "spots": [
+    {
+      "name": {
+        "en": "Kiyose Sunflower Field",
+        "ja": "清瀬ひまわりフェスティバル"
+      },
+      "description": {
+        "en": "Massive sunflower field blooming in August. 100,000 flowers in full bloom.",
+        "ja": "8月に咲く大規模なひまわり畑。10万本の花が満開。"
+      },
+      "address": {
+        "en": "Kiyose-shi, Tokyo",
+        "ja": "東京都清瀬市"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Flowers",
+        "Seasonal",
+        "Photography"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "August",
+      "tips": [
+        "100,000 sunflowers",
+        "August only",
+        "Photo spot"
+      ],
+      "neighborhood": "Kiyose",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "August"
+      },
+      "latitude": 35.7855,
+      "longitude": 139.5313
+    },
+    {
+      "name": {
+        "en": "Murayama Reservoir",
+        "ja": "村山貯水池"
+      },
+      "description": {
+        "en": "Historic reservoir with art deco tower. Cherry blossoms around the lake.",
+        "ja": "アールデコ様式の塔がある歴史的な貯水池。湖の周りの桜。"
+      },
+      "address": {
+        "en": "Higashi-Murayama-shi, Tokyo",
+        "ja": "東京都東村山市"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Reservoir",
+        "Historic",
+        "Sakura"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Spring",
+      "tips": [
+        "Art deco tower",
+        "Cherry blossoms",
+        "Lake walking"
+      ],
+      "neighborhood": "Higashi-Murayama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 35.7642,
+      "longitude": 139.411
+    },
+    {
+      "name": {
+        "en": "Kunitachi University Street",
+        "ja": "国立大学通り"
+      },
+      "description": {
+        "en": "Beautiful tree-lined avenue near Hitotsubashi University. Famous cherry blossom tunnel.",
+        "ja": "一橋大学近くの美しい並木道。有名な桜のトンネル。"
+      },
+      "address": {
+        "en": "Kunitachi-shi, Tokyo",
+        "ja": "東京都国立市"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Street",
+        "Trees",
+        "University"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Spring",
+      "tips": [
+        "Cherry blossom avenue",
+        "Beautiful in fall",
+        "University town"
+      ],
+      "neighborhood": "Kunitachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 35.6934,
+      "longitude": 139.4484
+    },
+    {
+      "name": {
+        "en": "Kunitachi Cafe Scene",
+        "ja": "国立カフェシーン"
+      },
+      "description": {
+        "en": "University town with independent cafes. Intellectual atmosphere and good coffee.",
+        "ja": "独立系カフェがある大学町。知的な雰囲気と美味しいコーヒー。"
+      },
+      "address": {
+        "en": "Kunitachi-shi, Tokyo",
+        "ja": "東京都国立市"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Independent",
+        "University",
+        "Intellectual"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "University town",
+        "Independent cafes",
+        "Bookish atmosphere"
+      ],
+      "neighborhood": "Kunitachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.682,
+      "longitude": 139.4362
+    },
+    {
+      "name": {
+        "en": "Hino Mogusa Garden",
+        "ja": "日野百草園"
+      },
+      "description": {
+        "en": "Historic garden with plum and autumn colors. Seasonal flower viewing.",
+        "ja": "梅と紅葉の歴史的な庭園。季節の花観賞。"
+      },
+      "address": {
+        "en": "560 Mogusa, Hino-shi, Tokyo",
+        "ja": "東京都日野市百草560"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Plum",
+        "Autumn"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Feb/Nov",
+      "tips": [
+        "Plum blossoms February",
+        "Autumn colors",
+        "Hillside garden"
+      ],
+      "neighborhood": "Hino",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Feb/Nov"
+      },
+      "latitude": 35.65,
+      "longitude": 139.4252
+    },
+    {
+      "name": {
+        "en": "Kunitachi Oyama Green Space",
+        "ja": "国立大山緑地"
+      },
+      "description": {
+        "en": "Green hill with Tokyo skyline views. Local walking and picnic spot.",
+        "ja": "東京のスカイラインが見える緑の丘。地元の散歩とピクニックスポット。"
+      },
+      "address": {
+        "en": "Kunitachi-shi, Tokyo",
+        "ja": "東京都国立市"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Views",
+        "Walking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Clear days",
+      "tips": [
+        "City views",
+        "Local spot",
+        "Picnic area"
+      ],
+      "neighborhood": "Kunitachi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Clear days"
+      },
+      "latitude": 35.682,
+      "longitude": 139.4362
+    },
+    {
+      "name": {
+        "en": "Tama New Town",
+        "ja": "多摩ニュータウン"
+      },
+      "description": {
+        "en": "Massive planned housing development. Example of Japanese new town planning.",
+        "ja": "大規模な計画住宅開発。日本のニュータウン計画の例。"
+      },
+      "address": {
+        "en": "Tama New Town, Tokyo",
+        "ja": "東京都多摩ニュータウン"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Urban Planning",
+        "Housing",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Any time",
+      "tips": [
+        "Urban planning example",
+        "Large scale",
+        "1970s development"
+      ],
+      "neighborhood": "Tama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Any time"
+      },
+      "latitude": 35.5996,
+      "longitude": 139.3625
+    },
+    {
+      "name": {
+        "en": "Hachioji Mulberry Dyeing",
+        "ja": "八王子桑染め"
+      },
+      "description": {
+        "en": "Traditional silk and mulberry dyeing crafts. Local textile heritage.",
+        "ja": "伝統的な絹と桑染め工芸。地元の繊維遺産。"
+      },
+      "address": {
+        "en": "Hachioji-shi, Tokyo",
+        "ja": "東京都八王子市"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Crafts",
+        "Traditional",
+        "Textile"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Workshop times",
+      "tips": [
+        "Silk heritage",
+        "Dyeing workshops",
+        "Traditional craft"
+      ],
+      "neighborhood": "Hachioji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Workshop times"
+      },
+      "latitude": 35.6664,
+      "longitude": 139.3164
+    },
+    {
+      "name": {
+        "en": "Hachioji Ramen Street",
+        "ja": "八王子ラーメン街道"
+      },
+      "description": {
+        "en": "Local ramen style with chopped onions. Hachioji-style ramen shops.",
+        "ja": "刻みタマネギの地元ラーメンスタイル。八王子ラーメン店。"
+      },
+      "address": {
+        "en": "Hachioji-shi, Tokyo",
+        "ja": "東京都八王子市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Ramen",
+        "Local Style",
+        "Specialty"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch/Dinner",
+      "tips": [
+        "Hachioji style",
+        "Chopped onions",
+        "Local specialty"
+      ],
+      "neighborhood": "Hachioji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Lunch/Dinner"
+      },
+      "latitude": 35.6664,
+      "longitude": 139.3164
+    },
+    {
+      "name": {
+        "en": "Hachioji Ginkgo Festival",
+        "ja": "八王子いちょう祭り"
+      },
+      "description": {
+        "en": "Ginkgo tree festival along Koshu Highway. 4km of golden trees in November.",
+        "ja": "甲州街道沿いのイチョウ祭り。11月に4kmの黄金の木々。"
+      },
+      "address": {
+        "en": "Koshu Kaido, Hachioji-shi, Tokyo",
+        "ja": "東京都八王子市甲州街道"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Festival",
+        "Trees",
+        "Autumn"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "November",
+      "tips": [
+        "4km of ginkgos",
+        "November festival",
+        "Street parade"
+      ],
+      "neighborhood": "Hachioji",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "November"
+      },
+      "latitude": 35.6499,
+      "longitude": 139.2978
+    },
+    {
+      "name": {
+        "en": "Soka Senbei",
+        "ja": "草加せんべい"
+      },
+      "description": {
+        "en": "Famous rice cracker town just outside Tokyo. Traditional senbei production.",
+        "ja": "東京郊外の有名なせんべいの町。伝統的なせんべい生産。"
+      },
+      "address": {
+        "en": "Soka-shi, Saitama",
+        "ja": "埼玉県草加市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Senbei",
+        "Traditional",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Any time",
+      "tips": [
+        "Famous senbei",
+        "Factory visits",
+        "Traditional craft"
+      ],
+      "neighborhood": "Soka",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Any time"
+      }
+    },
+    {
+      "name": {
+        "en": "LaLaport Toyosu",
+        "ja": "ららぽーと豊洲"
+      },
+      "description": {
+        "en": "Large waterfront shopping mall. Family entertainment and dining.",
+        "ja": "大きなウォーターフロントショッピングモール。ファミリーエンターテイメントと食事。"
+      },
+      "address": {
+        "en": "2-4-9 Toyosu, Koto-ku, Tokyo",
+        "ja": "東京都江東区豊洲2-4-9"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Family",
+        "Waterfront"
+      ],
+      "localley_score": 3,
+      "local_percentage": 65,
+      "best_time": "Weekend",
+      "tips": [
+        "KidZania nearby",
+        "Bay views",
+        "Family friendly"
+      ],
+      "neighborhood": "Toyosu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.23,
+      "best_times": {
+        "en": "Weekend"
+      },
+      "latitude": 35.6555,
+      "longitude": 139.7931
+    },
+    {
+      "name": {
+        "en": "KidZania Tokyo",
+        "ja": "キッザニア東京"
+      },
+      "description": {
+        "en": "Children's career experience theme park. Kids role-play adult jobs.",
+        "ja": "子供の職業体験テーマパーク。子供が大人の仕事をロールプレイ。"
+      },
+      "address": {
+        "en": "LaLaport Toyosu, Koto-ku, Tokyo",
+        "ja": "東京都江東区ららぽーと豊洲"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Children",
+        "Educational",
+        "Interactive"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Weekday",
+      "tips": [
+        "Book in advance",
+        "Role-play jobs",
+        "Educational play"
+      ],
+      "neighborhood": "Toyosu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Weekday"
+      },
+      "latitude": 35.6563,
+      "longitude": 139.7913
+    },
+    {
+      "name": {
+        "en": "Meguro River Illumination",
+        "ja": "目黒川イルミネーション"
+      },
+      "description": {
+        "en": "Winter light festival along Meguro River. Pink illuminations mimicking cherry blossoms.",
+        "ja": "目黒川沿いの冬の光の祭典。桜を模したピンクのイルミネーション。"
+      },
+      "address": {
+        "en": "Meguro River, Meguro-ku, Tokyo",
+        "ja": "東京都目黒区目黒川"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "River"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "November-December",
+      "tips": [
+        "Pink lights",
+        "Cherry blossom effect",
+        "Winter dates"
+      ],
+      "neighborhood": "Nakameguro",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "November-December"
+      },
+      "latitude": 35.6181,
+      "longitude": 139.7342
+    },
+    {
+      "name": {
+        "en": "Caretta Shiodome Illumination",
+        "ja": "カレッタ汐留イルミネーション"
+      },
+      "description": {
+        "en": "Famous winter illumination display. Elaborate light shows nightly.",
+        "ja": "有名な冬のイルミネーション。毎晩精巧なライトショー。"
+      },
+      "address": {
+        "en": "Shiodome, Minato-ku, Tokyo",
+        "ja": "東京都港区汐留"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "Show"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "November-February",
+      "tips": [
+        "Elaborate displays",
+        "Light show times",
+        "Very crowded"
+      ],
+      "neighborhood": "Shiodome",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "November-February"
+      },
+      "latitude": 35.6614,
+      "longitude": 139.7589
+    },
+    {
+      "name": {
+        "en": "Roppongi Keyakizaka Illumination",
+        "ja": "六本木けやき坂イルミネーション"
+      },
+      "description": {
+        "en": "Blue LED lights along tree-lined street. Tokyo Tower views with illuminations.",
+        "ja": "並木道沿いの青いLEDライト。イルミネーションと東京タワーの眺め。"
+      },
+      "address": {
+        "en": "Roppongi Hills, Minato-ku, Tokyo",
+        "ja": "東京都港区六本木ヒルズ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "Romantic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "November-December",
+      "tips": [
+        "Blue lights",
+        "Tokyo Tower view",
+        "Romantic spot"
+      ],
+      "neighborhood": "Roppongi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "November-December"
+      },
+      "latitude": 35.6602,
+      "longitude": 139.7298
+    },
+    {
+      "name": {
+        "en": "Tokyo Dome Illumination",
+        "ja": "東京ドームシティイルミネーション"
+      },
+      "description": {
+        "en": "Large-scale illumination at Tokyo Dome City. Multiple themed areas.",
+        "ja": "東京ドームシティの大規模イルミネーション。複数のテーマエリア。"
+      },
+      "address": {
+        "en": "Tokyo Dome City, Bunkyo-ku, Tokyo",
+        "ja": "東京都文京区東京ドームシティ"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "Family"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "November-February",
+      "tips": [
+        "Multiple areas",
+        "Amusement park combo",
+        "Long season"
+      ],
+      "neighborhood": "Suidobashi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "November-February"
+      },
+      "latitude": 35.705,
+      "longitude": 139.7526
+    },
+    {
+      "name": {
+        "en": "Marunouchi Naka-dori Illumination",
+        "ja": "丸の内仲通りイルミネーション"
+      },
+      "description": {
+        "en": "Elegant champagne-gold illuminations. Sophisticated business district light display.",
+        "ja": "エレガントなシャンパンゴールドのイルミネーション。洗練されたビジネス街の光の演出。"
+      },
+      "address": {
+        "en": "Marunouchi Naka-dori, Chiyoda-ku, Tokyo",
+        "ja": "東京都千代田区丸の内仲通り"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "Elegant"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "November-February",
+      "tips": [
+        "Champagne gold",
+        "Sophisticated atmosphere",
+        "Near Tokyo Station"
+      ],
+      "neighborhood": "Marunouchi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.24,
+      "best_times": {
+        "en": "November-February"
+      },
+      "latitude": 35.68,
+      "longitude": 139.7628
+    },
+    {
+      "name": {
+        "en": "Ebisu Baccarat Chandelier",
+        "ja": "恵比寿バカラシャンデリア"
+      },
+      "description": {
+        "en": "Giant Baccarat crystal chandelier display. Elegant Christmas decoration.",
+        "ja": "巨大なバカラクリスタルシャンデリアの展示。エレガントなクリスマス装飾。"
+      },
+      "address": {
+        "en": "Ebisu Garden Place, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区恵比寿ガーデンプレイス"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Christmas",
+        "Crystal",
+        "Luxury"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "November-January",
+      "tips": [
+        "Giant chandelier",
+        "Photo spot",
+        "Christmas season"
+      ],
+      "neighborhood": "Ebisu",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "November-January"
+      },
+      "latitude": 35.642,
+      "longitude": 139.7136
+    },
+    {
+      "name": {
+        "en": "Shinjuku Terrace City Illumination",
+        "ja": "新宿テラスシティイルミネーション"
+      },
+      "description": {
+        "en": "Annual illumination near Shinjuku Southern Terrace. Accessible light display.",
+        "ja": "新宿サザンテラス近くの年次イルミネーション。アクセスしやすい光の演出。"
+      },
+      "address": {
+        "en": "Shinjuku Southern Terrace, Shibuya-ku, Tokyo",
+        "ja": "東京都渋谷区新宿サザンテラス"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Illumination",
+        "Winter",
+        "Accessible"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "November-February",
+      "tips": [
+        "Near station",
+        "Easy access",
+        "Multiple areas"
+      ],
+      "neighborhood": "Shinjuku",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "November-February"
+      },
+      "latitude": 35.6873,
+      "longitude": 139.7004
+    }
+  ]
+}

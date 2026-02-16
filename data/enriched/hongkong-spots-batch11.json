@@ -1,0 +1,746 @@
+{
+  "city": "hong_kong",
+  "batch": 11,
+  "spots": [
+    {
+      "name": {
+        "en": "Elements Mall",
+        "zh": "圓方"
+      },
+      "description": {
+        "en": "Large mall at ICC. Five elements theme.",
+        "zh": "環球貿易廣場大型商場。五行主題。"
+      },
+      "address": {
+        "en": "1 Austin Road West, Kowloon",
+        "zh": "九龍柯士甸道西1號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Large",
+        "Theme"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Five zones",
+        "Cinema",
+        "MTR connected"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3049,
+      "longitude": 114.162
+    },
+    {
+      "name": {
+        "en": "IFC Mall",
+        "zh": "國際金融中心商場"
+      },
+      "description": {
+        "en": "Premium mall at IFC. Airport Express.",
+        "zh": "國際金融中心高檔商場。機場快線。"
+      },
+      "address": {
+        "en": "8 Finance Street, Central, Hong Kong",
+        "zh": "香港中環金融街8號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Premium",
+        "Transport"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Afternoon",
+      "tips": [
+        "Apple Store",
+        "Airport Express",
+        "Harbor views"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2851,
+      "longitude": 114.1586
+    },
+    {
+      "name": {
+        "en": "Langham Place",
+        "zh": "朗豪坊"
+      },
+      "description": {
+        "en": "Major mall in Mong Kok.",
+        "zh": "旺角主要商場。"
+      },
+      "address": {
+        "en": "8 Argyle Street, Mong Kok, Kowloon",
+        "zh": "九龍旺角亞皆老街8號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Mong Kok",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Spiral escalators",
+        "Youth fashion",
+        "Busy area"
+      ],
+      "neighborhood": "Mong Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3183,
+      "longitude": 114.1686
+    },
+    {
+      "name": {
+        "en": "Festival Walk",
+        "zh": "又一城"
+      },
+      "description": {
+        "en": "Major mall at Kowloon Tong.",
+        "zh": "九龍塘主要商場。"
+      },
+      "address": {
+        "en": "80 Tat Chee Avenue, Kowloon Tong, Kowloon",
+        "zh": "九龍九龍塘達之路80號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Family",
+        "Large"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Ice rink",
+        "Family friendly",
+        "MTR connected"
+      ],
+      "neighborhood": "Kowloon Tong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3369,
+      "longitude": 114.1755
+    },
+    {
+      "name": {
+        "en": "apm Mall",
+        "zh": "apm"
+      },
+      "description": {
+        "en": "Night shopping mall in Kwun Tong.",
+        "zh": "觀塘夜間購物商場。"
+      },
+      "address": {
+        "en": "418 Kwun Tong Road, Kwun Tong, Kowloon",
+        "zh": "九龍觀塘觀塘道418號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Night",
+        "Young"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Night",
+      "tips": [
+        "Open late",
+        "Young crowd",
+        "Cinema"
+      ],
+      "neighborhood": "Kwun Tong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Night"
+      },
+      "latitude": 22.3122,
+      "longitude": 114.2251
+    },
+    {
+      "name": {
+        "en": "Kwun Tong Industrial Area",
+        "zh": "觀塘工業區"
+      },
+      "description": {
+        "en": "Industrial buildings with cafes. Creative spaces.",
+        "zh": "有咖啡館的工廈。創意空間。"
+      },
+      "address": {
+        "en": "Kwun Tong, Kowloon",
+        "zh": "九龍觀塘"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Industrial",
+        "Creative",
+        "Cafes"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Hidden cafes",
+        "Creative spaces",
+        "Industrial charm"
+      ],
+      "neighborhood": "Kwun Tong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3155,
+      "longitude": 114.2194
+    },
+    {
+      "name": {
+        "en": "PMQ",
+        "zh": "PMQ元創方"
+      },
+      "description": {
+        "en": "Creative hub in former police quarters.",
+        "zh": "前警察宿舍的創意中心。"
+      },
+      "address": {
+        "en": "35 Aberdeen Street, Central, Hong Kong",
+        "zh": "香港中環鴨巴甸街35號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Creative",
+        "Design",
+        "Heritage"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Local designers",
+        "Pop-up events",
+        "Nice courtyard"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2833,
+      "longitude": 114.1518
+    },
+    {
+      "name": {
+        "en": "Tai Kwun",
+        "zh": "大館"
+      },
+      "description": {
+        "en": "Art center in former prison. Heritage.",
+        "zh": "前監獄的藝術中心。文物。"
+      },
+      "address": {
+        "en": "10 Hollywood Road, Central, Hong Kong",
+        "zh": "香港中環荷李活道10號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art",
+        "Heritage",
+        "Prison"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free exhibitions",
+        "Historic buildings",
+        "Good restaurants"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2812,
+      "longitude": 114.154
+    },
+    {
+      "name": {
+        "en": "Central Police Station",
+        "zh": "中區警署"
+      },
+      "description": {
+        "en": "Historic police station in Tai Kwun.",
+        "zh": "大館內的歷史警署。"
+      },
+      "address": {
+        "en": "Tai Kwun, Central, Hong Kong",
+        "zh": "香港中環大館"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Heritage",
+        "Police",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Part of Tai Kwun",
+        "Historic",
+        "Free entry"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2816,
+      "longitude": 114.1542
+    },
+    {
+      "name": {
+        "en": "Victoria Prison",
+        "zh": "域多利監獄"
+      },
+      "description": {
+        "en": "Historic prison in Tai Kwun complex.",
+        "zh": "大館內的歷史監獄。"
+      },
+      "address": {
+        "en": "Tai Kwun, Central, Hong Kong",
+        "zh": "香港中環大館"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Heritage",
+        "Prison",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Cell blocks",
+        "History tours",
+        "Part of complex"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2808,
+      "longitude": 114.154
+    },
+    {
+      "name": {
+        "en": "M+ Museum",
+        "zh": "M+博物館"
+      },
+      "description": {
+        "en": "World-class contemporary art museum.",
+        "zh": "世界級當代藝術博物館。"
+      },
+      "address": {
+        "en": "West Kowloon Cultural District, Hong Kong",
+        "zh": "香港西九文化區"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Contemporary",
+        "World Class"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Major museum",
+        "Harbor views",
+        "Reserve tickets"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.29,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3011,
+      "longitude": 114.1591
+    },
+    {
+      "name": {
+        "en": "Hong Kong Palace Museum",
+        "zh": "香港故宮文化博物館"
+      },
+      "description": {
+        "en": "Chinese art from Beijing Palace Museum.",
+        "zh": "來自北京故宮博物院的中國藝術。"
+      },
+      "address": {
+        "en": "West Kowloon Cultural District, Hong Kong",
+        "zh": "香港西九文化區"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Museum",
+        "Chinese Art",
+        "Palace"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Reserve tickets",
+        "Amazing artifacts",
+        "Near M+"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.3,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3016,
+      "longitude": 114.1554
+    },
+    {
+      "name": {
+        "en": "West Kowloon Waterfront",
+        "zh": "西九龍海濱"
+      },
+      "description": {
+        "en": "New cultural district promenade.",
+        "zh": "新文化區海濱長廊。"
+      },
+      "address": {
+        "en": "West Kowloon Cultural District, Hong Kong",
+        "zh": "香港西九文化區"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Waterfront",
+        "Promenade",
+        "Cultural"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Sunset views",
+        "Harbor views",
+        "Art park"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3017,
+      "longitude": 114.163
+    },
+    {
+      "name": {
+        "en": "Xiqu Centre",
+        "zh": "戲曲中心"
+      },
+      "description": {
+        "en": "Chinese opera center in West Kowloon.",
+        "zh": "西九龍的戲曲中心。"
+      },
+      "address": {
+        "en": "88 Austin Road West, Kowloon",
+        "zh": "九龍柯士甸道西88號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Opera",
+        "Chinese",
+        "Performance"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Cantonese opera",
+        "Modern building",
+        "Tea house"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.3021,
+      "longitude": 114.1672
+    },
+    {
+      "name": {
+        "en": "Freespace",
+        "zh": "自由空間"
+      },
+      "description": {
+        "en": "Contemporary performance space.",
+        "zh": "當代表演空間。"
+      },
+      "address": {
+        "en": "West Kowloon Cultural District, Hong Kong",
+        "zh": "香港西九文化區"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Performance",
+        "Contemporary",
+        "Arts"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Check schedule",
+        "Various events",
+        "Modern space"
+      ],
+      "neighborhood": "West Kowloon",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 22.2999,
+      "longitude": 114.1564
+    },
+    {
+      "name": {
+        "en": "Ocean Park",
+        "zh": "海洋公園"
+      },
+      "description": {
+        "en": "Theme park with rides and aquarium.",
+        "zh": "有遊樂設施和水族館的主題樂園。"
+      },
+      "address": {
+        "en": "180 Wong Chuk Hang Road, Aberdeen, Hong Kong",
+        "zh": "香港香港仔黃竹坑道180號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Theme Park",
+        "Aquarium",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Full day needed",
+        "Cable car views",
+        "Less crowded weekday"
+      ],
+      "neighborhood": "Aberdeen",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2348,
+      "longitude": 114.1708
+    },
+    {
+      "name": {
+        "en": "Hong Kong Disneyland",
+        "zh": "香港迪士尼樂園"
+      },
+      "description": {
+        "en": "Disney theme park on Lantau.",
+        "zh": "大嶼山迪士尼主題樂園。"
+      },
+      "address": {
+        "en": "Lantau Island, Hong Kong",
+        "zh": "香港大嶼山"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Theme Park",
+        "Disney",
+        "Family"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Smaller Disney",
+        "Less crowded",
+        "MTR access"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.3131,
+      "longitude": 114.041
+    },
+    {
+      "name": {
+        "en": "Ngau Tau Kok Lower Estate",
+        "zh": "牛頭角下邨"
+      },
+      "description": {
+        "en": "Colorful public housing estate. Photography.",
+        "zh": "彩色公屋邨。攝影。"
+      },
+      "address": {
+        "en": "Ngau Tau Kok, Kowloon",
+        "zh": "九龍牛頭角"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Housing",
+        "Photography"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Afternoon",
+      "tips": [
+        "Colorful buildings",
+        "Respect residents",
+        "Photo spot"
+      ],
+      "neighborhood": "Ngau Tau Kok",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3214,
+      "longitude": 114.2153
+    },
+    {
+      "name": {
+        "en": "Choi Hung Estate",
+        "zh": "彩虹邨"
+      },
+      "description": {
+        "en": "Colorful rainbow estate. Famous photo spot.",
+        "zh": "彩色彩虹邨。著名攝影地點。"
+      },
+      "address": {
+        "en": "Choi Hung, Kowloon",
+        "zh": "九龍彩虹"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Photography",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Basketball court",
+        "Rainbow colors",
+        "Respect residents"
+      ],
+      "neighborhood": "Choi Hung",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.3361,
+      "longitude": 114.2059
+    },
+    {
+      "name": {
+        "en": "Yick Fat Building",
+        "zh": "益發大廈"
+      },
+      "description": {
+        "en": "Famous Monster Building for photos.",
+        "zh": "著名怪獸大廈攝影點。"
+      },
+      "address": {
+        "en": "1046 King's Road, Quarry Bay, Hong Kong",
+        "zh": "香港鰂魚涌英皇道1046號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Architecture",
+        "Photography",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "From Transformers",
+        "Respect residents",
+        "Courtyard view"
+      ],
+      "neighborhood": "Quarry Bay",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2842,
+      "longitude": 114.2127
+    }
+  ]
+}

@@ -1,0 +1,744 @@
+{
+  "city": "hong_kong",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "Lamma Island",
+        "zh": "南丫島"
+      },
+      "description": {
+        "en": "Car-free island with beaches and seafood.",
+        "zh": "無車島嶼，有海灘和海鮮。"
+      },
+      "address": {
+        "en": "Lamma Island, Hong Kong",
+        "zh": "香港南丫島"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Island",
+        "Beach",
+        "Seafood"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Ferry from Central",
+        "Walk between villages",
+        "Seafood restaurants"
+      ],
+      "neighborhood": "Outlying Islands",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2095,
+      "longitude": 114.1497
+    },
+    {
+      "name": {
+        "en": "Sok Kwu Wan",
+        "zh": "索罟灣"
+      },
+      "description": {
+        "en": "Seafood village on Lamma. Rainbow house.",
+        "zh": "南丫島海鮮村。彩虹屋。"
+      },
+      "address": {
+        "en": "Sok Kwu Wan, Lamma Island",
+        "zh": "南丫島索罟灣"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Seafood",
+        "Village",
+        "Island"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Dinner",
+      "tips": [
+        "Many seafood restaurants",
+        "Rainbow house",
+        "Quieter than Yung Shue"
+      ],
+      "neighborhood": "Lamma Island",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.2127,
+      "longitude": 114.1227
+    },
+    {
+      "name": {
+        "en": "Yung Shue Wan",
+        "zh": "榕樹灣"
+      },
+      "description": {
+        "en": "Main village on Lamma. Bohemian vibe.",
+        "zh": "南丫島主要村落。波希米亞風情。"
+      },
+      "address": {
+        "en": "Yung Shue Wan, Lamma Island",
+        "zh": "南丫島榕樹灣"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Village",
+        "Bohemian",
+        "Cafes"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Main ferry pier",
+        "Cafes and bars",
+        "Western expat area"
+      ],
+      "neighborhood": "Lamma Island",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2256,
+      "longitude": 114.1117
+    },
+    {
+      "name": {
+        "en": "Cheung Chau Island",
+        "zh": "長洲島"
+      },
+      "description": {
+        "en": "Traditional island with bun festival. Car-free.",
+        "zh": "有包山節的傳統島嶼。無車。"
+      },
+      "address": {
+        "en": "Cheung Chau, Hong Kong",
+        "zh": "香港長洲"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Island",
+        "Traditional",
+        "Festival"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Bun Festival May",
+        "Seafood",
+        "Rent a bike"
+      ],
+      "neighborhood": "Outlying Islands",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2096,
+      "longitude": 114.0296
+    },
+    {
+      "name": {
+        "en": "Cheung Chau Bun Festival",
+        "zh": "長洲太平清醮"
+      },
+      "description": {
+        "en": "Annual festival with bun towers. May.",
+        "zh": "有包山塔的年度節慶。五月。"
+      },
+      "address": {
+        "en": "Cheung Chau, Hong Kong",
+        "zh": "香港長洲"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Festival",
+        "Traditional",
+        "Unique"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "May",
+      "tips": [
+        "Bun scramble",
+        "Parade",
+        "Very crowded"
+      ],
+      "neighborhood": "Cheung Chau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.67,
+      "best_times": {
+        "en": "May"
+      },
+      "latitude": 22.2096,
+      "longitude": 114.0296
+    },
+    {
+      "name": {
+        "en": "Peng Chau Island",
+        "zh": "坪洲"
+      },
+      "description": {
+        "en": "Tiny quiet island. Local life.",
+        "zh": "寧靜小島。當地生活。"
+      },
+      "address": {
+        "en": "Peng Chau, Hong Kong",
+        "zh": "香港坪洲"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Island",
+        "Quiet",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Very quiet",
+        "Small temples",
+        "Local restaurants"
+      ],
+      "neighborhood": "Outlying Islands",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2859,
+      "longitude": 114.0443
+    },
+    {
+      "name": {
+        "en": "Discovery Bay",
+        "zh": "愉景灣"
+      },
+      "description": {
+        "en": "Expat enclave on Lantau. Beachside living.",
+        "zh": "大嶼山外籍人士社區。海濱生活。"
+      },
+      "address": {
+        "en": "Discovery Bay, Lantau Island",
+        "zh": "大嶼山愉景灣"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Expat",
+        "Residential"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Afternoon",
+      "tips": [
+        "Beach access",
+        "Car-free zone",
+        "Ferry from Central"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2994,
+      "longitude": 114.0146
+    },
+    {
+      "name": {
+        "en": "Mui Wo",
+        "zh": "梅窩"
+      },
+      "description": {
+        "en": "Quiet Lantau town. Gateway to beaches.",
+        "zh": "大嶼山寧靜小鎮。通往海灘的門戶。"
+      },
+      "address": {
+        "en": "Mui Wo, Lantau Island",
+        "zh": "大嶼山梅窩"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Town",
+        "Beach",
+        "Gateway"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Ferry from Central",
+        "Silver mine beach",
+        "Bike rentals"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2661,
+      "longitude": 113.9979
+    },
+    {
+      "name": {
+        "en": "Lantau Peak Sunrise",
+        "zh": "大東山日出"
+      },
+      "description": {
+        "en": "Hiking for sunrise views. Camping popular.",
+        "zh": "看日出的健行。露營熱門。"
+      },
+      "address": {
+        "en": "Lantau Peak, Lantau Island",
+        "zh": "大嶼山大東山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Sunrise",
+        "Camping"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Sunrise",
+      "tips": [
+        "Camp overnight",
+        "Stunning sunrise",
+        "Autumn best"
+      ],
+      "neighborhood": "Lantau",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Sunrise"
+      }
+    },
+    {
+      "name": {
+        "en": "Silvermine Bay Beach",
+        "zh": "銀礦灣泳灘"
+      },
+      "description": {
+        "en": "Beach near Mui Wo ferry pier.",
+        "zh": "梅窩渡輪碼頭附近的海灘。"
+      },
+      "address": {
+        "en": "Mui Wo, Lantau Island",
+        "zh": "大嶼山梅窩"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Beach",
+        "Accessible",
+        "Ferry"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near ferry",
+        "BBQ facilities",
+        "Weekend popular"
+      ],
+      "neighborhood": "Mui Wo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 22.2695,
+      "longitude": 113.9987
+    },
+    {
+      "name": {
+        "en": "Tim Ho Wan",
+        "zh": "添好運"
+      },
+      "description": {
+        "en": "Cheapest Michelin star dim sum. Multiple locations.",
+        "zh": "最便宜的米其林星點心。多個地點。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dim Sum",
+        "Michelin",
+        "Affordable"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "BBQ pork bun famous",
+        "Queue expected",
+        "Multiple branches"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.329,
+      "longitude": 114.1663
+    },
+    {
+      "name": {
+        "en": "Lin Heung Tea House",
+        "zh": "蓮香樓"
+      },
+      "description": {
+        "en": "Traditional dim sum. Push cart service.",
+        "zh": "傳統點心。推車服務。"
+      },
+      "address": {
+        "en": "Wellington Street, Central, Hong Kong",
+        "zh": "香港中環威靈頓街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dim Sum",
+        "Traditional",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Traditional style",
+        "Grab from carts",
+        "Mostly locals"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 22.2843,
+      "longitude": 114.1535
+    },
+    {
+      "name": {
+        "en": "Maxim's Palace",
+        "zh": "美心皇宮"
+      },
+      "description": {
+        "en": "Grand dim sum restaurant in City Hall.",
+        "zh": "大會堂內的豪華點心餐廳。"
+      },
+      "address": {
+        "en": "City Hall, Central, Hong Kong",
+        "zh": "香港中環大會堂"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dim Sum",
+        "Grand",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Sunday",
+      "tips": [
+        "Cart service",
+        "Great harbor views",
+        "Weekend best"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Sunday"
+      },
+      "latitude": 22.2826,
+      "longitude": 114.1616
+    },
+    {
+      "name": {
+        "en": "Mak's Noodle",
+        "zh": "麥奀雲吞麵世家"
+      },
+      "description": {
+        "en": "Famous wonton noodle shop. Small portions.",
+        "zh": "著名雲吞麵店。小份量。"
+      },
+      "address": {
+        "en": "Wellington Street, Central, Hong Kong",
+        "zh": "香港中環威靈頓街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Wonton",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "Small portions",
+        "Order multiple",
+        "Famous wonton"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.283,
+      "longitude": 114.1546
+    },
+    {
+      "name": {
+        "en": "Tsim Chai Kee",
+        "zh": "沾仔記"
+      },
+      "description": {
+        "en": "Popular wonton noodle shop. Large portions.",
+        "zh": "熱門雲吞麵店。大份量。"
+      },
+      "address": {
+        "en": "Wellington Street, Central, Hong Kong",
+        "zh": "香港中環威靈頓街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Wonton",
+        "Local"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Lunch",
+      "tips": [
+        "Beef brisket popular",
+        "Near Mak's",
+        "More generous portions"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.283,
+      "longitude": 114.1545
+    },
+    {
+      "name": {
+        "en": "Kau Kee",
+        "zh": "九記牛腩"
+      },
+      "description": {
+        "en": "Legendary beef brisket noodles. Long queues.",
+        "zh": "傳奇牛腩麵。長隊。"
+      },
+      "address": {
+        "en": "21 Gough Street, Central, Hong Kong",
+        "zh": "香港中環歌賦街21號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Beef",
+        "Legendary"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "Cash only",
+        "Queue expected",
+        "Curry beef brisket"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.2842,
+      "longitude": 114.1525
+    },
+    {
+      "name": {
+        "en": "Yung Kee",
+        "zh": "鏞記酒家"
+      },
+      "description": {
+        "en": "Famous roast goose restaurant. Historic.",
+        "zh": "著名燒鵝餐廳。歷史悠久。"
+      },
+      "address": {
+        "en": "32 Wellington Street, Central, Hong Kong",
+        "zh": "香港中環威靈頓街32號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Roast Goose",
+        "Famous",
+        "Historic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "Dinner",
+      "tips": [
+        "Famous roast goose",
+        "Century egg",
+        "Pricier"
+      ],
+      "neighborhood": "Central",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.2815,
+      "longitude": 114.1556
+    },
+    {
+      "name": {
+        "en": "Kam's Roast Goose",
+        "zh": "甘牌燒鵝"
+      },
+      "description": {
+        "en": "Michelin star roast goose. Family recipe.",
+        "zh": "米其林星燒鵝。家傳秘方。"
+      },
+      "address": {
+        "en": "226 Hennessy Road, Wan Chai, Hong Kong",
+        "zh": "香港灣仔軒尼詩道226號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Roast Goose",
+        "Michelin",
+        "Family"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "Yung Kee family",
+        "Queue for tables",
+        "Worth the wait"
+      ],
+      "neighborhood": "Wan Chai",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 22.2777,
+      "longitude": 114.1753
+    },
+    {
+      "name": {
+        "en": "Tai Ping Koon",
+        "zh": "太平館"
+      },
+      "description": {
+        "en": "Historic Western restaurant. Swiss wings.",
+        "zh": "歷史悠久的西餐廳。瑞士雞翼。"
+      },
+      "address": {
+        "en": "Various locations, Hong Kong",
+        "zh": "香港各地點"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Western",
+        "Historic",
+        "Swiss Wings"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Dinner",
+      "tips": [
+        "Swiss wings famous",
+        "Old school style",
+        "Multiple locations"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Dinner"
+      },
+      "latitude": 22.3072,
+      "longitude": 114.1724
+    },
+    {
+      "name": {
+        "en": "Australia Dairy Company",
+        "zh": "澳洲牛奶公司"
+      },
+      "description": {
+        "en": "Fast breakfast spot. Scrambled eggs famous.",
+        "zh": "快速早餐店。炒蛋出名。"
+      },
+      "address": {
+        "en": "47 Parkes Street, Jordan, Kowloon",
+        "zh": "九龍佐敦白加士街47號"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Breakfast",
+        "Fast",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Breakfast",
+      "tips": [
+        "Scrambled eggs",
+        "Macaroni soup",
+        "Fast service"
+      ],
+      "neighborhood": "Jordan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 22.3046,
+      "longitude": 114.1706
+    }
+  ]
+}

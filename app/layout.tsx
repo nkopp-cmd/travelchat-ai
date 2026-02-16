@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
@@ -14,6 +14,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#7c3aed",
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Localley - AI Travel Companion | Discover Hidden Gems",
@@ -22,7 +26,6 @@ export const metadata: Metadata = {
   description: "Discover hidden gems and trendy spots with your AI travel companion. Experience cities like a local with personalized itineraries for Seoul, Tokyo, Bangkok, and Singapore.",
   keywords: "AI travel companion, hidden gems, local spots, travel itinerary, Seoul travel, Tokyo guide, Bangkok tips, Singapore attractions, trip planner",
   manifest: "/manifest.json",
-  themeColor: "#7c3aed",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -114,12 +117,12 @@ export default function RootLayout({
           <WebsiteJsonLd />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-dvh flex flex-col overflow-hidden`}
         >
           <SkipLink />
           <Providers>
             <ConditionalNavbar />
-            <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
+            <main id="main-content" className="flex-1 min-h-0 pb-16 md:pb-0 overflow-y-auto" tabIndex={-1}>
               {children}
             </main>
             <MobileBottomNav />

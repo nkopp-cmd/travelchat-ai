@@ -1,0 +1,561 @@
+{
+  "city": "kyoto",
+  "batch": 1,
+  "spots": [
+    {
+      "name": {
+        "en": "Fushimi Inari Shrine",
+        "ja": "伏見稲荷大社"
+      },
+      "description": {
+        "en": "Thousands of torii gates. Most visited.",
+        "ja": "数千の鳥居。最も訪問者が多い。"
+      },
+      "address": {
+        "en": "68 Fukakusa Yabunouchicho, Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区深草藪之内町68"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "Iconic",
+        "Torii"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Dawn",
+      "tips": [
+        "Go early",
+        "Hike to top",
+        "Free entry"
+      ],
+      "neighborhood": "Fushimi",
+      "latitude": 34.9676945,
+      "longitude": 135.7791876,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Dawn"
+      }
+    },
+    {
+      "name": {
+        "en": "Kinkaku-ji Golden Pavilion",
+        "ja": "金閣寺"
+      },
+      "description": {
+        "en": "Iconic gold-covered temple. Zen.",
+        "ja": "象徴的な金箔の寺院。禅。"
+      },
+      "address": {
+        "en": "1 Kinkakujicho, Kita-ku, Kyoto",
+        "ja": "京都市北区金閣寺町1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Iconic",
+        "Gold"
+      ],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "Morning",
+      "tips": [
+        "Morning light best",
+        "Crowded always",
+        "Beautiful garden"
+      ],
+      "neighborhood": "Kita",
+      "latitude": 35.03937,
+      "longitude": 135.7292431,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Ginkaku-ji Silver Pavilion",
+        "ja": "銀閣寺"
+      },
+      "description": {
+        "en": "Modest Zen temple. Philosopher's Path.",
+        "ja": "質素な禅寺。哲学の道。"
+      },
+      "address": {
+        "en": "2 Ginkakujicho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区銀閣寺町2"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Zen",
+        "Garden"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Sand garden",
+        "Not actually silver",
+        "Philosopher's Path start"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0269,
+      "longitude": 135.7984
+    },
+    {
+      "name": {
+        "en": "Kiyomizu-dera Temple",
+        "ja": "清水寺"
+      },
+      "description": {
+        "en": "Famous wooden stage temple. UNESCO.",
+        "ja": "有名な木造舞台の寺院。ユネスコ。"
+      },
+      "address": {
+        "en": "1-294 Kiyomizu, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区清水1-294"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Views"
+      ],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "Dawn",
+      "tips": [
+        "Dawn for fewer crowds",
+        "Night illumination seasonal",
+        "Walk to Gion after"
+      ],
+      "neighborhood": "Higashiyama",
+      "latitude": 34.9946662,
+      "longitude": 135.784661,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Dawn"
+      }
+    },
+    {
+      "name": {
+        "en": "Arashiyama Bamboo Grove",
+        "ja": "嵐山竹林"
+      },
+      "description": {
+        "en": "Famous bamboo forest path.",
+        "ja": "有名な竹林の小道。"
+      },
+      "address": {
+        "en": "Sagano, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨野"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Bamboo",
+        "Iconic",
+        "Nature"
+      ],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "Dawn",
+      "tips": [
+        "Very early best",
+        "Very crowded",
+        "Short path"
+      ],
+      "neighborhood": "Arashiyama",
+      "latitude": 35.0168187,
+      "longitude": 135.67130129999998,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.34,
+      "best_times": {
+        "en": "Dawn"
+      }
+    },
+    {
+      "name": {
+        "en": "Tenryu-ji Temple",
+        "ja": "天龍寺"
+      },
+      "description": {
+        "en": "Zen temple with beautiful garden. UNESCO.",
+        "ja": "美しい庭園のある禅寺。ユネスコ。"
+      },
+      "address": {
+        "en": "68 Sagatenryuji Susukinobabacho, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨天龍寺芒ノ馬場町68"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Garden"
+      ],
+      "localley_score": 4,
+      "local_percentage": 45,
+      "best_time": "Morning",
+      "tips": [
+        "Garden is highlight",
+        "Near bamboo grove",
+        "Autumn colors"
+      ],
+      "neighborhood": "Arashiyama",
+      "latitude": 35.0158379,
+      "longitude": 135.6737654,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Philosopher's Path",
+        "ja": "哲学の道"
+      },
+      "description": {
+        "en": "Cherry tree lined canal walk.",
+        "ja": "桜並木の運河沿いの散歩道。"
+      },
+      "address": {
+        "en": "Tetsugaku No Michi, Sakyo Ward, Kyoto, Japan",
+        "ja": "京都市左京区"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Walk",
+        "Cherry Blossom",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Spring",
+      "tips": [
+        "Cherry blossom spring",
+        "2km walk",
+        "Cafes along path"
+      ],
+      "neighborhood": "Sakyo",
+      "latitude": 35.0214532,
+      "longitude": 135.7942948,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Spring"
+      }
+    },
+    {
+      "name": {
+        "en": "Gion District",
+        "ja": "祇園"
+      },
+      "description": {
+        "en": "Traditional geisha district. Teahouses.",
+        "ja": "伝統的な芸者地区。茶屋。"
+      },
+      "address": {
+        "en": "Gion, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区祇園"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Geisha",
+        "Traditional",
+        "Historic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Evening for geiko",
+        "Respect privacy",
+        "Hanami-koji main street"
+      ],
+      "neighborhood": "Gion",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0047,
+      "longitude": 135.7784
+    },
+    {
+      "name": {
+        "en": "Nijo Castle",
+        "ja": "二条城"
+      },
+      "description": {
+        "en": "Shogun's castle. Nightingale floors.",
+        "ja": "将軍の城。うぐいす張りの廊下。"
+      },
+      "address": {
+        "en": "541 Nijojocho, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区二条城町541"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Castle",
+        "UNESCO",
+        "Historic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Morning",
+      "tips": [
+        "Squeaky floors",
+        "Spring plum blossoms",
+        "Night illumination"
+      ],
+      "neighborhood": "Nakagyo",
+      "latitude": 35.0140379,
+      "longitude": 135.7484258,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Nishiki Market",
+        "ja": "錦市場"
+      },
+      "description": {
+        "en": "Kitchen of Kyoto. Traditional food market.",
+        "ja": "京都の台所。伝統的な食品市場。"
+      },
+      "address": {
+        "en": "Nishiki-koji, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区錦小路"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Food Market",
+        "Traditional",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Morning",
+      "tips": [
+        "Morning best",
+        "Eat as you go",
+        "Very crowded"
+      ],
+      "neighborhood": "Nakagyo",
+      "latitude": 35.0050258,
+      "longitude": 135.764723,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Pontocho Alley",
+        "ja": "先斗町"
+      },
+      "description": {
+        "en": "Narrow alley of restaurants. River views.",
+        "ja": "狭いレストラン路地。川の眺め。"
+      },
+      "address": {
+        "en": "Pontocho, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区先斗町"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dining",
+        "Alley",
+        "Atmosphere"
+      ],
+      "localley_score": 4,
+      "local_percentage": 45,
+      "best_time": "Evening",
+      "tips": [
+        "Evening atmosphere",
+        "River terrace dining",
+        "Narrow alley"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.006,
+      "longitude": 135.7711
+    },
+    {
+      "name": {
+        "en": "Kyoto Imperial Palace",
+        "ja": "京都御所"
+      },
+      "description": {
+        "en": "Former residence of Emperor. Free entry.",
+        "ja": "天皇の旧居。無料入場。"
+      },
+      "address": {
+        "en": "Kyotogyoen, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区京都御苑"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Palace",
+        "Imperial",
+        "Historic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Free entry",
+        "Large park",
+        "Guided tours available"
+      ],
+      "neighborhood": "Kamigyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0253,
+      "longitude": 135.7623
+    },
+    {
+      "name": {
+        "en": "Kyoto Imperial Park",
+        "ja": "京都御苑"
+      },
+      "description": {
+        "en": "Large park around palace. Cherry blossoms.",
+        "ja": "御所周辺の大きな公園。桜。"
+      },
+      "address": {
+        "en": "Kyotogyoen, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区京都御苑"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Park",
+        "Large",
+        "Cherry Blossom"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Spring",
+      "tips": [
+        "Great for picnics",
+        "Cherry blossoms",
+        "Local joggers"
+      ],
+      "neighborhood": "Kamigyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 35.0241,
+      "longitude": 135.7632
+    },
+    {
+      "name": {
+        "en": "Sanjusangendo Temple",
+        "ja": "三十三間堂"
+      },
+      "description": {
+        "en": "1001 Kannon statues. Impressive.",
+        "ja": "1001体の観音像。印象的。"
+      },
+      "address": {
+        "en": "657 Sanjusangendomawari, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区三十三間堂廻り町657"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Statues",
+        "Impressive"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "1001 statues",
+        "No photos inside",
+        "Very impressive"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9882,
+      "longitude": 135.7718
+    },
+    {
+      "name": {
+        "en": "To-ji Temple",
+        "ja": "東寺"
+      },
+      "description": {
+        "en": "Tallest pagoda in Japan. UNESCO.",
+        "ja": "日本一高い五重塔。ユネスコ。"
+      },
+      "address": {
+        "en": "1 Kujocho, Minami-ku, Kyoto",
+        "ja": "京都市南区九条町1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "UNESCO",
+        "Pagoda"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Flea market 21st",
+        "Tallest wooden pagoda",
+        "Night illumination"
+      ],
+      "neighborhood": "Minami",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9817,
+      "longitude": 135.7432
+    }
+  ]
+}

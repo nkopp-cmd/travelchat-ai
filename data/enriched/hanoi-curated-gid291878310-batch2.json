@@ -1,0 +1,547 @@
+{
+  "city": "Hanoi",
+  "batch": 2,
+  "generatedAt": "2026-01-28T05:48:19.345Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Tran Quoc Pagoda"
+      },
+      "description": {
+        "en": "Oldest Buddhist temple in Hanoi (6th century). Beautiful setting on West Lake island."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Thanh Niên",
+      "address": {
+        "en": "Thanh Niên, Yên Phụ, Tây Hồ, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.047871,
+      "longitude": 105.83687379999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJr7enHa-rNTERbivpCTqoenY"
+    },
+    {
+      "name": {
+        "en": "Ngoc Son Temple"
+      },
+      "description": {
+        "en": "Island temple in Hoan Kiem Lake. Cross iconic red Huc Bridge. Turtle god legend."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Đinh Tiên Hoàng",
+      "address": {
+        "en": "Đinh Tiên Hoàng, Hàng Trống, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.030688299999998,
+      "longitude": 105.85238609999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJp56AAMCrNTERHTeCAuwWJ7s"
+    },
+    {
+      "name": {
+        "en": "One Pillar Pagoda"
+      },
+      "description": {
+        "en": "Unique design resembling lotus emerging from water. 11th century, rebuilt after French destruction."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Đội Cấn",
+      "address": {
+        "en": "2RPM+79G, P. Chùa Một Cột, Đội Cấn, Ba Đình, Hà Nội 100000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.035687499999998,
+      "longitude": 105.8334375,
+      "price_tier": "$",
+      "google_place_id": "ChIJ7XWEcqGrNTERrsLf6W8259s"
+    },
+    {
+      "name": {
+        "en": "Quan Thanh Temple"
+      },
+      "description": {
+        "en": "Taoist temple near West Lake dedicated to Xuan Wu. Large bronze statue, serene atmosphere."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Quán Thánh",
+      "address": {
+        "en": "190 P. Quán Thánh, Quán Thánh, Ba Đình, Hà Nội 118810, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.043017499999998,
+      "longitude": 105.83654620000002,
+      "price_tier": "$",
+      "google_place_id": "ChIJwyFZi6WrNTER76sqY7OcMjE"
+    },
+    {
+      "name": {
+        "en": "Ta Hien Street (Bia Hoi Corner)"
+      },
+      "description": {
+        "en": "Backpacker beer street. Cheap bia hoi, plastic chairs, international crowd. Lively until late."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "Lane 22 P. Lương Ngọc Quyến, Hàng Buồm, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0348263,
+      "longitude": 105.8526861,
+      "price_tier": "$",
+      "google_place_id": "ChIJVVUhoMCrNTERFbu5ZTYaPwM"
+    },
+    {
+      "name": {
+        "en": "Pasteur Street Brewing"
+      },
+      "description": {
+        "en": "Craft beer pioneer, multiple locations. Local ingredients, unique Vietnamese-inspired brews."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "1 P. Ấu Triệu, Hàng Trống, Hoàn Kiếm, Hà Nội 10000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.02855,
+      "longitude": 105.848402,
+      "price_tier": "$$",
+      "google_place_id": "ChIJq1QEupWrNTERAbVxgIpQrr4"
+    },
+    {
+      "name": {
+        "en": "Polite Pub"
+      },
+      "description": {
+        "en": "Speakeasy-style cocktails in hidden location. Ask locals for directions."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "5b Ng. Báo Khánh, Hàng Trống, Hoàn Kiếm, Hà Nội 111000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.030711099999998,
+      "longitude": 105.850432,
+      "price_tier": "$$",
+      "google_place_id": "ChIJSRUc2L-rNTER9UHl6O_Tevc"
+    },
+    {
+      "name": {
+        "en": "The Rooftop"
+      },
+      "description": {
+        "en": "Pacific Hotel rooftop with Old Quarter views. Cocktails and laid-back vibe."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Street",
+      "address": {
+        "en": "8th floor, La Sinfonia Del Rey Hotel & Spa, 33-35 P. Hàng Dầu, Street, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.030998399999998,
+      "longitude": 105.85405220000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJm_xB99arNTERAiOdE89m05k"
+    },
+    {
+      "name": {
+        "en": "Tadioto"
+      },
+      "description": {
+        "en": "French Quarter speakeasy. Expertly crafted cocktails, intimate vintage atmosphere."
+      },
+      "city": "Hanoi",
+      "neighborhood": "French Quarter",
+      "address": {
+        "en": "24b P. Tông Đản, Tràng Tiền, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Bar"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0257392,
+      "longitude": 105.8578347,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJcTkt3OurNTERjw-uHKbl0EI"
+    },
+    {
+      "name": {
+        "en": "Ho Chi Minh Mausoleum Complex"
+      },
+      "description": {
+        "en": "Preserved body of Ho Chi Minh. Includes Presidential Palace, Ho Chi Minh Museum, One Pillar Pagoda. Respectful dress required."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Điện Biên",
+      "address": {
+        "en": "1 Hùng Vương, Điện Biên, Ba Đình, Hà Nội, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0368973,
+      "longitude": 105.83466670000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJF13BXqGrNTERTE3hz8KFDmI"
+    },
+    {
+      "name": {
+        "en": "Hoa Lo Prison (Hanoi Hilton)"
+      },
+      "description": {
+        "en": "French colonial prison, later held American POWs. Powerful historical site."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Trần Hưng Đạo",
+      "address": {
+        "en": "1 P. Hoả Lò, Trần Hưng Đạo, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0253297,
+      "longitude": 105.8464781,
+      "price_tier": "$",
+      "google_place_id": "ChIJld5RqparNTERVK8x7gvhAZc"
+    },
+    {
+      "name": {
+        "en": "Vietnam Museum of Ethnology"
+      },
+      "description": {
+        "en": "Excellent museum showcasing 54 ethnic groups. Outdoor village exhibits. Worth taxi ride."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Đ. Nguyễn Văn Huyên",
+      "address": {
+        "en": "Đ. Nguyễn Văn Huyên, Quan Hoa, Cầu Giấy, Hà Nội 100000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.040342199999998,
+      "longitude": 105.7987354,
+      "price_tier": "$",
+      "google_place_id": "ChIJIbhTQzmrNTERHBoID7tQyUc"
+    },
+    {
+      "name": {
+        "en": "Thang Long Water Puppet Theatre"
+      },
+      "description": {
+        "en": "Traditional Vietnamese water puppetry. Nightly shows, book ahead. Unique to Hanoi region."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Bạc",
+      "address": {
+        "en": "57B Đinh Tiên Hoàng, Hàng Bạc, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0316826,
+      "longitude": 105.8533466,
+      "price_tier": "$",
+      "google_place_id": "ChIJiUJFE8CrNTERHK060qWnXk4"
+    },
+    {
+      "name": {
+        "en": "St. Joseph's Cathedral"
+      },
+      "description": {
+        "en": "Neo-Gothic cathedral in Old Quarter. French colonial era (1886). Active church with services."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "1 P. Nhà Thờ, Hàng Trống, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Attraction"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0285957,
+      "longitude": 105.84886060000001,
+      "price_tier": "$",
+      "google_place_id": "ChIJRbk0UJSrNTERjtl_eCB2tZA"
+    },
+    {
+      "name": {
+        "en": "Ha Long Bay"
+      },
+      "description": {
+        "en": "UNESCO World Heritage limestone karsts. Overnight cruises recommended. 3-4 hours from Hanoi."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hạ Long Bay",
+      "address": {
+        "en": "Hạ Long Bay, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 20.910051199999998,
+      "longitude": 107.1839024,
+      "price_tier": "$$$",
+      "google_place_id": "ChIJh-6MUZZXSjER23hUyLywxlU"
+    },
+    {
+      "name": {
+        "en": "Ninh Binh"
+      },
+      "description": {
+        "en": "Ha Long Bay on land - limestone karsts, rivers, temples. Tam Coc boat ride, Trang An complex. 2 hours from Hanoi."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hoa Lư",
+      "address": {
+        "en": "Hoa Lư, Ninh Bình, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 20.2506149,
+      "longitude": 105.97445359999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJwcgQb6twNjERzOXbToh5iog"
+    },
+    {
+      "name": {
+        "en": "Sapa"
+      },
+      "description": {
+        "en": "Mountain town with rice terraces and ethnic minority villages. Trekking, homestays. Overnight train or bus."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Sa Pa",
+      "address": {
+        "en": "Sa Pa, Lao Cai, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 22.249716799999998,
+      "longitude": 103.9608091,
+      "price_tier": "$$",
+      "google_place_id": "ChIJlWPsA6VAzTYRuC_b3hQoA0k"
+    },
+    {
+      "name": {
+        "en": "Perfume Pagoda"
+      },
+      "description": {
+        "en": "Buddhist pilgrimage site in limestone mountains. Cable car and hiking. Spring festival crowds."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Ô Cầu Dền",
+      "address": {
+        "en": "Ngõ 205, Bạch Mai, Phường Bạch Mai, Quận Hai Bà Trưng, Thanh Nhàn, Hai Bà Trưng, Hà Nội, Vietnam"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Day Trip"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0045003,
+      "longitude": 105.8511944,
+      "price_tier": "$",
+      "google_place_id": "ChIJZ7x8XXOsNTER1W4qryJ7xJU"
+    }
+  ]
+}

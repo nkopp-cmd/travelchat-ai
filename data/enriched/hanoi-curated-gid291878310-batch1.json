@@ -1,0 +1,755 @@
+{
+  "city": "Hanoi",
+  "batch": 1,
+  "generatedAt": "2026-01-28T05:48:19.342Z",
+  "spots": [
+    {
+      "name": {
+        "en": "Cafe Giang"
+      },
+      "description": {
+        "en": "Legendary birthplace of egg coffee (ca phe trung), invented 1946. Tiny tables, old photos. Original family recipe still secret. 39 Nguyen Huu Huan."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "39 P. Nguyễn Hữu Huân, Lý Thái Tổ, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0334664,
+      "longitude": 105.854518,
+      "price_tier": "$",
+      "google_place_id": "ChIJXTOF7sCrNTERY3MOxYpAo_w"
+    },
+    {
+      "name": {
+        "en": "Cafe Dinh"
+      },
+      "description": {
+        "en": "Same family as Cafe Giang (daughter's cafe). Second floor overlooking Hoan Kiem Lake. Less crowded, equally authentic. Find green sign for \"Cafe Dinh.\""
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "13 Đinh Tiên Hoàng, Hàng Trống, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0320036,
+      "longitude": 105.8521694,
+      "price_tier": "$",
+      "google_place_id": "ChIJwYgVi7-rNTERLWjR63qaaFg"
+    },
+    {
+      "name": {
+        "en": "Cafe Pho Co"
+      },
+      "description": {
+        "en": "Hidden through silk shop, steep climb to terrace overlooking Hoan Kiem Lake. Stunning views morning, afternoon, or sunset. One of best egg coffees."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Đào",
+      "address": {
+        "en": "11 P. Hàng Gai, Hàng Trống, Hoàn Kiếm, Hà Nội 10000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.032212899999998,
+      "longitude": 105.85105109999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJOQYa7b6rNTERzos7t6VBpBo"
+    },
+    {
+      "name": {
+        "en": "Note Coffee"
+      },
+      "description": {
+        "en": "Instagrammable spot covered in colorful sticky notes. Leave your own note. Also serves excellent egg coffee. Near Hoan Kiem Lake."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "64 P. Lương Văn Can, Hàng Trống, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.031592699999997,
+      "longitude": 105.8508961,
+      "price_tier": "$",
+      "google_place_id": "ChIJl7OUwr-rNTERr7RCHxAFMNU"
+    },
+    {
+      "name": {
+        "en": "Hidden Gem Cafe"
+      },
+      "description": {
+        "en": "Vietnam's largest eco-friendly recycling coffee shop. Repurposed furniture, motorcycle-themed, tractor table. Multiple levels, sunroom deck, courtyard."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "1 Hàng Mắm, Phố cổ Hà Nội, Hoàn Kiếm, Hà Nội 10000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.033744600000002,
+      "longitude": 105.8551911,
+      "price_tier": "$",
+      "google_place_id": "ChIJjcSe2iKrNTERdmx-UM8RZIw"
+    },
+    {
+      "name": {
+        "en": "Hanoi House Cafe"
+      },
+      "description": {
+        "en": "Second floor colonial building with balcony overlooking St. Joseph's Cathedral. Feels like French colonial Vietnam at night. Also cocktail bar."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "47A P. Lý Quốc Sư, Hàng Trống, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0291574,
+      "longitude": 105.84945669999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJySd2oJWrNTERePYenMMXKSc"
+    },
+    {
+      "name": {
+        "en": "Tranquil Books & Coffee"
+      },
+      "description": {
+        "en": "Peaceful Old Quarter sanctuary. Vietnamese/international books, fireplace, piano, live music events. Rooftop patio."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "5 P. Nguyễn Quang Bích, Cửa Đông, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.032512699999998,
+      "longitude": 105.84565500000001,
+      "price_tier": "$$",
+      "google_place_id": "ChIJaTMG6b2rNTER8iBBB4Ctlr8"
+    },
+    {
+      "name": {
+        "en": "The Little Plan"
+      },
+      "description": {
+        "en": "Down hidden alleyway, 2 levels plus outdoor balcony. Quiet, work-friendly. 11 Phu Doan."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "11 Phủ Doãn Hà Nội Hanoi City, Hàng Trống, Hoàn Kiếm, Hà Nội 110212, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0298978,
+      "longitude": 105.8478322,
+      "price_tier": "$$",
+      "google_place_id": "ChIJPXec7pWrNTER-W4POfG4ULo"
+    },
+    {
+      "name": {
+        "en": "Nola Cafe"
+      },
+      "description": {
+        "en": "Tiny rooms, quirky art, lanterns, staircases to unexpected hideouts. Perfect for slow afternoons on Ma May Street."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "in the alley, 89 Mã Mây, Hàng Buồm, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0343596,
+      "longitude": 105.85348119999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJDy3nVj2rNTERQzd4wciDd9o"
+    },
+    {
+      "name": {
+        "en": "Hatchin Coffee"
+      },
+      "description": {
+        "en": "Cute French Quarter spot. Creamy lattes, matcha, cakes. Modern decor in fancy part of town."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Liễu Giai",
+      "address": {
+        "en": "260 Đội Cấn, Liễu Giai, Ba Đình, Hà Nội, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0347836,
+      "longitude": 105.81707619999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJ2xw3-kyrNTERI8omtJ4Q810"
+    },
+    {
+      "name": {
+        "en": "HipHub Cafe"
+      },
+      "description": {
+        "en": "Four floors, each different flavor. Bubble tea, St. Joseph Cathedral view. Work meets play."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hàng Trống",
+      "address": {
+        "en": "45 P. Lý Quốc Sư, Hàng Trống, Hoàn Kiếm, Hà Nội 111000, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0293524,
+      "longitude": 105.84939329999999,
+      "price_tier": "$$",
+      "google_place_id": "ChIJtaJfYvirNTERD665DhaZO9c"
+    },
+    {
+      "name": {
+        "en": "Spotted Bridge Coffee"
+      },
+      "description": {
+        "en": "Steps from Old Quarter. 5th floor with nostalgic bridge view. Off beaten path, better for atmosphere than coffee lovers."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phúc Tân",
+      "address": {
+        "en": "195 Hồng Hà, Phúc Tân, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.040212,
+      "longitude": 105.8513309,
+      "price_tier": "$",
+      "google_place_id": "ChIJy0W9roWrNTERtYO1FV1NxQ0"
+    },
+    {
+      "name": {
+        "en": "Lifted Coffee & Brunch"
+      },
+      "description": {
+        "en": "Best brunch in Hanoi if tired of Vietnamese food. Western-style cafe with excellent options."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "101 P. Hàng Gà, Hàng Bồ, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.033991699999998,
+      "longitude": 105.8470682,
+      "price_tier": "$$",
+      "google_place_id": "ChIJbZ7wfb6rNTERcmDyh_FXtzs"
+    },
+    {
+      "name": {
+        "en": "Pho"
+      },
+      "description": {
+        "en": "Vietnam's national dish. Rice noodles, herbs, meat in rich broth. Hanoi-style pho is cleaner, more subtle than south."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Myeongdong 8-gil",
+      "address": {
+        "en": "21-5 Myeongdong 8-gil, Jung District, Seoul, South Korea"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 37.5628415,
+      "longitude": 126.98503799999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJwaEUHPCifDURhv2hziPirJ8"
+    },
+    {
+      "name": {
+        "en": "Bun Cha"
+      },
+      "description": {
+        "en": "Hanoi's signature dish. Grilled pork patties and belly with rice noodles, fresh herbs, dipping sauce. Obama ate at Bun Cha Huong Lien."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "21 P. Nguyễn Hữu Huân, Lý Thái Tổ, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0343417,
+      "longitude": 105.854475,
+      "price_tier": "$",
+      "google_place_id": "ChIJY89m6cCrNTERG-N0Fy4dWBw"
+    },
+    {
+      "name": {
+        "en": "Banh Mi"
+      },
+      "description": {
+        "en": "Vietnamese baguette sandwich. Cold cuts, pate, pickled vegetables, cilantro. Less loaded than southern style."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "8 P. Hàng Da, Phố cổ Hà Nội, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0310815,
+      "longitude": 105.8466151,
+      "price_tier": "$",
+      "google_place_id": "ChIJ5y1kIQCrNTERGJ62VTfEpE4"
+    },
+    {
+      "name": {
+        "en": "Banh Cuon"
+      },
+      "description": {
+        "en": "Delicate steamed rice rolls filled with minced pork, wood ear mushrooms. Dipped in fish sauce."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Nguyễn Du",
+      "address": {
+        "en": "66 P. Tô Hiến Thành, Nguyễn Du, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.013576200000003,
+      "longitude": 105.84956419999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJZ0svfoyrNTERfe0Y70PRirY"
+    },
+    {
+      "name": {
+        "en": "Xoi"
+      },
+      "description": {
+        "en": "Sticky rice with various toppings - pork, egg, fried shallots. Popular breakfast."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Cửa Nam",
+      "address": {
+        "en": "57 P. Thợ Nhuộm, Cửa Nam, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.027156599999998,
+      "longitude": 105.8448203,
+      "price_tier": "$",
+      "google_place_id": "ChIJk_dwLQqrNTER8nPtqMEwr6s"
+    },
+    {
+      "name": {
+        "en": "Bia Hoi Corner"
+      },
+      "description": {
+        "en": "Fresh draft beer corners throughout Old Quarter. 5,000-10,000 VND per glass. Plastic stools, local experience."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "Lane 22 P. Lương Ngọc Quyến, Hàng Buồm, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0348263,
+      "longitude": 105.8526861,
+      "price_tier": "$",
+      "google_place_id": "ChIJVVUhoMCrNTERFbu5ZTYaPwM"
+    },
+    {
+      "name": {
+        "en": "Hoan Kiem Lake"
+      },
+      "description": {
+        "en": "Heart of Hanoi. Walk around at any hour. Ngoc Son Temple on island via red Huc Bridge. Weekend pedestrian zone."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Hang Trong",
+      "address": {
+        "en": "Hoàn Kiếm Lake, Hang Trong, Hoàn Kiếm, Hanoi, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.028666899999997,
+      "longitude": 105.85214839999999,
+      "price_tier": "$",
+      "google_place_id": "ChIJlclXM5WrNTERDqL5tGu_ugE"
+    },
+    {
+      "name": {
+        "en": "36 Streets"
+      },
+      "description": {
+        "en": "Each street historically specialized in one trade (silk, silver, bamboo, etc.). Now mix of shops, food, temples."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "P. Hàng Ngang, Hàng Đào, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.034059,
+      "longitude": 105.8506368,
+      "price_tier": "$",
+      "google_place_id": "ChIJp0o4Er6rNTERjlTif_IXU1k"
+    },
+    {
+      "name": {
+        "en": "Dong Xuan Market"
+      },
+      "description": {
+        "en": "Largest covered market in Hanoi. Wholesale goods, local produce, night market on weekends."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "Chợ Đồng Xuân, Đồng Xuân, Hoàn Kiếm, Hà Nội 100000, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0381434,
+      "longitude": 105.8500387,
+      "price_tier": "$",
+      "google_place_id": "ChIJh0TC5rirNTER5hfy54P03tk"
+    },
+    {
+      "name": {
+        "en": "Train Street"
+      },
+      "description": {
+        "en": "Narrow street where train passes twice daily through coffee shops and homes. Check schedules, arrive early."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Ng. 224 Lê Duẩn",
+      "address": {
+        "en": "Ng. 224 Lê Duẩn, Đống Đa, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0177521,
+      "longitude": 105.8408822,
+      "price_tier": "$",
+      "google_place_id": "ChIJ437seY-rNTERCkf4Ffj7dWs"
+    },
+    {
+      "name": {
+        "en": "Ma May Street"
+      },
+      "description": {
+        "en": "Ancient house museum, traditional architecture preserved. Good street for cafes and wandering."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Phố cổ Hà Nội",
+      "address": {
+        "en": "Mã Mây, Phố cổ Hà Nội, Hoàn Kiếm, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.034849,
+      "longitude": 105.8534302,
+      "price_tier": "$",
+      "google_place_id": "ChIJCYkmo8CrNTER1R8Y5hU-Tio"
+    },
+    {
+      "name": {
+        "en": "Temple of Literature"
+      },
+      "description": {
+        "en": "Vietnam's first university (1070). Beautiful gardens, traditional architecture. Dedicated to Confucius."
+      },
+      "city": "Hanoi",
+      "neighborhood": "Văn Miếu – Quốc Tử Giám",
+      "address": {
+        "en": "58 Quốc Tử Giám, Văn Miếu – Quốc Tử Giám, Đống Đa, Hà Nội, Vietnam"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple"
+      ],
+      "localley_score": 2,
+      "local_percentage": 30,
+      "best_times": {
+        "en": "Anytime"
+      },
+      "photos": [],
+      "tips": [],
+      "verified": false,
+      "trending_score": 0,
+      "latitude": 21.0281175,
+      "longitude": 105.8356692,
+      "price_tier": "$",
+      "google_place_id": "ChIJZ73nJpmrNTERHt_VdIgHDlg"
+    }
+  ]
+}

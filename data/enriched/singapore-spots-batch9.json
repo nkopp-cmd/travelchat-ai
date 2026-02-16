@@ -1,0 +1,746 @@
+{
+  "city": "singapore",
+  "batch": 9,
+  "spots": [
+    {
+      "name": {
+        "en": "Guan Hoe Soon",
+        "zh": "源和春"
+      },
+      "description": {
+        "en": "Oldest Peranakan restaurant. Joo Chiat location.",
+        "zh": "最古老的土生华人餐厅。如切位置。"
+      },
+      "address": {
+        "en": "38/40 Joo Chiat Place, Singapore",
+        "zh": "新加坡如切坊38/40号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Peranakan",
+        "Oldest",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Lunch",
+      "tips": [
+        "Oldest since 1953",
+        "No aircon",
+        "Authentic"
+      ],
+      "neighborhood": "Katong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3122,
+      "longitude": 103.9002
+    },
+    {
+      "name": {
+        "en": "Chin Mee Chin Confectionery",
+        "zh": "振美珍"
+      },
+      "description": {
+        "en": "Traditional kopitiam. Kaya toast institution.",
+        "zh": "传统咖啡店。咖椰吐司机构。"
+      },
+      "address": {
+        "en": "204 East Coast Road, Singapore",
+        "zh": "新加坡东海岸路204号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Traditional",
+        "Kopitiam",
+        "Toast"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Cash only",
+        "Weekend queue",
+        "Traditional feel"
+      ],
+      "neighborhood": "Katong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.69,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.3072,
+      "longitude": 103.9071
+    },
+    {
+      "name": {
+        "en": "Ya Kun Kaya Toast",
+        "zh": "亚坤咖椰吐司"
+      },
+      "description": {
+        "en": "Famous kaya toast chain. Since 1944.",
+        "zh": "著名咖椰吐司连锁店。自1944年。"
+      },
+      "address": {
+        "en": "Multiple locations, Singapore",
+        "zh": "新加坡多个地点"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Toast",
+        "Traditional",
+        "Chain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Breakfast",
+      "tips": [
+        "Breakfast classic",
+        "Soft eggs",
+        "Many branches"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 1.4358,
+      "longitude": 103.7857
+    },
+    {
+      "name": {
+        "en": "Toast Box",
+        "zh": "土司工坊"
+      },
+      "description": {
+        "en": "Modern kopitiam chain. Traditional breakfast.",
+        "zh": "现代咖啡店连锁。传统早餐。"
+      },
+      "address": {
+        "en": "Multiple locations, Singapore",
+        "zh": "新加坡多个地点"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Toast",
+        "Chain",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Breakfast",
+      "tips": [
+        "In most malls",
+        "Kaya toast",
+        "Affordable"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 1.3268,
+      "longitude": 103.8468
+    },
+    {
+      "name": {
+        "en": "Killiney Kopitiam",
+        "zh": "奇里尼咖啡店"
+      },
+      "description": {
+        "en": "Historic kopitiam. Killiney Road original.",
+        "zh": "历史悠久的咖啡店。奇里尼路原店。"
+      },
+      "address": {
+        "en": "67 Killiney Road, Singapore",
+        "zh": "新加坡奇里尼路67号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Kopitiam",
+        "Historic",
+        "Original"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Original branch",
+        "Since 1919",
+        "Classic feel"
+      ],
+      "neighborhood": "Orchard",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.3627,
+      "longitude": 103.9895
+    },
+    {
+      "name": {
+        "en": "Tong Ah Eating House",
+        "zh": "东亚餐室"
+      },
+      "description": {
+        "en": "Traditional kopitiam. Crispy kaya toast.",
+        "zh": "传统咖啡店。脆咖椰吐司。"
+      },
+      "address": {
+        "en": "35 Keong Saik Road, Singapore",
+        "zh": "新加坡恭锡路35号"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Kopitiam",
+        "Traditional",
+        "Toast"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Charcoal toast",
+        "Traditional style",
+        "Keong Saik"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.2801,
+      "longitude": 103.8415
+    },
+    {
+      "name": {
+        "en": "328 Katong Laksa",
+        "zh": "328加东叻沙"
+      },
+      "description": {
+        "en": "Famous laksa stall. Eaten with spoon only.",
+        "zh": "著名叻沙摊位。只用勺子吃。"
+      },
+      "address": {
+        "en": "51 East Coast Road, Singapore",
+        "zh": "新加坡东海岸路51号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Laksa",
+        "Famous",
+        "Katong"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Lunch",
+      "tips": [
+        "No chopsticks needed",
+        "Cut noodles",
+        "Queue expected"
+      ],
+      "neighborhood": "Katong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3074,
+      "longitude": 103.9073
+    },
+    {
+      "name": {
+        "en": "Sungei Road Laksa",
+        "zh": "双溪路叻沙"
+      },
+      "description": {
+        "en": "Traditional laksa stall. Old school style.",
+        "zh": "传统叻沙摊位。老派风格。"
+      },
+      "address": {
+        "en": "27 Jalan Berseh, Singapore",
+        "zh": "新加坡惹兰勿刹27号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Laksa",
+        "Traditional",
+        "Old School"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Old school",
+        "Kerosene stove",
+        "Sells out early"
+      ],
+      "neighborhood": "Jalan Besar",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3068,
+      "longitude": 103.8579
+    },
+    {
+      "name": {
+        "en": "Boon Tat Street Satay",
+        "zh": "文达街沙爹"
+      },
+      "description": {
+        "en": "Satay at Lau Pa Sat. Evening street setup.",
+        "zh": "老巴刹的沙爹。晚间街头设置。"
+      },
+      "address": {
+        "en": "Boon Tat Street, Singapore",
+        "zh": "新加坡文达街"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Satay",
+        "Street",
+        "Evening"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Opens 7pm",
+        "Multiple stalls",
+        "CBD location"
+      ],
+      "neighborhood": "Downtown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 1.2808,
+      "longitude": 103.8493
+    },
+    {
+      "name": {
+        "en": "Hill Street Tai Hwa Pork Noodle",
+        "zh": "大华猪肉粿条面"
+      },
+      "description": {
+        "en": "Michelin star bak chor mee. Crawford Lane.",
+        "zh": "米其林星级肉脞面。哥罗福巷。"
+      },
+      "address": {
+        "en": "466 Crawford Lane, Singapore",
+        "zh": "新加坡哥罗福巷466号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Noodles",
+        "Michelin",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Long queue",
+        "Michelin star",
+        "Worth the wait"
+      ],
+      "neighborhood": "Lavender",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.305,
+      "longitude": 103.8625
+    },
+    {
+      "name": {
+        "en": "Boon Kee Pork Porridge",
+        "zh": "文记猪肉粥"
+      },
+      "description": {
+        "en": "Traditional pork porridge. Tiong Bahru Market.",
+        "zh": "传统猪肉粥。中峇鲁巴刹。"
+      },
+      "address": {
+        "en": "30 Seng Poh Road, Singapore",
+        "zh": "新加坡成保路30号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Porridge",
+        "Traditional",
+        "Breakfast"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Morning only",
+        "Traditional porridge",
+        "Queue expected"
+      ],
+      "neighborhood": "Tiong Bahru",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 1.2848,
+      "longitude": 103.8325
+    },
+    {
+      "name": {
+        "en": "Ng Ah Sio Bak Kut Teh",
+        "zh": "黄亚细肉骨茶"
+      },
+      "description": {
+        "en": "Peppery bak kut teh. Rangoon Road original.",
+        "zh": "胡椒味肉骨茶。仰光路原店。"
+      },
+      "address": {
+        "en": "208 Rangoon Road, Singapore",
+        "zh": "新加坡仰光路208号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Bak Kut Teh",
+        "Famous",
+        "Peppery"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Breakfast",
+      "tips": [
+        "Peppery style",
+        "Breakfast favorite",
+        "Queue expected"
+      ],
+      "neighborhood": "Balestier",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.68,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 1.2569,
+      "longitude": 103.8202
+    },
+    {
+      "name": {
+        "en": "Song Fa Bak Kut Teh",
+        "zh": "松发肉骨茶"
+      },
+      "description": {
+        "en": "Popular bak kut teh chain. Michelin recommended.",
+        "zh": "受欢迎的肉骨茶连锁店。米其林推荐。"
+      },
+      "address": {
+        "en": "11 New Bridge Road, Singapore",
+        "zh": "新加坡新桥路11号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Bak Kut Teh",
+        "Chain",
+        "Michelin"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Breakfast",
+      "tips": [
+        "Many branches",
+        "Michelin Bib",
+        "Tourist friendly"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 1.3802,
+      "longitude": 103.7643
+    },
+    {
+      "name": {
+        "en": "Founder Bak Kut Teh",
+        "zh": "发起人肉骨茶"
+      },
+      "description": {
+        "en": "Herbal style bak kut teh. Balestier location.",
+        "zh": "药材味肉骨茶。马里士他位置。"
+      },
+      "address": {
+        "en": "347 Balestier Road, Singapore",
+        "zh": "新加坡马里士他路347号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Bak Kut Teh",
+        "Herbal",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Breakfast",
+      "tips": [
+        "Herbal style",
+        "Local favorite",
+        "Balestier area"
+      ],
+      "neighborhood": "Balestier",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.6,
+      "best_times": {
+        "en": "Breakfast"
+      },
+      "latitude": 1.3244,
+      "longitude": 103.8511
+    },
+    {
+      "name": {
+        "en": "Liao Fan Hong Kong Soya Sauce",
+        "zh": "了凡香港油鸡"
+      },
+      "description": {
+        "en": "World's cheapest Michelin star. Chinatown Complex.",
+        "zh": "世界最便宜的米其林星。牛车水大厦。"
+      },
+      "address": {
+        "en": "335 Smith Street, Singapore",
+        "zh": "新加坡史密斯街335号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Michelin",
+        "Chicken",
+        "Cheapest"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "Cheapest Michelin",
+        "Long queue",
+        "Hawker stall"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.2823,
+      "longitude": 103.8431
+    },
+    {
+      "name": {
+        "en": "Tian Tian Hainanese Chicken Rice",
+        "zh": "天天海南鸡饭"
+      },
+      "description": {
+        "en": "Famous chicken rice at Maxwell. Long queues.",
+        "zh": "麦士威著名海南鸡饭。长队。"
+      },
+      "address": {
+        "en": "1 Kadayanallur Street, Singapore",
+        "zh": "新加坡加达耶纳律街1号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Chicken Rice",
+        "Famous",
+        "Hawker"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Lunch",
+      "tips": [
+        "Very famous",
+        "Long queue",
+        "Sells out"
+      ],
+      "neighborhood": "Chinatown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.2805,
+      "longitude": 103.8448
+    },
+    {
+      "name": {
+        "en": "Wee Nam Kee Chicken Rice",
+        "zh": "威南记海南鸡饭"
+      },
+      "description": {
+        "en": "Popular chicken rice restaurant. United Square.",
+        "zh": "受欢迎的海南鸡饭餐厅。联合广场。"
+      },
+      "address": {
+        "en": "101 Thomson Road, Singapore",
+        "zh": "新加坡汤申路101号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Chicken Rice",
+        "Restaurant",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Restaurant setting",
+        "Multiple branches",
+        "Good quality"
+      ],
+      "neighborhood": "Novena",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.2921,
+      "longitude": 103.7855
+    },
+    {
+      "name": {
+        "en": "Boon Tong Kee Chicken Rice",
+        "zh": "文东记海南鸡饭"
+      },
+      "description": {
+        "en": "Large chicken rice restaurant. River Valley.",
+        "zh": "大型海南鸡饭餐厅。里峇峇利。"
+      },
+      "address": {
+        "en": "399 River Valley Road, Singapore",
+        "zh": "新加坡里峇峇利路399号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Chicken Rice",
+        "Large",
+        "Restaurant"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Big restaurant",
+        "Late night open",
+        "Group friendly"
+      ],
+      "neighborhood": "River Valley",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.2953,
+      "longitude": 103.8302
+    },
+    {
+      "name": {
+        "en": "Zam Zam Restaurant",
+        "zh": "Zam Zam餐厅"
+      },
+      "description": {
+        "en": "Murtabak institution since 1908. Arab Street.",
+        "zh": "自1908年的印度煎饼机构。阿拉伯街。"
+      },
+      "address": {
+        "en": "697 North Bridge Road, Singapore",
+        "zh": "新加坡北桥路697号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Murtabak",
+        "Institution",
+        "Malay"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Lunch",
+      "tips": [
+        "Since 1908",
+        "Opposite Sultan Mosque",
+        "Cash only"
+      ],
+      "neighborhood": "Kampong Glam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3023,
+      "longitude": 103.8585
+    },
+    {
+      "name": {
+        "en": "Victory Restaurant",
+        "zh": "Victory餐厅"
+      },
+      "description": {
+        "en": "Rival murtabak to Zam Zam. Same location.",
+        "zh": "Zam Zam的竞争对手。同一位置。"
+      },
+      "address": {
+        "en": "701 North Bridge Road, Singapore",
+        "zh": "新加坡北桥路701号"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Murtabak",
+        "Rival",
+        "Malay"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Lunch",
+      "tips": [
+        "Next to Zam Zam",
+        "Long rivalry",
+        "Try both"
+      ],
+      "neighborhood": "Kampong Glam",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Lunch"
+      },
+      "latitude": 1.3023,
+      "longitude": 103.8586
+    }
+  ]
+}

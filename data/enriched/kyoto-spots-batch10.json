@@ -1,0 +1,738 @@
+{
+  "city": "kyoto",
+  "batch": 10,
+  "spots": [
+    {
+      "name": {
+        "en": "Kamigamo Shrine",
+        "ja": "上賀茂神社"
+      },
+      "description": {
+        "en": "Ancient Shinto shrine. UNESCO.",
+        "ja": "古代の神道神社。ユネスコ。"
+      },
+      "address": {
+        "en": "339 Motoyama, Kamigamo, Kita-ku, Kyoto",
+        "ja": "京都市北区上賀茂本山339"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Shrine",
+        "UNESCO",
+        "Ancient"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Oldest shrine",
+        "Sand cones",
+        "Quiet grounds"
+      ],
+      "neighborhood": "Kita",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.43,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 35.0605,
+      "longitude": 135.7523
+    },
+    {
+      "name": {
+        "en": "Kyoto Botanical Garden",
+        "ja": "京都府立植物園"
+      },
+      "description": {
+        "en": "Beautiful botanical garden. All seasons.",
+        "ja": "美しい植物園。四季楽しめる。"
+      },
+      "address": {
+        "en": "Shimogamo, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区下鴨"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Garden",
+        "Botanical",
+        "Flowers"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Spring",
+      "tips": [
+        "Cherry blossoms",
+        "Greenhouse",
+        "Family friendly"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 35.0483,
+      "longitude": 135.763
+    },
+    {
+      "name": {
+        "en": "Kyoto Concert Hall",
+        "ja": "京都コンサートホール"
+      },
+      "description": {
+        "en": "Classical music venue. Symphony.",
+        "ja": "クラシック音楽会場。交響楽。"
+      },
+      "address": {
+        "en": "Shimogamo, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区下鴨"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Music",
+        "Classical",
+        "Concert"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Check schedule",
+        "Kyoto Symphony",
+        "Nice venue"
+      ],
+      "neighborhood": "Sakyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.05,
+      "longitude": 135.7667
+    },
+    {
+      "name": {
+        "en": "Nijo-jo Castle Night",
+        "ja": "二条城ライトアップ"
+      },
+      "description": {
+        "en": "Seasonal castle illumination.",
+        "ja": "季節限定の城のライトアップ。"
+      },
+      "address": {
+        "en": "541 Nijojocho, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区二条城町541"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Castle",
+        "Night",
+        "Illumination"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Spring/Autumn",
+      "tips": [
+        "Seasonal event",
+        "Night access",
+        "Cherry/autumn"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Spring/Autumn"
+      }
+    },
+    {
+      "name": {
+        "en": "Kyoto Station Building",
+        "ja": "京都駅ビル"
+      },
+      "description": {
+        "en": "Modern station with views and shopping.",
+        "ja": "眺望とショッピングのあるモダンな駅。"
+      },
+      "address": {
+        "en": "Karasuma, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区烏丸"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Station",
+        "Architecture",
+        "Shopping"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "Sky garden free",
+        "Cube shopping",
+        "Porta underground"
+      ],
+      "neighborhood": "Kyoto Station",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.33,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.9852,
+      "longitude": 135.7583
+    },
+    {
+      "name": {
+        "en": "Kyoto Tower",
+        "ja": "京都タワー"
+      },
+      "description": {
+        "en": "City views from observation deck.",
+        "ja": "展望台からの街の眺め。"
+      },
+      "address": {
+        "en": "721-1 Higashishiokoji-cho, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区東塩小路町721-1"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Tower",
+        "Views",
+        "Landmark"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "360 views",
+        "Night views",
+        "Near station"
+      ],
+      "neighborhood": "Kyoto Station",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.28,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.9876,
+      "longitude": 135.7593
+    },
+    {
+      "name": {
+        "en": "Kyoto Handicraft Center",
+        "ja": "京都ハンディクラフトセンター"
+      },
+      "description": {
+        "en": "Traditional crafts shopping and experiences.",
+        "ja": "伝統工芸品の買い物と体験。"
+      },
+      "address": {
+        "en": "21 Shogoin Entomi-cho, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区聖護院円頓美町21"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Crafts",
+        "Traditional",
+        "Experience"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Afternoon",
+      "tips": [
+        "Try crafts",
+        "Workshops",
+        "Quality items"
+      ],
+      "neighborhood": "Okazaki",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.27,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0176,
+      "longitude": 135.7803
+    },
+    {
+      "name": {
+        "en": "Kyoto Artisan Workshops",
+        "ja": "京都職人工房"
+      },
+      "description": {
+        "en": "Traditional craft workshops.",
+        "ja": "伝統工芸の工房。"
+      },
+      "address": {
+        "en": "Various locations, Kyoto",
+        "ja": "京都市各地"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Crafts",
+        "Workshop",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Book ahead",
+        "Various crafts",
+        "Learn traditions"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9862,
+      "longitude": 135.7601
+    },
+    {
+      "name": {
+        "en": "Kyo-yuzen Dyeing",
+        "ja": "京友禅染め"
+      },
+      "description": {
+        "en": "Traditional Kyoto fabric dyeing.",
+        "ja": "伝統的な京都の染物。"
+      },
+      "address": {
+        "en": "Various workshops, Kyoto",
+        "ja": "京都市各工房"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Craft",
+        "Dyeing",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Try workshop",
+        "Traditional technique",
+        "Beautiful results"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Kiyomizu-yaki Pottery",
+        "ja": "清水焼"
+      },
+      "description": {
+        "en": "Traditional Kyoto ceramics.",
+        "ja": "伝統的な京都の陶器。"
+      },
+      "address": {
+        "en": "Higashiyama area, Kyoto",
+        "ja": "京都市東山エリア"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Pottery",
+        "Ceramics",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Teramachi shops",
+        "Quality varies",
+        "Traditional style"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0118,
+      "longitude": 135.7501
+    },
+    {
+      "name": {
+        "en": "Kyoto Sento Culture",
+        "ja": "京都銭湯文化"
+      },
+      "description": {
+        "en": "Traditional public bathhouses.",
+        "ja": "伝統的な公衆浴場。"
+      },
+      "address": {
+        "en": "Various locations, Kyoto",
+        "ja": "京都市各地"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Sento",
+        "Bath",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Evening",
+      "tips": [
+        "Local experience",
+        "Bring towel",
+        "Tattoo varies"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.65,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.9862,
+      "longitude": 135.7601
+    },
+    {
+      "name": {
+        "en": "Funaoka Onsen",
+        "ja": "船岡温泉"
+      },
+      "description": {
+        "en": "Historic bathhouse. Beautiful interior.",
+        "ja": "歴史ある銭湯。美しい内装。"
+      },
+      "address": {
+        "en": "82-1 Murasakino Minamifunaokacho, Kita-ku, Kyoto",
+        "ja": "京都市北区紫野南舟岡町82-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Sento",
+        "Historic",
+        "Beautiful"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening",
+      "tips": [
+        "Beautiful tiles",
+        "Historic building",
+        "Cultural property"
+      ],
+      "neighborhood": "Kita",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.7,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0369,
+      "longitude": 135.7445
+    },
+    {
+      "name": {
+        "en": "Kurama Onsen",
+        "ja": "くらま温泉"
+      },
+      "description": {
+        "en": "Mountain hot spring. Outdoor bath.",
+        "ja": "山の温泉。露天風呂。"
+      },
+      "address": {
+        "en": "Kurama, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区鞍馬"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Onsen",
+        "Mountain",
+        "Outdoor"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "After hiking",
+        "Outdoor bath",
+        "Mountain views"
+      ],
+      "neighborhood": "Kurama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.1192,
+      "longitude": 135.7765
+    },
+    {
+      "name": {
+        "en": "Kyoto Machiya Stay",
+        "ja": "京都町家ステイ"
+      },
+      "description": {
+        "en": "Traditional townhouse lodging.",
+        "ja": "伝統的な町家宿泊。"
+      },
+      "address": {
+        "en": "Various locations, Kyoto",
+        "ja": "京都市各地"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Lodging",
+        "Traditional",
+        "Experience"
+      ],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Any",
+      "tips": [
+        "Authentic stay",
+        "Various prices",
+        "Book ahead"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.45,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.9786,
+      "longitude": 135.7532
+    },
+    {
+      "name": {
+        "en": "Shijo-Kawaramachi",
+        "ja": "四条河原町"
+      },
+      "description": {
+        "en": "Main shopping intersection.",
+        "ja": "メインショッピング交差点。"
+      },
+      "address": {
+        "en": "Shijo-Kawaramachi, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区四条河原町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping",
+        "Central",
+        "Busy"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Main crossing",
+        "Department stores",
+        "Very busy"
+      ],
+      "neighborhood": "Downtown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.35,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.003,
+      "longitude": 135.7692
+    },
+    {
+      "name": {
+        "en": "Takashimaya Kyoto",
+        "ja": "高島屋京都店"
+      },
+      "description": {
+        "en": "Major department store.",
+        "ja": "主要デパート。"
+      },
+      "address": {
+        "en": "Shijo-Kawaramachi, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区四条河原町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Luxury",
+        "Central"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Basement food",
+        "Quality goods",
+        "Central location"
+      ],
+      "neighborhood": "Downtown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0031,
+      "longitude": 135.7684
+    },
+    {
+      "name": {
+        "en": "Daimaru Kyoto",
+        "ja": "大丸京都店"
+      },
+      "description": {
+        "en": "Department store at Shijo.",
+        "ja": "四条のデパート。"
+      },
+      "address": {
+        "en": "79 Tachiurinishimachi, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区立売西町79"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Shopping",
+        "Central"
+      ],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Depachika food",
+        "Near Shijo",
+        "Good selection"
+      ],
+      "neighborhood": "Downtown",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.32,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0044,
+      "longitude": 135.7619
+    },
+    {
+      "name": {
+        "en": "Kyoto Depachika",
+        "ja": "京都デパ地下"
+      },
+      "description": {
+        "en": "Department store basement food halls.",
+        "ja": "デパートの地下食品売り場。"
+      },
+      "address": {
+        "en": "Various department stores, Kyoto",
+        "ja": "京都市各デパート"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Food Hall",
+        "Gourmet",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening",
+      "tips": [
+        "Evening discounts",
+        "Quality food",
+        "Great bento"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Kyoto Konbini Culture",
+        "ja": "京都コンビニ文化"
+      },
+      "description": {
+        "en": "Convenience store local specialties.",
+        "ja": "コンビニの地元限定商品。"
+      },
+      "address": {
+        "en": "Various convenience stores, Kyoto",
+        "ja": "京都市各コンビニ"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Convenience",
+        "Local",
+        "Snacks"
+      ],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Any",
+      "tips": [
+        "Kyoto exclusives",
+        "Matcha items",
+        "Quick meals"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Any"
+      }
+    },
+    {
+      "name": {
+        "en": "Keihan Railway",
+        "ja": "京阪電車"
+      },
+      "description": {
+        "en": "Local train to Osaka. Scenic route.",
+        "ja": "大阪への地元電車。景色の良いルート。"
+      },
+      "address": {
+        "en": "Various stations, Kyoto",
+        "ja": "京都市各駅"
+      },
+      "category": "Transportation",
+      "subcategories": [
+        "Train",
+        "Local",
+        "Scenic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 85,
+      "best_time": "Any",
+      "tips": [
+        "Premium car",
+        "Scenic river",
+        "Local experience"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.5,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.9899,
+      "longitude": 135.7545
+    }
+  ]
+}

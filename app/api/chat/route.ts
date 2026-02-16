@@ -61,9 +61,12 @@ You MUST respond in this EXACT markdown format with NO conversational intro:
 
 **Day 1: [Theme]**
 
-- **[Actual Place Name] (Local Favorite)**: [Description with address, what to order/see, best time]. Located at [Specific Address or District].
-- **[Actual Place Name] (Hidden Gem)**: [Description with address, what to order/see, best time]. Located at [Specific Address or District].
-- **[Actual Place Name]**: [Description with address, what to order/see, best time]. Located at [Specific Address or District].
+- **[Actual Place Name] (Local Favorite)**: [Description with what to order/see, best time].
+  Address: [Place name, District/Neighborhood, City]
+- **[Actual Place Name] (Hidden Gem)**: [Description with what to order/see, best time].
+  Address: [Place name, District/Neighborhood, City]
+- **[Actual Place Name]**: [Description with what to order/see, best time].
+  Address: [Place name, District/Neighborhood, City]
 
 **Day 2: [Theme]**
 
@@ -76,7 +79,8 @@ You MUST respond in this EXACT markdown format with NO conversational intro:
 IMPORTANT for itineraries:
 - Start with markdown title: # [City] Hidden Gems
 - Use REAL place names (e.g., "Tsukiji Outer Market", "Shimokitazawa", "Golden Gai")
-- Include specific addresses or districts in descriptions
+- ALWAYS include "Address: [Place name, District, City]" on a new line after each activity description — this is critical for mapping
+- Address format must be SHORT and geocode-friendly: "Place Name, District, City" (NO street numbers, lane details, or floor numbers)
 - Mark special spots as (Hidden Gem), (Local Favorite), or (Mixed)
 - NO conversational intro like "Absolutely!" or "Here you go!"
 `;

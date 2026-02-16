@@ -1,0 +1,744 @@
+{
+  "city": "taipei",
+  "batch": 7,
+  "spots": [
+    {
+      "name": {
+        "en": "Hot Star Large Fried Chicken",
+        "zh": "豪大大雞排"
+      },
+      "description": {
+        "en": "Giant fried chicken cutlet. Night market famous.",
+        "zh": "巨大炸雞排。夜市著名。"
+      },
+      "address": {
+        "en": "Shilin Night Market, Shilin District, Taipei",
+        "zh": "台北市士林區士林夜市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Fried Chicken",
+        "Giant",
+        "Famous"
+      ],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Evening",
+      "tips": [
+        "Huge portion",
+        "Queue expected",
+        "Shilin famous"
+      ],
+      "neighborhood": "Shilin",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.086,
+      "longitude": 121.4739
+    },
+    {
+      "name": {
+        "en": "Raohe Pepper Buns",
+        "zh": "饒河胡椒餅"
+      },
+      "description": {
+        "en": "Famous pepper pork buns. Clay oven baked.",
+        "zh": "著名胡椒肉包。陶爐烘烤。"
+      },
+      "address": {
+        "en": "Raohe Night Market, Songshan District, Taipei",
+        "zh": "台北市松山區饒河夜市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Pepper Buns",
+        "Baked",
+        "Famous"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Evening",
+      "tips": [
+        "At market entrance",
+        "Hot and crispy",
+        "Long queue"
+      ],
+      "neighborhood": "Songshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0507,
+      "longitude": 121.576
+    },
+    {
+      "name": {
+        "en": "Ningxia Taro Balls",
+        "zh": "寧夏芋圓"
+      },
+      "description": {
+        "en": "Famous taro ball dessert at Ningxia market.",
+        "zh": "寧夏市場著名芋圓甜品。"
+      },
+      "address": {
+        "en": "Ningxia Night Market, Datong District, Taipei",
+        "zh": "台北市大同區寧夏夜市"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dessert",
+        "Taro Balls",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Traditional dessert",
+        "Multiple toppings",
+        "Ningxia specialty"
+      ],
+      "neighborhood": "Datong",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0562,
+      "longitude": 121.5152
+    },
+    {
+      "name": {
+        "en": "Ximending Movie Street",
+        "zh": "西門町電影街"
+      },
+      "description": {
+        "en": "Historic cinema district. First-run theaters.",
+        "zh": "歷史電影區。首輪戲院。"
+      },
+      "address": {
+        "en": "Wuchang Street, Wanhua District, Taipei",
+        "zh": "台北市萬華區武昌街"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cinema",
+        "Historic",
+        "Entertainment"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Many theaters",
+        "IMAX available",
+        "Historic area"
+      ],
+      "neighborhood": "Ximending",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0447,
+      "longitude": 121.5071
+    },
+    {
+      "name": {
+        "en": "The Spot Huashan",
+        "zh": "光點華山"
+      },
+      "description": {
+        "en": "Art house cinema in creative park.",
+        "zh": "文創園區的藝術電影院。"
+      },
+      "address": {
+        "en": "Huashan 1914, Zhongzheng District, Taipei",
+        "zh": "台北市中正區華山1914"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cinema",
+        "Art House",
+        "Indie"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Art films",
+        "Nice atmosphere",
+        "In Huashan"
+      ],
+      "neighborhood": "Zhongzheng",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.46,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0451,
+      "longitude": 121.5289
+    },
+    {
+      "name": {
+        "en": "Taipei Film House",
+        "zh": "台北之家"
+      },
+      "description": {
+        "en": "Historic building turned art cinema.",
+        "zh": "歷史建築改建的藝術電影院。"
+      },
+      "address": {
+        "en": "18 Zhongshan North Road Sec 2, Zhongshan District, Taipei",
+        "zh": "台北市中山區中山北路二段18號"
+      },
+      "category": "Entertainment",
+      "subcategories": [
+        "Cinema",
+        "Historic",
+        "Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Former US ambassador residence",
+        "Art films",
+        "Nice garden"
+      ],
+      "neighborhood": "Zhongshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.51,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 25.0532,
+      "longitude": 121.5222
+    },
+    {
+      "name": {
+        "en": "Qixi Books and Cafe",
+        "zh": "貳樓餐飲"
+      },
+      "description": {
+        "en": "Bookstore cafe concept. Multiple locations.",
+        "zh": "書店咖啡概念。多個地點。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市多個地點"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Cafe",
+        "Books",
+        "Brunch"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Brunch popular",
+        "Many locations",
+        "Nice atmosphere"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      }
+    },
+    {
+      "name": {
+        "en": "Louisa Coffee",
+        "zh": "路易莎咖啡"
+      },
+      "description": {
+        "en": "Popular local coffee chain. Affordable quality.",
+        "zh": "熱門當地咖啡連鎖。平價優質。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市多個地點"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Chain",
+        "Affordable"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning",
+      "tips": [
+        "Taiwan's Starbucks",
+        "Very popular",
+        "Good value"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0285,
+      "longitude": 121.5643
+    },
+    {
+      "name": {
+        "en": "Cama Coffee",
+        "zh": "cama咖啡"
+      },
+      "description": {
+        "en": "Local specialty coffee chain.",
+        "zh": "當地精品咖啡連鎖。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市多個地點"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Coffee",
+        "Specialty",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Local chain",
+        "Fresh roasted",
+        "Many locations"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.0517,
+      "longitude": 121.5617
+    },
+    {
+      "name": {
+        "en": "Simple Kaffa",
+        "zh": "興波咖啡"
+      },
+      "description": {
+        "en": "World champion barista coffee shop.",
+        "zh": "世界冠軍咖啡師咖啡店。"
+      },
+      "address": {
+        "en": "1 Alley 16 Lane 73 Fuxing South Road Sec 2, Da'an District, Taipei",
+        "zh": "台北市大安區復興南路二段73巷16弄1號"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Award Winning",
+        "Premium"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "World champion",
+        "Serious coffee",
+        "Worth seeking"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.54,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0303,
+      "longitude": 121.5264
+    },
+    {
+      "name": {
+        "en": "Cafe Junkies",
+        "zh": "小破爛咖啡"
+      },
+      "description": {
+        "en": "Industrial style coffee shop.",
+        "zh": "工業風格咖啡店。"
+      },
+      "address": {
+        "en": "49 Yanji Street, Da'an District, Taipei",
+        "zh": "台北市大安區延吉街49號"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Industrial",
+        "Coffee",
+        "Hipster"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Afternoon",
+      "tips": [
+        "Industrial decor",
+        "Good coffee",
+        "Laptop friendly"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.49,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.0452,
+      "longitude": 121.5538
+    },
+    {
+      "name": {
+        "en": "Woolloomooloo",
+        "zh": "Woolloomooloo"
+      },
+      "description": {
+        "en": "Trendy Australian-style brunch cafe.",
+        "zh": "時尚澳式早午餐咖啡館。"
+      },
+      "address": {
+        "en": "Various locations, Taipei",
+        "zh": "台北市多個地點"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Brunch",
+        "Australian",
+        "Trendy"
+      ],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Brunch",
+      "tips": [
+        "Popular brunch",
+        "Xinyi location nice",
+        "Book weekends"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.26,
+      "best_times": {
+        "en": "Brunch"
+      },
+      "latitude": 25.0451,
+      "longitude": 121.5039
+    },
+    {
+      "name": {
+        "en": "VVG Something",
+        "zh": "好樣本事"
+      },
+      "description": {
+        "en": "Beautiful bookstore and lifestyle shop.",
+        "zh": "美麗書店和生活方式商店。"
+      },
+      "address": {
+        "en": "13 Alley 40 Lane 181 Zhongxiao East Road Sec 4, Da'an District, Taipei",
+        "zh": "台北市大安區忠孝東路四段181巷40弄13號"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Bookstore",
+        "Lifestyle",
+        "Design"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "One of world's most beautiful bookstores",
+        "Small space",
+        "Design items"
+      ],
+      "neighborhood": "Da'an",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.044,
+      "longitude": 121.5498
+    },
+    {
+      "name": {
+        "en": "Grass Mountain Chateau",
+        "zh": "草山行館"
+      },
+      "description": {
+        "en": "Historic mountain retreat. Former presidential residence.",
+        "zh": "歷史山間別墅。前總統官邸。"
+      },
+      "address": {
+        "en": "89 Hudi Road, Beitou District, Taipei",
+        "zh": "台北市北投區湖底路89號"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Presidential",
+        "Mountain"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Presidential history",
+        "Nice gardens",
+        "Yangmingshan area"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1544,
+      "longitude": 121.538
+    },
+    {
+      "name": {
+        "en": "Yangmingshan Flower Clock",
+        "zh": "陽明山花鐘"
+      },
+      "description": {
+        "en": "Iconic flower clock and cherry blossoms.",
+        "zh": "標誌性花鐘和櫻花。"
+      },
+      "address": {
+        "en": "Yangmingshan, Beitou District, Taipei",
+        "zh": "台北市北投區陽明山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Landmark",
+        "Flowers",
+        "Cherry Blossom"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Spring",
+      "tips": [
+        "Cherry blossom season",
+        "Photo spot",
+        "Near visitor center"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 25.0445,
+      "longitude": 121.516
+    },
+    {
+      "name": {
+        "en": "Zhuzihu Calla Lily Fields",
+        "zh": "竹子湖海芋田"
+      },
+      "description": {
+        "en": "Calla lily fields in spring. Pick your own.",
+        "zh": "春天的海芋花田。自採。"
+      },
+      "address": {
+        "en": "Zhuzihu, Beitou District, Taipei",
+        "zh": "台北市北投區竹子湖"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Flowers",
+        "Seasonal",
+        "Pick Your Own"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Spring",
+      "tips": [
+        "March-May season",
+        "Pick flowers",
+        "Beautiful fields"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Spring"
+      },
+      "latitude": 25.1726,
+      "longitude": 121.5334
+    },
+    {
+      "name": {
+        "en": "Lengshuikeng",
+        "zh": "冷水坑"
+      },
+      "description": {
+        "en": "Free public hot spring foot bath. Hiking trails.",
+        "zh": "免費公共溫泉泡腳池。健行步道。"
+      },
+      "address": {
+        "en": "Lengshuikeng, Yangmingshan, Taipei",
+        "zh": "台北市陽明山冷水坑"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hot Spring",
+        "Free",
+        "Hiking"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free foot bath",
+        "Milk-white water",
+        "Nice trails"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.59,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 25.1656,
+      "longitude": 121.5639
+    },
+    {
+      "name": {
+        "en": "Menghuan Pond Trail",
+        "zh": "夢幻湖步道"
+      },
+      "description": {
+        "en": "Protected alpine pond. Rare plants.",
+        "zh": "受保護的高山池塘。稀有植物。"
+      },
+      "address": {
+        "en": "Yangmingshan National Park, Taipei",
+        "zh": "台北市陽明山國家公園"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Trail",
+        "Nature",
+        "Protected"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Rare water plants",
+        "Short hike",
+        "Near Lengshuikeng"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.1693,
+      "longitude": 121.5609
+    },
+    {
+      "name": {
+        "en": "Qixing Mountain Trail",
+        "zh": "七星山步道"
+      },
+      "description": {
+        "en": "Highest peak in Taipei. Volcanic scenery.",
+        "zh": "台北最高峰。火山景觀。"
+      },
+      "address": {
+        "en": "Qixing Mountain, Yangmingshan, Taipei",
+        "zh": "台北市陽明山七星山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Summit",
+        "Volcanic"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Taipei's highest peak",
+        "Multiple trails",
+        "Great views"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.57,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.1707,
+      "longitude": 121.5534
+    },
+    {
+      "name": {
+        "en": "Tatun Mountain Trail",
+        "zh": "大屯山步道"
+      },
+      "description": {
+        "en": "Popular hiking with car park access.",
+        "zh": "有停車場的熱門健行路線。"
+      },
+      "address": {
+        "en": "Tatun Mountain, Yangmingshan, Taipei",
+        "zh": "台北市陽明山大屯山"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "Hiking",
+        "Mountain",
+        "Popular"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Morning",
+      "tips": [
+        "Easy access",
+        "Silver grass autumn",
+        "360 views"
+      ],
+      "neighborhood": "Yangmingshan",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 25.1825,
+      "longitude": 121.5255
+    }
+  ]
+}

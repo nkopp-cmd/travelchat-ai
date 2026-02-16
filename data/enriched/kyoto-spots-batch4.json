@@ -1,0 +1,744 @@
+{
+  "city": "kyoto",
+  "batch": 4,
+  "spots": [
+    {
+      "name": {
+        "en": "Fushimi Sake District",
+        "ja": "伏見酒蔵"
+      },
+      "description": {
+        "en": "Sake brewery district. Tasting.",
+        "ja": "酒蔵街。試飲。"
+      },
+      "address": {
+        "en": "Fushimi-ku, Kyoto",
+        "ja": "京都市伏見区"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Sake",
+        "Brewery",
+        "Tasting"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Gekkeikan museum",
+        "Canal walk",
+        "Sake tasting"
+      ],
+      "neighborhood": "Fushimi",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9899,
+      "longitude": 135.7545
+    },
+    {
+      "name": {
+        "en": "Teramachi Shopping Street",
+        "ja": "寺町通"
+      },
+      "description": {
+        "en": "Shopping street with temples.",
+        "ja": "寺院のある商店街。"
+      },
+      "address": {
+        "en": "Teramachi, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区寺町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping",
+        "Traditional",
+        "Arcade"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Traditional shops",
+        "Covered arcade",
+        "Temple history"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.48,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0253,
+      "longitude": 135.7656
+    },
+    {
+      "name": {
+        "en": "Shinkyogoku Shopping Street",
+        "ja": "新京極通"
+      },
+      "description": {
+        "en": "Covered shopping arcade. Youth focused.",
+        "ja": "屋根付き商店街。若者向け。"
+      },
+      "address": {
+        "en": "Shinkyogoku, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区新京極"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping",
+        "Youth",
+        "Arcade"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Near Teramachi",
+        "Youth fashion",
+        "Souvenir shops"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0063,
+      "longitude": 135.7672
+    },
+    {
+      "name": {
+        "en": "Sanjo Shopping Street",
+        "ja": "三条商店街"
+      },
+      "description": {
+        "en": "Local shopping street.",
+        "ja": "地元の商店街。"
+      },
+      "address": {
+        "en": "Sanjo, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区三条"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Shopping",
+        "Local",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon",
+      "tips": [
+        "More local",
+        "Traditional shops",
+        "Less touristy"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.63,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0086,
+      "longitude": 135.7431
+    },
+    {
+      "name": {
+        "en": "Kyoto Station Building",
+        "ja": "京都駅ビル"
+      },
+      "description": {
+        "en": "Modern station with shopping.",
+        "ja": "ショッピングのあるモダンな駅。"
+      },
+      "address": {
+        "en": "Higashishiokoji-cho, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区東塩小路町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Station",
+        "Shopping",
+        "Modern"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Any",
+      "tips": [
+        "Sky garden free",
+        "Great restaurants",
+        "Isetan department store"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Any"
+      },
+      "latitude": 34.9852,
+      "longitude": 135.7583
+    },
+    {
+      "name": {
+        "en": "Kyoto Tower",
+        "ja": "京都タワー"
+      },
+      "description": {
+        "en": "City landmark. Observation deck.",
+        "ja": "市のランドマーク。展望台。"
+      },
+      "address": {
+        "en": "721-1 Higashishiokoji-cho, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区東塩小路町721-1"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Tower",
+        "Views",
+        "Landmark"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Sunset",
+      "tips": [
+        "Night views",
+        "Near station",
+        "Sento in basement"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.55,
+      "best_times": {
+        "en": "Sunset"
+      },
+      "latitude": 34.9876,
+      "longitude": 135.7593
+    },
+    {
+      "name": {
+        "en": "Porta Underground",
+        "ja": "ポルタ地下街"
+      },
+      "description": {
+        "en": "Underground shopping at station.",
+        "ja": "駅の地下ショッピング。"
+      },
+      "address": {
+        "en": "Kyoto Station, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区京都駅"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Underground",
+        "Shopping",
+        "Station"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Afternoon",
+      "tips": [
+        "Connected to station",
+        "Many restaurants",
+        "Rainy day option"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9871,
+      "longitude": 135.7588
+    },
+    {
+      "name": {
+        "en": "Aeon Mall Kyoto",
+        "ja": "イオンモール京都"
+      },
+      "description": {
+        "en": "Large mall near station.",
+        "ja": "駅近くの大きなモール。"
+      },
+      "address": {
+        "en": "1 Nishikujo Toriiguchicho, Minami-ku, Kyoto",
+        "ja": "京都市南区西九条鳥居口町1"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Mall",
+        "Large",
+        "Family"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Afternoon",
+      "tips": [
+        "Local shopping",
+        "Near Toji",
+        "Family friendly"
+      ],
+      "neighborhood": "Minami",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.71,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 34.9828,
+      "longitude": 135.7546
+    },
+    {
+      "name": {
+        "en": "Daimaru Kyoto",
+        "ja": "大丸京都店"
+      },
+      "description": {
+        "en": "Department store in center.",
+        "ja": "中心部のデパート。"
+      },
+      "address": {
+        "en": "79 Tachiurinishimachi, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区立売西町79"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Central",
+        "Quality"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Afternoon",
+      "tips": [
+        "Food basement",
+        "Quality goods",
+        "Central location"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.47,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0044,
+      "longitude": 135.7619
+    },
+    {
+      "name": {
+        "en": "Takashimaya Kyoto",
+        "ja": "高島屋京都店"
+      },
+      "description": {
+        "en": "Upscale department store.",
+        "ja": "高級デパート。"
+      },
+      "address": {
+        "en": "52 Nishiiru Shincho, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区西入真町52"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Department Store",
+        "Upscale",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Luxury brands",
+        "Kawara-machi location",
+        "Food basement"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.0031,
+      "longitude": 135.7684
+    },
+    {
+      "name": {
+        "en": "Kamo River",
+        "ja": "鴨川"
+      },
+      "description": {
+        "en": "River through Kyoto. Local life.",
+        "ja": "京都を流れる川。地元の生活。"
+      },
+      "address": {
+        "en": "Kamo River, Kyoto",
+        "ja": "京都市鴨川"
+      },
+      "category": "Outdoor",
+      "subcategories": [
+        "River",
+        "Walking",
+        "Local"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening",
+      "tips": [
+        "Evening walks",
+        "Couples on banks",
+        "Summer kawadoko"
+      ],
+      "neighborhood": "Various",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.61,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0474,
+      "longitude": 135.7603
+    },
+    {
+      "name": {
+        "en": "Kamo River Kawadoko",
+        "ja": "鴨川川床"
+      },
+      "description": {
+        "en": "Summer river platform dining.",
+        "ja": "夏の川床料理。"
+      },
+      "address": {
+        "en": "Along Kamo River, Kyoto",
+        "ja": "京都市鴨川沿い"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Dining",
+        "Summer",
+        "River"
+      ],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Summer",
+      "tips": [
+        "May-September",
+        "Many restaurants",
+        "Cool breeze"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.52,
+      "best_times": {
+        "en": "Summer"
+      }
+    },
+    {
+      "name": {
+        "en": "Sanjo Ohashi Area",
+        "ja": "三条大橋周辺"
+      },
+      "description": {
+        "en": "Historic bridge area. Shopping.",
+        "ja": "歴史ある橋の周辺。ショッピング。"
+      },
+      "address": {
+        "en": "Sanjo Ohashi, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区三条大橋"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Bridge",
+        "Shopping"
+      ],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Evening",
+      "tips": [
+        "Tokaido end point",
+        "Good restaurants",
+        "Starbucks in old building"
+      ],
+      "neighborhood": "Nakagyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.56,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 35.0108,
+      "longitude": 135.7637
+    },
+    {
+      "name": {
+        "en": "Shijo-Kawaramachi",
+        "ja": "四条河原町"
+      },
+      "description": {
+        "en": "Central shopping intersection.",
+        "ja": "中心部のショッピング交差点。"
+      },
+      "address": {
+        "en": "Shijo-Kawaramachi, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区四条河原町"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Central",
+        "Shopping",
+        "Busy"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Main intersection",
+        "Many shops",
+        "Very busy"
+      ],
+      "neighborhood": "Shimogyo",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.44,
+      "best_times": {
+        "en": "Afternoon"
+      },
+      "latitude": 35.003,
+      "longitude": 135.7692
+    },
+    {
+      "name": {
+        "en": "Gojo-zaka Pottery Street",
+        "ja": "五条坂陶器市"
+      },
+      "description": {
+        "en": "Pottery shops near Kiyomizu.",
+        "ja": "清水寺近くの陶器店。"
+      },
+      "address": {
+        "en": "Gojo-zaka, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区五条坂"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Pottery",
+        "Crafts",
+        "Traditional"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Kiyomizu-yaki pottery",
+        "August festival",
+        "Many shops"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.53,
+      "best_times": {
+        "en": "Morning"
+      },
+      "latitude": 34.9954,
+      "longitude": 135.7784
+    },
+    {
+      "name": {
+        "en": "Ninenzaka Street",
+        "ja": "二年坂"
+      },
+      "description": {
+        "en": "Historic sloped street.",
+        "ja": "歴史ある坂道。"
+      },
+      "address": {
+        "en": "Ninen-zaka, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区二年坂"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Street",
+        "Shops"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Early Morning",
+      "tips": [
+        "Very early best",
+        "Traditional shops",
+        "Connects to Sannenzaka"
+      ],
+      "neighborhood": "Higashiyama",
+      "latitude": 34.9986043,
+      "longitude": 135.7808222,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.31,
+      "best_times": {
+        "en": "Early Morning"
+      }
+    },
+    {
+      "name": {
+        "en": "Sannenzaka Street",
+        "ja": "三年坂"
+      },
+      "description": {
+        "en": "Steep historic street to Kiyomizu.",
+        "ja": "清水寺への急な歴史ある坂道。"
+      },
+      "address": {
+        "en": "Sannen-zaka, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区三年坂"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Historic",
+        "Street",
+        "Steep"
+      ],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Early Morning",
+      "tips": [
+        "Steep slope",
+        "Don't fall legend",
+        "Photo spot"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.25,
+      "best_times": {
+        "en": "Early Morning"
+      },
+      "latitude": 34.9982,
+      "longitude": 135.7799
+    },
+    {
+      "name": {
+        "en": "Yasaka Pagoda",
+        "ja": "八坂の塔"
+      },
+      "description": {
+        "en": "Iconic pagoda view.",
+        "ja": "象徴的な塔の眺め。"
+      },
+      "address": {
+        "en": "Yasaka-dori, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区八坂通り"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Pagoda",
+        "Iconic",
+        "Photo"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Dawn",
+      "tips": [
+        "Photo spot",
+        "Early morning best",
+        "Part of Hokan-ji"
+      ],
+      "neighborhood": "Higashiyama",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.37,
+      "best_times": {
+        "en": "Dawn"
+      },
+      "latitude": 34.9986,
+      "longitude": 135.7792
+    },
+    {
+      "name": {
+        "en": "Hanami-koji Street",
+        "ja": "花見小路"
+      },
+      "description": {
+        "en": "Main Gion street. Teahouses.",
+        "ja": "祇園のメインストリート。茶屋。"
+      },
+      "address": {
+        "en": "Hanami-koji, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区花見小路"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Gion",
+        "Teahouse",
+        "Historic"
+      ],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Evening",
+      "tips": [
+        "Evening for geiko",
+        "Respect privacy",
+        "No touching geisha"
+      ],
+      "neighborhood": "Gion",
+      "latitude": 35.0054928,
+      "longitude": 135.7752402,
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.36,
+      "best_times": {
+        "en": "Evening"
+      }
+    },
+    {
+      "name": {
+        "en": "Miyagawa-cho",
+        "ja": "宮川町"
+      },
+      "description": {
+        "en": "Quieter geisha district.",
+        "ja": "静かな芸者街。"
+      },
+      "address": {
+        "en": "Miyagawa-cho, Higashiyama-ku, Kyoto",
+        "ja": "京都市東山区宮川町"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Geisha",
+        "Quiet",
+        "Traditional"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Evening",
+      "tips": [
+        "Less crowded",
+        "More authentic",
+        "Spring dance"
+      ],
+      "neighborhood": "Gion",
+      "photos": [],
+      "verified": false,
+      "trending_score": 0.62,
+      "best_times": {
+        "en": "Evening"
+      },
+      "latitude": 34.9995,
+      "longitude": 135.771
+    }
+  ]
+}
