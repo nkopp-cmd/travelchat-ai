@@ -1,36 +1,37 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import sharp from "sharp";
 
 export const runtime = "nodejs";
 export const maxDuration = 30; // Allow up to 30s for image fetching + Satori rendering
 
 // Curated Unsplash images for fallback (when no ai_backgrounds in database)
-// Use w=720&h=1280&q=80 for smaller data URIs — Satori upscales to 1080×1920 anyway
+// IMPORTANT: Use fm=jpg to force JPEG — Satori/resvg CANNOT decode WebP
 const CITY_IMAGES: Record<string, string[]> = {
     'seoul': [
-        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=720&h=1280&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
     'tokyo': [
-        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=720&h=1280&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
     'bangkok': [
-        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=720&h=1280&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
     'singapore': [
-        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=720&h=1280&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
 };
 
 const DEFAULT_TRAVEL_IMAGES = [
-    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=720&h=1280&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=1280&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&h=1280&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=720&h=1280&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=720&h=1280&fit=crop&q=80&fm=jpg',
 ];
 
 /**
@@ -51,12 +52,20 @@ function getFallbackImage(city: string, exclude?: string): string {
 }
 
 /**
- * Optimize image URL for smaller data URIs — reduce dimensions for Satori rendering.
- * Satori renders at the target resolution anyway, so a 720×1280 source is fine for 1080×1920 output.
+ * Optimize image URL for Satori rendering.
+ * - Reduce dimensions (Satori upscales to 1080×1920 anyway)
+ * - Force JPEG format (Satori/resvg does NOT support WebP)
  */
 function optimizeImageUrl(url: string): string {
     if (url.includes('images.unsplash.com')) {
-        return url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
+        let optimized = url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
+        // Force JPEG format — Satori/resvg cannot decode WebP
+        if (!optimized.includes('fm=')) {
+            optimized += '&fm=jpg';
+        } else {
+            optimized = optimized.replace(/fm=\w+/, 'fm=jpg');
+        }
+        return optimized;
     }
     if (url.includes('images.pexels.com')) {
         return url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
@@ -69,12 +78,14 @@ function optimizeImageUrl(url: string): string {
  * Satori cannot reliably fetch external URLs at render time on Vercel,
  * so we fetch the image ourselves and pass the data inline.
  *
- * Includes: proper headers, image size optimization, and 1 automatic retry.
+ * CRITICAL: Satori/resvg only supports JPEG, PNG, and GIF.
+ * We must NOT request WebP and must convert any WebP responses to JPEG.
  */
 async function prefetchImageAsDataUri(url: string): Promise<string | undefined> {
     const optimizedUrl = optimizeImageUrl(url);
     const fetchHeaders = {
-        'Accept': 'image/webp,image/jpeg,image/png,image/*,*/*',
+        // Do NOT include image/webp — Satori/resvg cannot decode WebP
+        'Accept': 'image/jpeg,image/png,image/gif,image/*',
         'User-Agent': 'Localley/1.0 (https://localley.io)',
     };
 
@@ -82,7 +93,7 @@ async function prefetchImageAsDataUri(url: string): Promise<string | undefined> 
         try {
             if (attempt > 0) {
                 console.log("[STORY_ROUTE] Retry attempt", attempt, "for:", optimizedUrl.substring(0, 80));
-                await new Promise(r => setTimeout(r, 2000)); // 2s delay before retry
+                await new Promise(r => setTimeout(r, 2000));
             }
             const res = await fetch(optimizedUrl, {
                 signal: AbortSignal.timeout(15000),
@@ -90,16 +101,33 @@ async function prefetchImageAsDataUri(url: string): Promise<string | undefined> 
             });
             if (!res.ok) {
                 console.error("[STORY_ROUTE] Pre-fetch HTTP error:", res.status, res.statusText, optimizedUrl.substring(0, 80));
-                continue; // retry
+                continue;
             }
             const buffer = await res.arrayBuffer();
             if (buffer.byteLength < 1000) {
                 console.error("[STORY_ROUTE] Pre-fetch returned suspiciously small response:", buffer.byteLength, "bytes");
-                continue; // retry — likely an error page
+                continue;
             }
-            const contentType = res.headers.get('content-type') || 'image/jpeg';
-            const base64 = Buffer.from(buffer).toString('base64');
-            console.log("[STORY_ROUTE] Pre-fetched image:", optimizedUrl.substring(0, 80), "size:", buffer.byteLength, "bytes, attempt:", attempt);
+
+            let contentType = res.headers.get('content-type') || 'image/jpeg';
+            let imageBuffer = Buffer.from(buffer);
+
+            // Safety net: if server still returned WebP despite our Accept header,
+            // convert to JPEG using sharp (Satori/resvg cannot decode WebP)
+            if (contentType.includes('webp')) {
+                console.log("[STORY_ROUTE] Converting WebP to JPEG for Satori compatibility");
+                try {
+                    imageBuffer = await sharp(imageBuffer).jpeg({ quality: 85 }).toBuffer();
+                    contentType = 'image/jpeg';
+                } catch (convertErr) {
+                    console.error("[STORY_ROUTE] WebP conversion failed:", convertErr);
+                    continue;
+                }
+            }
+
+            const base64 = imageBuffer.toString('base64');
+            console.log("[STORY_ROUTE] Pre-fetched image:", optimizedUrl.substring(0, 80),
+                "size:", imageBuffer.byteLength, "bytes, type:", contentType, "attempt:", attempt);
             return `data:${contentType};base64,${base64}`;
         } catch (e) {
             console.error("[STORY_ROUTE] Pre-fetch attempt", attempt, "failed for:", optimizedUrl.substring(0, 80), e instanceof Error ? e.message : e);
