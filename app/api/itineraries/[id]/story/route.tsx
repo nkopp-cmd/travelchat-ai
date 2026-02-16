@@ -2,7 +2,8 @@ import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const maxDuration = 30; // Allow up to 30s for image fetching + Satori rendering
 
 // Curated Unsplash images for fallback (when no ai_backgrounds in database)
 const CITY_IMAGES: Record<string, string[]> = {
