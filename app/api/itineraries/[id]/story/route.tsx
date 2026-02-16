@@ -6,28 +6,29 @@ export const runtime = "nodejs";
 export const maxDuration = 30; // Allow up to 30s for image fetching + Satori rendering
 
 // Curated Unsplash images for fallback (when no ai_backgrounds in database)
+// Use w=720&h=1280&q=80 for smaller data URIs — Satori upscales to 1080×1920 anyway
 const CITY_IMAGES: Record<string, string[]> = {
     'seoul': [
-        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=720&h=1280&fit=crop&q=80',
     ],
     'tokyo': [
-        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=720&h=1280&fit=crop&q=80',
     ],
     'bangkok': [
-        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=720&h=1280&fit=crop&q=80',
     ],
     'singapore': [
-        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=1080&h=1920&fit=crop',
+        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=720&h=1280&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=720&h=1280&fit=crop&q=80',
     ],
 };
 
 const DEFAULT_TRAVEL_IMAGES = [
-    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1080&h=1920&fit=crop',
-    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1080&h=1920&fit=crop',
+    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=720&h=1280&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=1280&fit=crop&q=80',
 ];
 
 function getFallbackImage(city: string): string {
@@ -38,26 +39,61 @@ function getFallbackImage(city: string): string {
 }
 
 /**
+ * Optimize image URL for smaller data URIs — reduce dimensions for Satori rendering.
+ * Satori renders at the target resolution anyway, so a 720×1280 source is fine for 1080×1920 output.
+ */
+function optimizeImageUrl(url: string): string {
+    if (url.includes('images.unsplash.com')) {
+        return url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
+    }
+    if (url.includes('images.pexels.com')) {
+        return url.replace(/w=\d+/, 'w=720').replace(/h=\d+/, 'h=1280');
+    }
+    return url;
+}
+
+/**
  * Pre-fetch an image URL and convert it to a base64 data URI.
  * Satori cannot reliably fetch external URLs at render time on Vercel,
  * so we fetch the image ourselves and pass the data inline.
+ *
+ * Includes: proper headers, image size optimization, and 1 automatic retry.
  */
 async function prefetchImageAsDataUri(url: string): Promise<string | undefined> {
-    try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-        if (!res.ok) {
-            console.error("[STORY_ROUTE] Pre-fetch HTTP error:", res.status, url);
-            return undefined;
+    const optimizedUrl = optimizeImageUrl(url);
+    const fetchHeaders = {
+        'Accept': 'image/webp,image/jpeg,image/png,image/*,*/*',
+        'User-Agent': 'Localley/1.0 (https://localley.io)',
+    };
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            if (attempt > 0) {
+                console.log("[STORY_ROUTE] Retry attempt", attempt, "for:", optimizedUrl.substring(0, 80));
+                await new Promise(r => setTimeout(r, 2000)); // 2s delay before retry
+            }
+            const res = await fetch(optimizedUrl, {
+                signal: AbortSignal.timeout(15000),
+                headers: fetchHeaders,
+            });
+            if (!res.ok) {
+                console.error("[STORY_ROUTE] Pre-fetch HTTP error:", res.status, res.statusText, optimizedUrl.substring(0, 80));
+                continue; // retry
+            }
+            const buffer = await res.arrayBuffer();
+            if (buffer.byteLength < 1000) {
+                console.error("[STORY_ROUTE] Pre-fetch returned suspiciously small response:", buffer.byteLength, "bytes");
+                continue; // retry — likely an error page
+            }
+            const contentType = res.headers.get('content-type') || 'image/jpeg';
+            const base64 = Buffer.from(buffer).toString('base64');
+            console.log("[STORY_ROUTE] Pre-fetched image:", optimizedUrl.substring(0, 80), "size:", buffer.byteLength, "bytes, attempt:", attempt);
+            return `data:${contentType};base64,${base64}`;
+        } catch (e) {
+            console.error("[STORY_ROUTE] Pre-fetch attempt", attempt, "failed for:", optimizedUrl.substring(0, 80), e instanceof Error ? e.message : e);
         }
-        const buffer = await res.arrayBuffer();
-        const contentType = res.headers.get('content-type') || 'image/jpeg';
-        const base64 = Buffer.from(buffer).toString('base64');
-        console.log("[STORY_ROUTE] Pre-fetched image:", url.substring(0, 80), "size:", buffer.byteLength, "bytes");
-        return `data:${contentType};base64,${base64}`;
-    } catch (e) {
-        console.error("[STORY_ROUTE] Failed to pre-fetch image:", url, e);
-        return undefined;
     }
+    return undefined;
 }
 
 // Story dimensions (9:16 aspect ratio for Instagram/TikTok)
@@ -743,8 +779,18 @@ export async function GET(
         let backgroundDataUri: string | undefined;
         if (aiBackground) {
             backgroundDataUri = await prefetchImageAsDataUri(aiBackground);
+
+            // If the DB/primary URL failed, try Unsplash fallback as backup
+            if (!backgroundDataUri && itinerary.city) {
+                const fallbackUrl = getFallbackImage(itinerary.city);
+                if (fallbackUrl !== aiBackground) {
+                    console.log("[STORY_ROUTE] Primary pre-fetch failed, trying Unsplash fallback:", fallbackUrl.substring(0, 80));
+                    backgroundDataUri = await prefetchImageAsDataUri(fallbackUrl);
+                }
+            }
+
             if (!backgroundDataUri) {
-                console.warn("[STORY_ROUTE] Pre-fetch failed, slide will use gradient fallback");
+                console.warn("[STORY_ROUTE] All pre-fetch attempts failed, slide will use gradient fallback");
             }
         }
 
@@ -825,15 +871,18 @@ export async function GET(
 
         // Wrap ImageResponse in try-catch to never return error responses
         try {
-            return new ImageResponse(element, {
+            const response = new ImageResponse(element, {
                 width: STORY_WIDTH,
                 height: STORY_HEIGHT,
             });
+            // Prevent browsers/CDNs from caching gradient fallbacks or stale images
+            response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return response;
         } catch (renderError) {
             console.error("[STORY_ROUTE] ImageResponse render failed:", renderError);
             // Return a minimal gradient PNG instead of a 500 text error
             const fallbackLabel = slide === "day" ? `Day ${dayIndex + 1}` : slide === "cover" ? (itinerary.title || "Your Trip") : "Summary";
-            return new ImageResponse(
+            const fallbackResponse = new ImageResponse(
                 (
                     <div style={{
                         width: STORY_WIDTH,
@@ -862,12 +911,14 @@ export async function GET(
                 ),
                 { width: STORY_WIDTH, height: STORY_HEIGHT }
             );
+            fallbackResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return fallbackResponse;
         }
     } catch (error) {
         console.error("[STORY_ROUTE] Fatal error:", error);
         // Even the outermost catch should try to return a PNG, not text
         try {
-            return new ImageResponse(
+            const fatalResponse = new ImageResponse(
                 (
                     <div style={{
                         width: STORY_WIDTH,
@@ -882,6 +933,8 @@ export async function GET(
                 ),
                 { width: STORY_WIDTH, height: STORY_HEIGHT }
             );
+            fatalResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return fatalResponse;
         } catch {
             return new Response("Failed to generate story", { status: 500 });
         }

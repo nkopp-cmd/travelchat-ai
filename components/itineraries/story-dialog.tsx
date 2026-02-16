@@ -153,12 +153,14 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const generateSlides = () => {
         // Add paid=true query param for paid users to remove CTA
         const paidParam = isPaidUser ? "&paid=true" : "";
+        // Cache-buster prevents browsers from showing stale gradient PNGs
+        const cacheBust = `&_t=${Date.now()}`;
 
         const generatedSlides: StorySlide[] = [
             {
                 type: "cover",
                 label: "Cover",
-                url: `/api/itineraries/${itineraryId}/story?slide=cover${paidParam}`,
+                url: `/api/itineraries/${itineraryId}/story?slide=cover${paidParam}${cacheBust}`,
             },
         ];
 
@@ -167,14 +169,14 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 type: "day",
                 day: i,
                 label: `Day ${i}`,
-                url: `/api/itineraries/${itineraryId}/story?slide=day&day=${i}${paidParam}`,
+                url: `/api/itineraries/${itineraryId}/story?slide=day&day=${i}${paidParam}${cacheBust}`,
             });
         }
 
         generatedSlides.push({
             type: "summary",
             label: "Summary",
-            url: `/api/itineraries/${itineraryId}/story?slide=summary${paidParam}`,
+            url: `/api/itineraries/${itineraryId}/story?slide=summary${paidParam}${cacheBust}`,
         });
 
         return generatedSlides;
