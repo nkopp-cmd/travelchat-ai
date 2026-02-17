@@ -737,7 +737,7 @@ export async function GET(
         if (error || !itinerary) {
             console.error("[STORY_ROUTE] Itinerary query failed:", error?.message || "not found", { id });
             // Return a valid PNG error slide instead of text 404
-            const errResponse = new ImageResponse(
+            const errOg = new ImageResponse(
                 (
                     <div style={{
                         width: STORY_WIDTH, height: STORY_HEIGHT, display: "flex",
@@ -749,8 +749,13 @@ export async function GET(
                 ),
                 { width: STORY_WIDTH, height: STORY_HEIGHT }
             );
-            errResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-            return errResponse;
+            const errBuf = await errOg.arrayBuffer();
+            return new Response(errBuf, {
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                },
+            });
         }
 
         // ai_backgrounds may or may not exist depending on migration status
@@ -817,7 +822,8 @@ export async function GET(
         };
 
         if (debugMode) {
-            return NextResponse.json({ ...diagnostics, step: "pre_render" });
+            // In debug mode, actually try to render to see if ImageResponse works
+            diagnostics.step = "attempting_render";
         }
 
         // Robust activities parsing — handle all possible data shapes
@@ -895,50 +901,90 @@ export async function GET(
                 return new Response("Invalid slide type", { status: 400 });
         }
 
-        // Wrap ImageResponse in try-catch to never return error responses
+        // Render the slide as PNG.
+        // CRITICAL: Force-consume the ReadableStream with arrayBuffer() to catch
+        // rendering errors. next/og's ImageResponse uses a lazy ReadableStream —
+        // Satori renders asynchronously when the stream is consumed. If we return
+        // the Response directly, stream errors produce corrupt/partial responses
+        // that the client sees as broken images. By consuming first, we catch
+        // errors and can return a proper fallback.
         try {
-            const response = new ImageResponse(element, {
+            const ogResponse = new ImageResponse(element, {
                 width: STORY_WIDTH,
                 height: STORY_HEIGHT,
             });
-            // Prevent browsers/CDNs from caching gradient fallbacks or stale images
-            response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-            return response;
+            const pngBuffer = await ogResponse.arrayBuffer();
+            console.log("[STORY_ROUTE] Render success:", pngBuffer.byteLength, "bytes");
+
+            if (debugMode) {
+                return NextResponse.json({
+                    ...diagnostics,
+                    step: "render_success",
+                    pngBytes: pngBuffer.byteLength,
+                });
+            }
+
+            return new Response(pngBuffer, {
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                },
+            });
         } catch (renderError) {
             console.error("[STORY_ROUTE] ImageResponse render failed:", renderError);
-            // Return a minimal gradient PNG instead of a 500 text error
+
+            if (debugMode) {
+                return NextResponse.json({
+                    ...diagnostics,
+                    step: "render_failed",
+                    error: renderError instanceof Error
+                        ? { message: renderError.message, stack: renderError.stack }
+                        : String(renderError),
+                });
+            }
+
+            // Try a SIMPLE gradient fallback (no background image — that might be what crashed)
             const fallbackLabel = slide === "day" ? `Day ${dayIndex + 1}` : slide === "cover" ? (itinerary.title || "Your Trip") : "Summary";
-            const fallbackResponse = new ImageResponse(
-                (
-                    <div style={{
-                        width: STORY_WIDTH,
-                        height: STORY_HEIGHT,
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
-                    }}>
+            try {
+                const fallbackOg = new ImageResponse(
+                    (
                         <div style={{
+                            width: STORY_WIDTH,
+                            height: STORY_HEIGHT,
                             display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
                             alignItems: "center",
-                            backgroundColor: "rgba(0,0,0,0.3)",
-                            padding: "12px 28px",
-                            borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.2)",
-                            marginBottom: 40,
+                            background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
                         }}>
-                            <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>Localley</span>
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                padding: "12px 28px",
+                                borderRadius: 100,
+                                border: "1px solid rgba(255,255,255,0.2)",
+                                marginBottom: 40,
+                            }}>
+                                <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>Localley</span>
+                            </div>
+                            <span style={{ fontSize: 56, color: "white", fontWeight: "bold", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+                                {fallbackLabel}
+                            </span>
                         </div>
-                        <span style={{ fontSize: 56, color: "white", fontWeight: "bold", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
-                            {fallbackLabel}
-                        </span>
-                    </div>
-                ),
-                { width: STORY_WIDTH, height: STORY_HEIGHT }
-            );
-            fallbackResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-            return fallbackResponse;
+                    ),
+                    { width: STORY_WIDTH, height: STORY_HEIGHT }
+                );
+                const fallbackBuf = await fallbackOg.arrayBuffer();
+                return new Response(fallbackBuf, {
+                    headers: {
+                        'Content-Type': 'image/png',
+                        'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    },
+                });
+            } catch {
+                return new Response("Failed to generate story", { status: 500 });
+            }
         }
     } catch (error) {
         console.error("[STORY_ROUTE] Fatal error:", error);
@@ -951,7 +997,7 @@ export async function GET(
         }
         // Even the outermost catch should try to return a PNG, not text
         try {
-            const fatalResponse = new ImageResponse(
+            const fatalOg = new ImageResponse(
                 (
                     <div style={{
                         width: STORY_WIDTH,
@@ -966,8 +1012,13 @@ export async function GET(
                 ),
                 { width: STORY_WIDTH, height: STORY_HEIGHT }
             );
-            fatalResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-            return fatalResponse;
+            const fatalBuf = await fatalOg.arrayBuffer();
+            return new Response(fatalBuf, {
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                },
+            });
         } catch {
             return new Response("Failed to generate story", { status: 500 });
         }
