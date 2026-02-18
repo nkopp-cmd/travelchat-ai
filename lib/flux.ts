@@ -20,16 +20,6 @@ if (apiKey) {
 // FLUX.2 [flex] — high quality text-to-image ($0.06/megapixel)
 const FLUX_MODEL = "fal-ai/flux-2-flex";
 
-interface FluxResult {
-    images: Array<{
-        url: string;
-        content_type: string;
-        width: number;
-        height: number;
-    }>;
-    seed: number;
-}
-
 /**
  * Generate an image using FLUX.2 [flex] via fal.ai
  * Returns base64-encoded image data
@@ -50,15 +40,14 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
 
     console.log("[FLUX] Generating image with model:", FLUX_MODEL, "size:", imageSize);
 
-    let result: FluxResult;
+    let images: Array<{ url: string; content_type: string; width: number; height: number }>;
     try {
-        result = await fal.subscribe(FLUX_MODEL, {
+        const result = await fal.subscribe(FLUX_MODEL, {
             input: {
                 prompt,
                 image_size: imageSize as { width: number; height: number },
                 output_format: "jpeg",
                 safety_tolerance: "5",
-                num_images: 1,
             },
             logs: true,
             onQueueUpdate: (update) => {
@@ -68,7 +57,8 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
                     );
                 }
             },
-        }) as unknown as FluxResult;
+        });
+        images = result.data.images as Array<{ url: string; content_type: string; width: number; height: number }>;
     } catch (error: unknown) {
         // Capture full error details from FAL API (body is logged as [Object] without this)
         const apiError = error as { status?: number; body?: unknown; message?: string };
@@ -81,11 +71,11 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
         throw error;
     }
 
-    if (!result.images || result.images.length === 0) {
+    if (!images || images.length === 0) {
         throw new Error("No images returned from FLUX");
     }
 
-    const imageUrl = result.images[0].url;
+    const imageUrl = images[0].url;
     console.log("[FLUX] Image generated, fetching from URL...");
 
     // Fetch the image and convert to base64
