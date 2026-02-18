@@ -103,6 +103,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
     const [availableModels, setAvailableModels] = useState<ModelOption[]>([]);
     const [savedSlides, setSavedSlides] = useState<Record<string, string> | null>(null);
+    const [usedProviders, setUsedProviders] = useState<string[]>([]);
     const { toast } = useToast();
 
     const handleImageError = (index: number) => {
@@ -214,7 +215,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const generateBackground = async (
         slideType: "cover" | "day" | "summary",
         options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[]; slotIndex?: number }
-    ): Promise<{ image: string; source: string } | undefined> => {
+    ): Promise<{ image: string; source: string; provider?: string } | undefined> => {
         if (!city) return undefined;
         console.log("[STORY] Generating background for:", { city, slideType, ...options });
 
@@ -256,7 +257,14 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             });
 
             if (data.success && data.image) {
-                return { image: data.image, source: data.source };
+                // Track which AI provider was actually used
+                if (data.provider) {
+                    setUsedProviders(prev => {
+                        const next = [...new Set([...prev, data.provider])];
+                        return next;
+                    });
+                }
+                return { image: data.image, source: data.source, provider: data.provider };
             } else if (data.error) {
                 console.error("[STORY] API returned error:", data.error, data.failedProviders);
                 // Surface AI failures to the user
@@ -277,6 +285,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         setIsGenerating(true);
         setBrokenSlides(new Set());
         setSlides([]); // Clear stale slides from previous generation
+        setUsedProviders([]); // Reset provider tracking
         const imageSources: string[] = [];
 
         try {
@@ -301,7 +310,9 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     slotIndex: 0,
                 });
                 completedCount++;
-                setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                const coverProvider = coverResult?.provider;
+                const providerHint = coverProvider ? ` via ${coverProvider === "flux" ? "FLUX" : coverProvider === "seedream" ? "Seedream" : coverProvider === "gemini" ? "Gemini" : coverProvider}` : "";
+                setGenerationProgress(`Generated ${completedCount}/${totalSlides}${providerHint}...`);
                 if (coverResult) {
                     backgrounds.cover = coverResult.image;
                     usedUrls.push(coverResult.image);
@@ -326,7 +337,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             slotIndex: dayNumber,
                         }).then(result => {
                             completedCount++;
-                            setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                            const hint = result?.provider ? ` via ${result.provider === "flux" ? "FLUX" : result.provider === "seedream" ? "Seedream" : result.provider === "gemini" ? "Gemini" : result.provider}` : "";
+                            setGenerationProgress(`Generated ${completedCount}/${totalSlides}${hint || providerHint}...`);
                             if (result) {
                                 backgrounds[`day${dayNumber}`] = result.image;
                                 usedUrls.push(result.image);
@@ -343,7 +355,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         slotIndex: totalDays + 1,
                     }).then(result => {
                         completedCount++;
-                        setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
+                        const hint = result?.provider ? ` via ${result.provider === "flux" ? "FLUX" : result.provider === "seedream" ? "Seedream" : result.provider === "gemini" ? "Gemini" : result.provider}` : "";
+                        setGenerationProgress(`Generated ${completedCount}/${totalSlides}${hint || providerHint}...`);
                         if (result) {
                             backgrounds.summary = result.image;
                             usedUrls.push(result.image);
@@ -427,12 +440,21 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 // Show accurate toast based on actual results
                 const bgCount = Object.keys(bgToSave).length;
                 const uniqueSources = [...new Set(imageSources)];
-                const sourceText = uniqueSources.length > 0 ? ` (${uniqueSources.join(", ")})` : "";
+                // Build a descriptive source text: prefer showing provider name (e.g. "FLUX") over generic "ai"
+                const providerLabel = usedProviders.length > 0
+                    ? usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")
+                    : null;
+                const sourceDisplay = providerLabel
+                    ? providerLabel + (uniqueSources.includes("tripadvisor") || uniqueSources.includes("pexels")
+                        ? ` + ${uniqueSources.filter(s => s !== "ai").join(", ")}`
+                        : "")
+                    : uniqueSources.length > 0 ? uniqueSources.join(", ") : "";
+                const sourceText = sourceDisplay ? ` (${sourceDisplay})` : "";
 
                 if (bgCount === 0) {
                     toast({
                         title: "Stories ready (gradient fallback)",
-                        description: "Background generation failed — slides use default gradients",
+                        description: "Background generation failed — slides use branded gradients",
                         variant: "destructive",
                     });
                 } else if (saveFailed) {
@@ -784,6 +806,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 <p className="text-sm text-muted-foreground mt-3">
                                     {slides[selectedSlide]?.label} • 1080 × 1920
                                 </p>
+                                {usedProviders.length > 0 && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Backgrounds by {usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")}
+                                    </p>
+                                )}
                             </div>
                         </div>
 

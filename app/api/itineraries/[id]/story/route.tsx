@@ -159,9 +159,16 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                        display: "flex",
                     }}
-                />
+                >
+                    {/* Base gradient */}
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 35%, #4f46e5 65%, #2563eb 100%)" }} />
+                    {/* Decorative glow orbs */}
+                    <div style={{ position: "absolute", top: "15%", left: "10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.35) 0%, transparent 70%)" }} />
+                    <div style={{ position: "absolute", bottom: "20%", right: "5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)" }} />
+                    <div style={{ position: "absolute", top: "55%", left: "40%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 70%)" }} />
+                </div>
             )}
             {/* Gradient overlay for text readability */}
             <div
@@ -171,7 +178,9 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.6) 100%)",
+                    background: backgroundImage
+                        ? "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.6) 100%)"
+                        : "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.35) 100%)",
                 }}
             />
 
@@ -291,9 +300,19 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
     );
 }
 
+// Rotating gradient palette for day slides (vibrant, branded)
+const DAY_GRADIENTS = [
+    { base: "linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)", orb1: "rgba(168,85,247,0.3)", orb2: "rgba(236,72,153,0.25)" },   // purple → pink
+    { base: "linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)", orb1: "rgba(59,130,246,0.3)", orb2: "rgba(6,182,212,0.25)" },     // blue → cyan
+    { base: "linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)", orb1: "rgba(124,58,237,0.3)", orb2: "rgba(37,99,235,0.25)" },     // purple → blue
+    { base: "linear-gradient(135deg, #059669 0%, #06b6d4 100%)", orb1: "rgba(5,150,105,0.3)", orb2: "rgba(6,182,212,0.25)" },      // emerald → cyan
+    { base: "linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%)", orb1: "rgba(109,40,217,0.3)", orb2: "rgba(79,70,229,0.25)" },     // violet → indigo
+];
+
 // Day slide template
 function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan: DayPlan; dayNumber: number; backgroundImage?: string; isPaidUser?: boolean }) {
     const activities = dayPlan.activities?.slice(0, 3) || [];
+    const dayGradient = DAY_GRADIENTS[(dayNumber - 1) % DAY_GRADIENTS.length];
 
     return (
         <div
@@ -328,9 +347,15 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)",
+                        display: "flex",
                     }}
-                />
+                >
+                    {/* Base gradient — rotates per day */}
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: dayGradient.base }} />
+                    {/* Decorative glow orbs */}
+                    <div style={{ position: "absolute", top: "10%", right: "15%", width: 350, height: 350, borderRadius: "50%", background: `radial-gradient(circle, ${dayGradient.orb1} 0%, transparent 70%)` }} />
+                    <div style={{ position: "absolute", bottom: "25%", left: "10%", width: 400, height: 400, borderRadius: "50%", background: `radial-gradient(circle, ${dayGradient.orb2} 0%, transparent 70%)` }} />
+                </div>
             )}
             {/* Gradient overlay for readability */}
             <div
@@ -340,7 +365,9 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 35%, rgba(0,0,0,0.2) 65%, rgba(0,0,0,0.5) 100%)",
+                    background: backgroundImage
+                        ? "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 35%, rgba(0,0,0,0.2) 65%, rgba(0,0,0,0.5) 100%)"
+                        : "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.3) 100%)",
                 }}
             />
 
@@ -536,9 +563,15 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
+                        display: "flex",
                     }}
-                />
+                >
+                    {/* Base gradient — purple/pink brand */}
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)" }} />
+                    {/* Decorative glow orbs */}
+                    <div style={{ position: "absolute", bottom: "15%", left: "15%", width: 450, height: 450, borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)" }} />
+                    <div style={{ position: "absolute", top: "20%", right: "10%", width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)" }} />
+                </div>
             )}
             {/* Subtle gradient overlay for readability - lets background show through */}
             <div
@@ -548,7 +581,9 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)",
+                    background: backgroundImage
+                        ? "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)"
+                        : "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.3) 100%)",
                 }}
             />
 
@@ -673,7 +708,7 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                                 boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
                             }}
                         >
-                            <span style={{ fontSize: 22, fontWeight: "bold", color: "#059669" }}>
+                            <span style={{ fontSize: 22, fontWeight: "bold", color: "#7c3aed" }}>
                                 Plan yours at localley.io
                             </span>
                         </div>
@@ -769,45 +804,56 @@ export async function GET(
             city: itinerary.city,
             hasAiBackgrounds: !!aiBackgrounds,
             backgroundKeys: aiBackgrounds ? Object.keys(aiBackgrounds) : [],
+            backgroundValues: aiBackgrounds
+                ? Object.fromEntries(Object.entries(aiBackgrounds).map(([k, v]) => [k, typeof v === 'string' ? v.substring(0, 80) : typeof v]))
+                : null,
         });
 
         if (aiBackgrounds) {
             if (slide === "cover" && aiBackgrounds.cover) {
                 aiBackground = aiBackgrounds.cover;
-                console.log("[STORY_ROUTE] Using cover background, length:", aiBackground.length);
+                console.log("[STORY_ROUTE] Using cover background, length:", aiBackground.length, "url:", aiBackground.substring(0, 120));
             } else if (slide === "summary" && aiBackgrounds.summary) {
                 aiBackground = aiBackgrounds.summary;
-                console.log("[STORY_ROUTE] Using summary background, length:", aiBackground.length);
+                console.log("[STORY_ROUTE] Using summary background, length:", aiBackground.length, "url:", aiBackground.substring(0, 120));
             } else if (slide === "day") {
-                // Check for day-specific background
                 const dayBgKey = `day${dayIndex + 1}`;
                 if (aiBackgrounds[dayBgKey]) {
                     aiBackground = aiBackgrounds[dayBgKey];
-                    console.log("[STORY_ROUTE] Using", dayBgKey, "background, length:", aiBackground.length);
+                    console.log("[STORY_ROUTE] Using", dayBgKey, "background, length:", aiBackground.length, "url:", aiBackground.substring(0, 120));
                 } else {
-                    console.log("[STORY_ROUTE] No background for", dayBgKey, "- using fallback");
+                    console.log("[STORY_ROUTE] No background for", dayBgKey, "- available keys:", Object.keys(aiBackgrounds), "- using branded gradient fallback");
                 }
             }
         } else {
-            console.log("[STORY_ROUTE] No ai_backgrounds in database for itinerary:", id);
+            console.log("[STORY_ROUTE] No ai_backgrounds in database for itinerary:", id, "- using branded gradient fallback");
         }
-
-        // No Unsplash fallback — if no ai_backgrounds in DB, slides use gradient-only
-        // (the Satori templates already handle missing backgroundImage with gradient fills)
 
         // Pre-fetch the image as base64 for Satori (Node.js fetch is unreliable in Satori)
         // Try Supabase SDK download first (bypasses bucket access restrictions),
         // then fall back to HTTP fetch for non-Supabase URLs.
         let backgroundDataUri: string | undefined;
         if (aiBackground) {
-            if (aiBackground.includes("supabase.co/storage/")) {
+            const isSupabaseUrl = aiBackground.includes("supabase.co/storage/");
+            const hasMarker = aiBackground.includes("/storage/v1/object/public/generated-images/");
+            console.log("[STORY_ROUTE] Prefetch attempt:", { isSupabaseUrl, hasMarker, urlLength: aiBackground.length, urlPreview: aiBackground.substring(0, 150) });
+
+            if (isSupabaseUrl) {
                 backgroundDataUri = await prefetchFromSupabase(aiBackground, supabase);
+                if (backgroundDataUri) {
+                    console.log("[STORY_ROUTE] Supabase SDK download succeeded, dataUri length:", backgroundDataUri.length);
+                } else {
+                    console.log("[STORY_ROUTE] Supabase SDK download failed, trying HTTP fetch...");
+                }
             }
             if (!backgroundDataUri) {
                 backgroundDataUri = await prefetchImage(aiBackground);
+                if (backgroundDataUri) {
+                    console.log("[STORY_ROUTE] HTTP fetch succeeded, dataUri length:", backgroundDataUri.length);
+                }
             }
             if (!backgroundDataUri) {
-                console.error("[STORY_ROUTE] ALL prefetch methods failed for:", aiBackground.substring(0, 100));
+                console.error("[STORY_ROUTE] ALL prefetch methods failed for URL:", aiBackground, "- falling back to branded gradient");
             }
         }
         diagnostics.background = {
