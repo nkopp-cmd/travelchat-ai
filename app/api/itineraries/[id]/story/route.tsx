@@ -93,7 +93,7 @@ const STORY_HEIGHT = 1920;
 const SAFE_ZONE = {
     TOP: 180,        // Username, timestamp, close button
     BOTTOM: 320,     // Caption area, reply bar, swipe up
-    LEFT: 48,        // Generally safe, small margin
+    LEFT: 140,       // Match RIGHT for centered content
     RIGHT: 140,      // Like, comment, share, bookmark buttons
 };
 

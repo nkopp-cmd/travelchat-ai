@@ -117,7 +117,7 @@ Golden hour natural light, warm tones, atmospheric haze.
 8K resolution, tack sharp focus, vibrant realistic colors, HDR.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure landscape/cityscape photography.`;
 
-    return generateImage(prompt, "1080x1920");
+    return generateImage(prompt, "1440x2560");
 }
 
 /**
@@ -140,7 +140,7 @@ Vertical portrait, balanced framing, depth and layers.
 Natural ambient light, warm color temperature.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure scenic/architectural photography.`;
 
-    return generateImage(prompt, "1080x1920");
+    return generateImage(prompt, "1440x2560");
 }
 
 /**
