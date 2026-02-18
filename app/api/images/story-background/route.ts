@@ -47,6 +47,8 @@ interface StoryBackgroundRequest {
     cacheKey?: string;
     // URLs to exclude (for duplicate prevention across slides)
     excludeUrls?: string[];
+    // Unique per slide to guarantee image variety (cover=0, day1=1, ..., summary=N+1)
+    slotIndex?: number;
 }
 
 export async function POST(req: NextRequest) {
@@ -63,7 +65,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, cacheKey, excludeUrls = [] } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, cacheKey, excludeUrls = [], slotIndex } = body;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -265,9 +267,9 @@ export async function POST(req: NextRequest) {
 
         // Final fallback to Unsplash (always available)
         if (!imageUrl) {
-            console.log("[STORY_BG] Using Unsplash fallback for:", { city, type });
+            console.log("[STORY_BG] Using Unsplash fallback for:", { city, type, slotIndex });
             const searchTheme = theme || "travel landmark";
-            imageUrl = getUnsplashThemedImage(city, searchTheme);
+            imageUrl = getUnsplashThemedImage(city, searchTheme, excludeUrls, slotIndex);
             source = "unsplash";
         }
 

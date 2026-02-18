@@ -3,7 +3,7 @@ import { fal } from "@fal-ai/client";
 const apiKey = process.env.FAL_KEY;
 
 if (!apiKey) {
-    console.warn("FAL_KEY is not set. Seedream image generation will be disabled.");
+    console.warn("FAL_KEY is not set. FLUX image generation will be disabled.");
 }
 
 // Configure fal.ai client
@@ -11,9 +11,10 @@ if (apiKey) {
     fal.config({ credentials: apiKey });
 }
 
-const SEEDREAM_MODEL = "fal-ai/bytedance/seedream/v4.5/text-to-image";
+// FLUX 2 Flex — text-to-image with enhanced typography and rendering
+const FLUX_MODEL = "fal-ai/flux-2-flex";
 
-interface SeedreamResult {
+interface FluxResult {
     images: Array<{
         url: string;
         content_type: string;
@@ -24,51 +25,62 @@ interface SeedreamResult {
 }
 
 /**
- * Generate an image using Seedream 4.5 via fal.ai
+ * Generate an image using FLUX 2 Flex via fal.ai
  * Returns base64-encoded image data
  */
 async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16"): Promise<string> {
     if (!apiKey) {
-        throw new Error("Seedream is not configured. Please add FAL_KEY.");
+        throw new Error("FLUX is not configured. Please add FAL_KEY.");
     }
 
-    // Map aspect ratios to fal.ai image_size presets
-    const imageSizeMap: Record<string, string | { width: number; height: number }> = {
-        "9:16": { width: 1080, height: 1920 },
-        "1:1": "square_hd",
-        "16:9": "landscape_16_9",
+    // Map aspect ratios to fal.ai image_size values
+    const imageSizeMap = {
+        "9:16": { width: 1080, height: 1920 } as const,
+        "1:1": "square_hd" as const,
+        "16:9": "landscape_16_9" as const,
     };
 
-    const imageSize = imageSizeMap[aspectRatio] || { width: 1080, height: 1920 };
+    const imageSize = imageSizeMap[aspectRatio] || ({ width: 1080, height: 1920 } as const);
 
-    console.log("[SEEDREAM] Generating image with model:", SEEDREAM_MODEL, "size:", imageSize);
+    console.log("[FLUX] Generating image with model:", FLUX_MODEL, "size:", imageSize);
 
-    const result = await fal.subscribe(SEEDREAM_MODEL, {
+    const result = await fal.subscribe(FLUX_MODEL, {
         input: {
             prompt,
-            image_size: imageSize,
-            num_images: 1,
+            image_size: imageSize as { width: number; height: number },
+            output_format: "jpeg",
+            guidance_scale: 3.5,
+            num_inference_steps: 28,
             enable_safety_checker: true,
+            enable_prompt_expansion: true,
         },
-    }) as unknown as SeedreamResult;
+        logs: true,
+        onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS" && update.logs) {
+                update.logs.map((log) => log.message).forEach((msg) =>
+                    console.log("[FLUX] Progress:", msg)
+                );
+            }
+        },
+    }) as unknown as FluxResult;
 
     if (!result.images || result.images.length === 0) {
-        throw new Error("No images returned from Seedream");
+        throw new Error("No images returned from FLUX");
     }
 
     const imageUrl = result.images[0].url;
-    console.log("[SEEDREAM] Image generated, fetching from URL...");
+    console.log("[FLUX] Image generated, fetching from URL...");
 
     // Fetch the image and convert to base64
     const response = await fetch(imageUrl);
     if (!response.ok) {
-        throw new Error(`Failed to fetch Seedream image: ${response.status}`);
+        throw new Error(`Failed to fetch FLUX image: ${response.status}`);
     }
 
     const arrayBuffer = await response.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-    console.log("[SEEDREAM] Image fetched, base64 length:", base64.length);
+    console.log("[FLUX] Image fetched, base64 length:", base64.length);
     return base64;
 }
 
@@ -154,7 +166,7 @@ High resolution, sharp focus, Instagram-worthy. NO text overlays, NO watermarks,
 }
 
 /**
- * Check if Seedream is available (FAL_KEY configured)
+ * Check if FLUX (via FAL AI) is available (FAL_KEY configured)
  */
 export function isSeedreamAvailable(): boolean {
     return !!apiKey;

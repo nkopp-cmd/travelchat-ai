@@ -20,6 +20,7 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `ANTHROPIC_API_KEY` | Claude AI for itinerary generation | Active |
 | `OPENAI_API_KEY` | OpenAI fallback | Active |
 | `GEMINI_API_KEY` | Google Gemini for image generation | Active |
+| `FAL_KEY` | FAL AI for FLUX image generation (story backgrounds) | **Needs Setup** |
 | `VIATOR_API_KEY` | Viator tours/experiences API | Active |
 | `TRIPADVISOR_API_KEY` | TripAdvisor API | Active |
 | `PEXELS_API_KEY` | Stock photos | Active |

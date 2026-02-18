@@ -523,16 +523,34 @@ export function getUnsplashCityImage(city: string, index?: number): string {
 }
 
 /**
- * Get an Unsplash image for a specific theme
- * Uses deterministic selection so each slide type gets a DIFFERENT image
+ * Get an Unsplash image for a specific theme.
+ *
+ * When `slotIndex` is provided (0 for cover, 1 for day 1, 2 for day 2, …,
+ * N+1 for summary), each slide is guaranteed a unique image from the pool.
+ * This solves the duplicate-image problem caused by parallel requests that
+ * share the same `excludeUrls` and by deterministic hashing collisions.
  */
-export function getUnsplashThemedImage(city: string, theme: string): string {
-    // Hash the theme to get a stable, unique index per slide type
-    // "iconic landmarks and cityscape" → one image
-    // "Day 1 adventures" → a different image
-    // "beautiful travel scenery" → yet another
+export function getUnsplashThemedImage(
+    city: string,
+    theme: string,
+    excludeUrls: string[] = [],
+    slotIndex?: number
+): string {
+    const normalizedCity = city.toLowerCase().trim();
+    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
+
+    // Slot-based selection: guaranteed unique per slide
+    if (slotIndex !== undefined) {
+        const available = excludeUrls.length > 0
+            ? images.filter(url => !excludeUrls.includes(url))
+            : images;
+        const pool = available.length > 0 ? available : images;
+        return pool[slotIndex % pool.length];
+    }
+
+    // Legacy: hash-based fallback (for callers that don't pass slotIndex)
     const themeIndex = simpleHash(theme);
-    return getUnsplashCityImage(city, themeIndex);
+    return images[themeIndex % images.length];
 }
 
 /**

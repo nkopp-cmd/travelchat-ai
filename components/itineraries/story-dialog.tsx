@@ -189,7 +189,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     const generateBackground = async (
         slideType: "cover" | "day" | "summary",
-        options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[] }
+        options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[]; slotIndex?: number }
     ): Promise<{ image: string; source: string } | undefined> => {
         if (!city) return undefined;
         console.log("[STORY] Generating background for:", { city, slideType, ...options });
@@ -206,6 +206,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     ? `${itineraryId}-day-${options.dayNumber}`
                     : `${itineraryId}-${slideType}`,
                 excludeUrls: options.excludeUrls || [],
+                slotIndex: options.slotIndex,
             };
 
             const response = await fetch("/api/images/story-background", {
@@ -263,6 +264,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const coverResult = await generateBackground("cover", {
                     theme: "iconic landmarks and stunning cityscape view",
                     excludeUrls: [],
+                    slotIndex: 0,
                 });
                 completedCount++;
                 setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
@@ -287,6 +289,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             dayNumber,
                             activities,
                             excludeUrls: [...usedUrls],
+                            slotIndex: dayNumber,
                         }).then(result => {
                             completedCount++;
                             setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);
@@ -303,6 +306,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     generateBackground("summary", {
                         theme: "beautiful panoramic travel scenery at sunset",
                         excludeUrls: [...usedUrls],
+                        slotIndex: totalDays + 1,
                     }).then(result => {
                         completedCount++;
                         setGenerationProgress(`Generated ${completedCount}/${totalSlides} backgrounds...`);

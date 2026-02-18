@@ -7,36 +7,65 @@ export const maxDuration = 30;
 
 // Curated Unsplash images for fallback (when no ai_backgrounds in database)
 // IMPORTANT: Use fm=jpg to force JPEG — Satori/resvg CANNOT decode WebP
+// 8 images per city to guarantee unique backgrounds for up to 8 slides
 const CITY_IMAGES: Record<string, string[]> = {
     'seoul': [
         'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=720&h=1280&fit=crop&q=80&fm=jpg',
         'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1546874177-9e664107314e?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1583400225586-0e417f4eb47f?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1601621915196-2621bfb0cd6e?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1578037571214-25e07a4c539d?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
     'tokyo': [
         'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=720&h=1280&fit=crop&q=80&fm=jpg',
         'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1549693578-d683be217e58?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1480796927426-f609979314bd?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1554797589-7241bb691973?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
     'bangkok': [
         'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=720&h=1280&fit=crop&q=80&fm=jpg',
         'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1528181304800-259b08848526?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1583531352515-8884d2440943?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
     'singapore': [
         'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=720&h=1280&fit=crop&q=80&fm=jpg',
         'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1565967511849-76a60a516170?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1508964942454-1a56651d54ac?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1533279443086-d1c19a186416?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1524236122334-53dcfd5e2152?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=720&h=1280&fit=crop&q=80&fm=jpg',
+        'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=720&h=1280&fit=crop&q=80&fm=jpg',
     ],
 };
 
 const DEFAULT_TRAVEL_IMAGES = [
     'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=720&h=1280&fit=crop&q=80&fm=jpg',
     'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=720&h=1280&fit=crop&q=80&fm=jpg',
     'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=720&h=1280&fit=crop&q=80&fm=jpg',
+    'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=720&h=1280&fit=crop&q=80&fm=jpg',
     'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=720&h=1280&fit=crop&q=80&fm=jpg',
 ];
 
 /**
  * Get a deterministic fallback Unsplash image for a city + slide combination.
- * Uses a hash of the slide context so the same slide always gets the same image
- * (no more random switching between renders).
+ * Uses slot-based indexing: cover=0, day0→1, day1→2, …, summary→last.
+ * With 8 images per city, every slide in a typical 2-5 day trip gets a unique image.
  * Pass `exclude` to skip a URL that failed pre-fetch.
  */
 function getFallbackImage(city: string, slideType: string, dayIndex: number, exclude?: string): string {
@@ -48,14 +77,12 @@ function getFallbackImage(city: string, slideType: string, dayIndex: number, exc
         if (filtered.length > 0) images = filtered;
     }
 
-    // Deterministic selection: hash slide context to always pick the same image
-    const key = `${normalizedCity}-${slideType}-${dayIndex}`;
-    let hash = 0;
-    for (let i = 0; i < key.length; i++) {
-        hash = ((hash << 5) - hash) + key.charCodeAt(i);
-        hash |= 0; // Convert to 32-bit integer
-    }
-    return images[Math.abs(hash) % images.length];
+    // Slot-based selection: each slide type gets a guaranteed-unique index
+    const slotIndex = slideType === "cover" ? 0
+        : slideType === "summary" ? dayIndex + 2
+        : dayIndex + 1; // day slides: dayIndex 0→1, 1→2, 2→3, etc.
+
+    return images[slotIndex % images.length];
 }
 
 /**
