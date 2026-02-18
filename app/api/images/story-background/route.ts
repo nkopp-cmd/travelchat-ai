@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user can use AI images
-        // Pro tier uses Seedream (cheaper), Premium uses Gemini (higher quality)
+        // Priority: Seedream (FAL AI) → Gemini → TripAdvisor → Pexels → Unsplash
         const tier = await getUserTier(userId);
         let canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
 

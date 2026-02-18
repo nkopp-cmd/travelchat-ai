@@ -1,10 +1,8 @@
 /**
  * Image generation provider router
  *
- * Routes image generation requests to the appropriate provider
- * based on user subscription tier:
- * - Premium: Gemini (higher quality, HD)
- * - Pro: Seedream via fal.ai (good quality, cheaper)
+ * Routes image generation requests to the appropriate provider.
+ * Priority: Seedream (FAL AI) first (cheaper), then Gemini as fallback.
  */
 
 import type { SubscriptionTier } from "@/lib/subscription";
@@ -14,16 +12,12 @@ import * as seedream from "@/lib/seedream";
 export type ImageProvider = "gemini" | "seedream";
 
 /**
- * Determine which image provider to use based on tier
+ * Determine which image provider to use.
+ * Always prefers Seedream (FAL AI) — cheaper and good quality.
+ * Falls back to Gemini if Seedream is not available.
  */
 export function getImageProvider(tier: SubscriptionTier): ImageProvider {
-    if (tier === "premium") return "gemini";
-    if (tier === "pro") {
-        // Prefer Seedream for Pro tier (cheaper), fall back to Gemini
-        if (seedream.isSeedreamAvailable()) return "seedream";
-        if (gemini.isImagenAvailable()) return "gemini";
-    }
-    // Default: use whichever is available
+    // Prefer Seedream (FAL AI) for all tiers — cheaper and good quality
     if (seedream.isSeedreamAvailable()) return "seedream";
     if (gemini.isImagenAvailable()) return "gemini";
     return "gemini"; // Will fail with appropriate error if neither available
