@@ -8,7 +8,14 @@ import {
     isAnyProviderAvailable,
     generateStoryBackground,
     generateDayBackground,
+    type ImageProvider,
 } from "@/lib/image-provider";
+import {
+    getAvailableModels,
+    getModelCredits,
+    canUseTierModel,
+    MODEL_CREDITS,
+} from "@/lib/model-credits";
 
 // AI image generation can take 10-20s per image
 export const maxDuration = 60;
@@ -24,7 +31,7 @@ import {
 } from "@/lib/story-backgrounds";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
-import { getUserTier, checkAndIncrementUsage } from "@/lib/usage-tracking";
+import { getUserTier, checkAndIncrementUsage, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
@@ -44,6 +51,8 @@ interface StoryBackgroundRequest {
     activities?: string[];
     // Whether to prefer AI generation (requires Pro/Premium)
     preferAI?: boolean;
+    // User-selected AI model (null = auto-select based on priority)
+    provider?: ImageProvider;
     // Cache key for storing/retrieving from storage
     cacheKey?: string;
     // URLs to exclude (for duplicate prevention across slides)
@@ -66,7 +75,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, cacheKey, excludeUrls = [], slotIndex } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProvider, cacheKey, excludeUrls = [], slotIndex } = body;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -77,19 +86,36 @@ export async function POST(req: NextRequest) {
         const tier = await getUserTier(userId);
         let canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
 
+        // If user explicitly requested a provider, validate tier access
+        if (requestedProvider && canUseAI) {
+            if (!canUseTierModel(tier, requestedProvider)) {
+                return NextResponse.json({
+                    success: false,
+                    error: `Your ${tier} plan does not include access to ${MODEL_CREDITS[requestedProvider].label}. Upgrade to Premium for all models.`,
+                }, { status: 403 });
+            }
+        }
+
+        // Determine credit cost based on provider
+        const creditCost = requestedProvider ? getModelCredits(requestedProvider) : 1;
+
         // Check AI usage quota before attempting generation (graceful degradation)
         if (canUseAI) {
-            const { allowed, usage } = await checkAndIncrementUsage(userId, "ai_images_generated");
+            const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
             if (!allowed) {
                 console.log("[STORY_BG] AI quota exceeded, falling through to non-AI sources", {
                     current: usage.currentUsage,
                     limit: usage.limit,
+                    creditCost,
                 });
                 canUseAI = false;
             }
         }
 
-        const imageProvider = canUseAI ? getImageProvider(tier) : null;
+        // Use user-chosen provider or auto-select based on priority
+        const imageProvider = canUseAI
+            ? (requestedProvider || getImageProvider(tier))
+            : null;
 
         console.log("[STORY_BG] Request:", {
             type,
@@ -313,8 +339,20 @@ export async function POST(req: NextRequest) {
     }
 }
 
-// GET endpoint to check available sources
-export async function GET() {
+// GET endpoint to check available sources and model info
+export async function GET(req: NextRequest) {
+    let tier: "free" | "pro" | "premium" = "free";
+    try {
+        const { userId } = await auth();
+        if (userId) {
+            tier = await getUserTier(userId);
+        }
+    } catch {
+        // Not authenticated — return free tier info
+    }
+
+    const models = getAvailableModels(tier);
+
     return NextResponse.json({
         sources: {
             ai: isAnyProviderAvailable(),
@@ -325,5 +363,7 @@ export async function GET() {
             pexels: isPexelsAvailable(),
             unsplash: true, // Always available
         },
+        models,
+        tier,
     });
 }

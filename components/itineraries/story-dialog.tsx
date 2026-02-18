@@ -12,9 +12,19 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+
+interface ModelOption {
+    provider: string;
+    label: string;
+    description: string;
+    credits: number;
+    available: boolean;
+    tierLocked: boolean;
+}
 
 interface DayPlan {
     day: number;
@@ -88,13 +98,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [isPaidUser, setIsPaidUser] = useState(false);
     const [aiQuota, setAiQuota] = useState<{ used: number; limit: number } | null>(null);
     const [brokenSlides, setBrokenSlides] = useState<Set<number>>(new Set());
+    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+    const [availableModels, setAvailableModels] = useState<ModelOption[]>([]);
     const { toast } = useToast();
 
     const handleImageError = (index: number) => {
         setBrokenSlides(prev => new Set(prev).add(index));
     };
 
-    // Check available image sources and user tier
+    // Check available image sources, models, and user tier
     useEffect(() => {
         fetch("/api/images/story-background")
             .then((res) => {
@@ -105,6 +117,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setAiAvailable(data.sources?.ai ?? false);
                 setTripAdvisorAvailable(data.sources?.tripadvisor ?? false);
                 setPexelsAvailable(data.sources?.pexels ?? false);
+                // Load model options from the API
+                if (data.models && Array.isArray(data.models)) {
+                    setAvailableModels(data.models);
+                    // Auto-select the first available model
+                    const firstAvailable = data.models.find((m: ModelOption) => m.available);
+                    if (firstAvailable) {
+                        setSelectedModel(firstAvailable.provider);
+                    }
+                }
             })
             .catch((err) => {
                 console.error("[STORY_DIALOG] Failed to check sources:", err);
@@ -202,6 +223,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 dayNumber: options.dayNumber,
                 activities: options.activities || [],
                 preferAI: useAiBackgrounds,
+                provider: useAiBackgrounds && selectedModel ? selectedModel : undefined,
                 cacheKey: slideType === "day"
                     ? `${itineraryId}-day-${options.dayNumber}`
                     : `${itineraryId}-${slideType}`,
@@ -560,12 +582,61 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                         <span className="text-sm">Use AI-generated backgrounds (Pro)</span>
                                     </Label>
                                 </div>
+
+                                {/* Model picker (shown when AI toggle is ON) */}
+                                {useAiBackgrounds && availableModels.length > 0 && (
+                                    <div className="w-full max-w-xs mt-2">
+                                        <RadioGroup
+                                            value={selectedModel || ""}
+                                            onValueChange={setSelectedModel}
+                                            className="gap-2"
+                                        >
+                                            {availableModels.map((model) => (
+                                                <label
+                                                    key={model.provider}
+                                                    className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all cursor-pointer ${
+                                                        selectedModel === model.provider
+                                                            ? "border-violet-400 bg-violet-50 dark:bg-violet-950/40"
+                                                            : "border-border hover:border-violet-200"
+                                                    } ${!model.available ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                >
+                                                    <RadioGroupItem
+                                                        value={model.provider}
+                                                        disabled={!model.available}
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="text-sm font-medium">{model.label}</span>
+                                                            {model.tierLocked && (
+                                                                <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                                                                    <Lock className="h-2.5 w-2.5" />
+                                                                    Premium
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">{model.description}</p>
+                                                    </div>
+                                                    <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 whitespace-nowrap">
+                                                        {model.credits} {model.credits === 1 ? "credit" : "credits"}
+                                                    </span>
+                                                </label>
+                                            ))}
+                                        </RadioGroup>
+                                        {/* Credit cost summary */}
+                                        {selectedModel && (
+                                            <p className="text-xs text-muted-foreground text-center mt-2">
+                                                This story will use ~{(availableModels.find(m => m.provider === selectedModel)?.credits || 1) * (totalDays + 2)} credits ({totalDays + 2} slides)
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Quota display */}
                                 {aiQuota && isPaidUser && (
                                     <p className="text-xs text-muted-foreground">
                                         {aiQuota.limit - aiQuota.used > 0
-                                            ? `${aiQuota.limit - aiQuota.used} AI images remaining this month`
-                                            : "AI quota reached — using photo sources instead"}
+                                            ? `${aiQuota.limit - aiQuota.used} credits remaining this month`
+                                            : "Credit quota reached — using photo sources instead"}
                                     </p>
                                 )}
                             </div>
