@@ -17,10 +17,8 @@ if (apiKey) {
     fal.config({ credentials: apiKey });
 }
 
-// FLUX Pro v1.1 — high quality text-to-image
-// Note: flux-2-flex returns 403 on many accounts (requires BFL partnership).
-// flux-pro/v1.1 is widely available and produces excellent results.
-const FLUX_MODEL = "fal-ai/flux-pro/v1.1";
+// FLUX.2 [flex] — high quality text-to-image ($0.06/megapixel)
+const FLUX_MODEL = "fal-ai/flux-2-flex";
 
 interface FluxResult {
     images: Array<{
@@ -33,7 +31,7 @@ interface FluxResult {
 }
 
 /**
- * Generate an image using FLUX Pro v1.1 via fal.ai
+ * Generate an image using FLUX.2 [flex] via fal.ai
  * Returns base64-encoded image data
  */
 async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16"): Promise<string> {
