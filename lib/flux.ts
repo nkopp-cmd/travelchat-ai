@@ -1,7 +1,7 @@
 /**
- * FLUX 2 Flex image generation via FAL AI
+ * FLUX Pro image generation via FAL AI
  *
- * Uses the fal-ai/flux-2-flex model for text-to-image generation.
+ * Uses the fal-ai/flux-pro/v1.1 model for text-to-image generation.
  * Requires FAL_KEY environment variable.
  */
 import { fal } from "@fal-ai/client";
@@ -17,8 +17,10 @@ if (apiKey) {
     fal.config({ credentials: apiKey });
 }
 
-// FLUX 2 Flex — text-to-image with enhanced typography and rendering
-const FLUX_MODEL = "fal-ai/flux-2-flex";
+// FLUX Pro v1.1 — high quality text-to-image
+// Note: flux-2-flex returns 403 on many accounts (requires BFL partnership).
+// flux-pro/v1.1 is widely available and produces excellent results.
+const FLUX_MODEL = "fal-ai/flux-pro/v1.1";
 
 interface FluxResult {
     images: Array<{
@@ -31,7 +33,7 @@ interface FluxResult {
 }
 
 /**
- * Generate an image using FLUX 2 Flex via fal.ai
+ * Generate an image using FLUX Pro v1.1 via fal.ai
  * Returns base64-encoded image data
  */
 async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16"): Promise<string> {
@@ -50,25 +52,36 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
 
     console.log("[FLUX] Generating image with model:", FLUX_MODEL, "size:", imageSize);
 
-    const result = await fal.subscribe(FLUX_MODEL, {
-        input: {
-            prompt,
-            image_size: imageSize as { width: number; height: number },
-            output_format: "jpeg",
-            guidance_scale: 3.5,
-            num_inference_steps: 28,
-            enable_safety_checker: true,
-            enable_prompt_expansion: true,
-        },
-        logs: true,
-        onQueueUpdate: (update) => {
-            if (update.status === "IN_PROGRESS" && update.logs) {
-                update.logs.map((log) => log.message).forEach((msg) =>
-                    console.log("[FLUX] Progress:", msg)
-                );
-            }
-        },
-    }) as unknown as FluxResult;
+    let result: FluxResult;
+    try {
+        result = await fal.subscribe(FLUX_MODEL, {
+            input: {
+                prompt,
+                image_size: imageSize as { width: number; height: number },
+                output_format: "jpeg",
+                safety_tolerance: "5",
+                num_images: 1,
+            },
+            logs: true,
+            onQueueUpdate: (update) => {
+                if (update.status === "IN_PROGRESS" && update.logs) {
+                    update.logs.map((log) => log.message).forEach((msg) =>
+                        console.log("[FLUX] Progress:", msg)
+                    );
+                }
+            },
+        }) as unknown as FluxResult;
+    } catch (error: unknown) {
+        // Capture full error details from FAL API (body is logged as [Object] without this)
+        const apiError = error as { status?: number; body?: unknown; message?: string };
+        console.error("[FLUX] API error:", {
+            message: apiError.message,
+            status: apiError.status,
+            body: JSON.stringify(apiError.body),
+            model: FLUX_MODEL,
+        });
+        throw error;
+    }
 
     if (!result.images || result.images.length === 0) {
         throw new Error("No images returned from FLUX");

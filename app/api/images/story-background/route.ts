@@ -267,10 +267,20 @@ export async function POST(req: NextRequest) {
                         console.error(`[STORY_BG] ${currentProvider} returned empty:`, msg);
                         failedProviders.push({ provider: currentProvider, error: msg });
                     }
-                } catch (error) {
+                } catch (error: unknown) {
                     const errorMsg = error instanceof Error ? error.message : String(error);
-                    console.error(`[STORY_BG] ${currentProvider} FAILED:`, errorMsg);
-                    failedProviders.push({ provider: currentProvider, error: errorMsg });
+                    // Capture full error details (FAL ApiError has .body, .status)
+                    const apiError = error as { status?: number; body?: unknown };
+                    const details = apiError.body ? JSON.stringify(apiError.body) : undefined;
+                    console.error(`[STORY_BG] ${currentProvider} FAILED:`, {
+                        message: errorMsg,
+                        status: apiError.status,
+                        body: details,
+                    });
+                    failedProviders.push({
+                        provider: currentProvider,
+                        error: details ? `${errorMsg} | body: ${details}` : errorMsg,
+                    });
                 }
             }
         }
