@@ -39,8 +39,9 @@ export function getAvailableModels(tier: SubscriptionTier): Array<{
     available: boolean;
     tierLocked: boolean;
 }> {
-    const tierModels = TIER_MODELS[tier];
+    const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
     const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
+    const tierModels = bypassTierCheck ? allProviders : TIER_MODELS[tier];
 
     const apiAvailability: Record<ImageProvider, boolean> = {
         flux: isFluxAvailable(),
@@ -59,7 +60,7 @@ export function getAvailableModels(tier: SubscriptionTier): Array<{
             description: info.description,
             credits: info.credits,
             available: hasApiKey && hasTierAccess,
-            tierLocked: !hasTierAccess,
+            tierLocked: !hasTierAccess && !bypassTierCheck,
         };
     });
 }
@@ -71,5 +72,6 @@ export function getModelCredits(provider: ImageProvider): number {
 
 /** Check if a tier can use a specific model */
 export function canUseTierModel(tier: SubscriptionTier, provider: ImageProvider): boolean {
+    if (process.env.BYPASS_IMAGE_TIER_CHECK === "true") return true;
     return TIER_MODELS[tier].includes(provider);
 }

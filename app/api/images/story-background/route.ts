@@ -86,10 +86,25 @@ export async function POST(req: NextRequest) {
             return Errors.validationError("city is required");
         }
 
-        // Check if user can use AI images
-        // Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini → TripAdvisor → Pexels
+        // Determine user tier and AI eligibility
         const tier = await getUserTier(userId);
-        let canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
+        const hasAiFeature = hasFeature(tier, 'aiBackgrounds');
+        const anyProviderAvailable = isAnyProviderAvailable();
+        const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
+
+        // Log gate check BEFORE evaluating canUseAI — this always appears in Vercel logs
+        console.log("[STORY_BG] Gate check:", {
+            tier,
+            preferAI,
+            hasAiFeature,
+            anyProviderAvailable,
+            bypassTierCheck,
+            fluxKey: isFluxAvailable(),
+            seedreamKey: isSeedreamAvailable(),
+            geminiKey: isImagenAvailable(),
+        });
+
+        let canUseAI = preferAI && anyProviderAvailable && (hasAiFeature || bypassTierCheck);
 
         // If user explicitly requested a provider, validate tier access
         if (requestedProvider && canUseAI) {
@@ -97,6 +112,7 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({
                     success: false,
                     error: `Your ${tier} plan does not include access to ${MODEL_CREDITS[requestedProvider].label}. Upgrade to Premium for all models.`,
+                    _debug: { tier, hasAiFeature, anyProviderAvailable, bypassTierCheck },
                 }, { status: 403 });
             }
         }
@@ -104,16 +120,22 @@ export async function POST(req: NextRequest) {
         // Determine credit cost based on provider
         const creditCost = requestedProvider ? getModelCredits(requestedProvider) : 1;
 
-        // Check AI usage quota before attempting generation (graceful degradation)
+        // Check AI usage quota before attempting generation
+        // Permissive: if usage tracking fails, allow generation anyway (don't block user)
         if (canUseAI) {
-            const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
-            if (!allowed) {
-                console.log("[STORY_BG] AI quota exceeded, falling through to non-AI sources", {
-                    current: usage.currentUsage,
-                    limit: usage.limit,
-                    creditCost,
-                });
-                canUseAI = false;
+            try {
+                const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
+                if (!allowed) {
+                    console.log("[STORY_BG] AI quota exceeded, falling through to non-AI sources", {
+                        current: usage.currentUsage,
+                        limit: usage.limit,
+                        creditCost,
+                    });
+                    canUseAI = false;
+                }
+            } catch (usageError) {
+                // Usage tracking failure should NOT block AI generation
+                console.error("[STORY_BG] Usage tracking error (allowing generation anyway):", usageError);
             }
         }
 
@@ -127,15 +149,9 @@ export async function POST(req: NextRequest) {
             city,
             theme,
             dayNumber,
-            preferAI,
             canUseAI,
             imageProvider,
             tier,
-            hasFluxKey: isFluxAvailable(),
-            hasSeedreamKey: isSeedreamAvailable(),
-            hasGeminiKey: isImagenAvailable(),
-            hasTripAdvisorKey: isTripAdvisorAvailable(),
-            hasPexelsKey: isPexelsAvailable(),
         });
 
         // Generate a storage key for this background
@@ -311,16 +327,18 @@ export async function POST(req: NextRequest) {
                 success: false,
                 error: "All image providers failed",
                 failedProviders,
-                debug: {
+                _debug: {
                     tier,
                     canUseAI,
                     imageProvider,
-                    hasFluxKey: isFluxAvailable(),
-                    hasSeedreamKey: isSeedreamAvailable(),
-                    hasGeminiKey: isImagenAvailable(),
-                    hasTripAdvisorKey: isTripAdvisorAvailable(),
-                    hasPexelsKey: isPexelsAvailable(),
-                    preferAI,
+                    hasAiFeature,
+                    anyProviderAvailable,
+                    bypassTierCheck,
+                    fluxKey: isFluxAvailable(),
+                    seedreamKey: isSeedreamAvailable(),
+                    geminiKey: isImagenAvailable(),
+                    tripAdvisorKey: isTripAdvisorAvailable(),
+                    pexelsKey: isPexelsAvailable(),
                 },
             });
         }
@@ -334,6 +352,7 @@ export async function POST(req: NextRequest) {
             provider: imageProvider,
             cached: false,
             failedProviders: failedProviders.length > 0 ? failedProviders : undefined,
+            _debug: { tier, canUseAI, bypassTierCheck, hasAiFeature, anyProviderAvailable },
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);
