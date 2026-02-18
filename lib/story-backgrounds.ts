@@ -2,10 +2,12 @@
  * Story Background Image Sources
  *
  * Provides multiple image source options for story backgrounds:
- * 1. AI-generated via Gemini (Pro/Premium) - Best quality, unique images
+ * 1. AI-generated via FLUX/Seedream/Gemini (Pro/Premium) - Best quality, unique images
  * 2. TripAdvisor Content API - Real location photos with reviews
  * 3. Pexels API - High quality curated photos (requires API key)
- * 4. Unsplash Source - Free fallback (no API key needed)
+ *
+ * Unsplash has been REMOVED — it was masking AI failures by silently
+ * returning the same 8 hardcoded images per city.
  */
 
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
@@ -317,244 +319,12 @@ export async function getPexelsThemedImage(
     return null;
 }
 
-/**
- * Curated high-quality travel images for each supported city
- * Using direct Unsplash URLs (the Source API was deprecated)
- * 8 images per city for variety across story slides
- */
-const CITY_IMAGES: Record<string, string[]> = {
-    'seoul': [
-        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1546874177-9e664107314e?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1583400225586-0e417f4eb47f?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1601621915196-2621bfb0cd6e?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1578037571214-25e07a4c539d?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'tokyo': [
-        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1549693578-d683be217e58?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1480796927426-f609979314bd?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1554797589-7241bb691973?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'bangkok': [
-        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1583531352515-8884d2440943?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'singapore': [
-        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1565967511849-76a60a516170?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1508964942454-1a56651d54ac?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1533279443086-d1c19a186416?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1524236122334-53dcfd5e2152?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'kyoto': [
-        'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1558862107-d49ef2a04d72?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1504109586057-7a2ae83d1338?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1548755336-3cef2e4d7a39?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'osaka': [
-        'https://images.unsplash.com/photo-1590559899731-a382839e5549?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1574236170880-fba81e6aa76b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1556640530-f7b32680faeb?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1623095564025-3c523a37ad8e?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1583247832076-43c893be3df7?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1589452271712-3ce0e1b1e0a6?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1536722203615-3c5cf0ddc816?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1590417975079-e6fa853e2fd4?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'taipei': [
-        'https://images.unsplash.com/photo-1470004914212-05527e49370b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1530093884857-c0b7e9320c2d?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1517030330234-94c4fb948ebc?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1508108712903-49b7ef9b1df8?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1552912956-bb00b0e1f2d5?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1619535780084-0d18e8ccac64?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1529684584403-e3c3f94b17b8?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1498711333025-ba569e42e67b?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'busan': [
-        'https://images.unsplash.com/photo-1573492600965-75c7bcc8dfe0?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1596073419798-c3edbc40e194?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1578037571214-25e07a4c539d?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1585805345498-16fbd43d73ce?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1595855388765-2e3a62e5de28?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1622441732210-e0805b3df84e?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'hong kong': [
-        'https://images.unsplash.com/photo-1536599018102-9f803c979b13?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1594974938498-04a68bbd6f34?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1517144447511-aebb25bbc5fa?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1563950708-79b66ead94b6?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'hanoi': [
-        'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1555921015-5532091f6026?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1573503555498-c463f94ddef2?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1559564484-e48b3e040ff4?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1600398232242-8cb5d0407cf1?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1535952288335-3a8b0c6d3c84?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'ho chi minh': [
-        'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1557750255-c76072572da2?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1579515369459-ce22a804fadc?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1576079546721-38caf184e484?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1616595254674-cf0eb0e04e3b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1562740083-6c5285de47ca?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1571167366136-b57e07761625?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'ho chi minh city': [ // Alias
-        'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1557750255-c76072572da2?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1579515369459-ce22a804fadc?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1576079546721-38caf184e484?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1616595254674-cf0eb0e04e3b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1562740083-6c5285de47ca?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1571167366136-b57e07761625?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'chiang mai': [
-        'https://images.unsplash.com/photo-1569949381669-ecf31ae8e614?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1512553539922-56d8c63b20a7?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1547283024-c3eef988c6f9?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1590057823881-de3cc2680dc6?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1570789210967-2cac24ba8148?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1539638831901-22c59aa9fd3b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1568704847210-d59eed75d389?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'kuala lumpur': [
-        'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1508093893610-52c500ce31c0?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1556012643-cf2f2c578b87?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1609703048519-2ef4a6db64e2?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1554345155-e36e9be8e445?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1572437495782-9b79b4e50e33?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1580734200710-89e3e64f73e8?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'bali': [
-        'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1573790387438-4da905039392?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1558005137-d9619a5c539f?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1604928141064-207cea6f571f?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-    'ubud': [ // Bali/Ubud alias
-        'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1573790387438-4da905039392?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1558005137-d9619a5c539f?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?w=1080&h=1920&fit=crop&fm=jpg',
-        'https://images.unsplash.com/photo-1604928141064-207cea6f571f?w=1080&h=1920&fit=crop&fm=jpg',
-    ],
-};
-
-// Default images for unknown cities
-const DEFAULT_TRAVEL_IMAGES = [
-    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=1080&h=1920&fit=crop&fm=jpg',
-    'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=1080&h=1920&fit=crop&fm=jpg',
-];
+// =============================================================================
+// Keyword Helpers
+// =============================================================================
 
 /**
- * Simple string hash for deterministic image selection
- * Ensures the same theme always picks the same image index
- */
-function simpleHash(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash);
-}
-
-/**
- * Get an Unsplash image URL for a city
- * Uses curated direct URLs instead of deprecated Source API
- */
-export function getUnsplashCityImage(city: string, index?: number): string {
-    const normalizedCity = city.toLowerCase().trim();
-    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
-    const i = index !== undefined ? (index % images.length) : Math.floor(Math.random() * images.length);
-    return images[i];
-}
-
-/**
- * Get an Unsplash image for a specific theme.
- *
- * When `slotIndex` is provided (0 for cover, 1 for day 1, 2 for day 2, …,
- * N+1 for summary), each slide is guaranteed a unique image from the pool.
- * This solves the duplicate-image problem caused by parallel requests that
- * share the same `excludeUrls` and by deterministic hashing collisions.
- */
-export function getUnsplashThemedImage(
-    city: string,
-    theme: string,
-    excludeUrls: string[] = [],
-    slotIndex?: number
-): string {
-    const normalizedCity = city.toLowerCase().trim();
-    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
-
-    // Slot-based selection: guaranteed unique per slide
-    if (slotIndex !== undefined) {
-        const available = excludeUrls.length > 0
-            ? images.filter(url => !excludeUrls.includes(url))
-            : images;
-        const pool = available.length > 0 ? available : images;
-        return pool[slotIndex % pool.length];
-    }
-
-    // Legacy: hash-based fallback (for callers that don't pass slotIndex)
-    const themeIndex = simpleHash(theme);
-    return images[themeIndex % images.length];
-}
-
-/**
- * City-specific image keywords for better Unsplash/Pexels results
+ * City-specific image keywords for better search results
  */
 const CITY_KEYWORDS: Record<string, string[]> = {
     'tokyo': ['shibuya', 'tokyo tower', 'senso-ji', 'shinjuku'],
@@ -608,45 +378,9 @@ export function getThemeKeywords(theme: string): string[] {
     return normalizedTheme.split(/\s+/).slice(0, 3);
 }
 
-/**
- * Get the best available story background image
- * Tries sources in order: AI (if available), TripAdvisor, Pexels, Unsplash
- */
-export async function getStoryBackground(
-    city: string,
-    theme: string,
-    aiGenerator?: () => Promise<string | null>
-): Promise<{ url: string; source: 'ai' | 'tripadvisor' | 'pexels' | 'unsplash' }> {
-    // Try AI generation first if available
-    if (aiGenerator) {
-        try {
-            const aiImage = await aiGenerator();
-            if (aiImage) {
-                return { url: aiImage, source: 'ai' };
-            }
-        } catch (error) {
-            console.error('[story-backgrounds] AI generation failed:', error);
-        }
-    }
-
-    // Try TripAdvisor for real location photos
-    if (isTripAdvisorAvailable()) {
-        const tripAdvisorUrl = await getTripAdvisorThemedImage(city, theme);
-        if (tripAdvisorUrl) {
-            return { url: tripAdvisorUrl, source: 'tripadvisor' };
-        }
-    }
-
-    // Try Pexels next
-    const pexelsUrl = await getPexelsThemedImage(city, theme);
-    if (pexelsUrl) {
-        return { url: pexelsUrl, source: 'pexels' };
-    }
-
-    // Fall back to Unsplash
-    const unsplashUrl = getUnsplashThemedImage(city, theme);
-    return { url: unsplashUrl, source: 'unsplash' };
-}
+// =============================================================================
+// Provider Availability
+// =============================================================================
 
 /**
  * Check if TripAdvisor API is available
@@ -660,21 +394,4 @@ export function isTripAdvisorAvailable(): boolean {
  */
 export function isPexelsAvailable(): boolean {
     return !!PEXELS_API_KEY;
-}
-
-/**
- * Get available image sources for diagnostics
- */
-export function getAvailableSources(): {
-    ai: boolean;
-    tripadvisor: boolean;
-    pexels: boolean;
-    unsplash: boolean;
-} {
-    return {
-        ai: false, // Set by caller based on Gemini availability
-        tripadvisor: isTripAdvisorAvailable(),
-        pexels: isPexelsAvailable(),
-        unsplash: true, // Always available
-    };
 }

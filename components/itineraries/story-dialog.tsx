@@ -247,13 +247,22 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 success: data.success,
                 hasImage: !!data.image,
                 source: data.source,
+                provider: data.provider,
+                failedProviders: data.failedProviders,
                 error: data.error,
             });
 
             if (data.success && data.image) {
                 return { image: data.image, source: data.source };
             } else if (data.error) {
-                console.error("[STORY] API returned error:", data.error);
+                console.error("[STORY] API returned error:", data.error, data.failedProviders);
+                // Surface AI failures to the user
+                if (data.failedProviders?.length > 0) {
+                    const providerErrors = data.failedProviders
+                        .map((fp: { provider: string; error: string }) => `${fp.provider}: ${fp.error}`)
+                        .join(", ");
+                    console.error("[STORY] Provider failures:", providerErrors);
+                }
             }
         } catch (error) {
             console.error("[STORY] Background generation failed:", error);
@@ -652,7 +661,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                             ? "Using real location photos from TripAdvisor"
                                             : pexelsAvailable
                                                 ? "Using high-quality photos from Pexels"
-                                                : "Using photos from Unsplash"}
+                                                : "Gradient backgrounds (no photo API configured)"}
                                 </p>
                             </>
                         )}

@@ -20,18 +20,14 @@ import {
 // AI image generation can take 10-20s per image
 export const maxDuration = 60;
 import {
-    getStoryBackground,
-    getPexelsCityImage,
     getPexelsThemedImage,
     getTripAdvisorThemedImage,
-    getUnsplashCityImage,
-    getUnsplashThemedImage,
     isPexelsAvailable,
     isTripAdvisorAvailable,
 } from "@/lib/story-backgrounds";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
-import { getUserTier, checkAndIncrementUsage, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
+import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
@@ -61,6 +57,15 @@ interface StoryBackgroundRequest {
     slotIndex?: number;
 }
 
+/** Check if a specific AI provider has its API key configured */
+function isProviderKeyAvailable(provider: ImageProvider): boolean {
+    switch (provider) {
+        case "flux": return isFluxAvailable();
+        case "seedream": return isSeedreamAvailable();
+        case "gemini": return isImagenAvailable();
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
         // Check rate limit
@@ -75,14 +80,14 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProvider, cacheKey, excludeUrls = [], slotIndex } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProvider, cacheKey, excludeUrls = [] } = body;
 
         if (!city) {
             return Errors.validationError("city is required");
         }
 
         // Check if user can use AI images
-        // Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini → TripAdvisor → Pexels → Unsplash
+        // Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini → TripAdvisor → Pexels
         const tier = await getUserTier(userId);
         let canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
 
@@ -113,7 +118,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Use user-chosen provider or auto-select based on priority
-        const imageProvider = canUseAI
+        let imageProvider: ImageProvider | null = canUseAI
             ? (requestedProvider || getImageProvider(tier))
             : null;
 
@@ -163,73 +168,100 @@ export async function POST(req: NextRequest) {
         }
 
         let imageUrl: string | null = null;
-        let source: "ai" | "tripadvisor" | "pexels" | "unsplash" = "unsplash";
+        let source: "ai" | "tripadvisor" | "pexels" = "pexels";
+        const failedProviders: Array<{ provider: string; error: string }> = [];
 
-        // Try AI generation if allowed
-        if (canUseAI && imageProvider) {
-            try {
-                console.log(`[STORY_BG] Attempting AI generation with ${imageProvider}...`);
-                let aiImage: string | null = null;
-
-                if (type === "day" && dayNumber) {
-                    aiImage = await generateDayBackground(
-                        imageProvider,
-                        city,
-                        dayNumber,
-                        theme || `Day ${dayNumber} adventures`,
-                        activities || []
-                    );
-                } else {
-                    const bgTheme = type === "cover"
-                        ? "iconic landmarks and cityscape"
-                        : type === "summary"
-                            ? "beautiful travel scenery"
-                            : theme || "travel destination";
-
-                    aiImage = await generateStoryBackground(imageProvider, city, bgTheme, "vibrant");
+        // =====================================================================
+        // AI GENERATION with cascading fallback across all providers
+        // =====================================================================
+        if (canUseAI) {
+            // Build the ordered list: requested provider first, then remaining
+            const providerOrder: ImageProvider[] = [];
+            if (imageProvider) providerOrder.push(imageProvider);
+            const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
+            for (const p of allProviders) {
+                if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
+                    providerOrder.push(p);
                 }
+            }
 
-                if (aiImage) {
-                    source = "ai";
-                    console.log("[STORY_BG] AI generation successful, uploading to storage...");
+            for (const currentProvider of providerOrder) {
+                try {
+                    console.log(`[STORY_BG] Attempting AI generation with ${currentProvider}...`);
+                    let aiImage: string | null = null;
 
-                    // Upload AI images to Supabase Storage and return URL
-                    // Uses admin client to bypass RLS (route already authenticates via auth())
-                    const supabase = createSupabaseAdmin();
-                    // Strip data URL prefix if present (safety net for API format changes)
-                    const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
-                    const buffer = Buffer.from(cleanBase64, "base64");
-                    const { error: uploadError } = await supabase.storage
-                        .from("generated-images")
-                        .upload(storageKey, buffer, {
-                            contentType: "image/png",
-                            upsert: true,
-                        });
-
-                    if (!uploadError) {
-                        const { data: urlData } = supabase.storage
-                            .from("generated-images")
-                            .getPublicUrl(storageKey);
-
-                        if (urlData?.publicUrl) {
-                            imageUrl = urlData.publicUrl;
-                            console.log("[STORY_BG] AI image stored, URL:", imageUrl);
-                        }
+                    if (type === "day" && dayNumber) {
+                        aiImage = await generateDayBackground(
+                            currentProvider,
+                            city,
+                            dayNumber,
+                            theme || `Day ${dayNumber} adventures`,
+                            activities || []
+                        );
                     } else {
-                        console.error("[STORY_BG] Storage upload failed:", {
-                            message: uploadError.message,
-                            name: uploadError.name,
-                            storageKey,
-                            bufferSize: buffer.length,
-                            bucket: "generated-images",
-                        });
-                        // Fall through to stock photo providers
+                        const bgTheme = type === "cover"
+                            ? "iconic landmarks and cityscape"
+                            : type === "summary"
+                                ? "beautiful travel scenery"
+                                : theme || "travel destination";
+
+                        aiImage = await generateStoryBackground(currentProvider, city, bgTheme, "vibrant");
                     }
+
+                    // Check for empty string (Gemini returns "" on failure)
+                    if (aiImage && aiImage.length > 100) {
+                        imageProvider = currentProvider;
+                        source = "ai";
+                        console.log(`[STORY_BG] ${currentProvider} succeeded! Image length: ${aiImage.length}`);
+
+                        // Upload AI images to Supabase Storage and return URL
+                        const supabase = createSupabaseAdmin();
+                        const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
+                        const buffer = Buffer.from(cleanBase64, "base64");
+                        const { error: uploadError } = await supabase.storage
+                            .from("generated-images")
+                            .upload(storageKey, buffer, {
+                                contentType: "image/png",
+                                upsert: true,
+                            });
+
+                        if (!uploadError) {
+                            const { data: urlData } = supabase.storage
+                                .from("generated-images")
+                                .getPublicUrl(storageKey);
+
+                            if (urlData?.publicUrl) {
+                                imageUrl = urlData.publicUrl;
+                                console.log("[STORY_BG] AI image stored, URL:", imageUrl);
+                            }
+                        } else {
+                            console.error("[STORY_BG] Storage upload failed:", {
+                                message: uploadError.message,
+                                name: uploadError.name,
+                                storageKey,
+                                bufferSize: buffer.length,
+                            });
+                            // Image generated but upload failed — still count as AI success
+                            // The base64 can't be returned directly (too large), so fall through
+                            failedProviders.push({ provider: currentProvider, error: `Upload failed: ${uploadError.message}` });
+                        }
+                        break; // AI succeeded — stop trying providers
+                    } else {
+                        const msg = aiImage ? `Empty response (length: ${aiImage.length})` : "Returned null";
+                        console.error(`[STORY_BG] ${currentProvider} returned empty:`, msg);
+                        failedProviders.push({ provider: currentProvider, error: msg });
+                    }
+                } catch (error) {
+                    const errorMsg = error instanceof Error ? error.message : String(error);
+                    console.error(`[STORY_BG] ${currentProvider} FAILED:`, errorMsg);
+                    failedProviders.push({ provider: currentProvider, error: errorMsg });
                 }
-            } catch (error) {
-                console.error("[STORY_BG] AI generation failed:", error);
             }
         }
+
+        // =====================================================================
+        // STOCK PHOTO FALLBACK: TripAdvisor → Pexels (NO Unsplash)
+        // =====================================================================
 
         // Fall back to TripAdvisor for real location photos (paid tiers only)
         if (!imageUrl && tier !== "free" && isTripAdvisorAvailable()) {
@@ -243,11 +275,9 @@ export async function POST(req: NextRequest) {
             } else {
                 console.log("[STORY_BG] TripAdvisor returned no image for:", { city, searchTheme });
             }
-        } else if (!imageUrl) {
-            console.log("[STORY_BG] Skipping TripAdvisor:", tier === "free" ? "(free tier)" : "(key not available)");
         }
 
-        // Fall back to Pexels if TripAdvisor not available or failed
+        // Fall back to Pexels
         if (!imageUrl && isPexelsAvailable()) {
             console.log("[STORY_BG] Trying Pexels...");
             const searchTheme = theme || (type === "cover" ? "cityscape" : type === "summary" ? "travel scenery" : "travel");
@@ -259,57 +289,43 @@ export async function POST(req: NextRequest) {
             } else {
                 console.log("[STORY_BG] Pexels returned no image for:", { city, searchTheme });
             }
-        } else if (!imageUrl) {
-            console.log("[STORY_BG] Skipping Pexels (key not available)");
         }
 
-        // DEBUG: When DEBUG_NO_UNSPLASH is set, skip Unsplash to surface real failures
-        const debugNoUnsplash = process.env.DEBUG_NO_UNSPLASH === "true";
-
-        if (!imageUrl && debugNoUnsplash) {
-            console.error("[STORY_BG] DEBUG: All providers failed, Unsplash disabled for testing", {
+        // =====================================================================
+        // ALL SOURCES FAILED — return error (no more silent Unsplash fallback)
+        // =====================================================================
+        if (!imageUrl) {
+            console.error("[STORY_BG] ALL sources failed:", {
                 canUseAI,
                 imageProvider,
                 tier,
+                failedProviders,
                 hasFluxKey: isFluxAvailable(),
                 hasSeedreamKey: isSeedreamAvailable(),
                 hasGeminiKey: isImagenAvailable(),
                 hasTripAdvisorKey: isTripAdvisorAvailable(),
                 hasPexelsKey: isPexelsAvailable(),
             });
+
             return NextResponse.json({
                 success: false,
-                error: "All image sources failed (Unsplash disabled for debugging)",
+                error: "All image providers failed",
+                failedProviders,
                 debug: {
+                    tier,
                     canUseAI,
                     imageProvider,
-                    tier,
                     hasFluxKey: isFluxAvailable(),
                     hasSeedreamKey: isSeedreamAvailable(),
                     hasGeminiKey: isImagenAvailable(),
                     hasTripAdvisorKey: isTripAdvisorAvailable(),
                     hasPexelsKey: isPexelsAvailable(),
                     preferAI,
-                    isAnyProviderAvailable: isAnyProviderAvailable(),
                 },
-            }, { status: 503 });
+            });
         }
 
-        // Final fallback to Unsplash (always available)
-        if (!imageUrl) {
-            console.log("[STORY_BG] Using Unsplash fallback for:", { city, type, slotIndex });
-            const searchTheme = theme || "travel landmark";
-            imageUrl = getUnsplashThemedImage(city, searchTheme, excludeUrls, slotIndex);
-            source = "unsplash";
-        }
-
-        // Absolute last resort: static placeholder
-        if (!imageUrl) {
-            console.log("[STORY_BG] All sources failed, using static placeholder");
-            imageUrl = "/images/placeholders/story-placeholder.svg";
-        }
-
-        console.log("[STORY_BG] Final result:", { source, type, city, imageUrl: imageUrl?.substring(0, 80) });
+        console.log("[STORY_BG] Final result:", { source, type, city, imageUrl: imageUrl.substring(0, 80) });
 
         return NextResponse.json({
             success: true,
@@ -317,21 +333,7 @@ export async function POST(req: NextRequest) {
             source,
             provider: imageProvider,
             cached: false,
-            aiAvailable: canUseAI,
-            pexelsAvailable: isPexelsAvailable(),
-            tripAdvisorAvailable: isTripAdvisorAvailable(),
-            // Include debug info so the client can display it
-            debug: {
-                tier,
-                canUseAI,
-                imageProvider,
-                hasFluxKey: isFluxAvailable(),
-                hasSeedreamKey: isSeedreamAvailable(),
-                hasGeminiKey: isImagenAvailable(),
-                hasTripAdvisorKey: isTripAdvisorAvailable(),
-                hasPexelsKey: isPexelsAvailable(),
-                preferAI,
-            },
+            failedProviders: failedProviders.length > 0 ? failedProviders : undefined,
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);
@@ -361,7 +363,6 @@ export async function GET(req: NextRequest) {
             gemini: isImagenAvailable(),
             tripadvisor: isTripAdvisorAvailable(),
             pexels: isPexelsAvailable(),
-            unsplash: true, // Always available
         },
         models,
         tier,
