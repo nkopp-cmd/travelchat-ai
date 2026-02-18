@@ -57,13 +57,15 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - Cache file at `data/.enrichment-cache.json` saves API quota
 
 ### Story Image Pipeline
-- **CRITICAL**: Satori/resvg (used by `@vercel/og` ImageResponse) does NOT support WebP
-- **CRITICAL**: Story route MUST use `runtime = "edge"` — Satori's built-in image fetcher only works reliably on Edge. On Node.js runtime, Satori silently drops images that fail to fetch (see `@vercel/og` index.node.js line ~17738: catch returns empty array)
-- Do NOT switch to Node.js runtime — it breaks image rendering and requires pre-fetch workarounds that cause cascading failures
+- **CRITICAL**: Satori/resvg (used by `next/og` ImageResponse) does NOT support WebP
+- Story route uses `runtime = "nodejs"` with `import { ImageResponse } from "next/og"`
+- On Node.js, Satori's built-in fetch is unreliable — `prefetchImage()` converts URLs to base64 data URIs before passing to Satori
+- **CRITICAL**: `ImageResponse` uses a lazy ReadableStream — must `await response.arrayBuffer()` to force-consume and catch render errors. Returning the Response directly produces corrupt/partial PNGs on failure.
 - All Unsplash URLs MUST include `&fm=jpg` to force JPEG format
-- The story route uses `select("*")` to safely handle missing columns (e.g., `ai_backgrounds` before migration)
 - `ensureJpegFormat()` is a safety net that adds `&fm=jpg` to any Unsplash URL missing it
-- Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, passes to Satori `<img src>` (Edge runtime fetches natively)
+- The story route uses `select("*")` to safely handle missing columns (e.g., `ai_backgrounds` before migration)
+- `getFallbackImage()` uses deterministic hash-based selection (not `Math.random()`) to prevent image switching between renders
+- Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, pre-fetches as base64, passes data URI to Satori `<img src>`
 
 ### City Configuration
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore

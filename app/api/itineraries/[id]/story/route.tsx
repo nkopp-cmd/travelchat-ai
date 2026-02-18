@@ -34,20 +34,28 @@ const DEFAULT_TRAVEL_IMAGES = [
 ];
 
 /**
- * Get a fallback Unsplash image for a city.
- * Pass `exclude` to avoid returning a URL that already failed pre-fetch.
+ * Get a deterministic fallback Unsplash image for a city + slide combination.
+ * Uses a hash of the slide context so the same slide always gets the same image
+ * (no more random switching between renders).
+ * Pass `exclude` to skip a URL that failed pre-fetch.
  */
-function getFallbackImage(city: string, exclude?: string): string {
+function getFallbackImage(city: string, slideType: string, dayIndex: number, exclude?: string): string {
     const normalizedCity = city.toLowerCase().trim();
-    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
-    // If we need to exclude a URL, filter it out first
+    let images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
+
     if (exclude) {
         const filtered = images.filter(url => url !== exclude);
-        if (filtered.length > 0) {
-            return filtered[Math.floor(Math.random() * filtered.length)];
-        }
+        if (filtered.length > 0) images = filtered;
     }
-    return images[Math.floor(Math.random() * images.length)];
+
+    // Deterministic selection: hash slide context to always pick the same image
+    const key = `${normalizedCity}-${slideType}-${dayIndex}`;
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+        hash = ((hash << 5) - hash) + key.charCodeAt(i);
+        hash |= 0; // Convert to 32-bit integer
+    }
+    return images[Math.abs(hash) % images.length];
 }
 
 /**
@@ -797,8 +805,8 @@ export async function GET(
 
         // Use fallback image if no background was found
         if (!aiBackground && itinerary.city) {
-            aiBackground = getFallbackImage(itinerary.city);
-            console.log("[STORY_ROUTE] Using fallback image for", itinerary.city, ":", aiBackground);
+            aiBackground = getFallbackImage(itinerary.city, slide, dayIndex);
+            console.log("[STORY_ROUTE] Using fallback image for", itinerary.city, `(${slide}, day${dayIndex}):`, aiBackground);
         }
 
         // Ensure JPEG format for Satori compatibility (no WebP)
@@ -811,7 +819,7 @@ export async function GET(
         if (aiBackground) {
             backgroundDataUri = await prefetchImage(aiBackground);
             if (!backgroundDataUri && itinerary.city) {
-                const fallback = ensureJpegFormat(getFallbackImage(itinerary.city, aiBackground));
+                const fallback = ensureJpegFormat(getFallbackImage(itinerary.city, slide, dayIndex, aiBackground));
                 backgroundDataUri = await prefetchImage(fallback);
             }
         }
