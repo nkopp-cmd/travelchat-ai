@@ -6,22 +6,80 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 /**
- * Pre-fetch an image and return as base64 data URI.
- * Required because Satori's internal fetch is unreliable on Vercel Node.js.
+ * Download an image from Supabase Storage using the admin SDK.
+ * Bypasses public bucket access restrictions — more reliable than raw HTTP fetch.
+ */
+async function prefetchFromSupabase(
+    url: string,
+    supabase: ReturnType<typeof createSupabaseAdmin>
+): Promise<string | undefined> {
+    const marker = "/storage/v1/object/public/generated-images/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return undefined;
+
+    const storagePath = url.substring(idx + marker.length);
+    console.log("[STORY_ROUTE] Downloading via Supabase SDK:", storagePath);
+
+    try {
+        const { data, error } = await supabase.storage
+            .from("generated-images")
+            .download(storagePath);
+
+        if (error || !data) {
+            console.error("[STORY_ROUTE] Supabase SDK download failed:", error?.message);
+            return undefined;
+        }
+
+        const buf = await data.arrayBuffer();
+        if (buf.byteLength < 500) {
+            console.error("[STORY_ROUTE] Downloaded image too small:", buf.byteLength);
+            return undefined;
+        }
+
+        const ct = data.type || "image/png";
+        if (ct.includes("webp")) {
+            console.error("[STORY_ROUTE] Rejected WebP from storage:", ct);
+            return undefined;
+        }
+
+        console.log(`[STORY_ROUTE] SDK download success: ${buf.byteLength} bytes, type: ${ct}`);
+        return `data:${ct};base64,${Buffer.from(buf).toString("base64")}`;
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("[STORY_ROUTE] Supabase SDK download error:", msg);
+        return undefined;
+    }
+}
+
+/**
+ * Pre-fetch an image via HTTP and return as base64 data URI.
+ * Fallback for non-Supabase URLs. Logs all failure points.
  */
 async function prefetchImage(url: string): Promise<string | undefined> {
     try {
         const res = await fetch(url, {
-            signal: AbortSignal.timeout(10000),
+            signal: AbortSignal.timeout(15000),
             headers: { 'Accept': 'image/jpeg,image/png,image/gif,image/*' },
         });
-        if (!res.ok) return undefined;
+        if (!res.ok) {
+            console.error(`[STORY_ROUTE] Prefetch HTTP ${res.status} for:`, url.substring(0, 100));
+            return undefined;
+        }
         const ct = res.headers.get('content-type') || 'image/jpeg';
-        if (ct.includes('webp')) return undefined;
+        if (ct.includes('webp')) {
+            console.error("[STORY_ROUTE] Prefetch rejected WebP:", ct);
+            return undefined;
+        }
         const buf = await res.arrayBuffer();
-        if (buf.byteLength < 500) return undefined;
+        if (buf.byteLength < 500) {
+            console.error("[STORY_ROUTE] Prefetch image too small:", buf.byteLength);
+            return undefined;
+        }
+        console.log(`[STORY_ROUTE] HTTP fetch success: ${buf.byteLength} bytes, type: ${ct}`);
         return `data:${ct};base64,${Buffer.from(buf).toString('base64')}`;
-    } catch {
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("[STORY_ROUTE] Prefetch error:", msg, "URL:", url.substring(0, 100));
         return undefined;
     }
 }
@@ -738,11 +796,18 @@ export async function GET(
         // (the Satori templates already handle missing backgroundImage with gradient fills)
 
         // Pre-fetch the image as base64 for Satori (Node.js fetch is unreliable in Satori)
+        // Try Supabase SDK download first (bypasses bucket access restrictions),
+        // then fall back to HTTP fetch for non-Supabase URLs.
         let backgroundDataUri: string | undefined;
         if (aiBackground) {
-            backgroundDataUri = await prefetchImage(aiBackground);
+            if (aiBackground.includes("supabase.co/storage/")) {
+                backgroundDataUri = await prefetchFromSupabase(aiBackground, supabase);
+            }
             if (!backgroundDataUri) {
-                console.log("[STORY_ROUTE] Pre-fetch failed for background, using gradient fallback");
+                backgroundDataUri = await prefetchImage(aiBackground);
+            }
+            if (!backgroundDataUri) {
+                console.error("[STORY_ROUTE] ALL prefetch methods failed for:", aiBackground.substring(0, 100));
             }
         }
         diagnostics.background = {
