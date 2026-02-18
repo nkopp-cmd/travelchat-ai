@@ -12,6 +12,7 @@ const isPublicRoute = createRouteMatcher([
     '/api/cities',  // City listing for destination picker (must work for anonymous users)
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
+    '/itineraries/:id/stories',  // Public stories download page
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

@@ -13,7 +13,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Lock } from "lucide-react";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Lock, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
@@ -61,15 +62,15 @@ function getSlideFilename(slide: StorySlide, city?: string, totalDays?: number):
 }
 
 /** Share via native share sheet (mobile) or fall back to download (desktop) */
-async function shareOrDownload(blob: Blob, filename: string) {
+async function shareOrDownload(blob: Blob, filename: string): Promise<"shared" | "downloaded"> {
     const file = new File([blob], filename, { type: "image/png" });
     if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
             await navigator.share({ files: [file] });
-            return;
+            return "shared";
         } catch (err) {
             // User cancelled share — don't fall through to download
-            if ((err as Error).name === "AbortError") return;
+            if ((err as Error).name === "AbortError") return "shared";
         }
     }
     // Fallback: standard <a download> (desktop or unsupported browsers)
@@ -81,6 +82,7 @@ async function shareOrDownload(blob: Blob, filename: string) {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+    return "downloaded";
 }
 
 export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dailyPlans }: StoryDialogProps) {
@@ -100,6 +102,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [brokenSlides, setBrokenSlides] = useState<Set<number>>(new Set());
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
     const [availableModels, setAvailableModels] = useState<ModelOption[]>([]);
+    const [savedSlides, setSavedSlides] = useState<Record<string, string> | null>(null);
     const { toast } = useToast();
 
     const handleImageError = (index: number) => {
@@ -385,21 +388,41 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 }
 
                 setGeneratingAi(false);
-                setGenerationProgress("");
 
-                // Send email notification (fire and forget)
-                if (isPaidUser) {
-                    fetch(`/api/itineraries/${itineraryId}/notify-story-ready`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ city }),
-                    }).catch(err => console.log("[STORY] Email notification skipped:", err));
-                }
-
-                // Generate slides
+                // Generate slides (so user can see them while save happens)
                 const generatedSlides = generateSlides();
                 setSlides(generatedSlides);
                 setSelectedSlide(0);
+
+                // Persist rendered PNGs to Supabase Storage for sharing
+                setGenerationProgress("Saving slides for sharing...");
+                try {
+                    const saveRes = await fetch(`/api/itineraries/${itineraryId}/story/save`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ totalDays, paid: isPaidUser }),
+                    });
+                    if (saveRes.ok) {
+                        const saveData = await saveRes.json();
+                        setSavedSlides(saveData.slides);
+                        console.log("[STORY] Slides saved for sharing:", Object.keys(saveData.slides || {}));
+
+                        // Send email notification after slides are persisted
+                        if (isPaidUser) {
+                            fetch(`/api/itineraries/${itineraryId}/notify-story-ready`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ city }),
+                            }).catch(err => console.log("[STORY] Email notification skipped:", err));
+                        }
+                    } else {
+                        console.error("[STORY] Save failed:", saveRes.status);
+                    }
+                } catch (err) {
+                    console.error("[STORY] Save request failed:", err);
+                }
+
+                setGenerationProgress("");
 
                 // Show accurate toast based on actual results
                 const bgCount = Object.keys(bgToSave).length;
@@ -457,7 +480,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
         setDownloadingIndex(index);
         try {
-            const response = await fetch(slide.url);
+            // Prefer saved Supabase CDN URLs (faster, no re-render)
+            const slideKey = slide.type === "day" ? `day${slide.day}` : slide.type;
+            const downloadUrl = savedSlides?.[slideKey] || slide.url;
+
+            const response = await fetch(downloadUrl);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -467,12 +494,19 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             }
             const blob = await response.blob();
             const filename = getSlideFilename(slide, city, totalDays);
-            await shareOrDownload(blob, filename);
+            const result = await shareOrDownload(blob, filename);
 
-            toast({
-                title: isMobileShare ? "Saved!" : "Downloaded!",
-                description: `${slide.label} saved to your device`,
-            });
+            if (result === "shared") {
+                toast({
+                    title: "Share sheet opened",
+                    description: "Choose 'Save Image' to save to your photos",
+                });
+            } else {
+                toast({
+                    title: "Downloaded!",
+                    description: `${slide.label} saved to your device`,
+                });
+            }
         } catch (error) {
             console.error("Download error:", error);
             toast({
@@ -501,13 +535,17 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
             for (let i = 0; i < slides.length; i++) {
                 setGenerationProgress(`Preparing ${i + 1}/${slides.length}...`);
-                const response = await fetch(slides[i].url);
+                // Prefer saved Supabase CDN URLs (faster, no re-render)
+                const slide = slides[i];
+                const slideKey = slide.type === "day" ? `day${slide.day}` : slide.type;
+                const downloadUrl = savedSlides?.[slideKey] || slide.url;
+                const response = await fetch(downloadUrl);
                 if (!response.ok) {
                     console.error(`[STORY] ZIP: Failed to fetch slide ${i}:`, response.status);
                     continue; // Skip failed slides instead of breaking entire ZIP
                 }
                 const blob = await response.blob();
-                const filename = getSlideFilename(slides[i], city, totalDays);
+                const filename = getSlideFilename(slide, city, totalDays);
                 zip.file(filename, blob);
             }
 
@@ -799,6 +837,14 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     </>
                                 )}
                             </Button>
+                            {savedSlides && (
+                                <Link href={`/itineraries/${itineraryId}/stories`} target="_blank">
+                                    <Button variant="outline" className="gap-2">
+                                        <ExternalLink className="h-4 w-4" />
+                                        Shareable Link
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </div>
                 )}
