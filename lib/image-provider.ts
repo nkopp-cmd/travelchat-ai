@@ -2,32 +2,32 @@
  * Image generation provider router
  *
  * Routes image generation requests to the appropriate provider.
- * Priority: Seedream (FAL AI) first (cheaper), then Gemini as fallback.
+ * Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini
  */
 
 import type { SubscriptionTier } from "@/lib/subscription";
 import * as gemini from "@/lib/imagen";
 import * as seedream from "@/lib/seedream";
+import * as flux from "@/lib/flux";
 
-export type ImageProvider = "gemini" | "seedream";
+export type ImageProvider = "flux" | "seedream" | "gemini";
 
 /**
  * Determine which image provider to use.
- * Always prefers Seedream (FAL AI) — cheaper and good quality.
- * Falls back to Gemini if Seedream is not available.
+ * Priority: FLUX (cheapest) → Seedream → Gemini (fallback).
  */
 export function getImageProvider(tier: SubscriptionTier): ImageProvider {
-    // Prefer Seedream (FAL AI) for all tiers — cheaper and good quality
+    if (flux.isFluxAvailable()) return "flux";
     if (seedream.isSeedreamAvailable()) return "seedream";
     if (gemini.isImagenAvailable()) return "gemini";
-    return "gemini"; // Will fail with appropriate error if neither available
+    return "gemini"; // Will fail with appropriate error if none available
 }
 
 /**
  * Check if any AI image provider is available
  */
 export function isAnyProviderAvailable(): boolean {
-    return gemini.isImagenAvailable() || seedream.isSeedreamAvailable();
+    return flux.isFluxAvailable() || seedream.isSeedreamAvailable() || gemini.isImagenAvailable();
 }
 
 /**
@@ -41,6 +41,9 @@ export async function generateStoryBackground(
 ): Promise<string> {
     console.log(`[IMAGE_PROVIDER] Using ${provider} for story background`);
 
+    if (provider === "flux") {
+        return flux.generateStoryBackground(city, theme, style);
+    }
     if (provider === "seedream") {
         return seedream.generateStoryBackground(city, theme, style);
     }
@@ -59,6 +62,9 @@ export async function generateDayBackground(
 ): Promise<string> {
     console.log(`[IMAGE_PROVIDER] Using ${provider} for day ${dayNumber} background`);
 
+    if (provider === "flux") {
+        return flux.generateDayBackground(city, dayNumber, theme, activities);
+    }
     if (provider === "seedream") {
         return seedream.generateDayBackground(city, dayNumber, theme, activities);
     }

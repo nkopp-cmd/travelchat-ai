@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { isImagenAvailable } from "@/lib/imagen";
 import { isSeedreamAvailable } from "@/lib/seedream";
+import { isFluxAvailable } from "@/lib/flux";
 import {
     getImageProvider,
     isAnyProviderAvailable,
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user can use AI images
-        // Priority: Seedream (FAL AI) → Gemini → TripAdvisor → Pexels → Unsplash
+        // Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini → TripAdvisor → Pexels → Unsplash
         const tier = await getUserTier(userId);
         let canUseAI = preferAI && isAnyProviderAvailable() && hasFeature(tier, 'aiBackgrounds');
 
@@ -99,8 +100,9 @@ export async function POST(req: NextRequest) {
             canUseAI,
             imageProvider,
             tier,
-            hasGeminiKey: isImagenAvailable(),
+            hasFluxKey: isFluxAvailable(),
             hasSeedreamKey: isSeedreamAvailable(),
+            hasGeminiKey: isImagenAvailable(),
             hasTripAdvisorKey: isTripAdvisorAvailable(),
             hasPexelsKey: isPexelsAvailable(),
         });
@@ -243,8 +245,9 @@ export async function POST(req: NextRequest) {
                 canUseAI,
                 imageProvider,
                 tier,
-                hasGeminiKey: isImagenAvailable(),
+                hasFluxKey: isFluxAvailable(),
                 hasSeedreamKey: isSeedreamAvailable(),
+                hasGeminiKey: isImagenAvailable(),
                 hasTripAdvisorKey: isTripAdvisorAvailable(),
                 hasPexelsKey: isPexelsAvailable(),
             });
@@ -255,8 +258,9 @@ export async function POST(req: NextRequest) {
                     canUseAI,
                     imageProvider,
                     tier,
-                    hasGeminiKey: isImagenAvailable(),
+                    hasFluxKey: isFluxAvailable(),
                     hasSeedreamKey: isSeedreamAvailable(),
+                    hasGeminiKey: isImagenAvailable(),
                     hasTripAdvisorKey: isTripAdvisorAvailable(),
                     hasPexelsKey: isPexelsAvailable(),
                     preferAI,
@@ -295,8 +299,9 @@ export async function POST(req: NextRequest) {
                 tier,
                 canUseAI,
                 imageProvider,
-                hasGeminiKey: isImagenAvailable(),
+                hasFluxKey: isFluxAvailable(),
                 hasSeedreamKey: isSeedreamAvailable(),
+                hasGeminiKey: isImagenAvailable(),
                 hasTripAdvisorKey: isTripAdvisorAvailable(),
                 hasPexelsKey: isPexelsAvailable(),
                 preferAI,
@@ -313,8 +318,9 @@ export async function GET() {
     return NextResponse.json({
         sources: {
             ai: isAnyProviderAvailable(),
-            gemini: isImagenAvailable(),
+            flux: isFluxAvailable(),
             seedream: isSeedreamAvailable(),
+            gemini: isImagenAvailable(),
             tripadvisor: isTripAdvisorAvailable(),
             pexels: isPexelsAvailable(),
             unsplash: true, // Always available

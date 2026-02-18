@@ -5,7 +5,7 @@
 ### Environment Variables
 All environment variables are already configured in Vercel. **DO NOT add duplicate environment variables via CLI.**
 
-#### Currently Configured in Vercel (as of Jan 2026):
+#### Currently Configured in Vercel (as of Feb 2026):
 
 | Variable | Purpose | Status |
 |----------|---------|--------|
@@ -20,7 +20,8 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `ANTHROPIC_API_KEY` | Claude AI for itinerary generation | Active |
 | `OPENAI_API_KEY` | OpenAI fallback | Active |
 | `GEMINI_API_KEY` | Google Gemini for image generation | Active |
-| `FAL_KEY` | FAL AI for FLUX image generation (story backgrounds) | **Needs Setup** |
+| `FAL_KEY` | FAL AI for FLUX image generation (story backgrounds) | Active |
+| `ARK_API_KEY` | Bytedance ARK API for Seedream 4.5 image generation | Active |
 | `VIATOR_API_KEY` | Viator tours/experiences API | Active |
 | `TRIPADVISOR_API_KEY` | TripAdvisor API | Active |
 | `PEXELS_API_KEY` | Stock photos | Active |
@@ -65,8 +66,10 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - All Unsplash URLs MUST include `&fm=jpg` to force JPEG format
 - `ensureJpegFormat()` is a safety net that adds `&fm=jpg` to any Unsplash URL missing it
 - The story route uses `select("*")` to safely handle missing columns (e.g., `ai_backgrounds` before migration)
-- `getFallbackImage()` uses deterministic hash-based selection (not `Math.random()`) to prevent image switching between renders
+- `getFallbackImage()` uses slot-based index selection (cover=0, day1=1, …, summary=last) to guarantee unique images per slide
 - Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, pre-fetches as base64, passes data URI to Satori `<img src>`
+- **AI image providers** (priority order): FLUX (`FAL_KEY`, via `lib/flux.ts`) → Seedream (`ARK_API_KEY`, via `lib/seedream.ts`) → Gemini (`GEMINI_API_KEY`, via `lib/imagen.ts`)
+- Provider routing in `lib/image-provider.ts`, stock photo fallback: TripAdvisor → Pexels → Unsplash
 
 ### City Configuration
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore
