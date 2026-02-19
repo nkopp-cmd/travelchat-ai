@@ -22,7 +22,7 @@ const FLUX_MODEL = "fal-ai/flux-2-flex";
 
 /**
  * Generate an image using FLUX.2 [flex] via fal.ai
- * Returns base64-encoded image data
+ * Returns base64-encoded PNG image data (no data URI prefix)
  */
 async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16"): Promise<string> {
     if (!apiKey) {
@@ -46,7 +46,9 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
             input: {
                 prompt,
                 image_size: imageSize as { width: number; height: number },
-                output_format: "jpeg",
+                // CRITICAL: Use PNG — the story pipeline uploads as image/png and Satori
+                // needs the MIME type to match actual bytes for data URI rendering
+                output_format: "png",
                 safety_tolerance: "5",
             },
             logs: true,
@@ -76,7 +78,8 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
     }
 
     const imageUrl = images[0].url;
-    console.log("[FLUX] Image generated, fetching from URL...");
+    const contentType = images[0].content_type || "image/png";
+    console.log("[FLUX] Image generated, fetching from URL...", { contentType, width: images[0].width, height: images[0].height });
 
     // Fetch the image and convert to base64
     const response = await fetch(imageUrl);

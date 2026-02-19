@@ -57,6 +57,30 @@ interface StoryBackgroundRequest {
     slotIndex?: number;
 }
 
+/**
+ * Detect actual image format from buffer magic bytes.
+ * CRITICAL: Providers may return JPEG, PNG, or WebP regardless of what we request.
+ * Uploading with wrong content type causes Satori to fail silently during rendering.
+ */
+function detectImageContentType(buffer: Buffer): string {
+    if (buffer.length < 4) return "image/png";
+    // PNG: 89 50 4E 47
+    if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+        return "image/png";
+    }
+    // JPEG: FF D8 FF
+    if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) {
+        return "image/jpeg";
+    }
+    // WebP: 52 49 46 46 ... 57 45 42 50
+    if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+        buffer.length > 11 && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) {
+        return "image/webp";
+    }
+    // Default to PNG
+    return "image/png";
+}
+
 /** Check if a specific AI provider has its API key configured */
 function isProviderKeyAvailable(provider: ImageProvider): boolean {
     switch (provider) {
@@ -234,17 +258,27 @@ export async function POST(req: NextRequest) {
                         const supabase = createSupabaseAdmin();
                         const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
                         const buffer = Buffer.from(cleanBase64, "base64");
+
+                        // Detect actual image format from magic bytes — providers may return
+                        // JPEG even when PNG is requested. Using wrong content type causes
+                        // Satori to fail silently when building data URIs for rendering.
+                        const detectedType = detectImageContentType(buffer);
+                        const ext = detectedType === "image/jpeg" ? "jpg" : detectedType === "image/webp" ? "webp" : "png";
+                        // Update storage key extension to match actual format
+                        const actualStorageKey = storageKey.replace(/\.png$/, `.${ext}`);
+                        console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes, key: ${actualStorageKey}`);
+
                         const { error: uploadError } = await supabase.storage
                             .from("generated-images")
-                            .upload(storageKey, buffer, {
-                                contentType: "image/png",
+                            .upload(actualStorageKey, buffer, {
+                                contentType: detectedType,
                                 upsert: true,
                             });
 
                         if (!uploadError) {
                             const { data: urlData } = supabase.storage
                                 .from("generated-images")
-                                .getPublicUrl(storageKey);
+                                .getPublicUrl(actualStorageKey);
 
                             if (urlData?.publicUrl) {
                                 imageUrl = urlData.publicUrl;
@@ -254,8 +288,9 @@ export async function POST(req: NextRequest) {
                             console.error("[STORY_BG] Storage upload failed:", {
                                 message: uploadError.message,
                                 name: uploadError.name,
-                                storageKey,
+                                storageKey: actualStorageKey,
                                 bufferSize: buffer.length,
+                                detectedType,
                             });
                             // Image generated but upload failed — still count as AI success
                             // The base64 can't be returned directly (too large), so fall through

@@ -6,8 +6,27 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 /**
+ * Detect image format from buffer magic bytes.
+ * CRITICAL: Supabase may report wrong content type if the file was uploaded with wrong type.
+ * Always trust magic bytes over HTTP headers or blob.type.
+ */
+function detectMimeFromBytes(buf: ArrayBuffer): string {
+    const bytes = new Uint8Array(buf);
+    if (bytes.length < 4) return "image/png";
+    // PNG: 89 50 4E 47
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return "image/png";
+    // JPEG: FF D8 FF
+    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return "image/jpeg";
+    // WebP: RIFF...WEBP
+    if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+        bytes.length > 11 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "image/webp";
+    return "image/png";
+}
+
+/**
  * Download an image from Supabase Storage using the admin SDK.
  * Bypasses public bucket access restrictions — more reliable than raw HTTP fetch.
+ * Uses magic byte detection for MIME type (not Supabase's stored content type).
  */
 async function prefetchFromSupabase(
     url: string,
@@ -36,14 +55,19 @@ async function prefetchFromSupabase(
             return undefined;
         }
 
-        const ct = data.type || "image/png";
-        if (ct.includes("webp")) {
-            console.error("[STORY_ROUTE] Rejected WebP from storage:", ct);
+        // Detect actual format from magic bytes — don't trust blob.type or stored content type
+        const detectedMime = detectMimeFromBytes(buf);
+        const storedType = data.type || "unknown";
+        if (detectedMime === "image/webp") {
+            console.error("[STORY_ROUTE] Rejected WebP from storage (detected from bytes)");
             return undefined;
         }
+        if (storedType !== detectedMime) {
+            console.warn(`[STORY_ROUTE] MIME mismatch! stored=${storedType} actual=${detectedMime} — using detected`);
+        }
 
-        console.log(`[STORY_ROUTE] SDK download success: ${buf.byteLength} bytes, type: ${ct}`);
-        return `data:${ct};base64,${Buffer.from(buf).toString("base64")}`;
+        console.log(`[STORY_ROUTE] SDK download success: ${buf.byteLength} bytes, detected: ${detectedMime}, stored: ${storedType}`);
+        return `data:${detectedMime};base64,${Buffer.from(buf).toString("base64")}`;
     } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         console.error("[STORY_ROUTE] Supabase SDK download error:", msg);
@@ -53,7 +77,7 @@ async function prefetchFromSupabase(
 
 /**
  * Pre-fetch an image via HTTP and return as base64 data URI.
- * Fallback for non-Supabase URLs. Logs all failure points.
+ * Fallback for non-Supabase URLs. Uses magic byte detection for MIME type.
  */
 async function prefetchImage(url: string): Promise<string | undefined> {
     try {
@@ -65,18 +89,23 @@ async function prefetchImage(url: string): Promise<string | undefined> {
             console.error(`[STORY_ROUTE] Prefetch HTTP ${res.status} for:`, url.substring(0, 100));
             return undefined;
         }
-        const ct = res.headers.get('content-type') || 'image/jpeg';
-        if (ct.includes('webp')) {
-            console.error("[STORY_ROUTE] Prefetch rejected WebP:", ct);
-            return undefined;
-        }
         const buf = await res.arrayBuffer();
         if (buf.byteLength < 500) {
             console.error("[STORY_ROUTE] Prefetch image too small:", buf.byteLength);
             return undefined;
         }
-        console.log(`[STORY_ROUTE] HTTP fetch success: ${buf.byteLength} bytes, type: ${ct}`);
-        return `data:${ct};base64,${Buffer.from(buf).toString('base64')}`;
+        // Detect actual format from magic bytes — don't trust Content-Type header
+        const detectedMime = detectMimeFromBytes(buf);
+        const headerType = res.headers.get('content-type') || 'unknown';
+        if (detectedMime === "image/webp") {
+            console.error("[STORY_ROUTE] Prefetch rejected WebP (detected from bytes)");
+            return undefined;
+        }
+        if (headerType !== detectedMime && headerType !== "unknown") {
+            console.warn(`[STORY_ROUTE] HTTP MIME mismatch! header=${headerType} actual=${detectedMime} — using detected`);
+        }
+        console.log(`[STORY_ROUTE] HTTP fetch success: ${buf.byteLength} bytes, detected: ${detectedMime}, header: ${headerType}`);
+        return `data:${detectedMime};base64,${Buffer.from(buf).toString('base64')}`;
     } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         console.error("[STORY_ROUTE] Prefetch error:", msg, "URL:", url.substring(0, 100));
