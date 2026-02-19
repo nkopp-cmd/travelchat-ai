@@ -12,7 +12,23 @@ async function getItinerary(id: string) {
         .eq("id", id)
         .single();
 
-    if (error || !data) return null;
+    if (error) {
+        console.error("[STORIES_PAGE] DB query failed for itinerary:", id, "error:", error.message, error.code);
+        return null;
+    }
+    if (!data) {
+        console.error("[STORIES_PAGE] No itinerary found for id:", id);
+        return null;
+    }
+
+    console.log("[STORIES_PAGE] Loaded itinerary:", {
+        id: data.id,
+        city: data.city,
+        days: data.days,
+        hasStorySlides: !!(data.story_slides && typeof data.story_slides === "object"),
+        slideKeys: data.story_slides ? Object.keys(data.story_slides as Record<string, unknown>) : [],
+    });
+
     return data;
 }
 
