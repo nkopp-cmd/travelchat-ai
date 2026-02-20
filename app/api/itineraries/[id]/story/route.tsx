@@ -63,7 +63,7 @@ async function prefetchFromSupabase(
             return undefined;
         }
         if (storedType !== detectedMime) {
-            console.warn(`[STORY_ROUTE] MIME mismatch! stored=${storedType} actual=${detectedMime} — using detected`);
+            console.log(`[STORY_ROUTE] MIME mismatch: stored=${storedType} actual=${detectedMime} — using detected`);
         }
 
         console.log(`[STORY_ROUTE] SDK download success: ${buf.byteLength} bytes, detected: ${detectedMime}, stored: ${storedType}`);
@@ -102,7 +102,7 @@ async function prefetchImage(url: string): Promise<string | undefined> {
             return undefined;
         }
         if (headerType !== detectedMime && headerType !== "unknown") {
-            console.warn(`[STORY_ROUTE] HTTP MIME mismatch! header=${headerType} actual=${detectedMime} — using detected`);
+            console.log(`[STORY_ROUTE] HTTP MIME mismatch: header=${headerType} actual=${detectedMime} — using detected`);
         }
         console.log(`[STORY_ROUTE] HTTP fetch success: ${buf.byteLength} bytes, detected: ${detectedMime}, header: ${headerType}`);
         return `data:${detectedMime};base64,${Buffer.from(buf).toString('base64')}`;

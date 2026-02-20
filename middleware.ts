@@ -13,6 +13,7 @@ const isPublicRoute = createRouteMatcher([
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
+    '/api/itineraries/:id/story',  // Story render (PNG) — no auth needed, used by save route internally
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

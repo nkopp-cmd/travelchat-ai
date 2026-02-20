@@ -6,9 +6,11 @@ import { StoriesClient } from "./stories-client";
 
 async function getItinerary(id: string) {
     const supabase = createSupabaseAdmin();
+    // Use select("*") — safe even if story_slides column doesn't exist yet
+    // (select("*") returns whatever columns exist, unlike named selects which error on missing columns)
     const { data, error } = await supabase
         .from("itineraries")
-        .select("id, title, city, days, story_slides, highlights")
+        .select("*")
         .eq("id", id)
         .single();
 
