@@ -79,8 +79,17 @@ export interface SavedItinerary extends Itinerary {
 export interface Conversation {
   id: string;
   title?: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  linked_itinerary_id?: string;
+  messages?: ConversationMessage[];
+}
+
+export interface ConversationMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  created_at: string;
 }
 
 export interface Message {
@@ -217,6 +226,16 @@ class ApiClient {
     return this.request<{ messages: Message[] }>(
       `/api/conversations/messages?conversationId=${conversationId}`
     );
+  }
+
+  async linkConversationToItinerary(
+    conversationId: string,
+    itineraryId: string
+  ): Promise<ApiResult<{ success: boolean }>> {
+    return this.request<{ success: boolean }>("/api/conversations", {
+      method: "PATCH",
+      body: JSON.stringify({ conversationId, linked_itinerary_id: itineraryId }),
+    });
   }
 
   // ============================================
