@@ -30,6 +30,16 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `UPSTASH_REDIS_REST_URL` | Redis caching | Active |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis authentication | Active |
 
+#### Stripe Payment Keys (added Feb 13, 2026):
+| Variable | Purpose | Status |
+|----------|---------|--------|
+| `STRIPE_SECRET_KEY` | Stripe server-side API key | Active |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signature verification | Active |
+| `STRIPE_PRO_MONTHLY_PRICE_ID` | Pro monthly plan price ID | Active |
+| `STRIPE_PRO_YEARLY_PRICE_ID` | Pro yearly plan price ID | Active |
+| `STRIPE_PREMIUM_MONTHLY_PRICE_ID` | Premium monthly plan price ID | Active |
+| `STRIPE_PREMIUM_YEARLY_PRICE_ID` | Premium yearly plan price ID | Active |
+
 #### Feature Flags:
 | Variable | Purpose |
 |----------|---------|
@@ -70,6 +80,22 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - Image pipeline: `story-background POST` → saves URL to `ai_backgrounds` in DB → `story GET` reads URL, pre-fetches as base64, passes data URI to Satori `<img src>`
 - **AI image providers** (priority order): FLUX (`FAL_KEY`, via `lib/flux.ts`) → Seedream (`ARK_API_KEY`, via `lib/seedream.ts`) → Gemini (`GEMINI_API_KEY`, via `lib/imagen.ts`)
 - Provider routing in `lib/image-provider.ts`, stock photo fallback: TripAdvisor → Pexels → Unsplash
+
+### Stripe Payments & Subscriptions
+- **Stripe SDK**: `lib/stripe.ts` — client, customer CRUD, checkout sessions, billing portal, webhook verification
+- **API routes** in `app/api/subscription/`: checkout, portal, status, webhook
+- **Tiers**: Free ($0), Pro ($9/mo or $79/yr with 7-day trial), Premium ($19/mo or $159/yr)
+- **Tier config**: `lib/subscription.ts` — limits, features, pricing per tier
+- **DB schema**: `supabase/subscriptions-schema.sql` — `subscriptions`, `usage_tracking`, `affiliate_clicks` tables
+- **Usage tracking**: `lib/usage-tracking.ts` — atomic check-and-increment with advisory locks
+- **Client hook**: `hooks/use-subscription.ts` — `useSubscription()` with checkout/portal/tier helpers
+- **Context**: `providers/subscription-provider.tsx` — app-wide subscription context
+- **UI**: `app/pricing/page.tsx` (tier cards + FAQ), `app/settings/page.tsx` (subscription card + usage bars)
+- **Webhook events**: checkout.session.completed, subscription.created/updated/deleted, invoice.payment_succeeded/failed
+- **Post-checkout**: Redirects to `/settings?subscription=success`, `SubscriptionSuccessHandler` invalidates cache
+- **Emails**: `emails/subscription-email.tsx` — 6 event types (upgrade, downgrade, cancel, renew, trial_ending, payment_failed)
+- **Early adopters**: `lib/early-adopters.ts` — first 100 users get permanent premium, beta mode overrides
+- **CRITICAL**: Webhook route at `/api/subscription/webhook` must be in middleware public routes (Clerk blocks unsigned requests)
 
 ### City Configuration
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore
