@@ -36,7 +36,7 @@ export async function POST(
             return NextResponse.json({ success: true, sent: false, reason: "no_email" });
         }
 
-        const itineraryUrl = `https://www.localley.io/itineraries/${id}`;
+        const itineraryUrl = `https://www.localley.io/itineraries/${id}/stories`;
 
         const { data, error } = await resend.emails.send({
             from: FROM_EMAIL,

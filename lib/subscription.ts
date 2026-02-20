@@ -30,7 +30,7 @@ export interface SubscriptionFeatures {
 
     // AI features
     aiBackgrounds: boolean;
-    imageProvider: "none" | "seedream" | "gemini";
+    imageProvider: "none" | "flux" | "seedream" | "gemini";
     smartScheduling: boolean;
     weatherIntegration: boolean;
 
@@ -101,7 +101,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             pdfExport: "clean",
             emailExport: true,
             aiBackgrounds: true,
-            imageProvider: "seedream",
+            imageProvider: "flux",
             smartScheduling: false,
             weatherIntegration: true,
             collaborativeTrips: false,

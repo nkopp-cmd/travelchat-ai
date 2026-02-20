@@ -1,80 +1,106 @@
-import { fal } from "@fal-ai/client";
+/**
+ * Seedream 4.5 image generation via Bytedance ARK API (ModelArk)
+ *
+ * Uses the OpenAI-compatible REST endpoint at BytePlus ModelArk.
+ * Requires ARK_API_KEY environment variable.
+ *
+ * API docs: https://docs.byteplus.com/en/docs/ModelArk/1541523
+ */
 
-const apiKey = process.env.FAL_KEY;
+const ARK_API_KEY = process.env.ARK_API_KEY;
+const ARK_BASE_URL = "https://ark.ap-southeast.bytepluses.com/api/v3";
+const SEEDREAM_MODEL = "seedream-4-5-251128";
 
-if (!apiKey) {
-    console.warn("FAL_KEY is not set. Seedream image generation will be disabled.");
+if (!ARK_API_KEY) {
+    console.warn("ARK_API_KEY is not set. Seedream image generation will be disabled.");
 }
 
-// Configure fal.ai client
-if (apiKey) {
-    fal.config({ credentials: apiKey });
-}
-
-const SEEDREAM_MODEL = "fal-ai/bytedance/seedream/v4.5/text-to-image";
-
-interface SeedreamResult {
-    images: Array<{
-        url: string;
-        content_type: string;
-        width: number;
-        height: number;
+interface ArkImageResponse {
+    created: number;
+    data: Array<{
+        url?: string;
+        b64_json?: string;
     }>;
-    seed: number;
+    usage?: {
+        generated_images: number;
+        output_tokens: number;
+        total_tokens: number;
+    };
 }
 
 /**
- * Generate an image using Seedream 4.5 via fal.ai
- * Returns base64-encoded image data
+ * Generate an image using Seedream 4.5 via Bytedance ARK API.
+ * Returns base64-encoded PNG image data (no data URI prefix).
+ *
+ * Uses b64_json response format to avoid an extra HTTP round-trip
+ * (the URL format requires fetching from SE Asia servers which adds latency).
  */
-async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16"): Promise<string> {
-    if (!apiKey) {
-        throw new Error("Seedream is not configured. Please add FAL_KEY.");
+async function generateImage(prompt: string, size: string = "1080x1920"): Promise<string> {
+    if (!ARK_API_KEY) {
+        throw new Error("Seedream is not configured. Please add ARK_API_KEY.");
     }
 
-    // Map aspect ratios to fal.ai image_size presets
-    const imageSizeMap: Record<string, string | { width: number; height: number }> = {
-        "9:16": { width: 1080, height: 1920 },
-        "1:1": "square_hd",
-        "16:9": "landscape_16_9",
-    };
+    console.log("[SEEDREAM] Generating image with model:", SEEDREAM_MODEL, "size:", size);
 
-    const imageSize = imageSizeMap[aspectRatio] || { width: 1080, height: 1920 };
-
-    console.log("[SEEDREAM] Generating image with model:", SEEDREAM_MODEL, "size:", imageSize);
-
-    const result = await fal.subscribe(SEEDREAM_MODEL, {
-        input: {
-            prompt,
-            image_size: imageSize,
-            num_images: 1,
-            enable_safety_checker: true,
+    const response = await fetch(`${ARK_BASE_URL}/images/generations`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${ARK_API_KEY}`,
         },
-    }) as unknown as SeedreamResult;
+        body: JSON.stringify({
+            model: SEEDREAM_MODEL,
+            prompt,
+            size,
+            // Use b64_json to get base64 directly — avoids extra URL fetch round-trip
+            // and eliminates latency from fetching from SE Asia BytePlus servers
+            response_format: "b64_json",
+            watermark: false,
+            guidance_scale: 2.5,
+            n: 1,
+        }),
+    });
 
-    if (!result.images || result.images.length === 0) {
+    if (!response.ok) {
+        const errorText = await response.text().catch(() => "unknown");
+        console.error("[SEEDREAM] ARK API error:", response.status, errorText);
+        throw new Error(`Seedream API error: ${response.status} ${errorText}`);
+    }
+
+    const result: ArkImageResponse = await response.json();
+
+    if (!result.data || result.data.length === 0) {
         throw new Error("No images returned from Seedream");
     }
 
-    const imageUrl = result.images[0].url;
-    console.log("[SEEDREAM] Image generated, fetching from URL...");
+    const imageEntry = result.data[0];
 
-    // Fetch the image and convert to base64
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch Seedream image: ${response.status}`);
+    // Prefer base64 (should always be present with response_format: "b64_json")
+    if (imageEntry.b64_json) {
+        console.log("[SEEDREAM] Got base64 directly, length:", imageEntry.b64_json.length);
+        return imageEntry.b64_json;
     }
 
-    const arrayBuffer = await response.arrayBuffer();
+    // Fallback: fetch URL if API returned URL despite requesting b64_json
+    if (!imageEntry.url) {
+        throw new Error("No image URL or base64 in Seedream response");
+    }
+
+    console.log("[SEEDREAM] Unexpected URL response (expected b64_json), fetching from URL...");
+    const imageResponse = await fetch(imageEntry.url);
+    if (!imageResponse.ok) {
+        throw new Error(`Failed to fetch Seedream image: ${imageResponse.status}`);
+    }
+
+    const arrayBuffer = await imageResponse.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-    console.log("[SEEDREAM] Image fetched, base64 length:", base64.length);
+    console.log("[SEEDREAM] Image fetched from URL, base64 length:", base64.length);
     return base64;
 }
 
 /**
  * Generate a travel/city themed background image for stories
- * Matches the same signature as imagen.ts generateStoryBackground
  */
 export async function generateStoryBackground(
     city: string,
@@ -96,12 +122,11 @@ Golden hour natural light, warm tones, atmospheric haze.
 8K resolution, tack sharp focus, vibrant realistic colors, HDR.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure landscape/cityscape photography.`;
 
-    return generateImage(prompt, "9:16");
+    return generateImage(prompt, "1080x1920");
 }
 
 /**
  * Generate a day-specific background for story slides
- * Matches the same signature as imagen.ts generateDayBackground
  */
 export async function generateDayBackground(
     city: string,
@@ -120,7 +145,7 @@ Vertical portrait, balanced framing, depth and layers.
 Natural ambient light, warm color temperature.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure scenic/architectural photography.`;
 
-    return generateImage(prompt, "9:16");
+    return generateImage(prompt, "1080x1920");
 }
 
 /**
@@ -150,12 +175,12 @@ export async function generateActivityThumbnail(
 Square format, professional travel photography, vibrant natural colors, inviting atmosphere.
 High resolution, sharp focus, Instagram-worthy. NO text overlays, NO watermarks, NO logos.`;
 
-    return generateImage(prompt, "1:1");
+    return generateImage(prompt, "1024x1024");
 }
 
 /**
- * Check if Seedream is available (FAL_KEY configured)
+ * Check if Seedream (via Bytedance ARK API) is available
  */
 export function isSeedreamAvailable(): boolean {
-    return !!apiKey;
+    return !!ARK_API_KEY;
 }
