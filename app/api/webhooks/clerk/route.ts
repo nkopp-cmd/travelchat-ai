@@ -146,7 +146,7 @@ async function handleUserCreated(data: {
         try {
             const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL
                 ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-                : "https://localley.app/dashboard";
+                : "https://localley.io/dashboard";
 
             await resend.emails.send({
                 from: FROM_EMAIL,

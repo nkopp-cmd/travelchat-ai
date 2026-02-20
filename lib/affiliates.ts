@@ -167,7 +167,7 @@ export function getTrackingPixelUrl(
     trackingId: string,
     eventType: "click" | "view" | "conversion"
 ): string {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localley.app";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localley.io";
     return `${baseUrl}/api/affiliates/track?partner=${partner}&tid=${trackingId}&event=${eventType}`;
 }
 

@@ -1,5 +1,10 @@
 # Claude Code Configuration
 
+## Project
+- **Domain**: `localley.io`
+- **Platform**: Next.js on Vercel + Supabase + Clerk
+- **All fallback URLs must use `https://localley.io`** (NOT localley.app)
+
 ## Important Notes for Claude
 
 ### Environment Variables
