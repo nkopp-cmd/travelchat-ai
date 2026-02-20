@@ -354,7 +354,7 @@ async function sendSubscriptionEmail(
 
         const manageUrl = process.env.NEXT_PUBLIC_APP_URL
             ? `${process.env.NEXT_PUBLIC_APP_URL}/settings`
-            : "https://localley.app/settings";
+            : "https://localley.io/settings";
 
         const tierName = tier === "pro" ? "Pro" : tier === "premium" ? "Premium" : "Free";
 

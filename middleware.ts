@@ -6,6 +6,8 @@ const isPublicRoute = createRouteMatcher([
     '/sign-in(.*)',
     '/sign-up(.*)',
     '/api/webhooks(.*)',
+    '/api/subscription/webhook',  // Stripe webhook — must be public (no cookies on Stripe POST)
+    '/pricing(.*)',  // Allow anonymous users to see pricing
     '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
     '/api/itineraries/generate',  // Allow anonymous generation API
     '/api/itineraries/demo',  // Demo itinerary endpoint
