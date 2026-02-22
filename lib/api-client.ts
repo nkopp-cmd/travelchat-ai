@@ -243,11 +243,12 @@ class ApiClient {
   // ============================================
 
   async sendChatMessage(
-    messages: Array<{ role: string; content: string }>
+    messages: Array<{ role: string; content: string }>,
+    city?: string
   ): Promise<ApiResult<{ message: string }>> {
     return this.request<{ message: string }>("/api/chat", {
       method: "POST",
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, ...(city && { city }) }),
     });
   }
 

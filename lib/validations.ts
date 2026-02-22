@@ -8,6 +8,7 @@ export const chatSchema = z.object({
             content: z.string().min(1).max(10000),
         })
     ).min(1).max(50),
+    city: z.string().max(100).optional(),
 });
 
 // Itinerary generation validation
