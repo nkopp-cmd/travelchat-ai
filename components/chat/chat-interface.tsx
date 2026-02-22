@@ -218,7 +218,10 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
       // Normal chat flow - prepare messages for API (without id field)
       const apiMessages = [...messages, userMessageObj].map(({ role, content }) => ({ role, content }));
 
-      sendChatMutation.mutate(apiMessages, {
+      // Pass city context if available from itinerary context prop
+      const cityContext = itineraryContext?.city || undefined;
+
+      sendChatMutation.mutate({ messages: apiMessages, city: cityContext }, {
         onSuccess: (data) => {
           const assistantMessage = data.message;
           setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
