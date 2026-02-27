@@ -2,34 +2,50 @@
 -- Migration: Add deduplication constraint for spots table
 -- ============================================================================
 --
--- PREREQUISITE: Run the remove-duplicates.ts script FIRST to clean existing
--- duplicates, otherwise this migration will fail.
+-- Self-healing: automatically removes duplicates before creating the unique
+-- index, so no manual script run is required as a prerequisite.
 --
---   npx tsx scripts/remove-duplicates.ts --dry-run    # Preview
---   npx tsx scripts/remove-duplicates.ts              # Execute cleanup
---
--- Then apply this migration.
+-- For each group of spots sharing the same (name, address), keeps the one
+-- with the most photos, longest description, and newest created_at.
 -- ============================================================================
 
--- Add a generated column for normalized English name (lowercase, trimmed)
--- This enables efficient indexing and unique constraint checks
+-- Step 1: Add generated columns for normalized English name and address
 ALTER TABLE spots
 ADD COLUMN IF NOT EXISTS name_en_normalized TEXT
     GENERATED ALWAYS AS (lower(trim(name->>'en'))) STORED;
 
--- Add a generated column for normalized English address (lowercase, trimmed)
 ALTER TABLE spots
 ADD COLUMN IF NOT EXISTS address_en_normalized TEXT
     GENERATED ALWAYS AS (lower(trim(address->>'en'))) STORED;
 
--- Create unique index on normalized name + address
--- This prevents duplicate spots with the same name and address (case-insensitive)
--- Using a partial index to only apply when name is not null
+-- Step 2: Remove duplicates, keeping the richest record per (name, address) group
+-- Uses ROW_NUMBER to rank records within each group:
+--   1. Most photos first
+--   2. Longest description as tiebreaker
+--   3. Newest record as final tiebreaker
+DELETE FROM spots
+WHERE id IN (
+    SELECT id FROM (
+        SELECT id, ROW_NUMBER() OVER (
+            PARTITION BY name_en_normalized, address_en_normalized
+            ORDER BY
+                coalesce(array_length(photos, 1), 0) DESC,
+                coalesce(length(description->>'en'), 0) DESC,
+                created_at DESC
+        ) AS rn
+        FROM spots
+        WHERE name_en_normalized IS NOT NULL AND name_en_normalized != ''
+    ) ranked
+    WHERE rn > 1
+);
+
+-- Step 3: Create unique index to prevent future duplicates
+-- Partial index: only applies when name is not null/empty
 CREATE UNIQUE INDEX IF NOT EXISTS idx_spots_unique_name_address
     ON spots(name_en_normalized, address_en_normalized)
     WHERE name_en_normalized IS NOT NULL AND name_en_normalized != '';
 
--- Add an index on the normalized name for faster lookups during import
+-- Step 4: Add lookup index for faster import dedup checks
 CREATE INDEX IF NOT EXISTS idx_spots_name_en_normalized
     ON spots(name_en_normalized)
     WHERE name_en_normalized IS NOT NULL;
