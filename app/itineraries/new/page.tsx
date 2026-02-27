@@ -9,9 +9,11 @@ import { Loader2 } from "lucide-react";
 function NewItineraryContent() {
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
+  const cityParam = searchParams.get("city");
 
   // Build initial data from template if provided
   let initialData: Partial<WizardData> = {};
+  let initialStep = 0;
 
   if (templateId) {
     const template = getTemplateById(templateId);
@@ -41,7 +43,14 @@ function NewItineraryContent() {
     }
   }
 
-  return <ItineraryWizard initialData={initialData} />;
+  // Pre-select city from URL param (e.g. from mobile dashboard city cards)
+  if (cityParam) {
+    initialData.city = cityParam;
+    // Auto-advance past destination step when city is pre-selected
+    initialStep = 1;
+  }
+
+  return <ItineraryWizard initialData={initialData} initialStep={initialStep} />;
 }
 
 export default function NewItineraryPage() {

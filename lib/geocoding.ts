@@ -60,17 +60,34 @@ export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: numbe
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/** Maximum distance (km) from city center for a geocoding result to be valid */
-const MAX_DISTANCE_KM = 50;
+/** Default maximum distance (km) from city center for a geocoding result to be valid */
+const DEFAULT_MAX_DISTANCE_KM = 60;
+
+/** Cities with larger metro areas or island geography need wider radius */
+const LARGE_RADIUS_CITIES = new Set([
+    'jeju', 'okinawa', 'phuket', 'bali-ubud', 'bali-canggu', 'siem-reap',
+]);
+
+/**
+ * Get the maximum allowed geocoding distance for a city.
+ * Islands and spread-out destinations get a wider radius.
+ */
+function getMaxDistanceForCity(city: string): number {
+    const cityConfig = resolveCityConfig(city);
+    if (!cityConfig) return DEFAULT_MAX_DISTANCE_KM;
+    if (LARGE_RADIUS_CITIES.has(cityConfig.slug)) return 100;
+    if (cityConfig.ring === 1) return 70; // Major metros
+    return DEFAULT_MAX_DISTANCE_KM;
+}
 
 /**
  * Validate a geocoding result is within reasonable distance of the target city.
  * Rejects results in wrong cities/countries.
  */
-function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: number }): boolean {
+function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: number }, maxKm: number = DEFAULT_MAX_DISTANCE_KM): boolean {
     const dist = distanceKm(result.lat, result.lng, center.lat, center.lng);
-    if (dist > MAX_DISTANCE_KM) {
-        console.warn(`[geocoding] Result rejected: ${dist.toFixed(1)}km from city center (max ${MAX_DISTANCE_KM}km)`, {
+    if (dist > maxKm) {
+        console.warn(`[geocoding] Result rejected: ${dist.toFixed(1)}km from city center (max ${maxKm}km)`, {
             result: { lat: result.lat, lng: result.lng },
             center,
             provider: result.provider,
@@ -303,7 +320,7 @@ async function geocodeWithNominatim(query: string, center?: { lat: number; lng: 
 // ============================================================================
 
 async function geocodeWithGoogle(query: string, center?: { lat: number; lng: number }): Promise<GeocodingResult | null> {
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) return null;
 
     try {
@@ -352,12 +369,13 @@ export async function geocodeWithCascade(
     const cityConfig = resolveCityConfig(city);
     const localLang = getCityLocalLanguage(city);
     const center = cityConfig?.center;
+    const maxDistance = getMaxDistanceForCity(city);
 
     // Helper: validate result is near the target city (rejects wrong-country results)
     const isValid = (r: GeocodingResult | null): r is GeocodingResult => {
         if (!r) return false;
         if (!center) return true; // No center to validate against
-        return isResultNearCity(r, center);
+        return isResultNearCity(r, center, maxDistance);
     };
 
     // Build query variants (English)
@@ -446,6 +464,16 @@ export async function geocodeWithCascade(
         if (isValid(result)) return result;
     }
 
+    // 4. Last resort: bare place name alone (without address or city suffix)
+    if (placeName && placeName !== address) {
+        result = await geocodeWithNominatim(placeName, center);
+        if (isValid(result)) return result;
+
+        result = await geocodeWithGoogle(placeName, center);
+        if (isValid(result)) return result;
+    }
+
+    console.warn(`[geocoding] All providers failed for: "${placeName || address}" in ${city}`);
     return null;
 }
 
@@ -513,9 +541,10 @@ export async function geocodeItineraryActivities(
                     geocoded++;
                 } else {
                     failed++;
+                    console.warn(`[geocoding] UNMAPPED: "${activity.name}" @ "${activity.address}" in ${city} (Day ${dayPlan.day})`);
                 }
             } catch (error) {
-                console.error(`[geocoding] Failed for "${activity.name}":`, error);
+                console.error(`[geocoding] ERROR for "${activity.name}" @ "${activity.address}" in ${city}:`, error);
                 failed++;
             }
 

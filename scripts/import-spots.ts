@@ -291,13 +291,37 @@ async function importSpots(
             continue;
         }
 
-        // Check if exists (upsert logic)
-        const { data: existing } = await supabase
+        // Check if exists (case-insensitive, normalized match)
+        const { data: candidates } = await supabase
             .from("spots")
-            .select("id")
-            .eq("name->>'en'", name.en)
-            .ilike("address->>'en'", `%${cityConfig.name}%`)
-            .single();
+            .select("id, name, location")
+            .ilike("name->>'en'", name.en)
+            .ilike("address->>'en'", `%${cityConfig.name}%`);
+
+        // Find best match: exact normalized name match or coordinate proximity
+        const existing = candidates?.find(c => {
+            const candidateName = normalizeString(
+                (c.name as Record<string, string>)?.en || ""
+            );
+            if (candidateName === normalizedName) return true;
+
+            // Coordinate proximity: within 50m with same name
+            if (lat && lng && c.location) {
+                const loc = c.location as { coordinates?: [number, number] };
+                if (loc.coordinates) {
+                    const [cLng, cLat] = loc.coordinates;
+                    const R = 6371000;
+                    const dLat = (cLat - lat) * Math.PI / 180;
+                    const dLng = (cLng - lng) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) ** 2 +
+                        Math.cos(lat * Math.PI / 180) * Math.cos(cLat * Math.PI / 180) *
+                        Math.sin(dLng / 2) ** 2;
+                    const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    if (dist <= 50 && candidateName === normalizedName) return true;
+                }
+            }
+            return false;
+        }) || null;
 
         try {
             if (existing) {
