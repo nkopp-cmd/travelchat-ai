@@ -291,12 +291,26 @@ async function importSpots(
             continue;
         }
 
-        // Check if exists (case-insensitive, normalized match)
-        const { data: candidates } = await supabase
+        // Check if exists — prefer normalized column (from migration 003),
+        // fall back to raw JSONB query if column doesn't exist yet
+        let candidates: Array<{ id: string; name: Record<string, string>; location: unknown }> | null = null;
+        const { data: normCandidates, error: normError } = await supabase
             .from("spots")
             .select("id, name, location")
-            .ilike("name->>'en'", name.en)
+            .eq("name_en_normalized", normalizedName.toLowerCase().trim())
             .ilike("address->>'en'", `%${cityConfig.name}%`);
+
+        if (normError && normError.message?.includes("name_en_normalized")) {
+            // Column doesn't exist yet — migration hasn't run, fall back to raw query
+            const { data: rawCandidates } = await supabase
+                .from("spots")
+                .select("id, name, location")
+                .ilike("name->>'en'", name.en)
+                .ilike("address->>'en'", `%${cityConfig.name}%`);
+            candidates = rawCandidates as typeof candidates;
+        } else {
+            candidates = normCandidates as typeof candidates;
+        }
 
         // Find best match: exact normalized name match or coordinate proximity
         const existing = candidates?.find(c => {

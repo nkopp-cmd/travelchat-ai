@@ -142,7 +142,17 @@ async function fetchFilteredSpotsInternal(
         };
     }
 
-    const spots = (data || []).map((spot: RawSpot) => transformSpot(spot));
+    const allSpots = (data || []).map((spot: RawSpot) => transformSpot(spot));
+
+    // Safety net: deduplicate by (name + address) in case DB has dupes
+    const seen = new Map<string, boolean>();
+    const spots = allSpots.filter((spot) => {
+        const key = `${spot.name.toLowerCase().trim()}|${spot.location.address.toLowerCase().trim()}`;
+        if (seen.has(key)) return false;
+        seen.set(key, true);
+        return true;
+    });
+
     const total = count || 0;
 
     return {
