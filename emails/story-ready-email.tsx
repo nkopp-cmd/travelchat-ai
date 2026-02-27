@@ -43,14 +43,14 @@ export function StoryReadyEmail({
                         <Text style={paragraph}>
                             Your story slides for <strong>{city}</strong> are ready!
                             We've generated beautiful AI backgrounds for each day of your
-                            trip. Head over to your itinerary to preview and download them.
+                            trip. Head over to download and share them directly.
                         </Text>
                     </Section>
 
                     {/* CTA */}
                     <Section style={ctaSection}>
                         <Link href={itineraryUrl} style={ctaButton}>
-                            View Your Story Slides
+                            Download Your Story Slides
                         </Link>
                     </Section>
 
@@ -69,8 +69,8 @@ export function StoryReadyEmail({
                         <Text style={footerSubtext}>
                             Discover hidden gems. Explore like a local.
                         </Text>
-                        <Link href="https://localley.app" style={footerLink}>
-                            localley.app
+                        <Link href="https://localley.io" style={footerLink}>
+                            localley.io
                         </Link>
                     </Section>
                 </Container>

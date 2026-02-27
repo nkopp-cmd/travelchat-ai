@@ -245,6 +245,14 @@ COMMENT ON COLUMN itineraries.ai_backgrounds IS 'AI-generated background images 
 CREATE INDEX IF NOT EXISTS idx_itineraries_ai_backgrounds ON itineraries((ai_backgrounds IS NOT NULL));
 
 -- ================================
+-- 10. Add persisted story slide PNGs for download/sharing
+-- ================================
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS story_slides JSONB;
+
+COMMENT ON COLUMN itineraries.story_slides IS 'Persisted rendered story slide PNGs in Supabase Storage. Format: {"cover": "https://...supabase.co/.../cover.png", "day1": "...", "summary": "..."}';
+
+-- ================================
 -- VERIFICATION QUERIES
 -- Run these after migration to verify success
 -- ================================

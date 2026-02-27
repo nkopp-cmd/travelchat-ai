@@ -1,40 +1,116 @@
-import { ImageResponse } from "@vercel/og";
-import { NextRequest } from "next/server";
+import { ImageResponse } from "next/og";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "nodejs";
-export const maxDuration = 30; // Allow up to 30s for image fetching + Satori rendering
+export const maxDuration = 30;
 
-// Curated Unsplash images for fallback (when no ai_backgrounds in database)
-const CITY_IMAGES: Record<string, string[]> = {
-    'seoul': [
-        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1080&h=1920&fit=crop',
-    ],
-    'tokyo': [
-        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1080&h=1920&fit=crop',
-    ],
-    'bangkok': [
-        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1080&h=1920&fit=crop',
-    ],
-    'singapore': [
-        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1080&h=1920&fit=crop',
-        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=1080&h=1920&fit=crop',
-    ],
-};
+/**
+ * Detect image format from buffer magic bytes.
+ * CRITICAL: Supabase may report wrong content type if the file was uploaded with wrong type.
+ * Always trust magic bytes over HTTP headers or blob.type.
+ */
+function detectMimeFromBytes(buf: ArrayBuffer): string {
+    const bytes = new Uint8Array(buf);
+    if (bytes.length < 4) return "image/png";
+    // PNG: 89 50 4E 47
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return "image/png";
+    // JPEG: FF D8 FF
+    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return "image/jpeg";
+    // WebP: RIFF...WEBP
+    if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+        bytes.length > 11 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "image/webp";
+    return "image/png";
+}
 
-const DEFAULT_TRAVEL_IMAGES = [
-    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1080&h=1920&fit=crop',
-    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=1080&h=1920&fit=crop',
-];
+/**
+ * Download an image from Supabase Storage using the admin SDK.
+ * Bypasses public bucket access restrictions — more reliable than raw HTTP fetch.
+ * Uses magic byte detection for MIME type (not Supabase's stored content type).
+ */
+async function prefetchFromSupabase(
+    url: string,
+    supabase: ReturnType<typeof createSupabaseAdmin>
+): Promise<string | undefined> {
+    const marker = "/storage/v1/object/public/generated-images/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return undefined;
 
-function getFallbackImage(city: string): string {
-    const normalizedCity = city.toLowerCase().trim();
-    const images = CITY_IMAGES[normalizedCity] || DEFAULT_TRAVEL_IMAGES;
-    const randomIndex = Math.floor(Math.random() * images.length);
-    return images[randomIndex];
+    const storagePath = url.substring(idx + marker.length);
+    console.log("[STORY_ROUTE] Downloading via Supabase SDK:", storagePath);
+
+    try {
+        const { data, error } = await supabase.storage
+            .from("generated-images")
+            .download(storagePath);
+
+        if (error || !data) {
+            console.error("[STORY_ROUTE] Supabase SDK download failed:", error?.message);
+            return undefined;
+        }
+
+        const buf = await data.arrayBuffer();
+        if (buf.byteLength < 500) {
+            console.error("[STORY_ROUTE] Downloaded image too small:", buf.byteLength);
+            return undefined;
+        }
+
+        // Detect actual format from magic bytes — don't trust blob.type or stored content type
+        const detectedMime = detectMimeFromBytes(buf);
+        const storedType = data.type || "unknown";
+        if (detectedMime === "image/webp") {
+            console.error("[STORY_ROUTE] Rejected WebP from storage (detected from bytes)");
+            return undefined;
+        }
+        if (storedType !== detectedMime) {
+            console.log(`[STORY_ROUTE] MIME mismatch: stored=${storedType} actual=${detectedMime} — using detected`);
+        }
+
+        console.log(`[STORY_ROUTE] SDK download success: ${buf.byteLength} bytes, detected: ${detectedMime}, stored: ${storedType}`);
+        return `data:${detectedMime};base64,${Buffer.from(buf).toString("base64")}`;
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("[STORY_ROUTE] Supabase SDK download error:", msg);
+        return undefined;
+    }
+}
+
+/**
+ * Pre-fetch an image via HTTP and return as base64 data URI.
+ * Fallback for non-Supabase URLs. Uses magic byte detection for MIME type.
+ */
+async function prefetchImage(url: string): Promise<string | undefined> {
+    try {
+        const res = await fetch(url, {
+            signal: AbortSignal.timeout(15000),
+            headers: { 'Accept': 'image/jpeg,image/png,image/gif,image/*' },
+        });
+        if (!res.ok) {
+            console.error(`[STORY_ROUTE] Prefetch HTTP ${res.status} for:`, url.substring(0, 100));
+            return undefined;
+        }
+        const buf = await res.arrayBuffer();
+        if (buf.byteLength < 500) {
+            console.error("[STORY_ROUTE] Prefetch image too small:", buf.byteLength);
+            return undefined;
+        }
+        // Detect actual format from magic bytes — don't trust Content-Type header
+        const detectedMime = detectMimeFromBytes(buf);
+        const headerType = res.headers.get('content-type') || 'unknown';
+        if (detectedMime === "image/webp") {
+            console.error("[STORY_ROUTE] Prefetch rejected WebP (detected from bytes)");
+            return undefined;
+        }
+        if (headerType !== detectedMime && headerType !== "unknown") {
+            console.log(`[STORY_ROUTE] HTTP MIME mismatch: header=${headerType} actual=${detectedMime} — using detected`);
+        }
+        console.log(`[STORY_ROUTE] HTTP fetch success: ${buf.byteLength} bytes, detected: ${detectedMime}, header: ${headerType}`);
+        return `data:${detectedMime};base64,${Buffer.from(buf).toString('base64')}`;
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("[STORY_ROUTE] Prefetch error:", msg, "URL:", url.substring(0, 100));
+        return undefined;
+    }
 }
 
 // Story dimensions (9:16 aspect ratio for Instagram/TikTok)
@@ -46,7 +122,7 @@ const STORY_HEIGHT = 1920;
 const SAFE_ZONE = {
     TOP: 180,        // Username, timestamp, close button
     BOTTOM: 320,     // Caption area, reply bar, swipe up
-    LEFT: 48,        // Generally safe, small margin
+    LEFT: 140,       // Match RIGHT for centered content
     RIGHT: 140,      // Like, comment, share, bookmark buttons
 };
 
@@ -112,9 +188,16 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                        display: "flex",
                     }}
-                />
+                >
+                    {/* Base gradient */}
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 35%, #4f46e5 65%, #2563eb 100%)" }} />
+                    {/* Decorative glow orbs */}
+                    <div style={{ position: "absolute", top: "15%", left: "10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.35) 0%, transparent 70%)" }} />
+                    <div style={{ position: "absolute", bottom: "20%", right: "5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)" }} />
+                    <div style={{ position: "absolute", top: "55%", left: "40%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 70%)" }} />
+                </div>
             )}
             {/* Gradient overlay for text readability */}
             <div
@@ -124,7 +207,9 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.6) 100%)",
+                    background: backgroundImage
+                        ? "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.6) 100%)"
+                        : "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.35) 100%)",
                 }}
             />
 
@@ -244,9 +329,19 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
     );
 }
 
+// Rotating gradient palette for day slides (vibrant, branded)
+const DAY_GRADIENTS = [
+    { base: "linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)", orb1: "rgba(168,85,247,0.3)", orb2: "rgba(236,72,153,0.25)" },   // purple → pink
+    { base: "linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)", orb1: "rgba(59,130,246,0.3)", orb2: "rgba(6,182,212,0.25)" },     // blue → cyan
+    { base: "linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)", orb1: "rgba(124,58,237,0.3)", orb2: "rgba(37,99,235,0.25)" },     // purple → blue
+    { base: "linear-gradient(135deg, #059669 0%, #06b6d4 100%)", orb1: "rgba(5,150,105,0.3)", orb2: "rgba(6,182,212,0.25)" },      // emerald → cyan
+    { base: "linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%)", orb1: "rgba(109,40,217,0.3)", orb2: "rgba(79,70,229,0.25)" },     // violet → indigo
+];
+
 // Day slide template
 function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan: DayPlan; dayNumber: number; backgroundImage?: string; isPaidUser?: boolean }) {
-    const activities = dayPlan.activities?.slice(0, 3) || []; // Limit to 3 activities to fit within safe zones
+    const activities = dayPlan.activities?.slice(0, 3) || [];
+    const dayGradient = DAY_GRADIENTS[(dayNumber - 1) % DAY_GRADIENTS.length];
 
     return (
         <div
@@ -259,7 +354,7 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                 overflow: "hidden",
             }}
         >
-            {/* Background image layer - always show full size */}
+            {/* Background image layer */}
             {backgroundImage ? (
                 <img
                     src={backgroundImage}
@@ -281,11 +376,17 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)",
+                        display: "flex",
                     }}
-                />
+                >
+                    {/* Base gradient — rotates per day */}
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: dayGradient.base }} />
+                    {/* Decorative glow orbs */}
+                    <div style={{ position: "absolute", top: "10%", right: "15%", width: 350, height: 350, borderRadius: "50%", background: `radial-gradient(circle, ${dayGradient.orb1} 0%, transparent 70%)` }} />
+                    <div style={{ position: "absolute", bottom: "25%", left: "10%", width: 400, height: 400, borderRadius: "50%", background: `radial-gradient(circle, ${dayGradient.orb2} 0%, transparent 70%)` }} />
+                </div>
             )}
-            {/* Subtle gradient overlay for readability - lets background show through */}
+            {/* Gradient overlay for readability */}
             <div
                 style={{
                     position: "absolute",
@@ -293,15 +394,19 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)",
+                    background: backgroundImage
+                        ? "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 35%, rgba(0,0,0,0.2) 65%, rgba(0,0,0,0.5) 100%)"
+                        : "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.3) 100%)",
                 }}
             />
 
-            {/* Safe zone content container */}
+            {/* Safe zone content container — centered like Cover/Summary */}
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
                     position: "relative",
                     paddingTop: SAFE_ZONE.TOP,
                     paddingBottom: SAFE_ZONE.BOTTOM,
@@ -310,123 +415,131 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     flex: 1,
                 }}
             >
-                {/* Header - Logo only, no page numbers */}
+                {/* Logo — centered at top of safe zone */}
+                <div
+                    style={{
+                        position: "absolute",
+                        top: SAFE_ZONE.TOP + 20,
+                        display: "flex",
+                        alignItems: "center",
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        padding: "10px 24px",
+                        borderRadius: 100,
+                        border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                >
+                    <span style={{ fontSize: 28, color: "white", fontWeight: "bold" }}>
+                        Localley
+                    </span>
+                </div>
+
+                {/* Main content card — centered glass card with Day title + activities */}
                 <div
                     style={{
                         display: "flex",
-                        justifyContent: "flex-start",
+                        flexDirection: "column",
                         alignItems: "center",
-                        marginBottom: 24,
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        padding: "36px 44px",
+                        borderRadius: 28,
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        maxWidth: STORY_WIDTH - SAFE_ZONE.LEFT - SAFE_ZONE.RIGHT - 60,
+                        width: "100%",
                     }}
                 >
+                    {/* Day number badge */}
                     <div
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            backgroundColor: "rgba(0,0,0,0.3)",
-                            padding: "10px 22px",
+                            backgroundColor: "rgba(124,58,237,0.5)",
+                            padding: "10px 28px",
                             borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.2)",
+                            border: "1px solid rgba(255,255,255,0.25)",
+                            marginBottom: 20,
                         }}
                     >
-                        <span style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
-                            Localley
+                        <span style={{ fontSize: 26, color: "white", fontWeight: "bold" }}>
+                            Day {dayPlan.day || dayNumber}
                         </span>
                     </div>
-                </div>
 
-                {/* Day Title - Glassmorphism card */}
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        padding: "28px 36px",
-                        borderRadius: 24,
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        marginBottom: 24,
-                    }}
-                >
-                    <span
-                        style={{
-                            fontSize: 48,
-                            fontWeight: "bold",
-                            color: "white",
-                            textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-                        }}
-                    >
-                        Day {dayPlan.day || dayNumber}
-                    </span>
+                    {/* Day theme */}
                     {dayPlan.theme && (
-                        <span style={{ fontSize: 28, color: "rgba(255,255,255,0.9)", marginTop: 8 }}>
+                        <span
+                            style={{
+                                fontSize: 36,
+                                fontWeight: "bold",
+                                color: "white",
+                                textAlign: "center",
+                                marginBottom: 28,
+                                textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+                            }}
+                        >
                             {safeString(dayPlan.theme)}
                         </span>
                     )}
-                </div>
 
-                {/* Activities - Glassmorphism cards */}
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 16,
-                        flex: 1,
-                    }}
-                >
-                    {activities.map((activity, index) => (
+                    {/* Activities list */}
+                    {activities.length > 0 && (
                         <div
-                            key={index}
                             style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                backgroundColor: "rgba(0,0,0,0.35)",
-                                borderRadius: 20,
-                                padding: 24,
-                                border: "1px solid rgba(255,255,255,0.15)",
+                                gap: 12,
+                                width: "100%",
                             }}
                         >
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 14,
-                                    marginBottom: 6,
-                                }}
-                            >
-                                <span style={{ fontSize: 26 }}>
-                                    {Number(activity.localleyScore) >= 5
-                                        ? "💎"
-                                        : Number(activity.localleyScore) >= 4
-                                            ? "⭐"
-                                            : "📍"}
-                                </span>
-                                <span
+                            {activities.map((activity, index) => (
+                                <div
+                                    key={index}
                                     style={{
-                                        fontSize: 28,
-                                        fontWeight: "bold",
-                                        color: "white",
-                                        textShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 14,
+                                        backgroundColor: "rgba(0,0,0,0.3)",
+                                        padding: "16px 24px",
+                                        borderRadius: 16,
+                                        border: "1px solid rgba(255,255,255,0.12)",
                                     }}
                                 >
-                                    {safeString(activity.name, "Activity")}
-                                </span>
-                            </div>
-                            {activity.time && (
-                                <span style={{ fontSize: 20, color: "rgba(255,255,255,0.8)" }}>
-                                    🕐 {safeString(activity.time)}
-                                </span>
-                            )}
+                                    <span style={{ fontSize: 24 }}>
+                                        {Number(activity.localleyScore) >= 5
+                                            ? "💎"
+                                            : Number(activity.localleyScore) >= 4
+                                                ? "⭐"
+                                                : "📍"}
+                                    </span>
+                                    <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                        <span
+                                            style={{
+                                                fontSize: 24,
+                                                fontWeight: "bold",
+                                                color: "white",
+                                            }}
+                                        >
+                                            {safeString(activity.name, "Activity")}
+                                        </span>
+                                        {activity.time && (
+                                            <span style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+                                                {safeString(activity.time)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    )}
                 </div>
 
-                {/* Footer - only show CTA for free users */}
+                {/* Footer — only show for free users */}
                 {!isPaidUser && (
                     <div
                         style={{
+                            position: "absolute",
+                            bottom: 40,
                             display: "flex",
-                            justifyContent: "center",
-                            paddingTop: 16,
+                            alignItems: "center",
                         }}
                     >
                         <span style={{ fontSize: 20, color: "rgba(255,255,255,0.6)" }}>
@@ -479,9 +592,15 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
+                        display: "flex",
                     }}
-                />
+                >
+                    {/* Base gradient — purple/pink brand */}
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)" }} />
+                    {/* Decorative glow orbs */}
+                    <div style={{ position: "absolute", bottom: "15%", left: "15%", width: 450, height: 450, borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)" }} />
+                    <div style={{ position: "absolute", top: "20%", right: "10%", width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)" }} />
+                </div>
             )}
             {/* Subtle gradient overlay for readability - lets background show through */}
             <div
@@ -491,7 +610,9 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)",
+                    background: backgroundImage
+                        ? "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%)"
+                        : "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.3) 100%)",
                 }}
             />
 
@@ -616,7 +737,7 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                                 boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
                             }}
                         >
-                            <span style={{ fontSize: 22, fontWeight: "bold", color: "#059669" }}>
+                            <span style={{ fontSize: 22, fontWeight: "bold", color: "#7c3aed" }}>
                                 Plan yours at localley.io
                             </span>
                         </div>
@@ -646,62 +767,133 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const debugMode = new URL(req.url).searchParams.get("debug") === "true";
+    const diagnostics: Record<string, unknown> = { timestamp: new Date().toISOString(), runtime: "nodejs" };
+
     try {
         const { id } = await params;
         const { searchParams } = new URL(req.url);
         const slide = searchParams.get("slide") || "cover";
         const dayIndex = parseInt(searchParams.get("day") || "1", 10) - 1;
-        // Check if user is paid (passed from client that knows the tier)
         const isPaidUser = searchParams.get("paid") === "true";
+        diagnostics.params = { id, slide, dayIndex, isPaidUser };
 
         const supabase = createSupabaseAdmin();
+        diagnostics.supabaseCreated = true;
 
+        // Use select("*") — safe even if ai_backgrounds column doesn't exist yet
+        // (select("*") returns whatever columns exist, unlike named selects which error)
         const { data: itinerary, error } = await supabase
             .from("itineraries")
-            .select("title, city, days, activities, highlights, ai_backgrounds")
+            .select("*")
             .eq("id", id)
             .single();
 
-        if (error || !itinerary) {
-            return new Response("Itinerary not found", { status: 404 });
+        diagnostics.queryResult = { hasData: !!itinerary, error: error?.message || null };
+
+        if (debugMode && (error || !itinerary)) {
+            return NextResponse.json({ ...diagnostics, step: "query_failed" });
         }
 
-        // Extract AI backgrounds from database
-        const aiBackgrounds = itinerary.ai_backgrounds as Record<string, string> | null;
+        if (error || !itinerary) {
+            console.error("[STORY_ROUTE] Itinerary query failed:", error?.message || "not found", { id });
+            // Return a valid PNG error slide instead of text 404
+            const errOg = new ImageResponse(
+                (
+                    <div style={{
+                        width: STORY_WIDTH, height: STORY_HEIGHT, display: "flex",
+                        justifyContent: "center", alignItems: "center",
+                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
+                    }}>
+                        <span style={{ fontSize: 48, color: "white", fontWeight: "bold" }}>Localley</span>
+                    </div>
+                ),
+                { width: STORY_WIDTH, height: STORY_HEIGHT }
+            );
+            const errBuf = await errOg.arrayBuffer();
+            return new Response(errBuf, {
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                },
+            });
+        }
+
+        // ai_backgrounds may or may not exist depending on migration status
+        const aiBackgrounds = (itinerary.ai_backgrounds && typeof itinerary.ai_backgrounds === 'object')
+            ? itinerary.ai_backgrounds as Record<string, string>
+            : null;
+
         let aiBackground: string | undefined;
 
         console.log("[STORY_ROUTE] Rendering slide:", {
             slide,
             dayIndex,
+            title: itinerary.title,
+            city: itinerary.city,
             hasAiBackgrounds: !!aiBackgrounds,
             backgroundKeys: aiBackgrounds ? Object.keys(aiBackgrounds) : [],
+            backgroundValues: aiBackgrounds
+                ? Object.fromEntries(Object.entries(aiBackgrounds).map(([k, v]) => [k, typeof v === 'string' ? v.substring(0, 80) : typeof v]))
+                : null,
         });
 
         if (aiBackgrounds) {
             if (slide === "cover" && aiBackgrounds.cover) {
                 aiBackground = aiBackgrounds.cover;
-                console.log("[STORY_ROUTE] Using cover background, length:", aiBackground.length);
+                console.log("[STORY_ROUTE] Using cover background, length:", aiBackground.length, "url:", aiBackground.substring(0, 120));
             } else if (slide === "summary" && aiBackgrounds.summary) {
                 aiBackground = aiBackgrounds.summary;
-                console.log("[STORY_ROUTE] Using summary background, length:", aiBackground.length);
+                console.log("[STORY_ROUTE] Using summary background, length:", aiBackground.length, "url:", aiBackground.substring(0, 120));
             } else if (slide === "day") {
-                // Check for day-specific background
                 const dayBgKey = `day${dayIndex + 1}`;
                 if (aiBackgrounds[dayBgKey]) {
                     aiBackground = aiBackgrounds[dayBgKey];
-                    console.log("[STORY_ROUTE] Using", dayBgKey, "background, length:", aiBackground.length);
+                    console.log("[STORY_ROUTE] Using", dayBgKey, "background, length:", aiBackground.length, "url:", aiBackground.substring(0, 120));
                 } else {
-                    console.log("[STORY_ROUTE] No background for", dayBgKey, "- using fallback");
+                    console.log("[STORY_ROUTE] No background for", dayBgKey, "- available keys:", Object.keys(aiBackgrounds), "- using branded gradient fallback");
                 }
             }
         } else {
-            console.log("[STORY_ROUTE] No ai_backgrounds in database for itinerary:", id);
+            console.log("[STORY_ROUTE] No ai_backgrounds in database for itinerary:", id, "- using branded gradient fallback");
         }
 
-        // Use fallback image if no background was found
-        if (!aiBackground && itinerary.city) {
-            aiBackground = getFallbackImage(itinerary.city);
-            console.log("[STORY_ROUTE] Using fallback image for", itinerary.city, ":", aiBackground);
+        // Pre-fetch the image as base64 for Satori (Node.js fetch is unreliable in Satori)
+        // Try Supabase SDK download first (bypasses bucket access restrictions),
+        // then fall back to HTTP fetch for non-Supabase URLs.
+        let backgroundDataUri: string | undefined;
+        if (aiBackground) {
+            const isSupabaseUrl = aiBackground.includes("supabase.co/storage/");
+            const hasMarker = aiBackground.includes("/storage/v1/object/public/generated-images/");
+            console.log("[STORY_ROUTE] Prefetch attempt:", { isSupabaseUrl, hasMarker, urlLength: aiBackground.length, urlPreview: aiBackground.substring(0, 150) });
+
+            if (isSupabaseUrl) {
+                backgroundDataUri = await prefetchFromSupabase(aiBackground, supabase);
+                if (backgroundDataUri) {
+                    console.log("[STORY_ROUTE] Supabase SDK download succeeded, dataUri length:", backgroundDataUri.length);
+                } else {
+                    console.log("[STORY_ROUTE] Supabase SDK download failed, trying HTTP fetch...");
+                }
+            }
+            if (!backgroundDataUri) {
+                backgroundDataUri = await prefetchImage(aiBackground);
+                if (backgroundDataUri) {
+                    console.log("[STORY_ROUTE] HTTP fetch succeeded, dataUri length:", backgroundDataUri.length);
+                }
+            }
+            if (!backgroundDataUri) {
+                console.error("[STORY_ROUTE] ALL prefetch methods failed for URL:", aiBackground, "- falling back to branded gradient");
+            }
+        }
+        diagnostics.background = {
+            aiBackground: aiBackground?.substring(0, 80),
+            prefetchSuccess: !!backgroundDataUri,
+            dataUriLength: backgroundDataUri?.length,
+        };
+
+        if (debugMode) {
+            // In debug mode, actually try to render to see if ImageResponse works
+            diagnostics.step = "attempting_render";
         }
 
         // Robust activities parsing — handle all possible data shapes
@@ -734,7 +926,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         days={itinerary.days}
-                        backgroundImage={aiBackground || undefined}
+                        backgroundImage={backgroundDataUri || undefined}
                     />
                 );
                 break;
@@ -757,7 +949,7 @@ export async function GET(
                     <DaySlide
                         dayPlan={dayPlan}
                         dayNumber={dayIndex + 1}
-                        backgroundImage={aiBackground || undefined}
+                        backgroundImage={backgroundDataUri || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
@@ -769,7 +961,7 @@ export async function GET(
                         title={itinerary.title}
                         city={itinerary.city}
                         highlights={itinerary.highlights || []}
-                        backgroundImage={aiBackground || undefined}
+                        backgroundImage={backgroundDataUri || undefined}
                         isPaidUser={isPaidUser}
                     />
                 );
@@ -779,51 +971,103 @@ export async function GET(
                 return new Response("Invalid slide type", { status: 400 });
         }
 
-        // Wrap ImageResponse in try-catch to never return error responses
+        // Render the slide as PNG.
+        // CRITICAL: Force-consume the ReadableStream with arrayBuffer() to catch
+        // rendering errors. next/og's ImageResponse uses a lazy ReadableStream —
+        // Satori renders asynchronously when the stream is consumed. If we return
+        // the Response directly, stream errors produce corrupt/partial responses
+        // that the client sees as broken images. By consuming first, we catch
+        // errors and can return a proper fallback.
         try {
-            return new ImageResponse(element, {
+            const ogResponse = new ImageResponse(element, {
                 width: STORY_WIDTH,
                 height: STORY_HEIGHT,
             });
+            const pngBuffer = await ogResponse.arrayBuffer();
+            console.log("[STORY_ROUTE] Render success:", pngBuffer.byteLength, "bytes");
+
+            if (debugMode) {
+                return NextResponse.json({
+                    ...diagnostics,
+                    step: "render_success",
+                    pngBytes: pngBuffer.byteLength,
+                });
+            }
+
+            return new Response(pngBuffer, {
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                },
+            });
         } catch (renderError) {
             console.error("[STORY_ROUTE] ImageResponse render failed:", renderError);
-            // Return a minimal gradient PNG instead of a 500 text error
+
+            if (debugMode) {
+                return NextResponse.json({
+                    ...diagnostics,
+                    step: "render_failed",
+                    error: renderError instanceof Error
+                        ? { message: renderError.message, stack: renderError.stack }
+                        : String(renderError),
+                });
+            }
+
+            // Try a SIMPLE gradient fallback (no background image — that might be what crashed)
             const fallbackLabel = slide === "day" ? `Day ${dayIndex + 1}` : slide === "cover" ? (itinerary.title || "Your Trip") : "Summary";
-            return new ImageResponse(
-                (
-                    <div style={{
-                        width: STORY_WIDTH,
-                        height: STORY_HEIGHT,
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
-                    }}>
+            try {
+                const fallbackOg = new ImageResponse(
+                    (
                         <div style={{
+                            width: STORY_WIDTH,
+                            height: STORY_HEIGHT,
                             display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
                             alignItems: "center",
-                            backgroundColor: "rgba(0,0,0,0.3)",
-                            padding: "12px 28px",
-                            borderRadius: 100,
-                            border: "1px solid rgba(255,255,255,0.2)",
-                            marginBottom: 40,
+                            background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
                         }}>
-                            <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>Localley</span>
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                padding: "12px 28px",
+                                borderRadius: 100,
+                                border: "1px solid rgba(255,255,255,0.2)",
+                                marginBottom: 40,
+                            }}>
+                                <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>Localley</span>
+                            </div>
+                            <span style={{ fontSize: 56, color: "white", fontWeight: "bold", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+                                {fallbackLabel}
+                            </span>
                         </div>
-                        <span style={{ fontSize: 56, color: "white", fontWeight: "bold", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
-                            {fallbackLabel}
-                        </span>
-                    </div>
-                ),
-                { width: STORY_WIDTH, height: STORY_HEIGHT }
-            );
+                    ),
+                    { width: STORY_WIDTH, height: STORY_HEIGHT }
+                );
+                const fallbackBuf = await fallbackOg.arrayBuffer();
+                return new Response(fallbackBuf, {
+                    headers: {
+                        'Content-Type': 'image/png',
+                        'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    },
+                });
+            } catch {
+                return new Response("Failed to generate story", { status: 500 });
+            }
         }
     } catch (error) {
         console.error("[STORY_ROUTE] Fatal error:", error);
+        if (debugMode) {
+            return NextResponse.json({
+                ...diagnostics,
+                step: "fatal_error",
+                error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+            });
+        }
         // Even the outermost catch should try to return a PNG, not text
         try {
-            return new ImageResponse(
+            const fatalOg = new ImageResponse(
                 (
                     <div style={{
                         width: STORY_WIDTH,
@@ -838,6 +1082,13 @@ export async function GET(
                 ),
                 { width: STORY_WIDTH, height: STORY_HEIGHT }
             );
+            const fatalBuf = await fatalOg.arrayBuffer();
+            return new Response(fatalBuf, {
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                },
+            });
         } catch {
             return new Response("Failed to generate story", { status: 500 });
         }
