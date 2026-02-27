@@ -61,19 +61,8 @@ function getSlideFilename(slide: StorySlide, city?: string, totalDays?: number):
     return `localley-${citySlug}-${daysStr}-${slideSlug}.png`;
 }
 
-/** Share via native share sheet (mobile) or fall back to download (desktop) */
-async function shareOrDownload(blob: Blob, filename: string): Promise<"shared" | "downloaded"> {
-    const file = new File([blob], filename, { type: "image/png" });
-    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-            await navigator.share({ files: [file] });
-            return "shared";
-        } catch (err) {
-            // User cancelled share — don't fall through to download
-            if ((err as Error).name === "AbortError") return "shared";
-        }
-    }
-    // Fallback: standard <a download> (desktop or unsupported browsers)
+/** Direct download via <a download> — saves to Downloads/Files folder */
+function downloadViaAnchor(blob: Blob, filename: string): void {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -82,7 +71,20 @@ async function shareOrDownload(blob: Blob, filename: string): Promise<"shared" |
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-    return "downloaded";
+}
+
+/** Open native share sheet (mobile only) */
+async function shareViaShareSheet(blob: Blob, filename: string): Promise<boolean> {
+    const file = new File([blob], filename, { type: "image/png" });
+    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({ files: [file] });
+            return true;
+        } catch (err) {
+            if ((err as Error).name === "AbortError") return true; // User cancelled
+        }
+    }
+    return false;
 }
 
 export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dailyPlans }: StoryDialogProps) {
@@ -516,19 +518,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             }
             const blob = await response.blob();
             const filename = getSlideFilename(slide, city, totalDays);
-            const result = await shareOrDownload(blob, filename);
+            downloadViaAnchor(blob, filename);
 
-            if (result === "shared") {
-                toast({
-                    title: "Share sheet opened",
-                    description: "Choose 'Save Image' to save to your photos",
-                });
-            } else {
-                toast({
-                    title: "Downloaded!",
-                    description: `${slide.label} saved to your device`,
-                });
-            }
+            toast({
+                title: "Image saved!",
+                description: "Check your Downloads folder",
+            });
         } catch (error) {
             console.error("Download error:", error);
             toast({
@@ -536,6 +531,36 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 description: "Please try again",
                 variant: "destructive",
             });
+        } finally {
+            setDownloadingIndex(null);
+        }
+    };
+
+    const handleShare = async (index: number) => {
+        const slide = slides[index];
+        if (!slide) return;
+
+        setDownloadingIndex(index);
+        try {
+            const slideKey = slide.type === "day" ? `day${slide.day}` : slide.type;
+            const downloadUrl = savedSlides?.[slideKey] || slide.url;
+
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const blob = await response.blob();
+            const filename = getSlideFilename(slide, city, totalDays);
+            const shared = await shareViaShareSheet(blob, filename);
+
+            if (shared) {
+                toast({ title: "Shared!", description: `${slide.label} sent to share sheet` });
+            } else {
+                // Fallback to download if share not available
+                downloadViaAnchor(blob, filename);
+                toast({ title: "Image saved!", description: "Check your Downloads folder" });
+            }
+        } catch (error) {
+            console.error("Share error:", error);
+            toast({ title: "Share failed", description: "Please try again", variant: "destructive" });
         } finally {
             setDownloadingIndex(null);
         }
@@ -607,7 +632,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2">
+                <Button className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0">
+                    <Sparkles className="h-4 w-4" />
                     <Instagram className="h-4 w-4" />
                     Stories
                 </Button>
@@ -823,13 +849,21 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             >
                                 {downloadingIndex === selectedSlide ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : isMobileShare ? (
-                                    <Share2 className="mr-2 h-4 w-4" />
                                 ) : (
                                     <Download className="mr-2 h-4 w-4" />
                                 )}
-                                {isMobileShare ? "Save Image" : "Download This"}
+                                Save Image
                             </Button>
+                            {isMobileShare && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => handleShare(selectedSlide)}
+                                    disabled={downloadingIndex !== null}
+                                >
+                                    <Share2 className="mr-2 h-4 w-4" />
+                                    Share
+                                </Button>
+                            )}
                             <Button
                                 variant="outline"
                                 onClick={handleDownloadAll}
@@ -838,12 +872,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 {downloadingIndex !== null && downloadingIndex !== -1 ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        {isMobileShare ? "Saving..." : "Downloading..."}
+                                        Saving...
                                     </>
                                 ) : (
                                     <>
                                         <CheckCircle className="mr-2 h-4 w-4" />
-                                        {isMobileShare ? `Save All (${slides.length})` : `Download All (${slides.length})`}
+                                        Save All ({slides.length})
                                     </>
                                 )}
                             </Button>

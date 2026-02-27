@@ -60,17 +60,36 @@ export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: numbe
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/** Maximum distance (km) from city center for a geocoding result to be valid */
-const MAX_DISTANCE_KM = 50;
+/** Default maximum distance (km) from city center for a geocoding result to be valid */
+const DEFAULT_MAX_DISTANCE_KM = 60;
+
+/** Cities/islands that need a larger geocoding radius */
+const LARGE_RADIUS_CITIES = new Set([
+    'jeju', 'okinawa', 'phuket', 'bali-ubud', 'bali-canggu', 'siem-reap',
+    'langkawi', 'boracay', 'koh-samui',
+]);
+
+/**
+ * Get the maximum distance threshold for a city.
+ * Islands and sprawling metros need larger radii.
+ */
+function getMaxDistanceForCity(city: string): number {
+    const cityConfig = resolveCityConfig(city);
+    if (!cityConfig) return DEFAULT_MAX_DISTANCE_KM;
+    if (LARGE_RADIUS_CITIES.has(cityConfig.slug)) return 100;
+    if (cityConfig.ring === 1) return 70;
+    return DEFAULT_MAX_DISTANCE_KM;
+}
 
 /**
  * Validate a geocoding result is within reasonable distance of the target city.
  * Rejects results in wrong cities/countries.
  */
-function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: number }): boolean {
+function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: number }, maxKm?: number): boolean {
+    const limit = maxKm ?? DEFAULT_MAX_DISTANCE_KM;
     const dist = distanceKm(result.lat, result.lng, center.lat, center.lng);
-    if (dist > MAX_DISTANCE_KM) {
-        console.warn(`[geocoding] Result rejected: ${dist.toFixed(1)}km from city center (max ${MAX_DISTANCE_KM}km)`, {
+    if (dist > limit) {
+        console.warn(`[geocoding] Result rejected: ${dist.toFixed(1)}km from city center (max ${limit}km)`, {
             result: { lat: result.lat, lng: result.lng },
             center,
             provider: result.provider,
@@ -303,7 +322,7 @@ async function geocodeWithNominatim(query: string, center?: { lat: number; lng: 
 // ============================================================================
 
 async function geocodeWithGoogle(query: string, center?: { lat: number; lng: number }): Promise<GeocodingResult | null> {
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) return null;
 
     try {
@@ -354,10 +373,11 @@ export async function geocodeWithCascade(
     const center = cityConfig?.center;
 
     // Helper: validate result is near the target city (rejects wrong-country results)
+    const maxKm = getMaxDistanceForCity(city);
     const isValid = (r: GeocodingResult | null): r is GeocodingResult => {
         if (!r) return false;
         if (!center) return true; // No center to validate against
-        return isResultNearCity(r, center);
+        return isResultNearCity(r, center, maxKm);
     };
 
     // Build query variants (English)
@@ -446,6 +466,16 @@ export async function geocodeWithCascade(
         if (isValid(result)) return result;
     }
 
+    // 4. Last resort: try bare place name without address (catches cases where address is wrong/outdated)
+    if (placeName) {
+        result = await geocodeWithNominatim(`${placeName} ${city}`, center);
+        if (isValid(result)) return result;
+
+        result = await geocodeWithGoogle(`${placeName} ${city}`, center);
+        if (isValid(result)) return result;
+    }
+
+    console.warn(`[geocoding] All providers failed for "${placeName || address}" in ${city}`);
     return null;
 }
 
@@ -512,6 +542,7 @@ export async function geocodeItineraryActivities(
                     activity.lng = result.lng;
                     geocoded++;
                 } else {
+                    console.warn(`[geocoding] Could not geocode: "${activity.name}" at "${activity.address}" in ${city}`);
                     failed++;
                 }
             } catch (error) {
