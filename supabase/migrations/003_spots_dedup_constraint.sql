@@ -27,7 +27,7 @@ DELETE FROM spots
 WHERE id IN (
     SELECT id FROM (
         SELECT id, ROW_NUMBER() OVER (
-            PARTITION BY name_en_normalized, address_en_normalized
+            PARTITION BY name_en_normalized, COALESCE(address_en_normalized, '')
             ORDER BY
                 coalesce(array_length(photos, 1), 0) DESC,
                 coalesce(length(description->>'en'), 0) DESC,
@@ -40,9 +40,10 @@ WHERE id IN (
 );
 
 -- Step 3: Create unique index to prevent future duplicates
+-- Uses COALESCE so NULL addresses are treated as '' (PostgreSQL: NULL != NULL in indexes)
 -- Partial index: only applies when name is not null/empty
 CREATE UNIQUE INDEX IF NOT EXISTS idx_spots_unique_name_address
-    ON spots(name_en_normalized, address_en_normalized)
+    ON spots(name_en_normalized, COALESCE(address_en_normalized, ''))
     WHERE name_en_normalized IS NOT NULL AND name_en_normalized != '';
 
 -- Step 4: Add lookup index for faster import dedup checks
