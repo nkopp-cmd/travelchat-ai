@@ -87,6 +87,24 @@ async function shareViaShareSheet(blob: Blob, filename: string): Promise<boolean
     return false;
 }
 
+/**
+ * On mobile: open share sheet (lets user save directly to Photos).
+ * On desktop (or if share unavailable): standard <a download>.
+ */
+async function shareOrDownload(blob: Blob, filename: string): Promise<"shared" | "downloaded"> {
+    const file = new File([blob], filename, { type: "image/png" });
+    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({ files: [file] });
+            return "shared";
+        } catch (err) {
+            if ((err as Error).name === "AbortError") return "shared"; // User dismissed
+        }
+    }
+    downloadViaAnchor(blob, filename);
+    return "downloaded";
+}
+
 export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dailyPlans }: StoryDialogProps) {
     const [open, setOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -518,12 +536,19 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             }
             const blob = await response.blob();
             const filename = getSlideFilename(slide, city, totalDays);
-            downloadViaAnchor(blob, filename);
+            const result = await shareOrDownload(blob, filename);
 
-            toast({
-                title: "Image saved!",
-                description: "Check your Downloads folder",
-            });
+            if (result === "shared") {
+                toast({
+                    title: "Share sheet opened",
+                    description: "Choose 'Save Image' to save to your photos",
+                });
+            } else {
+                toast({
+                    title: "Image saved!",
+                    description: "Check your Downloads folder",
+                });
+            }
         } catch (error) {
             console.error("Download error:", error);
             toast({
@@ -567,6 +592,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     };
 
     const handleDownloadAll = async () => {
+        if (isMobileShare) {
+            // On mobile, individual share sheets per slide is terrible UX — use ZIP instead
+            await handleDownloadZip();
+            return;
+        }
         for (let i = 0; i < slides.length; i++) {
             await handleDownload(i);
             // Small delay between downloads
@@ -849,10 +879,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             >
                                 {downloadingIndex === selectedSlide ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : isMobileShare ? (
+                                    <Share2 className="mr-2 h-4 w-4" />
                                 ) : (
                                     <Download className="mr-2 h-4 w-4" />
                                 )}
-                                Save Image
+                                {isMobileShare ? "Save to Photos" : "Save Image"}
                             </Button>
                             {isMobileShare && (
                                 <Button
@@ -877,7 +909,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 ) : (
                                     <>
                                         <CheckCircle className="mr-2 h-4 w-4" />
-                                        Save All ({slides.length})
+                                        {isMobileShare ? `Save All as ZIP (${slides.length})` : `Save All (${slides.length})`}
                                     </>
                                 )}
                             </Button>
