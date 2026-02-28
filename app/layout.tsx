@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -128,6 +129,7 @@ export default function RootLayout({
             <MobileBottomNav />
             <Toaster />
           </Providers>
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
