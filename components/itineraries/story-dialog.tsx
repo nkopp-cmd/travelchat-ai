@@ -12,7 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2 } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
@@ -88,6 +94,10 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [isPaidUser, setIsPaidUser] = useState(false);
     const [aiQuota, setAiQuota] = useState<{ used: number; limit: number } | null>(null);
     const [brokenSlides, setBrokenSlides] = useState<Set<number>>(new Set());
+    const [cloudSaved, setCloudSaved] = useState(false);
+    const [isSavingToCloud, setIsSavingToCloud] = useState(false);
+    const [retentionDays, setRetentionDays] = useState<number | null>(null);
+    const [userTier, setUserTier] = useState<string>("free");
     const { toast } = useToast();
 
     const handleImageError = (index: number) => {
@@ -118,6 +128,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const tier = data.tier || "free";
                 console.log("[STORY_DIALOG] User tier:", tier);
                 setIsPaidUser(tier === "pro" || tier === "premium");
+                setUserTier(tier);
             })
             .catch((err) => {
                 console.error("[STORY_DIALOG] Failed to check tier:", err);
@@ -233,7 +244,9 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     const handleGenerate = async () => {
         setIsGenerating(true);
-        setBrokenSlides(new Set()); // Reset broken slides on regenerate
+        setBrokenSlides(new Set());
+        setCloudSaved(false);
+        setRetentionDays(null);
         const imageSources: string[] = [];
 
         try {
@@ -477,6 +490,57 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         }
     };
 
+    const handleSaveToCloud = async () => {
+        setIsSavingToCloud(true);
+        try {
+            const formData = new FormData();
+
+            // Fetch all slide PNGs and add to FormData
+            for (let i = 0; i < slides.length; i++) {
+                setGenerationProgress(`Saving ${i + 1}/${slides.length}...`);
+                const response = await fetch(slides[i].url);
+                const blob = await response.blob();
+
+                // Map slide to FormData key: cover, day1, day2, ..., summary
+                const key = slides[i].type === "day"
+                    ? `day${slides[i].day}`
+                    : slides[i].type;
+                formData.append(key, blob, `${key}.png`);
+            }
+
+            setGenerationProgress("Uploading to cloud...");
+
+            const response = await fetch(`/api/itineraries/${itineraryId}/story/persist`, {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error?.message || "Failed to save");
+            }
+
+            setCloudSaved(true);
+            setRetentionDays(data.retentionDays);
+
+            toast({
+                title: "Saved to Localley!",
+                description: `Your story slides are saved for ${data.retentionDays} days`,
+            });
+        } catch (error) {
+            console.error("[STORY] Cloud save error:", error);
+            toast({
+                title: "Save failed",
+                description: "Could not save to cloud. Try downloading instead.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSavingToCloud(false);
+            setGenerationProgress("");
+        }
+    };
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -537,20 +601,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                         {/* Image source info */}
                         {city && (
-                            <>
-                                <p className="text-xs text-muted-foreground text-center mb-2">
-                                    {useAiBackgrounds && aiAvailable
-                                        ? "Using AI-generated images"
-                                        : tripAdvisorAvailable
-                                            ? "Using real location photos from TripAdvisor"
-                                            : pexelsAvailable
-                                                ? "Using high-quality photos from Pexels"
-                                                : "Using photos from Unsplash"}
-                                </p>
-                                <p className="text-[10px] text-muted-foreground/60 text-center mb-4 font-mono">
-                                    Sources: AI={aiAvailable ? "yes" : "no"} TA={tripAdvisorAvailable ? "yes" : "no"} PX={pexelsAvailable ? "yes" : "no"} Paid={isPaidUser ? "yes" : "no"} Toggle={useAiBackgrounds ? "on" : "off"}
-                                </p>
-                            </>
+                            <p className="text-xs text-muted-foreground text-center mb-4">
+                                {useAiBackgrounds && aiAvailable
+                                    ? "Using AI-generated images"
+                                    : tripAdvisorAvailable
+                                        ? "Using real location photos from TripAdvisor"
+                                        : pexelsAvailable
+                                            ? "Using high-quality photos from Pexels"
+                                            : "Using photos from Unsplash"}
+                            </p>
                         )}
 
                         <Button
@@ -637,55 +696,79 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-wrap gap-2 justify-end border-t pt-4">
-                            <Button
-                                variant="outline"
-                                onClick={() => handleDownload(selectedSlide)}
-                                disabled={downloadingIndex !== null}
-                            >
-                                {downloadingIndex === selectedSlide ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : isMobileShare ? (
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                ) : (
-                                    <Download className="mr-2 h-4 w-4" />
+                        <div className="flex flex-wrap gap-2 items-center justify-between border-t pt-4">
+                            {/* Cloud Save (primary) */}
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    onClick={handleSaveToCloud}
+                                    disabled={isSavingToCloud || cloudSaved || downloadingIndex !== null}
+                                    className={cloudSaved
+                                        ? "bg-green-600 hover:bg-green-600 text-white"
+                                        : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                                    }
+                                >
+                                    {isSavingToCloud ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            {generationProgress || "Saving..."}
+                                        </>
+                                    ) : cloudSaved ? (
+                                        <>
+                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                            Saved
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Cloud className="mr-2 h-4 w-4" />
+                                            Save to Localley
+                                        </>
+                                    )}
+                                </Button>
+                                {cloudSaved && retentionDays && (
+                                    <span className="text-xs text-muted-foreground">
+                                        Stored for {retentionDays} days
+                                    </span>
                                 )}
-                                {isMobileShare ? "Save Image" : "Download This"}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={handleDownloadAll}
-                                disabled={downloadingIndex !== null}
-                            >
-                                {downloadingIndex !== null && downloadingIndex !== -1 ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        {isMobileShare ? "Saving..." : "Downloading..."}
-                                    </>
-                                ) : (
-                                    <>
-                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                        {isMobileShare ? `Save All (${slides.length})` : `Download All (${slides.length})`}
-                                    </>
+                                {!cloudSaved && !isSavingToCloud && (
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">
+                                        {userTier === "premium" ? "90 days" : userTier === "pro" ? "30 days" : "7 days"} cloud storage
+                                    </span>
                                 )}
-                            </Button>
-                            <Button
-                                onClick={handleDownloadZip}
-                                disabled={downloadingIndex !== null}
-                                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-                            >
-                                {downloadingIndex === -1 ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        {generationProgress || "Creating ZIP..."}
-                                    </>
-                                ) : (
-                                    <>
-                                        <Archive className="mr-2 h-4 w-4" />
-                                        Save as ZIP
-                                    </>
-                                )}
-                            </Button>
+                            </div>
+
+                            {/* Download options */}
+                            <div className="flex gap-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" disabled={downloadingIndex !== null || isSavingToCloud}>
+                                            {downloadingIndex !== null ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    {downloadingIndex === -1
+                                                        ? (generationProgress || "Creating ZIP...")
+                                                        : "Downloading..."}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Download className="mr-2 h-4 w-4" />
+                                                    Download
+                                                    <ChevronDown className="ml-1 h-3 w-3" />
+                                                </>
+                                            )}
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => handleDownload(selectedSlide)}>
+                                            <Download className="mr-2 h-4 w-4" />
+                                            {isMobileShare ? "Share Current Slide" : "Download Current Slide"}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={handleDownloadZip}>
+                                            <Archive className="mr-2 h-4 w-4" />
+                                            Download All as ZIP
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
                         </div>
                     </div>
                 )}

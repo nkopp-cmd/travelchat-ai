@@ -38,6 +38,9 @@ export interface SubscriptionFeatures {
     collaborativeTrips: boolean;
     prioritySupport: boolean;
 
+    // Storage
+    storyRetentionDays: number;
+
     // Ads
     showAds: boolean;
 }
@@ -78,6 +81,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             weatherIntegration: false,
             collaborativeTrips: false,
             prioritySupport: false,
+            storyRetentionDays: 7,
             showAds: true,
         },
     },
@@ -106,6 +110,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             weatherIntegration: true,
             collaborativeTrips: false,
             prioritySupport: false,
+            storyRetentionDays: 30,
             showAds: false,
         },
     },
@@ -134,6 +139,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             weatherIntegration: true,
             collaborativeTrips: true,
             prioritySupport: true,
+            storyRetentionDays: 90,
             showAds: false,
         },
     },
@@ -279,6 +285,11 @@ export function getUpgradePrompt(feature: keyof SubscriptionFeatures): {
         imageProvider: {
             title: "AI Image Generation",
             description: "Generate beautiful AI images for your travel stories",
+            suggestedTier: "pro",
+        },
+        storyRetentionDays: {
+            title: "Extended Story Storage",
+            description: "Keep your story slides saved longer in the cloud",
             suggestedTier: "pro",
         },
     };

@@ -245,6 +245,19 @@ COMMENT ON COLUMN itineraries.ai_backgrounds IS 'AI-generated background images 
 CREATE INDEX IF NOT EXISTS idx_itineraries_ai_backgrounds ON itineraries((ai_backgrounds IS NOT NULL));
 
 -- ================================
+-- 10. Add persisted story slides metadata
+-- ================================
+ALTER TABLE itineraries
+ADD COLUMN IF NOT EXISTS story_slides JSONB;
+
+COMMENT ON COLUMN itineraries.story_slides IS 'Persisted story slide PNGs in Supabase Storage. Format: {"generated_at": "ISO", "expires_at": "ISO", "tier": "pro", "slides": {"cover": "url", "day1": "url", ..., "summary": "url"}}';
+
+-- Index for cleanup cron to find expired stories efficiently
+CREATE INDEX IF NOT EXISTS idx_itineraries_story_slides_expiry
+ON itineraries(((story_slides->>'expires_at')::timestamptz))
+WHERE story_slides IS NOT NULL;
+
+-- ================================
 -- VERIFICATION QUERIES
 -- Run these after migration to verify success
 -- ================================
