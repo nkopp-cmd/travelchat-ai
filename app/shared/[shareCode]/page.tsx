@@ -35,7 +35,7 @@ export async function generateMetadata(
         ? `${itinerary.days}-day ${itinerary.city} itinerary featuring: ${itinerary.highlights.slice(0, 3).join(", ")}`
         : `Explore ${itinerary.city} with this ${itinerary.days}-day local-approved itinerary.`;
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localley.app";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localley.io";
 
     return {
         title,

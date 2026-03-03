@@ -547,7 +547,7 @@ CREATE TABLE user_follows (
    - Environment variables in Vercel
 
 2. **Domain Configuration**
-   - Custom domain (e.g., localley.app)
+   - Custom domain: localley.io
    - SSL certificate (automatic with Vercel)
    - DNS configuration
    - Redirect www → non-www

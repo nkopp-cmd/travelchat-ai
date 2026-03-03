@@ -2,9 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Map, Award, Settings } from "lucide-react";
+import { Compass, Map, Award, Settings, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useConversations } from "@/hooks/use-queries";
+import type { Conversation } from "@/lib/api-client";
+
+function formatRelativeTime(dateStr: string): string {
+    const now = Date.now();
+    const then = new Date(dateStr).getTime();
+    const diffMs = now - then;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return "just now";
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 const routes = [
     {
@@ -35,6 +52,8 @@ const routes = [
 
 export function Sidebar() {
     const pathname = usePathname();
+    const { data: conversations } = useConversations();
+    const recentChats = ((conversations as Conversation[] | undefined) || []).slice(0, 5);
 
     return (
         <div className="hidden border-r border-border/40 bg-background/60 backdrop-blur-xl md:block w-[240px] lg:w-[280px] shrink-0">
@@ -69,6 +88,42 @@ export function Sidebar() {
                             </Link>
                         ))}
                     </nav>
+
+                    {/* Recent Chats Section */}
+                    {recentChats.length > 0 && (
+                        <div className="mt-6 px-2 lg:px-4">
+                            <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                Recent Chats
+                            </h3>
+                            <div className="space-y-0.5">
+                                {recentChats.map((chat) => (
+                                    <Link
+                                        key={chat.id}
+                                        href={`/chat?conversation=${chat.id}`}
+                                        className={cn(
+                                            "flex items-start gap-2.5 rounded-lg px-3 py-2 transition-all hover:bg-accent group text-sm",
+                                            pathname === `/chat` && new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("conversation") === chat.id
+                                                ? "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        )}
+                                    >
+                                        <MessageCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-muted-foreground group-hover:text-foreground" />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-1.5">
+                                                <p className="truncate text-sm">{chat.title || "New Chat"}</p>
+                                                {chat.linked_itinerary_id && (
+                                                    <Map className="h-3 w-3 text-violet-500 flex-shrink-0" />
+                                                )}
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                                                {formatRelativeTime(chat.updated_at)}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="mt-auto p-4">
                     <div className="rounded-xl border border-border/50 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 p-4 shadow-sm">

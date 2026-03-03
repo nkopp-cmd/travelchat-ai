@@ -147,9 +147,10 @@ function WizardContent({
 
 interface ItineraryWizardProps {
   initialData?: Partial<WizardData>;
+  initialStep?: number;
 }
 
-export function ItineraryWizard({ initialData }: ItineraryWizardProps) {
+export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { isSignedIn } = useUser();
@@ -230,7 +231,7 @@ export function ItineraryWizard({ initialData }: ItineraryWizardProps) {
   };
 
   return (
-    <WizardProvider initialData={initialData}>
+    <WizardProvider initialData={initialData} initialStep={initialStep}>
       <div className="min-h-screen bg-background flex flex-col">
         <WizardContent onGenerate={handleGenerate} />
       </div>

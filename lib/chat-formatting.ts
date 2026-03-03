@@ -1,4 +1,15 @@
 /**
+ * Detect if message content is a structured itinerary
+ * (contains Day 1/2/etc. headers with substantial content)
+ */
+export function isItineraryContent(content: string): boolean {
+    return (
+        (/\*+Day \d+:/i.test(content) || /^#{1,6}\s*Day \d+:/im.test(content)) &&
+        content.split('\n').length > 10
+    );
+}
+
+/**
  * Format chat message content with proper spacing and structure
  * Handles itineraries, lists, and structured content
  */

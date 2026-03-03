@@ -128,7 +128,7 @@ export function ViatorSuggestions({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[...Array(limit)].map((_, i) => (
                             <div key={i} className="space-y-2">
-                                <Skeleton className="h-32 w-full rounded-lg" />
+                                <Skeleton className="h-40 sm:h-32 w-full rounded-lg" />
                                 <Skeleton className="h-4 w-3/4" />
                                 <Skeleton className="h-4 w-1/2" />
                             </div>
@@ -146,7 +146,7 @@ export function ViatorSuggestions({
                                 className="group relative rounded-xl border border-border/50 bg-card hover:shadow-md transition-all overflow-hidden"
                             >
                                 {/* Activity Image */}
-                                <div className="relative h-32 bg-muted">
+                                <div className="relative h-40 sm:h-32 bg-muted">
                                     {activity.thumbnailUrl ? (
                                         <Image
                                             src={activity.thumbnailUrl}
@@ -208,8 +208,8 @@ export function ViatorSuggestions({
                                         )}
                                     </div>
 
-                                    <div className="flex items-center justify-between pt-2">
-                                        <div className="flex items-center gap-1">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2">
+                                        <div className="flex items-center gap-1 flex-wrap">
                                             <span className="text-lg font-bold text-violet-600">
                                                 ${activity.priceFrom}
                                             </span>
@@ -228,7 +228,7 @@ export function ViatorSuggestions({
                                         </div>
                                         <Button
                                             size="sm"
-                                            className="bg-violet-600 hover:bg-violet-700 text-xs px-3"
+                                            className="bg-violet-600 hover:bg-violet-700 text-xs px-3 w-full sm:w-auto"
                                             onClick={() => handleBookClick(activity)}
                                         >
                                             Book

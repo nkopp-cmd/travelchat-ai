@@ -40,11 +40,13 @@ const WizardContext = createContext<WizardContextType | undefined>(undefined);
 export function WizardProvider({
   children,
   initialData = {},
+  initialStep = 0,
 }: {
   children: ReactNode;
   initialData?: Partial<WizardData>;
+  initialStep?: number;
 }) {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [data, setDataState] = useState<WizardData>({ ...defaultData, ...initialData });
   const [canProceed, setCanProceed] = useState(false);
   const totalSteps = 4;

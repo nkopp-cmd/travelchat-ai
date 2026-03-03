@@ -264,8 +264,8 @@ export function useMessages(conversationId: string, options?: { enabled?: boolea
  */
 export function useSendChatMessage() {
   return useMutation({
-    mutationFn: async (messages: Array<{ role: string; content: string }>) => {
-      const result = await apiClient.sendChatMessage(messages);
+    mutationFn: async (params: { messages: Array<{ role: string; content: string }>; city?: string }) => {
+      const result = await apiClient.sendChatMessage(params.messages, params.city);
       if (isApiError(result)) {
         throw new Error(result.message || result.error);
       }

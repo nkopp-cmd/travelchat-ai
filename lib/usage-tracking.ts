@@ -392,6 +392,68 @@ export async function checkAndIncrementUsage(
 }
 
 /**
+ * ATOMIC check AND weighted increment for API endpoints.
+ * Increments by `amount` credits instead of always 1.
+ * Used for AI image generation where different models cost different credits.
+ *
+ * Falls back to the non-weighted RPC if the weighted version isn't deployed yet.
+ */
+export async function checkAndIncrementUsageWeighted(
+    clerkUserId: string,
+    usageType: UsageType,
+    amount: number = 1
+): Promise<{
+    allowed: boolean;
+    usage: UsageCheckResult;
+    tier: SubscriptionTier;
+}> {
+    const tier = await getUserTier(clerkUserId);
+    const config = usageTypeConfig[usageType];
+    const limit = TIER_CONFIGS[tier].limits[config.limitKey];
+
+    const supabase = createSupabaseAdmin();
+
+    const { data, error } = await supabase.rpc("check_and_increment_usage_weighted", {
+        p_clerk_user_id: clerkUserId,
+        p_usage_type: usageType,
+        p_period_type: config.periodType,
+        p_limit: limit,
+        p_amount: amount,
+    });
+
+    let result: AtomicUsageResult;
+
+    if (error) {
+        // PGRST202 = function not found — fall back to non-weighted version
+        if (error.code === "PGRST202") {
+            console.warn("[usage-tracking] Weighted RPC missing, falling back to standard");
+            result = await atomicCheckAndIncrement(clerkUserId, usageType, limit);
+        } else {
+            console.error("[usage-tracking] Weighted increment failed:", error);
+            result = { allowed: false, newCount: 0, wasAtLimit: true };
+        }
+    } else {
+        const row = Array.isArray(data) ? data[0] : data;
+        result = {
+            allowed: row?.allowed ?? false,
+            newCount: row?.new_count ?? 0,
+            wasAtLimit: row?.was_at_limit ?? true,
+        };
+    }
+
+    const usage: UsageCheckResult = {
+        allowed: result.allowed,
+        currentUsage: result.newCount,
+        limit,
+        remaining: Math.max(0, limit - result.newCount),
+        periodType: config.periodType,
+        periodResetAt: getPeriodEnd(config.periodType),
+    };
+
+    return { allowed: result.allowed, usage, tier };
+}
+
+/**
  * Track usage after successful operation (legacy pattern).
  * Prefer using checkAndIncrementUsage() which does this atomically.
  */

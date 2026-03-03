@@ -1,6 +1,6 @@
 "use client";
 
-import { parseMessageContent, MessageSection } from "@/lib/chat-formatting";
+import { parseMessageContent, MessageSection, isItineraryContent } from "@/lib/chat-formatting";
 import { Clock, MapPin, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ItineraryPreview } from "./itinerary-preview";
@@ -8,15 +8,13 @@ import { ItineraryPreview } from "./itinerary-preview";
 interface FormattedMessageProps {
     content: string;
     role: "user" | "assistant";
+    conversationId?: string;
 }
 
-export function FormattedMessage({ content, role }: FormattedMessageProps) {
-    // Check if this is an itinerary (contains Day 1, Day 2, etc. with asterisks or hashtags)
-    const isItinerary = (/\*+Day \d+:/i.test(content) || /^#{1,6}\s*Day \d+:/im.test(content)) && content.split('\n').length > 10;
-
+export function FormattedMessage({ content, role, conversationId }: FormattedMessageProps) {
     // If it's an itinerary from assistant, show the preview
-    if (isItinerary && role === "assistant") {
-        return <ItineraryPreview content={content} />;
+    if (isItineraryContent(content) && role === "assistant") {
+        return <ItineraryPreview content={content} conversationId={conversationId} />;
     }
 
     // Strip markdown formatting for display

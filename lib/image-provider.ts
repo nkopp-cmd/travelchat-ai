@@ -1,39 +1,33 @@
 /**
  * Image generation provider router
  *
- * Routes image generation requests to the appropriate provider
- * based on user subscription tier:
- * - Premium: Gemini (higher quality, HD)
- * - Pro: Seedream via fal.ai (good quality, cheaper)
+ * Routes image generation requests to the appropriate provider.
+ * Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini
  */
 
 import type { SubscriptionTier } from "@/lib/subscription";
 import * as gemini from "@/lib/imagen";
 import * as seedream from "@/lib/seedream";
+import * as flux from "@/lib/flux";
 
-export type ImageProvider = "gemini" | "seedream";
+export type ImageProvider = "flux" | "seedream" | "gemini";
 
 /**
- * Determine which image provider to use based on tier
+ * Determine which image provider to use.
+ * Priority: FLUX (cheapest) → Seedream → Gemini (fallback).
  */
 export function getImageProvider(tier: SubscriptionTier): ImageProvider {
-    if (tier === "premium") return "gemini";
-    if (tier === "pro") {
-        // Prefer Seedream for Pro tier (cheaper), fall back to Gemini
-        if (seedream.isSeedreamAvailable()) return "seedream";
-        if (gemini.isImagenAvailable()) return "gemini";
-    }
-    // Default: use whichever is available
+    if (flux.isFluxAvailable()) return "flux";
     if (seedream.isSeedreamAvailable()) return "seedream";
     if (gemini.isImagenAvailable()) return "gemini";
-    return "gemini"; // Will fail with appropriate error if neither available
+    return "gemini"; // Will fail with appropriate error if none available
 }
 
 /**
  * Check if any AI image provider is available
  */
 export function isAnyProviderAvailable(): boolean {
-    return gemini.isImagenAvailable() || seedream.isSeedreamAvailable();
+    return flux.isFluxAvailable() || seedream.isSeedreamAvailable() || gemini.isImagenAvailable();
 }
 
 /**
@@ -47,6 +41,9 @@ export async function generateStoryBackground(
 ): Promise<string> {
     console.log(`[IMAGE_PROVIDER] Using ${provider} for story background`);
 
+    if (provider === "flux") {
+        return flux.generateStoryBackground(city, theme, style);
+    }
     if (provider === "seedream") {
         return seedream.generateStoryBackground(city, theme, style);
     }
@@ -65,6 +62,9 @@ export async function generateDayBackground(
 ): Promise<string> {
     console.log(`[IMAGE_PROVIDER] Using ${provider} for day ${dayNumber} background`);
 
+    if (provider === "flux") {
+        return flux.generateDayBackground(city, dayNumber, theme, activities);
+    }
     if (provider === "seedream") {
         return seedream.generateDayBackground(city, dayNumber, theme, activities);
     }

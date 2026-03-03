@@ -12,11 +12,14 @@ import { ChatMessageSkeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useLiveAnnouncer } from "@/components/accessibility/live-region";
+import { isItineraryContent } from "@/lib/chat-formatting";
 import {
   useCreateConversation,
   useSaveMessage,
   useSendChatMessage,
   useReviseItinerary,
+  useConversations,
+  useMessages,
 } from "@/hooks/use-queries";
 
 interface Message {
@@ -46,12 +49,13 @@ interface ChatInterfaceProps {
   className?: string;
   itineraryContext?: ItineraryContext;
   selectedTemplate?: ItineraryTemplate;
+  conversationId?: string;
 }
 
 // Helper to generate stable IDs
 const generateMessageId = () => crypto.randomUUID();
 
-export function ChatInterface({ className, itineraryContext, selectedTemplate }: ChatInterfaceProps) {
+export function ChatInterface({ className, itineraryContext, selectedTemplate, conversationId: initialConversationId }: ChatInterfaceProps) {
   const getInitialMessage = () => {
     if (itineraryContext) {
       return `Hey! I can see you're working on "${itineraryContext.title}". What would you like to change? I can help you add activities, change the order, or adjust anything else!`;
@@ -70,10 +74,11 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
     },
   ]);
   const [input, setInput] = useState("");
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(initialConversationId || null);
   const [showItineraryPrompt, setShowItineraryPrompt] = useState(false);
   const [activeItinerary, setActiveItinerary] = useState<ItineraryContext | undefined>(itineraryContext);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -84,6 +89,32 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
   const saveMessageMutation = useSaveMessage();
   const sendChatMutation = useSendChatMessage();
   const reviseItineraryMutation = useReviseItinerary();
+
+  // Load existing conversation history
+  const { data: loadedMessages, isLoading: isLoadingHistory } = useMessages(
+    initialConversationId || "",
+    { enabled: !!initialConversationId }
+  );
+
+  // Fetch conversations to check for linked itinerary
+  const { data: conversations } = useConversations();
+  const currentConversation = conversations?.find((c: { id: string }) => c.id === currentConversationId);
+  const linkedItineraryId = (currentConversation as { linked_itinerary_id?: string } | undefined)?.linked_itinerary_id;
+
+  // Populate messages from DB when conversation loads
+  useEffect(() => {
+    if (initialConversationId && loadedMessages && loadedMessages.length > 0 && !historyLoaded) {
+      setCurrentConversationId(initialConversationId);
+      setMessages(
+        loadedMessages.map((msg: { id?: string; role: string; content: string }) => ({
+          id: msg.id || generateMessageId(),
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+        }))
+      );
+      setHistoryLoaded(true);
+    }
+  }, [initialConversationId, loadedMessages, historyLoaded]);
 
   const isLoading = sendChatMutation.isPending || reviseItineraryMutation.isPending;
 
@@ -187,7 +218,10 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
       // Normal chat flow - prepare messages for API (without id field)
       const apiMessages = [...messages, userMessageObj].map(({ role, content }) => ({ role, content }));
 
-      sendChatMutation.mutate(apiMessages, {
+      // Pass city context if available from itinerary context prop
+      const cityContext = itineraryContext?.city || undefined;
+
+      sendChatMutation.mutate({ messages: apiMessages, city: cityContext }, {
         onSuccess: (data) => {
           const assistantMessage = data.message;
           setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
@@ -236,6 +270,25 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
                 <X className="h-4 w-4" />
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Linked Itinerary Badge */}
+      {linkedItineraryId && !activeItinerary && (
+        <Card className="mb-2 border-violet-200/50 bg-violet-500/5 flex-shrink-0">
+          <CardContent className="p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Map className="h-4 w-4 text-violet-600" />
+              <span className="text-sm text-muted-foreground">
+                This chat generated a saved itinerary
+              </span>
+            </div>
+            <Link href={`/itineraries/${linkedItineraryId}`}>
+              <Button size="sm" variant="ghost" className="text-violet-600 hover:text-violet-700">
+                View Itinerary
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       )}
@@ -290,35 +343,53 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate }:
       {/* Messages container - Native overflow for proper flex constraints (replaces Radix ScrollArea) */}
       <div className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
         <div className="space-y-6">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={cn(
-                "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                message.role === "user" ? "flex-row-reverse" : "flex-row"
-              )}
-            >
-              <Avatar className="h-8 w-8 shrink-0">
-                <AvatarFallback className={cn(
-                  message.role === "user"
-                    ? "bg-violet-500 text-white"
-                    : "bg-gradient-to-br from-violet-600 to-indigo-600 text-white"
-                )}>
-                  {message.role === "user" ? "U" : "A"}
-                </AvatarFallback>
-              </Avatar>
-              <div
-                className={cn(
-                  "rounded-2xl px-5 py-4 shadow-sm",
-                  message.role === "user"
-                    ? "bg-violet-500 text-white max-w-[75%]"
-                    : "bg-muted/50 text-foreground border border-border/40 max-w-[85%]"
-                )}
-              >
-                <FormattedMessage content={message.content} role={message.role} />
+          {isLoadingHistory && (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <span className="h-4 w-4 border-2 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
+                Loading conversation...
               </div>
             </div>
-          ))}
+          )}
+          {messages.map((message) => {
+            const isItinerary = message.role === "assistant" && isItineraryContent(message.content);
+
+            return (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
+                  message.role === "user" ? "flex-row-reverse" : "flex-row"
+                )}
+              >
+                <Avatar className="h-8 w-8 shrink-0">
+                  <AvatarFallback className={cn(
+                    message.role === "user"
+                      ? "bg-violet-500 text-white"
+                      : "bg-gradient-to-br from-violet-600 to-indigo-600 text-white"
+                  )}>
+                    {message.role === "user" ? "U" : "A"}
+                  </AvatarFallback>
+                </Avatar>
+                {isItinerary ? (
+                  <div className="flex-1 min-w-0">
+                    <FormattedMessage content={message.content} role={message.role} conversationId={currentConversationId || undefined} />
+                  </div>
+                ) : (
+                  <div
+                    className={cn(
+                      "rounded-2xl px-5 py-4 shadow-sm",
+                      message.role === "user"
+                        ? "bg-violet-500 text-white max-w-[75%]"
+                        : "bg-muted/50 text-foreground border border-border/40 max-w-[85%]"
+                    )}
+                  >
+                    <FormattedMessage content={message.content} role={message.role} conversationId={currentConversationId || undefined} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
           {isLoading && <ChatMessageSkeleton />}
           <div ref={scrollRef} />
 

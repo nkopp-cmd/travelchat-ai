@@ -468,7 +468,7 @@ interface SavedStory {
     saves: number;
     likes: number;
   };
-  shareUrl: string; // localley.app/story/abc123
+  shareUrl: string; // localley.io/story/abc123
   tags: string[]; // ["hidden-gems", "seoul", "food-tour"]
 }
 

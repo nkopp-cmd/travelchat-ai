@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatInterface } from "@/components/chat/chat-interface";
+import { RecentConversationsPanel } from "@/components/chat/recent-conversations-panel";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -22,6 +23,9 @@ function ChatPageContent() {
       }
     : undefined;
 
+  // Parse conversation ID for loading existing chat
+  const conversationId = searchParams.get("conversation") || undefined;
+
   return (
     <div
       className="flex flex-col bg-background"
@@ -32,17 +36,21 @@ function ChatPageContent() {
         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
           <span className="text-white font-bold">A</span>
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="font-semibold">Alley</h1>
           <p className="text-xs text-muted-foreground">Your local guide</p>
         </div>
       </div>
+
+      {/* Recent Conversations Panel (mobile-friendly) */}
+      <RecentConversationsPanel currentConversationId={conversationId} />
 
       {/* Chat Content - Takes remaining space */}
       <div className="flex-1 min-h-0 px-4 py-2">
         <ChatInterface
           className="h-full"
           itineraryContext={itineraryContext}
+          conversationId={conversationId}
         />
       </div>
     </div>
