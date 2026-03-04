@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 /**
  * POST /api/itineraries/[id]/story/save
@@ -47,7 +47,9 @@ export async function POST(
         // Build the base URL for internal story route calls
         const baseUrl = process.env.VERCEL_URL
             ? `https://${process.env.VERCEL_URL}`
-            : `http://localhost:${process.env.PORT || 3000}`;
+            : process.env.NODE_ENV === "production"
+                ? "https://localley.io"
+                : `http://localhost:${process.env.PORT || 3000}`;
 
         const paidParam = paid ? "&paid=true" : "";
 
