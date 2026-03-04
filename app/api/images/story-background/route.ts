@@ -19,12 +19,7 @@ import {
 
 // AI image generation can take 10-20s per image
 export const maxDuration = 60;
-import {
-    getPexelsThemedImage,
-    getTripAdvisorThemedImage,
-    isPexelsAvailable,
-    isTripAdvisorAvailable,
-} from "@/lib/story-backgrounds";
+
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
@@ -151,14 +146,12 @@ export async function POST(req: NextRequest) {
             try {
                 const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
                 if (!allowed) {
-                    console.log("[STORY_BG] AI quota exceeded, falling through to non-AI sources", {
+                    console.log("[STORY_BG] AI quota exceeded, branded gradient will be used", {
                         current: usage.currentUsage,
                         limit: usage.limit,
                         creditCost,
                     });
                     canUseAI = false;
-                    // Clear requestedProvider so stock photo fallback is not skipped
-                    requestedProvider = null;
                 }
             } catch (usageError) {
                 // Usage tracking failure should NOT block AI generation
@@ -211,7 +204,7 @@ export async function POST(req: NextRequest) {
         }
 
         let imageUrl: string | null = null;
-        let source: "ai" | "tripadvisor" | "pexels" = "pexels";
+        let source: "ai" = "ai";
         const failedProviders: Array<{ provider: string; error: string }> = [];
 
         // =====================================================================
@@ -338,40 +331,6 @@ export async function POST(req: NextRequest) {
         }
 
         // =====================================================================
-        // STOCK PHOTO FALLBACK: TripAdvisor → Pexels (only in auto-select mode)
-        // When user explicitly chose an AI model, skip stock photos entirely —
-        // the story renderer will use branded gradient backgrounds instead.
-        // =====================================================================
-
-        // Fall back to TripAdvisor for real location photos (paid tiers only, auto-select only)
-        if (!imageUrl && !requestedProvider && tier !== "free" && isTripAdvisorAvailable()) {
-            console.log("[STORY_BG] Trying TripAdvisor...");
-            const searchTheme = theme || (type === "cover" ? "landmark" : type === "summary" ? "scenery" : "travel");
-
-            imageUrl = await getTripAdvisorThemedImage(city, searchTheme, excludeUrls);
-            if (imageUrl) {
-                source = "tripadvisor";
-                console.log("[STORY_BG] TripAdvisor image found:", imageUrl.substring(0, 80));
-            } else {
-                console.log("[STORY_BG] TripAdvisor returned no image for:", { city, searchTheme });
-            }
-        }
-
-        // Fall back to Pexels (auto-select only)
-        if (!imageUrl && !requestedProvider && isPexelsAvailable()) {
-            console.log("[STORY_BG] Trying Pexels...");
-            const searchTheme = theme || (type === "cover" ? "cityscape" : type === "summary" ? "travel scenery" : "travel");
-
-            imageUrl = await getPexelsThemedImage(city, searchTheme, excludeUrls);
-            if (imageUrl) {
-                source = "pexels";
-                console.log("[STORY_BG] Pexels image found:", imageUrl.substring(0, 80));
-            } else {
-                console.log("[STORY_BG] Pexels returned no image for:", { city, searchTheme });
-            }
-        }
-
-        // =====================================================================
         // NO IMAGE — branded gradient fallback will be used by story renderer
         // =====================================================================
         if (!imageUrl) {
@@ -388,8 +347,6 @@ export async function POST(req: NextRequest) {
                 hasFluxKey: isFluxAvailable(),
                 hasSeedreamKey: isSeedreamAvailable(),
                 hasGeminiKey: isImagenAvailable(),
-                hasTripAdvisorKey: isTripAdvisorAvailable(),
-                hasPexelsKey: isPexelsAvailable(),
             });
 
             return NextResponse.json({
@@ -406,8 +363,6 @@ export async function POST(req: NextRequest) {
                     fluxKey: isFluxAvailable(),
                     seedreamKey: isSeedreamAvailable(),
                     geminiKey: isImagenAvailable(),
-                    tripAdvisorKey: isTripAdvisorAvailable(),
-                    pexelsKey: isPexelsAvailable(),
                 },
             });
         }
@@ -449,8 +404,6 @@ export async function GET(req: NextRequest) {
             flux: isFluxAvailable(),
             seedream: isSeedreamAvailable(),
             gemini: isImagenAvailable(),
-            tripadvisor: isTripAdvisorAvailable(),
-            pexels: isPexelsAvailable(),
         },
         models,
         tier,

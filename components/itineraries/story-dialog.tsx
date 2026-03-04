@@ -120,8 +120,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [fullscreenSlide, setFullscreenSlide] = useState<number | null>(null);
     const [useAiBackgrounds, setUseAiBackgrounds] = useState(false);
     const [aiAvailable, setAiAvailable] = useState(false);
-    const [tripAdvisorAvailable, setTripAdvisorAvailable] = useState(false);
-    const [pexelsAvailable, setPexelsAvailable] = useState(false);
+
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
     const [isPaidUser, setIsPaidUser] = useState(false);
@@ -150,8 +149,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             })
             .then((data) => {
                 setAiAvailable(data.sources?.ai ?? false);
-                setTripAdvisorAvailable(data.sources?.tripadvisor ?? false);
-                setPexelsAvailable(data.sources?.pexels ?? false);
                 // Load model options from the API
                 if (data.models && Array.isArray(data.models)) {
                     setAvailableModels(data.models);
@@ -165,8 +162,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             .catch((err) => {
                 console.error("[STORY_DIALOG] Failed to check sources:", err);
                 setAiAvailable(false);
-                setTripAdvisorAvailable(false);
-                setPexelsAvailable(false);
             });
 
         fetch("/api/user/tier")
@@ -478,11 +473,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const providerLabel = usedProviders.length > 0
                     ? usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")
                     : null;
-                const sourceDisplay = providerLabel
-                    ? providerLabel + (uniqueSources.includes("tripadvisor") || uniqueSources.includes("pexels")
-                        ? ` + ${uniqueSources.filter(s => s !== "ai").join(", ")}`
-                        : "")
-                    : uniqueSources.length > 0 ? uniqueSources.join(", ") : "";
+                const sourceDisplay = providerLabel || "";
                 const sourceText = sourceDisplay ? ` (${sourceDisplay})` : "";
 
                 if (bgCount === 0) {
@@ -820,7 +811,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     <p className="text-xs text-muted-foreground">
                                         {aiQuota.limit - aiQuota.used > 0
                                             ? `${aiQuota.limit - aiQuota.used} credits remaining this month`
-                                            : "Credit quota reached — using photo sources instead"}
+                                            : "Credit quota reached — branded gradients will be used"}
                                     </p>
                                 )}
                             </div>
@@ -831,11 +822,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             <p className="text-xs text-muted-foreground text-center mb-4">
                                 {useAiBackgrounds && aiAvailable
                                     ? "Using AI-generated images"
-                                    : tripAdvisorAvailable
-                                        ? "Using real location photos from TripAdvisor"
-                                        : pexelsAvailable
-                                            ? "Using high-quality photos from Pexels"
-                                            : "Gradient backgrounds (no photo API configured)"}
+                                    : "Branded gradient backgrounds"}
                             </p>
                         )}
 
