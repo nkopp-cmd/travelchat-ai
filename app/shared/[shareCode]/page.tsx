@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Clock, DollarSign, Star, Lightbulb, Bus, Sparkles, Home } from "lucide-react";
+import { MapPin, Clock, DollarSign, Star, Lightbulb, Bus, Sparkles, Home, Instagram } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -100,6 +100,19 @@ async function getSharedItinerary(shareCode: string) {
         return null;
     }
 
+    // Parse story_slides if available and not expired
+    let storySlides: Record<string, string> | null = null;
+    const storyMeta = itinerary.story_slides as {
+        generated_at: string;
+        expires_at: string;
+        tier: string;
+        slides: Record<string, string>;
+    } | null;
+
+    if (storyMeta?.slides && new Date(storyMeta.expires_at) > new Date()) {
+        storySlides = storyMeta.slides;
+    }
+
     return {
         id: itinerary.id,
         title: itinerary.title,
@@ -110,6 +123,7 @@ async function getSharedItinerary(shareCode: string) {
         highlights: itinerary.highlights,
         estimatedCost: itinerary.estimated_cost,
         createdAt: itinerary.created_at,
+        storySlides,
     };
 }
 
@@ -252,6 +266,60 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                         </Card>
                     )}
                 </div>
+
+                {/* Story Slides Gallery */}
+                {itinerary.storySlides && Object.keys(itinerary.storySlides).length > 0 && (
+                    <Card className="border-violet-200/50 overflow-hidden">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Instagram className="h-5 w-5 text-violet-600" />
+                                Story Slides
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                {(() => {
+                                    const slides = itinerary.storySlides!;
+                                    const orderedKeys: string[] = [];
+                                    if (slides.cover) orderedKeys.push("cover");
+                                    for (let i = 1; i <= itinerary.days; i++) {
+                                        if (slides[`day${i}`]) orderedKeys.push(`day${i}`);
+                                    }
+                                    if (slides.summary) orderedKeys.push("summary");
+
+                                    return orderedKeys.map((key) => {
+                                        const label = key === "cover" ? "Cover"
+                                            : key === "summary" ? "Summary"
+                                            : `Day ${key.replace("day", "")}`;
+                                        return (
+                                            <a
+                                                key={key}
+                                                href={slides[key]}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border/50 hover:border-violet-400 transition-all hover:shadow-lg"
+                                            >
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={slides[key]}
+                                                    alt={`${label} - ${itinerary.title}`}
+                                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                    loading="lazy"
+                                                />
+                                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                                                    <span className="text-white text-xs font-medium">{label}</span>
+                                                </div>
+                                            </a>
+                                        );
+                                    });
+                                })()}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-3 text-center">
+                                Tap a slide to view full size
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Daily Plans */}
                 <div className="space-y-8">

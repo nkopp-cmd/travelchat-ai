@@ -104,7 +104,8 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProvider, cacheKey, excludeUrls = [] } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
+        let requestedProvider: typeof requestedProviderRaw | null = requestedProviderRaw;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -156,6 +157,8 @@ export async function POST(req: NextRequest) {
                         creditCost,
                     });
                     canUseAI = false;
+                    // Clear requestedProvider so stock photo fallback is not skipped
+                    requestedProvider = null;
                 }
             } catch (usageError) {
                 // Usage tracking failure should NOT block AI generation
