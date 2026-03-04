@@ -233,26 +233,27 @@ export function StoriesClient({ slides, city, days, itineraryId }: StoriesClient
                         >
                             <X className="h-6 w-6" />
                         </button>
-                        <div className="aspect-[9/16] relative rounded-xl overflow-hidden">
-                            <Image
-                                src={previewSlide.url}
-                                alt={previewSlide.label}
-                                fill
-                                className="object-cover"
-                                sizes="384px"
-                                priority
-                            />
-                        </div>
-                        <div className="flex gap-2 mt-3 justify-center">
-                            <Button
-                                onClick={() => handleDownload(previewSlide)}
-                                disabled={downloadingKey === previewSlide.key}
-                                size="sm"
-                                className="gap-2"
-                            >
-                                <Download className="h-4 w-4" />
-                                {isMobileShare ? "Save" : "Download"}
-                            </Button>
+                        {/* Plain <img> — enables iOS long-press "Save Image" to Photos */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={previewSlide.url}
+                            alt={previewSlide.label}
+                            className="w-full rounded-xl"
+                        />
+                        <div className="flex flex-col items-center gap-2 mt-3">
+                            {isMobileShare ? (
+                                <p className="text-white/60 text-sm">Long-press the image to save to Photos</p>
+                            ) : (
+                                <Button
+                                    onClick={() => handleDownload(previewSlide)}
+                                    disabled={downloadingKey === previewSlide.key}
+                                    size="sm"
+                                    className="gap-2"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Download
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
