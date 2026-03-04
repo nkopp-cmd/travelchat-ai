@@ -25,14 +25,16 @@ export default function SignInPage() {
                     </p>
                 </div>
 
-                <div className="bg-card/50 backdrop-blur-xl rounded-3xl shadow-2xl shadow-violet-500/10 p-8 border border-white/10">
+                <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-violet-500/20 p-6 sm:p-8 border border-white/[0.15] overflow-hidden">
                     <SignIn
                         appearance={{
                             elements: {
                                 rootBox: "w-full",
-                                card: "shadow-none bg-transparent",
+                                cardBox: "w-full max-w-full",
+                                card: "shadow-none bg-transparent w-full",
                                 headerTitle: "hidden",
                                 headerSubtitle: "hidden",
+                                logoBox: "hidden",
                                 socialButtonsBlockButton: "bg-white/10 border border-white/20 text-white hover:bg-white/20",
                                 socialButtonsBlockButtonText: "text-white",
                                 formButtonPrimary: "bg-violet-600 hover:bg-violet-700 text-white",

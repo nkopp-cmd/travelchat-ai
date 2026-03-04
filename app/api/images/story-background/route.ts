@@ -104,7 +104,8 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProvider, cacheKey, excludeUrls = [] } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
+        let requestedProvider: typeof requestedProviderRaw | null = requestedProviderRaw;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -156,6 +157,8 @@ export async function POST(req: NextRequest) {
                         creditCost,
                     });
                     canUseAI = false;
+                    // Clear requestedProvider so stock photo fallback is not skipped
+                    requestedProvider = null;
                 }
             } catch (usageError) {
                 // Usage tracking failure should NOT block AI generation
@@ -212,16 +215,22 @@ export async function POST(req: NextRequest) {
         const failedProviders: Array<{ provider: string; error: string }> = [];
 
         // =====================================================================
-        // AI GENERATION with cascading fallback across all providers
+        // AI GENERATION — respect user's model choice (no silent fallback)
         // =====================================================================
         if (canUseAI) {
-            // Build the ordered list: requested provider first, then remaining
             const providerOrder: ImageProvider[] = [];
-            if (imageProvider) providerOrder.push(imageProvider);
-            const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
-            for (const p of allProviders) {
-                if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
-                    providerOrder.push(p);
+            if (requestedProvider) {
+                // User explicitly chose a model — use ONLY that provider.
+                // If it fails, skip stock photos too → branded gradient fallback.
+                providerOrder.push(imageProvider!);
+            } else {
+                // Auto-select mode: try all available providers in priority order
+                if (imageProvider) providerOrder.push(imageProvider);
+                const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
+                for (const p of allProviders) {
+                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
+                        providerOrder.push(p);
+                    }
                 }
             }
 
@@ -321,11 +330,13 @@ export async function POST(req: NextRequest) {
         }
 
         // =====================================================================
-        // STOCK PHOTO FALLBACK: TripAdvisor → Pexels (NO Unsplash)
+        // STOCK PHOTO FALLBACK: TripAdvisor → Pexels (only in auto-select mode)
+        // When user explicitly chose an AI model, skip stock photos entirely —
+        // the story renderer will use branded gradient backgrounds instead.
         // =====================================================================
 
-        // Fall back to TripAdvisor for real location photos (paid tiers only)
-        if (!imageUrl && tier !== "free" && isTripAdvisorAvailable()) {
+        // Fall back to TripAdvisor for real location photos (paid tiers only, auto-select only)
+        if (!imageUrl && !requestedProvider && tier !== "free" && isTripAdvisorAvailable()) {
             console.log("[STORY_BG] Trying TripAdvisor...");
             const searchTheme = theme || (type === "cover" ? "landmark" : type === "summary" ? "scenery" : "travel");
 
@@ -338,8 +349,8 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Fall back to Pexels
-        if (!imageUrl && isPexelsAvailable()) {
+        // Fall back to Pexels (auto-select only)
+        if (!imageUrl && !requestedProvider && isPexelsAvailable()) {
             console.log("[STORY_BG] Trying Pexels...");
             const searchTheme = theme || (type === "cover" ? "cityscape" : type === "summary" ? "travel scenery" : "travel");
 
@@ -353,10 +364,15 @@ export async function POST(req: NextRequest) {
         }
 
         // =====================================================================
-        // ALL SOURCES FAILED — return error (no more silent Unsplash fallback)
+        // NO IMAGE — branded gradient fallback will be used by story renderer
         // =====================================================================
         if (!imageUrl) {
-            console.error("[STORY_BG] ALL sources failed:", {
+            const reason = requestedProvider
+                ? `${requestedProvider} failed — branded gradient will be used`
+                : "All image providers failed";
+            console.error("[STORY_BG] No image:", {
+                reason,
+                requestedProvider,
                 canUseAI,
                 imageProvider,
                 tier,
@@ -370,7 +386,7 @@ export async function POST(req: NextRequest) {
 
             return NextResponse.json({
                 success: false,
-                error: "All image providers failed",
+                error: reason,
                 failedProviders,
                 _debug: {
                     tier,

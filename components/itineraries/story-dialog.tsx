@@ -19,7 +19,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, Lock, ExternalLink } from "lucide-react";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, Lock, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -117,6 +117,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [slides, setSlides] = useState<StorySlide[]>([]);
     const [selectedSlide, setSelectedSlide] = useState<number>(0);
     const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
+    const [fullscreenSlide, setFullscreenSlide] = useState<number | null>(null);
     const [useAiBackgrounds, setUseAiBackgrounds] = useState(false);
     const [aiAvailable, setAiAvailable] = useState(false);
     const [tripAdvisorAvailable, setTripAdvisorAvailable] = useState(false);
@@ -549,19 +550,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             }
             const blob = await response.blob();
             const filename = getSlideFilename(slide, city, totalDays);
-            const result = await shareOrDownload(blob, filename);
+            downloadViaAnchor(blob, filename);
 
-            if (result === "shared") {
-                toast({
-                    title: "Share sheet opened",
-                    description: "Choose 'Save Image' to save to your photos",
-                });
-            } else {
-                toast({
-                    title: "Image saved!",
-                    description: "Check your Downloads folder",
-                });
-            }
+            toast({
+                title: "Image saved!",
+                description: "Check your Downloads folder",
+            });
         } catch (error) {
             console.error("Download error:", error);
             toast({
@@ -724,6 +718,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     };
 
     return (
+        <>
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0">
@@ -903,9 +898,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 ))}
                             </div>
 
-                            {/* Main preview */}
+                            {/* Main preview — tap to open fullscreen */}
                             <div className="flex-1 flex flex-col items-center">
-                                <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl border border-border">
+                                <button
+                                    onClick={() => setFullscreenSlide(selectedSlide)}
+                                    className="relative w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl border border-border cursor-pointer hover:ring-2 hover:ring-violet-500/30 transition-all"
+                                >
                                     {brokenSlides.has(selectedSlide) ? (
                                         <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center p-4">
                                             <span className="text-white text-lg font-bold text-center">{slides[selectedSlide]?.label || "Slide"}</span>
@@ -920,10 +918,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                             onError={() => handleImageError(selectedSlide)}
                                         />
                                     )}
-                                </div>
+                                </button>
                                 <p className="text-sm text-muted-foreground mt-3">
                                     {slides[selectedSlide]?.label} • 1080 × 1920
                                 </p>
+                                {isMobileShare && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Tap image to open full size
+                                    </p>
+                                )}
                                 {usedProviders.length > 0 && (
                                     <p className="text-xs text-muted-foreground mt-1">
                                         Backgrounds by {usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")}
@@ -1019,5 +1022,50 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 )}
             </DialogContent>
         </Dialog>
+
+        {/* Fullscreen lightbox — plain <img> enables iOS long-press "Save Image" */}
+        {fullscreenSlide !== null && slides[fullscreenSlide] && (
+            <div
+                className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-4"
+                onClick={() => setFullscreenSlide(null)}
+            >
+                <button
+                    onClick={() => setFullscreenSlide(null)}
+                    className="absolute top-4 right-4 text-white/80 hover:text-white z-10"
+                >
+                    <X className="h-6 w-6" />
+                </button>
+                <div onClick={(e) => e.stopPropagation()}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={(() => {
+                            const slide = slides[fullscreenSlide];
+                            const key = slide.type === "day" ? `day${slide.day}` : slide.type;
+                            return savedSlides?.[key] || slide.url;
+                        })()}
+                        alt={slides[fullscreenSlide].label}
+                        className="max-h-[80vh] max-w-full object-contain rounded-xl"
+                    />
+                </div>
+                <p className="text-white/60 text-sm mt-3">
+                    {isMobileShare
+                        ? "Long-press the image to save to Photos"
+                        : slides[fullscreenSlide].label}
+                </p>
+                {!isMobileShare && (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-white border-white/20 hover:bg-white/10"
+                        onClick={(e) => { e.stopPropagation(); handleDownload(fullscreenSlide); }}
+                        disabled={downloadingIndex !== null}
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        Save Image
+                    </Button>
+                )}
+            </div>
+        )}
+        </>
     );
 }
