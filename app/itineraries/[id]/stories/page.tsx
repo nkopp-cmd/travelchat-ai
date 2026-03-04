@@ -16,10 +16,8 @@ function extractSlideUrls(raw: unknown): Record<string, string> | null {
 
     // Nested format from persist route
     if (obj.slides && typeof obj.slides === "object") {
-        // Check expiry
-        if (obj.expires_at && new Date(obj.expires_at as string) < new Date()) {
-            return null; // Expired
-        }
+        // Note: expiry is informational only — PNGs in Supabase Storage persist
+        // independently, so always show slides if they exist
         const slides = obj.slides as Record<string, string>;
         return Object.keys(slides).length > 0 ? slides : null;
     }

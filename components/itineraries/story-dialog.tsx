@@ -120,13 +120,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [fullscreenSlide, setFullscreenSlide] = useState<number | null>(null);
     const [useAiBackgrounds, setUseAiBackgrounds] = useState(false);
     const [aiAvailable, setAiAvailable] = useState(false);
-    const [tripAdvisorAvailable, setTripAdvisorAvailable] = useState(false);
-    const [pexelsAvailable, setPexelsAvailable] = useState(false);
+
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
     const [isPaidUser, setIsPaidUser] = useState(false);
     const [aiQuota, setAiQuota] = useState<{ used: number; limit: number } | null>(null);
     const [brokenSlides, setBrokenSlides] = useState<Set<number>>(new Set());
+    const [previewLoading, setPreviewLoading] = useState(false);
     const [cloudSaved, setCloudSaved] = useState(false);
     const [isSavingToCloud, setIsSavingToCloud] = useState(false);
     const [retentionDays, setRetentionDays] = useState<number | null>(null);
@@ -150,8 +150,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             })
             .then((data) => {
                 setAiAvailable(data.sources?.ai ?? false);
-                setTripAdvisorAvailable(data.sources?.tripadvisor ?? false);
-                setPexelsAvailable(data.sources?.pexels ?? false);
                 // Load model options from the API
                 if (data.models && Array.isArray(data.models)) {
                     setAvailableModels(data.models);
@@ -165,8 +163,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             .catch((err) => {
                 console.error("[STORY_DIALOG] Failed to check sources:", err);
                 setAiAvailable(false);
-                setTripAdvisorAvailable(false);
-                setPexelsAvailable(false);
             });
 
         fetch("/api/user/tier")
@@ -454,6 +450,16 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         setSavedSlides(saveData.slides);
                         console.log("[STORY] Slides saved for sharing:", Object.keys(saveData.slides || {}));
 
+                        // Swap slide URLs from Satori render endpoints to static CDN URLs
+                        // This makes subsequent slide switching instant (no re-render)
+                        if (saveData.slides) {
+                            setSlides(prev => prev.map(slide => {
+                                const key = slide.type === "day" ? `day${slide.day}` : slide.type;
+                                const cdnUrl = saveData.slides[key];
+                                return cdnUrl ? { ...slide, url: cdnUrl } : slide;
+                            }));
+                        }
+
                         // Send email notification after slides are persisted
                         if (isPaidUser) {
                             fetch(`/api/itineraries/${itineraryId}/notify-story-ready`, {
@@ -478,11 +484,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const providerLabel = usedProviders.length > 0
                     ? usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")
                     : null;
-                const sourceDisplay = providerLabel
-                    ? providerLabel + (uniqueSources.includes("tripadvisor") || uniqueSources.includes("pexels")
-                        ? ` + ${uniqueSources.filter(s => s !== "ai").join(", ")}`
-                        : "")
-                    : uniqueSources.length > 0 ? uniqueSources.join(", ") : "";
+                const sourceDisplay = providerLabel || "";
                 const sourceText = sourceDisplay ? ` (${sourceDisplay})` : "";
 
                 if (bgCount === 0) {
@@ -820,7 +822,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     <p className="text-xs text-muted-foreground">
                                         {aiQuota.limit - aiQuota.used > 0
                                             ? `${aiQuota.limit - aiQuota.used} credits remaining this month`
-                                            : "Credit quota reached — using photo sources instead"}
+                                            : "Credit quota reached — branded gradients will be used"}
                                     </p>
                                 )}
                             </div>
@@ -831,11 +833,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             <p className="text-xs text-muted-foreground text-center mb-4">
                                 {useAiBackgrounds && aiAvailable
                                     ? "Using AI-generated images"
-                                    : tripAdvisorAvailable
-                                        ? "Using real location photos from TripAdvisor"
-                                        : pexelsAvailable
-                                            ? "Using high-quality photos from Pexels"
-                                            : "Gradient backgrounds (no photo API configured)"}
+                                    : "Branded gradient backgrounds"}
                             </p>
                         )}
 
@@ -870,7 +868,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 {slides.map((slide, index) => (
                                     <button
                                         key={index}
-                                        onClick={() => setSelectedSlide(index)}
+                                        onClick={() => { setPreviewLoading(true); setSelectedSlide(index); }}
                                         className={`relative w-20 h-36 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${
                                             selectedSlide === index
                                                 ? "border-violet-500 ring-2 ring-violet-500/20"
@@ -909,14 +907,22 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                             <span className="text-white text-lg font-bold text-center">{slides[selectedSlide]?.label || "Slide"}</span>
                                         </div>
                                     ) : (
-                                        <Image
-                                            src={slides[selectedSlide]?.url || ""}
-                                            alt={slides[selectedSlide]?.label || ""}
-                                            fill
-                                            className="object-cover"
-                                            unoptimized
-                                            onError={() => handleImageError(selectedSlide)}
-                                        />
+                                        <>
+                                            <Image
+                                                src={slides[selectedSlide]?.url || ""}
+                                                alt={slides[selectedSlide]?.label || ""}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                                onError={() => handleImageError(selectedSlide)}
+                                                onLoad={() => setPreviewLoading(false)}
+                                            />
+                                            {previewLoading && (
+                                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+                                                    <Loader2 className="h-8 w-8 text-white animate-spin" />
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </button>
                                 <p className="text-sm text-muted-foreground mt-3">

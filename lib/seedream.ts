@@ -30,15 +30,12 @@ interface ArkImageResponse {
 
 /**
  * Generate an image using Seedream 4.5 via Bytedance ARK API.
- * Returns base64-encoded image data (no data URI prefix).
+ * Returns base64-encoded PNG image data (no data URI prefix).
  *
- * Uses response_format: "url" (the only documented format) and fetches
- * the image from the returned URL to convert to base64.
- *
- * Supported sizes: pixel values within [1280×720, 4096×4096] or named "1K"/"2K"/"4K".
- * guidance_scale: recommended 7–9.
+ * Uses b64_json response format to avoid an extra HTTP round-trip
+ * (the URL format requires fetching from SE Asia servers which adds latency).
  */
-async function generateImage(prompt: string, size: string = "1440x2560"): Promise<string> {
+async function generateImage(prompt: string, size: string = "1080x1920"): Promise<string> {
     if (!ARK_API_KEY) {
         throw new Error("Seedream is not configured. Please add ARK_API_KEY.");
     }
@@ -55,9 +52,11 @@ async function generateImage(prompt: string, size: string = "1440x2560"): Promis
             model: SEEDREAM_MODEL,
             prompt,
             size,
-            response_format: "url",
+            // Use b64_json to get base64 directly — avoids extra URL fetch round-trip
+            // and eliminates latency from fetching from SE Asia BytePlus servers
+            response_format: "b64_json",
             watermark: false,
-            guidance_scale: 7.5,
+            guidance_scale: 2.5,
             n: 1,
         }),
         // 25s timeout — leaves room for fallback providers within 60s function limit
@@ -78,18 +77,18 @@ async function generateImage(prompt: string, size: string = "1440x2560"): Promis
 
     const imageEntry = result.data[0];
 
-    // Handle base64 response (in case API supports it in future)
+    // Prefer base64 (should always be present with response_format: "b64_json")
     if (imageEntry.b64_json) {
         console.log("[SEEDREAM] Got base64 directly, length:", imageEntry.b64_json.length);
         return imageEntry.b64_json;
     }
 
-    // Primary path: fetch image from returned URL
+    // Fallback: fetch URL if API returned URL despite requesting b64_json
     if (!imageEntry.url) {
         throw new Error("No image URL or base64 in Seedream response");
     }
 
-    console.log("[SEEDREAM] Fetching image from URL...");
+    console.log("[SEEDREAM] Unexpected URL response (expected b64_json), fetching from URL...");
     const imageResponse = await fetch(imageEntry.url, {
         signal: AbortSignal.timeout(15000),
     });
@@ -127,7 +126,7 @@ Golden hour natural light, warm tones, atmospheric haze.
 8K resolution, tack sharp focus, vibrant realistic colors, HDR.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure landscape/cityscape photography.`;
 
-    return generateImage(prompt, "1440x2560");
+    return generateImage(prompt, "1080x1920");
 }
 
 /**
@@ -150,7 +149,7 @@ Vertical portrait, balanced framing, depth and layers.
 Natural ambient light, warm color temperature.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure scenic/architectural photography.`;
 
-    return generateImage(prompt, "1440x2560");
+    return generateImage(prompt, "1080x1920");
 }
 
 /**
