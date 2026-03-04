@@ -272,7 +272,15 @@ export async function POST(req: NextRequest) {
                         // JPEG even when PNG is requested. Using wrong content type causes
                         // Satori to fail silently when building data URIs for rendering.
                         const detectedType = detectImageContentType(buffer);
-                        const ext = detectedType === "image/jpeg" ? "jpg" : detectedType === "image/webp" ? "webp" : "png";
+
+                        // Satori does NOT support WebP — reject and try next provider
+                        if (detectedType === "image/webp") {
+                            console.error(`[STORY_BG] ${currentProvider} returned WebP — rejected (Satori incompatible)`);
+                            failedProviders.push({ provider: currentProvider, error: "Returned WebP (unsupported by Satori)" });
+                            continue;
+                        }
+
+                        const ext = detectedType === "image/jpeg" ? "jpg" : "png";
                         // Update storage key extension to match actual format
                         const actualStorageKey = storageKey.replace(/\.png$/, `.${ext}`);
                         console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes, key: ${actualStorageKey}`);
