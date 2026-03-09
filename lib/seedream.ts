@@ -48,7 +48,8 @@ async function generateImage(prompt: string, size: string = "1080x1920"): Promis
     const makeRequest = async (): Promise<string> => {
         const response = await fetch(`${ARK_BASE_URL}/images/generations`, {
             method: "POST",
-            signal: AbortSignal.timeout(30000), // 30s timeout — prevents hanging indefinitely
+            // 25s timeout — leaves room for fallback providers within 60s function limit
+            signal: AbortSignal.timeout(25000),
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${ARK_API_KEY}`,

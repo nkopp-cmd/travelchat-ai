@@ -131,6 +131,7 @@ interface Activity {
     description?: string;
     time?: string;
     localleyScore?: number;
+    category?: string;
 }
 
 interface DayPlan {
@@ -151,6 +152,61 @@ function safeString(value: unknown, fallback = ''): string {
         return String(obj.en || obj.ko || obj.name || fallback);
     }
     return fallback;
+}
+
+/**
+ * Pick an emoji for an activity based on its category, with localleyScore override.
+ */
+function getActivityEmoji(activity: Activity): string {
+    if (Number(activity.localleyScore) >= 5) return "💎";
+    const category = (typeof activity.category === 'string' ? activity.category : '').toLowerCase();
+    switch (category) {
+        case "restaurant": return "🍽️";
+        case "cafe": return "☕";
+        case "bar": return "🍸";
+        case "market": return "🛒";
+        case "temple": case "shrine": return "⛩️";
+        case "park": return "🌳";
+        case "museum": return "🏛️";
+        case "shopping": return "🛍️";
+        case "attraction": return "🎯";
+        case "neighborhood": return "🏘️";
+        default: return Number(activity.localleyScore) >= 4 ? "⭐" : "📍";
+    }
+}
+
+/**
+ * Compute a font size that fits `text` within `maxWidth` pixels,
+ * starting from `basePx` and scaling down to at least `minPx`.
+ */
+function dynamicFontSize(text: string, maxWidth: number, basePx: number, minPx: number): number {
+    const charWidthRatio = 0.55;
+    const estimatedWidth = text.length * basePx * charWidthRatio;
+    if (estimatedWidth <= maxWidth) return basePx;
+    const scaled = Math.floor(basePx * (maxWidth / estimatedWidth));
+    return Math.max(scaled, minPx);
+}
+
+/**
+ * Pick a contextual emoji for a summary highlight based on keywords.
+ */
+function getHighlightEmoji(text: string): string {
+    const lower = text.toLowerCase();
+    if (lower.includes("food") || lower.includes("cuisine") || lower.includes("eat")) return "🍜";
+    if (lower.includes("culture") || lower.includes("history") || lower.includes("heritage")) return "🏛️";
+    if (lower.includes("nature") || lower.includes("park") || lower.includes("garden")) return "🌿";
+    if (lower.includes("shop") || lower.includes("market")) return "🛍️";
+    if (lower.includes("night") || lower.includes("bar") || lower.includes("club")) return "🌙";
+    if (lower.includes("temple") || lower.includes("shrine")) return "⛩️";
+    if (lower.includes("beach") || lower.includes("coast") || lower.includes("sea")) return "🏖️";
+    if (lower.includes("art") || lower.includes("gallery")) return "🎨";
+    if (lower.includes("music") || lower.includes("concert")) return "🎵";
+    if (lower.includes("coffee") || lower.includes("cafe")) return "☕";
+    if (lower.includes("local") || lower.includes("hidden") || lower.includes("gem")) return "💎";
+    if (lower.includes("explore") || lower.includes("discover") || lower.includes("adventure")) return "🗺️";
+    if (lower.includes("view") || lower.includes("scenic") || lower.includes("sunset")) return "🌅";
+    if (lower.includes("memor") || lower.includes("experience")) return "✨";
+    return "✦";
 }
 
 // Cover slide template
@@ -273,13 +329,13 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             border: "1px solid rgba(255,255,255,0.2)",
                         }}
                     >
-                        <span style={{ fontSize: 28, color: "white" }}>📍 {city}</span>
+                        <span style={{ fontSize: 32, color: "white" }}>📍 {city}</span>
                     </div>
 
                     {/* Title */}
                     <h1
                         style={{
-                            fontSize: 56,
+                            fontSize: dynamicFontSize(title, 640, 64, 40),
                             fontWeight: "bold",
                             color: "white",
                             textAlign: "center",
@@ -303,7 +359,7 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             border: "1px solid rgba(255,255,255,0.15)",
                         }}
                     >
-                        <span style={{ fontSize: 26, color: "white" }}>
+                        <span style={{ fontSize: 30, color: "white" }}>
                             🗓️ {days} {days === 1 ? "Day" : "Days"} of Adventure
                         </span>
                     </div>
@@ -459,7 +515,7 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                             marginBottom: 20,
                         }}
                     >
-                        <span style={{ fontSize: 26, color: "white", fontWeight: "bold" }}>
+                        <span style={{ fontSize: 30, color: "white", fontWeight: "bold" }}>
                             Day {dayPlan.day || dayNumber}
                         </span>
                     </div>
@@ -468,7 +524,7 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     {dayPlan.theme && (
                         <span
                             style={{
-                                fontSize: 36,
+                                fontSize: dynamicFontSize(safeString(dayPlan.theme), 570, 42, 28),
                                 fontWeight: "bold",
                                 color: "white",
                                 textAlign: "center",
@@ -503,17 +559,13 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                                         border: "1px solid rgba(255,255,255,0.12)",
                                     }}
                                 >
-                                    <span style={{ fontSize: 24 }}>
-                                        {Number(activity.localleyScore) >= 5
-                                            ? "💎"
-                                            : Number(activity.localleyScore) >= 4
-                                                ? "⭐"
-                                                : "📍"}
+                                    <span style={{ fontSize: 28 }}>
+                                        {getActivityEmoji(activity)}
                                     </span>
                                     <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
                                         <span
                                             style={{
-                                                fontSize: 24,
+                                                fontSize: 26,
                                                 fontWeight: "bold",
                                                 color: "white",
                                             }}
@@ -667,7 +719,7 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                     {/* Title */}
                     <span
                         style={{
-                            fontSize: 36,
+                            fontSize: 40,
                             color: "rgba(255,255,255,0.9)",
                             marginBottom: 16,
                         }}
@@ -677,7 +729,7 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
 
                     <h2
                         style={{
-                            fontSize: 40,
+                            fontSize: dynamicFontSize(title, 600, 48, 32),
                             fontWeight: "bold",
                             color: "white",
                             textAlign: "center",
@@ -710,8 +762,8 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                                     border: "1px solid rgba(255,255,255,0.15)",
                                 }}
                             >
-                                <span style={{ fontSize: 24, color: "#6ee7b7" }}>•</span>
-                                <span style={{ fontSize: 24, color: "white" }}>{highlight}</span>
+                                <span style={{ fontSize: 26 }}>{getHighlightEmoji(highlight)}</span>
+                                <span style={{ fontSize: 26, color: "white" }}>{highlight}</span>
                             </div>
                         ))}
                     </div>

@@ -19,12 +19,7 @@ import {
 
 // AI image generation can take 10-20s per image
 export const maxDuration = 60;
-import {
-    getPexelsThemedImage,
-    getTripAdvisorThemedImage,
-    isPexelsAvailable,
-    isTripAdvisorAvailable,
-} from "@/lib/story-backgrounds";
+
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
@@ -104,7 +99,8 @@ export async function POST(req: NextRequest) {
         }
 
         const body: StoryBackgroundRequest = await req.json();
-        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProvider, cacheKey, excludeUrls = [] } = body;
+        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
+        let requestedProvider: typeof requestedProviderRaw | null = requestedProviderRaw;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -150,7 +146,7 @@ export async function POST(req: NextRequest) {
             try {
                 const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
                 if (!allowed) {
-                    console.log("[STORY_BG] AI quota exceeded, falling through to non-AI sources", {
+                    console.log("[STORY_BG] AI quota exceeded, branded gradient will be used", {
                         current: usage.currentUsage,
                         limit: usage.limit,
                         creditCost,
@@ -208,20 +204,26 @@ export async function POST(req: NextRequest) {
         }
 
         let imageUrl: string | null = null;
-        let source: "ai" | "tripadvisor" | "pexels" = "pexels";
+        let source: "ai" = "ai";
         const failedProviders: Array<{ provider: string; error: string }> = [];
 
         // =====================================================================
-        // AI GENERATION with cascading fallback across all providers
+        // AI GENERATION — respect user's model choice (no silent fallback)
         // =====================================================================
         if (canUseAI) {
-            // Build the ordered list: requested provider first, then remaining
             const providerOrder: ImageProvider[] = [];
-            if (imageProvider) providerOrder.push(imageProvider);
-            const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
-            for (const p of allProviders) {
-                if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
-                    providerOrder.push(p);
+            if (requestedProvider) {
+                // User explicitly chose a model — use ONLY that provider.
+                // If it fails, skip stock photos too → branded gradient fallback.
+                providerOrder.push(imageProvider!);
+            } else {
+                // Auto-select mode: try all available providers in priority order
+                if (imageProvider) providerOrder.push(imageProvider);
+                const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
+                for (const p of allProviders) {
+                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
+                        providerOrder.push(p);
+                    }
                 }
             }
 
@@ -263,7 +265,15 @@ export async function POST(req: NextRequest) {
                         // JPEG even when PNG is requested. Using wrong content type causes
                         // Satori to fail silently when building data URIs for rendering.
                         const detectedType = detectImageContentType(buffer);
-                        const ext = detectedType === "image/jpeg" ? "jpg" : detectedType === "image/webp" ? "webp" : "png";
+
+                        // Satori does NOT support WebP — reject and try next provider
+                        if (detectedType === "image/webp") {
+                            console.error(`[STORY_BG] ${currentProvider} returned WebP — rejected (Satori incompatible)`);
+                            failedProviders.push({ provider: currentProvider, error: "Returned WebP (unsupported by Satori)" });
+                            continue;
+                        }
+
+                        const ext = detectedType === "image/jpeg" ? "jpg" : "png";
                         // Update storage key extension to match actual format
                         const actualStorageKey = storageKey.replace(/\.png$/, `.${ext}`);
                         console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes, key: ${actualStorageKey}`);
@@ -321,42 +331,15 @@ export async function POST(req: NextRequest) {
         }
 
         // =====================================================================
-        // STOCK PHOTO FALLBACK: TripAdvisor → Pexels (NO Unsplash)
-        // =====================================================================
-
-        // Fall back to TripAdvisor for real location photos (paid tiers only)
-        if (!imageUrl && tier !== "free" && isTripAdvisorAvailable()) {
-            console.log("[STORY_BG] Trying TripAdvisor...");
-            const searchTheme = theme || (type === "cover" ? "landmark" : type === "summary" ? "scenery" : "travel");
-
-            imageUrl = await getTripAdvisorThemedImage(city, searchTheme, excludeUrls);
-            if (imageUrl) {
-                source = "tripadvisor";
-                console.log("[STORY_BG] TripAdvisor image found:", imageUrl.substring(0, 80));
-            } else {
-                console.log("[STORY_BG] TripAdvisor returned no image for:", { city, searchTheme });
-            }
-        }
-
-        // Fall back to Pexels
-        if (!imageUrl && isPexelsAvailable()) {
-            console.log("[STORY_BG] Trying Pexels...");
-            const searchTheme = theme || (type === "cover" ? "cityscape" : type === "summary" ? "travel scenery" : "travel");
-
-            imageUrl = await getPexelsThemedImage(city, searchTheme, excludeUrls);
-            if (imageUrl) {
-                source = "pexels";
-                console.log("[STORY_BG] Pexels image found:", imageUrl.substring(0, 80));
-            } else {
-                console.log("[STORY_BG] Pexels returned no image for:", { city, searchTheme });
-            }
-        }
-
-        // =====================================================================
-        // ALL SOURCES FAILED — return error (no more silent Unsplash fallback)
+        // NO IMAGE — branded gradient fallback will be used by story renderer
         // =====================================================================
         if (!imageUrl) {
-            console.error("[STORY_BG] ALL sources failed:", {
+            const reason = requestedProvider
+                ? `${requestedProvider} failed — branded gradient will be used`
+                : "All image providers failed";
+            console.error("[STORY_BG] No image:", {
+                reason,
+                requestedProvider,
                 canUseAI,
                 imageProvider,
                 tier,
@@ -364,13 +347,11 @@ export async function POST(req: NextRequest) {
                 hasFluxKey: isFluxAvailable(),
                 hasSeedreamKey: isSeedreamAvailable(),
                 hasGeminiKey: isImagenAvailable(),
-                hasTripAdvisorKey: isTripAdvisorAvailable(),
-                hasPexelsKey: isPexelsAvailable(),
             });
 
             return NextResponse.json({
                 success: false,
-                error: "All image providers failed",
+                error: reason,
                 failedProviders,
                 _debug: {
                     tier,
@@ -382,8 +363,6 @@ export async function POST(req: NextRequest) {
                     fluxKey: isFluxAvailable(),
                     seedreamKey: isSeedreamAvailable(),
                     geminiKey: isImagenAvailable(),
-                    tripAdvisorKey: isTripAdvisorAvailable(),
-                    pexelsKey: isPexelsAvailable(),
                 },
             });
         }
@@ -425,8 +404,6 @@ export async function GET(req: NextRequest) {
             flux: isFluxAvailable(),
             seedream: isSeedreamAvailable(),
             gemini: isImagenAvailable(),
-            tripadvisor: isTripAdvisorAvailable(),
-            pexels: isPexelsAvailable(),
         },
         models,
         tier,

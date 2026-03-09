@@ -4,6 +4,32 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { StoriesClient } from "./stories-client";
 
+/**
+ * Extract slide URLs from story_slides, which can be in two formats:
+ * - Nested (persist route): { generated_at, expires_at, tier, slides: { cover: url, ... } }
+ * - Flat (save route):      { cover: url, day1: url, ... }
+ */
+function extractSlideUrls(raw: unknown): Record<string, string> | null {
+    if (!raw || typeof raw !== "object") return null;
+
+    const obj = raw as Record<string, unknown>;
+
+    // Nested format from persist route
+    if (obj.slides && typeof obj.slides === "object") {
+        // Note: expiry is informational only — PNGs in Supabase Storage persist
+        // independently, so always show slides if they exist
+        const slides = obj.slides as Record<string, string>;
+        return Object.keys(slides).length > 0 ? slides : null;
+    }
+
+    // Flat format from save route — has slide keys directly (cover, day1, etc.)
+    if (obj.cover || obj.day1) {
+        return obj as Record<string, string>;
+    }
+
+    return null;
+}
+
 async function getItinerary(id: string) {
     const supabase = createSupabaseAdmin();
     // Use select("*") — safe even if story_slides column doesn't exist yet
@@ -47,7 +73,7 @@ export async function generateMetadata(
     const title = `${itinerary.city} Story Slides | Localley`;
     const description = `Download ${itinerary.days}-day ${itinerary.city} travel story slides — ready to share on Instagram & TikTok.`;
 
-    const storySlides = itinerary.story_slides as Record<string, string> | null;
+    const storySlides = extractSlideUrls(itinerary.story_slides);
     const coverUrl = storySlides?.cover;
 
     return {
@@ -83,9 +109,7 @@ export default async function StoriesPage({
         notFound();
     }
 
-    const storySlides = (itinerary.story_slides && typeof itinerary.story_slides === "object")
-        ? itinerary.story_slides as Record<string, string>
-        : null;
+    const storySlides = extractSlideUrls(itinerary.story_slides);
 
     if (!storySlides || Object.keys(storySlides).length === 0) {
         return (
