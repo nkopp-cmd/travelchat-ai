@@ -39,15 +39,24 @@ export async function generateStoryBackground(
     theme: string,
     style: "vibrant" | "minimal" | "artistic" = "vibrant"
 ): Promise<string> {
-    console.log(`[IMAGE_PROVIDER] Using ${provider} for story background`);
+    console.log(`[IMAGE_PROVIDER] Using ${provider} for story background, city: ${city}`);
+    const start = Date.now();
 
-    if (provider === "flux") {
-        return flux.generateStoryBackground(city, theme, style);
+    try {
+        let result: string;
+        if (provider === "flux") {
+            result = await flux.generateStoryBackground(city, theme, style);
+        } else if (provider === "seedream") {
+            result = await seedream.generateStoryBackground(city, theme, style);
+        } else {
+            result = await gemini.generateStoryBackground(city, theme, style);
+        }
+        console.log(`[IMAGE_PROVIDER] ${provider} story background succeeded in ${Date.now() - start}ms`);
+        return result;
+    } catch (error) {
+        console.error(`[IMAGE_PROVIDER] ${provider} story background FAILED after ${Date.now() - start}ms:`, error instanceof Error ? error.message : error);
+        throw error;
     }
-    if (provider === "seedream") {
-        return seedream.generateStoryBackground(city, theme, style);
-    }
-    return gemini.generateStoryBackground(city, theme, style);
 }
 
 /**
@@ -60,13 +69,22 @@ export async function generateDayBackground(
     theme: string,
     activities: string[]
 ): Promise<string> {
-    console.log(`[IMAGE_PROVIDER] Using ${provider} for day ${dayNumber} background`);
+    console.log(`[IMAGE_PROVIDER] Using ${provider} for day ${dayNumber} background, city: ${city}`);
+    const start = Date.now();
 
-    if (provider === "flux") {
-        return flux.generateDayBackground(city, dayNumber, theme, activities);
+    try {
+        let result: string;
+        if (provider === "flux") {
+            result = await flux.generateDayBackground(city, dayNumber, theme, activities);
+        } else if (provider === "seedream") {
+            result = await seedream.generateDayBackground(city, dayNumber, theme, activities);
+        } else {
+            result = await gemini.generateDayBackground(city, dayNumber, theme, activities);
+        }
+        console.log(`[IMAGE_PROVIDER] ${provider} day ${dayNumber} background succeeded in ${Date.now() - start}ms`);
+        return result;
+    } catch (error) {
+        console.error(`[IMAGE_PROVIDER] ${provider} day ${dayNumber} background FAILED after ${Date.now() - start}ms:`, error instanceof Error ? error.message : error);
+        throw error;
     }
-    if (provider === "seedream") {
-        return seedream.generateDayBackground(city, dayNumber, theme, activities);
-    }
-    return gemini.generateDayBackground(city, dayNumber, theme, activities);
 }

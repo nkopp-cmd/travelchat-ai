@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
     ChevronRight,
     Sparkles,
     Tag,
+    ImageOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, hasFeature } from "@/lib/subscription";
@@ -50,8 +51,13 @@ export function ViatorSuggestions({
     const [activities, setActivities] = useState<ViatorActivity[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
     const showDeals = hasFeature(userTier, "bookingDeals");
+
+    const handleImageError = useCallback((activityId: string) => {
+        setFailedImages(prev => new Set(prev).add(activityId));
+    }, []);
 
     useEffect(() => {
         async function fetchActivities() {
@@ -128,7 +134,7 @@ export function ViatorSuggestions({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[...Array(limit)].map((_, i) => (
                             <div key={i} className="space-y-2">
-                                <Skeleton className="h-40 sm:h-32 w-full rounded-lg" />
+                                <Skeleton className="aspect-[16/9] w-full rounded-lg" />
                                 <Skeleton className="h-4 w-3/4" />
                                 <Skeleton className="h-4 w-1/2" />
                             </div>
@@ -146,18 +152,19 @@ export function ViatorSuggestions({
                                 className="group relative rounded-xl border border-border/50 bg-card hover:shadow-md transition-all overflow-hidden"
                             >
                                 {/* Activity Image */}
-                                <div className="relative h-40 sm:h-32 bg-muted">
-                                    {activity.thumbnailUrl ? (
+                                <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                                    {activity.thumbnailUrl && !failedImages.has(activity.id) ? (
                                         <Image
                                             src={activity.thumbnailUrl}
                                             alt={activity.title}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                                             sizes="(max-width: 640px) 100vw, 50vw"
+                                            onError={() => handleImageError(activity.id)}
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-100">
-                                            <Sparkles className="h-8 w-8 text-violet-500" />
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30">
+                                            <ImageOff className="h-8 w-8 text-violet-400" />
                                         </div>
                                     )}
 
