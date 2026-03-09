@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from 'react';
 import { ViatorActivity } from '@/types/viator';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Star, Users, ExternalLink } from 'lucide-react';
+import { Clock, Star, Users, ExternalLink, ImageOff } from 'lucide-react';
 import Image from 'next/image';
 
 interface ActivityCardProps {
@@ -20,6 +21,8 @@ declare global {
 }
 
 export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
+    const [imageFailed, setImageFailed] = useState(false);
+
     const handleBookNow = () => {
         // Track click for analytics
         if (typeof window !== 'undefined' && window.gtag) {
@@ -43,13 +46,21 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
     return (
         <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group flex flex-col h-full min-h-[420px] !py-0 !gap-0">
             {/* Image */}
-            <div className="relative aspect-[16/9] overflow-hidden bg-gray-100 flex-shrink-0">
-                <Image
-                    src={activity.thumbnailUrl || activity.images[0] || '/placeholder-activity.jpg'}
-                    alt={activity.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+            <div className="relative aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                {!imageFailed && (activity.thumbnailUrl || activity.images[0]) ? (
+                    <Image
+                        src={activity.thumbnailUrl || activity.images[0]}
+                        alt={activity.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        onError={() => setImageFailed(true)}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30">
+                        <ImageOff className="h-10 w-10 text-violet-400" />
+                    </div>
+                )}
 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-wrap gap-2">

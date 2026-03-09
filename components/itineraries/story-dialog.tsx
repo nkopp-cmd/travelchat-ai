@@ -243,6 +243,51 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         return generatedSlides;
     };
 
+    /**
+     * Persist slides to cloud via client-side rendering + FormData upload.
+     * Renders each slide PNG from the client, then uploads all blobs to /story/persist.
+     * This avoids the broken server-to-server self-referential fetch on Vercel.
+     */
+    const persistSlidesToCloud = async (
+        slidesToPersist: StorySlide[],
+        itnId: string,
+        onProgress?: (msg: string) => void,
+    ): Promise<{ slides: Record<string, string>; retentionDays?: number } | null> => {
+        const formData = new FormData();
+
+        // Render each slide sequentially to avoid overwhelming the server
+        for (let i = 0; i < slidesToPersist.length; i++) {
+            const slide = slidesToPersist[i];
+            onProgress?.(`Rendering slide ${i + 1}/${slidesToPersist.length}...`);
+            try {
+                const res = await fetch(slide.url);
+                if (!res.ok) {
+                    console.error(`[STORY] Failed to render slide ${slide.label}:`, res.status);
+                    continue;
+                }
+                const blob = await res.blob();
+                const key = slide.type === "day" ? `day${slide.day}` : slide.type;
+                formData.append(key, blob, `${key}.png`);
+            } catch (err) {
+                console.error(`[STORY] Error rendering slide ${slide.label}:`, err);
+            }
+        }
+
+        onProgress?.("Uploading to cloud...");
+        const response = await fetch(`/api/itineraries/${itnId}/story/persist`, {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            console.error("[STORY] Persist API failed:", data);
+            return null;
+        }
+
+        return { slides: data.slides, retentionDays: data.retentionDays };
+    };
+
     const generateBackground = async (
         slideType: "cover" | "day" | "summary",
         options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[]; slotIndex?: number }
@@ -441,17 +486,17 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setSelectedSlide(0);
 
                 // Persist rendered PNGs to Supabase Storage for sharing
+                // Uses client-side rendering → FormData upload (avoids broken server-to-server fetch on Vercel)
                 setGenerationProgress("Saving slides for sharing...");
                 try {
-                    const saveRes = await fetch(`/api/itineraries/${itineraryId}/story/save`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ totalDays, paid: isPaidUser }),
+                    const persistResult = await persistSlidesToCloud(generatedSlides, itineraryId, (progress) => {
+                        setGenerationProgress(progress);
                     });
-                    if (saveRes.ok) {
-                        const saveData = await saveRes.json();
-                        setSavedSlides(saveData.slides);
-                        console.log("[STORY] Slides saved for sharing:", Object.keys(saveData.slides || {}));
+                    if (persistResult) {
+                        setSavedSlides(persistResult.slides);
+                        setCloudSaved(true);
+                        if (persistResult.retentionDays) setRetentionDays(persistResult.retentionDays);
+                        console.log("[STORY] Slides persisted for sharing:", Object.keys(persistResult.slides || {}));
 
                         // Send email notification after slides are persisted
                         if (isPaidUser) {
@@ -461,11 +506,9 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 body: JSON.stringify({ city }),
                             }).catch(err => console.log("[STORY] Email notification skipped:", err));
                         }
-                    } else {
-                        console.error("[STORY] Save failed:", saveRes.status);
                     }
                 } catch (err) {
-                    console.error("[STORY] Save request failed:", err);
+                    console.error("[STORY] Auto-persist failed:", err);
                 }
 
                 setGenerationProgress("");
@@ -675,40 +718,21 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const handleSaveToCloud = async () => {
         setIsSavingToCloud(true);
         try {
-            const formData = new FormData();
-
-            // Fetch all slide PNGs and add to FormData
-            for (let i = 0; i < slides.length; i++) {
-                setGenerationProgress(`Saving ${i + 1}/${slides.length}...`);
-                const response = await fetch(slides[i].url);
-                const blob = await response.blob();
-
-                // Map slide to FormData key: cover, day1, day2, ..., summary
-                const key = slides[i].type === "day"
-                    ? `day${slides[i].day}`
-                    : slides[i].type;
-                formData.append(key, blob, `${key}.png`);
-            }
-
-            setGenerationProgress("Uploading to cloud...");
-
-            const response = await fetch(`/api/itineraries/${itineraryId}/story/persist`, {
-                method: "POST",
-                body: formData,
+            const result = await persistSlidesToCloud(slides, itineraryId, (progress) => {
+                setGenerationProgress(progress);
             });
 
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(data.error?.message || "Failed to save");
+            if (!result) {
+                throw new Error("Failed to save");
             }
 
             setCloudSaved(true);
-            setRetentionDays(data.retentionDays);
+            setSavedSlides(result.slides);
+            if (result.retentionDays) setRetentionDays(result.retentionDays);
 
             toast({
                 title: "Saved to Localley!",
-                description: `Your story slides are saved for ${data.retentionDays} days`,
+                description: `Your story slides are saved for ${result.retentionDays} days`,
             });
         } catch (error) {
             console.error("[STORY] Cloud save error:", error);
