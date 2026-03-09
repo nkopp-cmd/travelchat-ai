@@ -35,72 +35,119 @@ interface ArkImageResponse {
  * Uses b64_json response format to avoid an extra HTTP round-trip
  * (the URL format requires fetching from SE Asia servers which adds latency).
  */
+/** Transient HTTP errors worth retrying */
+const RETRYABLE_STATUS_CODES = new Set([500, 502, 503, 504, 408, 429]);
+
 async function generateImage(prompt: string, size: string = "1080x1920"): Promise<string> {
     if (!ARK_API_KEY) {
         throw new Error("Seedream is not configured. Please add ARK_API_KEY.");
     }
 
-    console.log("[SEEDREAM] Generating image with model:", SEEDREAM_MODEL, "size:", size);
+    console.log("[SEEDREAM] Generating image with model:", SEEDREAM_MODEL, "size:", size, "endpoint:", ARK_BASE_URL);
 
-    const response = await fetch(`${ARK_BASE_URL}/images/generations`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${ARK_API_KEY}`,
-        },
-        body: JSON.stringify({
-            model: SEEDREAM_MODEL,
-            prompt,
-            size,
-            // Use b64_json to get base64 directly — avoids extra URL fetch round-trip
-            // and eliminates latency from fetching from SE Asia BytePlus servers
-            response_format: "b64_json",
-            watermark: false,
-            guidance_scale: 2.5,
-            n: 1,
-        }),
-        // 25s timeout — leaves room for fallback providers within 60s function limit
-        signal: AbortSignal.timeout(25000),
-    });
+    const makeRequest = async (): Promise<string> => {
+        const response = await fetch(`${ARK_BASE_URL}/images/generations`, {
+            method: "POST",
+            // 25s timeout — leaves room for fallback providers within 60s function limit
+            signal: AbortSignal.timeout(25000),
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ARK_API_KEY}`,
+            },
+            body: JSON.stringify({
+                model: SEEDREAM_MODEL,
+                prompt,
+                size,
+                response_format: "b64_json",
+                watermark: false,
+                guidance_scale: 2.5,
+                n: 1,
+            }),
+        });
 
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => "unknown");
-        console.error("[SEEDREAM] ARK API error:", response.status, errorText);
-        throw new Error(`Seedream API error: ${response.status} ${errorText}`);
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => "unknown");
+            console.error("[SEEDREAM] ARK API error:", {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText.substring(0, 500),
+                model: SEEDREAM_MODEL,
+                endpoint: `${ARK_BASE_URL}/images/generations`,
+                headers: Object.fromEntries(
+                    [...response.headers.entries()].filter(([k]) =>
+                        k.startsWith("x-") || k === "retry-after" || k === "content-type"
+                    )
+                ),
+            });
+            const err = new Error(`Seedream API error: ${response.status} ${errorText.substring(0, 200)}`);
+            (err as Error & { status: number }).status = response.status;
+            throw err;
+        }
+
+        let result: ArkImageResponse;
+        try {
+            result = await response.json();
+        } catch (parseErr) {
+            console.error("[SEEDREAM] Failed to parse response as JSON:", parseErr);
+            throw new Error("Seedream returned invalid JSON response");
+        }
+
+        if (!result.data || !Array.isArray(result.data) || result.data.length === 0) {
+            console.error("[SEEDREAM] Unexpected response structure:", {
+                hasData: !!result.data,
+                isArray: Array.isArray(result.data),
+                dataLength: result.data?.length,
+                keys: Object.keys(result),
+                usage: result.usage,
+            });
+            throw new Error("No images returned from Seedream");
+        }
+
+        const imageEntry = result.data[0];
+
+        // Prefer base64 (should always be present with response_format: "b64_json")
+        if (imageEntry.b64_json) {
+            console.log("[SEEDREAM] Got base64 directly, length:", imageEntry.b64_json.length);
+            return imageEntry.b64_json;
+        }
+
+        // Fallback: fetch URL if API returned URL despite requesting b64_json
+        if (!imageEntry.url) {
+            console.error("[SEEDREAM] Response entry has neither b64_json nor url:", Object.keys(imageEntry));
+            throw new Error("No image URL or base64 in Seedream response");
+        }
+
+        console.log("[SEEDREAM] Unexpected URL response (expected b64_json), fetching from URL...");
+        const imageResponse = await fetch(imageEntry.url, {
+            signal: AbortSignal.timeout(15000),
+        });
+        if (!imageResponse.ok) {
+            throw new Error(`Failed to fetch Seedream image: ${imageResponse.status}`);
+        }
+
+        const arrayBuffer = await imageResponse.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+        console.log("[SEEDREAM] Image fetched from URL, base64 length:", base64.length);
+        return base64;
+    };
+
+    // Single retry for transient errors
+    try {
+        return await makeRequest();
+    } catch (firstError) {
+        const status = (firstError as Error & { status?: number }).status;
+        const isTimeout = firstError instanceof DOMException && firstError.name === "TimeoutError";
+        const isRetryable = isTimeout || (status !== undefined && RETRYABLE_STATUS_CODES.has(status));
+
+        if (!isRetryable) {
+            throw firstError;
+        }
+
+        console.log("[SEEDREAM] Retrying after transient error (status:", status, "timeout:", isTimeout, ")...");
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return await makeRequest();
     }
-
-    const result: ArkImageResponse = await response.json();
-
-    if (!result.data || result.data.length === 0) {
-        throw new Error("No images returned from Seedream");
-    }
-
-    const imageEntry = result.data[0];
-
-    // Prefer base64 (should always be present with response_format: "b64_json")
-    if (imageEntry.b64_json) {
-        console.log("[SEEDREAM] Got base64 directly, length:", imageEntry.b64_json.length);
-        return imageEntry.b64_json;
-    }
-
-    // Fallback: fetch URL if API returned URL despite requesting b64_json
-    if (!imageEntry.url) {
-        throw new Error("No image URL or base64 in Seedream response");
-    }
-
-    console.log("[SEEDREAM] Unexpected URL response (expected b64_json), fetching from URL...");
-    const imageResponse = await fetch(imageEntry.url, {
-        signal: AbortSignal.timeout(15000),
-    });
-    if (!imageResponse.ok) {
-        throw new Error(`Failed to fetch Seedream image: ${imageResponse.status}`);
-    }
-
-    const arrayBuffer = await imageResponse.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-
-    console.log("[SEEDREAM] Image fetched from URL, base64 length:", base64.length);
-    return base64;
 }
 
 /**
@@ -187,4 +234,68 @@ High resolution, sharp focus, Instagram-worthy. NO text overlays, NO watermarks,
  */
 export function isSeedreamAvailable(): boolean {
     return !!ARK_API_KEY;
+}
+
+/**
+ * Test Seedream API connectivity and configuration.
+ * Makes a lightweight request to verify the API key and endpoint are valid.
+ * Returns diagnostic info for debugging.
+ */
+export async function testSeedreamConnectivity(): Promise<{
+    available: boolean;
+    model: string;
+    endpoint: string;
+    error?: string;
+    status?: number;
+    responseHeaders?: Record<string, string>;
+}> {
+    const base = { model: SEEDREAM_MODEL, endpoint: ARK_BASE_URL };
+
+    if (!ARK_API_KEY) {
+        return { ...base, available: false, error: "ARK_API_KEY not set" };
+    }
+
+    try {
+        // Use a minimal prompt to test connectivity without burning much quota
+        const response = await fetch(`${ARK_BASE_URL}/images/generations`, {
+            method: "POST",
+            signal: AbortSignal.timeout(15000),
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ARK_API_KEY}`,
+            },
+            body: JSON.stringify({
+                model: SEEDREAM_MODEL,
+                prompt: "test",
+                size: "256x256",
+                response_format: "b64_json",
+                n: 1,
+            }),
+        });
+
+        const headers = Object.fromEntries(
+            [...response.headers.entries()].filter(([k]) =>
+                k.startsWith("x-") || k === "content-type" || k === "retry-after"
+            )
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => "unknown");
+            return {
+                ...base,
+                available: false,
+                error: errorText.substring(0, 300),
+                status: response.status,
+                responseHeaders: headers,
+            };
+        }
+
+        return { ...base, available: true, responseHeaders: headers };
+    } catch (err) {
+        return {
+            ...base,
+            available: false,
+            error: err instanceof Error ? err.message : String(err),
+        };
+    }
 }
