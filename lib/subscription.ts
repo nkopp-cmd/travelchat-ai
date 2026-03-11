@@ -41,6 +41,9 @@ export interface SubscriptionFeatures {
     // Storage
     storyRetentionDays: number;
 
+    // Maps
+    mapProvider: "openstreetmap" | "google";
+
     // Ads
     showAds: boolean;
 }
@@ -81,6 +84,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             weatherIntegration: false,
             collaborativeTrips: false,
             prioritySupport: false,
+            mapProvider: "openstreetmap",
             storyRetentionDays: 7,
             showAds: true,
         },
@@ -110,6 +114,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             weatherIntegration: true,
             collaborativeTrips: false,
             prioritySupport: false,
+            mapProvider: "google",
             storyRetentionDays: 30,
             showAds: false,
         },
@@ -139,6 +144,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             weatherIntegration: true,
             collaborativeTrips: true,
             prioritySupport: true,
+            mapProvider: "google",
             storyRetentionDays: 90,
             showAds: false,
         },
@@ -290,6 +296,11 @@ export function getUpgradePrompt(feature: keyof SubscriptionFeatures): {
         storyRetentionDays: {
             title: "Extended Story Storage",
             description: "Keep your story slides saved longer in the cloud",
+            suggestedTier: "pro",
+        },
+        mapProvider: {
+            title: "Google Maps & Kakao Maps",
+            description: "Get premium map providers with place photos, ratings, and rich info panels",
             suggestedTier: "pro",
         },
     };
