@@ -28,6 +28,7 @@ Return ONLY valid JSON matching this structure:
           "time": "09:00 AM",
           "type": "morning",
           "name": "Actual place name",
+          "nameKo": "Korean name (ONLY for Korean cities like Seoul, Busan, Jeju, Gyeongju)",
           "address": "Full address",
           "description": "What makes it special and what to do there",
           "category": "restaurant|cafe|bar|market|temple|park|museum|shopping|attraction|neighborhood",

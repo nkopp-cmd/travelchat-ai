@@ -187,7 +187,7 @@ function getTranslationClient(): OpenAI | null {
  *   translateForGeocoding("Shibuya Crossing", "ja") → "渋谷スクランブル交差点"
  *   translateForGeocoding("Chatuchak Weekend Market", "th") → "ตลาดนัดจตุจักร"
  */
-async function translateForGeocoding(
+export async function translateForGeocoding(
     query: string,
     targetLang: string
 ): Promise<string | null> {

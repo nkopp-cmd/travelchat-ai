@@ -20,11 +20,13 @@ import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
 import { isKoreanCity } from "@/hooks/use-map-provider";
+import { translateForGeocoding } from "@/lib/geocoding";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
 interface ItineraryActivity {
     name: string;
+    nameKo?: string;
     description?: string;
     time?: string;
     duration?: string;
@@ -61,14 +63,26 @@ function resolveCity(itinerary: { city: string; title: string }): string {
 
 // Generate route URL for a day's activities
 // Korea → Kakao Maps (Google Maps has limited data there), everywhere else → Google Maps
-function getDayRouteUrl(activities: ItineraryActivity[], city: string): string {
+// For Korean cities: translates place names/addresses to Korean for better Kakao search results
+async function getDayRouteUrl(activities: ItineraryActivity[], city: string): Promise<string> {
     const activitiesWithAddress = activities.filter(a => a.address);
     if (activitiesWithAddress.length === 0) return "";
 
     // Korean cities: use Kakao Maps (which has full Korea coverage)
     if (isKoreanCity(city)) {
         const firstActivity = activitiesWithAddress[0];
-        return `https://map.kakao.com/link/search/${encodeURIComponent(`${firstActivity.address}, ${city}`)}`;
+
+        // Use Korean name if available (from LLM), otherwise translate
+        let query: string;
+        if (firstActivity.nameKo) {
+            query = firstActivity.nameKo;
+        } else {
+            const searchText = firstActivity.address || firstActivity.name;
+            const translated = await translateForGeocoding(searchText, "ko");
+            query = translated || searchText;
+        }
+
+        return `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
     }
 
     // All other cities: use Google Maps with multi-waypoint routing
@@ -204,6 +218,17 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
         ? JSON.parse(itinerary.activities)
         : itinerary.activities;
 
+    // Pre-compute route URLs (async because Korean cities need translation)
+    const dayRouteUrls: Record<number, string> = {};
+    if (Array.isArray(dailyPlans)) {
+        const routePromises = dailyPlans.map(async (dayPlan: DayPlan, dayIndex: number) => {
+            const activities = dayPlan.activities || [];
+            const url = await getDayRouteUrl(activities, displayCity);
+            dayRouteUrls[dayIndex] = url;
+        });
+        await Promise.all(routePromises);
+    }
+
     // Prepare JSON-LD structured data
     const jsonLd = {
         '@context': 'https://schema.org',
@@ -281,6 +306,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                     <ItineraryMap
                         city={displayCity}
                         dailyPlans={dailyPlans}
+                        userTier={userTier}
                     />
                 )}
             </div>
@@ -297,9 +323,9 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                 <div className="flex items-center justify-between mb-2">
                                     <h2 className="text-2xl font-bold">Day {dayPlan.day || dayIndex + 1}</h2>
                                     <div className="flex items-center gap-2">
-                                        {getDayRouteUrl(activities, displayCity) && (
+                                        {dayRouteUrls[dayIndex] && (
                                             <a
-                                                href={getDayRouteUrl(activities, displayCity)}
+                                                href={dayRouteUrls[dayIndex]}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >

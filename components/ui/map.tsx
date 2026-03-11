@@ -3,13 +3,23 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useMapProvider, type MapProvider } from "@/hooks/use-map-provider";
+import type { SubscriptionTier } from "@/lib/subscription";
 
 export interface Location {
     lat: number;
     lng: number;
     title?: string;
+    /** Korean name for bilingual display on Korean maps */
+    titleKo?: string;
     description?: string;
     type?: "morning" | "afternoon" | "evening";
+    image?: string;
+    time?: string;
+    category?: string;
+    address?: string;
+    phone?: string;
+    rating?: number;
+    totalRatings?: number;
 }
 
 interface MapComponentProps {
@@ -25,6 +35,8 @@ interface MapComponentProps {
     city?: string;
     /** Force a specific map provider */
     forceProvider?: MapProvider;
+    /** User subscription tier — determines map provider */
+    userTier?: SubscriptionTier;
 }
 
 // Loading component shared between providers
@@ -37,14 +49,18 @@ const MapLoading = () => (
     </div>
 );
 
-// Dynamically import the Leaflet map to avoid SSR issues
+// Dynamically import map components to avoid SSR issues
 const LeafletMap = dynamic(() => import("./leaflet-map"), {
     ssr: false,
     loading: MapLoading,
 });
 
-// Dynamically import the Kakao map for South Korea
 const KakaoMap = dynamic(() => import("./kakao-map"), {
+    ssr: false,
+    loading: MapLoading,
+});
+
+const GoogleMap = dynamic(() => import("./google-map"), {
     ssr: false,
     loading: MapLoading,
 });
@@ -56,9 +72,11 @@ export default function MapComponent({
     onMarkerClick,
     city,
     forceProvider,
+    userTier,
 }: MapComponentProps) {
     const [mounted, setMounted] = useState(false);
     const [kakaoFailed, setKakaoFailed] = useState(false);
+    const [googleFailed, setGoogleFailed] = useState(false);
 
     // Calculate center from markers if not provided
     const center = useMemo(() => {
@@ -73,12 +91,13 @@ export default function MapComponent({
         return { lat: avgLat, lng: avgLng };
     }, [initialViewState, markers]);
 
-    // Detect map provider based on city or coordinates
+    // Detect map provider based on city, coordinates, and tier
     const { provider, isKorea } = useMapProvider({
         city,
         lat: center.lat,
         lng: center.lng,
         forceProvider,
+        userTier,
     });
 
     useEffect(() => {
@@ -95,6 +114,12 @@ export default function MapComponent({
         setKakaoFailed(true);
     }, []);
 
+    // Handle Google Maps error - fallback to OpenStreetMap
+    const handleGoogleError = useCallback((error: string) => {
+        console.warn("[map] Google Maps failed, falling back to OpenStreetMap.", "\n  → Error:", error);
+        setGoogleFailed(true);
+    }, []);
+
     const zoom = initialViewState?.zoom || (markers.length > 1 ? 13 : 15);
 
     if (!mounted) {
@@ -105,10 +130,12 @@ export default function MapComponent({
         );
     }
 
-    // Choose the appropriate map component based on provider
-    // Fall back to Leaflet if Kakao fails
+    // Determine which provider to actually render (with fallbacks)
     const useKakao = provider === "kakao" && !kakaoFailed;
-    const MapImpl = useKakao ? KakaoMap : LeafletMap;
+    const useGoogle = provider === "google" && !googleFailed;
+
+    // Provider label for the badge
+    const providerLabel = useKakao ? "Kakao" : useGoogle ? "Google Maps" : "OpenStreetMap";
 
     return (
         <div className={`relative w-full h-full rounded-xl overflow-hidden ${className}`}>
@@ -119,6 +146,14 @@ export default function MapComponent({
                     markers={markers}
                     onMarkerClick={onMarkerClick}
                     onError={handleKakaoError}
+                />
+            ) : useGoogle ? (
+                <GoogleMap
+                    center={center}
+                    zoom={zoom}
+                    markers={markers}
+                    onMarkerClick={onMarkerClick}
+                    onError={handleGoogleError}
                 />
             ) : (
                 <LeafletMap
@@ -131,12 +166,7 @@ export default function MapComponent({
             {markers.length > 0 && (
                 <div className="absolute bottom-4 right-4 px-3 py-2 bg-black/60 backdrop-blur-sm text-white text-xs rounded-lg z-[1000]">
                     {markers.length} location{markers.length !== 1 ? "s" : ""}
-                    {isKorea && !kakaoFailed && (
-                        <span className="ml-2 opacity-75">via Kakao</span>
-                    )}
-                    {kakaoFailed && (
-                        <span className="ml-2 opacity-75">via OpenStreetMap</span>
-                    )}
+                    <span className="ml-2 opacity-75">via {providerLabel}</span>
                 </div>
             )}
         </div>

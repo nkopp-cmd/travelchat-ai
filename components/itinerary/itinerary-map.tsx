@@ -4,19 +4,23 @@ import { useState, useEffect, useCallback } from "react";
 import MapComponent, { type Location } from "@/components/ui/map";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X } from "lucide-react";
+import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Navigation, Copy, Check } from "lucide-react";
 import { isKoreanCity } from "@/hooks/use-map-provider";
 import { getCityBySlug, getCityByName } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
+import type { SubscriptionTier } from "@/lib/subscription";
 
 interface Activity {
     name: string;
+    nameKo?: string;
     address?: string;
     description?: string;
     type?: string;
     time?: string;
     lat?: number;
     lng?: number;
+    image?: string;
+    category?: string;
 }
 
 interface DayPlan {
@@ -29,6 +33,7 @@ interface ItineraryMapProps {
     city: string;
     dailyPlans: DayPlan[];
     className?: string;
+    userTier?: SubscriptionTier;
 }
 
 interface GeocodedLocation extends Location {
@@ -39,22 +44,25 @@ interface GeocodedLocation extends Location {
 
 interface UnmappedActivity {
     name: string;
+    nameKo?: string;
     address?: string;
     day: number;
 }
 
 /**
  * Get a search URL for an unmapped activity.
- * Korea → Kakao Maps, everywhere else → Google Maps
+ * Korea → Kakao Maps (uses Korean name if available), everywhere else → Google Maps
  */
-function getMapSearchUrl(name: string, city: string): string {
+function getMapSearchUrl(name: string, city: string, nameKo?: string): string {
     if (isKoreanCity(city)) {
-        return `https://map.kakao.com/link/search/${encodeURIComponent(name)}`;
+        // Use Korean name for Kakao Maps search (much better hit rate)
+        const searchQuery = nameKo || name;
+        return `https://map.kakao.com/link/search/${encodeURIComponent(searchQuery)}`;
     }
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${city}`)}`;
 }
 
-export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps) {
+export function ItineraryMap({ city, dailyPlans, className, userTier }: ItineraryMapProps) {
     const [locations, setLocations] = useState<GeocodedLocation[]>([]);
     const [unmappedActivities, setUnmappedActivities] = useState<UnmappedActivity[]>([]);
     const [loading, setLoading] = useState(dailyPlans.length > 0);
@@ -63,6 +71,9 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
     const [isExpanded, setIsExpanded] = useState(true);
     const [selectedLocation, setSelectedLocation] = useState<GeocodedLocation | null>(null);
     const [errorDismissed, setErrorDismissed] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const isPaidUser = userTier === "pro" || userTier === "premium";
 
     useEffect(() => {
         if (dailyPlans.length === 0) return;
@@ -85,10 +96,15 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                             lat: activity.lat,
                             lng: activity.lng,
                             title: activity.name,
+                            titleKo: activity.nameKo,
                             description: activity.time
                                 ? `${activity.time} - ${activity.description?.slice(0, 50)}...`
                                 : activity.description?.slice(0, 80),
                             type: activity.type as "morning" | "afternoon" | "evening",
+                            image: activity.image,
+                            time: activity.time,
+                            category: activity.category,
+                            address: activity.address,
                             activityName: activity.name,
                             day: dayPlan.day,
                             activityIndex,
@@ -152,28 +168,33 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                                 lat: result.lat,
                                 lng: result.lng,
                                 title: activity.name,
+                                titleKo: activity.nameKo,
                                 description: activity.time
                                     ? `${activity.time} - ${activity.description?.slice(0, 50)}...`
                                     : activity.description?.slice(0, 80),
                                 type: activity.type as "morning" | "afternoon" | "evening",
+                                image: activity.image,
+                                time: activity.time,
+                                category: activity.category,
+                                address: activity.address,
                                 activityName: activity.name,
                                 day,
                                 activityIndex,
                             });
                         } else {
-                            unmapped.push({ name: activity.name, address: activity.address, day });
+                            unmapped.push({ name: activity.name, nameKo: activity.nameKo, address: activity.address, day });
                         }
                     }
                 } else {
                     // Batch API failed — mark all as unmapped
                     for (const { activity, day } of needsGeocoding) {
-                        unmapped.push({ name: activity.name, address: activity.address, day });
+                        unmapped.push({ name: activity.name, nameKo: activity.nameKo, address: activity.address, day });
                     }
                 }
             } catch (err) {
                 console.error("[itinerary-map] Batch geocoding error:", err);
                 for (const { activity, day } of needsGeocoding) {
-                    unmapped.push({ name: activity.name, address: activity.address, day });
+                    unmapped.push({ name: activity.name, nameKo: activity.nameKo, address: activity.address, day });
                 }
             }
 
@@ -293,9 +314,56 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                     <h3 className="font-semibold">Itinerary Map</h3>
                     <span className="text-sm opacity-80">({locations.length} locations)</span>
                 </div>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                    {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                </Button>
+                <div className="flex items-center gap-2">
+                    {/* Open Route button — paid users only */}
+                    {isPaidUser && filteredLocations.length > 0 && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-white hover:bg-white/20 gap-1.5"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                const locs = filteredLocations;
+                                const waypoints = locs.map(l => encodeURIComponent(`${l.title}, ${city}`));
+                                let url: string;
+                                if (isKoreanCity(city)) {
+                                    url = `https://map.kakao.com/link/search/${encodeURIComponent(locs[0].title || city)}`;
+                                } else if (waypoints.length === 1) {
+                                    url = `https://www.google.com/maps/search/?api=1&query=${waypoints[0]}`;
+                                } else {
+                                    const origin = waypoints[0];
+                                    const destination = waypoints[waypoints.length - 1];
+                                    const middle = waypoints.slice(1, -1);
+                                    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${middle.length > 0 ? `&waypoints=${middle.join("|")}` : ""}&travelmode=walking`;
+                                }
+                                window.open(url, "_blank");
+                            }}
+                        >
+                            <Navigation className="h-4 w-4" />
+                            Open route
+                        </Button>
+                    )}
+                    {/* Copy link button */}
+                    {isPaidUser && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-white hover:bg-white/20 gap-1.5"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(window.location.href);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                            }}
+                        >
+                            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copied ? "Copied" : "Copy"}
+                        </Button>
+                    )}
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                        {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                    </Button>
+                </div>
             </div>
 
             {isExpanded && (
@@ -329,6 +397,7 @@ export function ItineraryMap({ city, dailyPlans, className }: ItineraryMapProps)
                             markers={filteredLocations}
                             onMarkerClick={handleMarkerClick}
                             city={city}
+                            userTier={userTier}
                         />
                     </div>
 

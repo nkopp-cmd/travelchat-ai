@@ -1,15 +1,16 @@
 /**
  * Map Provider Hook
  *
- * Automatically detects the best map provider based on location.
- * Uses Kakao Maps for South Korea (where Google Maps has limited data)
- * and OpenStreetMap for everywhere else.
+ * Automatically detects the best map provider based on location and subscription tier.
+ * - Free: OpenStreetMap (Leaflet) for all cities
+ * - Pro/Premium: Google Maps for non-Korean cities, Kakao Maps for Korean cities
  */
 
 import { useMemo } from 'react';
 import { getCityBySlug, getCityByName, ALL_CITIES } from '@/lib/cities';
+import type { SubscriptionTier } from '@/lib/subscription';
 
-export type MapProvider = 'openstreetmap' | 'kakao';
+export type MapProvider = 'openstreetmap' | 'kakao' | 'google';
 
 // Korean country code
 const KOREAN_COUNTRY_CODE = 'KR';
@@ -53,6 +54,13 @@ export function getKoreanCitySlugs(): string[] {
         .map(city => city.slug);
 }
 
+/**
+ * Check if user has a paid tier (pro or premium)
+ */
+function isPaidTier(tier?: SubscriptionTier): boolean {
+    return tier === 'pro' || tier === 'premium';
+}
+
 interface UseMapProviderOptions {
     /** City name or slug */
     city?: string;
@@ -62,6 +70,8 @@ interface UseMapProviderOptions {
     lng?: number;
     /** Force a specific provider */
     forceProvider?: MapProvider;
+    /** User subscription tier — determines whether premium maps are available */
+    userTier?: SubscriptionTier;
 }
 
 interface UseMapProviderResult {
@@ -69,27 +79,29 @@ interface UseMapProviderResult {
     provider: MapProvider;
     /** Whether Kakao Maps SDK needs to be loaded */
     needsKakaoSdk: boolean;
+    /** Whether Google Maps SDK needs to be loaded */
+    needsGoogleSdk: boolean;
     /** Whether the location is in South Korea */
     isKorea: boolean;
 }
 
 /**
- * Hook to determine the appropriate map provider based on location
+ * Hook to determine the appropriate map provider based on location and tier
  *
  * @example
  * ```tsx
- * const { provider, isKorea } = useMapProvider({ city: 'seoul' });
+ * const { provider, isKorea } = useMapProvider({ city: 'seoul', userTier: 'pro' });
  * // provider = 'kakao', isKorea = true
  *
- * const { provider } = useMapProvider({ city: 'tokyo' });
- * // provider = 'openstreetmap'
+ * const { provider } = useMapProvider({ city: 'tokyo', userTier: 'pro' });
+ * // provider = 'google'
  *
- * const { provider } = useMapProvider({ lat: 37.5665, lng: 126.9780 });
- * // provider = 'kakao' (Seoul coordinates)
+ * const { provider } = useMapProvider({ city: 'tokyo', userTier: 'free' });
+ * // provider = 'openstreetmap'
  * ```
  */
 export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProviderResult {
-    const { city, lat, lng, forceProvider } = options;
+    const { city, lat, lng, forceProvider, userTier } = options;
 
     return useMemo(() => {
         // If forced, use that provider
@@ -97,41 +109,50 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
             return {
                 provider: forceProvider,
                 needsKakaoSdk: forceProvider === 'kakao',
+                needsGoogleSdk: forceProvider === 'google',
                 isKorea: forceProvider === 'kakao',
             };
         }
 
-        // Env-var gate: set NEXT_PUBLIC_KAKAO_MAPS_ENABLED=false to disable Kakao map rendering
-        // (Kakao REST geocoding still works — this only affects the JavaScript map SDK)
+        // Detect if location is in Korea
         const kakaoEnabled = process.env.NEXT_PUBLIC_KAKAO_MAPS_APP_KEY &&
             process.env.NEXT_PUBLIC_KAKAO_MAPS_ENABLED !== 'false';
 
-        // Check by city name first (most reliable)
-        // map.tsx has auto-fallback to Leaflet if Kakao SDK fails
-        if (city && isKoreanCity(city) && kakaoEnabled) {
-            return {
-                provider: 'kakao',
-                needsKakaoSdk: true,
-                isKorea: true,
-            };
+        const isKorea = (city && isKoreanCity(city)) ||
+            (lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng));
+
+        // Paid tiers get premium map providers
+        if (isPaidTier(userTier)) {
+            // Korean cities: use Kakao Maps (better data coverage in Korea)
+            if (isKorea && kakaoEnabled) {
+                return {
+                    provider: 'kakao',
+                    needsKakaoSdk: true,
+                    needsGoogleSdk: false,
+                    isKorea: true,
+                };
+            }
+
+            // Non-Korean cities: use Google Maps
+            const googleEnabled = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+            if (googleEnabled) {
+                return {
+                    provider: 'google',
+                    needsKakaoSdk: false,
+                    needsGoogleSdk: true,
+                    isKorea: false,
+                };
+            }
         }
 
-        // Check by coordinates as fallback
-        if (kakaoEnabled && lat !== undefined && lng !== undefined && isKoreanCoordinates(lat, lng)) {
-            return {
-                provider: 'kakao',
-                needsKakaoSdk: true,
-                isKorea: true,
-            };
-        }
-
-        // Default to OpenStreetMap
+        // Free tier (or no Google key): always OpenStreetMap
         return {
             provider: 'openstreetmap',
             needsKakaoSdk: false,
-            isKorea: false,
+            needsGoogleSdk: false,
+            isKorea: !!isKorea,
         };
-    }, [city, lat, lng, forceProvider]);
+    }, [city, lat, lng, forceProvider, userTier]);
 }
 
 /**
@@ -140,8 +161,8 @@ export function useMapProvider(options: UseMapProviderOptions = {}): UseMapProvi
 export function getMapTileUrl(provider: MapProvider): string {
     switch (provider) {
         case 'kakao':
-            // Kakao uses its own SDK, not tile URLs
-            // This is a placeholder - actual rendering uses Kakao SDK
+        case 'google':
+            // These use their own SDKs, not tile URLs
             return '';
         case 'openstreetmap':
         default:
@@ -156,6 +177,8 @@ export function getMapAttribution(provider: MapProvider): string {
     switch (provider) {
         case 'kakao':
             return '&copy; <a href="https://map.kakao.com">Kakao Maps</a>';
+        case 'google':
+            return '&copy; Google Maps';
         case 'openstreetmap':
         default:
             return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
