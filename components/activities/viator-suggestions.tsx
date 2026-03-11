@@ -24,6 +24,7 @@ interface ViatorActivity {
     title: string;
     shortDescription?: string;
     thumbnailUrl?: string;
+    images?: string[];
     priceFrom: number;
     currency: string;
     rating?: number;
@@ -153,9 +154,9 @@ export function ViatorSuggestions({
                             >
                                 {/* Activity Image */}
                                 <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                                    {activity.thumbnailUrl && !failedImages.has(activity.id) ? (
+                                    {(activity.thumbnailUrl || activity.images?.[0]) && !failedImages.has(activity.id) ? (
                                         <Image
-                                            src={activity.thumbnailUrl}
+                                            src={activity.thumbnailUrl || activity.images?.[0] || ''}
                                             alt={activity.title}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
