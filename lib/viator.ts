@@ -217,14 +217,183 @@ class ViatorClient {
 
     private generateMockActivities(destination: string, city?: string): ViatorActivity[] {
         const cityName = city || destination;
+        const cityKey = cityName.toLowerCase();
 
-        const mockData: ViatorActivity[] = [
+        // City-specific mock data: images, meeting points, languages, and activity themes
+        const cityData: Record<string, {
+            code: string;
+            food: { images: string[]; meetingPoint: string; title: string; description: string };
+            culture: { images: string[]; meetingPoint: string; title: string; description: string };
+            night: { images: string[]; meetingPoint: string; title: string; description: string };
+            languages: string[];
+        }> = {
+            seoul: {
+                code: 'SEL',
+                food: {
+                    images: [
+                        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800',
+                        'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=800',
+                    ],
+                    meetingPoint: 'Myeongdong Station Exit 6',
+                    title: `${cityName} Street Food Tour`,
+                    description: `Discover the authentic flavors of ${cityName} with tteokbokki, hotteok, and Korean BBQ at bustling local markets.`,
+                },
+                culture: {
+                    images: [
+                        'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800',
+                        'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=800',
+                    ],
+                    meetingPoint: 'Gyeongbokgung Palace Main Gate',
+                    title: `${cityName} Palaces & Hanok Village Tour`,
+                    description: `Explore royal palaces, traditional hanok villages, and hidden temples with a local history expert.`,
+                },
+                night: {
+                    images: [
+                        'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=800',
+                        'https://images.unsplash.com/photo-1546874177-9e664107314e?w=800',
+                    ],
+                    meetingPoint: 'Hongdae Station Exit 9',
+                    title: `${cityName} Night Market & Nightlife Tour`,
+                    description: `Experience the vibrant nightlife of Hongdae and Myeongdong — street food, live music, and neon-lit alleys.`,
+                },
+                languages: ['English', 'Korean'],
+            },
+            tokyo: {
+                code: 'TYO',
+                food: {
+                    images: [
+                        'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800',
+                        'https://images.unsplash.com/photo-1553621042-f6e147245754?w=800',
+                    ],
+                    meetingPoint: 'Tsukiji Outer Market Entrance',
+                    title: `${cityName} Ramen & Izakaya Food Tour`,
+                    description: `Taste authentic ramen, fresh sushi, and izakaya favorites in Tokyo's best food neighborhoods.`,
+                },
+                culture: {
+                    images: [
+                        'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=800',
+                        'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800',
+                    ],
+                    meetingPoint: 'Senso-ji Temple Main Gate (Kaminarimon)',
+                    title: `${cityName} Temples & Traditional Culture Walk`,
+                    description: `Visit Senso-ji, Meiji Shrine, and hidden gardens — experience traditional tea ceremony and shrine rituals.`,
+                },
+                night: {
+                    images: [
+                        'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800',
+                        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800',
+                    ],
+                    meetingPoint: 'Shibuya Crossing (Hachiko Statue)',
+                    title: `${cityName} Shibuya & Shinjuku Night Tour`,
+                    description: `Explore neon-lit Shibuya, Golden Gai's tiny bars, and Kabukicho — Tokyo after dark at its best.`,
+                },
+                languages: ['English', 'Japanese'],
+            },
+            bangkok: {
+                code: 'BKK',
+                food: {
+                    images: [
+                        'https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?w=800',
+                        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
+                    ],
+                    meetingPoint: 'BTS Saphan Taksin Station Exit 2',
+                    title: `${cityName} Street Food & Floating Market Tour`,
+                    description: `Taste pad thai, mango sticky rice, and boat noodles at Bangkok's legendary street stalls and floating markets.`,
+                },
+                culture: {
+                    images: [
+                        'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800',
+                        'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
+                    ],
+                    meetingPoint: 'Grand Palace Main Entrance',
+                    title: `${cityName} Grand Palace & Wat Pho Temple Tour`,
+                    description: `Marvel at the Grand Palace, the Reclining Buddha at Wat Pho, and Wat Arun across the Chao Phraya River.`,
+                },
+                night: {
+                    images: [
+                        'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800',
+                        'https://images.unsplash.com/photo-1583396618422-fba1c5ae4e23?w=800',
+                    ],
+                    meetingPoint: 'Khao San Road (North End)',
+                    title: `${cityName} Night Market & Rooftop Bar Tour`,
+                    description: `Explore Rot Fai night market, sip cocktails at rooftop bars, and soak in Bangkok's electric nightlife.`,
+                },
+                languages: ['English', 'Thai'],
+            },
+            singapore: {
+                code: 'SIN',
+                food: {
+                    images: [
+                        'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800',
+                        'https://images.unsplash.com/photo-1567337710282-00832b415979?w=800',
+                    ],
+                    meetingPoint: 'Maxwell Food Centre Entrance',
+                    title: `${cityName} Hawker Centre Food Tour`,
+                    description: `Taste Hainanese chicken rice, laksa, and chili crab at Singapore's UNESCO-recognized hawker centres.`,
+                },
+                culture: {
+                    images: [
+                        'https://images.unsplash.com/photo-1496939376851-89342e90adcd?w=800',
+                        'https://images.unsplash.com/photo-1565967511849-76a60a516170?w=800',
+                    ],
+                    meetingPoint: 'Marina Bay Sands ArtScience Museum',
+                    title: `${cityName} Marina Bay & Gardens by the Bay`,
+                    description: `Explore the iconic Marina Bay skyline, Supertree Grove, and Cloud Forest — a fusion of nature and architecture.`,
+                },
+                night: {
+                    images: [
+                        'https://images.unsplash.com/photo-1506351421178-63b52a2d2562?w=800',
+                        'https://images.unsplash.com/photo-1533929736562-d9acf26d51b6?w=800',
+                    ],
+                    meetingPoint: 'Clarke Quay MRT Station Exit E',
+                    title: `${cityName} Clarke Quay & Marina Bay Night Tour`,
+                    description: `Experience Singapore's glittering waterfront — riverside dining, light shows, and rooftop views at night.`,
+                },
+                languages: ['English', 'Mandarin', 'Malay'],
+            },
+        };
+
+        // Find matching city data or use generic fallback
+        const matched = cityData[cityKey];
+        const data = matched || {
+            code: cityName.substring(0, 3).toUpperCase(),
+            food: {
+                images: [
+                    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
+                    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
+                ],
+                meetingPoint: `${cityName} City Center`,
+                title: `${cityName} Street Food Tour`,
+                description: `Discover the authentic flavors of ${cityName} on this guided street food tour through local markets and hidden food stalls.`,
+            },
+            culture: {
+                images: [
+                    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800',
+                    'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800',
+                ],
+                meetingPoint: `${cityName} Old Town`,
+                title: `${cityName} Cultural Walking Tour`,
+                description: `Explore the cultural landmarks, historical sites, and hidden gems of ${cityName} with a knowledgeable local guide.`,
+            },
+            night: {
+                images: [
+                    'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800',
+                    'https://images.unsplash.com/photo-1470219556762-1b8ca07e0692?w=800',
+                ],
+                meetingPoint: `${cityName} Downtown`,
+                title: `${cityName} Night Market & Nightlife Tour`,
+                description: `Experience the vibrant nightlife and night markets of ${cityName}. Street food, live music, and local nightlife.`,
+            },
+            languages: ['English'],
+        };
+
+        const mockActivities: ViatorActivity[] = [
             {
                 id: '1',
-                productCode: 'SEOUL-FOOD-001',
-                title: `${cityName} Street Food Tour`,
-                description: `Discover the authentic flavors of ${cityName} on this guided street food tour. Visit local markets, try traditional dishes, and learn about the culinary culture.`,
-                shortDescription: `Authentic ${cityName} street food experience`,
+                productCode: `${data.code}-FOOD-001`,
+                title: data.food.title,
+                description: data.food.description,
+                shortDescription: `Authentic ${cityName} food experience`,
                 destination,
                 city: cityName,
                 category: 'Food & Drink',
@@ -236,28 +405,25 @@ class ViatorClient {
                 currency: 'USD',
                 rating: 4.8,
                 reviewCount: 1247,
-                images: [
-                    'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800',
-                    'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=800',
-                ],
-                thumbnailUrl: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400',
-                bookingUrl: 'https://www.viator.com/tours/SEOUL-FOOD-001',
-                viatorUrl: 'https://www.viator.com/tours/SEOUL-FOOD-001',
+                images: data.food.images,
+                thumbnailUrl: data.food.images[0]?.replace('w=800', 'w=400'),
+                bookingUrl: `https://www.viator.com/tours/${data.code}-FOOD-001`,
+                viatorUrl: `https://www.viator.com/tours/${data.code}-FOOD-001`,
                 cancellationPolicy: 'Free cancellation up to 24 hours before',
                 included: ['Local guide', 'Food tastings', 'Bottled water'],
                 excluded: ['Hotel pickup', 'Gratuities'],
-                meetingPoint: 'Myeongdong Station Exit 6',
-                languages: ['English', 'Korean'],
+                meetingPoint: data.food.meetingPoint,
+                languages: data.languages,
                 maxTravelers: 12,
                 instantConfirmation: true,
                 mobileTicket: true,
             },
             {
                 id: '2',
-                productCode: 'SEOUL-CULTURE-001',
-                title: `${cityName} Hidden Temples & Palaces`,
-                description: `Explore the hidden temples and lesser-known palaces of ${cityName}. Avoid the crowds and discover authentic cultural sites with a local expert.`,
-                shortDescription: `Discover hidden cultural gems`,
+                productCode: `${data.code}-CULTURE-001`,
+                title: data.culture.title,
+                description: data.culture.description,
+                shortDescription: `Discover ${cityName}'s cultural gems`,
                 destination,
                 city: cityName,
                 category: 'Cultural Tours',
@@ -269,27 +435,25 @@ class ViatorClient {
                 currency: 'USD',
                 rating: 4.9,
                 reviewCount: 892,
-                images: [
-                    'https://images.unsplash.com/photo-1583470790878-4e0a76e0e5c5?w=800',
-                ],
-                thumbnailUrl: 'https://images.unsplash.com/photo-1583470790878-4e0a76e0e5c5?w=400',
-                bookingUrl: 'https://www.viator.com/tours/SEOUL-CULTURE-001',
-                viatorUrl: 'https://www.viator.com/tours/SEOUL-CULTURE-001',
+                images: data.culture.images,
+                thumbnailUrl: data.culture.images[0]?.replace('w=800', 'w=400'),
+                bookingUrl: `https://www.viator.com/tours/${data.code}-CULTURE-001`,
+                viatorUrl: `https://www.viator.com/tours/${data.code}-CULTURE-001`,
                 cancellationPolicy: 'Free cancellation up to 24 hours before',
-                included: ['Expert guide', 'Temple entrance fees', 'Tea ceremony'],
+                included: ['Expert guide', 'Entrance fees', 'Cultural experience'],
                 excluded: ['Lunch', 'Transportation'],
-                meetingPoint: 'Gyeongbokgung Palace Main Gate',
-                languages: ['English', 'Korean', 'Japanese'],
+                meetingPoint: data.culture.meetingPoint,
+                languages: data.languages,
                 maxTravelers: 10,
                 instantConfirmation: true,
                 mobileTicket: true,
             },
             {
                 id: '3',
-                productCode: 'SEOUL-NIGHT-001',
-                title: `${cityName} Night Market Adventure`,
-                description: `Experience the vibrant nightlife and night markets of ${cityName}. Shop, eat, and explore the city after dark with a local guide.`,
-                shortDescription: `Night market and street food adventure`,
+                productCode: `${data.code}-NIGHT-001`,
+                title: data.night.title,
+                description: data.night.description,
+                shortDescription: `${cityName} after dark adventure`,
                 destination,
                 city: cityName,
                 category: 'Nightlife',
@@ -301,24 +465,22 @@ class ViatorClient {
                 currency: 'USD',
                 rating: 4.7,
                 reviewCount: 654,
-                images: [
-                    'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800',
-                ],
-                thumbnailUrl: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=400',
-                bookingUrl: 'https://www.viator.com/tours/SEOUL-NIGHT-001',
-                viatorUrl: 'https://www.viator.com/tours/SEOUL-NIGHT-001',
+                images: data.night.images,
+                thumbnailUrl: data.night.images[0]?.replace('w=800', 'w=400'),
+                bookingUrl: `https://www.viator.com/tours/${data.code}-NIGHT-001`,
+                viatorUrl: `https://www.viator.com/tours/${data.code}-NIGHT-001`,
                 cancellationPolicy: 'Free cancellation up to 24 hours before',
                 included: ['Guide', 'Market snacks', 'Transportation'],
                 excluded: ['Dinner', 'Shopping purchases'],
-                meetingPoint: 'Dongdaemun Design Plaza',
-                languages: ['English', 'Korean'],
+                meetingPoint: data.night.meetingPoint,
+                languages: data.languages,
                 maxTravelers: 15,
                 instantConfirmation: true,
                 mobileTicket: true,
             },
         ];
 
-        return mockData;
+        return mockActivities;
     }
 
     private transformSearchResponse(data: Record<string, unknown>): ViatorSearchResult {
