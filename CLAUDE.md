@@ -46,7 +46,7 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `STRIPE_PRO_YEARLY_PRICE_ID` | Pro yearly plan price ID | Active |
 | `STRIPE_PREMIUM_MONTHLY_PRICE_ID` | Premium monthly plan price ID | Active |
 | `STRIPE_PREMIUM_YEARLY_PRICE_ID` | Premium yearly plan price ID | Active |
-| `STRIPE_CONNECT_WEBHOOK_SECRET` | Stripe Connect webhook signature (optional, falls back to `STRIPE_WEBHOOK_SECRET`) | Pending |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | Stripe Connect webhook signature verification | Active |
 
 #### Feature Flags:
 | Variable | Purpose |
