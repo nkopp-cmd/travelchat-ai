@@ -148,16 +148,19 @@ ALTER TABLE content_engagement ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guide_earnings ENABLE ROW LEVEL SECURITY;
 
 -- Guides can view their own profile
+DROP POLICY IF EXISTS "Guides can view own profile" ON guide_profiles;
 CREATE POLICY "Guides can view own profile"
     ON guide_profiles FOR SELECT
     USING (clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub');
 
 -- Content engagement: service role only (tracked server-side)
+DROP POLICY IF EXISTS "Service role only for engagement" ON content_engagement;
 CREATE POLICY "Service role only for engagement"
     ON content_engagement FOR ALL
     USING (false);
 
 -- Guides can view their own earnings
+DROP POLICY IF EXISTS "Guides can view own earnings" ON guide_earnings;
 CREATE POLICY "Guides can view own earnings"
     ON guide_earnings FOR SELECT
     USING (guide_clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub');

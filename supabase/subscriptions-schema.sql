@@ -130,21 +130,25 @@ ALTER TABLE affiliate_clicks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE affiliate_earnings ENABLE ROW LEVEL SECURITY;
 
 -- Subscriptions policies (users can only see their own)
+DROP POLICY IF EXISTS "Users can view own subscription" ON subscriptions;
 CREATE POLICY "Users can view own subscription"
     ON subscriptions FOR SELECT
     USING (clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub');
 
 -- Usage tracking policies
+DROP POLICY IF EXISTS "Users can view own usage" ON usage_tracking;
 CREATE POLICY "Users can view own usage"
     ON usage_tracking FOR SELECT
     USING (clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub');
 
 -- Affiliate clicks - allow inserts from anyone (including anonymous)
+DROP POLICY IF EXISTS "Allow affiliate click inserts" ON affiliate_clicks;
 CREATE POLICY "Allow affiliate click inserts"
     ON affiliate_clicks FOR INSERT
     WITH CHECK (true);
 
 -- Affiliate earnings - admin only (service role)
+DROP POLICY IF EXISTS "Admin only for earnings" ON affiliate_earnings;
 CREATE POLICY "Admin only for earnings"
     ON affiliate_earnings FOR ALL
     USING (false);
@@ -270,11 +274,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS subscriptions_updated_at ON subscriptions;
 CREATE TRIGGER subscriptions_updated_at
     BEFORE UPDATE ON subscriptions
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS usage_tracking_updated_at ON usage_tracking;
 CREATE TRIGGER usage_tracking_updated_at
     BEFORE UPDATE ON usage_tracking
     FOR EACH ROW

@@ -14,8 +14,8 @@ const webhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET || process.env.S
  * Handles Stripe Connect webhook events:
  * - account.updated: Guide completes onboarding or account status changes
  * - transfer.created: Payout transfer initiated
- * - transfer.paid: Payout successfully delivered
- * - transfer.failed: Payout failed
+ * - transfer.updated: Transfer status changed (check for completion)
+ * - transfer.reversed: Payout reversed/failed
  */
 export async function POST(req: NextRequest) {
     if (!stripe || !webhookSecret) {
@@ -39,28 +39,23 @@ export async function POST(req: NextRequest) {
         }
 
         const supabase = createSupabaseAdmin();
+        const eventType = event.type as string;
 
-        switch (event.type) {
-            case "account.updated": {
-                const account = event.data.object as Stripe.Account;
-                await handleAccountUpdated(supabase, account);
-                break;
-            }
-
-            case "transfer.paid": {
-                const transfer = event.data.object as Stripe.Transfer;
+        if (eventType === "account.updated") {
+            const account = event.data.object as Stripe.Account;
+            await handleAccountUpdated(supabase, account);
+        } else if (eventType === "transfer.created" || eventType === "transfer.updated") {
+            // Transfer status changes (created → pending → paid)
+            // Check if the transfer object indicates completion
+            const transfer = event.data.object as Stripe.Transfer;
+            if (transfer.reversed === false && transfer.amount > 0) {
                 await handleTransferPaid(supabase, transfer);
-                break;
             }
-
-            case "transfer.failed": {
-                const transfer = event.data.object as Stripe.Transfer;
-                await handleTransferFailed(supabase, transfer);
-                break;
-            }
-
-            default:
-                console.log(`[Connect Webhook] Unhandled event: ${event.type}`);
+        } else if (eventType === "transfer.reversed") {
+            const transfer = event.data.object as Stripe.Transfer;
+            await handleTransferFailed(supabase, transfer);
+        } else {
+            console.log(`[Connect Webhook] Unhandled event: ${eventType}`);
         }
 
         return NextResponse.json({ received: true });
@@ -120,25 +115,20 @@ async function handleTransferPaid(
     const guideUserId = transfer.metadata?.guide_clerk_user_id;
     if (guideUserId) {
         const amountDollars = transfer.amount / 100;
-        await supabase.rpc("increment_guide_paid_out", {
-            p_clerk_user_id: guideUserId,
-            p_amount: amountDollars,
-        }).catch(() => {
-            // Fallback: manual update
-            supabase
-                .from("guide_profiles")
-                .select("total_paid_out, pending_balance")
-                .eq("clerk_user_id", guideUserId)
-                .single()
-                .then(({ data }) => {
-                    if (data) {
-                        supabase.from("guide_profiles").update({
-                            total_paid_out: (parseFloat(data.total_paid_out) || 0) + amountDollars,
-                            pending_balance: Math.max(0, (parseFloat(data.pending_balance) || 0) - amountDollars),
-                        }).eq("clerk_user_id", guideUserId);
-                    }
-                });
-        });
+
+        // Direct update — no RPC needed
+        const { data } = await supabase
+            .from("guide_profiles")
+            .select("total_paid_out, pending_balance")
+            .eq("clerk_user_id", guideUserId)
+            .single();
+
+        if (data) {
+            await supabase.from("guide_profiles").update({
+                total_paid_out: (parseFloat(data.total_paid_out) || 0) + amountDollars,
+                pending_balance: Math.max(0, (parseFloat(data.pending_balance) || 0) - amountDollars),
+            }).eq("clerk_user_id", guideUserId);
+        }
     }
 
     console.log(`[Connect Webhook] Transfer paid: ${transfer.id} ($${transfer.amount / 100})`);
