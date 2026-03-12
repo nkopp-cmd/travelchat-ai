@@ -10,7 +10,7 @@
 ### Environment Variables
 All environment variables are already configured in Vercel. **DO NOT add duplicate environment variables via CLI.**
 
-#### Currently Configured in Vercel (as of Feb 2026):
+#### Currently Configured in Vercel (as of Mar 2026):
 
 | Variable | Purpose | Status |
 |----------|---------|--------|
@@ -34,17 +34,19 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `NEXT_PUBLIC_MAPBOX_TOKEN` | Mapbox maps | Active |
 | `UPSTASH_REDIS_REST_URL` | Redis caching | Active |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis authentication | Active |
+| `CRON_SECRET` | Cron job authentication | Active |
 
 #### Stripe Payment Keys (added Feb 13, 2026):
 | Variable | Purpose | Status |
 |----------|---------|--------|
 | `STRIPE_SECRET_KEY` | Stripe server-side API key (Subscriptions + Connect) | Active |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Subscriptions webhook signature verification | Active |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe client-side publishable key | Active |
 | `STRIPE_PRO_MONTHLY_PRICE_ID` | Pro monthly plan price ID | Active |
 | `STRIPE_PRO_YEARLY_PRICE_ID` | Pro yearly plan price ID | Active |
 | `STRIPE_PREMIUM_MONTHLY_PRICE_ID` | Premium monthly plan price ID | Active |
 | `STRIPE_PREMIUM_YEARLY_PRICE_ID` | Premium yearly plan price ID | Active |
-| `STRIPE_CONNECT_WEBHOOK_SECRET` | Stripe Connect webhook signature (optional, falls back to `STRIPE_WEBHOOK_SECRET`) | Pending |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | Stripe Connect webhook signature verification | Active |
 
 #### Feature Flags:
 | Variable | Purpose |
