@@ -115,25 +115,20 @@ async function handleTransferPaid(
     const guideUserId = transfer.metadata?.guide_clerk_user_id;
     if (guideUserId) {
         const amountDollars = transfer.amount / 100;
-        await supabase.rpc("increment_guide_paid_out", {
-            p_clerk_user_id: guideUserId,
-            p_amount: amountDollars,
-        }).catch(() => {
-            // Fallback: manual update
-            supabase
-                .from("guide_profiles")
-                .select("total_paid_out, pending_balance")
-                .eq("clerk_user_id", guideUserId)
-                .single()
-                .then(({ data }) => {
-                    if (data) {
-                        supabase.from("guide_profiles").update({
-                            total_paid_out: (parseFloat(data.total_paid_out) || 0) + amountDollars,
-                            pending_balance: Math.max(0, (parseFloat(data.pending_balance) || 0) - amountDollars),
-                        }).eq("clerk_user_id", guideUserId);
-                    }
-                });
-        });
+
+        // Direct update — no RPC needed
+        const { data } = await supabase
+            .from("guide_profiles")
+            .select("total_paid_out, pending_balance")
+            .eq("clerk_user_id", guideUserId)
+            .single();
+
+        if (data) {
+            await supabase.from("guide_profiles").update({
+                total_paid_out: (parseFloat(data.total_paid_out) || 0) + amountDollars,
+                pending_balance: Math.max(0, (parseFloat(data.pending_balance) || 0) - amountDollars),
+            }).eq("clerk_user_id", guideUserId);
+        }
     }
 
     console.log(`[Connect Webhook] Transfer paid: ${transfer.id} ($${transfer.amount / 100})`);
