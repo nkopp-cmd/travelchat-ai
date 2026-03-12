@@ -381,11 +381,11 @@ export default function GoogleMap({
                     ) : (
                         /* Gradient placeholder when no image */
                         <div
-                            className="relative w-full h-32 flex-shrink-0 flex items-center justify-center"
+                            className="relative w-full h-20 flex-shrink-0 flex items-center justify-center"
                             style={{ background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)` }}
                         >
                             <div
-                                className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold"
+                                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
                                 style={{ backgroundColor: accentColor }}
                             >
                                 {selectedMarker.index + 1}
