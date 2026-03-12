@@ -105,6 +105,7 @@ function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: n
  */
 export function simplifyAddress(address: string, city: string): string {
     let simplified = address;
+    const isKorea = isKoreanCity(city);
 
     // Remove leading "No. X", "Lane X", "Section X", "Alley X" (common in Taipei addresses)
     simplified = simplified.replace(/^No\.\s*\d+,?\s*/i, '');
@@ -117,9 +118,12 @@ export function simplifyAddress(address: string, city: string): string {
     simplified = simplified.replace(/\bUnit\s*\d+\b/gi, '');
     simplified = simplified.replace(/\bSuite\s*\d+\b/gi, '');
 
-    // Remove building numbers at start of address
-    simplified = simplified.replace(/^\d+[-–]\d+\s*/, '');
-    simplified = simplified.replace(/^\d+\s+/, '');
+    // Remove building numbers at start of address — but NOT for Korean addresses
+    // Korean format "10-3 Toegye-ro 70-gil" needs the building number for precision
+    if (!isKorea) {
+        simplified = simplified.replace(/^\d+[-–]\d+\s*/, '');
+        simplified = simplified.replace(/^\d+\s+/, '');
+    }
 
     // Remove Korean detailed address components (동/리/번지)
     simplified = simplified.replace(/\d+번지/g, '');
