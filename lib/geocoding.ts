@@ -77,7 +77,7 @@ function getMaxDistanceForCity(city: string): number {
     const cityConfig = resolveCityConfig(city);
     if (!cityConfig) return DEFAULT_MAX_DISTANCE_KM;
     if (LARGE_RADIUS_CITIES.has(cityConfig.slug)) return 100;
-    if (cityConfig.ring === 1) return 70;
+    if (cityConfig.ring === 1) return 40;
     return DEFAULT_MAX_DISTANCE_KM;
 }
 
@@ -399,16 +399,18 @@ export async function geocodeWithCascade(
     }
 
     // 1. Kakao (Korea only) — inherently bounded to Korea
+    //    Try translated ADDRESS first — Korean addresses are very precise.
+    //    Translated NAME can match wrong businesses in other cities.
     if (isKorea) {
-        // Try translated name first (best for Kakao keyword search)
-        if (translatedName) {
-            const result = await geocodeWithKakao(translatedName);
+        // Try translated address first (most precise for Korean geocoding)
+        if (translatedAddress) {
+            const result = await geocodeWithKakao(translatedAddress);
             if (isValid(result)) return result;
         }
 
-        // Try translated address
-        if (translatedAddress) {
-            const result = await geocodeWithKakao(translatedAddress);
+        // Try translated name + city (constrains to area)
+        if (translatedName) {
+            const result = await geocodeWithKakao(`${translatedName} ${city}`);
             if (isValid(result)) return result;
         }
 

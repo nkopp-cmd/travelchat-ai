@@ -100,8 +100,8 @@ export function ActivityCard({
         ? activity.address
         : activity.area || `${activity.city} Area`;
 
-    // Placeholder image for free tier or when image fails
-    const placeholderImage = `https://source.unsplash.com/400x300/?${encodeURIComponent(activity.category || "travel")},${encodeURIComponent(activity.city)}`;
+    // Placeholder: no external image — use gradient fallback
+    // Activity images come from AI generation (Supabase Storage) or Google Places (client-side)
 
     const handleAddressClick = () => {
         if (!canShowFullAddress) {
@@ -176,14 +176,6 @@ export function ActivityCard({
                     {canShowImages && activity.image && !imageError ? (
                         <Image
                             src={activity.image}
-                            alt={activity.name}
-                            fill
-                            className="object-cover"
-                            onError={() => setImageError(true)}
-                        />
-                    ) : canShowImages && !activity.image ? (
-                        <Image
-                            src={placeholderImage}
                             alt={activity.name}
                             fill
                             className="object-cover"
