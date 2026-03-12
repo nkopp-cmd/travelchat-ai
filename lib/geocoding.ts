@@ -77,7 +77,7 @@ function getMaxDistanceForCity(city: string): number {
     const cityConfig = resolveCityConfig(city);
     if (!cityConfig) return DEFAULT_MAX_DISTANCE_KM;
     if (LARGE_RADIUS_CITIES.has(cityConfig.slug)) return 100;
-    if (cityConfig.ring === 1) return 70;
+    if (cityConfig.ring === 1) return 40;
     return DEFAULT_MAX_DISTANCE_KM;
 }
 
@@ -105,6 +105,7 @@ function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: n
  */
 export function simplifyAddress(address: string, city: string): string {
     let simplified = address;
+    const isKorea = isKoreanCity(city);
 
     // Remove leading "No. X", "Lane X", "Section X", "Alley X" (common in Taipei addresses)
     simplified = simplified.replace(/^No\.\s*\d+,?\s*/i, '');
@@ -117,9 +118,12 @@ export function simplifyAddress(address: string, city: string): string {
     simplified = simplified.replace(/\bUnit\s*\d+\b/gi, '');
     simplified = simplified.replace(/\bSuite\s*\d+\b/gi, '');
 
-    // Remove building numbers at start of address
-    simplified = simplified.replace(/^\d+[-–]\d+\s*/, '');
-    simplified = simplified.replace(/^\d+\s+/, '');
+    // Remove building numbers at start of address — but NOT for Korean addresses
+    // Korean format "10-3 Toegye-ro 70-gil" needs the building number for precision
+    if (!isKorea) {
+        simplified = simplified.replace(/^\d+[-–]\d+\s*/, '');
+        simplified = simplified.replace(/^\d+\s+/, '');
+    }
 
     // Remove Korean detailed address components (동/리/번지)
     simplified = simplified.replace(/\d+번지/g, '');
@@ -399,16 +403,18 @@ export async function geocodeWithCascade(
     }
 
     // 1. Kakao (Korea only) — inherently bounded to Korea
+    //    Try translated ADDRESS first — Korean addresses are very precise.
+    //    Translated NAME can match wrong businesses in other cities.
     if (isKorea) {
-        // Try translated name first (best for Kakao keyword search)
-        if (translatedName) {
-            const result = await geocodeWithKakao(translatedName);
+        // Try translated address first (most precise for Korean geocoding)
+        if (translatedAddress) {
+            const result = await geocodeWithKakao(translatedAddress);
             if (isValid(result)) return result;
         }
 
-        // Try translated address
-        if (translatedAddress) {
-            const result = await geocodeWithKakao(translatedAddress);
+        // Try translated name + city (constrains to area)
+        if (translatedName) {
+            const result = await geocodeWithKakao(`${translatedName} ${city}`);
             if (isValid(result)) return result;
         }
 

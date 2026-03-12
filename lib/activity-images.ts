@@ -364,7 +364,9 @@ export function getCityThumbnail(city: string): string {
 
 /**
  * Add thumbnail images to all activities in dailyPlans
- * Uses Unsplash placeholders (for immediate display)
+ * Previously used Unsplash placeholders — now returns plans unchanged.
+ * Activity images are fetched client-side from Google Places (Pro/Premium)
+ * or via AI generation (stored in Supabase Storage).
  */
 export function addThumbnailsToItinerary(
   dailyPlans: Array<{
@@ -378,19 +380,10 @@ export function addThumbnailsToItinerary(
     }>;
     [key: string]: unknown;
   }>,
-  city: string
+  _city: string
 ): typeof dailyPlans {
-  return dailyPlans.map((day) => ({
-    ...day,
-    activities: day.activities.map((activity) => ({
-      ...activity,
-      image: activity.image || getActivityThumbnail(
-        activity.category || "attraction",
-        city,
-        activity.name
-      ),
-    })),
-  }));
+  // No-op: images are now fetched client-side from Google Places for paid users
+  return dailyPlans;
 }
 
 /**
@@ -414,8 +407,8 @@ export async function addAIThumbnailsToItinerary(
   maxImages: number = 6 // Limit to avoid rate limits and long wait times
 ): Promise<typeof dailyPlans> {
   if (!isImagenAvailable()) {
-    // Fall back to Unsplash if AI not available
-    return addThumbnailsToItinerary(dailyPlans, city);
+    // No AI available — return as-is (Google Places fetched client-side)
+    return dailyPlans;
   }
 
   // Collect all activities that need images
@@ -458,36 +451,19 @@ export async function addAIThumbnailsToItinerary(
         if (aiImageUrl) {
           result[dayIndex].activities[activityIndex].image = aiImageUrl;
           result[dayIndex].activities[activityIndex].aiGenerated = true;
-        } else {
-          // Fallback to Unsplash
-          result[dayIndex].activities[activityIndex].image = getActivityThumbnail(
-            activity.category || 'attraction',
-            city,
-            activity.name
-          );
         }
+        // No fallback — Google Places photos fetched client-side
       } catch (error) {
         console.error(`[activity-images] Failed to generate AI image for ${activity.name}:`, error);
-        // Fallback to Unsplash
-        result[dayIndex].activities[activityIndex].image = getActivityThumbnail(
-          activity.category || 'attraction',
-          city,
-          activity.name
-        );
+        // No fallback — Google Places photos fetched client-side
       }
     });
 
     await Promise.all(promises);
   }
 
-  // Use Unsplash for remaining activities beyond the limit
-  for (const { dayIndex, activityIndex, activity } of remaining) {
-    result[dayIndex].activities[activityIndex].image = getActivityThumbnail(
-      activity.category || 'attraction',
-      city,
-      activity.name
-    );
-  }
+  // Remaining activities beyond AI limit get no image here
+  // Google Places photos will be fetched client-side for paid users
 
   return result;
 }
