@@ -347,135 +347,189 @@ export default function GoogleMap({
                 </div>
             )}
 
-            {/* Info Panel — slide-in from right */}
+            {/* Info Panel — bottom sheet on mobile, right panel on desktop */}
             {selectedMarker && !error && (
-                <div className="absolute top-0 right-0 bottom-0 w-[360px] max-w-[85%] bg-gradient-to-b from-[#1c1c2e] to-[#141420] text-white z-20 flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+                <div className={[
+                    "absolute bg-gradient-to-b from-[#1c1c2e] to-[#141420] text-white z-20 flex flex-col shadow-2xl",
+                    // Mobile: bottom sheet
+                    "inset-x-0 bottom-0 max-h-[70%] rounded-t-2xl animate-in slide-in-from-bottom duration-200",
+                    // Desktop: right panel
+                    "md:inset-x-auto md:top-0 md:right-0 md:bottom-0 md:max-h-none md:w-[360px] md:rounded-t-none md:animate-in md:slide-in-from-right md:duration-200",
+                ].join(" ")}>
+                    {/* Mobile drag handle */}
+                    <div className="md:hidden flex justify-center pt-2 pb-1 flex-shrink-0">
+                        <div className="w-10 h-1 rounded-full bg-white/30" />
+                    </div>
+
                     {/* Close button */}
                     <button
                         onClick={() => setSelectedMarker(null)}
-                        className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center hover:bg-black/70 transition-colors"
+                        className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center hover:bg-black/70 transition-colors md:top-3"
                     >
                         <X className="h-4 w-4" />
                     </button>
 
-                    {/* Place photo with gradient overlay */}
-                    {selectedMarker.marker.image ? (
-                        <div className="relative w-full h-52 flex-shrink-0">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={selectedMarker.marker.image}
-                                alt={selectedMarker.marker.title || ""}
-                                className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c2e] via-transparent to-transparent" />
-                            {/* Day badge on photo */}
-                            {selectedMarker.marker.day && (
+                    {/* Mobile: compact horizontal header */}
+                    <div className="md:hidden flex-shrink-0 px-4 pb-3 pt-1">
+                        <div className="flex items-start gap-3">
+                            {/* Thumbnail or number */}
+                            {selectedMarker.marker.image ? (
+                                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={selectedMarker.marker.image} alt="" className="w-full h-full object-cover" />
+                                </div>
+                            ) : (
                                 <div
-                                    className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                                    className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
                                     style={{ backgroundColor: accentColor }}
                                 >
-                                    Day {selectedMarker.marker.day}
+                                    {selectedMarker.index + 1}
                                 </div>
                             )}
-                        </div>
-                    ) : (
-                        /* Gradient placeholder when no image */
-                        <div
-                            className="relative w-full h-32 flex-shrink-0 flex items-center justify-center"
-                            style={{ background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)` }}
-                        >
-                            <div
-                                className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold"
-                                style={{ backgroundColor: accentColor }}
-                            >
-                                {selectedMarker.index + 1}
-                            </div>
-                            {selectedMarker.marker.day && (
-                                <div
-                                    className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
-                                    style={{ backgroundColor: accentColor }}
-                                >
-                                    Day {selectedMarker.marker.day}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                        {/* Time badge */}
-                        {selectedMarker.marker.time && (
-                            <span
-                                className="inline-block px-2.5 py-1 rounded-md text-xs font-medium"
-                                style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
-                            >
-                                {selectedMarker.marker.time}
-                            </span>
-                        )}
-
-                        {/* Name */}
-                        <h3 className="text-xl font-bold leading-tight">
-                            {selectedMarker.marker.title}
-                        </h3>
-
-                        {/* Rating + Category row */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                            {selectedMarker.marker.rating && (
-                                <div className="flex items-center gap-1 text-sm">
-                                    <span className="text-yellow-400 font-medium">
-                                        {selectedMarker.marker.rating.toFixed(1)}
-                                    </span>
-                                    <span className="text-yellow-400">&#9733;</span>
-                                    {selectedMarker.marker.totalRatings && (
-                                        <span className="text-gray-500 text-xs">
-                                            ({selectedMarker.marker.totalRatings.toLocaleString()})
+                            <div className="flex-1 min-w-0 pt-0.5">
+                                <div className="flex items-center gap-2 mb-1">
+                                    {selectedMarker.marker.day && (
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-white" style={{ backgroundColor: accentColor }}>
+                                            Day {selectedMarker.marker.day}
+                                        </span>
+                                    )}
+                                    {selectedMarker.marker.time && (
+                                        <span className="text-xs font-medium" style={{ color: accentColor }}>
+                                            {selectedMarker.marker.time}
                                         </span>
                                     )}
                                 </div>
-                            )}
-                            {selectedMarker.marker.category && (
-                                <span className="px-2 py-0.5 rounded-md bg-white/8 text-xs text-gray-300 capitalize">
-                                    {selectedMarker.marker.category}
-                                </span>
-                            )}
+                                <h3 className="font-bold text-base leading-snug">{selectedMarker.marker.title}</h3>
+                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                    {selectedMarker.marker.category && (
+                                        <span className="text-xs text-gray-400 capitalize">{selectedMarker.marker.category}</span>
+                                    )}
+                                    {selectedMarker.marker.rating && (
+                                        <span className="text-xs text-yellow-400">
+                                            &#9733; {selectedMarker.marker.rating.toFixed(1)}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        {/* Address */}
+                    {/* Mobile: scrollable details */}
+                    <div className="md:hidden flex-1 overflow-y-auto px-4 pb-2 space-y-3">
                         {selectedMarker.marker.address && (
                             <div className="flex items-start gap-2 text-sm text-gray-400">
                                 <MapPin className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
                                 <span>{selectedMarker.marker.address}</span>
                             </div>
                         )}
-
-                        {/* About this spot */}
                         {selectedMarker.marker.description && (
-                            <div
-                                className="rounded-xl p-4 space-y-2"
-                                style={{
-                                    backgroundColor: `${accentColor}08`,
-                                    borderLeft: `3px solid ${accentColor}`,
-                                }}
-                            >
-                                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    About this spot
-                                </p>
-                                <p className="text-sm text-gray-200 leading-relaxed">
-                                    {selectedMarker.marker.description}
-                                </p>
+                            <div className="rounded-lg p-3 space-y-1.5" style={{ backgroundColor: `${accentColor}08`, borderLeft: `3px solid ${accentColor}` }}>
+                                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">About this spot</p>
+                                <p className="text-sm text-gray-200 leading-relaxed">{selectedMarker.marker.description}</p>
                             </div>
                         )}
-
-                        {/* Phone */}
                         {selectedMarker.marker.phone && (
-                            <a
-                                href={`tel:${selectedMarker.marker.phone}`}
-                                className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
-                            >
-                                <Phone className="h-4 w-4" />
+                            <a href={`tel:${selectedMarker.marker.phone}`} className="flex items-center gap-2 text-sm text-gray-300">
+                                <Phone className="h-3.5 w-3.5" />
                                 {selectedMarker.marker.phone}
                             </a>
                         )}
+                    </div>
+
+                    {/* Desktop: full photo header + content (hidden on mobile) */}
+                    <div className="hidden md:contents">
+                        {/* Place photo with gradient overlay */}
+                        {selectedMarker.marker.image ? (
+                            <div className="relative w-full h-52 flex-shrink-0">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={selectedMarker.marker.image}
+                                    alt={selectedMarker.marker.title || ""}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c2e] via-transparent to-transparent" />
+                                {selectedMarker.marker.day && (
+                                    <div
+                                        className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                                        style={{ backgroundColor: accentColor }}
+                                    >
+                                        Day {selectedMarker.marker.day}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div
+                                className="relative w-full h-20 flex-shrink-0 flex items-center justify-center"
+                                style={{ background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)` }}
+                            >
+                                <div
+                                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                    style={{ backgroundColor: accentColor }}
+                                >
+                                    {selectedMarker.index + 1}
+                                </div>
+                                {selectedMarker.marker.day && (
+                                    <div
+                                        className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                                        style={{ backgroundColor: accentColor }}
+                                    >
+                                        Day {selectedMarker.marker.day}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Desktop content */}
+                        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                            {selectedMarker.marker.time && (
+                                <span
+                                    className="inline-block px-2.5 py-1 rounded-md text-xs font-medium"
+                                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                                >
+                                    {selectedMarker.marker.time}
+                                </span>
+                            )}
+                            <h3 className="text-xl font-bold leading-tight">
+                                {selectedMarker.marker.title}
+                            </h3>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {selectedMarker.marker.rating && (
+                                    <div className="flex items-center gap-1 text-sm">
+                                        <span className="text-yellow-400 font-medium">{selectedMarker.marker.rating.toFixed(1)}</span>
+                                        <span className="text-yellow-400">&#9733;</span>
+                                        {selectedMarker.marker.totalRatings && (
+                                            <span className="text-gray-500 text-xs">({selectedMarker.marker.totalRatings.toLocaleString()})</span>
+                                        )}
+                                    </div>
+                                )}
+                                {selectedMarker.marker.category && (
+                                    <span className="px-2 py-0.5 rounded-md bg-white/8 text-xs text-gray-300 capitalize">
+                                        {selectedMarker.marker.category}
+                                    </span>
+                                )}
+                            </div>
+                            {selectedMarker.marker.address && (
+                                <div className="flex items-start gap-2 text-sm text-gray-400">
+                                    <MapPin className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                                    <span>{selectedMarker.marker.address}</span>
+                                </div>
+                            )}
+                            {selectedMarker.marker.description && (
+                                <div
+                                    className="rounded-xl p-4 space-y-2"
+                                    style={{ backgroundColor: `${accentColor}08`, borderLeft: `3px solid ${accentColor}` }}
+                                >
+                                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">About this spot</p>
+                                    <p className="text-sm text-gray-200 leading-relaxed">{selectedMarker.marker.description}</p>
+                                </div>
+                            )}
+                            {selectedMarker.marker.phone && (
+                                <a href={`tel:${selectedMarker.marker.phone}`} className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
+                                    <Phone className="h-4 w-4" />
+                                    {selectedMarker.marker.phone}
+                                </a>
+                            )}
+                        </div>
                     </div>
 
                     {/* Navigation footer */}
