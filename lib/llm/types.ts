@@ -68,6 +68,8 @@ export interface Activity {
   time: string;
   type: 'morning' | 'afternoon' | 'evening';
   name: string;
+  /** Korean name of the place (only for Korean cities, used for Kakao Maps links) */
+  nameKo?: string;
   address: string;
   description: string;
   category: string;

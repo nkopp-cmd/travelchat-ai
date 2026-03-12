@@ -52,6 +52,7 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
           "time": "string (e.g., '09:00 AM')",
           "type": "morning" | "afternoon" | "evening",
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
+          "nameKo": "string (Korean name of the place - ONLY include this field for Korean cities like Seoul, Busan, Jeju, Gyeongju. Example: '광장시장' for 'Gwangjang Market')",
           "address": "string (full address with district/neighborhood)",
           "description": "string (why it's special + what to order/see/do + insider tips - all in one cohesive description)",
           "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",

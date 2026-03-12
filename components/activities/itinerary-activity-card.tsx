@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, DollarSign, ExternalLink, Sparkles } from "lucide-react";
+import { MapPin, Clock, DollarSign, ExternalLink, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, canSeeFullAddress, hasFeature } from "@/lib/subscription";
 import { getActivityBookingLinks, getHotelBookingLinks } from "@/lib/affiliates";
 import { BookingButton } from "./booking-button";
+import { usePlacePhoto } from "@/hooks/use-place-photo";
 
 interface ItineraryActivity {
     name: string;
@@ -58,6 +59,17 @@ export function ItineraryActivityCard({
     const canShowFullAddress = canSeeFullAddress(userTier);
     const showDeals = hasFeature(userTier, "bookingDeals");
 
+    // Fetch Google Places photo + rating for paid users when no existing image
+    const placeData = usePlacePhoto(activity.name, city, {
+        existingImage: activity.image,
+        userTier,
+    });
+
+    // Use activity image first, then Google Places photo for paid users
+    const displayImage = activity.image || placeData.photoUrl;
+    const displayRating = placeData.rating;
+    const displayTotalRatings = placeData.totalRatings;
+
     // Get booking links
     const bookingLinks = getActivityBookingLinks({
         activityName: activity.name,
@@ -91,17 +103,26 @@ export function ItineraryActivityCard({
             </div>
 
             <div className="flex gap-4">
-                {/* Activity Thumbnail */}
-                {activity.image && (
+                {/* Activity Thumbnail — shows existing image or Google Places photo */}
+                {displayImage && (
                     <div className="hidden sm:block flex-shrink-0">
                         <div className="relative w-24 h-24 rounded-lg overflow-hidden">
-                            <Image
-                                src={activity.image}
-                                alt={activity.name}
-                                fill
-                                className="object-cover"
-                                sizes="96px"
-                            />
+                            {activity.image ? (
+                                <Image
+                                    src={activity.image}
+                                    alt={activity.name}
+                                    fill
+                                    className="object-cover"
+                                    sizes="96px"
+                                />
+                            ) : (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                    src={displayImage}
+                                    alt={activity.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                     </div>
                 )}
@@ -123,13 +144,25 @@ export function ItineraryActivityCard({
                                     </Badge>
                                 )}
                             </div>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {displayAddress}
-                                {!canShowFullAddress && activity.address && (
-                                    <span className="text-violet-600 text-xs ml-1">(Pro: full address)</span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {displayAddress}
+                                    {!canShowFullAddress && activity.address && (
+                                        <span className="text-violet-600 text-xs ml-1">(Pro: full address)</span>
+                                    )}
+                                </p>
+                                {/* Google Places rating */}
+                                {displayRating && (
+                                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                        {displayRating.toFixed(1)}
+                                        {displayTotalRatings && (
+                                            <span className="text-xs">({displayTotalRatings.toLocaleString()})</span>
+                                        )}
+                                    </span>
                                 )}
-                            </p>
+                            </div>
                         </div>
                         <div className="flex flex-wrap gap-2 text-sm">
                             {activity.time && (
