@@ -38,12 +38,13 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 #### Stripe Payment Keys (added Feb 13, 2026):
 | Variable | Purpose | Status |
 |----------|---------|--------|
-| `STRIPE_SECRET_KEY` | Stripe server-side API key | Active |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signature verification | Active |
+| `STRIPE_SECRET_KEY` | Stripe server-side API key (Subscriptions + Connect) | Active |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Subscriptions webhook signature verification | Active |
 | `STRIPE_PRO_MONTHLY_PRICE_ID` | Pro monthly plan price ID | Active |
 | `STRIPE_PRO_YEARLY_PRICE_ID` | Pro yearly plan price ID | Active |
 | `STRIPE_PREMIUM_MONTHLY_PRICE_ID` | Premium monthly plan price ID | Active |
 | `STRIPE_PREMIUM_YEARLY_PRICE_ID` | Premium yearly plan price ID | Active |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | Stripe Connect webhook signature (optional, falls back to `STRIPE_WEBHOOK_SECRET`) | Pending |
 
 #### Feature Flags:
 | Variable | Purpose |
@@ -168,6 +169,32 @@ User triggers story → POST /api/images/story-background (generate + store)
 - **Emails**: `emails/subscription-email.tsx` — 6 event types (upgrade, downgrade, cancel, renew, trial_ending, payment_failed)
 - **Early adopters**: `lib/early-adopters.ts` — first 100 users get permanent premium, beta mode overrides
 - **CRITICAL**: Webhook route at `/api/subscription/webhook` must be in middleware public routes (Clerk blocks unsigned requests)
+- **Status (as of Mar 2026)**: Subscriptions fully live — products, prices, webhook, portal, DB all configured
+
+### Stripe Connect — Guide/Creator Revenue Sharing
+- **Purpose**: Pay local guides/creators a revenue share from subscription income
+- **Model**: Revenue share — 20% of monthly subscription revenue distributed proportionally by content engagement
+- **Connect type**: Express accounts (Stripe-hosted onboarding)
+- **Stripe SDK**: `lib/stripe-connect.ts` — account creation, onboarding links, dashboard links, transfers
+- **Engagement tracking**: `lib/engagement-tracking.ts` — tracks paid subscriber interactions with guide content
+- **DB schema**: `supabase/connect-schema.sql` — `guide_profiles`, `content_engagement`, `guide_earnings` tables
+- **API routes**:
+  - `app/api/connect/onboard/route.ts` — Guide application + Stripe Express onboarding
+  - `app/api/connect/status/route.ts` — Guide account status
+  - `app/api/connect/earnings/route.ts` — Guide earnings history
+  - `app/api/connect/dashboard/route.ts` — Stripe Express dashboard link
+  - `app/api/connect/webhook/route.ts` — Connect webhook (account.updated, transfer.paid/failed)
+- **Admin routes**:
+  - `app/api/admin/guides/route.ts` — List/approve/reject guide applications
+  - `app/api/admin/payouts/calculate/route.ts` — Calculate monthly earnings from Stripe invoices
+  - `app/api/admin/payouts/approve/route.ts` — Approve calculated earnings for payout
+  - `app/api/admin/payouts/execute/route.ts` — Execute approved payouts via Stripe transfers
+- **UI**: `app/guide/apply/page.tsx` (application form), `app/guide/dashboard/page.tsx` (earnings dashboard)
+- **Engagement points**: itinerary_view=1, itinerary_save=3, spot_view=1, spot_save=2 (only from Pro/Premium subscribers)
+- **Payout flow**: Admin calculates → reviews → approves → executes (Stripe transfers)
+- **Minimum payout**: $10 (below-minimum amounts roll over to next month)
+- **CRITICAL**: Webhook route at `/api/connect/webhook` must be in middleware public routes
+- **CRITICAL**: Connect uses the same `STRIPE_SECRET_KEY` as Subscriptions (one Stripe account, two products)
 
 ### City Configuration
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore
