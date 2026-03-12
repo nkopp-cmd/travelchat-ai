@@ -12,14 +12,20 @@ interface LeafletMapProps {
     onMarkerClick?: (marker: Location, index: number) => void;
 }
 
-// Custom marker icons based on activity type
-const createMarkerIcon = (type?: string, index?: number) => {
-    const colors: Record<string, string> = {
-        morning: "#f59e0b", // amber
-        afternoon: "#8b5cf6", // violet
-        evening: "#3b82f6", // blue
-    };
-    const color = colors[type || ""] || "#8b5cf6";
+// Per-day colors (shared palette with Google/Kakao maps)
+const DAY_COLORS = [
+    "#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+    "#ec4899", "#06b6d4", "#f97316", "#6366f1", "#14b8a6",
+];
+
+function getDayColor(day?: number): string {
+    if (day === undefined || day < 1) return DAY_COLORS[0];
+    return DAY_COLORS[(day - 1) % DAY_COLORS.length];
+}
+
+// Custom marker icons colored by day
+const createMarkerIcon = (day?: number, index?: number) => {
+    const color = getDayColor(day);
 
     return L.divIcon({
         className: "custom-marker",
@@ -144,7 +150,7 @@ export default function LeafletMap({
 
         markers.forEach((marker, index) => {
             const leafletMarker = L.marker([marker.lat, marker.lng], {
-                icon: createMarkerIcon(marker.type, index),
+                icon: createMarkerIcon(marker.day, index),
             }).addTo(map);
 
             // Add popup

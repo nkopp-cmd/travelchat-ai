@@ -13,6 +13,8 @@ export interface Location {
     titleKo?: string;
     description?: string;
     type?: "morning" | "afternoon" | "evening";
+    /** Day number for per-day marker coloring */
+    day?: number;
     image?: string;
     time?: string;
     category?: string;
@@ -164,7 +166,7 @@ export default function MapComponent({
                 />
             )}
             {markers.length > 0 && (
-                <div className="absolute bottom-4 right-4 px-3 py-2 bg-black/60 backdrop-blur-sm text-white text-xs rounded-lg z-[1000]">
+                <div className="absolute bottom-4 left-4 px-3 py-2 bg-black/60 backdrop-blur-sm text-white text-xs rounded-lg z-[1000]">
                     {markers.length} location{markers.length !== 1 ? "s" : ""}
                     <span className="ml-2 opacity-75">via {providerLabel}</span>
                 </div>

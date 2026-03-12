@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Location } from "./map";
-import { AlertCircle, ChevronLeft, ChevronRight, X, Phone } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, X, Phone, MapPin } from "lucide-react";
 
 // ============================================================================
 // Google Maps Script Loading
@@ -105,17 +105,25 @@ const DARK_MAP_STYLES: google.maps.MapTypeStyle[] = [
 ];
 
 // ============================================================================
-// Marker Colors
+// Per-Day Marker Colors (10 distinct colors)
 // ============================================================================
 
-const MARKER_COLORS: Record<string, string> = {
-    morning: "#f59e0b",
-    afternoon: "#8b5cf6",
-    evening: "#3b82f6",
-};
+const DAY_COLORS = [
+    "#8b5cf6", // Day 1: violet
+    "#3b82f6", // Day 2: blue
+    "#10b981", // Day 3: emerald
+    "#f59e0b", // Day 4: amber
+    "#ef4444", // Day 5: red
+    "#ec4899", // Day 6: pink
+    "#06b6d4", // Day 7: cyan
+    "#f97316", // Day 8: orange
+    "#6366f1", // Day 9: indigo
+    "#14b8a6", // Day 10: teal
+];
 
-function getMarkerColor(type?: string): string {
-    return MARKER_COLORS[type || ""] || "#8b5cf6";
+function getMarkerColor(day?: number): string {
+    if (day === undefined || day < 1) return DAY_COLORS[0];
+    return DAY_COLORS[(day - 1) % DAY_COLORS.length];
 }
 
 // ============================================================================
@@ -209,7 +217,6 @@ export default function GoogleMap({
                 : (selectedMarker.index + 1) % markers.length;
             setSelectedMarker({ marker: markers[newIndex], index: newIndex });
 
-            // Pan to the new marker
             if (mapRef.current) {
                 mapRef.current.panTo({ lat: markers[newIndex].lat, lng: markers[newIndex].lng });
             }
@@ -229,7 +236,6 @@ export default function GoogleMap({
         });
         markersRef.current = [];
 
-        // Close info window
         if (infoWindowRef.current) {
             infoWindowRef.current.close();
             infoWindowRef.current = null;
@@ -237,76 +243,37 @@ export default function GoogleMap({
 
         // Add new markers
         markers.forEach((marker, index) => {
-            const color = getMarkerColor(marker.type);
+            const color = getMarkerColor(marker.day);
 
-            // Create custom marker pin element
             const pinEl = document.createElement("div");
-            pinEl.style.cssText = `
-                position: relative;
-                cursor: pointer;
-            `;
+            pinEl.style.cssText = `position: relative; cursor: pointer;`;
 
-            // If the marker has an image, show thumbnail + number
             if (marker.image) {
                 pinEl.innerHTML = `
                     <div style="
-                        width: 48px;
-                        height: 48px;
-                        border-radius: 8px;
-                        overflow: hidden;
-                        border: 3px solid white;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-                        position: relative;
+                        width: 48px; height: 48px; border-radius: 8px; overflow: hidden;
+                        border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4); position: relative;
                     ">
                         <img src="${marker.image}" style="width:100%;height:100%;object-fit:cover;" alt="" />
                         <div style="
-                            position: absolute;
-                            top: -6px;
-                            right: -6px;
-                            width: 20px;
-                            height: 20px;
-                            background: ${color};
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: white;
-                            font-size: 11px;
-                            font-weight: 700;
-                            border: 2px solid white;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                            position: absolute; top: -6px; right: -6px;
+                            width: 20px; height: 20px; background: ${color}; border-radius: 50%;
+                            display: flex; align-items: center; justify-content: center;
+                            color: white; font-size: 11px; font-weight: 700;
+                            border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
                         ">${index + 1}</div>
                     </div>
-                    <div style="
-                        width: 0;
-                        height: 0;
-                        border-left: 8px solid transparent;
-                        border-right: 8px solid transparent;
-                        border-top: 8px solid white;
-                        margin: 0 auto;
-                    "></div>
+                    <div style="width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid white;margin:0 auto;"></div>
                 `;
             } else {
-                // Colored pin marker (same style as Leaflet/Kakao)
                 pinEl.innerHTML = `
                     <div style="
-                        width: 36px;
-                        height: 36px;
-                        background: ${color};
-                        border-radius: 50% 50% 50% 0;
-                        transform: rotate(-45deg);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-                        border: 3px solid white;
+                        width: 36px; height: 36px; background: ${color};
+                        border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+                        display: flex; align-items: center; justify-content: center;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 3px solid white;
                     ">
-                        <span style="
-                            transform: rotate(45deg);
-                            color: white;
-                            font-weight: bold;
-                            font-size: 13px;
-                        ">${index + 1}</span>
+                        <span style="transform:rotate(45deg);color:white;font-weight:bold;font-size:13px;">${index + 1}</span>
                     </div>
                 `;
             }
@@ -325,23 +292,13 @@ export default function GoogleMap({
 
                 markersRef.current.push(advancedMarker);
             } catch {
-                // AdvancedMarkerElement requires mapId — fallback to regular markers
                 const regularMarker = new google.maps.Marker({
                     position: { lat: marker.lat, lng: marker.lng },
                     map,
-                    label: {
-                        text: String(index + 1),
-                        color: "white",
-                        fontWeight: "bold",
-                        fontSize: "12px",
-                    },
+                    label: { text: String(index + 1), color: "white", fontWeight: "bold", fontSize: "12px" },
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: 16,
-                        fillColor: color,
-                        fillOpacity: 1,
-                        strokeColor: "white",
-                        strokeWeight: 3,
+                        scale: 16, fillColor: color, fillOpacity: 1, strokeColor: "white", strokeWeight: 3,
                     },
                     title: marker.title,
                 });
@@ -350,29 +307,24 @@ export default function GoogleMap({
                     handleMarkerSelect(marker, index);
                 });
 
-                // Store as any since we're mixing types — cleanup still works via setMap(null)
                 markersRef.current.push(regularMarker as unknown as google.maps.marker.AdvancedMarkerElement);
             }
         });
 
-        // Fit bounds if multiple markers
         if (markers.length > 1) {
             const bounds = new google.maps.LatLngBounds();
-            markers.forEach((m) => {
-                bounds.extend({ lat: m.lat, lng: m.lng });
-            });
+            markers.forEach((m) => bounds.extend({ lat: m.lat, lng: m.lng }));
             map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
         }
     }, [markers, handleMarkerSelect]);
 
+    // Get accent color for the selected marker's day
+    const accentColor = selectedMarker ? getMarkerColor(selectedMarker.marker.day) : DAY_COLORS[0];
+
     return (
         <div className="relative w-full h-full" style={{ minHeight: "300px" }}>
             {/* Map container */}
-            <div
-                ref={containerRef}
-                className="w-full h-full"
-                style={{ minHeight: "300px" }}
-            />
+            <div ref={containerRef} className="w-full h-full" style={{ minHeight: "300px" }} />
 
             {/* Loading overlay */}
             {isLoading && (
@@ -397,7 +349,7 @@ export default function GoogleMap({
 
             {/* Info Panel — slide-in from right */}
             {selectedMarker && !error && (
-                <div className="absolute top-0 right-0 bottom-0 w-[340px] max-w-[85%] bg-[#1a1a1a] text-white z-20 flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+                <div className="absolute top-0 right-0 bottom-0 w-[360px] max-w-[85%] bg-gradient-to-b from-[#1c1c2e] to-[#141420] text-white z-20 flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
                     {/* Close button */}
                     <button
                         onClick={() => setSelectedMarker(null)}
@@ -406,22 +358,59 @@ export default function GoogleMap({
                         <X className="h-4 w-4" />
                     </button>
 
-                    {/* Place photo */}
-                    {selectedMarker.marker.image && (
-                        <div className="relative w-full h-48 flex-shrink-0">
+                    {/* Place photo with gradient overlay */}
+                    {selectedMarker.marker.image ? (
+                        <div className="relative w-full h-52 flex-shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={selectedMarker.marker.image}
                                 alt={selectedMarker.marker.title || ""}
                                 className="w-full h-full object-cover"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c2e] via-transparent to-transparent" />
+                            {/* Day badge on photo */}
+                            {selectedMarker.marker.day && (
+                                <div
+                                    className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                                    style={{ backgroundColor: accentColor }}
+                                >
+                                    Day {selectedMarker.marker.day}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        /* Gradient placeholder when no image */
+                        <div
+                            className="relative w-full h-32 flex-shrink-0 flex items-center justify-center"
+                            style={{ background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)` }}
+                        >
+                            <div
+                                className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold"
+                                style={{ backgroundColor: accentColor }}
+                            >
+                                {selectedMarker.index + 1}
+                            </div>
+                            {selectedMarker.marker.day && (
+                                <div
+                                    className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                                    style={{ backgroundColor: accentColor }}
+                                >
+                                    Day {selectedMarker.marker.day}
+                                </div>
+                            )}
                         </div>
                     )}
 
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                        {/* Time */}
+                        {/* Time badge */}
                         {selectedMarker.marker.time && (
-                            <p className="text-sm text-gray-400">{selectedMarker.marker.time}</p>
+                            <span
+                                className="inline-block px-2.5 py-1 rounded-md text-xs font-medium"
+                                style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                            >
+                                {selectedMarker.marker.time}
+                            </span>
                         )}
 
                         {/* Name */}
@@ -429,38 +418,47 @@ export default function GoogleMap({
                             {selectedMarker.marker.title}
                         </h3>
 
-                        {/* Rating + Category */}
+                        {/* Rating + Category row */}
                         <div className="flex items-center gap-2 flex-wrap">
                             {selectedMarker.marker.rating && (
                                 <div className="flex items-center gap-1 text-sm">
-                                    <span className="text-yellow-400">
+                                    <span className="text-yellow-400 font-medium">
                                         {selectedMarker.marker.rating.toFixed(1)}
                                     </span>
                                     <span className="text-yellow-400">&#9733;</span>
                                     {selectedMarker.marker.totalRatings && (
-                                        <span className="text-gray-400">
+                                        <span className="text-gray-500 text-xs">
                                             ({selectedMarker.marker.totalRatings.toLocaleString()})
                                         </span>
                                     )}
                                 </div>
                             )}
                             {selectedMarker.marker.category && (
-                                <>
-                                    {selectedMarker.marker.rating && (
-                                        <span className="text-gray-600">·</span>
-                                    )}
-                                    <span className="text-sm text-gray-400">
-                                        {selectedMarker.marker.category}
-                                    </span>
-                                </>
+                                <span className="px-2 py-0.5 rounded-md bg-white/8 text-xs text-gray-300 capitalize">
+                                    {selectedMarker.marker.category}
+                                </span>
                             )}
                         </div>
 
-                        {/* Notes from Claude */}
+                        {/* Address */}
+                        {selectedMarker.marker.address && (
+                            <div className="flex items-start gap-2 text-sm text-gray-400">
+                                <MapPin className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                                <span>{selectedMarker.marker.address}</span>
+                            </div>
+                        )}
+
+                        {/* About this spot */}
                         {selectedMarker.marker.description && (
-                            <div className="bg-[#2a2a2a] rounded-xl p-4 space-y-2">
+                            <div
+                                className="rounded-xl p-4 space-y-2"
+                                style={{
+                                    backgroundColor: `${accentColor}08`,
+                                    borderLeft: `3px solid ${accentColor}`,
+                                }}
+                            >
                                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Notes from Claude
+                                    About this spot
                                 </p>
                                 <p className="text-sm text-gray-200 leading-relaxed">
                                     {selectedMarker.marker.description}
@@ -481,7 +479,7 @@ export default function GoogleMap({
                     </div>
 
                     {/* Navigation footer */}
-                    <div className="flex items-center justify-between px-5 py-3 border-t border-white/10 flex-shrink-0">
+                    <div className="flex items-center justify-between px-5 py-3 border-t border-white/10 flex-shrink-0 bg-black/20">
                         <button
                             onClick={() => navigateMarker("prev")}
                             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
