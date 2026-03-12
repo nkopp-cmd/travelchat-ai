@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,20 @@ interface Earnings {
 }
 
 export default function GuideDashboardPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            }
+        >
+            <GuideDashboardContent />
+        </Suspense>
+    );
+}
+
+function GuideDashboardContent() {
     const [guideStatus, setGuideStatus] = useState<GuideStatus | null>(null);
     const [earnings, setEarnings] = useState<Earnings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
