@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, DollarSign, ExternalLink, Sparkles, Star } from "lucide-react";
+import { MapPin, Clock, DollarSign, ExternalLink, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, canSeeFullAddress, hasFeature } from "@/lib/subscription";
 import { getActivityBookingLinks, getHotelBookingLinks } from "@/lib/affiliates";
-import { BookingButton } from "./booking-button";
+import { BookingDealsPopover } from "./booking-deals-popover";
 import { usePlacePhoto } from "@/hooks/use-place-photo";
 
 interface ItineraryActivity {
@@ -105,15 +105,15 @@ export function ItineraryActivityCard({
             <div className="flex gap-4">
                 {/* Activity Thumbnail — shows existing image or Google Places photo */}
                 {displayImage && (
-                    <div className="hidden sm:block flex-shrink-0">
-                        <div className="relative w-24 h-24 rounded-lg overflow-hidden">
+                    <div className="flex-shrink-0">
+                        <div className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-lg overflow-hidden">
                             {activity.image ? (
                                 <Image
                                     src={activity.image}
                                     alt={activity.name}
                                     fill
                                     className="object-cover"
-                                    sizes="96px"
+                                    sizes="(max-width: 640px) 80px, 112px"
                                 />
                             ) : (
                                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -121,7 +121,13 @@ export function ItineraryActivityCard({
                                     src={displayImage}
                                     alt={activity.name}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                 />
+                            )}
+                            {placeData.isLoading && (
+                                <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
+                                    <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -202,47 +208,25 @@ export function ItineraryActivityCard({
                         )}
                     </div>
 
-                    {/* Booking Links */}
-                    <div className="pt-2 space-y-2">
-                        {/* Deal indicator - shown once above all buttons */}
-                        {showDeals && (
-                            <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                                <Sparkles className="h-3 w-3" />
-                                <span className="font-medium">Exclusive deals available</span>
-                            </div>
+                    {/* Booking & Maps */}
+                    <div className="pt-2 flex flex-wrap gap-2">
+                        <BookingDealsPopover
+                            activityLinks={bookingLinks.slice(0, 2)}
+                            hotelLinks={hotelLinks.slice(0, 1)}
+                            activityName={activity.name}
+                            showDeals={showDeals}
+                        />
+                        {canShowFullAddress && activity.address && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="gap-1"
+                                onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(activity.address || "")}`, "_blank")}
+                            >
+                                <ExternalLink className="h-3 w-3" />
+                                Maps
+                            </Button>
                         )}
-                        <div className="flex flex-wrap gap-2">
-                            {bookingLinks.slice(0, 2).map((link) => (
-                                <BookingButton
-                                    key={link.partner}
-                                    link={link}
-                                    showDeal={false}
-                                    activityName={activity.name}
-                                    size="sm"
-                                />
-                            ))}
-                            {hotelLinks.slice(0, 1).map((link) => (
-                                <BookingButton
-                                    key={link.partner}
-                                    link={link}
-                                    showDeal={false}
-                                    activityName={`Hotels near ${activity.name}`}
-                                    variant="outline"
-                                    size="sm"
-                                />
-                            ))}
-                            {canShowFullAddress && activity.address && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="gap-1"
-                                    onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(activity.address || "")}`, "_blank")}
-                                >
-                                    <ExternalLink className="h-3 w-3" />
-                                    Maps
-                                </Button>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>

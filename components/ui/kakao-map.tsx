@@ -193,14 +193,20 @@ function convertZoomToKakaoLevel(zoom: number): number {
     return Math.max(1, Math.min(14, 18 - zoom));
 }
 
+// Per-day colors (shared palette with Google/Leaflet maps)
+const DAY_COLORS = [
+    "#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+    "#ec4899", "#06b6d4", "#f97316", "#6366f1", "#14b8a6",
+];
+
+function getDayColor(day?: number): string {
+    if (day === undefined || day < 1) return DAY_COLORS[0];
+    return DAY_COLORS[(day - 1) % DAY_COLORS.length];
+}
+
 // Create custom marker HTML
-function createMarkerContent(type?: string, index?: number): string {
-    const colors: Record<string, string> = {
-        morning: "#f59e0b",
-        afternoon: "#8b5cf6",
-        evening: "#3b82f6",
-    };
-    const color = colors[type || ""] || "#8b5cf6";
+function createMarkerContent(day?: number, index?: number): string {
+    const color = getDayColor(day);
 
     return `
         <div style="
@@ -360,7 +366,7 @@ export default function KakaoMap({
 
             // Create a wrapper div with click handler
             const content = document.createElement("div");
-            content.innerHTML = createMarkerContent(marker.type, index);
+            content.innerHTML = createMarkerContent(marker.day, index);
             content.onclick = () => handleMarkerClick(marker, index);
 
             const overlay = new kakao.maps.CustomOverlay({
