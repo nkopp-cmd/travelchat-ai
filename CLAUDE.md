@@ -183,7 +183,7 @@ User triggers story → POST /api/images/story-background (generate + store)
   - `app/api/connect/status/route.ts` — Guide account status
   - `app/api/connect/earnings/route.ts` — Guide earnings history
   - `app/api/connect/dashboard/route.ts` — Stripe Express dashboard link
-  - `app/api/connect/webhook/route.ts` — Connect webhook (account.updated, transfer.paid/failed)
+  - `app/api/connect/webhook/route.ts` — Connect webhook (account.updated, transfer.created/updated/reversed)
 - **Admin routes**:
   - `app/api/admin/guides/route.ts` — List/approve/reject guide applications
   - `app/api/admin/payouts/calculate/route.ts` — Calculate monthly earnings from Stripe invoices
