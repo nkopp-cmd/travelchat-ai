@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const params = validation.data;
+    const isMultiCity = !!(params.cities && params.cities.length >= 2);
 
     // Check if multi-LLM is enabled for this tier
     const useMultiLLM = featureFlags.isEnabledForTier(tier as UserTier);
@@ -59,18 +60,27 @@ export async function POST(req: NextRequest) {
     // Get the orchestrator
     const orchestrator = getOrchestrator();
 
+    // For multi-city: use first city as primary, pass cities context via templatePrompt
+    const primaryCity = isMultiCity ? params.cities![0] : params.city;
+    const multiCityPromptSuffix = isMultiCity
+      ? `\n\nIMPORTANT: This is a MULTI-CITY itinerary covering these cities in order: ${params.cities!.join(', ')}.` +
+        (params.daysPerCity ? ` Days per city: ${params.cities!.map((c, i) => `${c}: ${params.daysPerCity![i]} days`).join(', ')}.` : '') +
+        ` Include travel/transport days between cities. Preference: ${params.transportPreference || 'fastest'}.` +
+        ` For each travel day, include a transport activity with the transport type, provider, estimated duration, and cost.`
+      : '';
+
     // Execute orchestrated generation
     const result = await orchestrator.generateItinerary({
       type: 'itinerary',
       params: {
-        city: params.city,
+        city: primaryCity,
         days: params.days,
         interests: params.interests,
         budget: params.budget,
         localnessLevel: params.localnessLevel,
         pace: params.pace,
         groupType: params.groupType,
-        templatePrompt: params.templatePrompt,
+        templatePrompt: (params.templatePrompt || '') + multiCityPromptSuffix,
       },
       tier: tier as UserTier,
       userId,
@@ -84,10 +94,17 @@ export async function POST(req: NextRequest) {
 
     // Geocode activities to store lat/lng for instant map rendering
     const itineraryData = result.data;
+
+    // For multi-city, add metadata
+    if (isMultiCity) {
+      (itineraryData as Record<string, unknown>).cities = params.cities;
+      (itineraryData as Record<string, unknown>).isMultiCity = true;
+    }
+
     try {
       itineraryData.dailyPlans = await geocodeItineraryActivities(
         itineraryData.dailyPlans,
-        params.city
+        primaryCity
       ) as typeof itineraryData.dailyPlans;
     } catch (geoError) {
       console.error('[generate-v2] Geocoding failed (non-fatal):', geoError);
@@ -160,8 +177,8 @@ export async function POST(req: NextRequest) {
  */
 async function saveItineraryToDatabase(
   userId: string,
-  itineraryData: GeneratedItinerary,
-  params: { city: string; days: number }
+  itineraryData: GeneratedItinerary & { cities?: string[]; isMultiCity?: boolean; transportPlan?: unknown[] },
+  params: { city: string; days: number; cities?: string[]; transportPreference?: string }
 ): Promise<{ id: string } | null> {
   const supabase = await createSupabaseServerClient();
 
@@ -193,24 +210,34 @@ async function saveItineraryToDatabase(
     return null;
   }
 
+  // Build insert payload
+  const insertPayload: Record<string, unknown> = {
+    user_id: userDbId,
+    clerk_user_id: userId,
+    title: itineraryData.title,
+    subtitle: itineraryData.subtitle,
+    city: params.city,
+    days: params.days,
+    activities: itineraryData.dailyPlans,
+    local_score: itineraryData.localScore,
+    shared: false,
+    highlights: itineraryData.highlights,
+    estimated_cost: itineraryData.estimatedCost,
+  };
+
+  // Add multi-city fields if applicable
+  if (itineraryData.isMultiCity && itineraryData.cities) {
+    insertPayload.cities = itineraryData.cities;
+    insertPayload.is_multi_city = true;
+    if (itineraryData.transportPlan) {
+      insertPayload.transport_plan = itineraryData.transportPlan;
+    }
+  }
+
   // Save itinerary
   const { data, error: saveError } = await supabase
     .from('itineraries')
-    .insert([
-      {
-        user_id: userDbId,
-        clerk_user_id: userId,
-        title: itineraryData.title,
-        subtitle: itineraryData.subtitle,
-        city: params.city,
-        days: params.days,
-        activities: itineraryData.dailyPlans,
-        local_score: itineraryData.localScore,
-        shared: false,
-        highlights: itineraryData.highlights,
-        estimated_cost: itineraryData.estimatedCost,
-      },
-    ])
+    .insert([insertPayload])
     .select('id')
     .single();
 

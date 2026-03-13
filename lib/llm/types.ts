@@ -347,3 +347,46 @@ export interface SingleActivityRequest {
   excludeNames: string[];
   category?: string;
 }
+
+// ============================================================================
+// Transport & Multi-City Types
+// ============================================================================
+
+export type TransportType = 'flight' | 'train' | 'bus' | 'ferry';
+
+export interface TransportConnection {
+  id?: string;
+  fromCity: string;
+  toCity: string;
+  type: TransportType;
+  provider?: string;
+  durationMinutes: number;
+  priceEstimate: { currency: string; min: number; max: number };
+  frequency?: string;
+  notes?: string;
+  bookingUrl?: string;
+}
+
+export interface TransportSegment {
+  day: number;
+  fromCity: string;
+  toCity: string;
+  type: TransportType;
+  provider: string;
+  duration: string;
+  cost: string;
+  departureTime?: string;
+  bookingUrl?: string;
+}
+
+export interface MultiCityItineraryParams extends ItineraryParams {
+  cities: string[];
+  daysPerCity?: number[];
+  transportPreference?: 'fastest' | 'cheapest' | 'scenic';
+}
+
+export interface MultiCityItinerary extends GeneratedItinerary {
+  cities: string[];
+  isMultiCity: true;
+  transportPlan: TransportSegment[];
+}

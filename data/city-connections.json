@@ -1,0 +1,615 @@
+{
+  "description": "Transport connections between cities. Prices in USD estimates as of 2026.",
+  "connections": [
+    {
+      "from_city": "tokyo",
+      "to_city": "osaka",
+      "transport_type": "train",
+      "provider": "Shinkansen Nozomi",
+      "duration_minutes": 150,
+      "price_estimate": { "currency": "USD", "min": 75, "max": 90 },
+      "frequency": "Every 10 minutes",
+      "notes": "JR Pass covers Hikari/Kodama but not Nozomi",
+      "booking_url": "https://www.jrpass.com"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "kyoto",
+      "transport_type": "train",
+      "provider": "Shinkansen Nozomi",
+      "duration_minutes": 135,
+      "price_estimate": { "currency": "USD", "min": 75, "max": 90 },
+      "frequency": "Every 10 minutes",
+      "notes": "Direct from Tokyo Station to Kyoto Station"
+    },
+    {
+      "from_city": "osaka",
+      "to_city": "kyoto",
+      "transport_type": "train",
+      "provider": "JR Special Rapid",
+      "duration_minutes": 30,
+      "price_estimate": { "currency": "USD", "min": 4, "max": 6 },
+      "frequency": "Every 15 minutes",
+      "notes": "Cheapest and fastest option between the two"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "fukuoka",
+      "transport_type": "train",
+      "provider": "Shinkansen Nozomi",
+      "duration_minutes": 300,
+      "price_estimate": { "currency": "USD", "min": 140, "max": 170 },
+      "frequency": "Hourly",
+      "notes": "5 hours via Shin-Osaka. Flight may be faster."
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "fukuoka",
+      "transport_type": "flight",
+      "provider": "ANA / JAL / Peach / Jetstar",
+      "duration_minutes": 120,
+      "price_estimate": { "currency": "USD", "min": 60, "max": 150 },
+      "frequency": "Multiple daily",
+      "notes": "From Haneda or Narita to Fukuoka Airport"
+    },
+    {
+      "from_city": "osaka",
+      "to_city": "hiroshima",
+      "transport_type": "train",
+      "provider": "Shinkansen Sakura",
+      "duration_minutes": 90,
+      "price_estimate": { "currency": "USD", "min": 60, "max": 75 },
+      "frequency": "Every 15-20 minutes",
+      "notes": "JR Pass covers this route"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "nagoya",
+      "transport_type": "train",
+      "provider": "Shinkansen Nozomi",
+      "duration_minutes": 100,
+      "price_estimate": { "currency": "USD", "min": 55, "max": 70 },
+      "frequency": "Every 10 minutes",
+      "notes": "Midway stop between Tokyo and Osaka"
+    },
+    {
+      "from_city": "osaka",
+      "to_city": "nara",
+      "transport_type": "train",
+      "provider": "Kintetsu / JR",
+      "duration_minutes": 35,
+      "price_estimate": { "currency": "USD", "min": 4, "max": 6 },
+      "frequency": "Every 10 minutes",
+      "notes": "Easy day trip from Osaka"
+    },
+    {
+      "from_city": "kyoto",
+      "to_city": "nara",
+      "transport_type": "train",
+      "provider": "Kintetsu / JR",
+      "duration_minutes": 45,
+      "price_estimate": { "currency": "USD", "min": 5, "max": 7 },
+      "frequency": "Every 15 minutes",
+      "notes": "Easy day trip from Kyoto"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "yokohama",
+      "transport_type": "train",
+      "provider": "JR / Tokyu",
+      "duration_minutes": 30,
+      "price_estimate": { "currency": "USD", "min": 3, "max": 5 },
+      "frequency": "Every 5 minutes",
+      "notes": "Very short trip, essentially connected cities"
+    },
+    {
+      "from_city": "osaka",
+      "to_city": "kanazawa",
+      "transport_type": "train",
+      "provider": "Thunderbird Limited Express",
+      "duration_minutes": 160,
+      "price_estimate": { "currency": "USD", "min": 45, "max": 60 },
+      "frequency": "Hourly",
+      "notes": "Scenic route via Hokuriku"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "kanazawa",
+      "transport_type": "train",
+      "provider": "Hokuriku Shinkansen",
+      "duration_minutes": 150,
+      "price_estimate": { "currency": "USD", "min": 80, "max": 95 },
+      "frequency": "Hourly",
+      "notes": "Extended in 2024 to Tsuruga"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "sapporo",
+      "transport_type": "flight",
+      "provider": "ANA / JAL / Peach / Skymark",
+      "duration_minutes": 105,
+      "price_estimate": { "currency": "USD", "min": 50, "max": 150 },
+      "frequency": "Multiple daily",
+      "notes": "Haneda to New Chitose Airport"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "okinawa",
+      "transport_type": "flight",
+      "provider": "ANA / JAL / Peach / Jetstar",
+      "duration_minutes": 165,
+      "price_estimate": { "currency": "USD", "min": 60, "max": 180 },
+      "frequency": "Multiple daily",
+      "notes": "Haneda/Narita to Naha Airport"
+    },
+    {
+      "from_city": "fukuoka",
+      "to_city": "hiroshima",
+      "transport_type": "train",
+      "provider": "Shinkansen Sakura",
+      "duration_minutes": 60,
+      "price_estimate": { "currency": "USD", "min": 50, "max": 60 },
+      "frequency": "Every 20 minutes"
+    },
+
+    {
+      "from_city": "seoul",
+      "to_city": "busan",
+      "transport_type": "train",
+      "provider": "KTX",
+      "duration_minutes": 150,
+      "price_estimate": { "currency": "USD", "min": 35, "max": 50 },
+      "frequency": "Every 15-30 minutes",
+      "notes": "High-speed rail, Seoul Station to Busan Station"
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "jeju",
+      "transport_type": "flight",
+      "provider": "Korean Air / Asiana / Jin Air / T'way",
+      "duration_minutes": 70,
+      "price_estimate": { "currency": "USD", "min": 40, "max": 80 },
+      "frequency": "Every 15-20 minutes",
+      "notes": "World's busiest domestic route. Gimpo to Jeju."
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "gyeongju",
+      "transport_type": "train",
+      "provider": "KTX",
+      "duration_minutes": 120,
+      "price_estimate": { "currency": "USD", "min": 30, "max": 45 },
+      "frequency": "Hourly",
+      "notes": "To Singyeongju Station, then bus/taxi to city center"
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "jeonju",
+      "transport_type": "train",
+      "provider": "KTX",
+      "duration_minutes": 90,
+      "price_estimate": { "currency": "USD", "min": 20, "max": 30 },
+      "frequency": "Multiple daily",
+      "notes": "Yongsan/Seoul Station to Jeonju Station"
+    },
+    {
+      "from_city": "busan",
+      "to_city": "gyeongju",
+      "transport_type": "train",
+      "provider": "Mugunghwa / KTX",
+      "duration_minutes": 30,
+      "price_estimate": { "currency": "USD", "min": 5, "max": 15 },
+      "frequency": "Multiple daily",
+      "notes": "Easy day trip from Busan"
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "incheon",
+      "transport_type": "train",
+      "provider": "Airport Railroad / Subway Line 1",
+      "duration_minutes": 60,
+      "price_estimate": { "currency": "USD", "min": 3, "max": 10 },
+      "frequency": "Every 10 minutes",
+      "notes": "Seoul Station to Incheon via AREX or Subway"
+    },
+
+    {
+      "from_city": "bangkok",
+      "to_city": "chiang-mai",
+      "transport_type": "flight",
+      "provider": "Thai AirAsia / Nok Air / Thai Lion Air",
+      "duration_minutes": 80,
+      "price_estimate": { "currency": "USD", "min": 25, "max": 60 },
+      "frequency": "Multiple daily",
+      "notes": "Don Mueang or Suvarnabhumi to Chiang Mai"
+    },
+    {
+      "from_city": "bangkok",
+      "to_city": "chiang-mai",
+      "transport_type": "train",
+      "provider": "SRT (State Railway of Thailand)",
+      "duration_minutes": 720,
+      "price_estimate": { "currency": "USD", "min": 15, "max": 40 },
+      "frequency": "Daily (overnight)",
+      "notes": "Scenic overnight sleeper train, book in advance"
+    },
+    {
+      "from_city": "bangkok",
+      "to_city": "phuket",
+      "transport_type": "flight",
+      "provider": "Thai AirAsia / Bangkok Airways / VietJet",
+      "duration_minutes": 85,
+      "price_estimate": { "currency": "USD", "min": 25, "max": 60 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "bangkok",
+      "to_city": "koh-samui",
+      "transport_type": "flight",
+      "provider": "Bangkok Airways (direct) / AirAsia (via Surat Thani)",
+      "duration_minutes": 75,
+      "price_estimate": { "currency": "USD", "min": 50, "max": 120 },
+      "frequency": "Multiple daily",
+      "notes": "Bangkok Airways has monopoly on direct flights, pricier"
+    },
+    {
+      "from_city": "bangkok",
+      "to_city": "koh-samui",
+      "transport_type": "bus",
+      "provider": "Lomprayah / Songserm",
+      "duration_minutes": 660,
+      "price_estimate": { "currency": "USD", "min": 15, "max": 25 },
+      "frequency": "Daily",
+      "notes": "Combined bus + ferry ticket"
+    },
+    {
+      "from_city": "phuket",
+      "to_city": "koh-samui",
+      "transport_type": "ferry",
+      "provider": "Lomprayah / Songserm",
+      "duration_minutes": 300,
+      "price_estimate": { "currency": "USD", "min": 30, "max": 50 },
+      "frequency": "Daily",
+      "notes": "Via Surat Thani, combined van + ferry"
+    },
+
+    {
+      "from_city": "hanoi",
+      "to_city": "ho-chi-minh",
+      "transport_type": "flight",
+      "provider": "Vietnam Airlines / VietJet / Bamboo Airways",
+      "duration_minutes": 125,
+      "price_estimate": { "currency": "USD", "min": 35, "max": 80 },
+      "frequency": "Every 30 minutes",
+      "notes": "Noi Bai to Tan Son Nhat"
+    },
+    {
+      "from_city": "hanoi",
+      "to_city": "da-nang",
+      "transport_type": "flight",
+      "provider": "Vietnam Airlines / VietJet / Bamboo Airways",
+      "duration_minutes": 80,
+      "price_estimate": { "currency": "USD", "min": 25, "max": 60 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "hanoi",
+      "to_city": "da-nang",
+      "transport_type": "train",
+      "provider": "Vietnam Railways (SE trains)",
+      "duration_minutes": 960,
+      "price_estimate": { "currency": "USD", "min": 20, "max": 50 },
+      "frequency": "Several daily",
+      "notes": "Scenic Reunification Express, ~16 hours. Sleeper recommended."
+    },
+    {
+      "from_city": "da-nang",
+      "to_city": "hoi-an",
+      "transport_type": "bus",
+      "provider": "Local bus / Grab",
+      "duration_minutes": 40,
+      "price_estimate": { "currency": "USD", "min": 1, "max": 12 },
+      "frequency": "Frequent",
+      "notes": "Local bus ~$1, Grab car ~$10-12. Only 30km apart."
+    },
+    {
+      "from_city": "ho-chi-minh",
+      "to_city": "dalat",
+      "transport_type": "bus",
+      "provider": "The Sinh Tourist / Futa Bus",
+      "duration_minutes": 360,
+      "price_estimate": { "currency": "USD", "min": 8, "max": 15 },
+      "frequency": "Multiple daily",
+      "notes": "Sleeper bus, scenic mountain road"
+    },
+    {
+      "from_city": "ho-chi-minh",
+      "to_city": "dalat",
+      "transport_type": "flight",
+      "provider": "Vietnam Airlines / VietJet",
+      "duration_minutes": 55,
+      "price_estimate": { "currency": "USD", "min": 25, "max": 50 },
+      "frequency": "Several daily",
+      "notes": "Lien Khuong Airport, then 30min to Dalat center"
+    },
+
+    {
+      "from_city": "taipei",
+      "to_city": "kaohsiung",
+      "transport_type": "train",
+      "provider": "Taiwan High Speed Rail (THSR)",
+      "duration_minutes": 96,
+      "price_estimate": { "currency": "USD", "min": 25, "max": 35 },
+      "frequency": "Every 15-30 minutes",
+      "notes": "Taipei Main Station to Zuoying Station"
+    },
+    {
+      "from_city": "taipei",
+      "to_city": "taichung",
+      "transport_type": "train",
+      "provider": "Taiwan High Speed Rail (THSR)",
+      "duration_minutes": 50,
+      "price_estimate": { "currency": "USD", "min": 15, "max": 22 },
+      "frequency": "Every 15-30 minutes",
+      "notes": "HSR Taichung Station, then bus to city center"
+    },
+    {
+      "from_city": "taichung",
+      "to_city": "kaohsiung",
+      "transport_type": "train",
+      "provider": "Taiwan High Speed Rail (THSR)",
+      "duration_minutes": 50,
+      "price_estimate": { "currency": "USD", "min": 12, "max": 18 },
+      "frequency": "Every 15-30 minutes"
+    },
+
+    {
+      "from_city": "kuala-lumpur",
+      "to_city": "penang",
+      "transport_type": "flight",
+      "provider": "AirAsia / Malaysia Airlines / Firefly",
+      "duration_minutes": 60,
+      "price_estimate": { "currency": "USD", "min": 20, "max": 50 },
+      "frequency": "Multiple daily",
+      "notes": "KLIA/KLIA2 to Penang International"
+    },
+    {
+      "from_city": "kuala-lumpur",
+      "to_city": "penang",
+      "transport_type": "bus",
+      "provider": "Transnasional / Plusliner",
+      "duration_minutes": 270,
+      "price_estimate": { "currency": "USD", "min": 8, "max": 15 },
+      "frequency": "Multiple daily",
+      "notes": "TBS Bus Terminal to Sungai Nibong"
+    },
+    {
+      "from_city": "kuala-lumpur",
+      "to_city": "langkawi",
+      "transport_type": "flight",
+      "provider": "AirAsia / Malaysia Airlines",
+      "duration_minutes": 65,
+      "price_estimate": { "currency": "USD", "min": 20, "max": 50 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "penang",
+      "to_city": "langkawi",
+      "transport_type": "ferry",
+      "provider": "Langkawi Ferry Services",
+      "duration_minutes": 165,
+      "price_estimate": { "currency": "USD", "min": 10, "max": 15 },
+      "frequency": "3-4 daily",
+      "notes": "From Penang Swettenham Pier to Kuah Jetty"
+    },
+
+    {
+      "from_city": "bali-ubud",
+      "to_city": "bali-canggu",
+      "transport_type": "bus",
+      "provider": "Grab / Local driver",
+      "duration_minutes": 50,
+      "price_estimate": { "currency": "USD", "min": 8, "max": 15 },
+      "frequency": "On demand",
+      "notes": "No public transport between areas, use Grab or arrange driver"
+    },
+    {
+      "from_city": "bali-ubud",
+      "to_city": "yogyakarta",
+      "transport_type": "flight",
+      "provider": "Lion Air / Citilink / Garuda",
+      "duration_minutes": 90,
+      "price_estimate": { "currency": "USD", "min": 30, "max": 70 },
+      "frequency": "Several daily",
+      "notes": "Ngurah Rai to Adisucipto/YIA Airport"
+    },
+
+    {
+      "from_city": "singapore",
+      "to_city": "kuala-lumpur",
+      "transport_type": "bus",
+      "provider": "Transtar / Grassland Express",
+      "duration_minutes": 300,
+      "price_estimate": { "currency": "USD", "min": 10, "max": 20 },
+      "frequency": "Multiple daily",
+      "notes": "Golden Mile Complex to TBS Bus Terminal"
+    },
+    {
+      "from_city": "singapore",
+      "to_city": "kuala-lumpur",
+      "transport_type": "flight",
+      "provider": "AirAsia / Scoot / Singapore Airlines",
+      "duration_minutes": 60,
+      "price_estimate": { "currency": "USD", "min": 30, "max": 80 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "singapore",
+      "to_city": "kuala-lumpur",
+      "transport_type": "train",
+      "provider": "KTM Shuttle + ETS",
+      "duration_minutes": 390,
+      "price_estimate": { "currency": "USD", "min": 15, "max": 30 },
+      "frequency": "Daily",
+      "notes": "Woodlands CIQ to JB Sentral, then ETS to KL Sentral"
+    },
+
+    {
+      "from_city": "bangkok",
+      "to_city": "siem-reap",
+      "transport_type": "flight",
+      "provider": "AirAsia / Bangkok Airways / Cambodia Angkor Air",
+      "duration_minutes": 65,
+      "price_estimate": { "currency": "USD", "min": 40, "max": 100 },
+      "frequency": "Several daily"
+    },
+    {
+      "from_city": "bangkok",
+      "to_city": "siem-reap",
+      "transport_type": "bus",
+      "provider": "Giant Ibis / Nattakan",
+      "duration_minutes": 480,
+      "price_estimate": { "currency": "USD", "min": 15, "max": 25 },
+      "frequency": "Daily",
+      "notes": "Includes border crossing at Poipet. Budget extra time."
+    },
+    {
+      "from_city": "siem-reap",
+      "to_city": "phnom-penh",
+      "transport_type": "bus",
+      "provider": "Giant Ibis / Mekong Express",
+      "duration_minutes": 360,
+      "price_estimate": { "currency": "USD", "min": 12, "max": 18 },
+      "frequency": "Multiple daily",
+      "notes": "Most popular operators. Includes wifi and snacks."
+    },
+    {
+      "from_city": "siem-reap",
+      "to_city": "phnom-penh",
+      "transport_type": "flight",
+      "provider": "Cambodia Angkor Air / Lanmei Airlines",
+      "duration_minutes": 50,
+      "price_estimate": { "currency": "USD", "min": 40, "max": 80 },
+      "frequency": "Several daily"
+    },
+
+    {
+      "from_city": "luang-prabang",
+      "to_city": "vientiane",
+      "transport_type": "train",
+      "provider": "Laos-China Railway",
+      "duration_minutes": 120,
+      "price_estimate": { "currency": "USD", "min": 8, "max": 20 },
+      "frequency": "Several daily",
+      "notes": "New high-speed rail opened 2021, modern and efficient"
+    },
+    {
+      "from_city": "luang-prabang",
+      "to_city": "vientiane",
+      "transport_type": "bus",
+      "provider": "VIP/Express bus",
+      "duration_minutes": 540,
+      "price_estimate": { "currency": "USD", "min": 10, "max": 20 },
+      "frequency": "Multiple daily",
+      "notes": "Scenic but winding mountain road"
+    },
+
+    {
+      "from_city": "manila",
+      "to_city": "cebu",
+      "transport_type": "flight",
+      "provider": "Cebu Pacific / Philippine Airlines / AirAsia",
+      "duration_minutes": 80,
+      "price_estimate": { "currency": "USD", "min": 25, "max": 60 },
+      "frequency": "Multiple daily",
+      "notes": "NAIA to Mactan-Cebu International"
+    },
+
+    {
+      "from_city": "hong-kong",
+      "to_city": "taipei",
+      "transport_type": "flight",
+      "provider": "Cathay Pacific / EVA Air / Peach / HK Express",
+      "duration_minutes": 100,
+      "price_estimate": { "currency": "USD", "min": 60, "max": 150 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "singapore",
+      "to_city": "bangkok",
+      "transport_type": "flight",
+      "provider": "Scoot / AirAsia / Thai / Singapore Airlines",
+      "duration_minutes": 150,
+      "price_estimate": { "currency": "USD", "min": 40, "max": 120 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "singapore",
+      "to_city": "bali-canggu",
+      "transport_type": "flight",
+      "provider": "Scoot / Jetstar / Singapore Airlines",
+      "duration_minutes": 160,
+      "price_estimate": { "currency": "USD", "min": 50, "max": 130 },
+      "frequency": "Multiple daily",
+      "notes": "To Ngurah Rai Airport (DPS)"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "seoul",
+      "transport_type": "flight",
+      "provider": "ANA / JAL / Korean Air / Peach / T'way",
+      "duration_minutes": 150,
+      "price_estimate": { "currency": "USD", "min": 80, "max": 200 },
+      "frequency": "Multiple daily",
+      "notes": "Narita/Haneda to Incheon/Gimpo"
+    },
+    {
+      "from_city": "tokyo",
+      "to_city": "taipei",
+      "transport_type": "flight",
+      "provider": "ANA / JAL / EVA Air / Peach / Tiger",
+      "duration_minutes": 210,
+      "price_estimate": { "currency": "USD", "min": 80, "max": 200 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "osaka",
+      "transport_type": "flight",
+      "provider": "Korean Air / Asiana / Jin Air / Peach",
+      "duration_minutes": 120,
+      "price_estimate": { "currency": "USD", "min": 60, "max": 150 },
+      "frequency": "Multiple daily"
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "fukuoka",
+      "transport_type": "flight",
+      "provider": "Korean Air / Jin Air / T'way",
+      "duration_minutes": 80,
+      "price_estimate": { "currency": "USD", "min": 50, "max": 120 },
+      "frequency": "Multiple daily",
+      "notes": "Closest Japanese city to Korea"
+    },
+    {
+      "from_city": "seoul",
+      "to_city": "fukuoka",
+      "transport_type": "ferry",
+      "provider": "JR Beetle / Camellia Line",
+      "duration_minutes": 210,
+      "price_estimate": { "currency": "USD", "min": 80, "max": 130 },
+      "frequency": "1-2 daily",
+      "notes": "Busan to Fukuoka Hakata Port (requires Busan first)"
+    },
+    {
+      "from_city": "busan",
+      "to_city": "fukuoka",
+      "transport_type": "ferry",
+      "provider": "JR Beetle / Camellia Line",
+      "duration_minutes": 180,
+      "price_estimate": { "currency": "USD", "min": 70, "max": 120 },
+      "frequency": "1-2 daily",
+      "notes": "International Terminal to Hakata Port"
+    }
+  ]
+}

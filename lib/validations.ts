@@ -21,6 +21,10 @@ export const generateItinerarySchema = z.object({
     pace: z.enum(["relaxed", "moderate", "active", "packed"]).optional(),
     groupType: z.enum(["solo", "couple", "family", "friends", "business"]).optional(),
     templatePrompt: z.string().max(2000).optional(),
+    // Multi-city fields
+    cities: z.array(z.string().min(1).max(100)).min(2).max(6).optional(),
+    daysPerCity: z.array(z.number().int().min(1).max(7)).max(6).optional(),
+    transportPreference: z.enum(["fastest", "cheapest", "scenic"]).optional(),
 });
 
 // Itinerary save validation
@@ -33,6 +37,10 @@ export const saveItinerarySchema = z.object({
     subtitle: z.string().max(500).optional(),
     highlights: z.array(z.string()).optional(),
     estimatedCost: z.string().max(50).optional(),
+    // Multi-city fields
+    cities: z.array(z.string()).optional(),
+    isMultiCity: z.boolean().optional(),
+    transportPlan: z.array(z.unknown()).optional(),
 });
 
 // Itinerary update validation

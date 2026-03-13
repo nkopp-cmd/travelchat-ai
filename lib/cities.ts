@@ -435,6 +435,30 @@ const RING_2_CITIES: CityConfig[] = [
         vibe: "Surf & beach vibes",
         heroImage: "https://images.unsplash.com/photo-1724568834710-d5db3faab7e8?w=400",
     },
+    // Japan (additional)
+    {
+        slug: "fukuoka",
+        name: "Fukuoka",
+        country: "Japan",
+        countryCode: "JP",
+        emoji: "🇯🇵",
+        ring: 2,
+        isEnabled: true,
+        targets: {
+            spots: { min: 150, ideal: 300 },
+            templates: { min: 6, ideal: 10 },
+        },
+        neighborhoods: [
+            "Tenjin", "Nakasu", "Hakata", "Daimyo", "Ohori Park",
+            "Yakuin", "Momochi", "Canal City"
+        ],
+        timezone: "Asia/Tokyo",
+        languages: ["ja", "en"],
+        currency: "JPY",
+        center: { lat: 33.5904, lng: 130.4017 },
+        vibe: "Ramen & canal city",
+        heroImage: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400",
+    },
 ];
 
 // ============================================
@@ -738,6 +762,337 @@ const RING_3_CITIES: CityConfig[] = [
         vibe: "Monks & Mekong sunsets",
         heroImage: "https://images.unsplash.com/photo-1583417267826-aebc4d1542e1?w=400",
     },
+    // Korea (additional)
+    {
+        slug: "jeonju",
+        name: "Jeonju",
+        country: "South Korea",
+        countryCode: "KR",
+        emoji: "🇰🇷",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Hanok Village", "Gaeksa", "Jeonju Station", "Deokjin Park",
+            "Palbok-dong"
+        ],
+        timezone: "Asia/Seoul",
+        languages: ["ko", "en"],
+        currency: "KRW",
+        center: { lat: 35.8242, lng: 127.1480 },
+        vibe: "Hanok village & bibimbap",
+        heroImage: "https://images.unsplash.com/photo-1622522796692-77aa5b9b1303?w=400",
+    },
+    {
+        slug: "incheon",
+        name: "Incheon",
+        country: "South Korea",
+        countryCode: "KR",
+        emoji: "🇰🇷",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Chinatown", "Songdo", "Bupyeong", "Wolmido", "Ganghwa Island",
+            "Jung-gu"
+        ],
+        timezone: "Asia/Seoul",
+        languages: ["ko", "en"],
+        currency: "KRW",
+        center: { lat: 37.4563, lng: 126.7052 },
+        vibe: "Chinatown & islands",
+        heroImage: "https://images.unsplash.com/photo-1607179655972-1a00eb80b498?w=400",
+    },
+    // Japan (additional)
+    {
+        slug: "yokohama",
+        name: "Yokohama",
+        country: "Japan",
+        countryCode: "JP",
+        emoji: "🇯🇵",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Chinatown", "Minato Mirai", "Motomachi", "Kannai",
+            "Noge", "Yamashita Park"
+        ],
+        timezone: "Asia/Tokyo",
+        languages: ["ja", "en"],
+        currency: "JPY",
+        center: { lat: 35.4437, lng: 139.6380 },
+        vibe: "Port town & Chinatown",
+        heroImage: "https://images.unsplash.com/photo-1623867561613-0e4a2e331dab?w=400",
+    },
+    {
+        slug: "hiroshima",
+        name: "Hiroshima",
+        country: "Japan",
+        countryCode: "JP",
+        emoji: "🇯🇵",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Peace Park", "Hondori", "Nagarekawa", "Miyajima (nearby)",
+            "Kamiyacho"
+        ],
+        timezone: "Asia/Tokyo",
+        languages: ["ja", "en"],
+        currency: "JPY",
+        center: { lat: 34.3853, lng: 132.4553 },
+        vibe: "Peace & okonomiyaki",
+        heroImage: "https://images.unsplash.com/photo-1576675466969-15b8cfbe1b85?w=400",
+    },
+    {
+        slug: "nagoya",
+        name: "Nagoya",
+        country: "Japan",
+        countryCode: "JP",
+        emoji: "🇯🇵",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Sakae", "Osu", "Nagoya Station", "Atsuta", "Kanayama"
+        ],
+        timezone: "Asia/Tokyo",
+        languages: ["ja", "en"],
+        currency: "JPY",
+        center: { lat: 35.1815, lng: 136.9066 },
+        vibe: "Castle town & miso katsu",
+        heroImage: "https://images.unsplash.com/photo-1614735241165-6756e1c91909?w=400",
+    },
+    // Philippines (additional)
+    {
+        slug: "cebu",
+        name: "Cebu",
+        country: "Philippines",
+        countryCode: "PH",
+        emoji: "🇵🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Cebu City", "Mactan Island", "IT Park", "Colon Street",
+            "Lahug", "Moalboal (nearby)"
+        ],
+        timezone: "Asia/Manila",
+        languages: ["ceb", "tl", "en"],
+        currency: "PHP",
+        center: { lat: 10.3157, lng: 123.8854 },
+        vibe: "Island hopping & lechon",
+        heroImage: "https://images.unsplash.com/photo-1570789210967-2cac24c2becd?w=400",
+    },
+    // Vietnam (additional)
+    {
+        slug: "dalat",
+        name: "Dalat",
+        country: "Vietnam",
+        countryCode: "VN",
+        emoji: "🇻🇳",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Xuan Huong Lake", "Night Market", "Trai Mat", "Cam Ly",
+            "Ward 1", "Ward 3"
+        ],
+        timezone: "Asia/Ho_Chi_Minh",
+        languages: ["vi", "en"],
+        currency: "VND",
+        center: { lat: 11.9404, lng: 108.4583 },
+        vibe: "Highland cafes & flowers",
+        heroImage: "https://images.unsplash.com/photo-1586952518485-11b180e92764?w=400",
+    },
+    // Indonesia (additional)
+    {
+        slug: "yogyakarta",
+        name: "Yogyakarta",
+        country: "Indonesia",
+        countryCode: "ID",
+        emoji: "🇮🇩",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Malioboro", "Prawirotaman", "Kotagede", "Kraton",
+            "Kaliurang", "Borobudur (nearby)"
+        ],
+        timezone: "Asia/Jakarta",
+        languages: ["id", "jv", "en"],
+        currency: "IDR",
+        center: { lat: -7.7956, lng: 110.3695 },
+        vibe: "Temples & batik",
+        heroImage: "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400",
+    },
+    // Malaysia (additional)
+    {
+        slug: "langkawi",
+        name: "Langkawi",
+        country: "Malaysia",
+        countryCode: "MY",
+        emoji: "🇲🇾",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Pantai Cenang", "Kuah Town", "Pantai Tengah", "Datai Bay",
+            "Langkawi Sky Bridge"
+        ],
+        timezone: "Asia/Kuala_Lumpur",
+        languages: ["ms", "en"],
+        currency: "MYR",
+        center: { lat: 6.3500, lng: 99.8000 },
+        vibe: "Duty-free island",
+        heroImage: "https://images.unsplash.com/photo-1609946860441-a51ffcf22144?w=400",
+    },
+    // Thailand (additional)
+    {
+        slug: "koh-samui",
+        name: "Koh Samui",
+        country: "Thailand",
+        countryCode: "TH",
+        emoji: "🇹🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Chaweng", "Lamai", "Bophut", "Maenam", "Nathon",
+            "Lipa Noi"
+        ],
+        timezone: "Asia/Bangkok",
+        languages: ["th", "en"],
+        currency: "THB",
+        center: { lat: 9.5120, lng: 100.0136 },
+        vibe: "Beach & wellness",
+        heroImage: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=400",
+    },
+    // Cambodia (additional)
+    {
+        slug: "phnom-penh",
+        name: "Phnom Penh",
+        country: "Cambodia",
+        countryCode: "KH",
+        emoji: "🇰🇭",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Riverside", "BKK1", "Russian Market", "Central Market",
+            "Tonle Bassac", "Chroy Changvar"
+        ],
+        timezone: "Asia/Phnom_Penh",
+        languages: ["km", "en"],
+        currency: "KHR",
+        center: { lat: 11.5564, lng: 104.9282 },
+        vibe: "Riverside & history",
+        heroImage: "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=400",
+    },
+    // Laos (additional)
+    {
+        slug: "vientiane",
+        name: "Vientiane",
+        country: "Laos",
+        countryCode: "LA",
+        emoji: "🇱🇦",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Mekong Riverside", "That Luang Area", "Chanthabouly",
+            "Night Market", "COPE Visitor Centre Area"
+        ],
+        timezone: "Asia/Vientiane",
+        languages: ["lo", "en"],
+        currency: "LAK",
+        center: { lat: 17.9757, lng: 102.6331 },
+        vibe: "Mekong & temples",
+        heroImage: "https://images.unsplash.com/photo-1570366583862-f91883984fde?w=400",
+    },
+    // Taiwan (additional)
+    {
+        slug: "kaohsiung",
+        name: "Kaohsiung",
+        country: "Taiwan",
+        countryCode: "TW",
+        emoji: "🇹🇼",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Pier-2 Art Center", "Cijin Island", "Zuoying", "Liuhe Night Market",
+            "Gushan", "Sanduo Shopping District"
+        ],
+        timezone: "Asia/Taipei",
+        languages: ["zh", "en"],
+        currency: "TWD",
+        center: { lat: 22.6273, lng: 120.3014 },
+        vibe: "Harbor & night markets",
+        heroImage: "https://images.unsplash.com/photo-1590650213165-c1fef7493488?w=400",
+    },
+    {
+        slug: "taichung",
+        name: "Taichung",
+        country: "Taiwan",
+        countryCode: "TW",
+        emoji: "🇹🇼",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Fengjia Night Market", "Rainbow Village", "Miyahara",
+            "National Taichung Theater", "Calligraphy Greenway", "Yizhong Street"
+        ],
+        timezone: "Asia/Taipei",
+        languages: ["zh", "en"],
+        currency: "TWD",
+        center: { lat: 24.1477, lng: 120.6736 },
+        vibe: "Bubble tea origin & arts",
+        heroImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=400",
+    },
 ];
 
 // ============================================
@@ -793,16 +1148,58 @@ export function inferCityFromAddress(address: string): CityConfig | undefined {
         }
     }
 
-    // Check for country code matches (fallback)
-    const countryMatches: Record<string, string[]> = {
-        "seoul": ["korea", "한국", "서울"],
-        "tokyo": ["japan", "日本", "東京", "tokyo"],
-        "bangkok": ["thailand", "ไทย", "กรุงเทพ"],
-        "singapore": ["singapore", "新加坡"],
+    // Check for local-language name matches and aliases
+    const localNameMatches: Record<string, string[]> = {
+        // Korea
+        "seoul": ["한국", "서울", "korea"],
+        "busan": ["부산"],
+        "jeju": ["제주"],
+        "gyeongju": ["경주"],
+        "jeonju": ["전주"],
+        "incheon": ["인천"],
+        // Japan
+        "tokyo": ["日本", "東京", "japan"],
+        "osaka": ["大阪"],
+        "kyoto": ["京都"],
+        "nara": ["奈良"],
+        "kanazawa": ["金沢"],
+        "sapporo": ["札幌"],
+        "okinawa": ["沖縄", "那覇"],
+        "fukuoka": ["福岡"],
+        "yokohama": ["横浜"],
+        "hiroshima": ["広島"],
+        "nagoya": ["名古屋"],
+        // Thailand
+        "bangkok": ["ไทย", "กรุงเทพ", "thailand"],
+        "chiang-mai": ["เชียงใหม่"],
+        "phuket": ["ภูเก็ต"],
+        "koh-samui": ["เกาะสมุย", "ko samui"],
+        // Vietnam
+        "hanoi": ["hà nội", "ha noi"],
+        "ho-chi-minh": ["hồ chí minh", "saigon", "sài gòn"],
+        "da-nang": ["đà nẵng"],
+        "hoi-an": ["hội an"],
+        "dalat": ["đà lạt", "da lat"],
+        // Taiwan
+        "taipei": ["台北", "臺北"],
+        "kaohsiung": ["高雄"],
+        "taichung": ["台中", "臺中"],
+        // Others
+        "singapore": ["新加坡"],
+        "hong-kong": ["香港"],
+        "kuala-lumpur": ["吉隆坡", "kl"],
+        "penang": ["槟城", "pulau pinang"],
+        "manila": ["maynila"],
+        "cebu": ["sugbo"],
+        "yogyakarta": ["jogja", "jogjakarta"],
+        "phnom-penh": ["ភ្នំពេញ"],
+        "siem-reap": ["សៀមរាប"],
+        "luang-prabang": ["ຫຼວງພະບາງ"],
+        "vientiane": ["ວຽງຈັນ"],
     };
 
-    for (const [citySlug, patterns] of Object.entries(countryMatches)) {
-        if (patterns.some(p => lowerAddress.includes(p))) {
+    for (const [citySlug, patterns] of Object.entries(localNameMatches)) {
+        if (patterns.some(p => lowerAddress.includes(p.toLowerCase()))) {
             return getCityBySlug(citySlug);
         }
     }
