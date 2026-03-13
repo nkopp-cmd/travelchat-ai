@@ -62,8 +62,10 @@ export default async function DashboardPage({
                     <div className="hidden lg:flex flex-1 min-h-0 w-full max-w-5xl xl:max-w-6xl mx-auto">
                         {recentItineraries.length === 0 && !itineraryContext && !selectedTemplate ? (
                             // Show onboarding panel for new users
-                            <div className="flex-1 flex items-center justify-center p-8">
-                                <OnboardingPanel className="max-w-2xl w-full" />
+                            <div className="flex-1 min-h-0 overflow-y-auto px-2 py-6">
+                                <div className="flex min-h-full items-start justify-center">
+                                    <OnboardingPanel className="max-w-2xl w-full pb-10" />
+                                </div>
                             </div>
                         ) : (
                             // Show chat interface for returning users

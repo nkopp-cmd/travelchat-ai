@@ -135,8 +135,6 @@ export function useSubscription(): UseSubscriptionReturn {
         staleTime: 2 * 60 * 1000, // 2 minutes
         gcTime: 5 * 60 * 1000, // 5 minutes
         retry: 1,
-        // Return default on error to prevent UI breaking
-        placeholderData: DEFAULT_SUBSCRIPTION,
     });
 
     // Checkout mutation
