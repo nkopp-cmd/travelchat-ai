@@ -3,6 +3,7 @@ import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { isBetaMode, isEarlyAdopter } from "@/lib/early-adopters";
 import { unstable_cache } from "next/cache";
 import { cacheConfig, cacheKeys } from "@/lib/cache";
+import { isLifetimePremiumEmail } from "@/lib/lifetime-premium";
 
 export type UsageType =
     | "itineraries_created"
@@ -252,16 +253,6 @@ export async function incrementUsage(
 }
 
 /**
- * Lifetime premium email addresses (admin/dev team).
- * These users always get premium tier regardless of subscription status.
- */
-const LIFETIME_PREMIUM_EMAILS = [
-    "nkopp@my-goodlife.com",
-    "hello@localley.io",
-    // Add more emails here as needed
-];
-
-/**
  * Get user's subscription tier from database (uncached - for internal use)
  * Respects beta mode, lifetime premium, and early adopter status
  */
@@ -272,7 +263,7 @@ async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
     }
 
     // Check lifetime premium emails (admin/dev team)
-    if (LIFETIME_PREMIUM_EMAILS.length > 0) {
+    {
         const supabase = createSupabaseAdmin();
         const { data: userData } = await supabase
             .from("users")
@@ -280,7 +271,7 @@ async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
             .eq("clerk_id", clerkUserId)
             .single();
 
-        if (userData?.email && LIFETIME_PREMIUM_EMAILS.includes(userData.email.toLowerCase())) {
+        if (isLifetimePremiumEmail(userData?.email)) {
             return "premium";
         }
     }

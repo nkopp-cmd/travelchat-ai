@@ -171,7 +171,7 @@ User triggers story → POST /api/images/story-background (generate + store)
 - **Webhook events**: checkout.session.completed, subscription.created/updated/deleted, invoice.payment_succeeded/failed
 - **Post-checkout**: Redirects to `/settings?subscription=success`, `SubscriptionSuccessHandler` invalidates cache
 - **Emails**: `emails/subscription-email.tsx` — 6 event types (upgrade, downgrade, cancel, renew, trial_ending, payment_failed)
-- **Early adopters**: `lib/early-adopters.ts` — first 100 users get permanent premium, beta mode overrides
+- **Lifetime premium**: only `nkopp@my-goodlife.com` and `hello@localley.io` get unpaid Premium access; the old first-100 early adopter program is closed
 - **CRITICAL**: Webhook route at `/api/subscription/webhook` must be in middleware public routes (Clerk blocks unsigned requests)
 - **Status (as of Mar 2026)**: Subscription code is merged and TypeScript-clean; dashboard/env verification still required outside this repo audit
 

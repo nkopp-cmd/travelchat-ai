@@ -4,7 +4,6 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { WelcomeEmail } from "@/emails/welcome-email";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { registerEarlyAdopter, hasEarlyAdopterSlots } from "@/lib/early-adopters";
 
 const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
@@ -130,15 +129,6 @@ async function handleUserCreated(data: {
 
     if (subError) {
         console.error("Error creating subscription:", subError);
-    }
-
-    // Auto-register as early adopter if slots available
-    const slotsAvailable = await hasEarlyAdopterSlots();
-    if (slotsAvailable) {
-        const earlyAdopterResult = await registerEarlyAdopter(clerkUserId, primaryEmail);
-        if (earlyAdopterResult.success && earlyAdopterResult.position) {
-            console.log(`[clerk-webhook] User ${clerkUserId} registered as early adopter #${earlyAdopterResult.position}`);
-        }
     }
 
     // Send welcome email
