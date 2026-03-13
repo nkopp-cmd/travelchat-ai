@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { checkUsageLimit, getUserTier } from "@/lib/usage-tracking";
-import { TIER_CONFIGS } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { trackEngagement } from "@/lib/engagement-tracking";
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,6 +61,29 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error("Error saving spot:", error);
       return Errors.databaseError();
+    }
+
+    try {
+      const supabaseAdmin = createSupabaseAdmin();
+      const { data: spot } = await supabaseAdmin
+        .from("spots")
+        .select("discovered_by")
+        .eq("id", spotId)
+        .single();
+
+      if (spot?.discovered_by) {
+        const { data: creator } = await supabaseAdmin
+          .from("users")
+          .select("clerk_id")
+          .eq("id", spot.discovered_by)
+          .single();
+
+        if (creator?.clerk_id) {
+          void trackEngagement(userId, "spot_save", spotId, creator.clerk_id);
+        }
+      }
+    } catch (trackingError) {
+      console.error("Error tracking spot save engagement:", trackingError);
     }
 
     // Award XP for discovering/saving a spot (fire and forget)

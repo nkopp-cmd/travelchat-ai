@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { trackEngagement } from "@/lib/engagement-tracking";
 
 // GET - Check if user has liked an itinerary
 export async function GET(
@@ -103,6 +104,8 @@ export async function POST(
             .from("itineraries")
             .update({ like_count: count || 0 })
             .eq("id", id);
+
+        void trackEngagement(userId, "itinerary_save", id, itinerary.clerk_user_id);
 
         return NextResponse.json({ liked: true, likeCount: count || 0 });
     } catch (error) {

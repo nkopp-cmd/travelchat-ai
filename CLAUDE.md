@@ -35,6 +35,7 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `UPSTASH_REDIS_REST_URL` | Redis caching | Active |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis authentication | Active |
 | `CRON_SECRET` | Cron job authentication | Active |
+| `ADMIN_USER_IDS` | Clerk user ID allowlist for admin-only routes | Required for Stripe Connect admin approval/payout flow |
 
 #### Stripe Payment Keys (added Feb 13, 2026):
 | Variable | Purpose | Status |
@@ -65,6 +66,7 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - **Supabase** with PostGIS for location data
 - Spots table has no `city` column - city is inferred from address field
 - City queries use: `.ilike("address->>'en'", '%CityName%')`
+- **Clerk JWT template**: a `supabase` JWT template must exist in Clerk for user-scoped Supabase RLS reads to work via `lib/supabase-server.ts`
 
 ### Maps
 - **OpenStreetMap/Leaflet**: Default for most cities
@@ -171,7 +173,7 @@ User triggers story → POST /api/images/story-background (generate + store)
 - **Emails**: `emails/subscription-email.tsx` — 6 event types (upgrade, downgrade, cancel, renew, trial_ending, payment_failed)
 - **Early adopters**: `lib/early-adopters.ts` — first 100 users get permanent premium, beta mode overrides
 - **CRITICAL**: Webhook route at `/api/subscription/webhook` must be in middleware public routes (Clerk blocks unsigned requests)
-- **Status (as of Mar 2026)**: Subscriptions fully live — products, prices, webhook, portal, DB all configured
+- **Status (as of Mar 2026)**: Subscription code is merged and TypeScript-clean; dashboard/env verification still required outside this repo audit
 
 ### Stripe Connect — Guide/Creator Revenue Sharing
 - **Purpose**: Pay local guides/creators a revenue share from subscription income
@@ -185,7 +187,7 @@ User triggers story → POST /api/images/story-background (generate + store)
   - `app/api/connect/status/route.ts` — Guide account status
   - `app/api/connect/earnings/route.ts` — Guide earnings history
   - `app/api/connect/dashboard/route.ts` — Stripe Express dashboard link
-  - `app/api/connect/webhook/route.ts` — Connect webhook (account.updated, transfer.created/updated/reversed)
+  - `app/api/connect/webhook/route.ts` — Connect webhook (account.updated, transfer.created, transfer.reversed)
 - **Admin routes**:
   - `app/api/admin/guides/route.ts` — List/approve/reject guide applications
   - `app/api/admin/payouts/calculate/route.ts` — Calculate monthly earnings from Stripe invoices
@@ -197,6 +199,8 @@ User triggers story → POST /api/images/story-background (generate + store)
 - **Minimum payout**: $10 (below-minimum amounts roll over to next month)
 - **CRITICAL**: Webhook route at `/api/connect/webhook` must be in middleware public routes
 - **CRITICAL**: Connect uses the same `STRIPE_SECRET_KEY` as Subscriptions (one Stripe account, two products)
+- **Admin dependency**: `ADMIN_USER_IDS` must be configured or guide approval/payout routes reject everyone
+- **Current implementation status**: Partially implemented — onboarding/admin routes exist, but engagement tracking and payout accounting must be verified end to end before calling Connect live
 
 ### City Configuration
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore

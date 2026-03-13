@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +23,29 @@ import { useToast } from "@/hooks/use-toast";
 export default function PricingPage() {
     const [isYearly, setIsYearly] = useState(false);
     const [loadingTier, setLoadingTier] = useState<string | null>(null);
-    const { tier: currentTier, isLoading, openCheckout, openBillingPortal } = useSubscription();
+    const { isSignedIn } = useAuth();
+    const {
+        tier: currentTier,
+        isLoading,
+        openCheckout,
+        openBillingPortal,
+        hasBillingPortal,
+        isBetaMode,
+        isEarlyAdopter,
+    } = useSubscription();
     const { toast } = useToast();
 
     const handleSubscribe = async (tier: "pro" | "premium") => {
+        if (!isSignedIn) {
+            toast({
+                title: "Sign in required",
+                description: "Please sign in before starting checkout.",
+                variant: "destructive",
+            });
+            window.location.href = "/sign-in";
+            return;
+        }
+
         try {
             setLoadingTier(tier);
             await openCheckout(tier, isYearly ? "yearly" : "monthly");
@@ -41,13 +61,23 @@ export default function PricingPage() {
     };
 
     const handleManageSubscription = async () => {
+        if (!isSignedIn) {
+            toast({
+                title: "Sign in required",
+                description: "Please sign in to manage billing.",
+                variant: "destructive",
+            });
+            window.location.href = "/sign-in";
+            return;
+        }
+
         try {
             setLoadingTier("manage");
             await openBillingPortal();
         } catch (error) {
             toast({
                 title: "Error",
-                description: "Failed to open billing portal",
+                description: error instanceof Error ? error.message : "Failed to open billing portal",
                 variant: "destructive",
             });
         } finally {
@@ -189,7 +219,7 @@ export default function PricingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter>
-                            {currentTier === "pro" ? (
+                            {currentTier === "pro" && hasBillingPortal ? (
                                 <Button
                                     variant="outline"
                                     className="w-full"
@@ -200,6 +230,10 @@ export default function PricingPage() {
                                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                     ) : null}
                                     Manage Subscription
+                                </Button>
+                            ) : currentTier === "pro" ? (
+                                <Button variant="outline" className="w-full" disabled>
+                                    {isBetaMode || isEarlyAdopter ? "Included Access" : "Current Plan"}
                                 </Button>
                             ) : (
                                 <Button
@@ -256,7 +290,7 @@ export default function PricingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter>
-                            {currentTier === "premium" ? (
+                            {currentTier === "premium" && hasBillingPortal ? (
                                 <Button
                                     variant="outline"
                                     className="w-full"
@@ -267,6 +301,10 @@ export default function PricingPage() {
                                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                     ) : null}
                                     Manage Subscription
+                                </Button>
+                            ) : currentTier === "premium" ? (
+                                <Button variant="outline" className="w-full" disabled>
+                                    {isBetaMode || isEarlyAdopter ? "Included Access" : "Current Plan"}
                                 </Button>
                             ) : (
                                 <Button

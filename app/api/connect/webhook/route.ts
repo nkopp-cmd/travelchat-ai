@@ -13,8 +13,7 @@ const webhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET || process.env.S
  *
  * Handles Stripe Connect webhook events:
  * - account.updated: Guide completes onboarding or account status changes
- * - transfer.created: Payout transfer initiated
- * - transfer.updated: Transfer status changed (check for completion)
+ * - transfer.created: Payout transfer created by the platform
  * - transfer.reversed: Payout reversed/failed
  */
 export async function POST(req: NextRequest) {
@@ -44,16 +43,12 @@ export async function POST(req: NextRequest) {
         if (eventType === "account.updated") {
             const account = event.data.object as Stripe.Account;
             await handleAccountUpdated(supabase, account);
-        } else if (eventType === "transfer.created" || eventType === "transfer.updated") {
-            // Transfer status changes (created → pending → paid)
-            // Check if the transfer object indicates completion
+        } else if (eventType === "transfer.created") {
             const transfer = event.data.object as Stripe.Transfer;
-            if (transfer.reversed === false && transfer.amount > 0) {
-                await handleTransferPaid(supabase, transfer);
-            }
+            await handleTransferCreated(supabase, transfer);
         } else if (eventType === "transfer.reversed") {
             const transfer = event.data.object as Stripe.Transfer;
-            await handleTransferFailed(supabase, transfer);
+            await handleTransferReversed(supabase, transfer);
         } else {
             console.log(`[Connect Webhook] Unhandled event: ${eventType}`);
         }
@@ -90,64 +85,89 @@ async function handleAccountUpdated(
 }
 
 /**
- * Handle transfer.paid — payout successfully delivered to guide.
+ * Handle transfer.created. We treat a created transfer as the platform having
+ * successfully moved funds to the connected account balance.
  */
-async function handleTransferPaid(
+async function handleTransferCreated(
     supabase: ReturnType<typeof createSupabaseAdmin>,
     transfer: Stripe.Transfer
 ) {
     const earningId = transfer.metadata?.earning_id;
     if (!earningId) return;
+
+    const { data: earning, error: fetchError } = await supabase
+        .from("guide_earnings")
+        .select("id, status, stripe_transfer_id, paid_at")
+        .eq("id", earningId)
+        .single();
+
+    if (fetchError || !earning) {
+        console.error(`[Connect Webhook] Failed to fetch earning ${earningId}:`, fetchError);
+        return;
+    }
+
+    if (earning.status === "paid" && earning.stripe_transfer_id === transfer.id) {
+        return;
+    }
 
     const { error } = await supabase
         .from("guide_earnings")
         .update({
             status: "paid",
-            paid_at: new Date().toISOString(),
+            paid_at: earning.paid_at || new Date().toISOString(),
+            stripe_transfer_id: earning.stripe_transfer_id || transfer.id,
         })
-        .eq("id", earningId);
+        .eq("id", earningId)
+        .in("status", ["approved", "processing"]);
 
     if (error) {
         console.error(`[Connect Webhook] Failed to mark earning ${earningId} as paid:`, error);
+        return;
     }
 
-    // Update guide's total_paid_out
-    const guideUserId = transfer.metadata?.guide_clerk_user_id;
-    if (guideUserId) {
-        const amountDollars = transfer.amount / 100;
-
-        // Direct update — no RPC needed
-        const { data } = await supabase
-            .from("guide_profiles")
-            .select("total_paid_out, pending_balance")
-            .eq("clerk_user_id", guideUserId)
-            .single();
-
-        if (data) {
-            await supabase.from("guide_profiles").update({
-                total_paid_out: (parseFloat(data.total_paid_out) || 0) + amountDollars,
-                pending_balance: Math.max(0, (parseFloat(data.pending_balance) || 0) - amountDollars),
-            }).eq("clerk_user_id", guideUserId);
-        }
-    }
-
-    console.log(`[Connect Webhook] Transfer paid: ${transfer.id} ($${transfer.amount / 100})`);
+    console.log(`[Connect Webhook] Transfer created: ${transfer.id} ($${transfer.amount / 100})`);
 }
 
 /**
- * Handle transfer.failed — payout failed, mark earning for retry.
+ * Handle transfer.reversed — payout failed or was reversed after transfer creation.
  */
-async function handleTransferFailed(
+async function handleTransferReversed(
     supabase: ReturnType<typeof createSupabaseAdmin>,
     transfer: Stripe.Transfer
 ) {
     const earningId = transfer.metadata?.earning_id;
     if (!earningId) return;
 
-    await supabase
+    const { data: earning, error: fetchError } = await supabase
         .from("guide_earnings")
-        .update({ status: "failed" })
-        .eq("id", earningId);
+        .select("id, status, stripe_transfer_id")
+        .eq("id", earningId)
+        .single();
 
-    console.error(`[Connect Webhook] Transfer failed: ${transfer.id}`);
+    if (fetchError || !earning) {
+        console.error(`[Connect Webhook] Failed to fetch earning ${earningId}:`, fetchError);
+        return;
+    }
+
+    if (earning.stripe_transfer_id && earning.stripe_transfer_id !== transfer.id) {
+        console.warn(`[Connect Webhook] Ignoring reversal for mismatched transfer on earning ${earningId}`);
+        return;
+    }
+
+    const { error } = await supabase
+        .from("guide_earnings")
+        .update({
+            status: "failed",
+            paid_at: null,
+            stripe_transfer_id: transfer.id,
+        })
+        .eq("id", earningId)
+        .in("status", ["processing", "paid"]);
+
+    if (error) {
+        console.error(`[Connect Webhook] Failed to mark earning ${earningId} as reversed:`, error);
+        return;
+    }
+
+    console.error(`[Connect Webhook] Transfer reversed: ${transfer.id}`);
 }

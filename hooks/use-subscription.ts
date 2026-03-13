@@ -5,10 +5,29 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 import { queryKeys } from "@/hooks/use-queries";
 
+async function readErrorMessage(response: Response, fallback: string): Promise<string> {
+    const contentType = response.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+        const error = await response.json().catch(() => null);
+        if (error && typeof error.error === "string") {
+            return error.error;
+        }
+    }
+
+    const text = await response.text().catch(() => "");
+    if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+        return fallback;
+    }
+
+    return text || fallback;
+}
+
 export interface SubscriptionStatus {
     tier: SubscriptionTier;
     status: string;
     isActive: boolean;
+    hasBillingPortal: boolean;
     currentPeriodEnd: string | null;
     cancelAtPeriodEnd: boolean;
     trialEnd: string | null;
@@ -44,6 +63,7 @@ interface UseSubscriptionReturn {
     isBetaMode: boolean;
     isEarlyAdopter: boolean;
     earlyAdopterPosition?: number;
+    hasBillingPortal: boolean;
     canUseFeature: (feature: keyof typeof TIER_CONFIGS.free.features) => boolean;
     isWithinLimit: (limitType: keyof typeof TIER_CONFIGS.free.limits) => boolean;
     refetch: () => Promise<void>;
@@ -57,6 +77,7 @@ const DEFAULT_SUBSCRIPTION: SubscriptionStatus = {
     tier: "free",
     status: "none",
     isActive: false,
+    hasBillingPortal: false,
     currentPeriodEnd: null,
     cancelAtPeriodEnd: false,
     trialEnd: null,
@@ -118,8 +139,8 @@ export function useSubscription(): UseSubscriptionReturn {
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Failed to create checkout session");
+                const errorMessage = await readErrorMessage(response, "Failed to create checkout session");
+                throw new Error(errorMessage);
             }
 
             return response.json();
@@ -139,8 +160,8 @@ export function useSubscription(): UseSubscriptionReturn {
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Failed to open billing portal");
+                const errorMessage = await readErrorMessage(response, "Failed to open billing portal");
+                throw new Error(errorMessage);
             }
 
             return response.json();
@@ -158,6 +179,7 @@ export function useSubscription(): UseSubscriptionReturn {
         return {
             tier,
             isActive: subscription?.isActive || false,
+            hasBillingPortal: subscription?.hasBillingPortal || false,
             isPro: tier === "pro" || tier === "premium",
             isPremium: tier === "premium",
             isBetaMode: subscription?.isBetaMode || false,
