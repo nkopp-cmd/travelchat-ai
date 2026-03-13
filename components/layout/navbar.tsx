@@ -112,7 +112,32 @@ export function Navbar() {
                         <>
                             <SubscriptionBadge className="hidden sm:flex" />
                             <NotificationCenter />
-                            <UserButton afterSignOutUrl="/" />
+                            <UserButton
+                                afterSignOutUrl="/"
+                                appearance={{
+                                    elements: {
+                                        avatarBox: "ring-1 ring-white/10 shadow-lg shadow-violet-500/10",
+                                        userButtonPopoverCard:
+                                            "border border-white/10 bg-[#0f1020]/95 text-white shadow-2xl shadow-black/40 backdrop-blur-xl",
+                                        userButtonPopoverMain:
+                                            "bg-transparent text-white",
+                                        userPreviewMainIdentifier:
+                                            "text-white font-medium",
+                                        userPreviewSecondaryIdentifier:
+                                            "text-white/60",
+                                        userButtonPopoverActionButton:
+                                            "text-white/85 hover:bg-white/8 focus:bg-white/8 rounded-xl transition-colors",
+                                        userButtonPopoverActionButtonText:
+                                            "text-white/85",
+                                        userButtonPopoverActionButtonIcon:
+                                            "text-violet-300",
+                                        userButtonPopoverFooter:
+                                            "border-t border-white/10 text-white/50",
+                                        userButtonPopoverFooterPages:
+                                            "text-white/50",
+                                    },
+                                }}
+                            />
                         </>
                     ) : (
                         <div className="flex items-center gap-2">
