@@ -45,7 +45,7 @@ export function SubscriptionBadge({
     className,
     showDetails = true,
 }: SubscriptionBadgeProps) {
-    const { tier, subscription, isLoading, openCheckout, openBillingPortal } =
+    const { tier, subscription, isLoading, openBillingPortal } =
         useSubscriptionContext();
 
     if (isLoading) {
@@ -120,7 +120,7 @@ export function SubscriptionBadge({
                                 </p>
                             </div>
                         </div>
-                        {tier !== "free" && (
+                        {tier !== "free" && subscription?.hasBillingPortal && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -167,19 +167,44 @@ export function SubscriptionBadge({
                         {tier === "free" && (
                             <Button
                                 className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-                                onClick={() => openCheckout("pro")}
+                                asChild
                             >
-                                <Sparkles className="h-4 w-4 mr-2" />
-                                Upgrade to Pro
+                                <Link href="/pricing">
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    Upgrade to Pro
+                                </Link>
                             </Button>
                         )}
-                        {tier === "pro" && (
+                        {tier === "pro" && !subscription?.hasBillingPortal && (
                             <Button
                                 className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
-                                onClick={() => openCheckout("premium")}
+                                asChild
+                            >
+                                <Link href="/pricing">
+                                    <Crown className="h-4 w-4 mr-2" />
+                                    Compare plans
+                                </Link>
+                            </Button>
+                        )}
+                        {tier === "pro" && subscription?.hasBillingPortal && (
+                            <Button
+                                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
+                                onClick={() => openBillingPortal()}
                             >
                                 <Crown className="h-4 w-4 mr-2" />
-                                Upgrade to Premium
+                                Manage or Upgrade
+                            </Button>
+                        )}
+                        {tier === "premium" && subscription?.hasBillingPortal && (
+                            <Button className="w-full" variant="outline" onClick={() => openBillingPortal()}>
+                                <Settings className="h-4 w-4 mr-2" />
+                                Manage Subscription
+                            </Button>
+                        )}
+                        {tier === "premium" && !subscription?.hasBillingPortal && (
+                            <Button className="w-full" variant="outline" disabled>
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                Included Access
                             </Button>
                         )}
                         <Button variant="outline" className="w-full" asChild>

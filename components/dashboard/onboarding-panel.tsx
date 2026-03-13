@@ -196,27 +196,31 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                             Available in <span className="font-semibold text-foreground">{SUPPORTED_CITIES.length}</span> cities
                         </span>
                     </div>
-                    <div className="flex justify-center gap-2 flex-wrap">
-                        {SUPPORTED_CITIES.map((city, idx) => (
-                            <Link
-                                key={city.name}
-                                href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
-                                className={cn(
-                                    "inline-flex items-center gap-1.5 px-4 py-2 rounded-full",
-                                    "border border-black/5 dark:border-white/10",
-                                    "bg-white/60 dark:bg-white/5 backdrop-blur-sm",
-                                    "hover:border-violet-400/50 hover:shadow-lg hover:shadow-violet-500/10",
-                                    "hover:-translate-y-0.5 hover:bg-violet-50 dark:hover:bg-violet-950/30",
-                                    "transition-all duration-200 text-sm group"
-                                )}
-                                style={{ animationDelay: `${idx * 50}ms` }}
-                            >
-                                <span className="transform group-hover:scale-110 transition-transform">
-                                    {city.emoji}
-                                </span>
-                                <span className="font-medium">{city.name}</span>
-                            </Link>
-                        ))}
+                    <div className="rounded-3xl border border-black/5 bg-white/40 p-3 shadow-lg shadow-violet-500/5 dark:border-white/10 dark:bg-white/[0.03]">
+                        <div className="max-h-[16rem] overflow-y-auto pr-2 scrollbar-hide">
+                            <div className="flex justify-center gap-2 flex-wrap">
+                                {SUPPORTED_CITIES.map((city, idx) => (
+                                    <Link
+                                        key={city.name}
+                                        href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
+                                        className={cn(
+                                            "inline-flex items-center gap-1.5 px-4 py-2 rounded-full",
+                                            "border border-black/5 dark:border-white/10",
+                                            "bg-white/70 dark:bg-white/5 backdrop-blur-sm",
+                                            "hover:border-violet-400/50 hover:shadow-lg hover:shadow-violet-500/10",
+                                            "hover:-translate-y-0.5 hover:bg-violet-50 dark:hover:bg-violet-950/30",
+                                            "transition-all duration-200 text-sm group"
+                                        )}
+                                        style={{ animationDelay: `${idx * 50}ms` }}
+                                    >
+                                        <span className="transform group-hover:scale-110 transition-transform">
+                                            {city.emoji}
+                                        </span>
+                                        <span className="font-medium">{city.name}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
