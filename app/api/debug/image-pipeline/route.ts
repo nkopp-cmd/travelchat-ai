@@ -16,11 +16,7 @@ import { getUserTier } from "@/lib/usage-tracking";
 import { hasFeature, TIER_CONFIGS } from "@/lib/subscription";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { isBetaMode } from "@/lib/early-adopters";
-
-const ADMIN_EMAILS = [
-    "nkopp@my-goodlife.com",
-    "hello@localley.io",
-];
+import { isLifetimePremiumEmail } from "@/lib/lifetime-premium";
 
 export async function GET() {
     try {
@@ -38,7 +34,7 @@ export async function GET() {
             .single();
 
         const userEmail = userData?.email?.toLowerCase() || "";
-        const isAdmin = ADMIN_EMAILS.includes(userEmail) || isBetaMode();
+        const isAdmin = isLifetimePremiumEmail(userEmail) || isBetaMode();
 
         if (!isAdmin) {
             return NextResponse.json({ error: "Admin access required" }, { status: 403 });

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
-import { isBetaMode, isEarlyAdopter, getEarlyAdopterStatus } from "@/lib/early-adopters";
+import { isBetaMode, getEarlyAdopterStatus } from "@/lib/early-adopters";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { isLifetimePremiumEmail } from "@/lib/lifetime-premium";
 
 export interface SubscriptionStatusResponse {
     tier: SubscriptionTier;
@@ -42,6 +43,9 @@ export async function GET() {
             return Errors.unauthorized();
         }
 
+        const user = await currentUser();
+        const primaryEmail = user?.emailAddresses[0]?.emailAddress;
+
         const supabase = await createSupabaseServerClient();
 
         // Get subscription
@@ -58,17 +62,24 @@ export async function GET() {
         // Check beta mode and early adopter status
         const betaMode = isBetaMode();
         const earlyAdopterStatus = await getEarlyAdopterStatus(userId);
+        const hasLifetimePremium = isLifetimePremiumEmail(primaryEmail);
 
         // Determine effective tier
-        // Priority: Beta mode > Early adopter > Actual subscription
+        // Priority: Beta mode > lifetime premium > Early adopter > Actual subscription
         let tier: SubscriptionTier = baseTier;
         if (betaMode) {
+            tier = "premium";
+        } else if (hasLifetimePremium) {
             tier = "premium";
         } else if (earlyAdopterStatus.isEarlyAdopter) {
             tier = "premium";
         }
 
-        const isActive = betaMode || earlyAdopterStatus.isEarlyAdopter || ["active", "trialing"].includes(status);
+        const isActive =
+            betaMode ||
+            hasLifetimePremium ||
+            earlyAdopterStatus.isEarlyAdopter ||
+            ["active", "trialing"].includes(status);
 
         // Get usage data
         const today = new Date().toISOString().split("T")[0];
@@ -120,7 +131,11 @@ export async function GET() {
 
         const response: SubscriptionStatusResponse = {
             tier,
-            status: betaMode ? "beta" : (earlyAdopterStatus.isEarlyAdopter ? "early_adopter" : status),
+            status: betaMode
+                ? "beta"
+                : hasLifetimePremium
+                    ? "lifetime_premium"
+                    : (earlyAdopterStatus.isEarlyAdopter ? "early_adopter" : status),
             isActive,
             hasBillingPortal: !!subscription?.stripe_customer_id,
             currentPeriodEnd: subscription?.current_period_end || null,
