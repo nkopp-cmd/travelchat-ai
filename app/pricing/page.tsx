@@ -343,8 +343,8 @@ export default function PricingPage() {
                     <PremiumCard className="border-white/10 bg-white/[0.04] p-6">
                         <div className="grid gap-5 sm:grid-cols-2">
                             <FAQCard
-                                question="How do I know Stripe works properly?"
-                                answer="Run a full test flow in Stripe test mode: start checkout, use card 4242 4242 4242 4242, confirm the webhook succeeds, then verify the app tier changes in settings and the nav badge."
+                                question="How are billing changes handled?"
+                                answer="Plan upgrades, downgrades, payment methods, and cancellations are all managed through Stripe Billing Portal for a secure, consistent billing experience."
                             />
                             <FAQCard
                                 question="Can I cancel or switch plans later?"
@@ -367,19 +367,18 @@ export default function PricingPage() {
                     >
                         <div className="flex h-full flex-col justify-between gap-6">
                             <div>
-                                <Badge className="mb-3 bg-white/10 text-white/80">Recommended test sequence</Badge>
-                                <h2 className="text-2xl font-semibold text-white">Ready to verify checkout?</h2>
+                                <Badge className="mb-3 bg-white/10 text-white/80">Built for confident travel planning</Badge>
+                                <h2 className="text-2xl font-semibold text-white">Choose the plan that matches your pace.</h2>
                                 <p className="mt-2 text-sm leading-6 text-white/70">
-                                    Start with a free account, create a Pro checkout session, complete the test payment,
-                                    and verify that both Stripe and Localley reflect the change.
+                                    Start on Free, move to Pro when you want better planning tools, or use Premium for
+                                    the highest-capability experience with richer visuals, maps, and collaboration.
                                 </p>
                             </div>
 
                             <div className="space-y-3">
-                                <TestStep step="1" text="Start checkout from a free account." />
-                                <TestStep step="2" text="Use test card 4242 4242 4242 4242." />
-                                <TestStep step="3" text="Confirm webhook delivery returns 200 in Stripe." />
-                                <TestStep step="4" text="Verify the tier updates in Settings and the nav badge." />
+                                <InfoStep title="Free" text="A lighter entry point for trying Localley and getting a feel for the product." />
+                                <InfoStep title="Pro" text="The best fit for regular travelers who want AI support, cleaner exports, and more depth." />
+                                <InfoStep title="Premium" text="The full Localley experience for power users, teams, and heavier planning workflows." />
                             </div>
 
                             {currentTier === "free" ? (
@@ -578,11 +577,11 @@ function FAQCard({ question, answer }: { question: string; answer: string }) {
     );
 }
 
-function TestStep({ step, text }: { step: string; text: string }) {
+function InfoStep({ title, text }: { title: string; text: string }) {
     return (
         <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-sm font-semibold text-violet-100">
-                {step}
+            <div className="min-w-16 rounded-full border border-violet-400/20 bg-violet-500/15 px-3 py-1 text-center text-xs font-semibold uppercase tracking-[0.16em] text-violet-100">
+                {title}
             </div>
             <p className="text-sm leading-6 text-white/75">{text}</p>
         </div>
