@@ -133,8 +133,12 @@ export function Sidebar() {
                         <p className="text-xs text-muted-foreground mt-1 mb-3">
                             Unlock unlimited AI chats and exclusive hidden gems.
                         </p>
-                        <Button size="sm" className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20">
-                            Upgrade
+                        <Button
+                            size="sm"
+                            asChild
+                            className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20"
+                        >
+                            <Link href="/pricing">Upgrade</Link>
                         </Button>
                     </div>
                 </div>
