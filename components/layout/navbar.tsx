@@ -117,24 +117,32 @@ export function Navbar() {
                                 appearance={{
                                     elements: {
                                         avatarBox: "ring-1 ring-white/10 shadow-lg shadow-violet-500/10",
+                                        userButtonTrigger:
+                                            "rounded-full transition-all hover:ring-2 hover:ring-violet-400/40 focus:ring-2 focus:ring-violet-400/50",
                                         userButtonPopoverCard:
-                                            "border border-white/10 bg-[#0f1020]/95 text-white shadow-2xl shadow-black/40 backdrop-blur-xl",
+                                            "rounded-2xl border border-white/12 bg-[#0f1020]/96 text-white shadow-2xl shadow-black/50 backdrop-blur-xl",
                                         userButtonPopoverMain:
-                                            "bg-transparent text-white",
+                                            "bg-transparent px-2 pb-2 pt-2 text-white",
+                                        userButtonPopoverActions:
+                                            "gap-1 px-1 pb-1",
+                                        userPreview:
+                                            "rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3",
+                                        userPreviewTextContainer:
+                                            "gap-0.5",
                                         userPreviewMainIdentifier:
-                                            "text-white font-medium",
+                                            "text-sm font-semibold text-white",
                                         userPreviewSecondaryIdentifier:
-                                            "text-white/60",
+                                            "text-xs text-white/60",
                                         userButtonPopoverActionButton:
-                                            "text-white/85 hover:bg-white/8 focus:bg-white/8 rounded-xl transition-colors",
+                                            "min-h-11 rounded-xl px-3 py-2 text-white/90 hover:bg-violet-500/12 hover:text-white focus:bg-violet-500/14 focus:text-white transition-colors",
                                         userButtonPopoverActionButtonText:
-                                            "text-white/85",
+                                            "text-sm font-medium text-white/90",
                                         userButtonPopoverActionButtonIcon:
                                             "text-violet-300",
                                         userButtonPopoverFooter:
-                                            "border-t border-white/10 text-white/50",
+                                            "mt-2 border-t border-white/10 px-3 py-3 text-white/45",
                                         userButtonPopoverFooterPages:
-                                            "text-white/50",
+                                            "text-xs text-white/45 hover:text-white/70",
                                     },
                                 }}
                             />
