@@ -10,8 +10,24 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
 
     if (contentType.includes("application/json")) {
         const error = await response.json().catch(() => null);
-        if (error && typeof error.error === "string") {
-            return error.error;
+        if (error && typeof error === "object") {
+            if (
+                "error" in error &&
+                error.error &&
+                typeof error.error === "object" &&
+                "message" in error.error &&
+                typeof error.error.message === "string"
+            ) {
+                return error.error.message;
+            }
+
+            if ("error" in error && typeof error.error === "string") {
+                return error.error;
+            }
+
+            if ("message" in error && typeof error.message === "string") {
+                return error.message;
+            }
         }
     }
 

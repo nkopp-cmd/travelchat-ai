@@ -34,6 +34,7 @@ export default function PricingPage() {
         isEarlyAdopter,
     } = useSubscription();
     const { toast } = useToast();
+    const hasPaidSubscription = currentTier === "pro" || currentTier === "premium";
 
     const handleSubscribe = async (tier: "pro" | "premium") => {
         if (!isSignedIn) {
@@ -48,6 +49,14 @@ export default function PricingPage() {
 
         try {
             setLoadingTier(tier);
+
+            // Existing paid subscriptions should be changed in Stripe's billing portal,
+            // not by creating a second checkout session.
+            if (hasPaidSubscription && hasBillingPortal) {
+                await openBillingPortal();
+                return;
+            }
+
             await openCheckout(tier, isYearly ? "yearly" : "monthly");
         } catch (error) {
             toast({
@@ -239,14 +248,18 @@ export default function PricingPage() {
                                 <Button
                                     className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
                                     onClick={() => handleSubscribe("pro")}
-                                    disabled={isLoading || loadingTier !== null}
+                                    disabled={isLoading || loadingTier !== null || (hasPaidSubscription && !hasBillingPortal)}
                                 >
                                     {loadingTier === "pro" ? (
                                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                     ) : (
                                         <Sparkles className="h-4 w-4 mr-2" />
                                     )}
-                                    {currentTier === "premium" ? "Switch to Pro" : "Start Free Trial"}
+                                    {currentTier === "premium"
+                                        ? hasBillingPortal
+                                            ? "Change in Billing Portal"
+                                            : "Included Access"
+                                        : "Start Free Trial"}
                                 </Button>
                             )}
                         </CardFooter>
@@ -311,14 +324,18 @@ export default function PricingPage() {
                                     variant="outline"
                                     className="w-full border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950"
                                     onClick={() => handleSubscribe("premium")}
-                                    disabled={isLoading || loadingTier !== null}
+                                    disabled={isLoading || loadingTier !== null || (hasPaidSubscription && !hasBillingPortal)}
                                 >
                                     {loadingTier === "premium" ? (
                                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                     ) : (
                                         <Crown className="h-4 w-4 mr-2" />
                                     )}
-                                    Upgrade to Premium
+                                    {currentTier === "pro"
+                                        ? hasBillingPortal
+                                            ? "Change in Billing Portal"
+                                            : "Included Access"
+                                        : "Upgrade to Premium"}
                                 </Button>
                             )}
                         </CardFooter>
