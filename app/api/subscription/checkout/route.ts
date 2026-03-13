@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import {
     stripe,
     getOrCreateStripeCustomer,
@@ -66,19 +66,24 @@ export async function POST(req: NextRequest) {
         }
 
         // Update or create subscription record in Supabase
-        const supabase = await createSupabaseServerClient();
-        await supabase.from("subscriptions").upsert(
+        const supabase = createSupabaseAdmin();
+        const { error: subscriptionError } = await supabase.from("subscriptions").upsert(
             {
                 clerk_user_id: userId,
                 stripe_customer_id: customerId,
                 tier: "free",
-                status: "pending",
+                status: "active",
                 updated_at: new Date().toISOString(),
             },
             {
                 onConflict: "clerk_user_id",
             }
         );
+
+        if (subscriptionError) {
+            console.error("Error upserting subscription customer before checkout:", subscriptionError);
+            return Errors.databaseError();
+        }
 
         // Build success and cancel URLs
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;

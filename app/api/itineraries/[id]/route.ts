@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { trackEngagement } from "@/lib/engagement-tracking";
 
 export async function DELETE(
     request: Request,
@@ -74,6 +75,10 @@ export async function GET(
         // Check ownership or if itinerary is shared
         if (itinerary.clerk_user_id !== userId && !itinerary.is_public) {
             return Errors.forbidden();
+        }
+
+        if (itinerary.clerk_user_id) {
+            void trackEngagement(userId, "itinerary_view", id, itinerary.clerk_user_id);
         }
 
         return NextResponse.json(itinerary);

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (error || !subscription?.stripe_customer_id) {
-            return Errors.notFound("Subscription");
+            return Errors.validationError("No Stripe billing account is linked to this plan.");
         }
 
         // Build return URL

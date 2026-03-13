@@ -9,6 +9,7 @@ export interface SubscriptionStatusResponse {
     tier: SubscriptionTier;
     status: string;
     isActive: boolean;
+    hasBillingPortal: boolean;
     currentPeriodEnd: string | null;
     cancelAtPeriodEnd: boolean;
     trialEnd: string | null;
@@ -121,6 +122,7 @@ export async function GET() {
             tier,
             status: betaMode ? "beta" : (earlyAdopterStatus.isEarlyAdopter ? "early_adopter" : status),
             isActive,
+            hasBillingPortal: !!subscription?.stripe_customer_id,
             currentPeriodEnd: subscription?.current_period_end || null,
             cancelAtPeriodEnd: subscription?.cancel_at_period_end || false,
             trialEnd: subscription?.trial_end || null,

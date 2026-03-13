@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
             earningId: string;
             guideUserId: string;
             amount: number;
-            status: "paid" | "failed";
+            status: "processing" | "failed";
             transferId?: string;
             error?: string;
         }> = [];
@@ -100,13 +100,14 @@ export async function POST(req: NextRequest) {
                             stripe_fee: 0, // Stripe Connect doesn't charge per-transfer fees for Express
                             net_amount: earning.gross_amount,
                         })
-                        .eq("id", earning.id);
+                        .eq("id", earning.id)
+                        .eq("status", "approved");
 
                     results.push({
                         earningId: earning.id,
                         guideUserId: earning.guide_clerk_user_id,
                         amount: earning.gross_amount,
-                        status: "paid",
+                        status: "processing",
                         transferId: transfer.id,
                     });
                 } else {
@@ -130,14 +131,14 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const paid = results.filter((r) => r.status === "paid");
+        const processing = results.filter((r) => r.status === "processing");
         const failed = results.filter((r) => r.status === "failed");
 
         return NextResponse.json({
             processed: results.length,
-            paid: paid.length,
+            processing: processing.length,
             failed: failed.length,
-            totalPaid: paid.reduce((sum, r) => sum + r.amount, 0),
+            totalInitiated: processing.reduce((sum, r) => sum + r.amount, 0),
             results,
         });
     } catch (error) {

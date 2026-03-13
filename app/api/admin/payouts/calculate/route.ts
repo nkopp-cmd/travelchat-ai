@@ -1,7 +1,23 @@
+import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
-import { stripe } from "@/lib/stripe";
+import { STRIPE_PRICE_IDS, stripe } from "@/lib/stripe";
+
+const LOCALLEY_PRICE_IDS = new Set(
+    Object.values(STRIPE_PRICE_IDS)
+        .flatMap((priceMap) => Object.values(priceMap))
+        .filter(Boolean)
+);
+
+function isLocalleySubscriptionInvoice(invoice: Stripe.Invoice) {
+    return (
+        invoice.lines?.data?.some((line) => {
+            const priceId = line.pricing?.price_details?.price;
+            return !!priceId && LOCALLEY_PRICE_IDS.has(priceId);
+        }) ?? false
+    );
+}
 
 /**
  * POST /api/admin/payouts/calculate
@@ -47,6 +63,7 @@ export async function POST(req: NextRequest) {
             });
 
             for (const invoice of invoices.data) {
+                if (!isLocalleySubscriptionInvoice(invoice)) continue;
                 subscriptionRevenue += (invoice.amount_paid || 0) / 100; // Convert cents to dollars
             }
 
@@ -61,6 +78,7 @@ export async function POST(req: NextRequest) {
                     starting_after: lastId,
                 });
                 for (const invoice of more.data) {
+                    if (!isLocalleySubscriptionInvoice(invoice)) continue;
                     subscriptionRevenue += (invoice.amount_paid || 0) / 100;
                 }
                 hasMore = more.has_more;

@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
         // Verify guide status
         const { data: guide } = await supabase
             .from("guide_profiles")
-            .select("status, total_earned, total_paid_out, pending_balance")
+            .select("status")
             .eq("clerk_user_id", userId)
             .single();
 
@@ -37,15 +37,41 @@ export async function GET(req: NextRequest) {
             .order("earning_month", { ascending: false })
             .limit(months);
 
+        const { data: summaryRows } = await supabase
+            .from("guide_earnings")
+            .select("gross_amount, status")
+            .eq("guide_clerk_user_id", userId);
+
+        const summary = (summaryRows || []).reduce(
+            (acc, earning) => {
+                const grossAmount = Number(earning.gross_amount || 0);
+
+                if (earning.status !== "failed") {
+                    acc.totalEarned += grossAmount;
+                }
+
+                if (earning.status === "paid") {
+                    acc.totalPaidOut += grossAmount;
+                }
+
+                if (["calculated", "approved", "processing", "below_minimum"].includes(earning.status)) {
+                    acc.pendingBalance += grossAmount;
+                }
+
+                return acc;
+            },
+            {
+                totalEarned: 0,
+                totalPaidOut: 0,
+                pendingBalance: 0,
+            }
+        );
+
         // Get current month engagement
         const currentEngagement = await getGuideEngagement(userId);
 
         return NextResponse.json({
-            summary: {
-                totalEarned: guide.total_earned,
-                totalPaidOut: guide.total_paid_out,
-                pendingBalance: guide.pending_balance,
-            },
+            summary,
             currentMonth: currentEngagement,
             earnings: earnings || [],
         });
