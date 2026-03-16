@@ -1,0 +1,239 @@
+{
+  "city": "hcmc",
+  "batch": "gems-2026",
+  "description": "Hidden gems and trending spots from H2 2025 / 2026",
+  "spots": [
+    {
+      "name": {
+        "en": "Cheo Leo Cafe",
+        "vi": "Cà Phê Cheo Leo"
+      },
+      "description": {
+        "en": "A heritage coffee gem tucked in an alley off Nguyen Thien Thuat in District 3. One of Saigon's oldest surviving cafes with traditional drip brewing. The kind of place where elderly locals have been drinking the same cup for decades — pure District 3 coffee culture.",
+        "vi": "Quán cà phê di sản ẩn trong hẻm phố Nguyễn Thiện Thuật, Quận 3. Một trong những quán cà phê lâu đời nhất Sài Gòn còn tồn tại. Nơi người già đã uống cùng ly cà phê suốt hàng chục năm."
+      },
+      "address": {
+        "en": "109/36 Nguyen Thien Thuat, Ward 2, District 3, Ho Chi Minh City",
+        "vi": "109/36 Nguyễn Thiện Thuật, Phường 2, Quận 3, TP.HCM"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Heritage",
+        "District 3",
+        "Local Favorite"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Morning 6am-10am",
+      "tips": [
+        "Coffee is 15,000-40,000 VND — absurdly cheap for the experience",
+        "Open 6am-6pm, best in the early morning with the regulars",
+        "District 3 alleyways around here are full of street art and local food stalls"
+      ],
+      "neighborhood": "District 3"
+    },
+    {
+      "name": {
+        "en": "14 Ton That Dam Apartment Building",
+        "vi": "Chung Cư 14 Tôn Thất Đạm"
+      },
+      "description": {
+        "en": "Grittier and more authentic than the famous 42 Nguyen Hue Cafe Apartment. Walk past residents' laundry and vintage motorbikes to find world-class ceramic studios, hidden bars, and indie boutiques. The real Saigon apartment cafe experience.",
+        "vi": "Thô ráp và chân thực hơn Chung cư Cà phê 42 Nguyễn Huệ nổi tiếng. Đi qua quần áo phơi và xe máy cũ để tìm xưởng gốm, quán bar ẩn và cửa hàng indie."
+      },
+      "address": {
+        "en": "14 Ton That Dam, District 1, Ho Chi Minh City",
+        "vi": "14 Tôn Thất Đạm, Quận 1, TP.HCM"
+      },
+      "category": "Experience",
+      "subcategories": [
+        "Apartment Cafe",
+        "Hidden Gem",
+        "Art"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon 2-6pm",
+      "tips": [
+        "No elevator fee here unlike the tourist Cafe Apartment",
+        "Each floor has different character — explore all of them",
+        "The ceramic studios on upper floors are genuine working artists"
+      ],
+      "neighborhood": "District 1"
+    },
+    {
+      "name": {
+        "en": "Every Half Coffee Roasters",
+        "vi": "Every Half Coffee Roasters"
+      },
+      "description": {
+        "en": "The coffee chain of the moment in Saigon with a flagship in Thao Dien. Distinctly modern Vietnamese coffee with retro aesthetics. They roast on-site and have become the gathering place for Thao Dien's creative class since Metro Line 1 connected the area to District 1.",
+        "vi": "Chuỗi cà phê hot nhất Sài Gòn hiện tại với chi nhánh chính ở Thảo Điền. Cà phê Việt hiện đại với thẩm mỹ retro. Rang tại chỗ, nơi hội tụ của giới sáng tạo Thảo Điền."
+      },
+      "address": {
+        "en": "62 Hoang The Thien, Thao Dien, Thu Duc City, Ho Chi Minh City",
+        "vi": "62 Hoàng Thế Thiện, Thảo Điền, TP. Thủ Đức, TP.HCM"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "Thao Dien",
+        "Trending"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Morning 8am-12pm",
+      "tips": [
+        "The Thao Dien flagship has the roastery — ask for a fresh roast recommendation",
+        "Metro Line 1 now connects Thao Dien directly to District 1",
+        "Pair with brunch at nearby Cafe Marcel or MAD House"
+      ],
+      "neighborhood": "Thao Dien"
+    },
+    {
+      "name": {
+        "en": "Binh Tay Market Food Court",
+        "vi": "Khu Ẩm Thực Chợ Bình Tây"
+      },
+      "description": {
+        "en": "The real Cholon market experience — not staged for tourists. Inside the food court, 40-year-old stalls serve Vietnamese-Chinese fusion: crab noodle soup (banh canh cua), dim sum, wonton soup, and Ms. Nguyet's legendary 17-year-old rice buffet at 35,000 VND per plate.",
+        "vi": "Trải nghiệm chợ Chợ Lớn thực sự — không dàn dựng cho du khách. Bên trong, các quầy 40 năm tuổi phục vụ ẩm thực Việt-Hoa: bánh canh cua, dimsum, hoành thánh, và quầy cơm buffet 17 năm của cô Nguyệt."
+      },
+      "address": {
+        "en": "57 Thap Muoi, District 6, Ho Chi Minh City",
+        "vi": "57 Tháp Mười, Quận 6, TP.HCM"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Market",
+        "Cholon",
+        "Vietnamese-Chinese"
+      ],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Morning 6am-11am",
+      "tips": [
+        "Banh canh cua (crab noodle soup) at Chau Lan stall — 40,000 VND, 40 years running",
+        "Ms. Nguyet's rice buffet: serve yourself from 10+ dishes, 35,000 VND per plate",
+        "Visit at 6am for freshest food and fewest crowds — carry small VND notes"
+      ],
+      "neighborhood": "Cholon"
+    },
+    {
+      "name": {
+        "en": "Papaya Papa Rooftop",
+        "vi": "Papaya Papa Sân Thượng"
+      },
+      "description": {
+        "en": "A rooftop bar that feels like a house party at a design-conscious friend's apartment. Widescreen views of downtown District 1, wooden surfaces, pot plants, and sofas everywhere. Languid lounging stretches until 4am — Saigon at its most effortlessly cool.",
+        "vi": "Quán bar sân thượng giống như tiệc nhà bạn mê thiết kế. Tầm nhìn toàn cảnh Quận 1, bề mặt gỗ, cây xanh, sofa khắp nơi. Thư giãn kéo dài đến 4 giờ sáng."
+      },
+      "address": {
+        "en": "District 1, Ho Chi Minh City",
+        "vi": "Quận 1, TP.HCM"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop Bar",
+        "Hidden Gem",
+        "Design"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Evening 7pm-2am",
+      "tips": [
+        "The indoor-outdoor split means it works in any weather",
+        "More relaxed than Shri or Above Sky Bar — less dress code pressure",
+        "Cocktails are mid-range by District 1 standards"
+      ],
+      "neighborhood": "District 1"
+    },
+    {
+      "name": {
+        "en": "Godmother Bake + Brunch",
+        "vi": "Godmother Bake + Brunch"
+      },
+      "description": {
+        "en": "An antipodean-style brunch cafe in Thao Dien with colorful Wes Anderson-inspired interiors. Quickly becoming a hotspot for the Thao Dien brunch scene — hearty portions, excellent coffee, and an Instagram-ready setting that somehow stays genuinely welcoming.",
+        "vi": "Quán brunch phong cách Úc ở Thảo Điền với nội thất đầy màu sắc lấy cảm hứng từ Wes Anderson. Nhanh chóng trở thành điểm nóng brunch Thảo Điền — phần ăn đầy đặn, cà phê ngon."
+      },
+      "address": {
+        "en": "Thao Dien, Thu Duc City, Ho Chi Minh City",
+        "vi": "Thảo Điền, TP. Thủ Đức, TP.HCM"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Brunch",
+        "Thao Dien",
+        "Instagram"
+      ],
+      "localley_score": 5,
+      "local_percentage": 45,
+      "best_time": "Weekend morning 9am-12pm",
+      "tips": [
+        "Weekend brunch is the main event — expect waits after 10am",
+        "The interiors photograph beautifully but the food is the real draw",
+        "Combine with Every Half Coffee next door for a Thao Dien cafe crawl"
+      ],
+      "neighborhood": "Thao Dien"
+    },
+    {
+      "name": {
+        "en": "Bosgaurus Coffee Roasters",
+        "vi": "Bosgaurus Coffee Roasters"
+      },
+      "description": {
+        "en": "District 3's answer to specialty coffee, set inside a preserved mid-century building on Vo Thi Sau street. Tropical vegetation creates cool, shaded ambience. A showcase for how D3's coffee culture blends heritage architecture with modern roasting — the neighborhood's signature move.",
+        "vi": "Câu trả lời của Quận 3 cho cà phê đặc sản, trong tòa nhà giữa thế kỷ được bảo tồn trên phố Võ Thị Sáu. Thảm thực vật nhiệt đới tạo không gian mát mẻ. Văn hóa cà phê D3 pha trộn kiến trúc di sản với rang xay hiện đại."
+      },
+      "address": {
+        "en": "6E Tu Xuong, Ward Vo Thi Sau, District 3, Ho Chi Minh City",
+        "vi": "6E Tú Xương, Phường Võ Thị Sáu, Quận 3, TP.HCM"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Specialty Coffee",
+        "District 3",
+        "Heritage Architecture"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning 8am-11am",
+      "tips": [
+        "The Vo Thi Sau flagship has the best atmosphere — tropical courtyard setting",
+        "Ask about single-origin Vietnamese beans from their own sourcing program",
+        "District 3 around Tu Xuong street is walkable with many other cafes and galleries"
+      ],
+      "neighborhood": "District 3"
+    },
+    {
+      "name": {
+        "en": "Broma: Not a Bar",
+        "vi": "Broma: Not a Bar"
+      },
+      "description": {
+        "en": "A hip rooftop bar that insists it is not a bar. Strong local following, less touristy than the big-name District 1 rooftop bars. Creative cocktails, chill vibes, and a clientele that skews young Vietnamese professionals rather than hotel guests.",
+        "vi": "Quán bar sân thượng hip khẳng định mình không phải quán bar. Được người địa phương yêu thích, ít du khách hơn các rooftop bar lớn Quận 1. Cocktail sáng tạo, không khí thoải mái, khách chủ yếu là dân văn phòng trẻ Việt Nam."
+      },
+      "address": {
+        "en": "41 Nguyen Hue, District 1, Ho Chi Minh City",
+        "vi": "41 Nguyễn Huệ, Quận 1, TP.HCM"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Rooftop Bar",
+        "Local Favorite",
+        "Cocktails"
+      ],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Evening 6pm-midnight",
+      "tips": [
+        "The name is a running joke — it is definitely a bar, and a good one",
+        "More affordable than Shri or Air 360 Sky Lounge",
+        "Located in the same Nguyen Hue walking street area as the Cafe Apartment"
+      ],
+      "neighborhood": "District 1"
+    }
+  ]
+}

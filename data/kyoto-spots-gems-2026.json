@@ -1,0 +1,380 @@
+{
+  "city": "kyoto",
+  "batch": "gems-2026",
+  "description": "Hidden gems and trending spots from H2 2025 / 2026",
+  "spots": [
+    {
+      "name": {
+        "en": "Kurama to Kibune Hike",
+        "ja": "鞍馬〜貴船ハイキング"
+      },
+      "description": {
+        "en": "A 3.9 km mountain trail connecting the ancient Kurama-dera Temple to the riverside village of Kibune. Takes 2-3 hours through dense cedar forest with moss-covered stones and exposed tree roots. End with lunch on kawadoko riverside platforms in Kibune or a soak at Kurama Onsen.",
+        "ja": "鞍馬寺から貴船を結ぶ3.9kmの山道。杉林の中を2〜3時間歩く。貴船の川床ランチや鞍馬温泉で締めくくる。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kurama / Kibune",
+      "address": {
+        "en": "Kurama-honmachi, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区鞍馬本町"
+      },
+      "category": "Nature",
+      "subcategories": [
+        "Hidden Gem",
+        "Hiking",
+        "Temple",
+        "Onsen"
+      ],
+      "localley_score": 6,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Spring (cherry blossoms) or autumn (fall foliage), start by 9 AM",
+        "ja": "春（桜）か秋（紅葉）、朝9時出発がベスト"
+      },
+      "tips": [
+        "Take Eizan Railway from Demachiyanagi Station to Kurama — the train itself is scenic",
+        "Hike Kurama to Kibune (downhill finish) not reverse",
+        "Book a kawadoko riverside lunch in Kibune in advance during summer"
+      ],
+      "verified": true,
+      "trending_score": 0.8,
+      "latitude": 35.117,
+      "longitude": 135.77
+    },
+    {
+      "name": {
+        "en": "Cafe de Corazon",
+        "ja": "カフェ デ コラソン"
+      },
+      "description": {
+        "en": "A 'Cafe WEST Hyakumeiten 2025' award-winning kissaten near Imadegawa. The master trained at Tokyo's legendary Bach coffee house. Serves meticulously hand-dripped single origins in a neo-retro interior that bridges old-school kissaten tradition with modern aesthetics.",
+        "ja": "カフェWEST百名店2025選出。東京の名店「バッハ」出身のマスターが淹れるコーヒー。ネオ純喫茶の空間。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Imadegawa",
+      "address": {
+        "en": "Imadegawa, Kamigyo-ku, Kyoto",
+        "ja": "京都市上京区今出川"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Kissaten",
+        "Specialty Coffee"
+      ],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_times": {
+        "en": "Weekday mornings 9-11 AM",
+        "ja": "平日午前 9:00-11:00"
+      },
+      "tips": [
+        "Order the hand-dripped single origin — it's what the master is famous for",
+        "Small space with limited seating, go early on weekdays",
+        "Near Doshisha University, popular with professors and students"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 35.03,
+      "longitude": 135.759
+    },
+    {
+      "name": {
+        "en": "Sarasa Nishijin",
+        "ja": "さらさ西陣"
+      },
+      "description": {
+        "en": "A cafe inside a converted 1930s public bathhouse (sento) in Nishijin. The original majolica tile walls, high ceilings, and changing room layout are preserved. Serves curry, sandwiches, and coffee in one of Kyoto's most unique interiors. A true hidden gem that tourists rarely find.",
+        "ja": "1930年代の銭湯を改装した西陣のカフェ。マジョリカタイルの壁や高い天井がそのまま残る。カレーやサンドイッチが人気。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nishijin",
+      "address": {
+        "en": "Kamigyo-ku, Kyoto (near Kuramaguchi Station)",
+        "ja": "京都市上京区（鞍馬口駅近く）"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Renovated Bathhouse",
+        "Retro Cafe"
+      ],
+      "localley_score": 6,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Afternoon 2-5 PM",
+        "ja": "午後 14:00-17:00"
+      },
+      "tips": [
+        "The majolica tiles on the walls are original from the 1930s sento",
+        "Try the curry lunch set — hearty and affordable",
+        "The Nishijin textile district around it is worth exploring on foot"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 35.038,
+      "longitude": 135.753
+    },
+    {
+      "name": {
+        "en": "Nishiki Market Local Stalls",
+        "ja": "錦市場 地元の名店"
+      },
+      "description": {
+        "en": "Beyond the tourist-facing stalls, Nishiki Market still hides authentic vendors: Marutsune Kamaboko for fresh gluten-free fish cake tempura, Karikari Hakase for 300-yen jumbo takoyaki, and Hana yori Kiyoe for 280-yen yuba cream croquettes. The key is knowing which stalls locals actually use.",
+        "ja": "観光客向けの店の中に残る地元の名店。丸常蒲鉾店の揚げたて天ぷら、カリカリ博士の300円ジャンボたこ焼き、花よりキヨエの280円湯葉クリームコロッケ。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nakagyo",
+      "address": {
+        "en": "Nishiki Market, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区錦小路通"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Hidden Gem",
+        "Street Food",
+        "Local Market"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_times": {
+        "en": "Weekday mornings 10 AM-12 PM before tourist rush",
+        "ja": "平日午前10時〜12時、観光客が少ない時間"
+      },
+      "tips": [
+        "Eating while walking is prohibited — eat at shop counters or designated areas",
+        "Marutsune's fish cake tempura is gluten-free and made fresh",
+        "Go early on weekdays; weekend afternoons are shoulder-to-shoulder"
+      ],
+      "verified": true,
+      "trending_score": 0.65,
+      "latitude": 35.005,
+      "longitude": 135.764
+    },
+    {
+      "name": {
+        "en": "Pontocho Budget Dining",
+        "ja": "先斗町 お手頃グルメ"
+      },
+      "description": {
+        "en": "The atmospheric lantern-lit alley of Pontocho is known for expensive kaiseki, but affordable gems exist. Izumoya offers a Gion set (2,310 yen) with dashimaki, sashimi, and tempura. Look for machiya townhouses serving obanzai (Kyoto home cooking) with local sake at reasonable prices.",
+        "ja": "先斗町は高級のイメージだがお手頃な店もある。いづもやの祇園セット（2310円）はだし巻き、お造り、天ぷら付き。町家のおばんざいと地酒の店も。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Pontocho",
+      "address": {
+        "en": "Pontocho-dori, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区先斗町通"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Hidden Gem",
+        "Obanzai",
+        "Budget Dining",
+        "Machiya"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_times": {
+        "en": "Early dinner 5:30-7 PM before peak hours",
+        "ja": "早めの夕食 17:30-19:00"
+      },
+      "tips": [
+        "Izumoya's Gion set at 2,310 yen is exceptional value for Pontocho",
+        "River-facing terraces (kawayuka) operate May-September",
+        "Arrive before 6 PM to avoid queues at the popular spots"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 35.006,
+      "longitude": 135.771
+    },
+    {
+      "name": {
+        "en": "Arashiyama Bamboo Grove at Dawn",
+        "ja": "嵐山竹林の小径（早朝）"
+      },
+      "description": {
+        "en": "The famous bamboo grove is overwhelmed with tourists by 9 AM, but arriving at 6 AM transforms it into a mystical, near-empty cathedral of green. The early morning light filtering through bamboo stalks creates the ethereal atmosphere that made this place famous — impossible to experience after 8 AM.",
+        "ja": "嵐山の竹林は朝9時には大混雑。朝6時に訪れると、幻想的な竹の回廊をほぼ独占できる。8時以降では味わえない神秘的な光と静寂。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Arashiyama",
+      "address": {
+        "en": "Sagatenryuji, Ukyo-ku, Kyoto",
+        "ja": "京都市右京区嵯峨天龍寺"
+      },
+      "category": "Nature",
+      "subcategories": [
+        "Hidden Gem",
+        "Early Morning",
+        "Photography"
+      ],
+      "localley_score": 5,
+      "local_percentage": 50,
+      "best_times": {
+        "en": "6:00-7:00 AM (essential — no exceptions)",
+        "ja": "朝6:00-7:00（必須、例外なし）"
+      },
+      "tips": [
+        "Take the first JR Sagano Line train from Kyoto Station",
+        "By 8 AM tour buses arrive and the magic is gone",
+        "Combine with early morning Tenryuji Temple garden (opens 8:30 AM)"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 35.017,
+      "longitude": 135.672
+    },
+    {
+      "name": {
+        "en": "Cafe Marble Bukkoji",
+        "ja": "cafe marble 仏光寺店"
+      },
+      "description": {
+        "en": "A machiya townhouse cafe beside Bukkoji Temple, housed in a 120-year-old building with original doma (earthen floor), tsuboniwa (courtyard garden), and tokonoma (alcove). Famous for quiche, tarts, and seasonal lunch plates. Self-renovated by the owners, preserving every historic detail.",
+        "ja": "仏光寺そばの築120年の古民家カフェ。土間、坪庭、床の間が残るオーナーセルフリノベーション。キッシュとタルトが人気。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Shimogyo",
+      "address": {
+        "en": "Near Bukkoji Temple, Shimogyo-ku, Kyoto",
+        "ja": "京都市下京区仏光寺近く"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Machiya Cafe",
+        "Historic Building"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_times": {
+        "en": "Weekday lunch 11:30 AM-1:30 PM",
+        "ja": "平日ランチ 11:30-13:30"
+      },
+      "tips": [
+        "The seasonal lunch plate changes monthly and sells out by 1 PM",
+        "Sit near the tsuboniwa courtyard garden for the best atmosphere",
+        "The building's doma earthen floor and wooden beams are 120 years old"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 34.999,
+      "longitude": 135.76
+    },
+    {
+      "name": {
+        "en": "Shozan Resort Garden",
+        "ja": "しょうざんリゾート京都"
+      },
+      "description": {
+        "en": "A hidden garden resort just 15 minutes walk from Kinkaku-ji that most tourists never discover. The expansive Japanese garden, originally a private estate, is serene and nearly deserted even during peak season. Now also a wedding venue and hotel, but the gardens remain open to visitors.",
+        "ja": "金閣寺から徒歩15分の隠れた庭園リゾート。観光客にはほぼ知られず、ハイシーズンでも静寂な日本庭園を楽しめる。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Kita-ku",
+      "address": {
+        "en": "Kinkaku-ji area, Kita-ku, Kyoto",
+        "ja": "京都市北区（金閣寺エリア）"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Hidden Gem",
+        "Japanese Garden",
+        "Secret Spot"
+      ],
+      "localley_score": 6,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Afternoon 1-4 PM",
+        "ja": "午後 13:00-16:00"
+      },
+      "tips": [
+        "Walk here after visiting Kinkaku-ji — it's the perfect quiet antidote",
+        "The gardens are expansive enough for a leisurely 1-hour stroll",
+        "Check if the cafe or restaurant inside is open for tea"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 35.044,
+      "longitude": 135.729
+    },
+    {
+      "name": {
+        "en": "Kissa Madrag",
+        "ja": "喫茶マドラグ"
+      },
+      "description": {
+        "en": "A beloved neo-kissaten near Nijojo that inherited the DNA of legendary Kyoto coffeehouses. The thick tamago-sando (egg sandwich) is an Instagram phenomenon but genuinely delicious — layers of fluffy dashimaki tamago between soft bread. Retro interior with copper coffee siphons.",
+        "ja": "京都の名喫茶のDNAを受け継ぐ二条城前の純喫茶。分厚いたまごサンドがSNSで話題だが本物の味。銅製サイフォンのレトロ空間。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Nakagyo",
+      "address": {
+        "en": "Near Nijojo-mae Station, Nakagyo-ku, Kyoto",
+        "ja": "京都市中京区（二条城前駅近く）"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Kissaten",
+        "Egg Sandwich"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_times": {
+        "en": "Weekday mornings for shortest wait",
+        "ja": "平日午前が待ち時間最短"
+      },
+      "tips": [
+        "The tamago-sando sells out daily — go before noon",
+        "This is a proper kissaten: no laptops, no rush, savor the coffee",
+        "Weekday mornings have the shortest queues; weekends can be 30+ minute wait"
+      ],
+      "verified": true,
+      "trending_score": 0.8,
+      "latitude": 35.012,
+      "longitude": 135.752
+    },
+    {
+      "name": {
+        "en": "Takaragaike Park",
+        "ja": "宝ヶ池公園"
+      },
+      "description": {
+        "en": "An off-the-beaten-track park in northern Kyoto popular with locals for walks, picnics, and rowing on the pond. Surrounded by forested hills with views of Mt. Hiei. Almost no tourists despite being easily accessible by Eizan Railway. The autumn foliage reflected in the pond rivals any temple garden.",
+        "ja": "北山エリアの地元の憩いの場。池でのボート、散歩、ピクニックが楽しめる。比叡山を望む森に囲まれ、秋の紅葉は寺院の庭園に匹敵。"
+      },
+      "city": "Kyoto",
+      "neighborhood": "Sakyo-ku",
+      "address": {
+        "en": "Matsugasaki, Sakyo-ku, Kyoto",
+        "ja": "京都市左京区松ヶ崎"
+      },
+      "category": "Nature",
+      "subcategories": [
+        "Hidden Gem",
+        "Park",
+        "Local Favorite",
+        "Autumn Foliage"
+      ],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_times": {
+        "en": "Morning or late afternoon, especially in autumn",
+        "ja": "朝か夕方、特に秋がベスト"
+      },
+      "tips": [
+        "Take the Eizan Railway to Takaragaike Station",
+        "Bring a picnic — there are beautiful spots by the pond",
+        "Combine with a visit to the nearby Kyoto International Conference Hall for its Brutalist architecture"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 35.058,
+      "longitude": 135.783
+    }
+  ]
+}

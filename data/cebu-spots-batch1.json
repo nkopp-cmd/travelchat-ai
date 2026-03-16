@@ -1,0 +1,126 @@
+{
+  "city": "cebu",
+  "batch": 1,
+  "spots": [
+    {
+      "name": { "en": "CnT Lechon", "ceb": "CnT Lechon" },
+      "description": { "en": "The undisputed local favorite since the late 1980s. CnT's lechon is stuffed with garlic and tanglad (lemongrass) and roasted until the skin shatters like glass. Cebuanos eat it without sauce — no dipping needed. Anthony Bourdain made Cebu lechon famous, but CnT is the one locals actually line up for.", "ceb": "Ang pinakaganahan sa mga Sugbuanon sukad pa sa 1980s. Walay sawsawan kay lami na siya." },
+      "address": { "en": "1377 V. Rama Avenue, Guadalupe, Cebu City" },
+      "category": "Food",
+      "subcategories": ["Lechon", "Local Institution", "Filipino"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch, arrive before noon for fresh batches",
+      "tips": ["Go to the V. Rama main branch for the OG experience", "Order by the kilo — around PHP 1,000/kg at the shop", "Skin is best eaten within 30 minutes of chopping", "No sauce needed — Cebu-style lechon is already seasoned inside"],
+      "neighborhood": "Guadalupe"
+    },
+    {
+      "name": { "en": "Moalboal Sardine Run", "ceb": "Sardinas sa Moalboal" },
+      "description": { "en": "Millions of sardines swirl in a massive baitball just 20 meters off Panagsama Beach — one of the only places on Earth where this happens year-round. No boat needed; you can snorkel right from shore. Early morning visits mean fewer crowds, colder water (sardines prefer it), and the fish staying closer to shore. Sea turtles often cruise through the sardine tornado.", "ceb": "Minilyon ka sardinas duol ra sa baybayon sa Panagsama. Dili kinahanglan og baroto." },
+      "address": { "en": "Panagsama Beach, Moalboal, Cebu" },
+      "category": "Activity",
+      "subcategories": ["Snorkeling", "Marine Life", "Nature"],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "Early morning, 6-8 AM for best conditions",
+      "tips": ["As of 2025, guides are required — around PHP 300-500 including mask and snorkel", "Look for the yellow pier at Marina Village Dive Resort as a starting point", "Bring a waterproof camera with wide-angle lens", "December to February offers the clearest water", "Also look for sea turtles grazing on the reef wall"],
+      "neighborhood": "Moalboal"
+    },
+    {
+      "name": { "en": "Inambakan Falls", "ceb": "Busay sa Inambakan" },
+      "description": { "en": "Hidden behind the main waterfall is an entire canyon system with four more falls, caves, cliff jumps, and milky blue pools. Far less crowded than Kawasan Falls and considered more epic by locals who've done both. The narrow limestone gorge approach adds to the adventure.", "ceb": "Adunay lima ka busay, mga langub, ug asul nga mga linaw. Mas nindot kaysa Kawasan." },
+      "address": { "en": "Ginatilan, Southern Cebu" },
+      "category": "Nature",
+      "subcategories": ["Waterfall", "Canyon", "Adventure"],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning, dry season (December-May)",
+      "tips": ["Bring water shoes — the rocks are slippery", "There are 4 falls beyond the main one, each with cliff jumps", "Hire a local guide for the full canyon experience", "Much less crowded than Kawasan Falls"],
+      "neighborhood": "Ginatilan"
+    },
+    {
+      "name": { "en": "Carbon Market", "ceb": "Merkado sa Carbon" },
+      "description": { "en": "Cebu's oldest and largest public market feeds the entire city. While tourists visit Basilica del Santo Nino, this sprawling market a few blocks away is where Cebuanos actually spend their mornings. Mountains of produce, dried fish sections, and chaotic energy. The breakfast carinderias inside serve authentic Cebuano dishes at rock-bottom prices — try puso (hanging rice) with grilled anything.", "ceb": "Ang kinadak-an ug kinakaraanang merkado sa Sugbo. Diin ang tinuod nga Sugbuanon mokaon." },
+      "address": { "en": "M.C. Briones Street, Cebu City" },
+      "category": "Market",
+      "subcategories": ["Wet Market", "Street Food", "Local Life"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Early morning, 5-8 AM",
+      "tips": ["Try puso (hanging rice wrapped in coconut leaves) with grilled fish or lechon", "The dried fish section is an experience — embrace the smell", "Watch your belongings in crowded sections", "Breakfast at the market carinderias is the most authentic Cebu meal you can have"],
+      "neighborhood": "Downtown Cebu"
+    },
+    {
+      "name": { "en": "Social Park Avenue", "ceb": "Social Park Avenue" },
+      "description": { "en": "The largest nightlife venue on Mango Avenue, opened in 2025 by the Park Social chain. Accommodates up to 1,000 people across the Mango Square Upper and Lower Plaza. This is the new anchor of Cebu's nightlife scene after the post-COVID lull, bringing back energy to the legendary Mango Strip with a mix of local and foreign investors behind it.", "ceb": "Ang kinadak-an nga nightlife venue sa Mango Avenue, gibuksan 2025." },
+      "address": { "en": "Mango Square, General Maxilom Avenue (Mango Avenue), Cebu City" },
+      "category": "Nightlife",
+      "subcategories": ["Bar", "Club", "New Opening"],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Friday-Saturday nights, 10 PM onwards",
+      "tips": ["Opened 2025 — the newest and biggest venue on Mango Ave", "Part of the Park Social chain of resto-bars", "Mango Square area gets packed after 7 PM on weekends", "Easy to bar-hop on foot — Uptown Club and Draft Punk are across the plaza"],
+      "neighborhood": "Mango Avenue"
+    },
+    {
+      "name": { "en": "Dean & Deluca IT Park", "ceb": "Dean & Deluca IT Park" },
+      "description": { "en": "The legendary New York gourmet cafe arrived in Cebu IT Park and instantly became the district's trendiest spot. Soaring ceilings, marble countertops, and meticulously sourced coffee beans. The pastries are edible art. IT Park runs 24/7 to serve global time zones, creating a unique cafe culture where third-wave specialty coffee shops sit next to international franchises.", "ceb": "Ang bag-ong gourmet cafe gikan New York sa IT Park." },
+      "address": { "en": "38th Park Ave, IT Park, Cebu City" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Gourmet", "Work-Friendly"],
+      "localley_score": 2,
+      "local_percentage": 40,
+      "best_time": "Morning or late afternoon",
+      "tips": ["IT Park has a unique 24/7 cafe culture due to BPO industry", "Try the pastries — they're the real star", "Also check out nearby Sparrow Cafe Culture and Simply Cafe for more local options", "Reliable WiFi throughout IT Park"],
+      "neighborhood": "IT Park"
+    },
+    {
+      "name": { "en": "Tuslob Buwa Street Stalls", "ceb": "Tuslob Buwa" },
+      "description": { "en": "Cebu's most polarizing street food: pig brain stew simmered with onions, garlic, and soy sauce in a big wok. You dip hanging rice (puso) directly into the bubbling communal pot. Found in back-street stalls across Cebu City, this is pure Cebuano soul food that most tourists never encounter. The name means 'dip in bubbles' in Cebuano.", "ceb": "Tuslob buwa — itulod ang puso sa nagbukal nga utok sa baboy. Tinuod nga pagkaon sa Sugbuanon." },
+      "address": { "en": "Pasil area and various back streets, Cebu City" },
+      "category": "Food",
+      "subcategories": ["Street Food", "Exotic", "Local Delicacy"],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Late afternoon to evening",
+      "tips": ["Tuslob buwa means 'dip in bubbles' in Cebuano", "You dip puso (hanging rice) into a communal pot of simmered pig brain", "The Pasil area has the most authentic stalls", "Very cheap — around PHP 20-30 per serving", "Adventurous eaters only — but worth trying once"],
+      "neighborhood": "Pasil"
+    },
+    {
+      "name": { "en": "Paradise Beach (Sandira Beach)", "ceb": "Sandira Beach" },
+      "description": { "en": "A long stretch of white sand on Bantayan Island, hidden from the access road so it stays blissfully uncrowded even when Kota Beach is packed. The calm, shallow water is perfect for snorkeling. Bantayan itself is a 4-6 hour journey from Cebu City, which keeps the mass tourists away. Only PHP 50 entrance fee.", "ceb": "Tagoang baybayon sa Bantayan Island nga puti ang balas ug linaw ang tubig." },
+      "address": { "en": "Santa Fe, Bantayan Island, Cebu" },
+      "category": "Nature",
+      "subcategories": ["Beach", "Island", "Hidden Gem"],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Dry season, February to May",
+      "tips": ["Only PHP 50 entrance fee", "Hidden from the road — ask locals for directions", "Rent a scooter on Bantayan for PHP 350-500/day to explore", "Withdraw cash in Cebu City — island ATMs sometimes run dry", "Combine with Virgin Island (15-min boat ride) for cliff diving"],
+      "neighborhood": "Bantayan Island"
+    },
+    {
+      "name": { "en": "Colase Marine Sanctuary", "ceb": "Colase Marine Sanctuary" },
+      "description": { "en": "A secret freediving and snorkeling spot right next to the road — you would never know it was there unless you got in the water. Schools of jacks, black and white tip sharks, huge sea turtles, and massive corals growing just 3 meters below the surface. No crowds, no tour boats, just you and the ocean.", "ceb": "Sekreto nga lugar sa pagsnorkel. Daghan kaayong isda ug pawikan diri." },
+      "address": { "en": "Colase, Aloguinsan, Cebu" },
+      "category": "Activity",
+      "subcategories": ["Freediving", "Snorkeling", "Marine Sanctuary"],
+      "localley_score": 6,
+      "local_percentage": 85,
+      "best_time": "Morning for calm water and visibility",
+      "tips": ["Right next to the road but invisible from above — ask locals", "Sharks, turtles, and jacks just 3 meters below the surface", "Bring your own snorkel gear", "Use reef-safe sunscreen", "One of Cebu's best-kept underwater secrets"],
+      "neighborhood": "Aloguinsan"
+    },
+    {
+      "name": { "en": "Carcar City Lechon & Chicharon Market", "ceb": "Merkado sa Carcar" },
+      "description": { "en": "The lechon capital within the lechon capital. Carcar City, 1.5 hours south of Cebu City, is where Cebu's famous Carcar-style lechon originates — roasted whole pig with a distinctly crunchier skin and different spice profile. The public market's lechon section sells out by mid-morning. The town also has a charming Baroque church and colonial-era architecture that most tourists skip entirely.", "ceb": "Ang tinubdan sa Carcar-style lechon. Moanha ug sayo kay mahurot dayon." },
+      "address": { "en": "Carcar City Public Market, Carcar City, Southern Cebu" },
+      "category": "Food",
+      "subcategories": ["Lechon", "Market", "Day Trip"],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Early morning — lechon sells out by midday",
+      "tips": ["Carcar-style lechon has a different spice profile and crunchier skin than Cebu City versions", "Chicharon (pork rinds) here is also legendary — buy bags to take home", "Go early — the best lechon sells out before noon", "Also visit the Baroque-era church and charming town center", "About 1.5 hours south of Cebu City by bus"],
+      "neighborhood": "Carcar"
+    }
+  ]
+}

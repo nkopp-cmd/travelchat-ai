@@ -1,0 +1,165 @@
+{
+  "city": "hong-kong",
+  "batch": "gems-2026",
+  "spots": [
+    {
+      "name": { "en": "Lau Sum Kee Noodles", "zh-HK": "劉森記麵家" },
+      "description": {
+        "en": "A 60+ year-old Michelin Bib Gourmand noodle institution in Sham Shui Po where third-generation owner Lau Fat-cheong hand-kneads dough with a heavy bamboo pole to create noodles with unmistakable springy, firm texture. Three generations of family expertise in one bowl.",
+        "zh-HK": "深水埗超過60年歷史的米芝蓮必比登麵家，第三代傳人劉法祥用竹竿壓麵，做出彈牙爽口的竹昇麵。三代家族手藝盡在一碗。"
+      },
+      "address": { "en": "48 Fuk Wing Street, Sham Shui Po, Kowloon, Hong Kong" },
+      "category": "Food",
+      "subcategories": ["Noodles", "Heritage", "Michelin"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch",
+      "tips": [
+        "Order the shrimp wonton noodles — the signature dish that earned the Bib Gourmand",
+        "Arrive before noon to avoid the lunch queue; the shop is tiny with limited seating",
+        "Combine with a Sham Shui Po food crawl — Hop Yik Tai cheong fun is a 5-minute walk away"
+      ],
+      "neighborhood": "Sham Shui Po"
+    },
+    {
+      "name": { "en": "Oi Man Sang Dai Pai Dong", "zh-HK": "愛文生大排檔" },
+      "description": {
+        "en": "One of Hong Kong's oldest surviving dai pai dongs, operating in Sham Shui Po since 1956. This semi-outdoor street stall serves wok-hei-kissed Cantonese dishes with the kind of fierce heat only a seasoned dai pai dong wok can produce. Typhoon shelter crab and deep-fried squid are legendary.",
+        "zh-HK": "深水埗自1956年營業至今的老牌大排檔，半露天街頭食肆。鑊氣十足的廣東菜，避風塘炒蟹和炸魷魚堪稱一絕。"
+      },
+      "address": { "en": "Kweilin Street, Sham Shui Po, Kowloon, Hong Kong" },
+      "category": "Food",
+      "subcategories": ["Dai Pai Dong", "Cantonese", "Heritage"],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Dinner",
+      "tips": [
+        "Must-orders: typhoon shelter crab (HKD market price), deep fried squid (HKD138), stir-fried razor clams (HKD188)",
+        "Expect long queues after 7 PM — arrive at 6 PM for a table",
+        "The open-air setting means it's best on a cool evening; bring mosquito repellent in summer",
+        "Cash strongly preferred; Octopus card may be accepted"
+      ],
+      "neighborhood": "Sham Shui Po"
+    },
+    {
+      "name": { "en": "Tai Kwun Centre for Heritage and Arts", "zh-HK": "大館" },
+      "description": {
+        "en": "A beautifully restored complex of the former Central Police Station, Victoria Prison, and Central Magistracy — now Hong Kong's premier heritage-arts venue. Free lunchtime concerts, rotating contemporary art exhibitions, and excellent F&B outlets fill the grand Victorian courtyards.",
+        "zh-HK": "由前中區警署、域多利監獄及中央裁判司署活化而成的文化藝術中心。免費午間音樂會、當代藝術展覽和優質餐飲遍布維多利亞式庭院。"
+      },
+      "address": { "en": "10 Hollywood Road, Central, Hong Kong Island, Hong Kong" },
+      "category": "Culture",
+      "subcategories": ["Art", "Heritage", "Architecture"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon",
+      "tips": [
+        "Free admission to heritage buildings and most exhibitions — check their website for special shows",
+        "The free lunchtime concerts in the courtyard are a hidden highlight most visitors miss",
+        "Combine with PMQ (10-minute walk) for a full art-and-design afternoon in Central",
+        "Rooftop bar has stunning views of the surrounding skyscrapers"
+      ],
+      "neighborhood": "Central"
+    },
+    {
+      "name": { "en": "Sing Heung Yuen", "zh-HK": "勝香園" },
+      "description": {
+        "en": "An immensely popular streetside dai pai dong in Central, founded in 1959. The tomato noodles — a deceptively simple dish of instant noodles in sweet-tangy tomato broth — have cult status. The crispy buns with lemon, butter, and honey are the perfect sweet finish.",
+        "zh-HK": "1959年創立的中環老牌街邊大排檔。茄汁公仔麵 — 簡單但令人上癮的番茄湯底即食麵 — 擁有狂熱追隨者。檸蜜脆脆多士是甜蜜收尾。"
+      },
+      "address": { "en": "2 Mei Lun Street, Central, Hong Kong Island, Hong Kong" },
+      "category": "Food",
+      "subcategories": ["Dai Pai Dong", "Breakfast", "Heritage"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Breakfast / Brunch",
+      "tips": [
+        "Tomato noodles (HK$30-40) are the must-order — don't overthink it, just get them",
+        "Open mornings only; usually closes by 5 PM, and closed on Sundays",
+        "Seating is communal metal stools on the sidewalk — this is old Hong Kong street dining at its purest",
+        "Near the Mid-Levels Escalator — combine with a PMQ and SoHo walk"
+      ],
+      "neighborhood": "Central"
+    },
+    {
+      "name": { "en": "PMQ", "zh-HK": "元創方" },
+      "description": {
+        "en": "A creative hub in a former police married quarters (built 1862 as Central School), now home to independent design boutiques, artisan workshops, and rotating art installations. Regular weekend markets and design pop-ups showcase Hong Kong's emerging creative talent.",
+        "zh-HK": "由前已婚警察宿舍活化的創意中心（原址為1862年中央書院），現為獨立設計店、工藝工作坊和藝術裝置的據點。週末定期市集展示香港新晉創意人才。"
+      },
+      "address": { "en": "35 Aberdeen Street, Central, Hong Kong Island, Hong Kong" },
+      "category": "Culture",
+      "subcategories": ["Design", "Shopping", "Art"],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Afternoon",
+      "tips": [
+        "Weekend markets and pop-up events are the best time to visit — check their Instagram for schedules",
+        "The independent boutiques sell unique Hong Kong-designed products you won't find elsewhere",
+        "Free admission; some workshops and events may have a fee",
+        "Walk from here to Tai Kwun (10 min) via Hollywood Road for a combined art outing"
+      ],
+      "neighborhood": "Central"
+    },
+    {
+      "name": { "en": "Hop Yik Tai Cheong Fun", "zh-HK": "合益泰小食" },
+      "description": {
+        "en": "A Michelin-recognized street stall in Sham Shui Po serving silky-smooth cheong fun (rice noodle rolls) made fresh daily. At just HK$10 for 4 pieces, dressed with soy sauce, sesame, sweet sauce, and chili, this is arguably the best-value Michelin bite in Hong Kong.",
+        "zh-HK": "深水埗米芝蓮推介的街頭小食，每日新鮮製作絲滑腸粉。四件只需港幣10元，配以醬油、芝麻、甜醬和辣醬，可能是全港最抵食的米芝蓮美食。"
+      },
+      "address": { "en": "121 Kweilin Street, Sham Shui Po, Kowloon, Hong Kong" },
+      "category": "Food",
+      "subcategories": ["Street Food", "Michelin", "Budget"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning",
+      "tips": [
+        "Best eaten fresh and hot — don't wait; eat immediately when served",
+        "Arrive before 9 AM on weekdays to avoid the queue",
+        "Perfect first stop on a Sham Shui Po food crawl — it's light enough to leave room for more",
+        "Exit C1 at Sham Shui Po MTR station, 3-minute walk"
+      ],
+      "neighborhood": "Sham Shui Po"
+    },
+    {
+      "name": { "en": "Dragon's Back Trail", "zh-HK": "龍脊" },
+      "description": {
+        "en": "Asia's best urban hike (per Time Magazine), offering sweeping views of the South China Sea, Shek O, and Stanley from a ridge trail on Hong Kong Island's south side. Moderate difficulty, well-marked paths, and just 8.5 km — proving Hong Kong is far more than skyscrapers.",
+        "zh-HK": "《時代》雜誌評選亞洲最佳城市遠足徑，從港島南面山脊俯瞰南中國海、石澳和赤柱。難度中等，路徑清晰，全長8.5公里。"
+      },
+      "address": { "en": "Shek O Road, Shek O, Hong Kong Island, Hong Kong" },
+      "category": "Outdoor",
+      "subcategories": ["Hiking", "Scenic", "Nature"],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning",
+      "tips": [
+        "Start early (7-8 AM) to beat the heat and get the best light for photos",
+        "Take Bus 9 from Shau Kei Wan MTR to the trailhead at To Tei Wan",
+        "End at Big Wave Bay for a swim and cold beer at the beach cafe",
+        "Bring 1.5L+ of water — there are no facilities on the trail itself"
+      ],
+      "neighborhood": "Shek O"
+    },
+    {
+      "name": { "en": "Ping Shan Heritage Trail", "zh-HK": "屏山文物徑" },
+      "description": {
+        "en": "A peaceful heritage trail through Yuen Long's 600-year-old walled villages, ancestral halls, and pagodas — a window into Hong Kong's pre-colonial Hakka and Punti clan history that most visitors never see. Combine with local pineapple bun cafes and Yuen Long's legendary street food.",
+        "zh-HK": "元朗屏山600年歷史的圍村、祠堂和寶塔組成的寧靜文物徑，讓你看到殖民前客家和本地宗族的歷史。配合元朗的菠蘿包和街頭美食。"
+      },
+      "address": { "en": "Ping Shan, Yuen Long, New Territories, Hong Kong" },
+      "category": "Culture",
+      "subcategories": ["Heritage", "History", "Walking"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning",
+      "tips": [
+        "Free admission to all heritage sites along the trail",
+        "After the trail, walk to Yuen Long town center for famous pineapple buns and milk tea",
+        "Combine with nearby Hong Kong Wetland Park for a full New Territories day trip",
+        "Take the West Rail Line to Tin Shui Wai station — the trail starts nearby"
+      ],
+      "neighborhood": "Yuen Long"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "city": "yogyakarta",
+  "batch": 1,
+  "spots": [
+    {
+      "name": { "en": "Angkringan Lik Man", "id": "Angkringan Lik Man" },
+      "description": { "en": "Operating since 1967, this is Yogyakarta's most legendary angkringan (street food cart). Famous as the birthplace of Kopi Joss — coffee with a burning charcoal dropped into it for a smoky, caramelized flavor. The scene is quintessential Jogja: plastic stools, dim kerosene lamps, nasi kucing (tiny rice packets), and students debating philosophy until dawn.", "id": "Beroperasi sejak 1967, angkringan paling legendaris di Yogyakarta. Terkenal sebagai tempat lahirnya Kopi Joss — kopi dengan arang membara yang dimasukkan ke dalamnya." },
+      "address": { "en": "Jalan Wongsodirjan, near Tugu Station, Yogyakarta", "id": "Jalan Wongsodirjan, dekat Stasiun Tugu, Yogyakarta" },
+      "category": "Food",
+      "subcategories": ["Kopi Joss", "Angkringan", "Street Food", "Legendary"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening to late night, 7 PM - 2 AM",
+      "tips": ["Order Kopi Joss — they literally drop burning charcoal into your coffee", "Try nasi kucing (cat rice) — tiny rice packets with various toppings for IDR 3,000-5,000 each", "Operating since 1967 — one of the oldest angkringan in Jogja", "Total bill rarely exceeds IDR 25,000 per person", "Best experienced late at night with the local crowd"],
+      "neighborhood": "Sosrowijayan"
+    },
+    {
+      "name": { "en": "Sumur Gumuling (Underground Mosque)", "id": "Masjid Bawah Tanah Sumur Gumuling" },
+      "description": { "en": "A circular subterranean mosque hidden within the Taman Sari Water Castle complex, once accessible only through an underwater passageway. Five staircases form a pyramid in the center, representing the five pillars of Islam. A circular opening in the ceiling lets light pour into the partially open-air atrium. Most tourists visit Taman Sari's pools but miss this architectural marvel just to the north.", "id": "Masjid bawah tanah berbentuk lingkaran yang tersembunyi di kompleks Taman Sari. Lima tangga melambangkan lima rukun Islam." },
+      "address": { "en": "Taman Sari, Kraton, Yogyakarta", "id": "Taman Sari, Kraton, Yogyakarta" },
+      "category": "Culture",
+      "subcategories": ["Mosque", "Historic", "Architecture"],
+      "localley_score": 4,
+      "local_percentage": 45,
+      "best_time": "Morning for best light through the circular opening",
+      "tips": ["Located north of the main Taman Sari pools — most tourists miss it", "The five staircases represent the five pillars of Islam", "Originally only reachable through an underwater tunnel", "Entrance fee around IDR 15,000", "Hire a local guide at the gate for historical context — they work on tips"],
+      "neighborhood": "Kraton"
+    },
+    {
+      "name": { "en": "Warung Kopi Klotok", "id": "Warung Kopi Klotok" },
+      "description": { "en": "A rustic Javanese warung in the rice paddies north of Yogyakarta, ranked among the city's best restaurants by TasteAtlas. The setting is a traditional wooden joglo surrounded by rice terraces with Mount Merapi in the background. Famous for telur krispi (crispy egg) and tempe garit — comfort food under IDR 10,000 per dish. Arrives early or face a serious queue.", "id": "Warung Jawa di tengah sawah utara Yogyakarta. Masuk daftar restoran terbaik versi TasteAtlas. Terkenal dengan telur krispi dan tempe garit." },
+      "address": { "en": "Jalan Kaliurang Km 18, Pakem, Sleman, Yogyakarta", "id": "Jalan Kaliurang Km 18, Pakem, Sleman, Yogyakarta" },
+      "category": "Food",
+      "subcategories": ["Warung", "Javanese", "Scenic"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Breakfast, arrive before 8 AM to avoid queues",
+      "tips": ["Opens at 7 AM — arrive early as it gets packed by 9 AM", "Must-try: telur krispi (crispy egg) and tempe garit — under IDR 10,000 each", "Stunning views of rice terraces and Mount Merapi", "Ranked among best restaurants in Yogyakarta by TasteAtlas 2025", "Cash only"],
+      "neighborhood": "Kaliurang"
+    },
+    {
+      "name": { "en": "Jomblang Cave (Heaven Light)", "id": "Goa Jomblang" },
+      "description": { "en": "Rappel 40 meters down a vertical cliff into a collapsed cave containing an ancient underground forest. Walk 300 meters through the subterranean jungle to reach Grubug Cave, where between 11:30 AM and 12:30 PM a single beam of sunlight — the famous 'Heaven Light' — illuminates the cave's cathedral-like interior. One of the most dramatic natural spectacles in Southeast Asia.", "id": "Turun 40 meter ke dalam goa vertikal yang berisi hutan purba bawah tanah. Antara pukul 11:30-12:30, cahaya surga menerangi interior goa." },
+      "address": { "en": "Jetis Wetan, Pacarejo, Semanu, Gunungkidul, Yogyakarta", "id": "Jetis Wetan, Pacarejo, Semanu, Gunungkidul, Yogyakarta" },
+      "category": "Nature",
+      "subcategories": ["Cave", "Adventure", "Photography"],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Book the 10:30-11:00 AM slot for the Heaven Light at noon",
+      "tips": ["The Heaven Light appears between 11:30 AM and 12:30 PM — timing is everything", "Involves a 40-meter rappel down a vertical cliff — not for the faint-hearted", "Book in advance as daily visitor numbers are limited", "Wear long pants and closed shoes — the cave is muddy", "About 1.5 hours drive from Yogyakarta city center"],
+      "neighborhood": "Gunungkidul"
+    },
+    {
+      "name": { "en": "Sate Klathak Pak Pong", "id": "Sate Klathak Pak Pong" },
+      "description": { "en": "A legendary Jogja street food stall serving sate klathak — lamb satay skewered on bicycle spoke wires instead of bamboo sticks. The metal conducts heat so the meat cooks from the inside out, creating a uniquely tender and smoky result. Served with a simple sauce of salt, sliced shallots, and rice. This is the dish Jogja locals argue about most passionately.", "id": "Sate kambing legendaris yang menggunakan jeruji sepeda sebagai tusukan. Logam menghantarkan panas sehingga daging matang dari dalam." },
+      "address": { "en": "Jalan Imogiri Timur, Bantul, Yogyakarta", "id": "Jalan Imogiri Timur, Bantul, Yogyakarta" },
+      "category": "Food",
+      "subcategories": ["Satay", "Street Food", "Legendary"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Evening, from 5 PM until sold out",
+      "tips": ["The skewers are bicycle spokes — this is the defining feature of klathak style", "Served with just salt, shallots, and rice — simplicity is the point", "Opens late afternoon and sells out fast on weekends", "Multiple stalls in the area claim to be the original — Pak Pong is the most famous", "IDR 25,000-35,000 per portion"],
+      "neighborhood": "Bantul"
+    },
+    {
+      "name": { "en": "Kampung Batik Giriloyo", "id": "Kampung Batik Giriloyo" },
+      "description": { "en": "A village of batik artisans near the royal cemetery in Imogiri, where women have been creating Keraton-style batik for generations. Unlike tourist workshops in the city, this is a living production village where every household makes batik. Take a hands-on class using canting (wax pen) and natural dyes, directly from the artisans who supply the Sultan's palace. UNESCO recognized Indonesian batik as Intangible Heritage in 2009.", "id": "Desa pengrajin batik di dekat makam raja Imogiri. Setiap rumah tangga membuat batik dengan motif Keraton." },
+      "address": { "en": "Wukirsari, Imogiri, Bantul, Yogyakarta", "id": "Wukirsari, Imogiri, Bantul, Yogyakarta" },
+      "category": "Culture",
+      "subcategories": ["Batik", "Workshop", "Artisan Village"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning, book workshop in advance",
+      "tips": ["This is the real deal — artisans here supply batik to the Sultan's Keraton", "Full workshop takes 3-5 hours using traditional canting and natural dyes", "You take home your finished batik piece", "Located near the royal cemetery — combine both visits", "Much more authentic than tourist workshops on Malioboro"],
+      "neighborhood": "Imogiri"
+    },
+    {
+      "name": { "en": "Fort Vredeburg Museum", "id": "Museum Benteng Vredeburg" },
+      "description": { "en": "An 18th-century Dutch colonial fortress overlooking Malioboro Street that most tourists walk right past. Since 1992 it has housed a museum on Indonesia's independence struggle, with dioramas and historical exhibits. The rooftop is an open secret — you can go up for a picnic or photos with views over the city. Entry is only IDR 10,000.", "id": "Benteng kolonial Belanda abad ke-18 yang menghadap Jalan Malioboro. Museum perjuangan kemerdekaan Indonesia dengan biaya masuk hanya IDR 10,000." },
+      "address": { "en": "Jalan Margo Mulyo No. 6, Ngupasan, Gondomanan, Yogyakarta", "id": "Jalan Margo Mulyo No. 6, Ngupasan, Gondomanan, Yogyakarta" },
+      "category": "Culture",
+      "subcategories": ["Museum", "Colonial", "History"],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning to avoid heat, Tuesday-Sunday",
+      "tips": ["Only IDR 10,000 entrance — one of the best value museums in Jogja", "Go to the rooftop — it's open for picnics and photos but few visitors know", "Right on Malioboro but most tourists walk past it", "Closed on Mondays", "Combine with Kraton and Taman Sari for a full heritage walk"],
+      "neighborhood": "Malioboro"
+    },
+    {
+      "name": { "en": "Copenhagen Jakal", "id": "Copenhagen Jakal" },
+      "description": { "en": "A Scandinavian-inspired cafe that went viral immediately after opening in late 2025. Three floors — indoor, outdoor, and rooftop — with minimalist Nordic design. Open from 7 AM to 2 AM, it has quickly become Jogja's new favorite nongkrong (hangout) spot, especially for the university crowd from nearby UGM. Part of Jogja's booming third-wave coffee scene along Jalan Kaliurang.", "id": "Kafe bertema Skandinavia yang langsung viral setelah buka akhir 2025. Tiga lantai dengan desain minimalis Nordic." },
+      "address": { "en": "Jalan Kaliurang, Sleman, Yogyakarta", "id": "Jalan Kaliurang, Sleman, Yogyakarta" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Viral", "New Opening"],
+      "localley_score": 3,
+      "local_percentage": 70,
+      "best_time": "Late afternoon to evening for the best vibe",
+      "tips": ["Opened late September 2025 — one of Jogja's newest viral cafes", "Three floors: indoor, outdoor, and rooftop", "Open 7 AM to 2 AM — good for both morning coffee and late hangouts", "Popular with UGM university students", "Along the Jalan Kaliurang cafe corridor — combine with Warung Kopi Klotok up the road"],
+      "neighborhood": "Kaliurang"
+    },
+    {
+      "name": { "en": "Bukit Bintang Night Viewpoint", "id": "Bukit Bintang" },
+      "description": { "en": "A hilltop on the road to Gunungkidul where locals gather at night to watch the city lights of Yogyakarta spread below. Rows of lesehan (floor seating) and angkringan stalls line the road edge, serving cheap snacks and drinks. Free entry, no entrance fee. This is where Jogja students go on dates — the atmosphere is pure local magic.", "id": "Bukit di jalur Gunungkidul tempat warga lokal berkumpul malam hari menikmati lampu kota Yogyakarta. Gratis, tanpa tiket masuk." },
+      "address": { "en": "Jalan Dlingo-Patuk, Gunungkidul, Yogyakarta", "id": "Jalan Dlingo-Patuk, Gunungkidul, Yogyakarta" },
+      "category": "Activity",
+      "subcategories": ["Viewpoint", "Night Scene", "Free"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "After sunset, 7-10 PM",
+      "tips": ["Free entry — no ticket needed", "Lesehan seating along the cliff edge with city light views", "Cheap angkringan food and drinks available on-site", "Popular date spot for local students", "Best on clear nights — avoid during rain season"],
+      "neighborhood": "Gunungkidul"
+    },
+    {
+      "name": { "en": "Oseng Mercon Bu Narti", "id": "Oseng Mercon Bu Narti" },
+      "description": { "en": "Operating since 1998, this warung is famous for oseng mercon — a fiery stir-fry of beef drenched in bird's eye chilies that explodes in your mouth (mercon means firecracker). A Jogja legend for spicy food lovers. Simple roadside warung setting, packed with locals every night. IDR 25,000-35,000 per portion. Not for the faint of palate.", "id": "Beroperasi sejak 1998. Oseng mercon — tumis daging sapi dengan cabai rawit yang meledak di mulut. Legenda kuliner pedas Jogja." },
+      "address": { "en": "Jalan Parangtritis, Mantrijeron, Yogyakarta", "id": "Jalan Parangtritis, Mantrijeron, Yogyakarta" },
+      "category": "Food",
+      "subcategories": ["Warung", "Spicy", "Legendary"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Dinner, 6-10 PM",
+      "tips": ["Mercon means firecracker — this is seriously spicy", "Order extra rice — you will need it", "IDR 25,000-35,000 per portion", "Operating since 1998 — a Jogja institution", "If you can handle the heat, also try oseng mercon kikil (cow tendon)"],
+      "neighborhood": "Mantrijeron"
+    }
+  ]
+}

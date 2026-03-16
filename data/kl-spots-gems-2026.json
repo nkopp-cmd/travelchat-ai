@@ -1,0 +1,103 @@
+{
+  "city": "kuala-lumpur",
+  "batch": "gems-2026",
+  "description": "Hidden gems and trending spots from H2 2025 / 2026",
+  "spots": [
+    {
+      "name": { "en": "Chow Kit Market", "ms": "Pasar Chow Kit" },
+      "description": { "en": "KL's largest and most chaotic wet market — a sensory overload of fresh produce, spices, and street food that most tourists never visit. The surrounding Jalan Yap Ah Shak has transformed into a creative dining corridor with cafes like 103 Coffee, Kooky Plate, and Kingu Kongu.", "ms": "Pasar basah terbesar dan paling kacau di KL — penuh dengan hasil segar, rempah, dan makanan jalanan yang kebanyakan pelancong tak pernah lawati. Jalan Yap Ah Shak di sekeliling sudah bertukar jadi koridor kreatif." },
+      "address": { "en": "Jalan Raja Bot, Chow Kit, 50300 Kuala Lumpur", "ms": "Jalan Raja Bot, Chow Kit, 50300 Kuala Lumpur" },
+      "category": "Experience",
+      "subcategories": ["Market", "Street Food", "Local Life"],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Early morning 6-9am",
+      "tips": ["The wet market is best at dawn — arrive by 6am for full chaos", "After the market, walk to Jalan Yap Ah Shak for modern cafes like 103 Coffee", "Restoran Kudu Abdul nearby has KL's best nasi kandar — try the ayam madu"],
+      "neighborhood": "Chow Kit"
+    },
+    {
+      "name": { "en": "Kampung Baru Nasi Lemak Trail", "ms": "Jejak Nasi Lemak Kampung Baru" },
+      "description": { "en": "A traditional Malay village in the shadow of the Petronas Towers, now connected via the photogenic Saloma Bridge. Nasi Lemak Antarabangsa has served nasi lemak for decades; nearby MZ Darulnaim offers Kelantanese buffets. Walk from KLCC in 15 minutes for an authentic kampung experience.", "ms": "Kampung Melayu tradisional di bawah bayang Menara Petronas, kini dihubungkan oleh Jambatan Saloma. Nasi Lemak Antarabangsa sudah berkhidmat berdekad; MZ Darulnaim menawarkan bufet masakan Kelantan." },
+      "address": { "en": "Jalan Raja Muda Musa, Kampung Baru, 50300 Kuala Lumpur", "ms": "Jalan Raja Muda Musa, Kampung Baru, 50300 Kuala Lumpur" },
+      "category": "Food",
+      "subcategories": ["Nasi Lemak", "Malay Village", "Local Favorite"],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Morning 7-10am or Evening 6pm-midnight",
+      "tips": ["Walk from KLCC via the Saloma Bridge — it's stunning at night and only 15 min", "Nasi Lemak Antarabangsa for breakfast, satay stalls for evening visits", "100% halal Malay food — this is the real kampung experience inside the city"],
+      "neighborhood": "Kampung Baru"
+    },
+    {
+      "name": { "en": "The Zhongshan Building", "ms": "Bangunan Zhongshan" },
+      "description": { "en": "A repurposed 1950s building in Kampung Attap reborn as KL's creative heart. Home to piupiupiu cafe (Asia's Top 50), Tommy Le Baker for sourdough and kaya toast, ana tomy stationery, and the volunteer-run Kampung Attap Library. Local creativity distilled into one heritage building.", "ms": "Bangunan tahun 1950-an di Kampung Attap yang dilahirkan semula sebagai pusat kreatif KL. Ada piupiupiu cafe (Top 50 Asia), Tommy Le Baker, kedai alat tulis ana tomy, dan Perpustakaan Kampung Attap." },
+      "address": { "en": "80A Jalan Rotan, Kampung Attap, 50460 Kuala Lumpur", "ms": "80A Jalan Rotan, Kampung Attap, 50460 Kuala Lumpur" },
+      "category": "Experience",
+      "subcategories": ["Creative Space", "Cafe", "Art"],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Late morning to afternoon",
+      "tips": ["piupiupiu cafe is one of Asia's Top 50 — arrive early on weekends", "Tommy Le Baker's Smoked Salmon Sourdough Sandwich is the must-order", "The Kampung Attap Library is only open weekends — worth timing your visit for it"],
+      "neighborhood": "Kampung Attap"
+    },
+    {
+      "name": { "en": "REXKL", "ms": "REXKL" },
+      "description": { "en": "A 1947 cinema-turned-community arts hub on Petaling Street, reborn after surviving two fires. Houses the multi-storey BookXcess (designed like a maze), indie shops, vintage finds, and rotating art exhibitions. The cultural anchor of KL's Chinatown renaissance.", "ms": "Panggung wayang tahun 1947 yang bertukar menjadi pusat seni komuniti di Petaling Street, lahir semula selepas dua kebakaran. Ada BookXcess berbilang tingkat, kedai indie, dan pameran seni." },
+      "address": { "en": "80 Jalan Sultan, Chinatown, 50000 Kuala Lumpur", "ms": "80 Jalan Sultan, Chinatown, 50000 Kuala Lumpur" },
+      "category": "Experience",
+      "subcategories": ["Creative Space", "Heritage", "Bookstore"],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Afternoon 12-6pm",
+      "tips": ["BookXcess is the highlight — it's maze-like and multi-storey, allow 1-2 hours", "Open daily 10am-10pm — weekday afternoons are quietest", "Combine with Kwai Chai Hong heritage lane and Petaling Street for a full Chinatown walk"],
+      "neighborhood": "Chinatown"
+    },
+    {
+      "name": { "en": "Kwai Chai Hong Heritage Lane", "ms": "Lorong Warisan Kwai Chai Hong" },
+      "description": { "en": "A restored heritage alleyway between Jalan Petaling and Jalan Panggong telling the story of 1960s Chinese settlers through murals, lighting, and interactive installations. A cultural time capsule in the heart of Chinatown — atmospheric especially after dark.", "ms": "Lorong warisan yang dipulihkan antara Jalan Petaling dan Jalan Panggong yang menceritakan kisah pendatang Cina tahun 1960-an melalui mural, pencahayaan, dan pemasangan interaktif." },
+      "address": { "en": "Jalan Panggong, Chinatown, 50000 Kuala Lumpur", "ms": "Jalan Panggong, Chinatown, 50000 Kuala Lumpur" },
+      "category": "Experience",
+      "subcategories": ["Heritage", "Street Art", "Chinatown"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Evening 6-9pm",
+      "tips": ["Best after dark when the lighting installations create the full effect", "Free entry — combine with REXKL and Petaling Street for a Chinatown evening", "The murals and installations change periodically — each visit can be different"],
+      "neighborhood": "Chinatown"
+    },
+    {
+      "name": { "en": "Wong Ah Wah at Jalan Alor", "ms": "Wong Ah Wah di Jalan Alor" },
+      "description": { "en": "The legendary chicken wing stall on Jalan Alor that locals actually recommend amid the 200+ food stalls. While Jalan Alor itself is well-known, the side streets of Jalan Rembia and Changkat Bukit Bintang hide colorful street art murals and smaller stalls with fewer crowds.", "ms": "Gerai sayap ayam legenda di Jalan Alor yang penduduk tempatan betul-betul syorkan. Jalan sisi seperti Jalan Rembia dan Changkat Bukit Bintang menyembunyikan mural seni jalanan dan gerai kecil." },
+      "address": { "en": "1 Jalan Alor, Bukit Bintang, 50200 Kuala Lumpur", "ms": "1 Jalan Alor, Bukit Bintang, 50200 Kuala Lumpur" },
+      "category": "Food",
+      "subcategories": ["Street Food", "Night Market", "Local Pick"],
+      "localley_score": 5,
+      "local_percentage": 50,
+      "best_time": "Evening 5:30-9pm",
+      "tips": ["Arrive 5:30-7pm on weeknights for fewer crowds and fresher food", "Famous chicken wings are RM20 — order satay and char kway teow too", "Explore back lanes for street art — Jalan Rembia has the best murals"],
+      "neighborhood": "Bukit Bintang"
+    },
+    {
+      "name": { "en": "Scarlet's Rooftop at PPCK", "ms": "Scarlet's Rooftop di PPCK" },
+      "description": { "en": "A new rooftop restaurant in Chow Kit with jaw-dropping KLCC views that most visitors don't know about. Part of the Chow Kit neighborhood's transformation from gritty market district to creative dining destination. Sunset cocktails with the Twin Towers as backdrop.", "ms": "Restoran rooftop baru di Chow Kit dengan pemandangan KLCC yang menakjubkan. Sebahagian daripada transformasi kawasan Chow Kit dari pasar basah ke destinasi makan kreatif." },
+      "address": { "en": "Level R, Pusat Perdagangan, 60 Lorong Haji Hussein 1, Chow Kit, 50300 Kuala Lumpur", "ms": "Aras R, Pusat Perdagangan, 60 Lorong Haji Hussein 1, Chow Kit, 50300 Kuala Lumpur" },
+      "category": "Nightlife",
+      "subcategories": ["Rooftop Bar", "KLCC View", "Hidden Gem"],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Sunset to late evening",
+      "tips": ["One of the best KLCC/Twin Towers views from a bar in KL — and most people have never heard of it", "Combine with Chow Kit Market in the morning for a full neighborhood experience", "The Chow Kit area is rapidly gentrifying — Jalan Doraisamy nearby has more bars and cafes"],
+      "neighborhood": "Chow Kit"
+    },
+    {
+      "name": { "en": "Lot 10 Hutong Food Court", "ms": "Lot 10 Hutong Pusat Makanan" },
+      "description": { "en": "An air-conditioned basement food court in the Lot 10 mall that gathers famous heritage hawker stalls from across Malaysia under one roof. The Ho Weng Kee wonton mee and Soong Kee beef noodles have queues for a reason. Locals use this as their Bukit Bintang lunch spot.", "ms": "Pusat makanan berhawa dingin di bawah pusat beli-belah Lot 10 yang mengumpulkan gerai hawker warisan dari seluruh Malaysia. Ho Weng Kee wonton mee dan Soong Kee mee daging beratur panjang." },
+      "address": { "en": "Lot 10 Shopping Centre, 50 Jalan Sultan Ismail, Bukit Bintang, 50250 Kuala Lumpur", "ms": "Pusat Beli-belah Lot 10, 50 Jalan Sultan Ismail, Bukit Bintang, 50250 Kuala Lumpur" },
+      "category": "Food",
+      "subcategories": ["Hawker", "Heritage", "Air-Conditioned"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Lunch 11am-2pm",
+      "tips": ["Go at 11am before the lunch rush — queues at popular stalls can be 20+ minutes", "Ho Weng Kee wonton mee and Soong Kee beef noodles are the essential orders", "It's in the basement of Lot 10 mall — right next to Bukit Bintang MRT station"],
+      "neighborhood": "Bukit Bintang"
+    }
+  ]
+}

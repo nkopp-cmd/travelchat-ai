@@ -1,0 +1,387 @@
+{
+  "city": "busan",
+  "batch": "gems-2026",
+  "description": "Hidden gems and trending spots from H2 2025 / 2026 - beyond Haeundae and Gamcheon",
+  "spots": [
+    {
+      "name": {
+        "en": "Naive Brewers",
+        "ko": "나이브 브류어스"
+      },
+      "description": {
+        "en": "Specialty filter coffee bar in the heart of Jeonpo Cafe Street. The roaster-barista changes single-origin beans seasonally and hand-brews every cup to order. A pilgrimage stop on any Busan coffee tour, tucked inside the old hardware-shop alley that NYT named a must-visit.",
+        "ko": "전포카페거리 중심부의 스페셜티 필터커피 전문점. 시즌마다 원두가 바뀌며 핸드드립에 진심인 바리스타가 직접 내려주는 곳. 뉴욕타임스 선정 전포공구길의 커피 성지."
+      },
+      "city": "Busan",
+      "neighborhood": "Jeonpo-dong",
+      "address": {
+        "en": "Jeonpo Cafe Street, Busanjin-gu, Busan",
+        "ko": "부산 부산진구 전포동 전포카페거리"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Specialty Coffee",
+        "Local Favorite"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Weekday mornings 10 AM - 12 PM for quiet tasting",
+        "ko": "평일 오전 10시-12시 여유로운 시간"
+      },
+      "tips": [
+        "Ask the barista for today's seasonal single-origin recommendation",
+        "Pair with a walk through Jeonpo Sai-gil alley for vintage shop-hopping",
+        "Annual Jeonpo Coffee Festival every October"
+      ],
+      "verified": true,
+      "trending_score": 0.82,
+      "latitude": 35.153,
+      "longitude": 129.061
+    },
+    {
+      "name": {
+        "en": "Huinnyeoul Culture Village",
+        "ko": "흰여울문화마을"
+      },
+      "description": {
+        "en": "Clifftop village on Yeongdo Island with 14 winding alleys of sea-facing cafes, art studios, and indie bookshops. Called the 'Santorini of Korea' but far quieter than Gamcheon. The ocean-view ramen at Huinnyeoul Jeombang is a cult local experience.",
+        "ko": "영도 절벽 위 14개 골목길로 이어진 문화마을. '한국의 산토리니'로 불리지만 감천보다 훨씬 조용. 흰여울점빵의 바다뷰 라면은 현지인 인생 맛집."
+      },
+      "city": "Busan",
+      "neighborhood": "Yeongdo-gu",
+      "address": {
+        "en": "Huinnyeoul-gil, Yeongdo-gu, Busan",
+        "ko": "부산 영도구 흰여울길"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Hidden Gem",
+        "Art Village",
+        "Ocean View"
+      ],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_times": {
+        "en": "Weekday afternoons for quiet alleys, golden hour for photos",
+        "ko": "평일 오후 한적한 골목, 일몰 시간대 사진 촬영"
+      },
+      "tips": [
+        "Try the ocean-view ramyeon at Huinnyeoul Jeombang (only 2 outdoor seats)",
+        "Walk the Jeoryeong Coastal Trail connecting to Taejongdae",
+        "Visit Cafe Hailre or Gureum-e for best cliff-side ocean views",
+        "Come on weekdays to avoid weekend crowds"
+      ],
+      "verified": true,
+      "trending_score": 0.78,
+      "latitude": 35.076,
+      "longitude": 129.041
+    },
+    {
+      "name": {
+        "en": "Dadaepo Sunset Beach",
+        "ko": "다대포 해수욕장"
+      },
+      "description": {
+        "en": "Busan's best-kept sunset secret at the very last stop of Metro Line 1. A long, tranquil beach bordered by parkland — no high-rises, no tourist shops. The Sunset Fountain of Dreams (Guinness record, 55m height) runs free shows April-October. Mostly locals walking dogs at golden hour.",
+        "ko": "지하철 1호선 종점의 부산 최고 일몰 명소. 고층 건물 없이 공원으로 둘러싸인 조용한 해변. 세계 기네스 기록 꿈의 낙조분수(55m)가 4-10월 무료 공연. 일몰 시간엔 대부분 산책하는 현지인."
+      },
+      "city": "Busan",
+      "neighborhood": "Dadaepo",
+      "address": {
+        "en": "Dadaepo Beach, Saha-gu, Busan",
+        "ko": "부산 사하구 다대동 다대포해수욕장"
+      },
+      "category": "Nature",
+      "subcategories": [
+        "Sunset",
+        "Beach",
+        "Local Favorite"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_times": {
+        "en": "1 hour before sunset, fountain shows at 8 PM & 10 PM (summer)",
+        "ko": "일몰 1시간 전, 분수쇼 20시·22시 (여름)"
+      },
+      "tips": [
+        "Take Metro Line 1 to the last stop — beach is a 5-min walk",
+        "Bring a picnic blanket for the park area behind the beach",
+        "Walk the Morundae Coastal Trail for jade-colored sea and rock formations",
+        "Fountain shows are free — no shows on Mondays"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 35.047,
+      "longitude": 128.966
+    },
+    {
+      "name": {
+        "en": "Beer Shop Busan",
+        "ko": "비어샵 부산"
+      },
+      "description": {
+        "en": "Hidden down a Jeonpo-dong alleyway, this craft beer taproom is co-owned by Gorilla Brewing co-founder Andy Green. Nine rotating taps of Korea's finest craft beer plus their house Jeonpo Lager. The heart of Busan's booming craft beer scene, open only Thu-Sun.",
+        "ko": "전포동 골목 안쪽에 숨겨진 크래프트 비어 탭룸. 고릴라 브루잉 공동창업자가 운영. 한국 최고 수제맥주 9탭과 자체 전포라거. 부산 크래프트씬의 핵심, 목-일만 영업."
+      },
+      "city": "Busan",
+      "neighborhood": "Jeonpo-dong",
+      "address": {
+        "en": "Jeonpo-dong, Busanjin-gu, Busan",
+        "ko": "부산 부산진구 전포동"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Craft Beer",
+        "Hidden Gem",
+        "Local Bar"
+      ],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_times": {
+        "en": "Saturday afternoon 1-5 PM for relaxed tasting",
+        "ko": "토요일 오후 1-5시 여유로운 시음"
+      },
+      "tips": [
+        "Open Thu-Fri 6 PM-midnight, Sat 1 PM-midnight, Sun 1-10 PM only",
+        "Closed Mon-Wed — plan accordingly",
+        "Try the house Jeonpo Lager and ask for mixed highballs",
+        "Jeonpo Beer Block Festival happens annually in summer"
+      ],
+      "verified": true,
+      "trending_score": 0.88,
+      "latitude": 35.1535,
+      "longitude": 129.062
+    },
+    {
+      "name": {
+        "en": "F1963",
+        "ko": "에프1963"
+      },
+      "description": {
+        "en": "Repurposed wire rope factory (est. 1963) transformed into Busan's coolest cultural complex. Houses art galleries, a YES24 bookshop, Praha 993 Czech brewery, and a serene bamboo garden. The industrial architecture and local art exhibitions make it a creative hub far from tourist circuits.",
+        "ko": "1963년 설립 와이어 공장을 개조한 부산 최고의 복합문화공간. 갤러리, YES24 서점, 프라하993 체코 브루어리, 대나무정원. 산업 건축물과 로컬 전시로 관광 코스 밖의 크리에이티브 허브."
+      },
+      "city": "Busan",
+      "neighborhood": "Suyeong-gu",
+      "address": {
+        "en": "20 Gurak-ro 123beon-gil, Suyeong-gu, Busan",
+        "ko": "부산 수영구 구락로123번길 20"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Art Gallery",
+        "Industrial Heritage",
+        "Craft Beer"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Weekday afternoons for quiet gallery visits",
+        "ko": "평일 오후 조용한 갤러리 관람"
+      },
+      "tips": [
+        "Praha 993 brewery serves Czech beer brewed on-site — try the seasonal pumpkin ale",
+        "The bamboo garden behind the main building is an unexpected oasis",
+        "Metro: Suyeong Station exit 5, then bus 54 to Sanjeong Apartment stop",
+        "Free exhibitions rotate regularly — check their Instagram"
+      ],
+      "verified": true,
+      "trending_score": 0.76,
+      "latitude": 35.163,
+      "longitude": 129.113
+    },
+    {
+      "name": {
+        "en": "Songjeong Surf Beach",
+        "ko": "송정해수욕장"
+      },
+      "description": {
+        "en": "The birthplace of Korean surfing with a laid-back California vibe. Unlike packed Haeundae, Songjeong is a genuine surf town with board rentals, surf cafes, and a local community. Connect via the scenic Haeundae Beach Train to Cheongsapo for a coastal walk.",
+        "ko": "한국 서핑의 발상지, 캘리포니아 감성의 서프 비치. 해운대와 달리 진짜 서프타운 분위기. 보드 렌탈, 서프 카페, 로컬 커뮤니티. 해운대 해변열차로 청사포까지 해안 산책 연결."
+      },
+      "city": "Busan",
+      "neighborhood": "Songjeong",
+      "address": {
+        "en": "Songjeong Beach, Haeundae-gu, Busan",
+        "ko": "부산 해운대구 송정동 송정해수욕장"
+      },
+      "category": "Activity",
+      "subcategories": [
+        "Surfing",
+        "Beach",
+        "Cafe Culture"
+      ],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_times": {
+        "en": "Sunrise for surf sessions, afternoons for cafe-hopping",
+        "ko": "서핑은 일출 시간, 카페 탐방은 오후"
+      },
+      "tips": [
+        "Best surf waves in fall-winter; summer is gentler for beginners",
+        "Surfholic Songjeong has a 2F cafe with ocean views (coffee 5,000 won)",
+        "Walk the coastal path to Cheongsapo lighthouse — one of Busan's best walks",
+        "Take Haeundae Beach Train for scenic coastal ride"
+      ],
+      "verified": true,
+      "trending_score": 0.8,
+      "latitude": 35.1787,
+      "longitude": 129.1998
+    },
+    {
+      "name": {
+        "en": "Gukje Market Local Stalls",
+        "ko": "국제시장 골목 맛집"
+      },
+      "description": {
+        "en": "Skip the tourist-facing main lanes and dive into the inner alleys of Gukje Market for 50-year-old noodle shops and stalls that have never appeared on Instagram. Jongak-jip Kalguksu (since 1972) and Sinchang Toast are local institutions. Adjacent Bupyeong Kkangtong Night Market adds street food after dark.",
+        "ko": "관광객 메인 통로 대신 국제시장 안쪽 골목으로. 인스타에 한 번도 안 나온 50년 된 국수집과 노포들. 종각집 가락국수(1972년~)와 신창토스트는 로컬 전설. 옆 부평깡통야시장은 저녁 먹거리 천국."
+      },
+      "city": "Busan",
+      "neighborhood": "Nampo-dong",
+      "address": {
+        "en": "Gukje Market, Jung-gu, Busan",
+        "ko": "부산 중구 신창동4가 국제시장"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Street Food",
+        "Local Institution",
+        "Night Market"
+      ],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_times": {
+        "en": "Lunch 11 AM-1 PM for noodle shops, evening for Bupyeong night market",
+        "ko": "점심 11-13시 국수집, 저녁 부평깡통야시장"
+      },
+      "tips": [
+        "Jongak-jip Kalguksu has been serving hand-cut noodles since 1972",
+        "Sinchang Toast is Busan's OG Korean toast — cheap and iconic",
+        "15-ho Halmoni Chungmu Gimbap opens at dawn for 35 years running",
+        "Walk through to Bupyeong Kkangtong Market next door for night street food"
+      ],
+      "verified": true,
+      "trending_score": 0.72,
+      "latitude": 35.1006,
+      "longitude": 129.029
+    },
+    {
+      "name": {
+        "en": "Oncheonjang Hot Spring District",
+        "ko": "온천장"
+      },
+      "description": {
+        "en": "One of Korea's oldest hot spring districts with retro charm intact. Heosimcheong Spa is one of Asia's largest hot spring complexes, frequented almost entirely by locals. The surrounding streets have old-school Korean restaurants — hand-pulled noodle shops, bossam houses, and 4.5-star kalguksu joints rated on Diningcode.",
+        "ko": "한국에서 가장 오래된 온천 지구 중 하나. 허심청은 아시아 최대 규모 온천으로 거의 현지인만 방문. 주변엔 수타 중식당, 보쌈집, 다이닝코드 4.5점 칼국수 등 로컬 맛집 밀집."
+      },
+      "city": "Busan",
+      "neighborhood": "Dongnae-gu",
+      "address": {
+        "en": "Oncheonjang, Dongnae-gu, Busan",
+        "ko": "부산 동래구 온천동 온천장"
+      },
+      "category": "Activity",
+      "subcategories": [
+        "Hot Spring",
+        "Local Culture",
+        "Food District"
+      ],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_times": {
+        "en": "Weekday mornings for uncrowded spa, lunch for nearby restaurants",
+        "ko": "평일 오전 한적한 온천, 점심 주변 맛집"
+      },
+      "tips": [
+        "Heosimcheong Spa entry around 9,000 won — bring your own towel to save",
+        "Gitbal-jip kalguksu (flag house noodles) rated 4.4 stars by locals",
+        "Ssambobossam Oncheonjang branch for classic Korean bossam set meal",
+        "Metro: Oncheonjang Station, Line 1"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 35.192,
+      "longitude": 129.078
+    },
+    {
+      "name": {
+        "en": "Seokbulsa Temple",
+        "ko": "석불사"
+      },
+      "description": {
+        "en": "The 'Stone Buddha Temple' carved into a cliff face on Geumjeongsan mountain. Giant Buddha reliefs line both sides of the temple — an astonishing sight that most Busan visitors never discover. Reached by a quiet mountain trail, you'll likely share it with only a handful of hikers.",
+        "ko": "금정산 절벽에 새겨진 '석불사'. 사찰 양쪽으로 거대한 마애불이 줄지어 있는 장관. 대부분의 부산 여행자가 모르는 곳. 조용한 등산로를 통해 도착하면 등산객 몇 명과 함께하게 됨."
+      },
+      "city": "Busan",
+      "neighborhood": "Geumjeong-gu",
+      "address": {
+        "en": "Seokbulsa Temple, Geumjeong-gu, Busan",
+        "ko": "부산 금정구 청룡동 석불사"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Temple",
+        "Hidden Gem",
+        "Hiking"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Early morning for solitude and best light on the stone carvings",
+        "ko": "이른 아침 고요한 분위기와 마애불 조명이 가장 좋음"
+      },
+      "tips": [
+        "About 30-40 min hike from the trailhead — wear proper shoes",
+        "The giant stone Buddha carvings are the main draw — truly jaw-dropping",
+        "Combine with a longer Geumjeongsan hike to Beomeosa Temple",
+        "Almost zero tourists — you may have it entirely to yourself"
+      ],
+      "verified": true,
+      "trending_score": 0.73,
+      "latitude": 35.227,
+      "longitude": 129.069
+    },
+    {
+      "name": {
+        "en": "Sangchang (Jungang-dong)",
+        "ko": "상짱"
+      },
+      "description": {
+        "en": "Authentic Japanese-style tempura restaurant in Busan's Jungang-dong old downtown, run by a Japanese chef. Paper-thin, crispy batter showcasing each ingredient's natural flavor. Featured in Esquire Korea's 'hidden restaurants only locals know' — part of a reviving old-town food scene discovered by taxi drivers' 'Takshulaeng' guides.",
+        "ko": "중앙동 원도심의 정통 일본식 튀김 전문점. 일본인 요리사가 직접 조리하며 얇고 바삭한 튀김옷 속 재료 본연의 맛. 에스콰이어 코리아 '현지인만 아는 숨은 맛집' 선정. 택슐랭(택시기사 추천) 맛집 가이드에도 등장."
+      },
+      "city": "Busan",
+      "neighborhood": "Jungang-dong",
+      "address": {
+        "en": "Jungang-dong, Jung-gu, Busan",
+        "ko": "부산 중구 중앙동"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Japanese",
+        "Tempura",
+        "Hidden Gem",
+        "Local Institution"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Lunch 11:30 AM-1 PM",
+        "ko": "점심 11:30-13:00"
+      },
+      "tips": [
+        "Featured in Esquire Korea and Busan taxi drivers' Takshulaeng guide",
+        "The chef is Japanese — expect authentic Edo-style thin tempura batter",
+        "Jungang-dong is Busan's reviving old downtown with multiple hidden gems",
+        "Pair with nearby Saeongima (crab soup) and Ddungbo-jip (jukkumi) for a full old-town food crawl"
+      ],
+      "verified": true,
+      "trending_score": 0.85,
+      "latitude": 35.103,
+      "longitude": 129.034
+    }
+  ]
+}

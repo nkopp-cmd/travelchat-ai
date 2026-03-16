@@ -1,0 +1,127 @@
+{
+  "city": "taichung",
+  "batch": 1,
+  "description": "Hidden gems and trending spots in Taichung for 2025-2026",
+  "spots": [
+    {
+      "name": { "en": "Feng Chia Night Market Hidden Alley Stalls", "zh-TW": "逢甲夜市隱藏版巷弄美食" },
+      "description": { "en": "Skip the main drag and duck into Wenhua Road Lane 5 for the real Feng Chia experience. Locals queue here for Wang Bo Stinky Tofu (crispy shell, garlic dip, stealth-hot chili), Xiao Xiao Qi handmade soup dumplings with see-through skins, and Hai Bian Xiao Wu dry-grilled clams. These alley stalls have been serving Fengjia University students for decades and rarely appear in tourist guides.", "zh-TW": "跳過大路直接鑽進文華路5巷，這才是真正的逢甲。在地人排隊吃旺伯臭豆腐、小小七手工湯包和海邊小屋乾燒蛤。這些巷弄攤位服務逢甲學生數十年，觀光客幾乎不知道。" },
+      "address": { "en": "Lane 5, Wenhua Road, Xitun District, Taichung 407", "zh-TW": "台中市西屯區文華路5巷" },
+      "category": "Market",
+      "subcategories": ["Night Market", "Hidden Gem", "Street Food"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "6:00 PM - 11:00 PM, weekdays less crowded",
+      "tips": ["Wang Bo Stinky Tofu is NT$65 — the chili has a delayed kick", "Xiao Xiao Qi soup dumplings have shrimp visible through the skin", "Hai Bian Xiao Wu dry-grilled clams are in the university back alleys", "Take bus 35 from Taichung Station to Fengjia University stop"],
+      "neighborhood": "Xitun"
+    },
+    {
+      "name": { "en": "Miyahara (Gong Yuan Yan Ke)", "zh-TW": "宮原眼科" },
+      "description": { "en": "A 1927 Japanese-era eye clinic reborn as a lavish ice cream parlor and gift shop by the Dawn Cake group. The interior resembles a Hogwarts library with floor-to-ceiling wooden shelves of tea and pastry boxes. Over 60 ice cream flavors rotate seasonally — choose 1-3 scoops with free toppings like pineapple cake crumble or sun cake pieces. The real magic is the building itself.", "zh-TW": "1927年日治時期眼科診所，由日出集團改建為冰淇淋店和伴手禮店。店內如霍格華茲圖書館般壯觀，冰淇淋超過60種口味可選，每球可免費加一種配料如鳳梨酥碎或太陽餅。" },
+      "address": { "en": "No. 20, Zhongshan Road, Central District, Taichung 400", "zh-TW": "台中市中區中山路20號" },
+      "category": "Food",
+      "subcategories": ["Dessert", "Heritage", "Iconic"],
+      "localley_score": 2,
+      "local_percentage": 35,
+      "best_time": "Weekday mornings to avoid queues, ice cream counter opens 10 AM",
+      "tips": ["Pineapple cake comes in 3 varieties: tart, sweet, and salted egg yolk", "5-minute walk from Taichung TRA Station", "Try seasonal flavors like lychee or longan in summer", "The 4th Credit Union next door is the same brand with bubble tea"],
+      "neighborhood": "Central District"
+    },
+    {
+      "name": { "en": "Rainbow Village (Caihongjuan Village)", "zh-TW": "彩虹眷村" },
+      "description": { "en": "A military dependents' village saved from demolition by 97-year-old veteran Huang Yong-Fu, who covered every surface in vibrant folk art paintings. The tiny settlement of colorful houses, walkways, and walls is now a free outdoor gallery. The gift shop sells Rainbow Grandpa merchandise. A genuine grassroots art story that went viral before social media existed.", "zh-TW": "由97歲老榮民黃永阜彩繪拯救的眷村，每個角落都是繽紛的民間藝術。免費開放的戶外彩繪藝廊，彩虹爺爺的故事比社群媒體更早走紅。" },
+      "address": { "en": "No. 56, Lane 25, Chun'an Road, Nantun District, Taichung 408", "zh-TW": "台中市南屯區春安路56巷25號" },
+      "category": "Culture",
+      "subcategories": ["Street Art", "Heritage", "Photo Spot"],
+      "localley_score": 2,
+      "local_percentage": 25,
+      "best_time": "9:00 AM - 5:00 PM, closed Mondays. Go early for empty shots",
+      "tips": ["Take a taxi from HSR Taichung Station — about 20 min, NT$230", "Bus 56 or 617 to Caihongjuan Village stop", "Small site — 30 minutes is enough for most visitors", "Combine with nearby Dadu Mountain sunset viewing"],
+      "neighborhood": "Nantun"
+    },
+    {
+      "name": { "en": "Phase Coffee Roasters", "zh-TW": "Phase Coffee Roasters" },
+      "description": { "en": "One of Taichung's most respected specialty coffee roasters, near the train station. Industrial-chic space with warm wood accents and a pet-friendly area. Their new second location Phase Coffee Espresso does creative takeaway specials inspired by Taiwan's landscapes — 'Mountain', 'Sea', and 'Wind' — crafted with bartender logic. Over 20 single-origin beans available for pour-over.", "zh-TW": "台中最受尊敬的精品咖啡烘焙品牌之一。工業風結合木質元素的溫潤空間，二店Phase Coffee Espresso以調酒邏輯推出「山」「海」「風」台灣風景特調，嚴選20多款精品豆。" },
+      "address": { "en": "No. 236, Section 2, Sanmin Road, Central District, Taichung 400", "zh-TW": "台中市中區三民路二段236號" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Trendy", "Local Favorite"],
+      "localley_score": 4,
+      "local_percentage": 80,
+      "best_time": "Weekday afternoons for quiet seating",
+      "tips": ["Ask for their seasonal single-origin recommendations", "Second location on street level is takeaway-only with limited-edition drinks", "Daily limited 8 varieties of financier cakes pair perfectly", "Near Taichung Station — walkable from Miyahara"],
+      "neighborhood": "Central District"
+    },
+    {
+      "name": { "en": "National Taichung Theater", "zh-TW": "臺中國家歌劇院" },
+      "description": { "en": "Toyo Ito's architectural masterpiece with zero right angles — a building made entirely of curved concrete surfaces that UNESCO has called one of the world's most difficult constructions. Beyond performances, the rooftop Sky Garden offers free city views, the ground floor has a curated bookshop and cafe, and the surrounding park is where locals picnic at sunset.", "zh-TW": "伊東豊雄的建築傑作，沒有任何直角，被UNESCO稱為世界最難蓋的建築之一。屋頂空中花園免費看市景，一樓有選書店和咖啡廳，周圍公園是在地人野餐看夕陽的地方。" },
+      "address": { "en": "No. 101, Section 2, Huilai Road, Xitun District, Taichung 407", "zh-TW": "台中市西屯區惠來路二段101號" },
+      "category": "Culture",
+      "subcategories": ["Architecture", "Performing Arts", "Photo Spot"],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Late afternoon for rooftop sunset views, check show schedule online",
+      "tips": ["Sky Garden on the rooftop is free — take the elevator to 5F", "The ground-floor bookshop is beautifully curated", "Surrounding grass area is popular for picnics at golden hour", "Combine with dinner at nearby 7th District restaurants"],
+      "neighborhood": "Xitun"
+    },
+    {
+      "name": { "en": "Calligraphy Greenway & Shen Ji New Village", "zh-TW": "草悟道＆審計新村" },
+      "description": { "en": "Calligraphy Greenway is Taichung's green urban spine connecting the National Museum of Fine Arts to the CMP Block area. Halfway along, Shen Ji New Village is a former government housing compound turned creative market village — yellow vintage buildings now house artisan shops, indie cafes, and weekend craft markets with street performer shows every afternoon.", "zh-TW": "草悟道是台中綠色都市軸線，連接國美館到勤美商圈。中段的審計新村是日治時期宿舍改建的文創聚落，鵝黃色老房子進駐手作小店和獨立咖啡廳，週末有文創市集和街頭藝人表演。" },
+      "address": { "en": "No. 12, Alley 2, Lane 368, Minsheng Road, West District, Taichung 403", "zh-TW": "台中市西區民生路368巷2弄12號" },
+      "category": "Culture",
+      "subcategories": ["Creative Market", "Walking", "Local Favorite"],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Weekend afternoons for craft markets, weekday mornings for quiet strolls",
+      "tips": ["Weekend craft market runs all day with unique handmade goods", "Street performers daily 2-6 PM on the village plaza", "Photo spots: yellow buildings, 2F lantern wall, moon installation", "Walk south to PARK2 Caowu Plaza for more indie shops and food"],
+      "neighborhood": "West District"
+    },
+    {
+      "name": { "en": "Taihu Brewing Taichung", "zh-TW": "臺虎精釀台中啜飲室" },
+      "description": { "en": "Taiwan Tiger's Taichung taproom in a converted government housing complex with exposed brick walls and a rooftop terrace featuring a 'Back to the Taihu' neon sign. 20 taps pour 15 Taihu originals plus 5 rotating imports. Their citrusy IPA won World's Best American-Style IPA at the 2023 World Beer Awards. Customizable burgers with egg, bacon, and jalapenos are legit.", "zh-TW": "臺虎精釀台中據點，老宿舍改建的磚牆空間，頂樓露台有霓虹招牌。20支酒柱含15款自釀和5款輪替進口精釀。招牌IPA曾獲2023世界啤酒大獎最佳美式IPA，客製化漢堡也很強。" },
+      "address": { "en": "No. 18, Lane 40, Minquan Road, West District, Taichung 403", "zh-TW": "台中市西區民權路40巷18號" },
+      "category": "Nightlife",
+      "subcategories": ["Craft Beer", "Trendy", "Local Favorite"],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Evening, especially Thursday-Saturday",
+      "tips": ["Try the Taiwanese Guava Gose and Mugicha Black Tea Ale for local flavors", "Rooftop terrace is the best seat in the house", "Taihu beers are lighter and fruitier than Western craft — designed for tropical humidity", "Their 9.9% cocktails-in-a-can are also in every 7-Eleven"],
+      "neighborhood": "West District"
+    },
+    {
+      "name": { "en": "Gui Lan Noodles", "zh-TW": "桂蘭麵" },
+      "description": { "en": "Hidden in a converted old house on Yongxing Street with no flashy signage, this local-only noodle shop serves nostalgic Taiwanese comfort food at copper-coin prices. The signature Gui Lan Chicken Leg Noodle features a whole boneless chicken thigh over hand-pulled noodles. Also beloved for hand-cut braised pork rice. The kind of place where regulars know exactly what to order.", "zh-TW": "隱藏在永興街巷弄的老宅麵店，沒有醒目招牌，賣古早味小吃。招牌桂蘭雞腿麵用整片無骨雞腿排，銅板價就能吃到。手切滷肉飯也是一絕，是熟客才知道的店。" },
+      "address": { "en": "Yongxing Street, North District, Taichung 404", "zh-TW": "台中市北區永興街" },
+      "category": "Food",
+      "subcategories": ["Hidden Gem", "Local Favorite", "Traditional"],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Lunch (11:30 AM - 1:30 PM), closes when sold out",
+      "tips": ["No English menu — point at other tables or say 'ji tui mian' for chicken leg noodles", "Old house atmosphere is part of the charm", "Cash only, expect NT$80-120 per person", "Closes early when food runs out — go before noon on weekends"],
+      "neighborhood": "North District"
+    },
+    {
+      "name": { "en": "Coffee Stopover", "zh-TW": "Coffee Stopover" },
+      "description": { "en": "Ranked among Taiwan's top 25 cafes, this self-roasting specialty shop lets you choose your own dripper, grinder, and bean origin for a fully customized pour-over experience. Multiple roast levels and regions available. Minimalist interior focused entirely on the coffee craft — no Instagram gimmicks, just excellent beans and technique. A pilgrimage spot for serious coffee drinkers.", "zh-TW": "被評為台灣最棒25間咖啡館之一的自家烘焙精品店，客人可選濾杯、磨豆機和產區，完全客製化的手沖體驗。極簡空間專注咖啡工藝，是咖啡發燒友的朝聖地。" },
+      "address": { "en": "No. 65, Daxin Street, South District, Taichung 402", "zh-TW": "台中市南區大新街65號" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Hidden Gem", "Third Wave"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Weekday afternoons, opens around 1 PM",
+      "tips": ["Tell the barista your flavor preferences — they will guide your bean selection", "Pour-over starts under NT$100, making it one of the best deals in town", "Near the National Museum of Fine Arts — combine with Calligraphy Greenway walk", "No frills, no latte art — this is for people who care about extraction"],
+      "neighborhood": "South District"
+    },
+    {
+      "name": { "en": "Taichung Second Market Breakfast", "zh-TW": "台中第二市場" },
+      "description": { "en": "Built in 1917, this historic covered market is where Taichung locals eat breakfast and lunch. The star is braised pork rice with a legacy spanning generations — multiple stalls compete for the title of best lu rou fan. Arrive early on weekdays to experience the authentic bustle before tourist crowds. Also excellent for traditional Taiwanese breakfast sets with soy milk and egg crepes.", "zh-TW": "建於1917年的百年市場，是台中人吃早餐和午餐的地方。滷肉飯是這裡的靈魂——多家攤位各有擁護者。平日早上來最能感受在地氛圍，傳統早餐搭配豆漿和蛋餅也很推薦。" },
+      "address": { "en": "No. 87, Section 2, Sanmin Road, Central District, Taichung 400", "zh-TW": "台中市中區三民路二段87號" },
+      "category": "Food",
+      "subcategories": ["Market", "Breakfast", "Heritage"],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "7:00 AM - 12:00 PM, weekdays for the real experience",
+      "tips": ["Braised pork rice stalls open as early as 6 AM", "Wang Family Fish Stew and Lao Lai braised pork rice are perennial favorites", "Most stalls close by 2 PM — this is a morning market", "5-minute walk from Taichung Station, combine with Miyahara visit"],
+      "neighborhood": "Central District"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "city": "fukuoka",
+  "batch": 1,
+  "spots": [
+    {
+      "name": { "en": "Nagahama Yatai Stalls", "ja": "長浜屋台街" },
+      "description": { "en": "Fukuoka's most authentic yatai cluster near the fish market. Less touristy than Nakasu, these stalls serve the original Nagahama-style ramen with ultra-thin noodles and rich tonkotsu broth. Locals come after work for quick bowls and cold beer.", "ja": "魚市場近くの福岡で最も本格的な屋台群。中洲より観光客が少なく、極細麺と濃厚豚骨スープの元祖長浜ラーメンを提供。仕事帰りの地元民がさっとラーメンとビールを楽しむ場所。" },
+      "address": { "en": "Nagahama, Chuo-ku, Fukuoka", "ja": "福岡市中央区長浜" },
+      "category": "Food",
+      "subcategories": ["Yatai", "Ramen", "Street Food"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Evening 7-11pm",
+      "tips": ["Order 'kaedama' (noodle refill) for 100-150 yen", "Arrive before 8pm on weekdays to avoid waits", "Cash only at most stalls", "Try the gyoza and mentaiko sides"],
+      "neighborhood": "Nagahama"
+    },
+    {
+      "name": { "en": "Hakata Genki Ippai!!", "ja": "博多元気一杯!!" },
+      "description": { "en": "A cult-favorite ramen shop ranked in Japan's Top 100 for six consecutive years. Known for its strikingly white, creamy tonkotsu broth that's rich yet completely free of porky odor. Strict no-photo policy inside — they want you to focus on the ramen.", "ja": "日本のトップ100に6年連続ランクインしたカルト的人気ラーメン店。驚くほど白くクリーミーな豚骨スープは濃厚なのに豚臭さゼロ。店内撮影禁止——ラーメンに集中してほしいというこだわり。" },
+      "address": { "en": "3-4-21 Shimokawabata-machi, Hakata-ku, Fukuoka", "ja": "福岡市博多区下川端町3-4-21" },
+      "category": "Food",
+      "subcategories": ["Ramen", "Local Favorite", "Hidden Gem"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Lunch 11:30am-1pm",
+      "tips": ["Absolutely no photos allowed inside — respect the rule", "Opens at 11am, expect a line by 11:30", "Cash only", "Closes when broth runs out, usually by 3pm"],
+      "neighborhood": "Hakata"
+    },
+    {
+      "name": { "en": "Esperanza Standing Bar", "ja": "エスペランサ" },
+      "description": { "en": "A craft beer standing bar in Yakuin run by husband-and-wife team, featuring rare rotating taps and air-shipped cans and bottles you won't find elsewhere in Fukuoka. The casual tachi-nomi (standing drink) style and afternoon opening make it perfect for daytime craft beer exploration.", "ja": "薬院にある夫婦経営のクラフトビール立ち飲みバー。福岡では珍しい空輸の缶やボトルを含む希少なラインナップが魅力。カジュアルな立ち飲みスタイルと午後からの営業で、昼飲みクラフトビール探索に最適。" },
+      "address": { "en": "Yakuin, Chuo-ku, Fukuoka (5 min from Yakuin-Odori Station)", "ja": "福岡市中央区薬院（薬院大通駅から徒歩5分）" },
+      "category": "Nightlife",
+      "subcategories": ["Craft Beer", "Standing Bar", "Local"],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Afternoon-Evening 3-10pm",
+      "tips": ["Standing-only, no seats", "Ask the owners for recommendations — they know every beer", "Open from 3pm, great for afternoon drinking", "Pairs well with exploring Yakuin's cafe scene"],
+      "neighborhood": "Yakuin"
+    },
+    {
+      "name": { "en": "Yusentei Park", "ja": "友泉亭公園" },
+      "description": { "en": "A serene Edo-era strolling garden that most tourists completely miss. Built as a feudal lord's villa, it features a large central pond, stone lanterns, moss-covered paths, and seasonal plum blossoms. Entry is only 200 yen and weekday mornings are virtually empty.", "ja": "ほとんどの観光客が見逃す静寂なる江戸時代の回遊式庭園。藩主の別邸として築かれ、大きな中央池、石灯籠、苔むした小道、季節の梅の花が特徴。入園料わずか200円で、平日の朝はほぼ貸切状態。" },
+      "address": { "en": "5-1 Yusentei, Jonan-ku, Fukuoka", "ja": "福岡市城南区友泉亭5-1" },
+      "category": "Nature",
+      "subcategories": ["Garden", "Historic", "Hidden Gem"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Morning 9-11am",
+      "tips": ["200 yen entry — one of Fukuoka's best bargains", "Visit on weekday mornings for near-solitude", "Beautiful in February-March for plum blossoms", "Matcha tea available in the garden teahouse"],
+      "neighborhood": "Jonan"
+    },
+    {
+      "name": { "en": "Fukuoka Craft by El Borracho", "ja": "フクオカクラフト 大名店" },
+      "description": { "en": "A microbrewery and taproom in the trendy Daimyo neighborhood brewing its own beer in nearby Okagaki-machi. Their 'made in Fukuoka' craft beers pair with Mexican-inspired food. Collaborated with local Manu Coffee on a coffee stout. The Daimyo location is the heartbeat of Fukuoka's growing craft scene.", "ja": "トレンディな大名エリアにあるマイクロブルワリー＆タップルーム。近隣の岡垣町で自社醸造する「made in 福岡」のクラフトビールとメキシカンフードのペアリング。地元のマヌコーヒーとコラボしたコーヒースタウトも。福岡のクラフトビールシーンの中心地。" },
+      "address": { "en": "1-11-4 Daimyo, Chuo-ku, Fukuoka", "ja": "福岡市中央区大名1-11-4" },
+      "category": "Nightlife",
+      "subcategories": ["Craft Beer", "Brewery", "Mexican Food"],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_time": "Evening 6-10pm",
+      "tips": ["Try the Keyagu Tepache — pineapple saison with habanero", "Weekend afternoons from 2pm are great for a relaxed session", "Walk to nearby Manu Coffee beforehand for the full Daimyo experience", "Brewery tours available at the Okagaki factory"],
+      "neighborhood": "Daimyo"
+    },
+    {
+      "name": { "en": "Yanagawa Canal Boat Cruise", "ja": "柳川川下り" },
+      "description": { "en": "A punting trip through 400-year-old castle moat canals in Yanagawa, often called the 'Venice of Japan.' Local boatmen guide hour-long rides past willow trees, stone walls, and historic buildings. Combine with steamed eel at century-old restaurants nearby.", "ja": "「日本のヴェネツィア」と呼ばれる柳川の400年の歴史ある城の堀を巡る川下り。地元の船頭が柳、石垣、歴史的建造物を通る約1時間の船旅をガイド。近くの老舗でうなぎのせいろ蒸しと組み合わせて。" },
+      "address": { "en": "Yanagawa City, Fukuoka Prefecture (50 min by Nishitetsu train from Tenjin)", "ja": "福岡県柳川市（西鉄天神駅から約50分）" },
+      "category": "Activity",
+      "subcategories": ["Day Trip", "Boat", "Historic"],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "Morning-Afternoon",
+      "tips": ["Buy the Dazaifu-Yanagawa combo ticket from Nishitetsu for 3,340 yen — saves a lot", "Try steamed eel at Benjiya, a 340-year-old restaurant", "February-April: catch the Sagemon hanging decoration festival", "Combine with Dazaifu shrine for a full day trip"],
+      "neighborhood": "Yanagawa"
+    },
+    {
+      "name": { "en": "Nishijin Yokocho Bar District", "ja": "西新横丁" },
+      "description": { "en": "A rambling network of tiny bars, izakayas, and yatai stalls in the Nishijin neighborhood, just a 10-minute train ride from central Fukuoka. Much cheaper than Tenjin or Nakasu, this is where university students and young locals do their bar-hopping. Gritty, authentic, and refreshingly tourist-free.", "ja": "中心部から電車で10分の西新エリアに広がる小さなバー、居酒屋、屋台のネットワーク。天神や中洲よりずっと安く、大学生や若い地元民がはしご酒を楽しむ場所。ディープで本物で、観光客がほとんどいない。" },
+      "address": { "en": "Nishijin, Sawara-ku, Fukuoka (near Nishijin Station)", "ja": "福岡市早良区西新（西新駅周辺）" },
+      "category": "Nightlife",
+      "subcategories": ["Bars", "Izakaya", "Local"],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_time": "Night 8pm-midnight",
+      "tips": ["Take the subway to Nishijin Station and just wander", "Full dinner with drinks runs 2,000-3,500 yen per person", "Many places are cash only", "Great mix of old-school izakayas and newer bars"],
+      "neighborhood": "Nishijin"
+    },
+    {
+      "name": { "en": "Manu Coffee Daimyo", "ja": "マヌコーヒー 大名店" },
+      "description": { "en": "Fukuoka's beloved specialty coffee chain, with the Daimyo branch tucked away in a rough-minimalist space. Known for creative drinks like Vanilla Wasanbon Latte and Portland Mocha. Friendly English-speaking baristas and a loyal local following. The starting point for exploring Daimyo's fashion and food scene.", "ja": "福岡で愛されるスペシャルティコーヒーチェーン。大名店はラフミニマルな空間に隠れるように佇む。バニラ和三盆ラテやポートランドモカなどの創作ドリンクが人気。英語対応のフレンドリーなバリスタと地元のファンに支えられた、大名散策の起点。" },
+      "address": { "en": "Daimyo, Chuo-ku, Fukuoka", "ja": "福岡市中央区大名" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Local Chain", "Trendy"],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Morning-Afternoon",
+      "tips": ["Try the Vanilla Wasanbon Latte — uses traditional Japanese sugar", "Multiple locations across the city, each with different vibes", "Collaborated with Fukuoka Craft on a coffee stout", "Good Wi-Fi for remote work"],
+      "neighborhood": "Daimyo"
+    },
+    {
+      "name": { "en": "Tenkai Inari Shrine", "ja": "天開稲荷社" },
+      "description": { "en": "Hidden behind the famous Dazaifu Tenmangu, this small Inari shrine is draped in vermillion torii gates climbing up a forested hillside. Almost no tourists make it here despite being a 5-minute walk from the main shrine. Locals consider it one of Fukuoka Prefecture's most powerful spiritual spots.", "ja": "有名な太宰府天満宮の裏手に隠れた小さな稲荷神社。朱色の鳥居が森の斜面を登るように連なる。本殿から徒歩5分なのにほとんどの観光客が来ない。地元では福岡県で最もパワーのあるスピリチュアルスポットの一つとされる。" },
+      "address": { "en": "Behind Dazaifu Tenmangu Shrine, Dazaifu City, Fukuoka", "ja": "福岡県太宰府市 太宰府天満宮裏手" },
+      "category": "Culture",
+      "subcategories": ["Shrine", "Hidden Gem", "Spiritual"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Morning 8-10am",
+      "tips": ["Walk past Dazaifu Tenmangu's main hall and follow signs uphill", "Much quieter than the main shrine — often deserted", "The forested path with torii gates is very photogenic", "Combine with Komyozenji Temple's moss garden nearby"],
+      "neighborhood": "Dazaifu"
+    },
+    {
+      "name": { "en": "Ohori Park Morning Walk & Teahouse", "ja": "大濠公園と日本庭園茶室" },
+      "description": { "en": "While Ohori Park itself is well-known, few visitors discover the Japanese garden's island teahouse serving matcha for 500 yen with almost no queue before 10am. The 2km lakeside loop is where Fukuoka's runners and dog walkers start their mornings. A perfect peaceful start before the city wakes up.", "ja": "大濠公園自体は有名だが、日本庭園内の島にある茶室で500円の抹茶を楽しむ人は少ない。午前10時前はほぼ行列なし。2kmの湖畔ループは福岡のランナーや犬の散歩の朝の定番コース。街が目覚める前の静かなスタートに最適。" },
+      "address": { "en": "1-2 Ohori Park, Chuo-ku, Fukuoka", "ja": "福岡市中央区大濠公園1-2" },
+      "category": "Nature",
+      "subcategories": ["Park", "Tea", "Morning"],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Early morning 7-10am",
+      "tips": ["The Japanese garden teahouse on the island serves matcha for 500 yen", "Arrive before 10am for no queues at the teahouse", "The 2km loop path is great for a morning jog", "Starbucks inside the park has lakeside seating"],
+      "neighborhood": "Ohori"
+    }
+  ]
+}

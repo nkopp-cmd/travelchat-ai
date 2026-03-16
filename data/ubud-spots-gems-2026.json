@@ -1,0 +1,162 @@
+{
+  "city": "ubud",
+  "batch": "gems-2026",
+  "spots": [
+    {
+      "name": { "en": "Warung Biah Biah", "id": "Warung Biah Biah" },
+      "description": {
+        "en": "Beloved local warung serving authentic Balinese dishes at honest prices. Known for nasi campur with slow-cooked pork, lawar, and sambal matah. The bamboo-shaded terrace overlooks a quiet street — a world away from the tourist cafes on Monkey Forest Road.",
+        "id": "Warung lokal favorit yang menyajikan masakan Bali otentik dengan harga terjangkau. Terkenal dengan nasi campur babi, lawar, dan sambal matah. Teras beratap bambu menghadap jalan tenang, jauh dari keramaian."
+      },
+      "address": { "en": "Jl. Suweta, Ubud, Gianyar, Bali, Indonesia" },
+      "category": "Food",
+      "subcategories": ["Warung", "Local", "Balinese"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Lunch",
+      "tips": [
+        "Order nasi campur babi guling for the full Balinese experience — costs around 35,000 IDR",
+        "Arrive before noon to avoid the small lunch rush; seating is limited",
+        "Cash only — no card payments accepted"
+      ],
+      "neighborhood": "Suweta"
+    },
+    {
+      "name": { "en": "Tukad Cepung Waterfall", "id": "Air Terjun Tukad Cepung" },
+      "description": {
+        "en": "A hidden canyon waterfall where sunbeams pierce through rock crevices creating an ethereal cathedral of light. The 15-minute trek descends through jungle, stone steps, and shallow streams into a moss-covered slot canyon. Visit between 9-11 AM for the famous light beam effect.",
+        "id": "Air terjun tersembunyi di ngarai dimana sinar matahari menembus celah batu menciptakan katedral cahaya. Trek 15 menit menuruni tangga batu dan sungai dangkal menuju ngarai berlumut. Kunjungi pukul 9-11 pagi untuk efek sinar cahaya."
+      },
+      "address": { "en": "Tembuku, Bangli Regency, Bali, Indonesia" },
+      "category": "Outdoor",
+      "subcategories": ["Waterfall", "Hiking", "Photography"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning (9-11 AM)",
+      "tips": [
+        "Arrive by 8:30 AM to have the canyon nearly to yourself — tour groups start around 10 AM",
+        "Wear non-slip water shoes; you'll wade through ankle-deep streams",
+        "Check river conditions before going — the canyon floods during heavy rain and can be dangerous",
+        "Entrance fee is 15,000 IDR per person"
+      ],
+      "neighborhood": "Tembuku"
+    },
+    {
+      "name": { "en": "Penestanan Art Village", "id": "Desa Seni Penestanan" },
+      "description": {
+        "en": "A quiet artist colony west of central Ubud, known since the 1930s when painter Walter Spies lived here. Winding paths pass small galleries, ceramics studios, and organic cafes nestled among rice paddies. The scenic staircases and riverside stone carvings reward slow, curious wandering.",
+        "id": "Koloni seniman tenang di barat Ubud, terkenal sejak tahun 1930-an saat pelukis Walter Spies tinggal di sini. Jalan berkelok melewati galeri kecil, studio keramik, dan kafe organik di antara sawah."
+      },
+      "address": { "en": "Penestanan Kaja, Sayan, Ubud, Gianyar, Bali, Indonesia" },
+      "category": "Culture",
+      "subcategories": ["Art", "Village", "Gallery"],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Visit Rüsters ceramics studio for a pottery class or just great coffee in their attached cafe",
+        "Walk from Campuhan Ridge toward Penestanan for a combined morning route",
+        "Most artists welcome visitors to watch them work — ask before photographing"
+      ],
+      "neighborhood": "Penestanan"
+    },
+    {
+      "name": { "en": "Campuhan Ridge Walk at Dawn", "id": "Bukit Campuhan Saat Fajar" },
+      "description": {
+        "en": "A 2.5 km ridge trail between two river valleys that becomes magical at sunrise. Golden light bathes the elephant grass hillsides while mist rises from the jungle below. The path is flat and easy, starting near Pura Gunung Lebah temple and ending near Karsa Kafe's rice fields.",
+        "id": "Jalur bukit 2,5 km di antara dua lembah sungai yang memukau saat matahari terbit. Cahaya emas menyinari bukit ilalang sementara kabut naik dari hutan. Jalur datar dan mudah, dimulai dari Pura Gunung Lebah."
+      },
+      "address": { "en": "Jl. Raya Campuhan, Sayan, Ubud, Gianyar, Bali, Indonesia" },
+      "category": "Outdoor",
+      "subcategories": ["Walk", "Sunrise", "Nature"],
+      "localley_score": 4,
+      "local_percentage": 45,
+      "best_time": "Sunrise (6-7:30 AM)",
+      "tips": [
+        "Start by 6 AM — the trail gets hot and exposed after 8 AM with no shade",
+        "Free entry, no ticket needed",
+        "End at Karsa Kafe for breakfast overlooking rice paddies",
+        "The trail is also excellent for stargazing due to the open sky"
+      ],
+      "neighborhood": "Campuhan"
+    },
+    {
+      "name": { "en": "Kanto Lampo Waterfall", "id": "Air Terjun Kanto Lampo" },
+      "description": {
+        "en": "A photogenic curtain waterfall cascading over terraced rock formations fed by the local Subak irrigation system. Unlike jungle waterfalls requiring long hikes, Kanto Lampo is easily accessible via a short stairway — making it ideal for families. The layered rock shelves create natural photo spots.",
+        "id": "Air terjun fotogenik yang mengalir di atas formasi batu bertingkat dari sistem irigasi Subak. Mudah diakses melalui tangga pendek, ideal untuk keluarga. Rak batu berlapis menciptakan spot foto alami."
+      },
+      "address": { "en": "Banjar Kelod Kangin, Beng, Gianyar, Bali, Indonesia" },
+      "category": "Outdoor",
+      "subcategories": ["Waterfall", "Photography", "Family-friendly"],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Early morning (7-8 AM)",
+      "tips": [
+        "Arrive at 7 AM to have the waterfall to yourself — midday is packed with tour groups",
+        "Bring a change of clothes; you will get wet climbing the rock formations",
+        "28-minute drive south of Ubud center — rent a scooter for about 60,000 IDR/day",
+        "The path down is slippery; wear non-slip shoes"
+      ],
+      "neighborhood": "Beng"
+    },
+    {
+      "name": { "en": "Abe-Do Organic Warung", "id": "Warung Organik Abe-Do" },
+      "description": {
+        "en": "A hidden organic warung that elevates traditional Balinese cooking with locally sourced, chemical-free ingredients. From healing juices to organic nasi campur and fresh tempeh dishes, everything is prepared with intention. The intimate garden setting feels like eating at a friend's home.",
+        "id": "Warung organik tersembunyi yang mengangkat masakan Bali tradisional dengan bahan lokal bebas kimia. Dari jus penyembuhan hingga nasi campur organik, semua disiapkan dengan penuh perhatian. Suasana taman intim seperti makan di rumah teman."
+      },
+      "address": { "en": "Jl. Jembawan, Ubud, Gianyar, Bali, Indonesia" },
+      "category": "Food",
+      "subcategories": ["Warung", "Organic", "Healthy"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Lunch",
+      "tips": [
+        "Try the daily special nasi campur — changes based on what's freshest from local farms",
+        "The fresh turmeric jamu drink is a must-order for its anti-inflammatory benefits",
+        "Small venue with limited seating; go between 11 AM and noon to beat the crowd"
+      ],
+      "neighborhood": "Jembawan"
+    },
+    {
+      "name": { "en": "Kajeng Rice Field Walk", "id": "Jalur Sawah Kajeng" },
+      "description": {
+        "en": "A scenic loop trail hidden just behind Ubud's main road, passing through working rice paddies and the ancient Subak Juwuk Manis irrigation system. Far less crowded than Tegallalang, this walk offers an intimate glimpse into centuries-old Balinese rice cultivation right in the heart of town.",
+        "id": "Jalur lingkar indah tersembunyi di belakang jalan utama Ubud, melewati sawah aktif dan sistem irigasi kuno Subak Juwuk Manis. Jauh lebih sepi dari Tegallalang, menawarkan pandangan intim budidaya padi Bali."
+      },
+      "address": { "en": "Jl. Kajeng, Ubud, Gianyar, Bali, Indonesia" },
+      "category": "Outdoor",
+      "subcategories": ["Walk", "Rice Terrace", "Culture"],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "Start from behind Ubud Palace — the trailhead is easy to miss on Jl. Kajeng",
+        "Stop at Sweet Orange Warung along the route for fresh coconut juice",
+        "Free to walk; no entrance fee unlike Tegallalang",
+        "Best alternative to crowded Tegallalang Rice Terrace — similar beauty, fraction of the visitors"
+      ],
+      "neighborhood": "Kajeng"
+    },
+    {
+      "name": { "en": "Bodega Ubud", "id": "Bodega Ubud" },
+      "description": {
+        "en": "An eco-conscious cafe and community hub in Penestanan village that has become the heart of Ubud's emerging specialty coffee scene. Sources beans from Indonesian single-origin farms, roasts in small batches, and serves in a relaxed garden setting surrounded by jungle and rice fields.",
+        "id": "Kafe ramah lingkungan dan pusat komunitas di desa Penestanan yang menjadi jantung kopi spesialti Ubud. Biji kopi dari petani Indonesia, disangrai dalam jumlah kecil, disajikan di taman santai dikelilingi hutan dan sawah."
+      },
+      "address": { "en": "Penestanan Kaja, Sayan, Ubud, Gianyar, Bali, Indonesia" },
+      "category": "Cafe",
+      "subcategories": ["Coffee", "Specialty", "Community"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning",
+      "tips": [
+        "Try their cold brew made with Kintamani beans — a local Bali highland varietal",
+        "Combine with a visit to Penestanan Art Village galleries next door",
+        "Good Wi-Fi makes it popular with digital nomads — arrive early for the best seats"
+      ],
+      "neighborhood": "Penestanan"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "city": "kaohsiung",
+  "batch": 1,
+  "description": "Hidden gems and trending spots in Kaohsiung for 2025-2026",
+  "spots": [
+    {
+      "name": { "en": "Pier-2 Art Center", "zh-TW": "駁二藝術特區" },
+      "description": { "en": "Former port warehouses transformed into southern Taiwan's most vibrant art district, drawing over 6 million visitors in 2025. Beyond the Instagram murals and giant robot sculptures, explore the converted container shops, weekend indie markets, and rotating exhibitions. The annual Megaport Festival (Taiwan's biggest rock fest) takes place here every March. Best experienced by renting a bike and riding along the harbor rail trail.", "zh-TW": "舊港口倉庫群改造的南台灣最有活力的藝術特區，2025年超過600萬人次造訪。除了大型裝置藝術，還有貨櫃市集、週末獨立市集和輪替展覽。每年3月的大港開唱是台灣最大搖滾音樂節。租單車沿港區鐵道騎行最棒。" },
+      "address": { "en": "No. 1, Dayong Road, Yancheng District, Kaohsiung 803", "zh-TW": "高雄市鹽埕區大勇路1號" },
+      "category": "Culture",
+      "subcategories": ["Art District", "Street Art", "Photo Spot"],
+      "localley_score": 2,
+      "local_percentage": 40,
+      "best_time": "Weekday afternoons, or weekends for markets. March for Megaport Festival",
+      "tips": ["Orange Line to Hamaxing Station, Exit 2 — 2 min walk", "Rent bikes at the entrance to cover the sprawling complex", "2025 Container Arts Festival 'Love Loafing' runs Dec 2025 - Mar 2026", "Continue along the rail trail to the Pop Music Center for harbor sunset views"],
+      "neighborhood": "Yancheng"
+    },
+    {
+      "name": { "en": "Lotus Pond & Dragon Tiger Pagodas", "zh-TW": "蓮池潭龍虎塔" },
+      "description": { "en": "The Dragon and Tiger Pagodas at Lotus Pond were fully restored in 2025 with fresh paint and rebuilt scaffolding removed. Follow the tradition: enter through the dragon's mouth, exit through the tiger's — said to turn bad luck into good. The surrounding lake has Spring and Autumn Pavilions and a cycling path. Skip walking the full perimeter in Kaohsiung's heat; focus on the pagodas and nearby temples.", "zh-TW": "蓮池潭龍虎塔2025年初完成全新整修，鷹架拆除後煥然一新。遵循傳統「龍喉進、虎口出」，據說能消災解厄。周邊有春秋閣和環湖自行車道。高雄烈日下不建議繞潭一周，重點看塔和廟宇即可。" },
+      "address": { "en": "Lotus Pond, Zuoying District, Kaohsiung 813", "zh-TW": "高雄市左營區蓮池潭" },
+      "category": "Culture",
+      "subcategories": ["Temple", "Heritage", "Photo Spot"],
+      "localley_score": 2,
+      "local_percentage": 35,
+      "best_time": "Early morning or late afternoon to avoid heat, evening for light shows",
+      "tips": ["Enter dragon mouth, exit tiger mouth — this is important", "MRT to Zuoying Station, then Red 51 shuttle bus", "Newly restored as of 2025 — looks spectacular in photos now", "Combine with Zuoying Old City walls walk nearby"],
+      "neighborhood": "Zuoying"
+    },
+    {
+      "name": { "en": "Cijin Island Seafood & Old Street", "zh-TW": "旗津海鮮＆旗津老街" },
+      "description": { "en": "A 5-minute ferry ride from Gushan Pier drops you on this narrow island where Kaohsiung's freshest seafood arrives daily. Skip the tourist-trap restaurants on the main strip — follow locals to the smaller family-run spots on Miao Qian Street for steamed fish, crab with egg, sashimi, and the iconic swordfish tempura (qi yu hei lun) from 70-year-old Yama Ichi. Morning brings a local produce market; afternoon brings snack stalls.", "zh-TW": "從鼓山搭渡輪5分鐘即達，高雄最新鮮的海產每日直送。避開觀光客餐廳，跟在地人到廟前街的小攤吃清蒸魚、蟹黃和生魚片。70年歷史的山壹旗魚黑輪是必吃。早上是在地菜市場，下午變身小吃街。" },
+      "address": { "en": "Cijin Old Street, Qijin District, Kaohsiung 805", "zh-TW": "高雄市旗津區旗津老街" },
+      "category": "Food",
+      "subcategories": ["Seafood", "Local Favorite", "Island"],
+      "localley_score": 3,
+      "local_percentage": 55,
+      "best_time": "Late morning for seafood lunch, avoid typhoon season",
+      "tips": ["Ferry from Gushan Pier runs every 5-10 min, NT$40 round trip with iPass", "Yama Ichi swordfish tempura is a 70-year institution — look for the queue", "Rent a bike on the island to reach Cihou Fort for panoramic harbor views", "Star Tunnel (旗津星空隧道) is a former military tunnel turned LED art walkway"],
+      "neighborhood": "Qijin"
+    },
+    {
+      "name": { "en": "Liuhe Night Market — Local Picks Only", "zh-TW": "六合夜市在地精選" },
+      "description": { "en": "Yes, Liuhe is touristy — but locals still come for specific stalls. The real move is to grab a few items here then walk 10 minutes to Lingya Night Market (Ruifeng's smaller cousin) where award-winning chef Lanshu Chen goes for sweet sesame dough fritters and fresh grouper fish soup. At Liuhe itself, papaya milk from Zheng Lao Pai and salt-grilled seafood from the corner stalls remain genuinely good.", "zh-TW": "六合夜市確實觀光化，但在地人仍為特定攤位而來。真正內行的做法是在這裡吃幾樣，再走10分鐘到苓雅夜市——名廚陳嵐舒去吃芝麻球和石斑魚湯的地方。六合的鄭老牌木瓜牛奶和角落的鹽烤海鮮還是很行。" },
+      "address": { "en": "Liuhe 2nd Road, Xinxing District, Kaohsiung 800", "zh-TW": "高雄市新興區六合二路" },
+      "category": "Market",
+      "subcategories": ["Night Market", "Street Food", "Local Tips"],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "7:00 PM - 11:00 PM, combine with Lingya Night Market nearby",
+      "tips": ["Zheng Lao Pai papaya milk is the real deal — NT$60 for fresh-blended", "For the local experience, walk to Lingya Night Market (苓雅夜市) 10 min away", "Salt-grilled seafood stalls at the south end are better than the center", "MRT Formosa Boulevard Station is right there — also see the Dome of Light"],
+      "neighborhood": "Xinxing"
+    },
+    {
+      "name": { "en": "Weiwuying National Kaohsiung Center for the Arts", "zh-TW": "衛武營國家藝術文化中心" },
+      "description": { "en": "The world's largest single-roofed performing arts venue, designed by Mecanoo architects with an organic flowing form inspired by banyan trees. Houses a concert hall, opera house, playhouse, and recital hall under one sweeping canopy. The open-air banyan plaza underneath is free to explore and locals gather here for morning tai chi. Nearby Weiwuying Painted Village has colorful murals across an entire neighborhood.", "zh-TW": "世界最大單一屋頂劇院，由Mecanoo建築事務所設計，靈感來自榕樹。涵蓋音樂廳、歌劇院、戲劇院和演奏廳。開放式榕樹廣場免費參觀，在地人清晨在此打太極。附近的衛武迷迷村有整個社區的彩繪壁畫。" },
+      "address": { "en": "No. 1, Sanduo 1st Road, Fengshan District, Kaohsiung 830", "zh-TW": "高雄市鳳山區三多一路1號" },
+      "category": "Culture",
+      "subcategories": ["Architecture", "Performing Arts", "Free Entry"],
+      "localley_score": 3,
+      "local_percentage": 60,
+      "best_time": "Weekday mornings for quiet exploration, evenings for performances",
+      "tips": ["The banyan plaza underneath is open 24/7 and free", "Orange Line MRT directly to Weiwuying Station", "Check the official website for free outdoor concerts and film screenings", "Walk to Weiwuying Painted Village (衛武迷迷村) nearby for murals"],
+      "neighborhood": "Fengshan"
+    },
+    {
+      "name": { "en": "Love River Evening Walk & Cafe Strip", "zh-TW": "愛河夜間散步＆河畔咖啡" },
+      "description": { "en": "Once polluted and avoided, the Love River has been transformed into Kaohsiung's most romantic evening promenade. The stretch between Wufu Bridge and Zhongzheng Bridge is lined with riverside cafes, fairy lights, and occasional busker performances. Take the Love Boat (ai zhi chuan) for a 20-minute narrated cruise. The river connects Pier-2 to the south with the new Kaohsiung Music Center's wave-shaped buildings visible from the water.", "zh-TW": "曾經被嫌棄的愛河已變身高雄最浪漫的夜間散步路線。五福橋到中正橋之間有河畔咖啡廳、燈飾和街頭藝人。搭愛之船20分鐘遊河，可以看到駁二和高雄流行音樂中心的波浪建築。" },
+      "address": { "en": "Love River, between Wufu Bridge and Zhongzheng Bridge, Yancheng District, Kaohsiung 803", "zh-TW": "高雄市鹽埕區愛河（五福橋至中正橋段）" },
+      "category": "Activity",
+      "subcategories": ["Walking", "Romantic", "Night View"],
+      "localley_score": 3,
+      "local_percentage": 50,
+      "best_time": "6:00 PM - 10:00 PM for best atmosphere and cooler weather",
+      "tips": ["Love Boat cruise is NT$150, runs every 15 min from 4 PM", "Walk south along the river to reach Pier-2 Art Center", "Best photos from Wufu Bridge looking south at sunset", "River-side cafes serve local craft beer and Kaohsiung fruit teas"],
+      "neighborhood": "Yancheng"
+    },
+    {
+      "name": { "en": "Ya Rou Zhen (Duck Rice)", "zh-TW": "鴨肉珍" },
+      "description": { "en": "A 65-year-old duck rice institution in Yancheng with no signboard — find it by the rows of parked motorcycles and crowds of people hunched over metal tables. Michelin-recommended for their generous portions of braised duck over rice drenched in soul-warming sauce. The duck rice noodle soup is equally famous. This is pure Kaohsiung local food culture: no frills, no English, just decades of perfected flavor.", "zh-TW": "鹽埕區65年歷史的鴨肉老店，沒有招牌——看到一排機車和擠滿人的鐵桌就對了。米其林推薦，招牌鴨肉飯份量豪邁淋上靈魂醬汁，鴨肉米粉也同樣出名。純粹的高雄在地飲食文化。" },
+      "address": { "en": "No. 258, Wufu 4th Road, Yancheng District, Kaohsiung 803", "zh-TW": "高雄市鹽埕區五福四路258號" },
+      "category": "Food",
+      "subcategories": ["Hidden Gem", "Local Favorite", "Michelin"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch (11:00 AM - 1:30 PM), arrive early to avoid peak queue",
+      "tips": ["No signboard — look for the motorcycle army outside", "Duck rice + duck rice noodle soup combo is the power move", "Cash only, most dishes under NT$100", "5-minute walk from Pier-2 — perfect lunch after art district"],
+      "neighborhood": "Yancheng"
+    },
+    {
+      "name": { "en": "Zuoying Old City & Jiancheng Trail", "zh-TW": "左營舊城＆見城之道" },
+      "description": { "en": "Taiwan's oldest and best-preserved Qing dynasty city wall, with the 770-meter Jiancheng Trail elevated walkway running along the restored ramparts from the Jiancheng Museum past Lotus Pond to the North Gate. Red lanterns light up at dusk creating an atmospheric evening walk. The surrounding Zuoying area has excellent military dependents' village food — try A-Xing Rice Noodle Soup, a 55-year-old local institution.", "zh-TW": "台灣最古老、保存最完整的清代城牆，770公尺的見城之道高架步道沿修復城牆從見城館經蓮池潭到北門。傍晚紅燈籠亮起特別有氛圍。周邊左營眷村美食豐富——55年歷史的阿杏米粉羹是在地人激推。" },
+      "address": { "en": "Zuoying Old City, Zuoying District, Kaohsiung 813", "zh-TW": "高雄市左營區左營舊城" },
+      "category": "Culture",
+      "subcategories": ["Heritage", "Walking", "Hidden Gem"],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "Late afternoon into dusk for lantern-lit atmosphere",
+      "tips": ["Start at Jiancheng Museum, walk 770m along the wall to North Gate", "Red lanterns illuminate at dusk — bring a camera", "A-Xing Rice Noodle Soup (阿杏米粉羹) nearby has been on food TV shows", "Combine with Lotus Pond — they are adjacent"],
+      "neighborhood": "Zuoying"
+    },
+    {
+      "name": { "en": "Yancheng District Local Food Crawl", "zh-TW": "鹽埕區在地美食巡禮" },
+      "description": { "en": "Kaohsiung's oldest commercial district is a concentrated pocket of multi-generational food heritage. Highlights: Kaohsiung Grandma Ice (高雄婆婆冰) for shaved ice since the 1940s, Beigang Cai San Dai Tube Rice Cake (3 consecutive Michelin Bib Gourmand years), Hua Da Milk Tea original flagship, and Horikoshi Noodle Shop for simple dry noodles and bitter melon soup that locals eat daily. All within 10-minute walking radius.", "zh-TW": "高雄最老的商業區集中了世代傳承的美食。重點：1940年代的高雄婆婆冰、連續3年米其林必比登的北港蔡三代筒仔米糕、樺達奶茶創始店、在地人日常吃的堀江麵店乾麵和苦瓜封湯。全部步行10分鐘內。" },
+      "address": { "en": "Yancheng District, Kaohsiung 803", "zh-TW": "高雄市鹽埕區" },
+      "category": "Food",
+      "subcategories": ["Food Crawl", "Heritage", "Local Favorite"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Late morning to early afternoon for maximum stall coverage",
+      "tips": ["Start at Horikoshi Noodle Shop for a simple NT$40 noodle breakfast", "Beigang Cai tube rice cake — 3x Michelin Bib Gourmand, expect a line", "Hua Da Milk Tea original store is cash only, NT$30-50", "End at Grandma Ice for shaved mango ice — a Kaohsiung legend since the 1940s"],
+      "neighborhood": "Yancheng"
+    },
+    {
+      "name": { "en": "Xing Long Ju Traditional Breakfast", "zh-TW": "興隆居傳統早餐" },
+      "description": { "en": "The most famous traditional Taiwanese breakfast spot in Kaohsiung, with lines forming before dawn. Their sesame flatbread with fried dough stick (shao bing you tiao) is audibly crispy, and the signature soup buns (tang bao) are handmade, juicy, and bursting with hot broth. Despite the perpetual queue, service moves fast with military efficiency. This is what Kaohsiung dockworkers and fishermen have eaten before sunrise for generations.", "zh-TW": "高雄最有名的傳統早餐店，天還沒亮就開始排隊。燒餅油條酥脆有聲，招牌湯包手工現做、鮮美多汁。雖然永遠在排隊但動線快速有效率。這是高雄碼頭工人和漁民世代的日出前早餐。" },
+      "address": { "en": "No. 55, Liuhe 1st Road, Xinxing District, Kaohsiung 800", "zh-TW": "高雄市新興區六合一路55號" },
+      "category": "Food",
+      "subcategories": ["Breakfast", "Local Favorite", "Traditional"],
+      "localley_score": 4,
+      "local_percentage": 75,
+      "best_time": "5:30 AM - 9:00 AM, arrive before 7 AM on weekends",
+      "tips": ["Soup buns (湯包) + sesame flatbread (燒餅) is the classic combo", "Queue moves fast — don't be intimidated by the line", "Cash only, entire breakfast under NT$100", "Near Liuhe Night Market — same street, opposite hours"],
+      "neighborhood": "Xinxing"
+    }
+  ]
+}

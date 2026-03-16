@@ -1,0 +1,126 @@
+{
+  "city": "niseko",
+  "batch": 1,
+  "spots": [
+    {
+      "name": { "en": "Niseko Distillery", "ja": "ニセコ蒸溜所" },
+      "description": { "en": "A craft distillery by Hakkaisan Brewery producing 'ohoro GIN' with 13 Hokkaido botanicals including sweet gale and Japanese peppermint. Whisky aging since 2021 with first releases arriving 2025. Guided tours include distillery, production area, barrel warehouse, and a tasting. The bar counter serves gin cocktails with views of the copper pot stills.", "ja": "八海醸造が手がけるクラフト蒸溜所。北海道産のヤチヤナギや和ハッカなど13種のボタニカルを使った「ohoro GIN」を製造。2021年からウイスキーの熟成を開始し、初リリースは2025年。ガイドツアーでは蒸溜所、製造エリア、貯蔵庫の見学と試飲が楽しめる。" },
+      "address": { "en": "45-3 Niseko, Niseko-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡ニセコ町ニセコ45-3" },
+      "category": "Activity",
+      "subcategories": ["Distillery", "Craft Spirits", "Tour"],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Morning-Afternoon (tour times: 10am, 11:30am, 3pm)",
+      "tips": ["Tours are 1,000 yen in summer, 2,000 yen in winter — includes one drink", "No reservation needed for the shop and bar, but tours require booking", "'Ohoro' means 'to continue' in Ainu language", "Try the Japanese Peppermint gin variant — unique to Hokkaido"],
+      "neighborhood": "Niseko"
+    },
+    {
+      "name": { "en": "Torimatsu Yakitori", "ja": "鳥松" },
+      "description": { "en": "A family-owned yakitori institution in Kutchan that was featured by Anthony Bourdain. Master griller Akihiro Matsuo works the charcoal with decades of precision. Open year-round, this is where locals and in-the-know visitors come for some of Hokkaido's best grilled chicken. Intimate, smoky, unforgettable.", "ja": "アンソニー・ボーデインが取り上げた倶知安の家族経営焼き鳥の名店。松尾昭弘氏が数十年の技で炭火を操る。通年営業で、地元民や通が北海道最高の焼き鳥を求めて訪れる。親密で煙たくて忘れられない店。" },
+      "address": { "en": "Kutchan-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡倶知安町" },
+      "category": "Food",
+      "subcategories": ["Yakitori", "Local Legend", "Izakaya"],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Evening 6-9pm",
+      "tips": ["Featured on Anthony Bourdain's show", "Open year-round, not just ski season", "Counter seats give the best view of the grill master at work", "Pair with local Hokkaido beer"],
+      "neighborhood": "Kutchan"
+    },
+    {
+      "name": { "en": "Kira no Yu Onsen", "ja": "綺羅乃湯" },
+      "description": { "en": "A no-frills local onsen right in front of JR Niseko Station, beloved by townspeople. For just 600 yen you get indoor baths, outdoor rotenburo, sauna, and jacuzzi. No tourist crowds — this is where Niseko-cho residents come to soak daily. The perfect antidote to a day of hiking or skiing.", "ja": "JRニセコ駅前にある飾らない地元の温泉。町民に愛されている。わずか600円で内風呂、露天風呂、サウナ、ジャグジーが楽しめる。観光客の混雑なし——ニセコ町民が毎日通う湯。ハイキングやスキーの後の最高の癒し。" },
+      "address": { "en": "In front of JR Niseko Station, Niseko-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡ニセコ町 JRニセコ駅前" },
+      "category": "Activity",
+      "subcategories": ["Onsen", "Local", "Budget"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Late afternoon-Evening",
+      "tips": ["Only 600 yen for adults, 250 yen for kids", "Bring your own towel or rent one cheaply", "Less crowded on weekday evenings", "Buy the Niseko onsen hopping pass for multiple bath visits across the region"],
+      "neighborhood": "Niseko Station"
+    },
+    {
+      "name": { "en": "Goshiki Onsen", "ja": "ニセコ五色温泉" },
+      "description": { "en": "A remote mountain onsen nestled between Mt. Annupuri and Mt. Iwaonupuri, accessible only by a winding mountain road. The sulfurous waters change color with the weather and seasons. One of Hokkaido's true 'hito' (secret hot springs). The outdoor bath faces raw volcanic rock with steam rising around you.", "ja": "アンヌプリ山といわおぬぷり山の間に佇む山奥の秘湯。硫黄泉は天候や季節で色が変わる。北海道の真の秘湯の一つ。露天風呂は生の火山岩に面し、周囲から蒸気が立ち上る。" },
+      "address": { "en": "510 Niseko, Niseko-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡ニセコ町ニセコ510" },
+      "category": "Activity",
+      "subcategories": ["Onsen", "Secret Hot Spring", "Nature"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Afternoon (summer), Morning (autumn for foliage)",
+      "tips": ["Mountain road closes in winter — primarily a summer/autumn experience", "The water color genuinely changes — can be milky blue, green, or grey", "Source-fed flowing water (gensen kakenagashi) — no recycled water", "Combine with a hike on Mt. Annupuri"],
+      "neighborhood": "Niseko Mountains"
+    },
+    {
+      "name": { "en": "Rakuichi Soba", "ja": "楽一そば" },
+      "description": { "en": "A tiny handmade soba noodle shop in Kutchan where the owner grinds local buckwheat and cuts noodles by hand daily. Counter seating only, with a deeply personal dining experience. The soba has a nutty, earthy flavor you won't find at chain restaurants. Closes when the day's soba runs out.", "ja": "倶知安にある小さな手打ちそば店。店主が地元産のそば粉を毎日石臼で挽き、手切りする。カウンター席のみで、とても個人的な食体験。チェーン店では味わえない香ばしく土の香りのするそば。その日のそばがなくなり次第閉店。" },
+      "address": { "en": "Kutchan-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡倶知安町" },
+      "category": "Food",
+      "subcategories": ["Soba", "Handmade", "Local"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Lunch 11:30am-1pm",
+      "tips": ["Counter seats only — intimate and quiet", "Uses locally grown Hokkaido buckwheat", "Closes when the soba runs out, so go early", "Try the cold zaru soba to taste the pure buckwheat flavor"],
+      "neighborhood": "Kutchan"
+    },
+    {
+      "name": { "en": "Shiribetsu River Rafting", "ja": "尻別川ラフティング" },
+      "description": { "en": "Whitewater rafting down the Shiribetsu River, voted Japan's cleanest river for years. Spring snowmelt brings thrilling Grade 3-4 rapids, while summer is calmer and family-friendly. The river runs through pristine forest with Mt. Yotei towering above. NAC (Niseko Adventure Centre) is the go-to operator.", "ja": "何年も日本一の清流に選ばれた尻別川でのラフティング。春の雪解けではスリリングなグレード3-4の急流、夏はファミリー向けの穏やかな流れ。原生林の中を流れ、羊蹄山がそびえ立つ。NAC（ニセコアドベンチャーセンター）が定番のオペレーター。" },
+      "address": { "en": "Shiribetsu River, Niseko area, Hokkaido", "ja": "北海道ニセコエリア 尻別川" },
+      "category": "Activity",
+      "subcategories": ["Rafting", "Summer", "Adventure"],
+      "localley_score": 3,
+      "local_percentage": 45,
+      "best_time": "May-September (May-June for rapids, July-August for families)",
+      "tips": ["Book through NAC (Niseko Adventure Centre) for the best guides", "Spring (May-June) has the wildest rapids from snowmelt", "Summer trips are gentle enough for kids age 3+", "The Shiribetsu has been voted Japan's cleanest river multiple times"],
+      "neighborhood": "Niseko Area"
+    },
+    {
+      "name": { "en": "Koikawa Onsen", "ja": "鯉川温泉" },
+      "description": { "en": "A true hidden onsen deep in primeval forest, operating since 1899. The outdoor bath faces a small waterfall surrounded by untouched woodland. Far from the resort crowds, this is the kind of place onsen purists dream about. The old wooden building and mineral-rich waters feel unchanged from a century ago.", "ja": "1899年開湯の原生林の奥深くにある真の秘湯。露天風呂の目の前に小さな滝が流れ、手つかずの森に囲まれている。リゾートの喧騒から遠く離れた、温泉通が夢見る場所。古い木造の建物とミネラル豊富な湯は一世紀前と変わらない。" },
+      "address": { "en": "Rankoshi-cho, Isoya-gun, Hokkaido", "ja": "北海道磯谷郡蘭越町" },
+      "category": "Activity",
+      "subcategories": ["Onsen", "Secret Hot Spring", "Historic"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Any time, especially autumn for foliage",
+      "tips": ["Operating since 1899 — one of the oldest in the area", "The waterfall right in front of the outdoor bath is stunning", "Very rustic — no fancy amenities, just pure hot spring", "About 30 minutes drive from central Niseko"],
+      "neighborhood": "Rankoshi"
+    },
+    {
+      "name": { "en": "Niseko Green Farm", "ja": "ニセコグリーンファーム" },
+      "description": { "en": "A working farm at the base of Mt. Yotei offering seasonal harvest experiences. Pick sweet corn, tomatoes, asparagus, and potatoes grown in volcanic soil fed by mountain spring water. The farm-to-table concept is real here — Hokkaido produce at peak freshness. Many Niseko restaurants source directly from farms like this.", "ja": "羊蹄山の麓にある体験型農場。火山性土壌と湧き水で育った甘いトウモロコシ、トマト、アスパラ、じゃがいもの収穫体験ができる。ファーム・トゥ・テーブルが本物の場所——北海道の食材を最高の鮮度で。ニセコの多くのレストランがこのような農場から直接仕入れている。" },
+      "address": { "en": "Niseko-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡ニセコ町" },
+      "category": "Activity",
+      "subcategories": ["Farm", "Summer", "Family"],
+      "localley_score": 4,
+      "local_percentage": 65,
+      "best_time": "Summer (July-September)",
+      "tips": ["Peak harvest season is July-September", "Niseko's volcanic soil produces exceptionally sweet produce", "Great family activity — kids love picking vegetables", "Buy fresh produce to cook at your accommodation"],
+      "neighborhood": "Niseko"
+    },
+    {
+      "name": { "en": "Yugokorotei Onsen", "ja": "湯心亭" },
+      "description": { "en": "A traditional onsen lodge with panoramic views of Mt. Yotei from its outdoor bath. More of a local feel than the big resort onsens, with source-fed flowing hot spring water. The view of Yotei's snow-capped peak while soaking in steaming water is iconic Niseko. Day-use bathing available.", "ja": "露天風呂から羊蹄山のパノラマビューが広がる伝統的な温泉宿。大型リゾート温泉よりも地元の雰囲気があり、源泉かけ流し。湯気の中から見る羊蹄山の雪を被った頂上はニセコの象徴的な景色。日帰り入浴可能。" },
+      "address": { "en": "Niseko-cho, Abuta-gun, Hokkaido (Moiwa area)", "ja": "北海道虻田郡ニセコ町（モイワエリア）" },
+      "category": "Activity",
+      "subcategories": ["Onsen", "Views", "Traditional"],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Late afternoon for sunset views of Mt. Yotei",
+      "tips": ["The Mt. Yotei view from the outdoor bath is spectacular", "Day-use bathing available — no need to stay overnight", "Less crowded than Hilton or big resort onsens", "Source-fed flowing water (gensen kakenagashi)"],
+      "neighborhood": "Moiwa"
+    },
+    {
+      "name": { "en": "Kutchan Potato & Local Food Scene", "ja": "倶知安じゃがいもと地元グルメ" },
+      "description": { "en": "Kutchan town, just minutes from Hirafu, is the agricultural heart of the Niseko area and famous for its potatoes. The local dining scene includes ramen shops, izakayas, and family restaurants that cater to residents year-round — not just the ski season tourist rush. Food trucks cluster near Hirafu Intersection and by Seicomart.", "ja": "ヒラフからすぐの倶知安町はニセコエリアの農業の中心地でじゃがいもの名産地。地元の食事シーンはラーメン店、居酒屋、ファミリーレストランが通年で住民に対応——スキーシーズンの観光客ラッシュだけではない。フードトラックはヒラフ交差点やセイコーマート付近に集まる。" },
+      "address": { "en": "Kutchan-cho, Abuta-gun, Hokkaido", "ja": "北海道虻田郡倶知安町" },
+      "category": "Food",
+      "subcategories": ["Local Food", "Ramen", "Food Trucks"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Lunch or Dinner year-round",
+      "tips": ["Kutchan is the real town — much cheaper than resort-area Hirafu", "Try potato croquettes — Kutchan potatoes are famous across Hokkaido", "Food trucks near Hirafu Intersection offer great quick meals", "Seicomart convenience stores have surprisingly good hot food"],
+      "neighborhood": "Kutchan"
+    }
+  ]
+}

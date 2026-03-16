@@ -1,0 +1,166 @@
+{
+  "city": "okinawa",
+  "batch": "gems-2026",
+  "spots": [
+    {
+      "name": { "en": "Makishi Public Market", "ja": "第一牧志公設市場" },
+      "description": {
+        "en": "Okinawa's kitchen since 1950, rebuilt and reopened in 2023. The ground floor overflows with colorful reef fish, pig face meat, island vegetables, and tropical fruits. Buy ingredients downstairs and have the 2nd-floor restaurants cook them for you (the 'mochiage' system) — a uniquely Okinawan experience.",
+        "ja": "1950年から沖縄の台所として親しまれ、2023年に建て替えリニューアル。1階で色鮮やかな魚、豚肉、島野菜を買い、2階の食堂で調理してもらう「持ち上げ」システムが名物。"
+      },
+      "address": { "en": "2-10-1 Matsuo, Naha, Okinawa 900-0014, Japan" },
+      "category": "Market",
+      "subcategories": ["Food Market", "Seafood", "Local Culture"],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Morning (8-11 AM)",
+      "tips": [
+        "Use the 'mochiage' system: buy sashimi-grade fish on floor 1, take it to floor 2, pay ~500 yen cooking fee per dish",
+        "Shopkeepers sometimes give a little extra — called 'shibun' in Okinawan dialect",
+        "7-minute walk to Tsuboya pottery district — combine for a half-day Naha exploration",
+        "Access: 9-min walk from Yui Rail Makishi Station"
+      ],
+      "neighborhood": "Makishi"
+    },
+    {
+      "name": { "en": "Tsuboya Pottery District", "ja": "壺屋やちむん通り" },
+      "description": {
+        "en": "A 400-meter cobblestone street lined with 40+ ceramic studios and shops, preserving a 300-year pottery tradition since the Ryukyu Kingdom consolidated its kilns here. Hidden alleys (suuji-gwaa), stone walls, and an ancient climbing kiln create an atmospheric step back in time from nearby Kokusai Street.",
+        "ja": "琉球王府が窯を集めて以来300年の焼物の伝統を守る石畳400mの通り。40以上の窯元直営店が並び、すーじぐゎー（路地）、石垣、登り窯が国際通りから別世界へ導く。"
+      },
+      "address": { "en": "1 Chome Tsuboya, Naha, Okinawa 902-0065, Japan" },
+      "category": "Culture",
+      "subcategories": ["Pottery", "Crafts", "Heritage"],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Morning",
+      "tips": [
+        "Visit the Tsuboya Pottery Museum (350 yen, free for students) for context before browsing shops",
+        "At Ikutouen studio, take a pottery class — they'll glaze, fire, and ship your creation home",
+        "Look for 'yachimun cafes' that serve drinks in handmade pottery cups — a unique experience",
+        "Allow 1 hour for shops only; 2 hours if exploring the hidden alleys and cafes"
+      ],
+      "neighborhood": "Tsuboya"
+    },
+    {
+      "name": { "en": "Sakae-machi Drinking District", "ja": "栄町社交街" },
+      "description": {
+        "en": "A maze of tiny bars and izakayas slightly east of Kokusai-dori where Naha's real nightlife pulses. Less English, more adventure — sanshin music drifts from doorways, awamori flows freely, and each hole-in-the-wall holds a different character. This is where locals drink, not tourists.",
+        "ja": "国際通りの少し東にある小さなバーと居酒屋の迷路。那覇の本当の夜はここにある。三線の音色が漏れ、泡盛が注がれ、観光客ではなく地元の人が飲む場所。"
+      },
+      "address": { "en": "Sakaemachi, Naha, Okinawa, Japan" },
+      "category": "Nightlife",
+      "subcategories": ["Bars", "Izakaya", "Awamori"],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Night (8 PM-midnight)",
+      "tips": [
+        "Most bars welcome foreigners even without English menus — just wander and peek inside",
+        "Evening totals typically run 2,500-4,000 yen per person including food and drinks",
+        "Try aged awamori (kusu) — some bars have varieties aged 10-20+ years in ceramic pots",
+        "Near Asahibashi monorail station; the adjacent morning market (Sakaemachi ichiba) is worth a daytime visit too"
+      ],
+      "neighborhood": "Sakaemachi"
+    },
+    {
+      "name": { "en": "Tominoya Izakaya", "ja": "とみのや" },
+      "description": {
+        "en": "A cozy hidden izakaya in the quiet Yogi neighborhood of Naha that locals can't stop talking about. Fresh sashimi from the day's catch and grilled local jidori chicken are the stars. Not flashy, not touristy — just warm Okinawan hospitality that makes you feel instantly at home.",
+        "ja": "那覇市与儀の静かな住宅街に隠れた居酒屋。地元の人が通い詰める。その日の新鮮な刺身と地鶏の炭火焼きが看板メニュー。派手さはなく、温かい沖縄のおもてなし。"
+      },
+      "address": { "en": "Yogi, Naha, Okinawa, Japan" },
+      "category": "Food",
+      "subcategories": ["Izakaya", "Seafood", "Local"],
+      "localley_score": 5,
+      "local_percentage": 92,
+      "best_time": "Dinner (6-10 PM)",
+      "tips": [
+        "Reservation recommended — it's small and locals fill it quickly",
+        "Ask for the daily sashimi plate (higawari sashimi) — it changes based on the morning catch",
+        "The grilled local chicken (jidori) with sea salt is a must-order",
+        "Bring cash — card payment may not be available"
+      ],
+      "neighborhood": "Yogi"
+    },
+    {
+      "name": { "en": "Zhyvago Coffee Works", "ja": "ジバゴコーヒーワークス" },
+      "description": {
+        "en": "A stylish beachfront cafe in Chatan with panoramic ocean views, excellent specialty coffee, and a California-meets-Okinawa vibe. The open-air terrace facing Araha Beach is the perfect spot to watch Okinawa's famous sunsets while sipping a craft latte. Local favorite beyond American Village's chain stores.",
+        "ja": "北谷のビーチフロントカフェ。パノラマの海景色とスペシャルティコーヒー、カリフォルニアと沖縄が融合した雰囲気。アラハビーチに面したテラスで夕日を眺めながらクラフトラテを。"
+      },
+      "address": { "en": "2-16-2 Chatan, Nakagami-gun, Okinawa 904-0116, Japan" },
+      "category": "Cafe",
+      "subcategories": ["Coffee", "Beachfront", "Sunset"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Late Afternoon / Sunset",
+      "tips": [
+        "Arrive by 4:30 PM for a terrace seat to catch the sunset over the East China Sea",
+        "Near American Village but a world away in atmosphere — skip the chains and come here",
+        "The cold brew and seasonal fruit latte are standouts",
+        "Walk along Araha Beach after your coffee — the shipwreck playground area is charming"
+      ],
+      "neighborhood": "Chatan"
+    },
+    {
+      "name": { "en": "Yunangii Izakaya", "ja": "ゆうなんぎい" },
+      "description": {
+        "en": "A legendary homestyle Okinawan izakaya on Kokusai Street, beloved by locals and return visitors for decades. Specializing in traditional Okinawan home cooking — goya champuru, rafute, mimigaa — in a warm, no-frills setting. Dinner only, closed Sundays, and it fills up fast.",
+        "ja": "国際通りにある伝説の家庭料理居酒屋。何十年も地元の人とリピーターに愛され続ける。ゴーヤーチャンプルー、ラフテー、ミミガーなど沖縄の伝統料理を温かい雰囲気で。"
+      },
+      "address": { "en": "3-3-3 Kumoji, Naha, Okinawa 900-0015, Japan" },
+      "category": "Food",
+      "subcategories": ["Izakaya", "Okinawan", "Home Cooking"],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Dinner (5-9:30 PM)",
+      "tips": [
+        "Reservations are essential — this tiny spot fills up every night",
+        "Must-orders: goya champuru, rafute (braised pork belly), and umibudo (sea grapes)",
+        "Closed Sundays — plan accordingly",
+        "3-minute walk from Kencho-mae monorail station"
+      ],
+      "neighborhood": "Kumoji"
+    },
+    {
+      "name": { "en": "Kerama Islands Day Trip", "ja": "慶良間諸島" },
+      "description": {
+        "en": "Crystal-clear turquoise waters just 35 minutes by high-speed ferry from Naha — the Kerama Islands offer world-class snorkeling, pristine beaches, and sea turtle encounters that rival tropical destinations at a fraction of the effort. Tokashiki and Zamami are the most accessible islands.",
+        "ja": "那覇から高速船35分、慶良間諸島は透明度抜群のターコイズブルーの海。シュノーケリング、美しいビーチ、ウミガメとの遭遇が手軽に楽しめる。渡嘉敷島と座間味島が最もアクセスしやすい。"
+      },
+      "address": { "en": "Kerama Islands, Shimajiri-gun, Okinawa, Japan" },
+      "category": "Outdoor",
+      "subcategories": ["Beach", "Snorkeling", "Island"],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Morning departure",
+      "tips": [
+        "Book the high-speed ferry from Tomari Port in Naha at least a week in advance — sells out fast in summer",
+        "Zamami Island has the best beach (Furuzamami) and sea turtle snorkeling",
+        "Bring your own snorkel gear to save rental costs, or rent on the island for ~1,000 yen",
+        "Last ferry back is usually 4-5 PM — check the schedule carefully"
+      ],
+      "neighborhood": "Kerama"
+    },
+    {
+      "name": { "en": "Pork Tamago Onigiri Honten", "ja": "ポークたまごおにぎり本店" },
+      "description": {
+        "en": "The home of Okinawa's iconic spam-and-egg onigiri — a local breakfast staple born from the American military influence. Fresh nori, fluffy egg, crispy spam, and creative daily fillings are pressed into oversized onigiri right before your eyes. The perpetual morning queue is a testament to its cult status.",
+        "ja": "沖縄名物ポークたまごおにぎりの元祖。アメリカ軍の影響から生まれた地元の朝食定番。新鮮な海苔、ふわふわ卵、カリカリポーク、日替わり具材を目の前で握る。朝の行列がその人気を物語る。"
+      },
+      "address": { "en": "1-1-54 Matsuo, Naha, Okinawa 900-0014, Japan" },
+      "category": "Food",
+      "subcategories": ["Breakfast", "Street Food", "Onigiri"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Breakfast (7-10 AM)",
+      "tips": [
+        "Open 7 AM-8 PM; the morning queue moves fast — usually 10-15 min wait",
+        "Try the classic 'pork tamago' first, then explore seasonal specials like goya or umibudo fillings",
+        "Located near Makishi Market — perfect first stop before a market food crawl",
+        "Each onigiri is 300-500 yen — extremely good value for the size and quality"
+      ],
+      "neighborhood": "Matsuo"
+    }
+  ]
+}

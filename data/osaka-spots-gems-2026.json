@@ -1,0 +1,383 @@
+{
+  "city": "osaka",
+  "batch": "gems-2026",
+  "description": "Hidden gems and trending spots from H2 2025 / 2026",
+  "spots": [
+    {
+      "name": {
+        "en": "KAYA Cafe Nakazakicho",
+        "ja": "KAYA cafe 中崎町"
+      },
+      "description": {
+        "en": "A charming cafe in a renovated 90+ year-old nagaya townhouse in Nakazakicho. Famous for tofu tiramisu served in a wooden masu box (660 yen), with seasonal flavors like matcha and black sesame. The retro interior perfectly captures the neighborhood's vintage spirit.",
+        "ja": "築90年以上の長屋をリノベーションしたカフェ。枡に入った豆腐ティラミスが看板メニュー。抹茶や黒ごまなど8種の定番に季節限定も。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Nakazakicho",
+      "address": {
+        "en": "Nakazaki 1-chome, Kita-ku, Osaka",
+        "ja": "大阪市北区中崎1丁目"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Retro Cafe",
+        "Renovated Townhouse"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Weekday afternoons 2-5 PM",
+        "ja": "平日午後 14:00-17:00"
+      },
+      "tips": [
+        "Try the seasonal tofu tiramisu — flavors rotate monthly",
+        "Weekends get crowded; weekday afternoons are quieter",
+        "Combine with vintage shop browsing in the surrounding alleys"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 34.709,
+      "longitude": 135.507
+    },
+    {
+      "name": {
+        "en": "Sakeno Ana",
+        "ja": "酒の穴"
+      },
+      "description": {
+        "en": "A legendary deep Osaka standing bar in Shinsekai, open from morning. Locals crowd around tiny counters for stiff drinks (chuhai from 330 yen) and homestyle dishes like happosai, kushikatsu, and simmered beef tendon. Authentically gritty atmosphere untouched by tourism.",
+        "ja": "新世界のディープな立ち飲み酒場。朝から営業。八宝菜、串カツ、どて焼きなど酒の肴が豊富。チューハイ330円〜。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Shinsekai",
+      "address": {
+        "en": "Ebisu-higashi, Naniwa-ku, Osaka",
+        "ja": "大阪市浪速区恵美須東"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Hidden Gem",
+        "Izakaya",
+        "Standing Bar",
+        "Deep Osaka"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Late morning to early afternoon for true local vibe",
+        "ja": "午前中〜昼過ぎが地元民の雰囲気"
+      },
+      "tips": [
+        "This is a standing bar — no seats, just counters",
+        "Order the happosai (stir-fried eight treasures) — it's the house specialty",
+        "Cash only, very limited English — point and smile works"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 34.652,
+      "longitude": 135.506
+    },
+    {
+      "name": {
+        "en": "Tsuruhashi Korean Town",
+        "ja": "鶴橋コリアタウン"
+      },
+      "description": {
+        "en": "Japan's largest Koreatown sprawling around Tsuruhashi Station with maze-like alleys of Korean BBQ joints, kimchi vendors, and street food stalls. The Doi Shoten stand is legendary for fresh-grilled hormone (offal) and crispy jijimi pancakes made right before your eyes.",
+        "ja": "鶴橋駅周辺に広がる日本最大のコリアタウン。焼肉、キムチ、チヂミの迷路のような路地。土井商店のホルモン焼きとチヂミは必食。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Tsuruhashi",
+      "address": {
+        "en": "Tsuruhashi, Ikuno-ku, Osaka",
+        "ja": "大阪市生野区鶴橋"
+      },
+      "category": "Market",
+      "subcategories": [
+        "Hidden Gem",
+        "Korean Food",
+        "Street Food",
+        "Local Market"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_times": {
+        "en": "Lunch time 11 AM-2 PM on weekdays",
+        "ja": "平日ランチ 11:00-14:00"
+      },
+      "tips": [
+        "Start at the covered arcade east of JR Tsuruhashi Station",
+        "Buy fresh kimchi from the vendors — far cheaper and better than supermarket",
+        "Weekend crowds can be intense; go on a weekday for the real local experience"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 34.663,
+      "longitude": 135.531
+    },
+    {
+      "name": {
+        "en": "Tenjinbashisuji Shopping Street",
+        "ja": "天神橋筋商店街"
+      },
+      "description": {
+        "en": "Japan's longest shopping arcade at 2.6 km with 600+ shops, stretching from Tenma to Tenjinbashisuji-Rokuchome. Far less touristy than Dotonbori, this is where Osaka locals actually shop and eat. Highlights include 70-year-old takoyaki at Umaiya and the famous Nakamuraya croquettes.",
+        "ja": "日本一長い商店街。全長2.6km、600軒以上。創業70年のうまい屋のたこ焼きや天神橋中村屋のコロッケが名物。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Tenma",
+      "address": {
+        "en": "Tenjinbashi, Kita-ku, Osaka",
+        "ja": "大阪市北区天神橋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Hidden Gem",
+        "Shopping Street",
+        "Street Food",
+        "Local Culture"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Late morning to early afternoon",
+        "ja": "午前中〜午後早め"
+      },
+      "tips": [
+        "Start from Tenjinbashisuji-Rokuchome Station and walk south",
+        "Stop at Osaka Tenmangu Shrine in the 2nd block",
+        "Covered arcade means great for rainy days — budget 2+ hours to walk the full length"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 34.703,
+      "longitude": 135.513
+    },
+    {
+      "name": {
+        "en": "BAK Brewery Kitahama",
+        "ja": "BAK ブリュワリー 北浜"
+      },
+      "description": {
+        "en": "A craft brewery and taproom in the upscale Kitahama riverside district, brewing experimental beers on-site. Known for creative releases like 'Meitai Cream no O-Beer' (mentaiko cream beer) and high-ABV Belgian styles. Pairs brews with elevated pub food in a stylish industrial space.",
+        "ja": "北浜のブリューパブ。店内醸造の個性的なクラフトビールと料理。明太クリームのおビールなどユニークな限定ビールが話題。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Kitahama",
+      "address": {
+        "en": "Kitahama, Chuo-ku, Osaka",
+        "ja": "大阪市中央区北浜"
+      },
+      "category": "Nightlife",
+      "subcategories": [
+        "Hidden Gem",
+        "Craft Beer",
+        "Brewery",
+        "Taproom"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_times": {
+        "en": "Weekday evenings 6-9 PM",
+        "ja": "平日夕方 18:00-21:00"
+      },
+      "tips": [
+        "Try whatever seasonal release is on tap — they change frequently",
+        "The riverside Kitahama area is also great for specialty coffee during the day",
+        "Yellow Ape Craft is nearby for a craft beer crawl"
+      ],
+      "verified": true,
+      "trending_score": 0.8,
+      "latitude": 34.691,
+      "longitude": 135.505
+    },
+    {
+      "name": {
+        "en": "Amerikamura (Triangle Park)",
+        "ja": "アメリカ村（三角公園）"
+      },
+      "description": {
+        "en": "Osaka's answer to Harajuku — but grittier and more spontaneous. Start at Triangle Park where skaters, street performers, and fashion kids gather, then explore 2,500+ shops selling vintage clothing, sneakers, and vinyl records. The street fashion ranges from punk to hip-hop to gothic.",
+        "ja": "大阪の若者文化の中心地。三角公園にスケーター、古着ファン、ストリートパフォーマーが集まる。2500以上のショップが軒を連ねる。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Amerikamura",
+      "address": {
+        "en": "Shinsaibashisuji, Chuo-ku, Osaka",
+        "ja": "大阪市中央区心斎橋筋"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Youth Culture",
+        "Vintage Fashion",
+        "Street Art"
+      ],
+      "localley_score": 4,
+      "local_percentage": 70,
+      "best_times": {
+        "en": "Weekend afternoons 1-6 PM",
+        "ja": "週末午後 13:00-18:00"
+      },
+      "tips": [
+        "Triangle Park (Sankaku Koen) is the social epicenter — start here",
+        "Vintage shops have the best finds on weekday mornings before weekend crowds",
+        "5-minute walk from Shinsaibashi Station"
+      ],
+      "verified": true,
+      "trending_score": 0.65,
+      "latitude": 34.672,
+      "longitude": 135.498
+    },
+    {
+      "name": {
+        "en": "Nito Coffee & Craft Beer",
+        "ja": "ニトコーヒー＆クラフトビール"
+      },
+      "description": {
+        "en": "A dual-concept cafe-bar in Dojima near Kitahama that transitions from specialty coffee by day to craft beer bar by night. Equally serious about its pour-over and its hazy IPAs. A local favorite for freelancers and after-work crowds in the riverside business district.",
+        "ja": "堂島のカフェ兼ビアバー。昼はスペシャルティコーヒー、夜はクラフトビール。どちらも本格派でリバーサイドの雰囲気が最高。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Dojima / Kitahama",
+      "address": {
+        "en": "2 Chome-2-22 Dojima, Kita-ku, Osaka",
+        "ja": "大阪市北区堂島2丁目2-22"
+      },
+      "category": "Cafe",
+      "subcategories": [
+        "Hidden Gem",
+        "Specialty Coffee",
+        "Craft Beer"
+      ],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_times": {
+        "en": "Morning coffee 9-11 AM, or evening beer 6-9 PM",
+        "ja": "朝コーヒー 9:00-11:00、夜ビール 18:00-21:00"
+      },
+      "tips": [
+        "Come for coffee in the morning, return for craft beer in the evening",
+        "They take both coffee and beer seriously — rare dual concept",
+        "Riverside views of the Dojima River"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 34.696,
+      "longitude": 135.499
+    },
+    {
+      "name": {
+        "en": "Tenma Yokocho Alleys",
+        "ja": "天満横丁"
+      },
+      "description": {
+        "en": "The narrow alleys around JR Tenma Station transform after 6 PM into a buzzing maze of tiny standing bars and izakayas packed with salarymen. No English menus, no tourists — just counters barely wide enough for two people and the best cheap yakitori and oden in Osaka.",
+        "ja": "JR天満駅周辺の路地裏。夕方6時から立ち飲み屋と居酒屋が賑わう。観光客ゼロ、サラリーマンの聖地。格安の焼き鳥とおでん。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Tenma",
+      "address": {
+        "en": "Near JR Tenma Station, Kita-ku, Osaka",
+        "ja": "大阪市北区 JR天満駅周辺"
+      },
+      "category": "Food",
+      "subcategories": [
+        "Hidden Gem",
+        "Izakaya",
+        "Standing Bar",
+        "Yokocho"
+      ],
+      "localley_score": 6,
+      "local_percentage": 95,
+      "best_times": {
+        "en": "Weekday evenings 6-9 PM",
+        "ja": "平日夕方 18:00-21:00"
+      },
+      "tips": [
+        "Go on a weekday — the post-work crowd creates the best atmosphere",
+        "Most places are cash only and standing room only",
+        "Combine with daytime Tenjinbashisuji shopping street exploration nearby"
+      ],
+      "verified": true,
+      "trending_score": 0.8,
+      "latitude": 34.704,
+      "longitude": 135.513
+    },
+    {
+      "name": {
+        "en": "Nakazakicho Vintage Quarter",
+        "ja": "中崎町ヴィンテージエリア"
+      },
+      "description": {
+        "en": "A pocket of pre-war nagaya townhouses just one subway stop from Umeda, filled with independent vintage clothing shops, zine stores, and tiny galleries. Key shops include barr (European military vintage), TAU (high-end designer vintage), and Salvage (affordable 80s-90s sportswear).",
+        "ja": "梅田から地下鉄1駅の古い長屋エリア。barr（ユーロミリタリー）、TAU（デザイナーズ古着）、Salvage（80-90sスポーツ古着）など個性派古着屋が集結。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Nakazakicho",
+      "address": {
+        "en": "Nakazaki, Kita-ku, Osaka",
+        "ja": "大阪市北区中崎"
+      },
+      "category": "Shopping",
+      "subcategories": [
+        "Hidden Gem",
+        "Vintage Clothing",
+        "Independent Shops"
+      ],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_times": {
+        "en": "Afternoon 1-6 PM",
+        "ja": "午後 13:00-18:00"
+      },
+      "tips": [
+        "Most shops open around 1 PM — don't go in the morning",
+        "barr has excellent deadstock European military pieces",
+        "Rent a bike from the docomo bike share for efficient shop-hopping"
+      ],
+      "verified": true,
+      "trending_score": 0.75,
+      "latitude": 34.7085,
+      "longitude": 135.5065
+    },
+    {
+      "name": {
+        "en": "Hozenji Yokocho",
+        "ja": "法善寺横丁"
+      },
+      "description": {
+        "en": "A stone-paved alley hidden behind Dotonbori with atmospheric lantern-lit izakayas and the moss-covered Mizukake Fudo statue at Hozen-ji Temple. While Dotonbori is chaos, this parallel world is quiet and intimate — the Osaka that locals actually love.",
+        "ja": "道頓堀の裏手にある石畳の小路。提灯に照らされた居酒屋と苔むした水掛不動尊。道頓堀の喧騒とは別世界の大阪。"
+      },
+      "city": "Osaka",
+      "neighborhood": "Namba",
+      "address": {
+        "en": "Namba 1-chome, Chuo-ku, Osaka",
+        "ja": "大阪市中央区難波1丁目"
+      },
+      "category": "Culture",
+      "subcategories": [
+        "Hidden Gem",
+        "Historic Alley",
+        "Temple",
+        "Izakaya"
+      ],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_times": {
+        "en": "Evening after 7 PM for the lantern atmosphere",
+        "ja": "夜7時以降、提灯の雰囲気が最高"
+      },
+      "tips": [
+        "Splash water on the moss-covered Fudo statue for good luck in love",
+        "The izakayas here are pricier than Tenma but the atmosphere is worth it",
+        "Visit at night — the stone path under lantern light is magical"
+      ],
+      "verified": true,
+      "trending_score": 0.7,
+      "latitude": 34.668,
+      "longitude": 135.501
+    }
+  ]
+}

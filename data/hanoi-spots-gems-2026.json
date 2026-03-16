@@ -1,0 +1,103 @@
+{
+  "city": "hanoi",
+  "batch": "gems-2026",
+  "description": "Hidden gems and trending spots from H2 2025 / 2026",
+  "spots": [
+    {
+      "name": { "en": "Cafe Pho Co", "vi": "Cà Phê Phố Cổ" },
+      "description": { "en": "Hidden through a silk shop on Hang Gai street, climb narrow stairs to a rooftop terrace overlooking Hoan Kiem Lake. Serves exceptional egg coffee in a setting most tourists walk right past. The recipe rivals Cafe Giang but with far better atmosphere.", "vi": "Ẩn sau một cửa hàng lụa trên phố Hàng Gài, leo cầu thang hẹp lên sân thượng nhìn ra Hồ Hoàn Kiếm. Cà phê trứng tuyệt vời trong không gian mà hầu hết du khách đi ngang qua mà không biết." },
+      "address": { "en": "11 Hang Gai, Hang Trong, Hoan Kiem, Hanoi", "vi": "11 Hàng Gài, Hàng Trống, Hoàn Kiếm, Hà Nội" },
+      "category": "Cafe",
+      "subcategories": ["Egg Coffee", "Hidden Gem", "Rooftop"],
+      "localley_score": 5,
+      "local_percentage": 55,
+      "best_time": "Afternoon 3-6pm",
+      "tips": ["Enter through the silk shop at 11 Hang Gai — look for a small sign", "The rooftop terrace has the best Hoan Kiem Lake view of any cafe", "Egg coffee is 50,000 VND — order the original, skip flavored variants"],
+      "neighborhood": "Old Quarter"
+    },
+    {
+      "name": { "en": "Bun Cha Hang Manh", "vi": "Bún Chả Hàng Mành" },
+      "description": { "en": "A decades-old bun cha institution on Hang Manh street that locals fiercely defend as superior to the Obama-famous Huong Lien. Charcoal-grilled patties with perfectly balanced fish sauce broth. Sells out by early afternoon.", "vi": "Quán bún chả lâu đời trên phố Hàng Mành mà người Hà Nội khẳng định ngon hơn bún chả Obama. Chả nướng than hoa với nước mắm pha chuẩn vị. Hết hàng sớm buổi chiều." },
+      "address": { "en": "1 Hang Manh, Hoan Kiem, Hanoi", "vi": "1 Hàng Mành, Hoàn Kiếm, Hà Nội" },
+      "category": "Food",
+      "subcategories": ["Bun Cha", "Local Favorite", "Street Food"],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch 11am-1pm",
+      "tips": ["Arrive before noon — they sell out daily by 1:30pm", "Order the combo with nem cua be (crab spring rolls)", "Plastic stools on the sidewalk is the full experience — 50,000 VND per serving"],
+      "neighborhood": "Old Quarter"
+    },
+    {
+      "name": { "en": "Long Bien Market Dawn Experience", "vi": "Chợ Long Biên Lúc Rạng Sáng" },
+      "description": { "en": "Hanoi's largest wholesale market comes alive between midnight and dawn under the historic Long Bien Bridge. 400-500 tons of produce arrive nightly. By 7am, office workers flood in for 40,000 VND bun cha breakfasts at market stalls — a scene no tourist attraction can replicate.", "vi": "Chợ đầu mối lớn nhất Hà Nội hoạt động từ nửa đêm đến rạng sáng dưới chân cầu Long Biên. 400-500 tấn rau quả về mỗi đêm. Đến 7h sáng, dân văn phòng đổ về ăn bún chả 40.000đ." },
+      "address": { "en": "Long Bien Bridge, Hoan Kiem, Hanoi", "vi": "Cầu Long Biên, Hoàn Kiếm, Hà Nội" },
+      "category": "Experience",
+      "subcategories": ["Market", "Dawn", "Local Life"],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "2am-6am",
+      "tips": ["Peak action is 2-4am — bring a flashlight and wear closed shoes", "Carry small notes (20,000 and 50,000 VND) — vendors cannot break 500,000", "The bun cha stalls serving office workers from 7-9am are excellent and vanish by 10am"],
+      "neighborhood": "Long Bien"
+    },
+    {
+      "name": { "en": "Nola Cafe", "vi": "Quán Cà Phê Nola" },
+      "description": { "en": "Enter through an easy-to-miss corridor with red lanterns in the Old Quarter to discover multiple levels of leafy rooftop terraces and cozy indoor nooks. A maze-like hidden cafe that rewards the curious — quintessential Hanoi.", "vi": "Đi qua hành lang dễ bỏ lỡ với đèn lồng đỏ trong Phố Cổ để khám phá nhiều tầng sân thượng xanh mát và góc ấm cúng bên trong. Quán cà phê ẩn như mê cung." },
+      "address": { "en": "89 Ma May, Hang Buom, Hoan Kiem, Hanoi", "vi": "89 Mã Mây, Hàng Buồm, Hoàn Kiếm, Hà Nội" },
+      "category": "Cafe",
+      "subcategories": ["Hidden Gem", "Rooftop", "Instagram"],
+      "localley_score": 5,
+      "local_percentage": 50,
+      "best_time": "Morning or late afternoon",
+      "tips": ["Look for the red lantern corridor — it's narrow and easy to miss", "Climb to the highest terrace for the best Old Quarter rooftop views", "Vietnamese iced coffee here is solid, 35,000-55,000 VND range"],
+      "neighborhood": "Old Quarter"
+    },
+    {
+      "name": { "en": "6 Degrees Rooftop Bar", "vi": "6 Degrees Bar Sân Thượng" },
+      "description": { "en": "Perched in Tay Ho district with panoramic West Lake views, this rooftop bar draws expats and locals escaping the Old Quarter chaos. Chill daytime vibes transform into a lively scene after dark. Part of the emerging Tay Ho cafe-bar corridor.", "vi": "Nằm ở quận Tây Hồ với tầm nhìn toàn cảnh Hồ Tây, quán bar sân thượng này thu hút cả người nước ngoài và người địa phương. Ban ngày thư giãn, ban đêm sôi động." },
+      "address": { "en": "189 Nghi Tam, Tay Ho, Hanoi", "vi": "189 Nghị Tàm, Tây Hồ, Hà Nội" },
+      "category": "Nightlife",
+      "subcategories": ["Rooftop Bar", "West Lake", "Hidden Gem"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Sunset to late evening",
+      "tips": ["Cocktails 75,000-180,000 VND — very reasonable for a rooftop", "Best sunset views of West Lake in the city", "Combine with a walk along Nghi Tam to explore the Tay Ho cafe strip"],
+      "neighborhood": "Tay Ho"
+    },
+    {
+      "name": { "en": "Essie Tea Room & Bistro", "vi": "Essie Phòng Trà & Bistro" },
+      "description": { "en": "A cozy West Lake cafe hidden in a leafy courtyard on To Ngoc Van street — the heart of Tay Ho's emerging cafe scene. Lovely staff, excellent brunch, and a peaceful escape from Hanoi's noise. Popular with creative expats and young Hanoians.", "vi": "Quán trà ấm cúng ẩn trong sân vườn xanh mát trên phố Tô Ngọc Vân — trung tâm của cảnh cà phê Tây Hồ đang nổi. Nhân viên thân thiện, brunch ngon, yên bình giữa Hà Nội ồn ào." },
+      "address": { "en": "86 To Ngoc Van, Quang An, Tay Ho, Hanoi", "vi": "86 Tô Ngọc Vân, Quảng An, Tây Hồ, Hà Nội" },
+      "category": "Cafe",
+      "subcategories": ["Brunch", "West Lake", "Garden Cafe"],
+      "localley_score": 5,
+      "local_percentage": 45,
+      "best_time": "Morning 9am-12pm",
+      "tips": ["Weekend brunch is the highlight — arrive early to avoid waits", "The leafy courtyard is the best seat in any weather", "To Ngoc Van street has become Tay Ho's cafe corridor — explore on foot"],
+      "neighborhood": "Tay Ho"
+    },
+    {
+      "name": { "en": "Cafe Vot (Sock Coffee)", "vi": "Cà Phê Vợt" },
+      "description": { "en": "One of Hanoi's last traditional sock-filter coffee shops, where coffee is brewed through a cloth filter over charcoal — a method nearly extinct in Vietnam. The old-timer regulars, vintage decor, and 15,000 VND cups make this a living time capsule.", "vi": "Một trong những quán cà phê vợt truyền thống cuối cùng của Hà Nội, nơi cà phê được lọc qua vải trên bếp than — phương pháp gần như tuyệt chủng ở Việt Nam. Khách quen lâu năm, trang trí cổ điển." },
+      "address": { "en": "Alley 30 Hang Dieu, Hoan Kiem, Hanoi", "vi": "Ngõ 30 Hàng Điếu, Hoàn Kiếm, Hà Nội" },
+      "category": "Cafe",
+      "subcategories": ["Traditional", "Heritage", "Local Favorite"],
+      "localley_score": 5,
+      "local_percentage": 95,
+      "best_time": "Early morning 6-9am",
+      "tips": ["Coffee is just 15,000-25,000 VND — some of the cheapest in Hanoi", "Watch the charcoal-heated cloth filter brewing process", "Regulars are mostly retired Hanoians — come early when the atmosphere is best"],
+      "neighborhood": "Old Quarter"
+    },
+    {
+      "name": { "en": "Unmute Rooftop & Club", "vi": "Unmute Sân Thượng & Club" },
+      "description": { "en": "A three-floor nightlife complex designed by Japanese sound engineer Jiro Endo. The 4th-floor Cuon Club is a dark, bass-heavy dance zone; the 5th-6th floor Tan Bar is a breezy rooftop with creative cocktails and city views. Hanoi's most innovative nightlife venue.", "vi": "Tổ hợp giải trí ba tầng do kỹ sư âm thanh Nhật Bản Jiro Endo thiết kế. Tầng 4 Cuốn Club là dance zone; tầng 5-6 Tần Bar là sân thượng thoáng mát với cocktail sáng tạo." },
+      "address": { "en": "Xuan Dieu, Tay Ho, Hanoi", "vi": "Xuân Diệu, Tây Hồ, Hà Nội" },
+      "category": "Nightlife",
+      "subcategories": ["Rooftop Bar", "Club", "Hidden Gem"],
+      "localley_score": 5,
+      "local_percentage": 55,
+      "best_time": "Evening 9pm-2am",
+      "tips": ["Start at Tan Bar rooftop for sunset cocktails, then descend to Cuon Club", "Sound system is exceptional — designed by a professional Japanese engineer", "Weeknight for cocktails, weekend for dancing"],
+      "neighborhood": "Tay Ho"
+    }
+  ]
+}

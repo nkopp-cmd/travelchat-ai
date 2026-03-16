@@ -1,0 +1,126 @@
+{
+  "city": "koh-samui",
+  "batch": 1,
+  "spots": [
+    {
+      "name": { "en": "Fisherman's Village Friday Night Market", "th": "ตลาดนัดวันศุกร์ หมู่บ้านชาวประมง" },
+      "description": { "en": "The atmospheric Friday market in Bophut's century-old Fisherman's Village is the island's best night market experience. Wooden boardwalks along the beach, lantern-lit arcades, food stalls selling mango sticky rice and grilled seafood, artisan crafts, and live music. The first Friday of each month features a Cultural Night with traditional Khon performances.", "th": "ตลาดนัดวันศุกร์ในหมู่บ้านชาวประมงบ่อผุดอายุกว่าร้อยปี ทางเดินไม้ริมชายหาด ร้านค้าตกแต่งโคมไฟ อาหารท้องถิ่น งานฝีมือ และดนตรีสด ทุกวันศุกร์แรกของเดือนมีคืนวัฒนธรรม" },
+      "address": { "en": "Bophut Beach Road, Bophut, Koh Samui, Surat Thani 84320", "th": "ถนนหาดบ่อผุด, บ่อผุด, เกาะสมุย, สุราษฎร์ธานี 84320" },
+      "category": "Market",
+      "subcategories": ["Night Market", "Seafood", "Culture"],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Friday evening, 5pm-10pm",
+      "tips": ["Monday, Wednesday, Friday, and Sunday markets — Friday is the best", "First Friday of the month has Cultural Night with Khon opera", "Park free at The Wharf Samui mall basement (first 2 hours free)", "Carry international driving license — police checks are common nearby"],
+      "neighborhood": "Bophut"
+    },
+    {
+      "name": { "en": "Krua Chao Ban", "th": "ครัวชาวบ้าน" },
+      "description": { "en": "Authentic southern Thai home-cooking restaurant recommended by locals. Focuses on seafood and regional dishes you won't find at resort restaurants — think spicy southern curries, stir-fried stink beans with shrimp paste, and fresh catches cooked to order. No-frills setting, genuine flavors.", "th": "ร้านอาหารพื้นบ้านเกาะสมุยที่คนท้องถิ่นแนะนำ เน้นอาหารทะเลและอาหารภาคใต้ รสชาติจัดจ้าน บรรยากาศเป็นกันเอง" },
+      "address": { "en": "Koh Samui, Surat Thani 84140", "th": "เกาะสมุย, สุราษฎร์ธานี 84140" },
+      "category": "Food",
+      "subcategories": ["Southern Thai", "Seafood", "Local"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Lunch or dinner, 11am-9pm",
+      "tips": ["Ask for the southern-style gaeng som (sour curry) with local fish", "Prices are local-level — much cheaper than beachfront restaurants", "Follow the locals — if there's a queue of Thais, the food is excellent", "Try pad sataw kung (stink beans with shrimp) — a southern staple"],
+      "neighborhood": "Nathon"
+    },
+    {
+      "name": { "en": "Ban Tai Beach", "th": "หาดบ้านใต้" },
+      "description": { "en": "A pristine 2-kilometer stretch of fine white sand on the northern coast that remains one of the most serene and uncrowded beaches on the island. Known only to a select few tourists, Ban Tai offers clean shallow waters and guaranteed privacy — your own slice of paradise without the resort crowds.", "th": "หาดทรายขาวละเอียดยาว 2 กิโลเมตรบนชายฝั่งเหนือ เงียบสงบ ไม่พลุกพล่าน น้ำตื้นใส สะอาด เหมาะสำหรับคนที่ต้องการความเป็นส่วนตัว" },
+      "address": { "en": "Ban Tai, Koh Samui, Surat Thani 84320", "th": "บ้านใต้, เกาะสมุย, สุราษฎร์ธานี 84320" },
+      "category": "Nature",
+      "subcategories": ["Beach", "Secret Beach", "Relaxation"],
+      "localley_score": 5,
+      "local_percentage": 75,
+      "best_time": "Morning or late afternoon for swimming",
+      "tips": ["One of the longest beaches on Samui yet barely any tourists", "Shallow waters make it great for families with children", "Bring your own supplies — limited vendors compared to Chaweng", "Best accessed by motorbike from the ring road"],
+      "neighborhood": "Ban Tai"
+    },
+    {
+      "name": { "en": "Hin Ta Hin Yai", "th": "หินตาหินยาย" },
+      "description": { "en": "The famous Grandfather and Grandmother Rocks near Lamai Beach — natural rock formations resembling male and female forms, steeped in local folklore about a shipwrecked elderly couple. Beyond the rocks themselves, explore tide pools at low tide, snorkel the coral reefs, and try Kalamae coconut caramel from local vendors.", "th": "หินตาหินยายใกล้หาดละไม หินธรรมชาติรูปร่างคล้ายอวัยวะเพศชายหญิง ตามตำนานคู่สามีภรรยาที่เรืออับปาง สำรวจแอ่งน้ำขึ้นน้ำลง ดำน้ำดูปะการัง และชิมขนมกาละแม" },
+      "address": { "en": "126/92 Moo 3, Lamai, Koh Samui, Surat Thani 84310", "th": "126/92 หมู่ 3, ละไม, เกาะสมุย, สุราษฎร์ธานี 84310" },
+      "category": "Nature",
+      "subcategories": ["Rock Formation", "Folklore", "Snorkeling"],
+      "localley_score": 2,
+      "local_percentage": 25,
+      "best_time": "Morning or late afternoon for best photo light",
+      "tips": ["Free entry — no admission charge", "Visit at low tide to explore tide pools with crabs and small fish", "Buy Kalamae (coconut caramel) from vendors — a Samui specialty", "Open Sun-Fri 8:30am-6:30pm, Saturday until 7pm", "15 minutes drive from Samui town"],
+      "neighborhood": "Lamai"
+    },
+    {
+      "name": { "en": "Ang Thong National Marine Park", "th": "อุทยานแห่งชาติหมู่เกาะอ่างทอง" },
+      "description": { "en": "An archipelago of 42 islands with dramatic limestone cliffs, hidden lagoons accessible only through narrow cliff passages, crystal-clear snorkeling waters, and secluded white-sand coves. Take a speedboat day trip from Samui to kayak through emerald lagoons, hike to panoramic viewpoints, and snorkel pristine reefs.", "th": "หมู่เกาะ 42 เกาะ หน้าผาหินปูน ทะเลสาบลับที่เข้าถึงได้เฉพาะทางช่องแคบ น้ำใสสำหรับดำน้ำตื้น อ่าวทรายขาวเงียบสงบ พายเรือคายัค เดินป่า ดำน้ำดูปะการัง" },
+      "address": { "en": "Ang Thong National Marine Park, Koh Samui, Surat Thani", "th": "อุทยานแห่งชาติหมู่เกาะอ่างทอง, เกาะสมุย, สุราษฎร์ธานี" },
+      "category": "Nature",
+      "subcategories": ["Marine Park", "Snorkeling", "Kayaking"],
+      "localley_score": 3,
+      "local_percentage": 30,
+      "best_time": "December to April (dry season), full day trip",
+      "tips": ["Book a speedboat tour for a full-day trip from Samui", "The hidden Emerald Lagoon (Talay Nai) is the highlight — accessed through a narrow cliff passage", "Bring reef-safe sunscreen to protect the coral", "Park may close during monsoon season (November) — check ahead"],
+      "neighborhood": "Offshore"
+    },
+    {
+      "name": { "en": "Lamai Night Market", "th": "ตลาดนัดละไม" },
+      "description": { "en": "A rawer, more authentic night market compared to tourist-heavy Chaweng. Nightly live music, street performances, huge projector showing live football, and a foodie paradise mixing Thai street food with international options. The Sunday market is the biggest draw with abundant souvenirs and a particularly vibrant atmosphere.", "th": "ตลาดนัดที่ดิบและแท้กว่าตลาดเฉวงที่เต็มไปด้วยนักท่องเที่ยว ดนตรีสดทุกคืน อาหารไทยริมทาง จอโปรเจคเตอร์ถ่ายทอดฟุตบอลสด ตลาดวันอาทิตย์คึกคักที่สุด" },
+      "address": { "en": "Lamai Beach Road, Lamai, Koh Samui, Surat Thani 84310", "th": "ถนนหาดละไม, ละไม, เกาะสมุย, สุราษฎร์ธานี 84310" },
+      "category": "Market",
+      "subcategories": ["Night Market", "Street Food", "Entertainment"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Sunday evening for the biggest market, nightly from 5pm",
+      "tips": ["Sunday market is the liveliest — plan your week around it", "More authentic and less polished than Fisherman's Village", "Great for watching live football on the big screen while eating", "Try the grilled seafood skewers and som tam (papaya salad)"],
+      "neighborhood": "Lamai"
+    },
+    {
+      "name": { "en": "Ko Seng Seafood", "th": "โกเซ้ง เกาะสมุย" },
+      "description": { "en": "Relaxed, unpretentious seafood restaurant beloved by locals for authentic southern Thai flavors. Signature dishes include steamed crab meat, sour curry with fish, and shrimp stir-fried with shrimp paste and stink beans. Prices range from 80-600 baht — a fraction of beachfront resort prices for better quality.", "th": "ร้านอาหารทะเลบรรยากาศชิลๆ คนท้องถิ่นรัก เมนูเด็ดกรรเชียงปูนึ่ง แกงส้มเนื้อปลา กุ้งผัดกะปิสะตอ ราคา 80-600 บาท ถูกกว่าร้านริมหาดแต่อร่อยกว่า" },
+      "address": { "en": "Koh Samui, Surat Thani 84140", "th": "เกาะสมุย, สุราษฎร์ธานี 84140" },
+      "category": "Food",
+      "subcategories": ["Seafood", "Southern Thai", "Local"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Dinner, 5-9pm",
+      "tips": ["Order the steamed crab meat (กรรเชียงปูนึ่ง) — the signature dish", "Gaeng som (sour curry with fish) is a must-try southern classic", "Prices are 80-600 baht — much cheaper than tourist restaurants", "Casual atmosphere — no dress code needed"],
+      "neighborhood": "Central Samui"
+    },
+    {
+      "name": { "en": "Thong Krut Fishing Village", "th": "ท้องกรูด หมู่บ้านชาวประมง" },
+      "description": { "en": "An overlooked fishing village on the southern coast where local fishermen bring in the daily catch to simple seaside shacks. Eat grilled fish, squid, and prawns just meters from the boats that caught them. Also the departure point for boat trips to the nearby coral islands of Koh Tan and Koh Mudsum.", "th": "หมู่บ้านชาวประมงบนชายฝั่งใต้ที่ถูกมองข้าม ชาวประมงนำปลาสดมาขายที่ร้านอาหารริมทะเล กินปลาย่าง ปลาหมึก กุ้ง ใกล้เรือที่จับมา จุดออกเรือไปเกาะตันและเกาะมัดสุม" },
+      "address": { "en": "Thong Krut, Taling Ngam, Koh Samui, Surat Thani 84140", "th": "ท้องกรูด, ตลิ่งงาม, เกาะสมุย, สุราษฎร์ธานี 84140" },
+      "category": "Food",
+      "subcategories": ["Seafood", "Fishing Village", "Hidden Gem"],
+      "localley_score": 6,
+      "local_percentage": 85,
+      "best_time": "Lunch, 11am-2pm when the catch comes in",
+      "tips": ["Seafood is grilled right on the beach — incredibly fresh", "Take a long-tail boat to Koh Tan for snorkeling from here", "Almost no tourists — this is where locals eat seafood", "South coast gets beautiful sunsets as a bonus"],
+      "neighborhood": "Taling Ngam"
+    },
+    {
+      "name": { "en": "Phang Ka Beach", "th": "หาดพังกา" },
+      "description": { "en": "A hidden paradise on the southwest coast with shallow, reef-sheltered waters ideal for snorkeling. Coconut-covered hills rise from one side while simple single-story bungalows line the other. One of the most peaceful and least-visited beaches on the island, with iconic sunset views over the Gulf of Thailand.", "th": "สวรรค์ที่ซ่อนอยู่บนชายฝั่งตะวันตกเฉียงใต้ น้ำตื้นกำบังแนวปะการัง เหมาะดำน้ำตื้น เนินเขามะพร้าวด้านหนึ่ง บังกะโลเรียบง่ายอีกด้าน หาดเงียบสงบที่สุดบนเกาะ วิวพระอาทิตย์ตกเหนืออ่าวไทย" },
+      "address": { "en": "Phang Ka, Lipa Noi, Koh Samui, Surat Thani 84140", "th": "พังกา, ลิปะน้อย, เกาะสมุย, สุราษฎร์ธานี 84140" },
+      "category": "Nature",
+      "subcategories": ["Secret Beach", "Snorkeling", "Sunset"],
+      "localley_score": 6,
+      "local_percentage": 85,
+      "best_time": "Late afternoon for sunset, anytime for swimming",
+      "tips": ["One of the least-visited beaches on Samui — true hidden gem", "Reef-sheltered waters are calm and great for snorkeling", "Bring supplies — very few vendors or facilities", "The sunset here rivals anything on the famous west coast beaches"],
+      "neighborhood": "Lipa Noi"
+    },
+    {
+      "name": { "en": "The Jungle Club", "th": "เดอะ จังเกิ้ล คลับ" },
+      "description": { "en": "A family-run hilltop hideaway perched high above the island with jaw-dropping panoramic views across the Gulf of Siam. Chef Wally crafts Thai-Mediterranean fusion cuisine using local ingredients. The infinity pool seems to float above the jungle canopy. Getting there by steep jungle road is half the adventure.", "th": "ร้านอาหารบนยอดเขาบริหารโดยครอบครัว วิวพาโนรามาอ่าวไทย เชฟวอลลี่ปรุงอาหารไทย-เมดิเตอร์เรเนียนฟิวชัน สระว่ายน้ำอินฟินิตี้ลอยเหนือป่า ถนนชันขึ้นเขาเป็นส่วนหนึ่งของการผจญภัย" },
+      "address": { "en": "Chaweng Noi, Koh Samui, Surat Thani 84320", "th": "เฉวงน้อย, เกาะสมุย, สุราษฎร์ธานี 84320" },
+      "category": "Food",
+      "subcategories": ["Fusion", "Scenic View", "Hidden Gem"],
+      "localley_score": 4,
+      "local_percentage": 35,
+      "best_time": "Late afternoon for sunset views and dinner",
+      "tips": ["The steep jungle road requires a 4WD or confident motorbike rider", "Book ahead for sunset — the infinity pool area fills up", "Try the Thai-Mediterranean fusion dishes — unique on the island", "Worth the trek for views alone even if you only have a drink"],
+      "neighborhood": "Chaweng Noi"
+    }
+  ]
+}

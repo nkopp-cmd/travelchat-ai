@@ -1,0 +1,126 @@
+{
+  "city": "dalat",
+  "batch": 1,
+  "spots": [
+    {
+      "name": { "en": "The Married Beans", "vi": "The Married Beans" },
+      "description": { "en": "Award-winning specialty coffee roaster and showroom established 2015, with an art museum-like space adjacent to their own coffee farm and factory. Works with 60+ farmers across 120 hectares in Cau Dat and Langbiang. One of the few places in Dalat serving true single-origin specialty coffee with pour-over options.", "vi": "Quán cà phê đặc sản đoạt giải thưởng, thành lập 2015, không gian như bảo tàng nghệ thuật nằm cạnh trang trại và nhà máy cà phê. Hợp tác với hơn 60 nông dân trên 120 hecta ở Cầu Đất và Langbiang." },
+      "address": { "en": "Xuan Tho, Dalat, Lam Dong", "vi": "Xuân Thọ, Đà Lạt, Lâm Đồng" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Roastery", "Farm Tour"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Morning, 8am-11am",
+      "tips": ["Ask for a cupping session to taste different single-origin beans", "Visit the adjacent coffee farm for a full bean-to-cup experience", "Try their Honey Arabica from Cau Dat — fruity and sweet", "They export to Japan, US, and Middle East markets"],
+      "neighborhood": "Xuan Tho"
+    },
+    {
+      "name": { "en": "La Viet Coffee", "vi": "Là Việt Coffee" },
+      "description": { "en": "Dalat's largest specialty roastery founded by former professor Tran Nhat Quang in 2013. Housed in a cavernous warehouse with a big roastery, showroom, and cupping space. Famous for cold brew mocktails using local ingredients like mulberry juice. Now expanded to 11 locations nationwide but the Dalat original remains the best.", "vi": "Xưởng rang cà phê đặc sản lớn nhất Đà Lạt, do cựu giáo sư Trần Nhật Quang sáng lập năm 2013. Nằm trong nhà kho rộng lớn với xưởng rang, phòng trưng bày và không gian cupping." },
+      "address": { "en": "200 Nguyen Cong Tru, Ward 8, Dalat, Lam Dong", "vi": "200 Nguyễn Công Trứ, Phường 8, Đà Lạt, Lâm Đồng" },
+      "category": "Cafe",
+      "subcategories": ["Specialty Coffee", "Roastery", "Cocktails"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Afternoon, 2-5pm",
+      "tips": ["Try their cold brew mocktails with local mulberry fruit", "The warehouse space is great for rainy day visits", "Ask about their arabica sourcing from surrounding highlands", "They also have a restaurant now — good for lunch"],
+      "neighborhood": "Ward 8"
+    },
+    {
+      "name": { "en": "Banh Mi Xiu Mai Hong", "vi": "Bánh Mì Xíu Mại Hồng" },
+      "description": { "en": "Legendary banh mi and meatball soup stall hidden on a steep stone-step alley off Yersin Street. Running for decades with prices from 15,000 VND per bowl. The xiu mai (meatballs) are handmade daily and the broth is rich and warming — perfect for Dalat's cool highland mornings.", "vi": "Quán bánh mì xíu mại huyền thoại ẩn mình trong con hẻm dốc có bậc thang đá trên đường Yersin. Hoạt động hàng chục năm với giá chỉ từ 15.000 đồng/chén." },
+      "address": { "en": "72 Yersin Street, Ward 10, Dalat, Lam Dong", "vi": "72 Yersin, Phường 10, Đà Lạt, Lâm Đồng" },
+      "category": "Food",
+      "subcategories": ["Banh Mi", "Street Food", "Hidden Gem"],
+      "localley_score": 6,
+      "local_percentage": 90,
+      "best_time": "Early morning, 6-9am",
+      "tips": ["Look for the stone steps going down — easy to miss", "Order both banh mi and a bowl of xiu mai soup", "Cash only, under 30k VND for a full breakfast", "Locals have been coming here for generations"],
+      "neighborhood": "Yersin Street"
+    },
+    {
+      "name": { "en": "Dalat Night Market Hidden Stalls", "vi": "Chợ Đêm Đà Lạt - Quán Ẩn" },
+      "description": { "en": "The real magic of Dalat Night Market happens after 8pm when tourist crowds thin and local food stalls emerge. Ms. Van's fish cake noodle soup near the roundabout, Ms. Mai's banh mi chao (sizzling pan bread), and Dung Beo's legendary soy milk shop that has served Dalat for over 30 years.", "vi": "Phép màu thật sự của Chợ Đêm Đà Lạt xảy ra sau 8 giờ tối khi khách du lịch vãn và các quán ăn người địa phương xuất hiện. Bún chả cá cô Vân, bánh mì chảo cô Mai, và quán sữa đậu nành Dũng Béo hơn 30 năm." },
+      "address": { "en": "Nguyen Thi Minh Khai Street, Ward 1, Dalat, Lam Dong", "vi": "Đường Nguyễn Thị Minh Khai, Phường 1, Đà Lạt, Lâm Đồng" },
+      "category": "Market",
+      "subcategories": ["Night Market", "Street Food", "Local"],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Late evening, 8pm-midnight",
+      "tips": ["Go after 8pm when locals stay and chat over warm drinks", "Try banh trang nuong (Vietnamese pizza) fresh off the charcoal", "Dip strawberries in chili salt — locals swear by the sweet-sour-spicy combo", "Warm soy milk with pandan or black sesame is essential on cold nights"],
+      "neighborhood": "City Center"
+    },
+    {
+      "name": { "en": "Cau Dat Tea Plantation", "vi": "Đồi Chè Cầu Đất" },
+      "description": { "en": "One of Southeast Asia's oldest tea factories, established 1927. Sprawling 230 hectares at 1,650m altitude producing OTD black tea, Oolong, and specialty green tea. The misty rolling hills of manicured tea bushes offer stunning sunrise and sunset views. Still a working factory where you can watch the full production process.", "vi": "Một trong những nhà máy trà lâu đời nhất Đông Nam Á, thành lập năm 1927. Trải dài 230 hecta ở độ cao 1.650m, sản xuất trà đen OTD, trà Oolong và trà xanh đặc biệt." },
+      "address": { "en": "Cau Dat Commune, Dalat, Lam Dong", "vi": "Xã Cầu Đất, Đà Lạt, Lâm Đồng" },
+      "category": "Nature",
+      "subcategories": ["Tea Plantation", "Scenic", "Heritage"],
+      "localley_score": 4,
+      "local_percentage": 50,
+      "best_time": "Early morning before 9am or late afternoon 4-5pm",
+      "tips": ["Visit before 9am for the most photogenic mist over tea hills", "Entry is only 30,000 VND (~$1.50)", "Try fresh tea brewed from leaves harvested on-site", "October to March has the best weather for visiting", "22km from city center — hire a motorbike or join a tour"],
+      "neighborhood": "Cau Dat"
+    },
+    {
+      "name": { "en": "Elephant Waterfall", "vi": "Thác Voi" },
+      "description": { "en": "A raw, powerful waterfall 25km southwest of Dalat that rewards adventurous hikers. Climb 145 slippery stone steps along precipitous cliffs to reach the thundering base. Unlike the more touristy Datanla, Elephant Waterfall feels wild and untamed with rocky mountains, caves, and lush vegetation.", "vi": "Thác nước hoang sơ, mạnh mẽ cách Đà Lạt 25km về phía tây nam. Leo 145 bậc đá trơn trượt dọc theo vách đá cheo leo để đến chân thác. Không giống Datanla du lịch hơn, Thác Voi hoang dã với núi đá, hang động và thảm thực vật xanh tốt." },
+      "address": { "en": "Nam Ban, Lam Ha, Lam Dong", "vi": "Nam Ban, Lâm Hà, Lâm Đồng" },
+      "category": "Nature",
+      "subcategories": ["Waterfall", "Hiking", "Adventure"],
+      "localley_score": 4,
+      "local_percentage": 55,
+      "best_time": "Morning, 7-10am for best light and fewer crowds",
+      "tips": ["Wear shoes with good grip — the stone steps are very slippery", "The climb down to the base is steep but worth it for the power of the falls", "Combine with a visit to a nearby weasel coffee farm", "Much less crowded than Datanla or Pongour"],
+      "neighborhood": "Lam Ha"
+    },
+    {
+      "name": { "en": "Clay Tunnel Dalat", "vi": "Đường Hầm Điêu Khắc Đà Lạt" },
+      "description": { "en": "A 1.2km sculpture tunnel made entirely from red clay and basalt, depicting 300 years of Dalat history through handcrafted scenes of the old train station, Bao Dai Palace, Chicken Church, and Xuan Huong Lake. Built in 2010 near Tuyen Lam Lake, it holds a national record as Vietnam's only all-clay park.", "vi": "Đường hầm điêu khắc dài 1,2km làm hoàn toàn từ đất sét đỏ và đá bazan, tái hiện 300 năm lịch sử Đà Lạt. Nằm gần hồ Tuyền Lâm, giữ kỷ lục quốc gia là công viên duy nhất làm từ đất sét." },
+      "address": { "en": "Tuyen Lam Lake Area, Ward 4, Dalat, Lam Dong", "vi": "Khu vực Hồ Tuyền Lâm, Phường 4, Đà Lạt, Lâm Đồng" },
+      "category": "Culture",
+      "subcategories": ["Art", "Sculpture", "Heritage"],
+      "localley_score": 3,
+      "local_percentage": 40,
+      "best_time": "Early morning or late afternoon to avoid heat",
+      "tips": ["Tickets cost 120,000 VND (~$4.80) for adults", "Combine with Datanla Waterfall — both are south of the city", "Visit early morning or late evening for comfortable temperatures", "About 30 minutes south of Dalat center by car"],
+      "neighborhood": "Tuyen Lam Lake"
+    },
+    {
+      "name": { "en": "Dalat Railway Station Cafe", "vi": "Ga Đà Lạt - Cà Phê Toa Xe" },
+      "description": { "en": "Historic French colonial railway station built 1932-1938 with a distinctive triangular roof, now home to a charming cafe inside a converted train carriage. Take the short sightseeing rail trip to nearby Trai Mat village and tea plantations. The surrounding area has emerging art cafes and artisan shops.", "vi": "Ga xe lửa kiến trúc Pháp thuộc địa xây 1932-1938 với mái tam giác đặc trưng, hiện có quán cà phê bên trong toa xe lửa cũ. Đi tàu tham quan ngắn đến làng Trại Mát và đồi chè." },
+      "address": { "en": "1 Quang Trung Street, Ward 10, Dalat, Lam Dong", "vi": "1 Quang Trung, Phường 10, Đà Lạt, Lâm Đồng" },
+      "category": "Culture",
+      "subcategories": ["Heritage", "Cafe", "Railway"],
+      "localley_score": 3,
+      "local_percentage": 35,
+      "best_time": "Morning, 8-10am for best light and atmosphere",
+      "tips": ["Have coffee inside the converted train carriage for the full experience", "Take the heritage train to Trai Mat village (short scenic ride)", "Small entrance fee of 5,000 VND", "Visit D'Art Cafe nearby for the emerging local art scene"],
+      "neighborhood": "Ward 10"
+    },
+    {
+      "name": { "en": "Lau Bo Atiso Xua", "vi": "Lẩu Bò Atiso Xưa" },
+      "description": { "en": "Hidden-in-an-alley hotpot restaurant combining Dalat beef with locally grown artichoke flowers — a health-conscious highland specialty. The sweet, clean artichoke broth is infused with medicinal herbs, paired with tender beef slices and fresh Dalat vegetables. A true locals-only find.", "vi": "Quán lẩu ẩn trong hẻm kết hợp bò Đà Lạt với hoa atiso trồng tại địa phương — đặc sản vùng cao tốt cho sức khỏe. Nước lẩu atiso ngọt thanh, pha thảo mộc, ăn kèm bò và rau Đà Lạt." },
+      "address": { "en": "427/3 Phan Dinh Phung, Ward 2, Dalat, Lam Dong", "vi": "427/3 Phan Đình Phùng, Phường 2, Đà Lạt, Lâm Đồng" },
+      "category": "Food",
+      "subcategories": ["Hotpot", "Local Specialty", "Hidden Gem"],
+      "localley_score": 6,
+      "local_percentage": 85,
+      "best_time": "Dinner, 5-9pm",
+      "tips": ["Artichoke hotpot is unique to Dalat — the flowers grow in the cool highlands", "Hidden in an alley, ask locals for directions", "Perfect for cold Dalat evenings", "Try with mushrooms — Dalat grows amazing wild varieties"],
+      "neighborhood": "Phan Dinh Phung"
+    },
+    {
+      "name": { "en": "Me Linh Coffee Garden", "vi": "Vườn Cà Phê Mê Linh" },
+      "description": { "en": "A cliffside coffee garden with 360-degree panoramic mountain views, perched on the edge of misty hills outside central Dalat. Open-air design lets you sip locally grown coffee while overlooking valleys of coffee plantations and pine forests. A small working coffee farm on the premises offers tours.", "vi": "Vườn cà phê bên vách đá với tầm nhìn toàn cảnh 360 độ, nằm trên rìa đồi sương mù ngoại ô Đà Lạt. Thiết kế ngoài trời để thưởng thức cà phê trong khi ngắm thung lũng trồng cà phê và rừng thông." },
+      "address": { "en": "Tu Tra, Don Duong, Lam Dong", "vi": "Tà Nung, Đà Lạt, Lâm Đồng" },
+      "category": "Cafe",
+      "subcategories": ["Coffee", "Scenic View", "Farm Tour"],
+      "localley_score": 4,
+      "local_percentage": 45,
+      "best_time": "Early morning for mist views, or sunset",
+      "tips": ["Arrive early when morning mist fills the valley — magical views", "Visit the small coffee farm on site to see beans growing", "Best reached by motorbike — the winding road is part of the experience", "Try the weasel coffee if available — it's a local specialty"],
+      "neighborhood": "Ta Nung"
+    }
+  ]
+}

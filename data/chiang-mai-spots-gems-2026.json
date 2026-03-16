@@ -1,0 +1,164 @@
+{
+  "city": "chiang-mai",
+  "batch": "gems-2026",
+  "spots": [
+    {
+      "name": { "en": "Khao Soi Nimman", "th": "ข้าวซอยนิมมาน" },
+      "description": {
+        "en": "Michelin-recognized khao soi institution on Nimman Soi 7, serving Chiang Mai's iconic coconut curry noodle soup for over 14 years. The curry paste is hand-pounded daily using 100-year-old Karen chili peppers from Mae Hong Son and shrimp paste from Phatthalung. A bowl costs just 80-100 THB.",
+        "th": "ร้านข้าวซอยระดับมิชลินบนนิมมาน ซอย 7 เสิร์ฟก๋วยเตี๋ยวแกงกะทิมากว่า 14 ปี เครื่องแกงโขลกสดทุกวันจากพริกกะเหรี่ยงสายพันธุ์ 100 ปีจากแม่ฮ่องสอน"
+      },
+      "address": { "en": "Nimmanhaemin Soi 7, Suthep, Mueang Chiang Mai, Thailand" },
+      "category": "Food",
+      "subcategories": ["Noodles", "Northern Thai", "Michelin"],
+      "localley_score": 5,
+      "local_percentage": 70,
+      "best_time": "Lunch",
+      "tips": [
+        "Opens 11 AM-9 PM; go before noon to avoid queues",
+        "Try khao soi kai (chicken) first — the classic version — then explore pork ribs or beef",
+        "Also order nam prik ong (northern Thai chili dip) as a side — equally legendary here"
+      ],
+      "neighborhood": "Nimman"
+    },
+    {
+      "name": { "en": "Akha Ama Coffee (Original)", "th": "อาข่า อ่ามา กาแฟ" },
+      "description": {
+        "en": "The original Akha Ama store tucked in a residential Santitham lane, founded by Lee who grows coffee at his family's Akha hill-tribe village in northern Thailand. This tiny cafe pioneered Chiang Mai's ethical, single-origin coffee movement. The beans are direct-trade, the story is authentic.",
+        "th": "ร้านอาข่า อ่ามา สาขาแรกในซอยเงียบย่านสันติธรรม ก่อตั้งโดยลี ผู้ปลูกกาแฟที่หมู่บ้านชาวเขาอาข่า กาแฟค้าตรงจากชุมชน เรื่องราวแท้จริง"
+      },
+      "address": { "en": "9/1 Hussadhisawee Road, Soi 3, Santitham, Mueang Chiang Mai, Thailand" },
+      "category": "Cafe",
+      "subcategories": ["Coffee", "Specialty", "Social Enterprise"],
+      "localley_score": 5,
+      "local_percentage": 65,
+      "best_time": "Morning",
+      "tips": [
+        "This is the original location — not the newer branches — and has the most authentic atmosphere",
+        "Ask about their village visit program if you want to see where the coffee is grown",
+        "Cash only at this location; the newer branches accept cards"
+      ],
+      "neighborhood": "Santitham"
+    },
+    {
+      "name": { "en": "Maha Larb CNZ", "th": "มหาลาภ ซีเอ็นแซด" },
+      "description": {
+        "en": "A late-night northern Thai tapas bar hidden in Nimman's side streets, discovered by locals in early 2025. Tiny portions packed with bold Isaan and Lanna flavors — most dishes cost just 30-70 THB. Open until 3 AM, it fills the gap when everything else closes.",
+        "th": "บาร์ทาปาสอาหารเหนือเปิดดึกซ่อนอยู่ในซอยนิมมาน คนท้องถิ่นค้นพบต้นปี 2025 จานเล็กแต่รสจัดจ้าน ราคา 30-70 บาท เปิดถึงตี 3"
+      },
+      "address": { "en": "Siri Mangkalajarn Road, Suthep, Mueang Chiang Mai, Thailand" },
+      "category": "Food",
+      "subcategories": ["Late Night", "Northern Thai", "Bar Bites"],
+      "localley_score": 5,
+      "local_percentage": 85,
+      "best_time": "Late Night",
+      "tips": [
+        "Peak time is 10 PM-midnight when university students and locals fill the tables",
+        "Order laab moo (minced pork salad) and sai ua (northern sausage) — both are standouts",
+        "Menu is mostly in Thai; use Google Translate camera or point-and-order",
+        "Great spot after exploring Nimman's bars when you need a proper food landing"
+      ],
+      "neighborhood": "Nimman"
+    },
+    {
+      "name": { "en": "Warorot Market (Local Section)", "th": "ตลาดวโรรส (ส่วนคนท้องถิ่น)" },
+      "description": {
+        "en": "Northern Thailand's largest market, known locally as Kad Luang. While tourists browse the front stalls, the local section deeper inside and the adjacent Ton Lamyai Market reveal the real Chiang Mai — dried northern chilies, fermented sausages, handmade curry pastes, and Hmong tribal textiles.",
+        "th": "ตลาดใหญ่ที่สุดในภาคเหนือ ชาวบ้านเรียก กาดหลวง ส่วนคนท้องถิ่นด้านในมีพริกแห้ง ไส้อั่ว เครื่องแกงทำมือ และผ้าทอชาวม้ง"
+      },
+      "address": { "en": "90 Wichayanon Road, Chang Moi, Mueang Chiang Mai, Thailand" },
+      "category": "Market",
+      "subcategories": ["Local Market", "Food Market", "Textiles"],
+      "localley_score": 5,
+      "local_percentage": 80,
+      "best_time": "Morning (6-10 AM)",
+      "tips": [
+        "Head to the back and upper floors for local prices — the ground-floor front is tourist-priced",
+        "The adjacent Hmong Market outside sells authentic tribal textiles from Doi Suthep hill-tribe villages",
+        "Also a night market (5-11 PM) — the evening stalls are different from daytime",
+        "Next-door Ton Lamyai Flower Market is stunning at dawn and open 24/7"
+      ],
+      "neighborhood": "Chang Moi"
+    },
+    {
+      "name": { "en": "Wua Lai Saturday Walking Street", "th": "ถนนคนเดินวัวลาย (วันเสาร์)" },
+      "description": {
+        "en": "Every Saturday evening, this street in the old silversmith quarter transforms into a more intimate, less-touristed alternative to the famous Sunday Walking Street. Local artisans sell handmade silver jewelry, celadon ceramics, and hill-tribe crafts alongside sizzling street food stalls.",
+        "th": "ทุกเย็นวันเสาร์ ถนนในย่านช่างเงินเก่าแปรสภาพเป็นตลาดคนเดินที่เป็นกันเองกว่าถนนคนเดินวันอาทิตย์ ช่างฝีมือขายเครื่องเงิน เซลาดอน และงานฝีมือชาวเขา"
+      },
+      "address": { "en": "Wua Lai Road, Haiya, Mueang Chiang Mai, Thailand" },
+      "category": "Market",
+      "subcategories": ["Night Market", "Crafts", "Street Food"],
+      "localley_score": 5,
+      "local_percentage": 60,
+      "best_time": "Saturday evening (4-10 PM)",
+      "tips": [
+        "Much less crowded than Sunday Walking Street but equally good food and crafts",
+        "Try the khao soi and sai ua stalls near the temple grounds — freshly made to order",
+        "Silver jewelry here is often made by the families selling it — ask about their workshop",
+        "Arrive by 5 PM for the best selection; popular stalls sell out by 8 PM"
+      ],
+      "neighborhood": "Wua Lai"
+    },
+    {
+      "name": { "en": "Stewed Beef Akkara", "th": "ร้านก๋วยเตี๋ยวเนื้อตุ๋นอัครา" },
+      "description": {
+        "en": "A no-frills side-street noodle shop near Nimman where locals queue for slow-stewed beef and pork noodle soup. The broth simmers for hours, producing deep, complex flavors. Dishes cost 55-70 THB — outstanding quality at local prices. The owner speaks English despite the Thai-only menu.",
+        "th": "ร้านก๋วยเตี๋ยวเนื้อตุ๋นซอยเล็กใกล้นิมมาน คนท้องถิ่นต่อคิวกินน้ำซุปตุ๋นนานหลายชั่วโมง จานละ 55-70 บาท คุณภาพเยี่ยมในราคาชาวบ้าน"
+      },
+      "address": { "en": "Siri Mangkalajarn Road area, Suthep, Mueang Chiang Mai, Thailand" },
+      "category": "Food",
+      "subcategories": ["Noodles", "Local", "Budget"],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Lunch",
+      "tips": [
+        "The stewed beef tendon noodles are the signature — order 'kuay tiew neua tun'",
+        "Seating is limited; expect to share tables during peak lunch hours",
+        "Menu is Thai only but the owner speaks good English — just ask for recommendations",
+        "Closes when the stew runs out, usually by 2-3 PM"
+      ],
+      "neighborhood": "Nimman"
+    },
+    {
+      "name": { "en": "GRAPH Coffee", "th": "กราฟ คอฟฟี่" },
+      "description": {
+        "en": "A cool, dark-interior specialty roastery hidden in a warehouse on Siri Mangkalajarn Road. Unless you pass by during roasting time, you'd never know it was a cafe. The contrast between the blazing Chiang Mai sun and the cave-like interior is striking. Serious about sourcing northern Thai beans.",
+        "th": "โรงคั่วกาแฟสเปเชียลตี้ซ่อนอยู่ในโกดังบนถนนศิริมังคลาจารย์ ภายในมืดเท่ ตัดกับแดดร้อนข้างนอก จริงจังกับการคัดเมล็ดกาแฟจากภาคเหนือ"
+      },
+      "address": { "en": "Siri Mangkalajarn Road, Suthep, Mueang Chiang Mai, Thailand" },
+      "category": "Cafe",
+      "subcategories": ["Coffee", "Specialty", "Roastery"],
+      "localley_score": 4,
+      "local_percentage": 60,
+      "best_time": "Afternoon",
+      "tips": [
+        "Their GRAPH Ground location on Siri Mangkalajarn is the original — look for the unmarked warehouse door",
+        "Ask for a pour-over of their seasonal single-origin Thai beans",
+        "No credit cards at this branch — bring cash or use QR payment",
+        "Good Wi-Fi but limited power outlets; not ideal for long working sessions"
+      ],
+      "neighborhood": "Nimman"
+    },
+    {
+      "name": { "en": "Suthep Market (Ton Payom)", "th": "ตลาดสุเทพ (ต้นพยอม)" },
+      "description": {
+        "en": "A large fresh market where Chiang Mai locals do their daily shopping, preserving the atmosphere of an authentic northern Thai market. Freshly cooked northern dishes — kanom jeen nam ngiao, khao soi, and various nam prik — are prepared daily at prices that haven't inflated for tourists.",
+        "th": "ตลาดสดขนาดใหญ่ที่คนเชียงใหม่มาซื้อของทุกวัน รักษาบรรยากาศตลาดเหนือแท้ๆ อาหารปรุงสดใหม่ทุกวัน ขนมจีนน้ำเงี้ยว ข้าวซอย น้ำพริก ราคาไม่ปรับสำหรับนักท่องเที่ยว"
+      },
+      "address": { "en": "Suthep Road, Suthep, Mueang Chiang Mai, Thailand" },
+      "category": "Market",
+      "subcategories": ["Local Market", "Morning Market", "Northern Thai"],
+      "localley_score": 5,
+      "local_percentage": 90,
+      "best_time": "Early morning (6-9 AM)",
+      "tips": [
+        "This is where locals eat breakfast — much more authentic than Warorot for cooked food",
+        "Try kanom jeen nam ngiao (rice noodles in tomato-pork broth) from the stall with the longest queue",
+        "Located near Chiang Mai University — a Doi Suthep alternative for experiencing local life",
+        "Prices are 10-30% cheaper than Warorot or Thanin Market for the same quality"
+      ],
+      "neighborhood": "Suthep"
+    }
+  ]
+}
