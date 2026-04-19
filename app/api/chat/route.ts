@@ -4,13 +4,16 @@ import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { chatSchema, validateBody } from "@/lib/validations";
 import { checkAndIncrementUsage } from "@/lib/usage-tracking";
-import { Errors, handleApiError } from "@/lib/api-errors";
+import { apiError, ErrorCodes, Errors, handleApiError } from "@/lib/api-errors";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getLocalizedText } from "@/lib/spots/transform";
 import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
 import type { MultiLanguageField } from "@/types";
 
-const CLAUDE_MODEL = process.env.CHAT_MODEL || "claude-sonnet-4-20250514";
+const CLAUDE_MODEL =
+    process.env.CHAT_MODEL ||
+    process.env.CLAUDE_MODEL ||
+    "claude-sonnet-4-20250514";
 
 const getAnthropicClient = () => {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -217,6 +220,63 @@ IMPORTANT for itineraries:
 ${spotsContext}`;
 }
 
+function isAnthropicError(error: unknown): error is {
+    status?: number;
+    message?: string;
+} {
+    return typeof error === "object" && error !== null;
+}
+
+function handleChatProviderError(error: unknown) {
+    if (!isAnthropicError(error)) {
+        return null;
+    }
+
+    const status = typeof error.status === "number" ? error.status : undefined;
+    const message = typeof error.message === "string" ? error.message : "";
+
+    if (status === 429) {
+        return apiError(
+            ErrorCodes.RATE_LIMITED,
+            "Alley is getting a lot of requests right now. Please try again in a minute."
+        );
+    }
+
+    if (status === 401 || status === 403) {
+        return apiError(
+            ErrorCodes.EXTERNAL_SERVICE_ERROR,
+            "The chat provider rejected the request. Please contact support if this keeps happening.",
+            { provider: "anthropic", status }
+        );
+    }
+
+    if (status === 400 || status === 404) {
+        const lowerMessage = message.toLowerCase();
+        const looksLikeModelConfigIssue =
+            lowerMessage.includes("model") ||
+            lowerMessage.includes("not found") ||
+            lowerMessage.includes("unsupported");
+
+        if (looksLikeModelConfigIssue) {
+            return apiError(
+                ErrorCodes.EXTERNAL_SERVICE_ERROR,
+                "The chat model configuration is invalid. Please contact support.",
+                { provider: "anthropic", model: CLAUDE_MODEL, status }
+            );
+        }
+    }
+
+    if (status === 402) {
+        return apiError(
+            ErrorCodes.INSUFFICIENT_CREDITS,
+            "The chat provider account needs attention before Alley can reply.",
+            { provider: "anthropic", status }
+        );
+    }
+
+    return null;
+}
+
 export async function POST(req: NextRequest) {
     try {
         // Check rate limit
@@ -281,6 +341,10 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ message: reply });
     } catch (error) {
+        const providerError = handleChatProviderError(error);
+        if (providerError) {
+            return providerError;
+        }
         return handleApiError(error, "[CHAT_ERROR]");
     }
 }

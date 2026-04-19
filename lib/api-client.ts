@@ -30,6 +30,65 @@ export function isApiError<T>(result: ApiResult<T>): result is ApiError {
   return "error" in result;
 }
 
+function normalizeApiErrorResponse(
+  data: unknown,
+  status: number
+): ApiError {
+  const fallbackMessage = "Request failed";
+
+  if (!data || typeof data !== "object") {
+    return {
+      error: fallbackMessage,
+      message: fallbackMessage,
+      status,
+    };
+  }
+
+  const payload = data as {
+    error?: unknown;
+    message?: unknown;
+    code?: unknown;
+    details?: unknown;
+  };
+
+  const nestedError =
+    payload.error && typeof payload.error === "object"
+      ? (payload.error as {
+          message?: unknown;
+          code?: unknown;
+          details?: unknown;
+        })
+      : null;
+
+  const message =
+    (typeof payload.message === "string" && payload.message) ||
+    (nestedError && typeof nestedError.message === "string" && nestedError.message) ||
+    (typeof payload.error === "string" && payload.error) ||
+    fallbackMessage;
+
+  const code =
+    (typeof payload.code === "string" && payload.code) ||
+    (nestedError && typeof nestedError.code === "string" && nestedError.code) ||
+    undefined;
+
+  const details =
+    (nestedError?.details && typeof nestedError.details === "object"
+      ? (nestedError.details as Record<string, unknown>)
+      : undefined) ||
+    (payload.details && typeof payload.details === "object"
+      ? (payload.details as Record<string, unknown>)
+      : undefined) ||
+    (data as Record<string, unknown>);
+
+  return {
+    error: message,
+    message,
+    code,
+    status,
+    details,
+  };
+}
+
 // ============================================
 // Response Types
 // ============================================
@@ -133,13 +192,7 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
-        return {
-          error: data.error || "Request failed",
-          message: data.message,
-          code: data.code,
-          status: response.status,
-          details: data,
-        };
+        return normalizeApiErrorResponse(data, response.status);
       }
 
       return {
