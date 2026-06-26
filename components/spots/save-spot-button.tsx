@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,9 +18,13 @@ export function SaveSpotButton({ spotId, className, size = "icon" }: SaveSpotBut
     const [isSaved, setIsSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
+    const { isLoaded, isSignedIn } = useUser();
 
     // Check if spot is saved on mount
     useEffect(() => {
+        if (!isLoaded || !isSignedIn) return;
+
         const checkSavedStatus = async () => {
             try {
                 const response = await fetch(`/api/spots/save?spotId=${spotId}`);
@@ -31,11 +37,20 @@ export function SaveSpotButton({ spotId, className, size = "icon" }: SaveSpotBut
             }
         };
         checkSavedStatus();
-    }, [spotId]);
+    }, [isLoaded, isSignedIn, spotId]);
 
     const handleToggleSave = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
+        if (!isSignedIn) {
+            toast({
+                title: "Sign in to save spots",
+                description: "Keep your favorite places in one trip list.",
+            });
+            router.push("/sign-in");
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -74,7 +89,7 @@ export function SaveSpotButton({ spotId, className, size = "icon" }: SaveSpotBut
             variant="ghost"
             size={size}
             onClick={handleToggleSave}
-            disabled={isLoading}
+            disabled={isLoading || !isLoaded}
             className={cn(
                 "rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90",
                 className

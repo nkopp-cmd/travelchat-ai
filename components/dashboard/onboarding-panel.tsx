@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Sparkles, Map, ArrowRight, Lightbulb, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SUPPORTED_CITIES } from "@/lib/supported-cities";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface OnboardingPanelProps {
     className?: string;
@@ -98,9 +99,11 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                     prompt.gradient
                                 )} />
 
-                                <span className="relative text-2xl flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
-                                    {prompt.icon}
-                                </span>
+                                <CityImageAvatar
+                                    city={prompt.text}
+                                    className="relative h-12 w-12 flex-shrink-0 rounded-lg ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-105"
+                                    sizes="48px"
+                                />
                                 <span className="relative text-sm text-foreground/80 group-hover:text-foreground transition-colors">
                                     {prompt.text}
                                 </span>
@@ -204,7 +207,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                         key={city.name}
                                         href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                                         className={cn(
-                                            "inline-flex items-center gap-1.5 px-4 py-2 rounded-full",
+                                            "inline-flex items-center gap-2 px-2 py-1.5 rounded-full",
                                             "border border-black/5 dark:border-white/10",
                                             "bg-white/70 dark:bg-white/5 backdrop-blur-sm",
                                             "hover:border-violet-400/50 hover:shadow-lg hover:shadow-violet-500/10",
@@ -213,9 +216,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                         )}
                                         style={{ animationDelay: `${idx * 50}ms` }}
                                     >
-                                        <span className="transform group-hover:scale-110 transition-transform">
-                                            {city.emoji}
-                                        </span>
+                                        <CityImageAvatar city={city.name} className="h-8 w-8 rounded-full" sizes="32px" />
                                         <span className="font-medium">{city.name}</span>
                                     </Link>
                                 ))}

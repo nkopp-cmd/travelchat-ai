@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 import { queryKeys } from "@/hooks/use-queries";
@@ -87,26 +88,6 @@ interface UseSubscriptionReturn {
     openBillingPortal: () => Promise<void>;
 }
 
-
-// Default subscription for error/loading states
-const DEFAULT_SUBSCRIPTION: SubscriptionStatus = {
-    tier: "free",
-    status: "none",
-    isActive: false,
-    hasBillingPortal: false,
-    currentPeriodEnd: null,
-    cancelAtPeriodEnd: false,
-    trialEnd: null,
-    limits: TIER_CONFIGS.free.limits,
-    usage: {
-        itinerariesThisMonth: 0,
-        chatMessagesToday: 0,
-        storiesThisWeek: 0,
-        aiImagesThisMonth: 0,
-        savedSpots: 0,
-    },
-};
-
 /**
  * Fetch subscription status from API
  */
@@ -121,6 +102,8 @@ async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
 }
 
 export function useSubscription(): UseSubscriptionReturn {
+    const { isLoaded, isSignedIn } = useUser();
+
     // Use React Query for subscription data with caching
     // staleTime: 2 minutes - subscription rarely changes
     // This prevents re-fetching on every navigation
@@ -135,6 +118,7 @@ export function useSubscription(): UseSubscriptionReturn {
         staleTime: 2 * 60 * 1000, // 2 minutes
         gcTime: 5 * 60 * 1000, // 5 minutes
         retry: 1,
+        enabled: isLoaded && isSignedIn,
     });
 
     // Checkout mutation
@@ -221,8 +205,9 @@ export function useSubscription(): UseSubscriptionReturn {
     );
 
     const refetch = useCallback(async () => {
+        if (!isSignedIn) return;
         await queryRefetch();
-    }, [queryRefetch]);
+    }, [isSignedIn, queryRefetch]);
 
     const openCheckout = useCallback(
         async (checkoutTier: "pro" | "premium", billingCycle: "monthly" | "yearly" = "monthly") => {
@@ -237,7 +222,7 @@ export function useSubscription(): UseSubscriptionReturn {
 
     return {
         subscription: subscription ?? null,
-        isLoading,
+        isLoading: !isLoaded || (isSignedIn && isLoading),
         error: error as Error | null,
         ...derivedValues,
         canUseFeature,

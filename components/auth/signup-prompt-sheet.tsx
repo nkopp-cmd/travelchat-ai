@@ -25,7 +25,7 @@ const benefits = [
   },
   {
     icon: Sparkles,
-    text: "Get 3 free AI-generated trips per month",
+    text: "Choose a paid plan for AI-generated trips",
   },
   {
     icon: Clock,
@@ -75,7 +75,7 @@ export function SignupPromptSheet({
           <SheetDescription className="text-gray-400">
             {itineraryTitle
               ? `"${itineraryTitle}" has been created`
-              : "Sign up to save it and unlock more features"}
+              : "Create an account and choose a plan to unlock Localley"}
           </SheetDescription>
         </SheetHeader>
 
@@ -106,7 +106,7 @@ export function SignupPromptSheet({
               "shadow-lg shadow-violet-500/30"
             )}
           >
-            Sign Up Free
+            Create Account
           </Button>
           <Button
             variant="ghost"

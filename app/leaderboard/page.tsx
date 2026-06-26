@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Trophy, Medal, Award, Crown, ArrowLeft, Flame } from "lucide-react";
@@ -8,6 +8,8 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { AppBackground } from "@/components/layout/app-background";
+import { GradientText } from "@/components/ui/gradient-text";
 
 export const metadata: Metadata = {
     title: "Leaderboard - Localley",
@@ -90,7 +92,7 @@ function getRankIcon(rank: number) {
         case 2:
             return <Medal className="h-6 w-6 text-gray-400" />;
         case 3:
-            return <Award className="h-6 w-6 text-amber-600" />;
+            return <Award className="h-6 w-6 text-indigo-400" />;
         default:
             return <span className="text-lg font-bold text-muted-foreground w-6 text-center">{rank}</span>;
     }
@@ -99,11 +101,11 @@ function getRankIcon(rank: number) {
 function getRankBg(rank: number) {
     switch (rank) {
         case 1:
-            return "bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-500/30";
+            return "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/15 border-violet-400/30";
         case 2:
             return "bg-gradient-to-r from-gray-400/20 to-slate-400/20 border-gray-400/30";
         case 3:
-            return "bg-gradient-to-r from-amber-600/20 to-orange-600/20 border-amber-600/30";
+            return "bg-gradient-to-r from-indigo-500/20 to-violet-500/15 border-indigo-400/30";
         default:
             return "bg-background/60 border-border/40";
     }
@@ -250,12 +252,12 @@ async function LeaderboardContent() {
                     {/* Third Place */}
                     <div className="flex flex-col items-center pt-12">
                         <div className="relative">
-                            <Avatar className="h-14 w-14 border-4 border-amber-600">
-                                <AvatarFallback className="bg-amber-600/20 text-amber-700 font-bold text-lg">
+                            <Avatar className="h-14 w-14 border-4 border-indigo-400">
+                                <AvatarFallback className="bg-indigo-500/20 text-indigo-200 font-bold text-lg">
                                     {(leaderboard[2]?.username || "E3").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="absolute -bottom-2 -right-2 bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                            <div className="absolute -bottom-2 -right-2 bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
                                 3
                             </div>
                         </div>
@@ -289,7 +291,8 @@ async function LeaderboardContent() {
 
 export default function LeaderboardPage() {
     return (
-        <div className="max-w-3xl mx-auto p-4 space-y-6 animate-in fade-in duration-500">
+        <AppBackground ambient className="min-h-screen">
+            <div className="max-w-3xl mx-auto p-4 pb-24 space-y-6 animate-in fade-in duration-500 md:pb-8">
             {/* Back Button */}
             <Link
                 href="/dashboard"
@@ -303,8 +306,8 @@ export default function LeaderboardPage() {
             <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-3">
                     <Trophy className="h-10 w-10 text-yellow-500" />
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-                        Leaderboard
+                    <h1 className="text-4xl font-bold">
+                        <GradientText variant="violet">Leaderboard</GradientText>
                     </h1>
                 </div>
                 <p className="text-muted-foreground">
@@ -328,6 +331,7 @@ export default function LeaderboardPage() {
             <Suspense fallback={<LeaderboardSkeleton />}>
                 <LeaderboardContent />
             </Suspense>
-        </div>
+            </div>
+        </AppBackground>
     );
 }

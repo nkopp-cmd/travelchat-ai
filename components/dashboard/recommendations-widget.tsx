@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
+import { CityImageAvatar } from '@/components/ui/city-image';
 
 interface RecommendedSpot {
   id: string;
@@ -17,7 +18,7 @@ interface RecommendedSpot {
   category: string;
   localley_score: number;
   photos: string[];
-  location: any;
+  location: { address?: string | { en?: string } } | null;
   recommendationScore: number;
   reason: string;
 }
@@ -72,7 +73,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
   };
 
   // Extract city from location
-  const getCity = (location: any): string => {
+  const getCity = (location: RecommendedSpot["location"]): string => {
     try {
       if (!location) return '';
       const address = typeof location.address === 'string'
@@ -175,7 +176,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                     {city && (
                       <>
-                        <MapPin className="h-2.5 w-2.5" />
+                        <CityImageAvatar city={city} className="h-4 w-4 rounded-full" sizes="16px" />
                         <span className="line-clamp-1">{city}</span>
                       </>
                     )}
@@ -258,7 +259,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     {city && (
                       <>
-                        <MapPin className="h-3 w-3" />
+                        <CityImageAvatar city={city} className="h-5 w-5 rounded-full" sizes="20px" />
                         <span>{city}</span>
                         <span>•</span>
                       </>

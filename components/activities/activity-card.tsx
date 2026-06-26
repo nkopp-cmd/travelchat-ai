@@ -20,9 +20,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, canSeeFullAddress, hasFeature } from "@/lib/subscription";
-import { getActivityBookingLinks, getHotelBookingLinks, AffiliateLink } from "@/lib/affiliates";
+import { getActivityBookingLinks, getHotelBookingLinks } from "@/lib/affiliates";
 import { BookingButton } from "./booking-button";
 import { UpgradePrompt } from "./upgrade-prompt";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 export interface Activity {
     name: string;
@@ -56,17 +57,6 @@ const getScoreBadge = (score: number) => {
     if (score >= 4) return { label: "Local Favorite", color: "bg-indigo-500", icon: "⭐" };
     if (score >= 3) return { label: "Mixed Crowd", color: "bg-blue-500", icon: "👥" };
     return { label: "Tourist Spot", color: "bg-gray-500", icon: "📍" };
-};
-
-// Activity type icons
-const getTypeIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
-        case "morning": return "🌅";
-        case "afternoon": return "☀️";
-        case "evening": return "🌆";
-        case "night": return "🌙";
-        default: return "📍";
-    }
 };
 
 export function ActivityCard({
@@ -125,9 +115,7 @@ export function ActivityCard({
                                     onError={() => setImageError(true)}
                                 />
                             ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center">
-                                    <span className="text-2xl">{getTypeIcon(activity.type || "")}</span>
-                                </div>
+                                <CityImageAvatar city={activity.city} className="h-full w-full rounded-none" sizes="64px" />
                             )}
                             {!canShowImages && activity.image && (
                                 <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
@@ -182,13 +170,14 @@ export function ActivityCard({
                             onError={() => setImageError(true)}
                         />
                     ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-                            <div className="text-5xl mb-2">{getTypeIcon(activity.type || "")}</div>
-                            <p className="text-sm text-muted-foreground">
+                        <div className="relative h-full w-full overflow-hidden">
+                            <CityImageAvatar city={activity.city} className="absolute inset-0 h-full w-full rounded-none" sizes="(max-width: 768px) 100vw, 33vw" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                            <p className="absolute inset-x-4 bottom-4 text-center text-sm text-white/85">
                                 {userTier === "free" ? (
                                     <button
                                         onClick={() => setShowUpgradePrompt(true)}
-                                        className="flex items-center gap-1 text-violet-600 hover:underline"
+                                        className="inline-flex items-center gap-1 rounded-full bg-black/45 px-3 py-1.5 text-white backdrop-blur-sm hover:bg-violet-600/80"
                                     >
                                         <Sparkles className="h-3 w-3" />
                                         Unlock AI images

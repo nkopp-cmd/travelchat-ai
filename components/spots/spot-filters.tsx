@@ -145,10 +145,10 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                             )}
                         </Button>
                     </SheetTrigger>
-                    <SheetContent>
+                    <SheetContent className="border-l border-violet-200/15 bg-[#0b0714]/96 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
                         <SheetHeader>
-                            <SheetTitle>Filter Spots</SheetTitle>
-                            <SheetDescription>
+                            <SheetTitle className="text-white">Filter Spots</SheetTitle>
+                            <SheetDescription className="text-white/55">
                                 Refine your search to find the perfect spot
                             </SheetDescription>
                         </SheetHeader>
@@ -156,9 +156,9 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                         <div className="mt-6 space-y-6">
                             {/* Localley Score Filter */}
                             <div className="space-y-3">
-                                <label className="text-sm font-medium">Localley Score</label>
+                                <label className="text-sm font-medium text-white/85">Localley Score</label>
                                 <Select value={filters.localleyScore} onValueChange={(value) => handleFilterChange("localleyScore", value)}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="border-white/10 bg-white/[0.04] text-white">
                                         <SelectValue placeholder="Select score" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -176,7 +176,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                                 <Button
                                     variant="outline"
                                     onClick={clearFilters}
-                                    className="w-full gap-2"
+                                    className="w-full gap-2 border-white/10 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
                                 >
                                     <X className="h-4 w-4" />
                                     Clear All Filters

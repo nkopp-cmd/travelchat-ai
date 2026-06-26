@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
             clerkUserId: userId,
             successUrl,
             cancelUrl,
-            trialDays: tier === "pro" ? 7 : 0,
         });
 
         if (!session) {

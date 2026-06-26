@@ -40,8 +40,8 @@ export function MobileBottomNav() {
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50",
         "md:hidden", // Only show on mobile
-        "bg-black/80 backdrop-blur-xl",
-        "border-t border-white/10",
+        "bg-[#0b0714]/88 backdrop-blur-xl",
+        "border-t border-violet-200/15 shadow-2xl shadow-violet-950/40",
         "safe-area-bottom"
       )}
     >
@@ -69,17 +69,17 @@ export function MobileBottomNav() {
                     "transition-all active:scale-95",
                     isActive
                       ? "bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/40"
-                      : "bg-gray-800/80"
+                      : "bg-white/[0.08] ring-1 ring-white/10"
                   )}
                 >
                   <item.icon className={cn(
                     "h-6 w-6",
-                    isActive ? "text-white" : "text-gray-400"
+                    isActive ? "text-white" : "text-violet-100/55"
                   )} />
                 </div>
                 <span className={cn(
                   "text-xs font-medium",
-                  isActive ? "text-violet-400" : "text-gray-500"
+                  isActive ? "text-violet-300" : "text-violet-100/45"
                 )}>{item.label}</span>
               </Link>
             );
@@ -93,8 +93,8 @@ export function MobileBottomNav() {
                 "flex flex-col items-center justify-center gap-1 px-4 py-2",
                 "min-w-[64px] transition-colors",
                 isActive
-                  ? "text-violet-400"
-                  : "text-gray-500 active:text-gray-300"
+                  ? "text-violet-300"
+                  : "text-violet-100/45 active:text-violet-100/80"
               )}
             >
               <item.icon

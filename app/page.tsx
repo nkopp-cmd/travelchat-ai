@@ -1,404 +1,571 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Sparkles, Users, Search, Star, Coffee, Utensils, Camera, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SUPPORTED_CITIES } from "@/lib/supported-cities";
+import {
+  ArrowRight,
+  CalendarDays,
+  Check,
+  Coffee,
+  Compass,
+  CreditCard,
+  MapPin,
+  Route,
+  Search,
+  Sparkles,
+  Star,
+  Utensils,
+} from "lucide-react";
 import { MarketingNavbar } from "@/components/layout/marketing-navbar";
 import { Logo } from "@/components/brand/logo";
+import { Button } from "@/components/ui/button";
+import { CityImageAvatar } from "@/components/ui/city-image";
+import { ENABLED_CITIES } from "@/lib/cities";
+import { cn } from "@/lib/utils";
 
-// Demo itinerary data to show on landing page
-const DEMO_ITINERARY = {
-  title: "Seoul Hidden Gems",
-  subtitle: "3 days of local favorites and secret spots",
-  city: "Seoul",
-  localScore: 8,
-  days: [
-    {
-      day: 1,
-      theme: "Vintage Alleys & Coffee Culture",
-      activities: [
-        {
-          time: "09:00 AM",
-          name: "Onion Cafe Anguk",
-          category: "cafe",
-          description: "Artisan bread cafe in a renovated hanok. Try the cream cheese garlic bread - locals line up for it!",
-          localleyScore: 5,
-        },
-        {
-          time: "12:00 PM",
-          name: "Gwangjang Market",
-          category: "market",
-          description: "Skip the tourist stalls. Head to the back for grandma-run bindaetteok (mung bean pancakes).",
-          localleyScore: 6,
-        },
-        {
-          time: "03:00 PM",
-          name: "Ikseon-dong Hanok Village",
-          category: "neighborhood",
-          description: "Trendy cafes and boutiques hidden in traditional alleyways. Perfect for golden hour photos.",
-          localleyScore: 4,
-        },
-        {
-          time: "07:00 PM",
-          name: "Euljiro Alley Bars",
-          category: "bar",
-          description: "Industrial-chic speakeasies. Look for the unmarked doors - that's where the magic happens.",
-          localleyScore: 6,
-        },
-      ],
-    },
-  ],
-};
+const CITY_OPTIONS = ENABLED_CITIES.slice(0, 8);
+const FEATURED_CITIES = ENABLED_CITIES.slice(0, 6);
+const FALLBACK_CITY = CITY_OPTIONS[0] ?? ENABLED_CITIES[0];
+
+const VIBE_OPTIONS = [
+  { id: "Food & Dining", label: "Food", icon: Utensils },
+  { id: "Cafes & Coffee", label: "Cafes", icon: Coffee },
+  { id: "Art & Culture", label: "Culture", icon: Compass },
+  { id: "Street Food", label: "Street food", icon: Sparkles },
+];
+
+const QUICK_PRESETS = [
+  {
+    title: "One night in Seoul",
+    detail: "Food street, tiny bar, late cafe. No palace marathon.",
+    city: "Seoul",
+    days: 1,
+    interests: ["Food & Dining", "Nightlife & Bars"],
+  },
+  {
+    title: "Tokyo cafe weekend",
+    detail: "Quiet neighborhoods, coffee, small shops, walkable stops.",
+    city: "Tokyo",
+    days: 2,
+    interests: ["Cafes & Coffee", "Art & Culture"],
+  },
+  {
+    title: "Bangkok street-food run",
+    detail: "Markets, local dinner, easy late route, fewer generic lists.",
+    city: "Bangkok",
+    days: 3,
+    interests: ["Street Food", "Food & Dining"],
+  },
+];
+
+const RECEIPTS = [
+  "Seoul, Tokyo, Bangkok, Singapore and more Asian cities",
+  "Localley Score separates tourist traps from places locals actually rate",
+  "Paid product for travelers with real trips to plan",
+];
+
+const PRODUCT_STEPS = [
+  {
+    icon: Search,
+    title: "Pick the city",
+    text: "Start with Seoul, Tokyo, Bangkok, Singapore, Osaka, Kyoto, Taipei or another supported city.",
+  },
+  {
+    icon: Star,
+    title: "Set your taste",
+    text: "Food, cafes, culture, nightlife, markets, parks, shopping, vintage, street food, or a mix.",
+  },
+  {
+    icon: Route,
+    title: "Leave with a route",
+    text: "Get a day-by-day plan with places, neighborhoods, timing, and notes that feel local.",
+  },
+];
+
+function citySlug(cityName: string) {
+  return cityName.toLowerCase().replace(/\s+/g, "-");
+}
+
+function encodedInterests(interests: string[]) {
+  return interests.join(",");
+}
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("Seoul");
+  const [days, setDays] = useState(3);
+  const [interests, setInterests] = useState<string[]>([
+    "Food & Dining",
+    "Cafes & Coffee",
+  ]);
   const router = useRouter();
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const selectedCityMeta = CITY_OPTIONS.find((city) => city.name === selectedCity) ?? FALLBACK_CITY;
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/spots?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push("/spots");
+  const itineraryHref = useMemo(() => {
+    const params = new URLSearchParams({
+      city: selectedCity,
+      days: String(days),
+      interests: encodedInterests(interests),
+      pace: days <= 2 ? "active" : "moderate",
+      budget: "moderate",
+      localness: "4",
+    });
+    return `/itineraries/new?${params.toString()}`;
+  }, [days, interests, selectedCity]);
+
+  const exploreHref = useMemo(() => {
+    const params = new URLSearchParams({
+      city: citySlug(selectedCity),
+      sort: "local",
+    });
+    if (interests[0]) {
+      const category = interests[0].split(" ")[0];
+      params.set("category", category);
     }
+    return `/spots?${params.toString()}`;
+  }, [interests, selectedCity]);
+
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (query) {
+      router.push(`/spots?search=${encodeURIComponent(query)}`);
+      return;
+    }
+    router.push(exploreHref);
+  };
+
+  const toggleInterest = (interest: string) => {
+    setInterests((current) => {
+      if (current.includes(interest)) {
+        const next = current.filter((item) => item !== interest);
+        return next.length ? next : current;
+      }
+      return [...current, interest].slice(0, 3);
+    });
+  };
+
+  const applyPreset = (preset: (typeof QUICK_PRESETS)[number]) => {
+    setSelectedCity(preset.city);
+    setDays(preset.days);
+    setInterests(preset.interests);
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white selection:bg-violet-500/30">
-      {/* Marketing Navbar - integrated with hero */}
+    <div className="min-h-screen bg-[#0b0714] text-white selection:bg-violet-300/30 mobile-sticky-safe-space md:pb-0">
       <MarketingNavbar />
 
-      {/* Hero Section with Background Image */}
-      <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden pt-16">
-        {/* Background Image with Enhanced Overlay */}
+      <section className="relative overflow-hidden border-b border-white/10">
         <div
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 bg-cover bg-center opacity-75"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=2400&auto=format&fit=crop')",
           }}
-        >
-          {/* Enhanced gradient overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
-          {/* Subtle radial gradient for hero text area */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.3)_0%,_transparent_70%)]" />
-        </div>
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,7,20,0.98)_0%,rgba(20,12,36,0.9)_48%,rgba(30,18,55,0.58)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(124,58,237,0.2),rgba(255,255,255,0)_42%,rgba(79,70,229,0.16))]" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0b0714] to-transparent" />
 
-        <div className="container relative z-10 px-4 md:px-6 flex flex-col items-center text-center space-y-8">
-          {/* Hero content with enhanced text container */}
-          <div className="space-y-6 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <div className="inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium backdrop-blur-md mb-2 shadow-lg shadow-violet-500/10">
-              <Sparkles className="mr-2 h-4 w-4 text-violet-400" />
-              <span className="text-violet-200">AI-Powered Travel Companion</span>
+        <div className="container relative z-10 mx-auto grid min-h-[calc(100svh-1rem)] max-w-7xl items-center gap-8 px-4 pb-10 pt-24 md:grid-cols-[1fr_420px] md:px-6 lg:pb-16">
+          <div className="max-w-3xl">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-md border border-violet-300/25 bg-violet-400/12 px-3 py-2 text-sm font-semibold text-violet-100 shadow-lg shadow-violet-500/10">
+              <MapPin className="h-4 w-4" />
+              Asia trip planner for places locals actually like
             </div>
-            <h1 className="text-6xl font-bold tracking-tight sm:text-7xl md:text-8xl lg:text-9xl text-white drop-shadow-2xl">
-              Discover the <br />
-              <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-violet-300 to-indigo-400 font-bold">Hidden World</span>
+
+            <h1 className="text-5xl font-black leading-[0.96] tracking-normal text-white sm:text-6xl lg:text-7xl">
+              Travel like a local friend planned it.
             </h1>
-            {/* Enhanced subheadline with better contrast */}
-            <p className="mx-auto max-w-[650px] text-white/90 md:text-xl lg:text-2xl font-light leading-relaxed drop-shadow-lg">
-              Your local friend in every city. Find trendy alley spots, secret bars, and authentic experiences that guidebooks miss.
+            <p className="mt-5 max-w-2xl text-xl leading-8 text-slate-200 md:text-2xl">
+              Choose a city and a vibe. Localley finds the restaurants, cafes, alleys, markets, and neighborhoods you would normally only hear about after you land.
             </p>
-          </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-            <Link href="/sign-up" className="flex-1">
-              <Button size="lg" className="w-full h-12 rounded-full bg-violet-600 hover:bg-violet-700 text-lg shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)] transition-all hover:scale-105 hover:shadow-[0_0_50px_-10px_rgba(124,58,237,0.6)]">
-                Start Exploring
-                <ArrowRight className="ml-2 h-5 w-5" />
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg" className="h-12 rounded-lg bg-violet-500 px-6 text-base font-bold text-white shadow-lg shadow-violet-500/30 hover:bg-violet-400">
+                <Link href="/pricing">
+                  Start planning
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
-            </Link>
-            <Link href="/spots" className="flex-1">
-              <Button variant="outline" size="lg" className="w-full h-12 rounded-full border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white hover:text-white text-lg transition-all hover:scale-105 hover:border-white/40">
-                Discover Spots
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-white/50">
-          <div className="w-6 h-10 rounded-full border-2 border-white/30 flex justify-center p-1">
-            <div className="w-1 h-2 bg-white/50 rounded-full" />
-          </div>
-        </div>
-      </section>
-
-      {/* Transition Section - Search Bar with Visual Anchor */}
-      <section className="relative w-full bg-gradient-to-b from-black via-black to-zinc-950 py-16">
-        {/* Top gradient fade for smooth hero transition */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black to-transparent pointer-events-none" />
-
-        <div className="container relative z-20 px-4 -mt-24">
-          <div className="mx-auto w-[calc(100%-32px)] sm:w-auto sm:max-w-3xl rounded-2xl border border-white/10 bg-zinc-900/80 p-2 backdrop-blur-xl shadow-2xl shadow-black/50 hover:shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/20">
-            <form onSubmit={handleSearch} className="flex items-center gap-2 sm:gap-3 rounded-xl bg-white/5 px-3 sm:px-5 py-3 sm:py-4 focus-within:bg-white/10 transition-colors">
-              <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isMobile ? "Where to?" : "Where do you want to go? (e.g. Tokyo, Seoul, Bangkok)"}
-                className="flex-1 bg-transparent text-base sm:text-lg text-white outline-none placeholder:text-gray-500 focus:placeholder:text-gray-400"
-              />
               <Button
-                type="submit"
-                size="sm"
-                className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white px-3 sm:px-6 transition-all hover:scale-105 shadow-lg shadow-violet-500/20"
+                asChild
+                variant="outline"
+                size="lg"
+                className="h-12 rounded-lg border-white/20 bg-white/10 px-6 text-base font-semibold text-white hover:bg-white/15 hover:text-white"
               >
-                <span className="hidden sm:inline">Search</span>
-                <Search className="h-4 w-4 sm:hidden" />
+                <Link href={exploreHref}>Browse local spots</Link>
+              </Button>
+            </div>
+
+            <div className="mt-8 grid gap-2">
+              {RECEIPTS.map((receipt) => (
+                <div key={receipt} className="flex items-start gap-3 text-sm leading-6 text-slate-300">
+                  <Check className="mt-1 h-4 w-4 shrink-0 text-violet-300" />
+                  <span>{receipt}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2" aria-label="Supported city previews">
+              {FEATURED_CITIES.slice(0, 4).map((city) => (
+                <Link
+                  key={city.slug}
+                  href={`/spots?city=${city.slug}&sort=local`}
+                  className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] py-1 pl-1 pr-3 text-sm text-white/85 backdrop-blur-sm transition hover:border-violet-300/40 hover:bg-violet-400/10"
+                >
+                  <CityImageAvatar city={city.name} className="h-8 w-8 rounded-full" sizes="32px" />
+                  <span>{city.name}</span>
+                </Link>
+              ))}
+            </div>
+
+            <form
+              onSubmit={handleSearch}
+              className="mt-8 flex max-w-2xl flex-col gap-2 rounded-lg border border-violet-200/20 bg-black/35 p-2 shadow-xl shadow-violet-950/20 backdrop-blur-md sm:flex-row"
+            >
+              <label className="sr-only" htmlFor="landing-search">
+                Search for a city, food, cafe, or neighborhood
+              </label>
+              <div className="flex min-h-12 flex-1 items-center gap-3 px-3">
+                <Search className="h-5 w-5 text-slate-400" aria-hidden="true" />
+                <input
+                  id="landing-search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search Seoul cafes, Bangkok food, Tokyo vintage..."
+                  className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+                />
+              </div>
+              <Button type="submit" size="lg" className="h-12 rounded-lg bg-white text-slate-950 hover:bg-slate-200">
+                Search
               </Button>
             </form>
           </div>
+
+          <TripBuilder
+            selectedCity={selectedCity}
+            selectedCityMeta={selectedCityMeta}
+            days={days}
+            interests={interests}
+            itineraryHref={itineraryHref}
+            exploreHref={exploreHref}
+            setSelectedCity={setSelectedCity}
+            setDays={setDays}
+            toggleInterest={toggleInterest}
+          />
         </div>
       </section>
 
-      {/* Features Section - Branded with unique Localley elements */}
-      <section className="w-full py-32 lg:py-40 bg-zinc-950 relative overflow-hidden">
-        {/* Background Gradients - More subtle and professional */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-violet-900/15 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-indigo-900/15 rounded-full blur-[150px] translate-x-1/2 translate-y-1/2" />
-
-        {/* Subtle grid pattern for visual texture */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
-
-        <div className="container px-4 md:px-6 relative z-10 max-w-7xl mx-auto">
-          {/* Section header */}
-          <div className="text-center mb-16">
-            <p className="text-violet-400 text-lg md:text-xl font-bold tracking-[0.25em] uppercase mb-6">Why Localley</p>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Travel Like a Local,<br className="md:hidden" /> Not a Tourist
-            </h2>
-            <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">Powered by AI and verified by real locals</p>
-          </div>
-
-          <div className="grid gap-8 lg:grid-cols-3 place-items-center lg:place-items-stretch">
-            {/* Card 1: Hidden Gems - with unique pattern */}
-            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-violet-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/10 cursor-pointer overflow-hidden">
-              {/* Unique decorative element - map pattern */}
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg viewBox="0 0 100 100" fill="currentColor" className="text-violet-400">
-                  <circle cx="20" cy="20" r="3" />
-                  <circle cx="50" cy="30" r="4" />
-                  <circle cx="80" cy="25" r="3" />
-                  <circle cx="35" cy="60" r="5" />
-                  <circle cx="70" cy="70" r="3" />
-                  <path d="M20 20 L50 30 L80 25" stroke="currentColor" strokeWidth="1" fill="none" strokeDasharray="4" />
-                  <path d="M50 30 L35 60 L70 70" stroke="currentColor" strokeWidth="1" fill="none" strokeDasharray="4" />
-                </svg>
-              </div>
-              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/20 text-violet-400 group-hover:bg-violet-500/30 group-hover:scale-110 transition-all duration-300 ring-1 ring-violet-500/20">
-                <Sparkles className="h-8 w-8" />
-              </div>
-              <h2 className="mb-4 text-xl md:text-2xl font-bold text-white group-hover:text-violet-300 transition-colors">Hidden Gems</h2>
-              <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
-                Escape the tourist traps. Our AI analyzes millions of data points to find the secret spots where locals actually hang out.
-              </p>
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-
-            {/* Card 2: Community Verified - with unique pattern */}
-            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-indigo-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden">
-              {/* Unique decorative element - connection nodes */}
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg viewBox="0 0 100 100" fill="currentColor" className="text-indigo-400">
-                  <circle cx="30" cy="30" r="8" />
-                  <circle cx="70" cy="35" r="6" />
-                  <circle cx="50" cy="70" r="7" />
-                  <path d="M30 30 L70 35 M70 35 L50 70 M50 70 L30 30" stroke="currentColor" strokeWidth="2" fill="none" />
-                </svg>
-              </div>
-              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:scale-110 transition-all duration-300 ring-1 ring-indigo-500/20">
-                <Users className="h-8 w-8" />
-              </div>
-              <h2 className="mb-4 text-xl md:text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">Community Verified</h2>
-              <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
-                Real-time vibe checks. Know if a spot is &quot;chill&quot;, &quot;packed&quot;, or &quot;trending&quot; before you even leave your hotel.
-              </p>
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-
-            {/* Card 3: Smart Itineraries - with unique pattern */}
-            <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-pink-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-pink-500/10 cursor-pointer overflow-hidden">
-              {/* Unique decorative element - route path */}
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg viewBox="0 0 100 100" fill="currentColor" className="text-pink-400">
-                  <circle cx="20" cy="80" r="6" />
-                  <circle cx="50" cy="50" r="4" />
-                  <circle cx="80" cy="20" r="6" />
-                  <path d="M20 80 Q35 65 50 50 Q65 35 80 20" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
-                  <path d="M75 15 L80 20 L85 15" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-500/20 text-pink-400 group-hover:bg-pink-500/30 group-hover:scale-110 transition-all duration-300 ring-1 ring-pink-500/20">
-                <MapPin className="h-8 w-8" />
-              </div>
-              <h2 className="mb-4 text-xl md:text-2xl font-bold text-white group-hover:text-pink-300 transition-colors">Smart Itineraries</h2>
-              <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
-                Get a perfectly curated day plan in seconds. Customized to your vibe, budget, and travel style.
-              </p>
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pink-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Itinerary Section */}
-      <section className="w-full py-24 lg:py-32 bg-gradient-to-b from-black via-violet-950/20 to-black relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 w-[800px] h-[800px] bg-violet-900/10 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2" />
-
-        <div className="container px-4 md:px-6 relative z-10 max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium backdrop-blur-md mb-4">
-              <Star className="mr-2 h-4 w-4 text-violet-400" />
-              <span className="text-violet-200">Try it Free - No Login Required</span>
-            </div>
-            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl text-white mb-4">
-              See What You&apos;ll Get
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Real local recommendations, not tourist traps. Here&apos;s a preview of our Seoul itinerary.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8 items-start">
-            {/* Demo Itinerary Card */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-white">{DEMO_ITINERARY.title}</h3>
-                  <p className="text-gray-400">{DEMO_ITINERARY.subtitle}</p>
-                </div>
-                <div className="flex items-center gap-2 bg-violet-500/20 px-3 py-1.5 rounded-full">
-                  <Star className="h-4 w-4 text-violet-400" />
-                  <span className="text-violet-300 font-medium">{DEMO_ITINERARY.localScore}/10 Local</span>
-                </div>
-              </div>
-
-              {/* Day Theme */}
-              <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-                <span className="bg-violet-500/30 text-violet-300 px-2 py-0.5 rounded-full font-medium">
-                  Day 1
+      <section className="border-b border-white/10 bg-[#10131a] py-8">
+        <div className="container mx-auto grid max-w-7xl gap-3 px-4 md:grid-cols-3 md:px-6">
+          {QUICK_PRESETS.map((preset) => (
+            <button
+              key={preset.title}
+              type="button"
+              onClick={() => applyPreset(preset)}
+              className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] text-left transition hover:border-violet-300/45 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            >
+              <div className="relative h-24 overflow-hidden">
+                <CityImageAvatar
+                  city={preset.city}
+                  className="absolute inset-0 h-full w-full rounded-none"
+                  imageClassName="transition duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <span className="absolute bottom-3 left-4 rounded-md bg-black/45 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                  {preset.city}
                 </span>
-                <span>{DEMO_ITINERARY.days[0].theme}</span>
               </div>
-
-              {/* Activities */}
-              <div className="space-y-3">
-                {DEMO_ITINERARY.days[0].activities.map((activity, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-                        {activity.category === "cafe" && <Coffee className="h-5 w-5 text-white" />}
-                        {activity.category === "market" && <Utensils className="h-5 w-5 text-white" />}
-                        {activity.category === "neighborhood" && <Camera className="h-5 w-5 text-white" />}
-                        {activity.category === "bar" && <Sparkles className="h-5 w-5 text-white" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500 font-medium">{activity.time}</span>
-                          <span className="text-xs text-violet-400 bg-violet-500/20 px-1.5 py-0.5 rounded">
-                            {activity.localleyScore}/6
-                          </span>
-                        </div>
-                        <h4 className="text-white font-semibold group-hover:text-violet-300 transition-colors">
-                          {activity.name}
-                        </h4>
-                        <p className="text-sm text-gray-400 mt-1">{activity.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="p-5">
+                <h2 className="mb-3 text-lg font-bold text-white">{preset.title}</h2>
+                <p className="text-sm leading-6 text-slate-400">{preset.detail}</p>
               </div>
+            </button>
+          ))}
+        </div>
+      </section>
 
-              {/* More Days Indicator */}
-              <div className="mt-4 text-center text-gray-500 text-sm">
-                + 2 more days of hidden gems...
+      <section className="bg-[#0b0714] py-14">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-violet-300">The useful part</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
+              Stop planning from 47 tabs.
+            </h2>
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-400">
+              Localley turns scattered TikToks, blog posts, maps, and friend recommendations into one local-first route you can actually follow.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {PRODUCT_STEPS.map((step) => (
+              <div key={step.title} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+                <step.icon className="mb-4 h-6 w-6 text-violet-300" />
+                <h3 className="text-xl font-bold text-white">{step.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-400">{step.text}</p>
               </div>
-            </div>
-
-            {/* CTA Side */}
-            <div className="flex flex-col items-center lg:items-start justify-center space-y-6 lg:pl-8">
-              <div className="space-y-4">
-                <h3 className="text-3xl font-bold text-white text-center lg:text-left">
-                  Create Your Own Itinerary
-                </h3>
-                <p className="text-gray-400 text-lg text-center lg:text-left">
-                  Get a personalized travel plan in under a minute. Choose your city and let our AI guide you to the best local spots.
-                </p>
-              </div>
-
-              {/* City Quick Select */}
-              <div className="w-full max-w-sm">
-                <p className="text-sm text-gray-500 mb-3">Available cities:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {SUPPORTED_CITIES.map((city) => (
-                    <Link
-                      key={city.name}
-                      href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
-                      className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-3 hover:bg-white/10 hover:border-violet-500/30 transition-all group"
-                    >
-                      <span className="text-xl">{city.emoji}</span>
-                      <div className="flex-1">
-                        <div className="text-white font-medium group-hover:text-violet-300 transition-colors">
-                          {city.name}
-                        </div>
-                        <div className="text-xs text-gray-500">{city.country}</div>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-gray-500 group-hover:text-violet-400 transition-colors" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <Link href="/itineraries/new" className="w-full max-w-sm">
-                <Button
-                  size="lg"
-                  className="w-full h-14 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-lg font-semibold shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)] transition-all hover:scale-[1.02]"
-                >
-                  Create Free Itinerary
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-
-              <p className="text-sm text-gray-500 text-center lg:text-left">
-                No account required for your first itinerary
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="w-full py-8 border-t border-white/10">
-        <div className="container px-4 md:px-6 max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <Logo size="md" isLanding={true} />
-            <p className="text-sm text-gray-500">
-              Your local friend in every city
+      <section className="border-y border-white/10 bg-[#10131a] py-14">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-indigo-200">Cities live now</p>
+              <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">Start where Localley is strongest.</h2>
+            </div>
+            <Button asChild variant="outline" className="h-11 rounded-lg border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white">
+              <Link href="/spots">See all spots</Link>
+            </Button>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURED_CITIES.map((city) => (
+              <Link
+                key={city.slug}
+                href={`/spots?city=${city.slug}&sort=local`}
+                className="group relative min-h-[180px] overflow-hidden rounded-lg border border-white/10 bg-slate-900 transition hover:border-violet-300/45"
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: city.heroImage ? `url(${city.heroImage})` : undefined }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{city.emoji}</span>
+                    <h3 className="text-xl font-black text-white">{city.name}</h3>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-300">{city.vibe}</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">
+                    Browse local spots
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#0b0714] py-14">
+        <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-violet-200">Paid only</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
+              Built for people with a ticket booked.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-400">
+              Localley is not an endless inspiration feed. It is a practical trip-planning tool for turning a messy city into a route with better local signal.
             </p>
           </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+            <CreditCard className="mb-4 h-6 w-6 text-violet-200" />
+            <h3 className="text-2xl font-bold text-white">Pro starts at $9/month.</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              Pro is for regular travelers. Premium is for heavier planning, maps, collaboration and high-capacity usage.
+            </p>
+            <Button asChild className="mt-5 h-12 w-full rounded-lg bg-violet-500 text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400">
+              <Link href="/pricing">
+                Compare paid plans
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-white/10 bg-[#0b0714] py-8">
+        <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
+          <Logo size="md" isLanding />
+          <p className="text-sm text-slate-500">Local routes for Asian cities.</p>
         </div>
       </footer>
+      <MobileSignupBar />
+    </div>
+  );
+}
+
+function MobileSignupBar() {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-violet-200/15 bg-[#0b0714]/92 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden">
+      <div className="mx-auto flex max-w-md items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-bold text-white">Plan a local-first trip</p>
+          <p className="truncate text-xs text-violet-100/70">Paid access from $9/month</p>
+        </div>
+        <Button asChild size="sm" className="h-11 shrink-0 rounded-lg bg-violet-500 px-4 font-bold text-white shadow-lg shadow-violet-500/30 hover:bg-violet-400">
+          <Link href="/pricing">
+            Sign up
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function TripBuilder({
+  selectedCity,
+  selectedCityMeta,
+  days,
+  interests,
+  itineraryHref,
+  exploreHref,
+  setSelectedCity,
+  setDays,
+  toggleInterest,
+}: {
+  selectedCity: string;
+  selectedCityMeta: (typeof CITY_OPTIONS)[number] | undefined;
+  days: number;
+  interests: string[];
+  itineraryHref: string;
+  exploreHref: string;
+  setSelectedCity: (city: string) => void;
+  setDays: (days: number) => void;
+  toggleInterest: (interest: string) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-violet-200/15 bg-[#120d20]/92 p-4 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-violet-200">Build a route</p>
+          <h2 className="mt-1 text-2xl font-black text-white">Where are you going?</h2>
+        </div>
+        <div className="rounded-md border border-violet-300/25 bg-violet-300/10 px-2 py-1 text-xs font-semibold text-violet-100">
+          60 sec setup
+        </div>
+      </div>
+
+      <div className="space-y-5">
+        <div>
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
+            <MapPin className="h-4 w-4 text-violet-300" />
+            City
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {CITY_OPTIONS.slice(0, 6).map((city) => {
+              const isSelected = city.name === selectedCity;
+              return (
+                <button
+                  key={city.slug}
+                  type="button"
+                  onClick={() => setSelectedCity(city.name)}
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "flex min-h-12 items-center gap-2 rounded-lg border px-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                    isSelected
+                      ? "border-violet-300 bg-violet-400/15 text-white"
+                      : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/25 hover:bg-white/[0.07]"
+                  )}
+                >
+                  <CityImageAvatar city={city.name} className="h-9 w-9" sizes="36px" />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold">{city.name}</span>
+                    <span className="block truncate text-xs text-slate-400">{city.vibe}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
+            <CalendarDays className="h-4 w-4 text-indigo-300" />
+            Days
+          </div>
+          <div className="grid grid-cols-4 gap-2" role="group" aria-label="Trip duration">
+            {[1, 2, 3, 5].map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setDays(option)}
+                aria-pressed={days === option}
+                className={cn(
+                  "min-h-11 rounded-lg border text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                  days === option
+                    ? "border-indigo-300 bg-indigo-300/15 text-white"
+                    : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/25"
+                )}
+              >
+                {option}d
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
+            <Sparkles className="h-4 w-4 text-violet-300" />
+            Vibe
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {VIBE_OPTIONS.map((vibe) => {
+              const Icon = vibe.icon;
+              const isSelected = interests.includes(vibe.id);
+              return (
+                <button
+                  key={vibe.id}
+                  type="button"
+                  onClick={() => toggleInterest(vibe.id)}
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "flex min-h-12 items-center justify-between rounded-lg border px-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                    isSelected
+                      ? "border-violet-300 bg-violet-400/15 text-white"
+                      : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/25"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" />
+                    {vibe.label}
+                  </span>
+                  {isSelected && <Check className="h-4 w-4 text-violet-200" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+          <div className="flex items-center gap-3">
+            <CityImageAvatar city={selectedCityMeta?.name ?? selectedCity} className="h-12 w-12 rounded-lg" sizes="48px" />
+            <div className="min-w-0">
+              <p className="font-bold text-white">
+                {selectedCityMeta?.name ?? selectedCity}, {days} {days === 1 ? "day" : "days"}
+              </p>
+              <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-400">
+                {interests.join(", ")} with a local-first route and fewer obvious tourist stops.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button asChild size="lg" className="h-12 rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400">
+            <Link href={itineraryHref}>
+              Build trip
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="h-12 rounded-lg border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
+          >
+            <Link href={exploreHref}>Browse spots</Link>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

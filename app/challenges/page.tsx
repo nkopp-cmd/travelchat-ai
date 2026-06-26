@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCallback, useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { AppBackground } from "@/components/layout/app-background";
 
 interface Challenge {
     id: string;
@@ -77,11 +78,7 @@ export default function ChallengesPage() {
     const [completedCount, setCompletedCount] = useState(0);
     const { toast } = useToast();
 
-    useEffect(() => {
-        fetchChallenges();
-    }, []);
-
-    const fetchChallenges = async () => {
+    const fetchChallenges = useCallback(async () => {
         try {
             const response = await fetch("/api/challenges");
             const data = await response.json();
@@ -100,7 +97,11 @@ export default function ChallengesPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [toast]);
+
+    useEffect(() => {
+        fetchChallenges();
+    }, [fetchChallenges]);
 
     const handleClaim = async (challengeId: string) => {
         setClaimingId(challengeId);
@@ -143,7 +144,8 @@ export default function ChallengesPage() {
     const completedChallenges = challenges.filter((c) => c.isCompleted);
 
     return (
-        <div className="max-w-4xl mx-auto p-4 space-y-6 animate-in fade-in duration-500">
+        <AppBackground ambient className="min-h-screen">
+            <div className="max-w-4xl mx-auto p-4 pb-24 space-y-6 animate-in fade-in duration-500 md:pb-8">
             {/* Back Button */}
             <Link
                 href="/profile"
@@ -208,7 +210,7 @@ export default function ChallengesPage() {
                                         key={challenge.id}
                                         className={`border-border/40 bg-background/60 backdrop-blur-sm transition-all ${
                                             challenge.canClaim
-                                                ? "ring-2 ring-green-500/50 bg-green-500/5"
+                                                ? "ring-2 ring-violet-400/50 bg-violet-500/5"
                                                 : ""
                                         }`}
                                     >
@@ -248,7 +250,7 @@ export default function ChallengesPage() {
                                                     <Button
                                                         onClick={() => handleClaim(challenge.id)}
                                                         disabled={claimingId === challenge.id}
-                                                        className="bg-green-600 hover:bg-green-700 shrink-0"
+                                                        className="bg-violet-600 hover:bg-violet-500 shrink-0"
                                                     >
                                                         {claimingId === challenge.id ? (
                                                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -272,7 +274,7 @@ export default function ChallengesPage() {
                     {completedChallenges.length > 0 && (
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <CheckCircle className="h-5 w-5 text-violet-400" />
                                 Completed
                             </h2>
                             <div className="grid gap-4">
@@ -283,7 +285,7 @@ export default function ChallengesPage() {
                                     >
                                         <CardContent className="p-6">
                                             <div className="flex items-start gap-4">
-                                                <div className="p-3 rounded-xl bg-green-500/10 text-green-500">
+                                                <div className="p-3 rounded-xl bg-violet-500/10 text-violet-400">
                                                     <CheckCircle className="h-6 w-6" />
                                                 </div>
                                                 <div className="flex-1">
@@ -291,7 +293,7 @@ export default function ChallengesPage() {
                                                         <h3 className="font-semibold">{challenge.name}</h3>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="bg-green-500/10 text-green-600"
+                                                            className="bg-violet-500/10 text-violet-200"
                                                         >
                                                             +{challenge.xpReward} XP Earned
                                                         </Badge>
@@ -323,6 +325,7 @@ export default function ChallengesPage() {
                     )}
                 </>
             )}
-        </div>
+            </div>
+        </AppBackground>
     );
 }

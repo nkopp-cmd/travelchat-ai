@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { SubscriptionSuccessHandler } from "@/components/subscription/subscription-success-handler";
+import { AppBackground } from "@/components/layout/app-background";
 
 export default function SettingsLayout({
     children,
@@ -8,15 +9,15 @@ export default function SettingsLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-full">
+        <AppBackground ambient fitParent className="h-full" contentClassName="flex h-full">
             <Sidebar />
-            <div className="flex-1 overflow-y-auto md:rounded-tl-2xl bg-background">
+            <div className="flex-1 overflow-y-auto bg-transparent pb-24 md:rounded-tl-2xl md:pb-8">
                 {/* Handle post-checkout cache invalidation */}
                 <Suspense fallback={null}>
                     <SubscriptionSuccessHandler />
                 </Suspense>
                 {children}
             </div>
-        </div>
+        </AppBackground>
     );
 }

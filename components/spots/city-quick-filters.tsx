@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CityOption } from "@/lib/spots/types";
 import { Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface CityQuickFiltersProps {
     cities: CityOption[];
@@ -62,14 +63,14 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                         <Badge
                             variant={isActive ? "default" : "secondary"}
                             className={cn(
-                                "px-3 py-1.5 text-sm cursor-pointer transition-all duration-200",
+                                "gap-2 py-1.5 pl-1.5 pr-3 text-sm cursor-pointer transition-all duration-200",
                                 isActive
                                     ? "bg-violet-600 text-white hover:bg-violet-700 shadow-md shadow-violet-500/20"
                                     : "bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 hover:border-violet-300 dark:hover:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-900/20",
                                 isPending && "opacity-60"
                             )}
                         >
-                            <span className="mr-1.5">{city.emoji}</span>
+                            <CityImageAvatar city={city.name} className="h-6 w-6 rounded-full ring-1 ring-white/20" sizes="24px" />
                             <span className="font-medium">{city.name}</span>
                             <span
                                 className={cn(

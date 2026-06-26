@@ -7,6 +7,7 @@ import { MapPin, Plus, Compass, Sparkles, Calendar, ChevronRight, ArrowRight } f
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 import { SUPPORTED_CITIES } from "@/lib/supported-cities";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface RecentItinerary {
     id: string;
@@ -235,7 +236,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
             {/* Explore Cities with premium grid */}
             <div>
                 <div className="flex items-center gap-2 mb-4">
-                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
                         <Compass className="h-3 w-3 text-white" />
                     </div>
                     <h2 className="font-semibold text-lg">
@@ -243,12 +244,12 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     </h2>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                    {SUPPORTED_CITIES.map((city, idx) => (
+                    {SUPPORTED_CITIES.map((city) => (
                         <Link
                             key={city.name}
                             href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                             className={cn(
-                                "rounded-2xl p-4 group",
+                                "group relative min-h-[138px] overflow-hidden rounded-2xl p-4",
                                 "bg-card/95 backdrop-blur-sm",
                                 "border border-border/50",
                                 "hover:border-violet-400/50",
@@ -257,13 +258,19 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                                 "active:scale-[0.97]"
                             )}
                         >
-                            <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform duration-300">
-                                {city.emoji}
+                            <CityImageAvatar
+                                city={city.name}
+                                className="absolute inset-0 h-full w-full rounded-none"
+                                imageClassName="transition duration-500 group-hover:scale-105"
+                                sizes="50vw"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
+                            <div className="relative mt-14">
+                                <div className="font-semibold text-white">
+                                    {city.name}
+                                </div>
+                                <div className="text-xs text-white/75">{city.country}</div>
                             </div>
-                            <div className="font-semibold group-hover:text-violet-600 transition-colors">
-                                {city.name}
-                            </div>
-                            <div className="text-xs text-muted-foreground">{city.country}</div>
                         </Link>
                     ))}
                 </div>

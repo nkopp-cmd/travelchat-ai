@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Share2, Heart, Check, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { useToast } from "@/hooks/use-toast";
 
 interface SpotInteractionsProps {
@@ -14,26 +16,34 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
     const [isLiked, setIsLiked] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
+    const { isLoaded, isSignedIn } = useUser();
 
     // Check if spot is already saved on mount
     useEffect(() => {
+        if (!isLoaded || !isSignedIn) {
+            setIsLoading(false);
+            return;
+        }
+
         const checkSavedStatus = async () => {
+            setIsLoading(true);
             try {
                 const response = await fetch(`/api/spots/save?spotId=${spotId}`);
                 if (response.ok) {
                     const data = await response.json();
                     setIsLiked(data.saved);
                 }
-            } catch (error) {
+            } catch {
                 // Silently fail - user just won't see saved state
             } finally {
                 setIsLoading(false);
             }
         };
         checkSavedStatus();
-    }, [spotId]);
+    }, [isLoaded, isSignedIn, spotId]);
 
     const handleShare = async () => {
         setIsSharing(true);
@@ -80,6 +90,15 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
     };
 
     const handleLike = async () => {
+        if (!isSignedIn) {
+            toast({
+                title: "Sign in to save spots",
+                description: `Save ${spotName} to your trip list.`,
+            });
+            router.push("/sign-in");
+            return;
+        }
+
         const newLikedState = !isLiked;
         setIsSaving(true);
 
@@ -107,7 +126,7 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                     description: `${spotName} removed from saved spots`,
                 });
             }
-        } catch (error) {
+        } catch {
             toast({
                 title: "Error",
                 description: "Could not update saved status. Please try again.",
@@ -141,7 +160,7 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                         : "bg-white/10 hover:bg-white/20 text-white"
                     }`}
                 onClick={handleLike}
-                disabled={isSaving || isLoading}
+                disabled={isSaving || isLoading || !isLoaded}
             >
                 {isSaving || isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

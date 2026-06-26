@@ -5,7 +5,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * Create a Supabase client with optional Clerk authentication.
- * Use this for client-side code where you can pass a Clerk token.
+ * Use this for public reads or user-scoped requests where you can pass a Clerk token.
  */
 export const createSupabaseClient = (clerkToken?: string) => {
   if (!supabaseUrl || !supabaseAnonKey) {

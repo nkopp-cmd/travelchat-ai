@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { Map, Menu, Compass, Award } from "lucide-react";
+import { ArrowRight, Map, Menu, Compass, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -66,21 +66,30 @@ export function Navbar() {
                                 <span className="sr-only">Toggle menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="w-[240px] sm:w-[300px] border-r-white/10 bg-black/90 backdrop-blur-xl text-white">
-                            <nav className="flex flex-col gap-4 mt-8">
+                        <SheetContent side="left" className="w-[86vw] max-w-[340px] border-r border-violet-200/15 bg-[#0b0714]/96 p-0 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
+                            <nav className="flex h-full min-h-dvh flex-col gap-5 px-4 pb-6 pt-6">
+                                <div className="space-y-2">
+                                    <Logo size="md" isLanding={isLanding} />
+                                    <p className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-white/65">
+                                        Jump back into your local-first trips, saved places, and profile.
+                                    </p>
+                                </div>
                                 {routes.map((route) => (
                                     <Link
                                         key={route.href}
                                         href={route.href}
                                         className={cn(
-                                            "flex items-center gap-2 px-2 py-1 text-lg font-medium transition-colors hover:text-violet-400",
+                                            "group flex min-h-14 items-center gap-3 rounded-lg border px-3 py-3 transition",
                                             pathname === route.href
-                                                ? "text-violet-400"
-                                                : "text-gray-400"
+                                                ? "border-violet-300/40 bg-violet-500/15 text-white"
+                                                : "border-white/10 bg-white/[0.04] text-white/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
                                         )}
                                     >
-                                        <route.icon className="h-5 w-5" />
-                                        {route.label}
+                                        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-200">
+                                            <route.icon className="h-5 w-5" />
+                                        </span>
+                                        <span className="flex-1 text-sm font-bold">{route.label}</span>
+                                        <ArrowRight className="h-4 w-4 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-violet-200" />
                                     </Link>
                                 ))}
                             </nav>

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { AppBackground } from "@/components/layout/app-background";
 
 interface AnalyticsData {
     overview: {
@@ -80,6 +81,12 @@ const TIER_COLORS = {
     premium: "#8b5cf6",
 };
 
+const TIER_LABELS = {
+    free: "Unpaid",
+    pro: "Pro",
+    premium: "Premium",
+};
+
 export default function AdminAnalyticsPage() {
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -112,6 +119,7 @@ export default function AdminAnalyticsPage() {
 
     if (error) {
         return (
+            <AppBackground ambient className="min-h-screen">
             <div className="min-h-screen p-6 flex items-center justify-center">
                 <GlassCard variant="subtle" className="p-8 text-center max-w-md">
                     <div className="text-destructive mb-4">
@@ -122,13 +130,15 @@ export default function AdminAnalyticsPage() {
                     <Button onClick={fetchAnalytics}>Try Again</Button>
                 </GlassCard>
             </div>
+            </AppBackground>
         );
     }
 
     return (
+        <AppBackground ambient className="min-h-screen">
         <div className="min-h-screen p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-lg border border-white/10 bg-white/[0.08] p-5 backdrop-blur-xl">
                 <div>
                     <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
                     <p className="text-muted-foreground">
@@ -204,7 +214,7 @@ export default function AdminAnalyticsPage() {
                             </h2>
                             <DonutChart
                                 data={[
-                                    { label: "Free", value: data.overview.tierDistribution.free, color: TIER_COLORS.free },
+                                    { label: "Unpaid", value: data.overview.tierDistribution.free, color: TIER_COLORS.free },
                                     { label: "Pro", value: data.overview.tierDistribution.pro, color: TIER_COLORS.pro },
                                     { label: "Premium", value: data.overview.tierDistribution.premium, color: TIER_COLORS.premium },
                                 ]}
@@ -319,7 +329,7 @@ export default function AdminAnalyticsPage() {
                                     secondaryValue: d.free,
                                 }))}
                                 primaryLabel="Paid (Pro + Premium)"
-                                secondaryLabel="Free"
+                                secondaryLabel="Unpaid"
                                 primaryColor="#8b5cf6"
                                 secondaryColor="#64748b"
                             />
@@ -345,7 +355,7 @@ export default function AdminAnalyticsPage() {
                                                 className="w-2 h-2 rounded-full"
                                                 style={{ backgroundColor: TIER_COLORS[sub.tier as keyof typeof TIER_COLORS] }}
                                             />
-                                            <span className="capitalize font-medium">{sub.tier}</span>
+                                            <span className="capitalize font-medium">{TIER_LABELS[sub.tier as keyof typeof TIER_LABELS] || sub.tier}</span>
                                             <span
                                                 className={cn(
                                                     "text-xs px-2 py-0.5 rounded-full",
@@ -373,6 +383,7 @@ export default function AdminAnalyticsPage() {
                 </>
             ) : null}
         </div>
+        </AppBackground>
     );
 }
 

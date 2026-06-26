@@ -17,6 +17,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { AppBackground } from "@/components/layout/app-background";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 const SPECIALTIES = [
     "Food & Dining",
@@ -88,25 +90,29 @@ export default function GuideApplyPage() {
     };
 
     return (
-        <div className="container max-w-3xl mx-auto py-8 px-4">
+        <AppBackground ambient className="min-h-screen">
+        <div className="container max-w-4xl mx-auto py-8 px-4">
             <Link
                 href="/"
-                className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
+                className="inline-flex items-center text-sm text-white/65 hover:text-white mb-6"
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
             </Link>
 
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Become a Local Guide</h1>
-                <p className="text-muted-foreground">
-                    Share your local expertise and earn from your travel content.
+            <div className="mb-8 rounded-lg border border-white/10 bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl sm:p-8">
+                <Badge className="mb-4 border-violet-300/30 bg-violet-400/15 text-violet-100 hover:bg-violet-400/20">
+                    Creator program
+                </Badge>
+                <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Become a Local Guide</h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">
+                    Share city knowledge, build paid guide content, and help travelers follow routes that feel local from the first day.
                 </p>
             </div>
 
             {/* Benefits */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <Card>
+                <Card className="liquid-panel border-white/10">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <DollarSign className="h-5 w-5 text-green-500 mt-0.5" />
                         <div>
@@ -117,7 +123,7 @@ export default function GuideApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="liquid-panel border-white/10">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <Users className="h-5 w-5 text-blue-500 mt-0.5" />
                         <div>
@@ -128,7 +134,7 @@ export default function GuideApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="liquid-panel border-white/10">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <TrendingUp className="h-5 w-5 text-purple-500 mt-0.5" />
                         <div>
@@ -139,7 +145,7 @@ export default function GuideApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="liquid-panel border-white/10">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <MapPin className="h-5 w-5 text-red-500 mt-0.5" />
                         <div>
@@ -153,7 +159,7 @@ export default function GuideApplyPage() {
             </div>
 
             {/* Application Form */}
-            <Card>
+            <Card className="liquid-panel border-white/10">
                 <CardHeader>
                     <CardTitle>Guide Application</CardTitle>
                     <CardDescription>
@@ -177,14 +183,19 @@ export default function GuideApplyPage() {
                         <p className="text-sm text-muted-foreground">Select the cities you know best</p>
                         <div className="flex flex-wrap gap-2">
                             {CITIES.map((city) => (
-                                <Badge
+                                <button
                                     key={city}
-                                    variant={selectedCities.includes(city) ? "default" : "outline"}
-                                    className="cursor-pointer"
+                                    type="button"
+                                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                                        selectedCities.includes(city)
+                                            ? "border-violet-300/60 bg-violet-500 text-white shadow-lg shadow-violet-500/20"
+                                            : "border-white/10 bg-white/5 text-white/75 hover:border-violet-300/40 hover:bg-violet-500/10"
+                                    }`}
                                     onClick={() => toggleCity(city)}
                                 >
+                                    <CityImageAvatar city={city} className="h-5 w-5 rounded-full" sizes="20px" />
                                     {city}
-                                </Badge>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -221,5 +232,6 @@ export default function GuideApplyPage() {
                 </CardContent>
             </Card>
         </div>
+        </AppBackground>
     );
 }

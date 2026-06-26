@@ -6,10 +6,49 @@ import { ItineraryWizard, WizardData } from "@/components/itineraries/wizard";
 import { getTemplateById } from "@/lib/templates";
 import { Loader2 } from "lucide-react";
 
+const ALLOWED_INTERESTS = new Set([
+  "Food & Dining",
+  "Cafes & Coffee",
+  "Nightlife & Bars",
+  "Shopping",
+  "Art & Culture",
+  "Nature & Parks",
+  "History",
+  "Street Food",
+  "Vintage & Thrift",
+  "Music & Entertainment",
+]);
+
+const ALLOWED_BUDGETS = new Set<WizardData["budget"]>(["cheap", "moderate", "splurge"]);
+const ALLOWED_PACES = new Set<WizardData["pace"]>(["relaxed", "moderate", "active", "packed"]);
+
+function parseNumberParam(value: string | null, min: number, max: number) {
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return undefined;
+  return Math.min(max, Math.max(min, parsed));
+}
+
+function parseInterestsParam(value: string | null) {
+  if (!value) return undefined;
+  const interests = value
+    .split(",")
+    .map((interest) => interest.trim())
+    .filter((interest) => ALLOWED_INTERESTS.has(interest));
+
+  return interests.length ? [...new Set(interests)] : undefined;
+}
+
 function NewItineraryContent() {
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
   const cityParam = searchParams.get("city");
+  const daysParam = parseNumberParam(searchParams.get("days"), 1, 7);
+  const localnessParam = parseNumberParam(searchParams.get("localness"), 1, 5);
+  const interestsParam = parseInterestsParam(searchParams.get("interests"));
+  const budgetParam = searchParams.get("budget") as WizardData["budget"] | null;
+  const paceParam = searchParams.get("pace") as WizardData["pace"] | null;
+  const groupParam = searchParams.get("group");
 
   // Build initial data from template if provided
   let initialData: Partial<WizardData> = {};
@@ -48,6 +87,32 @@ function NewItineraryContent() {
     initialData.city = cityParam;
     // Auto-advance past destination step when city is pre-selected
     initialStep = 1;
+  }
+
+  if (daysParam) {
+    initialData.days = daysParam;
+    initialStep = Math.max(initialStep, 2);
+  }
+
+  if (interestsParam) {
+    initialData.interests = interestsParam;
+    initialStep = Math.max(initialStep, 3);
+  }
+
+  if (localnessParam) {
+    initialData.localnessLevel = localnessParam;
+  }
+
+  if (budgetParam && ALLOWED_BUDGETS.has(budgetParam)) {
+    initialData.budget = budgetParam;
+  }
+
+  if (paceParam && ALLOWED_PACES.has(paceParam)) {
+    initialData.pace = paceParam;
+  }
+
+  if (groupParam) {
+    initialData.groupType = groupParam;
   }
 
   return <ItineraryWizard initialData={initialData} initialStep={initialStep} />;

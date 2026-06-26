@@ -29,6 +29,21 @@ function getCategoryPlaceholder(category: string | null): string {
     return CATEGORY_PLACEHOLDERS[category] || DEFAULT_PLACEHOLDER;
 }
 
+function isUsablePhotoUrl(photo: string): boolean {
+    if (!photo) return false;
+    if (photo.startsWith("/")) return true;
+
+    try {
+        const url = new URL(photo);
+        return !(
+            url.hostname === "places.googleapis.com" &&
+            url.pathname.includes("/photos/")
+        );
+    } catch {
+        return true;
+    }
+}
+
 // Raw spot type from Supabase
 export interface RawSpot {
     id: string;
@@ -70,8 +85,9 @@ export function transformSpot(spot: RawSpot): Spot {
 
     // Build photos array, ensuring at least one image
     // Priority: real photos > category placeholder
-    const photos = spot.photos?.length
-        ? spot.photos
+    const usablePhotos = spot.photos?.filter(isUsablePhotoUrl) || [];
+    const photos = usablePhotos.length
+        ? usablePhotos
         : [getCategoryPlaceholder(spot.category)];
 
     return {

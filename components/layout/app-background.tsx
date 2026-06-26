@@ -17,6 +17,8 @@ interface AppBackgroundProps {
     className?: string;
     /** Additional className for the content wrapper */
     contentClassName?: string;
+    /** Optional inline styles for viewport-calculated shells */
+    style?: React.CSSProperties;
 }
 
 /**
@@ -33,49 +35,23 @@ export function AppBackground({
     fitParent = false,
     className,
     contentClassName,
+    style,
 }: AppBackgroundProps) {
     return (
         <div
             className={cn(
                 "relative overflow-hidden",
                 !fitParent && "min-h-screen",
-                gradient && "page-premium",
+                gradient && "page-premium bg-[#0b0714]",
                 className
             )}
+            style={style}
         >
-            {/* Ambient glow blobs */}
             {ambient && (
                 <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-                    {/* Primary violet glow - top left */}
-                    <div
-                        className={cn(
-                            "absolute -top-[20%] -left-[10%]",
-                            "w-[600px] h-[600px]",
-                            "rounded-full",
-                            "bg-violet-500/[0.07] dark:bg-violet-500/[0.12]",
-                            "blur-[120px]"
-                        )}
-                    />
-                    {/* Secondary indigo glow - bottom right */}
-                    <div
-                        className={cn(
-                            "absolute -bottom-[10%] -right-[5%]",
-                            "w-[500px] h-[500px]",
-                            "rounded-full",
-                            "bg-indigo-500/[0.05] dark:bg-indigo-500/[0.10]",
-                            "blur-[100px]"
-                        )}
-                    />
-                    {/* Accent glow - center */}
-                    <div
-                        className={cn(
-                            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-                            "w-[800px] h-[400px]",
-                            "rounded-full",
-                            "bg-purple-500/[0.03] dark:bg-purple-500/[0.06]",
-                            "blur-[150px]"
-                        )}
-                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(124,58,237,0.18),rgba(15,23,42,0.04)_38%,rgba(79,70,229,0.14)_100%)]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0)_22%,rgba(255,255,255,0.025)_100%)]" />
+                    <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:44px_44px]" />
                 </div>
             )}
 
@@ -110,9 +86,9 @@ export function SectionBackground({
     variant?: "default" | "subtle" | "prominent";
 }) {
     const variantClasses = {
-        default: "bg-white/50 dark:bg-white/[0.02]",
-        subtle: "bg-muted/30 dark:bg-white/[0.01]",
-        prominent: "bg-gradient-to-br from-violet-50/50 to-indigo-50/50 dark:from-violet-950/20 dark:to-indigo-950/20",
+        default: "bg-white/50 dark:bg-white/[0.04]",
+        subtle: "bg-muted/30 dark:bg-white/[0.025]",
+        prominent: "bg-gradient-to-br from-violet-50/50 to-indigo-50/50 dark:from-violet-950/30 dark:to-indigo-950/25",
     };
 
     return (

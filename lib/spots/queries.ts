@@ -4,7 +4,7 @@
  */
 
 import { unstable_cache } from "next/cache";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseClient } from "@/lib/supabase";
 import { getCityBySlug, ENABLED_CITIES } from "@/lib/cities";
 import { transformSpot, RawSpot } from "./transform";
 import {
@@ -66,7 +66,7 @@ export function buildFilterUrl(filters: Partial<SpotsFilterState>): string {
 async function fetchFilteredSpotsInternal(
     filters: SpotsFilterState
 ): Promise<SpotsResponse> {
-    const supabase = createSupabaseAdmin();
+    const supabase = createSupabaseClient();
 
     // Start building query
     let query = supabase
@@ -202,7 +202,7 @@ export async function fetchFilteredSpots(
  * Internal: Fetch filter options with counts
  */
 async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
-    const supabase = createSupabaseAdmin();
+    const supabase = createSupabaseClient();
 
     // Get city counts in parallel
     const cityCountPromises = ENABLED_CITIES.map(async (city) => {
@@ -273,7 +273,7 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
  * Get total spot count (for header display)
  */
 export async function getTotalSpotCount(): Promise<number> {
-    const supabase = createSupabaseAdmin();
+    const supabase = createSupabaseClient();
     const { count } = await supabase
         .from("spots")
         .select("*", { count: "exact", head: true });
