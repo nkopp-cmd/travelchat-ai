@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { ExploreContent } from "./explore-content";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppBackground } from "@/components/layout/app-background";
+import { GradientText } from "@/components/ui/gradient-text";
 
 import type { Metadata } from "next";
 
@@ -175,12 +177,12 @@ export default async function ExplorePage({
     ]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-violet-50/50 via-white to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-            <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <AppBackground ambient className="min-h-screen">
+            <div className="max-w-7xl mx-auto px-4 py-8 pb-24 space-y-8 md:pb-8">
                 {/* Header */}
                 <div className="text-center space-y-4">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                        Explore Itineraries
+                    <h1 className="text-4xl font-bold">
+                        <GradientText variant="violet">Explore Itineraries</GradientText>
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         Discover travel plans created by our community. Find inspiration for your next adventure
@@ -198,7 +200,7 @@ export default async function ExplorePage({
                     />
                 </Suspense>
             </div>
-        </div>
+        </AppBackground>
     );
 }
 

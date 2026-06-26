@@ -4,6 +4,7 @@ import { ChatInterface } from "@/components/chat/chat-interface";
 import { RecentConversationsPanel } from "@/components/chat/recent-conversations-panel";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { AppBackground } from "@/components/layout/app-background";
 
 function ChatPageContent() {
   const searchParams = useSearchParams();
@@ -27,12 +28,15 @@ function ChatPageContent() {
   const conversationId = searchParams.get("conversation") || undefined;
 
   return (
-    <div
-      className="flex flex-col bg-background"
+    <AppBackground
+      ambient
+      fitParent
+      className="h-full"
+      contentClassName="flex flex-col"
       style={{ height: 'calc(100dvh - 64px - env(safe-area-inset-bottom, 0px))' }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40 flex-shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-white/[0.035] flex-shrink-0 backdrop-blur-xl">
         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
           <span className="text-white font-bold">A</span>
         </div>
@@ -46,14 +50,14 @@ function ChatPageContent() {
       <RecentConversationsPanel currentConversationId={conversationId} />
 
       {/* Chat Content - Takes remaining space */}
-      <div className="flex-1 min-h-0 px-4 py-2">
+      <div className="flex-1 min-h-0 px-3 py-2 sm:px-4">
         <ChatInterface
           className="h-full"
           itineraryContext={itineraryContext}
           conversationId={conversationId}
         />
       </div>
-    </div>
+    </AppBackground>
   );
 }
 
@@ -61,7 +65,7 @@ export default function ChatPage() {
   return (
     <Suspense fallback={
       <div
-        className="flex flex-col bg-background items-center justify-center"
+        className="flex flex-col bg-[#0b0714] items-center justify-center"
         style={{ height: 'calc(100dvh - 64px - env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="animate-pulse text-muted-foreground">Loading chat...</div>

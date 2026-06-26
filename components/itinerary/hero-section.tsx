@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { MapPin, Calendar, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getCityImageUrl, getCityGradient } from "@/lib/city-images";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface HeroSectionProps {
   title: string;
@@ -68,8 +69,9 @@ export function HeroSection({
           {/* Meta info */}
           <div className="flex flex-wrap items-center gap-4 text-gray-300">
             {city && city !== "Adventure Awaits" && (
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-violet-400" />
+              <div className="flex items-center gap-2 rounded-full bg-black/30 py-1 pl-1 pr-3 backdrop-blur-sm">
+                <CityImageAvatar city={city} className="h-7 w-7 rounded-full ring-1 ring-white/20" sizes="28px" />
+                <MapPin className="w-4 h-4 text-violet-300" />
                 <span className="text-sm font-medium">{city}</span>
               </div>
             )}

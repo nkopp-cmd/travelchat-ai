@@ -364,6 +364,7 @@ export default function GoogleMap({
                     {/* Close button */}
                     <button
                         onClick={() => setSelectedMarker(null)}
+                        aria-label="Close place details"
                         className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center hover:bg-black/70 transition-colors md:top-3"
                     >
                         <X className="h-4 w-4" />
@@ -536,6 +537,7 @@ export default function GoogleMap({
                     <div className="flex items-center justify-between px-5 py-3 border-t border-white/10 flex-shrink-0 bg-black/20">
                         <button
                             onClick={() => navigateMarker("prev")}
+                            aria-label="Previous place"
                             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
                         >
                             <ChevronLeft className="h-5 w-5" />
@@ -545,6 +547,7 @@ export default function GoogleMap({
                         </span>
                         <button
                             onClick={() => navigateMarker("next")}
+                            aria-label="Next place"
                             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
                         >
                             <ChevronRight className="h-5 w-5" />

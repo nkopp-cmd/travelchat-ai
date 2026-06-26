@@ -43,7 +43,7 @@ export function StepDuration() {
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Trip details</h2>
         <p className="text-gray-400">
-          How long and what's your budget?
+          How long and what&apos;s your budget?
         </p>
       </div>
 
@@ -61,6 +61,7 @@ export function StepDuration() {
           min={1}
           max={7}
           step={1}
+          aria-label="Trip duration in days"
           className="w-full"
         />
         <div className="flex justify-between text-xs text-gray-500 mt-2">
@@ -82,6 +83,7 @@ export function StepDuration() {
               <button
                 key={option.value}
                 onClick={() => setData({ budget: option.value })}
+                aria-pressed={isSelected}
                 className={cn(
                   "w-full p-4 rounded-xl transition-all text-left",
                   "border-2",

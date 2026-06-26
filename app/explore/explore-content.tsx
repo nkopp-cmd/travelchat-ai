@@ -30,6 +30,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { LikeButton } from "@/components/itineraries/like-button";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface PublicItinerary {
     id: string;
@@ -181,7 +182,10 @@ export function ExploreContent({
                         <SelectItem value="all">All Cities</SelectItem>
                         {popularCities.map((city) => (
                             <SelectItem key={city} value={city}>
-                                {city}
+                                <span className="flex items-center gap-2">
+                                    <CityImageAvatar city={city} className="h-6 w-6 rounded-full" sizes="24px" />
+                                    {city}
+                                </span>
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -239,10 +243,17 @@ export function ExploreContent({
                                 key={itinerary.id}
                                 className="!py-0 !gap-0 group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/40"
                             >
-                                {/* Card Header with gradient */}
-                                <CardHeader className="relative bg-gradient-to-br from-violet-500 to-indigo-600 text-white p-5">
+                                {/* Card Header with city image */}
+                                <CardHeader className="relative min-h-[164px] overflow-hidden bg-gradient-to-br from-violet-500 to-indigo-600 p-5 text-white">
+                                    <CityImageAvatar
+                                        city={itinerary.city}
+                                        className="absolute inset-0 h-full w-full rounded-none"
+                                        imageClassName="transition duration-500 group-hover:scale-105"
+                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
                                     <div className="flex justify-between items-start">
-                                        <div className="space-y-1 flex-1 pr-4">
+                                        <div className="relative mt-12 space-y-1 flex-1 pr-4">
                                             <h3 className="font-bold text-lg line-clamp-2 group-hover:underline">
                                                 <Link href={`/shared/${itinerary.shareCode}`}>
                                                     {itinerary.title}

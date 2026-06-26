@@ -1,17 +1,11 @@
 import { SignIn } from "@clerk/nextjs";
 import { Logo } from "@/components/brand/logo";
+import { AppBackground } from "@/components/layout/app-background";
 
 export default function SignInPage() {
     return (
-        <div className="min-h-dvh flex items-center justify-center bg-background p-4">
-            {/* Background effects */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
-            </div>
-
-            <div className="relative w-full max-w-md z-10">
-                {/* Logo */}
+        <AppBackground ambient className="min-h-dvh" contentClassName="flex min-h-dvh items-center justify-center p-4">
+            <div className="relative z-10 w-full max-w-md">
                 <div className="flex justify-center mb-6">
                     <Logo size="lg" showText={false} href={undefined} />
                 </div>
@@ -25,7 +19,7 @@ export default function SignInPage() {
                     </p>
                 </div>
 
-                <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-violet-500/20 p-6 sm:p-8 border border-white/[0.15] overflow-hidden">
+                <div className="overflow-hidden rounded-lg border border-white/[0.15] bg-card/80 p-6 shadow-2xl shadow-violet-500/20 backdrop-blur-xl sm:p-8">
                     <SignIn
                         appearance={{
                             elements: {
@@ -59,6 +53,6 @@ export default function SignInPage() {
                     By signing in, you agree to our Terms of Service and Privacy Policy
                 </p>
             </div>
-        </div>
+        </AppBackground>
     );
 }

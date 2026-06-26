@@ -3,17 +3,17 @@ import { FAQJsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
     title: "Pricing - Plans & Subscription | Localley",
-    description: "Choose your Localley plan. Free, Pro, and Premium tiers with AI-generated images, unlimited itineraries, and exclusive travel features.",
-    keywords: "localley pricing, travel app subscription, pro plan, premium plan, AI travel",
+    description: "Choose a paid Localley plan. Pro and Premium subscriptions unlock local-first trip planning, richer maps, saved itineraries, and collaboration features.",
+    keywords: "localley pricing, travel app subscription, paid travel planner, pro plan, premium plan, AI travel",
     openGraph: {
         title: "Pricing Plans | Localley",
-        description: "Unlock AI-generated images, unlimited itineraries, and exclusive travel deals with Localley Pro and Premium.",
+        description: "Unlock local-first trip planning, richer maps, saved itineraries, and collaboration features with Localley Pro and Premium.",
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
         title: "Pricing Plans | Localley",
-        description: "Unlock AI-generated images, unlimited itineraries, and exclusive travel deals.",
+        description: "Choose the paid Localley plan that fits your travel style.",
     },
 };
 
@@ -23,8 +23,8 @@ const faqItems = [
         answer: "Yes! You can cancel your subscription at any time. You'll continue to have access until the end of your billing period.",
     },
     {
-        question: "What happens after my trial ends?",
-        answer: "After your 7-day free trial, you'll be automatically charged for the Pro plan. You can cancel anytime during the trial to avoid charges.",
+        question: "Is Localley paid only?",
+        answer: "Yes. Localley offers paid Pro and Premium subscriptions so the product can focus on high-quality trip planning, richer data, and reliable AI workflows.",
     },
     {
         question: "Can I switch between plans?",

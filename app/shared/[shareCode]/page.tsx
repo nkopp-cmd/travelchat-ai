@@ -460,7 +460,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                             <Link href="/sign-up">
                                 <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
                                     <Sparkles className="mr-2 h-5 w-5" />
-                                    Get Started Free
+                                    Start planning
                                 </Button>
                             </Link>
                         </div>

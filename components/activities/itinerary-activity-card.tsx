@@ -9,6 +9,7 @@ import { SubscriptionTier, canSeeFullAddress, hasFeature } from "@/lib/subscript
 import { getActivityBookingLinks, getHotelBookingLinks } from "@/lib/affiliates";
 import { BookingDealsPopover } from "./booking-deals-popover";
 import { usePlacePhoto } from "@/hooks/use-place-photo";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface ItineraryActivity {
     name: string;
@@ -104,34 +105,36 @@ export function ItineraryActivityCard({
 
             <div className="flex gap-4">
                 {/* Activity Thumbnail — shows existing image or Google Places photo */}
-                {displayImage && (
-                    <div className="flex-shrink-0">
-                        <div className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-lg overflow-hidden">
-                            {activity.image ? (
-                                <Image
-                                    src={activity.image}
-                                    alt={activity.name}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 640px) 80px, 112px"
-                                />
-                            ) : (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img
-                                    src={displayImage}
-                                    alt={activity.name}
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
-                                />
-                            )}
-                            {placeData.isLoading && (
-                                <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
-                                    <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
-                                </div>
-                            )}
-                        </div>
+                <div className="flex-shrink-0">
+                    <div className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-lg overflow-hidden">
+                        {displayImage ? (
+                            activity.image ? (
+                                    <Image
+                                        src={activity.image}
+                                        alt={activity.name}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 80px, 112px"
+                                    />
+                                ) : (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img
+                                        src={displayImage}
+                                        alt={activity.name}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                )
+                        ) : (
+                            <CityImageAvatar city={city} className="h-full w-full rounded-none" sizes="112px" />
+                        )}
+                        {placeData.isLoading && (
+                            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
+                                <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
 
                 <div className="flex-1 space-y-3">
                     {/* Activity Header */}

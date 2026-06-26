@@ -66,6 +66,7 @@ export function StepPreferences() {
             min={1}
             max={5}
             step={1}
+            aria-label="Localness level"
             className="w-full"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-2">
@@ -88,6 +89,7 @@ export function StepPreferences() {
               <button
                 key={option.value}
                 onClick={() => setData({ pace: option.value })}
+                aria-pressed={isSelected}
                 className={cn(
                   "p-3 rounded-xl transition-all text-center",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",
@@ -119,6 +121,7 @@ export function StepPreferences() {
               <button
                 key={option.value}
                 onClick={() => setData({ groupType: option.value })}
+                aria-pressed={isSelected}
                 className={cn(
                   "p-3 rounded-xl transition-all text-center",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",

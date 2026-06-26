@@ -112,10 +112,12 @@ export function SubscriptionBadge({
                                 />
                             </div>
                             <div>
-                                <p className="font-semibold">{config.label} Plan</p>
+                                <p className="font-semibold">
+                                    {tier === "free" ? "No paid plan" : `${config.label} Plan`}
+                                </p>
                                 <p className="text-xs text-muted-foreground">
                                     {tier === "free"
-                                        ? "Upgrade for more features"
+                                        ? "Choose Pro or Premium to continue"
                                         : `$${tierLimits.price}/month`}
                                 </p>
                             </div>

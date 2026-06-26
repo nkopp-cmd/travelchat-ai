@@ -236,6 +236,22 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600;
   }
 
+  .liquid-panel {
+    @apply border border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl;
+  }
+
+  .liquid-panel-soft {
+    @apply border border-white/10 bg-white/[0.035] backdrop-blur-md;
+  }
+
+  .violet-focus {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300;
+  }
+
+  .mobile-sticky-safe-space {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+  }
+
   /* Premium glow effects */
   .glow-violet {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);

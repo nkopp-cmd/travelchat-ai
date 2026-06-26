@@ -156,7 +156,7 @@ export default async function ProfilePage() {
         redirect("/sign-in");
     }
 
-    const { progress, completedChallenges, itineraries, itinerariesCount, savedSpots, subscription, usage } = await getUserProgress();
+    const { progress, completedChallenges, itineraries, savedSpots, subscription, usage } = await getUserProgress();
 
     const level = getLevel(progress.xp);
     const levelProgress = getLevelProgress(progress.xp);
@@ -165,6 +165,7 @@ export default async function ProfilePage() {
 
     const tierConfig = TIER_CONFIGS[subscription.tier];
     const isActiveSub = ["active", "trialing"].includes(subscription.status);
+    const planLabel = subscription.tier === "free" ? "No paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
 
@@ -328,11 +329,11 @@ export default async function ProfilePage() {
                                     }`} />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-lg capitalize">{subscription.tier} Plan</CardTitle>
+                                    <CardTitle className="text-lg">{planLabel}</CardTitle>
                                     <CardDescription>
                                         {subscription.tier === "free"
-                                            ? "Upgrade to unlock more features"
-                                            : tierConfig.price ? `$${tierConfig.price}/month` : "Free forever"}
+                                            ? "Choose a paid plan to start planning with Localley"
+                                            : `$${tierConfig.price}/month`}
                                     </CardDescription>
                                 </div>
                             </div>
@@ -347,7 +348,7 @@ export default async function ProfilePage() {
                         {subscription.tier === "free" ? (
                             <div className="space-y-3">
                                 <p className="text-sm text-muted-foreground">
-                                    Unlock AI images, full addresses, booking deals, and unlimited features.
+                                    Pick Pro or Premium to unlock richer AI planning, full addresses, booking deals, and trip exports.
                                 </p>
                                 <div className="flex gap-2">
                                     <Link href="/pricing" className="flex-1">

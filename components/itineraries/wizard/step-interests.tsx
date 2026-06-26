@@ -51,6 +51,7 @@ export function StepInterests() {
             <button
               key={interest.id}
               onClick={() => toggleInterest(interest.id)}
+              aria-pressed={isSelected}
               className={cn(
                 "relative flex items-center gap-2 p-3 rounded-xl transition-all",
                 "text-left min-h-[56px]",

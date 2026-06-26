@@ -6,7 +6,6 @@ import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/acti
 import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';
-import { TIER_CONFIGS } from '@/lib/subscription';
 import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
@@ -127,10 +126,10 @@ export async function POST(req: NextRequest) {
       const anonUsage = await getAnonymousUsage();
 
       if (anonUsage >= ANON_LIMIT) {
-        return apiError(ErrorCodes.UNAUTHORIZED, "You've used your free trial! Sign up to create more itineraries.", {
+        return apiError(ErrorCodes.UNAUTHORIZED, "Create an account and choose a plan to keep building itineraries.", {
           benefits: [
             "Save and access all your itineraries",
-            "3 free itineraries per month",
+            "Choose Pro or Premium for ongoing trip planning",
             "Chat with Alley for personalized recommendations",
             "Export and share your trips",
           ],
@@ -239,7 +238,7 @@ Make it exciting, authentic, and full of hidden gems!
           }
         }
       }
-    } catch (parseError) {
+    } catch {
       console.error("Failed to parse OpenAI response:", rawContent);
       throw new Error("AI generated invalid response format. Please try again.");
     }
@@ -367,7 +366,7 @@ Make it exciting, authentic, and full of hidden gems!
           message: "Sign up to save this itinerary and create more!",
           benefits: [
             "Save and access your itineraries anytime",
-            "Get 3 free itineraries per month",
+            "Choose Pro or Premium for ongoing trip planning",
             "Chat with Alley for personalized tips",
             "Export to PDF and share with friends",
           ],

@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, isApiError } from "@/lib/api-client";
 
@@ -34,6 +35,8 @@ export const queryKeys = {
  * - Automatically refetches on mount if stale
  */
 export function useSubscriptionStatus() {
+  const { isLoaded, isSignedIn } = useUser();
+
   return useQuery({
     queryKey: queryKeys.subscription,
     queryFn: async () => {
@@ -44,6 +47,7 @@ export function useSubscriptionStatus() {
       return result.data;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled: isLoaded && isSignedIn,
   });
 }
 
@@ -52,6 +56,8 @@ export function useSubscriptionStatus() {
  * Lighter weight than full subscription status.
  */
 export function useUserTier() {
+  const { isLoaded, isSignedIn } = useUser();
+
   return useQuery({
     queryKey: queryKeys.userTier,
     queryFn: async () => {
@@ -62,6 +68,7 @@ export function useUserTier() {
       return result.data;
     },
     staleTime: 2 * 60 * 1000,
+    enabled: isLoaded && isSignedIn,
   });
 }
 
@@ -205,6 +212,8 @@ export function useDuplicateItinerary() {
  * Hook to fetch conversations.
  */
 export function useConversations() {
+  const { isLoaded, isSignedIn } = useUser();
+
   return useQuery({
     queryKey: queryKeys.conversations,
     queryFn: async () => {
@@ -215,6 +224,7 @@ export function useConversations() {
       return result.data.conversations;
     },
     staleTime: 30 * 1000,
+    enabled: isLoaded && isSignedIn,
   });
 }
 

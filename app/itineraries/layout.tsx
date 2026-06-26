@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { AppBackground } from "@/components/layout/app-background";
 
 export default function ItinerariesLayout({
     children,
@@ -6,11 +7,11 @@ export default function ItinerariesLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-full">
+        <AppBackground ambient fitParent className="h-full" contentClassName="flex h-full">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto p-4 md:p-8 md:rounded-tl-2xl bg-background">
+            <main className="flex-1 overflow-y-auto bg-transparent p-3 pb-24 sm:p-4 md:rounded-tl-2xl md:p-8 md:pb-8">
                 {children}
             </main>
-        </div>
+        </AppBackground>
     );
 }

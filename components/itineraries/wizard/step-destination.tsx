@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import useSWR from "swr";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
 import { MapPin, Check, RefreshCw } from "lucide-react";
@@ -23,15 +22,31 @@ interface CitiesResponse {
   total: number;
 }
 
-const fetcher = (url: string) => fetch(url).then(r => r.json());
-
 export function StepDestination() {
   const { data, setData, setCanProceed } = useWizard();
-  const { data: citiesData, error: citiesError, isLoading, mutate } = useSWR<CitiesResponse>(
-    "/api/cities?minSpots=1",
-    fetcher,
-    { revalidateOnFocus: false, shouldRetryOnError: true, errorRetryCount: 2 }
-  );
+  const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
+  const [citiesError, setCitiesError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadCities = useCallback(async () => {
+    setIsLoading(true);
+    setCitiesError(false);
+
+    try {
+      const response = await fetch("/api/cities?minSpots=1");
+      const result = await response.json();
+      setCitiesData(result);
+      setCitiesError(!response.ok || !result.success);
+    } catch {
+      setCitiesError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCities();
+  }, [loadCities]);
 
   useEffect(() => {
     setCanProceed(!!data.city);
@@ -74,7 +89,7 @@ export function StepDestination() {
         <div className="text-center py-8">
           <p className="text-red-400 mb-3">Failed to load cities. Please try again.</p>
           <button
-            onClick={() => mutate()}
+            onClick={loadCities}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
@@ -88,7 +103,7 @@ export function StepDestination() {
         <div className="text-center text-gray-500 py-8">
           <p className="mb-3">No cities available. Please try again later.</p>
           <button
-            onClick={() => mutate()}
+            onClick={loadCities}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-gray-400 text-sm transition-colors"
           >
             <RefreshCw className="w-3.5 h-3.5" />

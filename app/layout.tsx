@@ -14,17 +14,43 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const clerkLocalization = {
+  signIn: {
+    start: {
+      title: "Sign in to Localley",
+      titleCombined: "Sign in to Localley",
+      subtitle: "Continue planning local-first trips across Asia.",
+      subtitleCombined: "Continue planning local-first trips across Asia.",
+      actionText: "New to Localley?",
+      actionLink: "Create an account",
+    },
+  },
+  signUp: {
+    start: {
+      title: "Join Localley",
+      titleCombined: "Join Localley",
+      subtitle: "Create an account, choose a plan, and start building better routes.",
+      subtitleCombined: "Create an account, choose a plan, and start building better routes.",
+      actionText: "Already use Localley?",
+      actionLink: "Sign in",
+    },
+  },
+};
+
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#7c3aed",
 };
 
 export const metadata: Metadata = {
   title: {
-    default: "Localley - AI Travel Companion | Discover Hidden Gems",
+    default: "Localley - Local-First Asia Trip Planner",
     template: "%s | Localley",
   },
-  description: "Discover hidden gems and trendy spots with your AI travel companion. Experience cities like a local with personalized itineraries for Seoul, Tokyo, Bangkok, and Singapore.",
-  keywords: "AI travel companion, hidden gems, local spots, travel itinerary, Seoul travel, Tokyo guide, Bangkok tips, Singapore attractions, trip planner",
+  description: "Plan local-first routes through Seoul, Tokyo, Bangkok, Singapore, and more Asian cities with restaurants, cafes, neighborhoods, and spots locals actually rate.",
+  keywords: "Asia trip planner, local travel guide, hidden gems, local spots, travel itinerary, Seoul travel, Tokyo guide, Bangkok tips, Singapore trip planner",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -46,8 +72,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Localley - AI Travel Companion",
-    description: "Your local guide to trendy alley spots & hidden gems. Plan your perfect trip with AI.",
+    title: "Localley - Local-First Asia Trip Planner",
+    description: "Plan routes through restaurants, cafes, neighborhoods, and local spots across Asia.",
     url: "https://localley.ai",
     siteName: "Localley",
     images: [
@@ -55,7 +81,7 @@ export const metadata: Metadata = {
         url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop",
         width: 1200,
         height: 630,
-        alt: "Localley - AI Travel Companion App",
+        alt: "Localley local-first Asia trip planner",
       },
     ],
     locale: "en_US",
@@ -63,8 +89,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Localley - AI Travel Companion",
-    description: "Discover hidden gems and trendy spots with your AI travel companion.",
+    title: "Localley - Local-First Asia Trip Planner",
+    description: "Plan routes through restaurants, cafes, neighborhoods, and local spots across Asia.",
     images: ["https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop"],
     creator: "@localleyapp",
   },
@@ -101,6 +127,7 @@ export default function RootLayout({
           colorInputText: "#ffffff",
         },
       }}
+      localization={clerkLocalization}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
       signInFallbackRedirectUrl="/dashboard"
@@ -108,7 +135,6 @@ export default function RootLayout({
     >
       <html lang="en" className="dark">
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
           <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

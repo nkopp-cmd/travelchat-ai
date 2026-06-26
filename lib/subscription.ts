@@ -2,7 +2,7 @@
  * Subscription tier system for Localley
  *
  * Tiers:
- * - FREE: Basic features, limited usage
+ * - FREE: Internal unpaid state, limited usage
  * - PRO: Enhanced features, extended limits ($9/mo)
  * - PREMIUM: Full access, unlimited usage ($19/mo)
  */
@@ -61,7 +61,7 @@ export interface TierConfig {
 export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     free: {
         tier: "free",
-        name: "Free",
+        name: "No paid plan",
         price: 0,
         yearlyPrice: 0,
         limits: {

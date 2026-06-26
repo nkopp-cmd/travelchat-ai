@@ -103,6 +103,7 @@ export default async function SettingsPage() {
     const { subscription, usage } = await getSubscriptionData();
     const tierConfig = TIER_CONFIGS[subscription.tier];
     const isActiveSub = ["active", "trialing"].includes(subscription.status);
+    const planLabel = subscription.tier === "free" ? "No paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
 
@@ -151,7 +152,7 @@ export default async function SettingsPage() {
                             </div>
                             <div>
                                 <CardTitle>Subscription</CardTitle>
-                                <CardDescription className="capitalize">{subscription.tier} Plan</CardDescription>
+                                <CardDescription>{planLabel}</CardDescription>
                             </div>
                         </div>
                         {isActiveSub && (
@@ -166,7 +167,7 @@ export default async function SettingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <Label className="text-muted-foreground">Current Plan</Label>
-                            <p className="font-semibold capitalize">{subscription.tier}</p>
+                            <p className="font-semibold">{planLabel}</p>
                         </div>
                         {subscription.tier !== "free" && (
                             <>

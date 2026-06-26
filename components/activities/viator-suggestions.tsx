@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, hasFeature } from "@/lib/subscription";
+import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface ViatorActivity {
     id: string;
@@ -121,14 +122,23 @@ export function ViatorSuggestions({
 
     return (
         <Card className={cn("overflow-hidden !py-0 !gap-0", className)}>
-            <CardHeader className="bg-gradient-to-r from-violet-600 to-purple-700 text-white">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <Sparkles className="h-5 w-5" />
-                    Book Tours & Activities in {city}
-                </CardTitle>
-                <p className="text-sm text-violet-100">
-                    Curated experiences from our travel partners
-                </p>
+            <CardHeader className="relative min-h-28 overflow-hidden bg-gradient-to-r from-violet-600 to-purple-700 text-white">
+                <CityImageAvatar
+                    city={city}
+                    className="absolute inset-0 h-full w-full rounded-none opacity-45"
+                    imageClassName="object-cover"
+                    sizes="100vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-950/85 via-violet-900/65 to-transparent" />
+                <div className="relative">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Sparkles className="h-5 w-5" />
+                        Book Tours & Activities in {city}
+                    </CardTitle>
+                    <p className="text-sm text-violet-100">
+                        Curated experiences from our travel partners
+                    </p>
+                </div>
             </CardHeader>
             <CardContent className="p-6">
                 {isLoading ? (

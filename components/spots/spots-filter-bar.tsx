@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { SpotsFilterState, FilterOptions, SORT_OPTIONS } from "@/lib/spots/types";
 import { cn } from "@/lib/utils";
+import { CityImageAvatar } from "@/components/ui/city-image";
 import { useDebouncedCallback } from "use-debounce";
 
 // Quick filter chips with icons
@@ -100,7 +101,10 @@ export function SpotsFilterBar({
 
     // Sync search value when filters change externally (e.g., clear all)
     useEffect(() => {
-        setSearchValue(currentFilters.search || "");
+        const timeoutId = window.setTimeout(() => {
+            setSearchValue(currentFilters.search || "");
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [currentFilters.search]);
 
     const handleSearchChange = useCallback(
@@ -215,9 +219,10 @@ export function SpotsFilterBar({
                         <SelectItem value="all">All Cities</SelectItem>
                         {filterOptions.cities.map((city) => (
                             <SelectItem key={city.slug} value={city.slug}>
-                                <div className="flex items-center justify-between w-full">
-                                    <span>
-                                        {city.emoji} {city.name}
+                                <div className="flex items-center justify-between gap-3 w-full">
+                                    <span className="flex min-w-0 items-center gap-2">
+                                        <CityImageAvatar city={city.name} className="h-6 w-6 rounded-full" sizes="24px" />
+                                        <span className="truncate">{city.name}</span>
                                     </span>
                                     <span className="text-muted-foreground text-xs ml-2">
                                         ({city.count})

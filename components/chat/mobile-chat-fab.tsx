@@ -166,6 +166,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
               variant="ghost"
               size="icon"
               onClick={handleClose}
+              aria-label="Close chat"
               className="rounded-full"
             >
               <X className="h-5 w-5" />
