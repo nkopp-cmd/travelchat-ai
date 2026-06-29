@@ -9,6 +9,8 @@ interface CityImageAvatarProps {
   className?: string;
   imageClassName?: string;
   sizes?: string;
+  imageWidth?: number;
+  quality?: number;
 }
 
 export function CityImageAvatar({
@@ -16,9 +18,11 @@ export function CityImageAvatar({
   className,
   imageClassName,
   sizes = "40px",
+  imageWidth = 160,
+  quality = 80,
 }: CityImageAvatarProps) {
   const displayCity = getShortCity(city);
-  const imageUrl = getCityImageUrl(displayCity, { width: 160 });
+  const imageUrl = getCityImageUrl(displayCity, { width: imageWidth, quality });
   const gradient = getCityGradient(displayCity);
 
   return (
@@ -46,4 +50,3 @@ export function CityImageAvatar({
     </span>
   );
 }
-

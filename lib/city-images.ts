@@ -85,15 +85,24 @@ const CITY_GRADIENTS = [
  */
 export function getCityImageUrl(
   city: string,
-  options: { width?: number; quality?: number } = {}
+  options: { width?: number; height?: number; quality?: number } = {}
 ): string | null {
-  const { width = 800, quality = 80 } = options;
+  const { width = 800, height, quality = 80 } = options;
   const cityLower = city.toLowerCase().trim();
 
   // Check for exact match or partial match
   for (const [key, baseUrl] of Object.entries(CITY_IMAGES)) {
     if (cityLower.includes(key) || key.includes(cityLower)) {
-      return `${baseUrl}?w=${width}&q=${quality}`;
+      const params = new URLSearchParams({
+        w: String(width),
+        q: String(quality),
+        auto: "format",
+        fit: "crop",
+      });
+      if (height) {
+        params.set("h", String(height));
+      }
+      return `${baseUrl}?${params.toString()}`;
     }
   }
 

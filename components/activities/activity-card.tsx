@@ -115,7 +115,7 @@ export function ActivityCard({
                                     onError={() => setImageError(true)}
                                 />
                             ) : (
-                                <CityImageAvatar city={activity.city} className="h-full w-full rounded-none" sizes="64px" />
+                                <CityImageAvatar city={activity.city} className="h-full w-full rounded-none" sizes="64px" imageWidth={260} quality={90} />
                             )}
                             {!canShowImages && activity.image && (
                                 <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
@@ -171,7 +171,7 @@ export function ActivityCard({
                         />
                     ) : (
                         <div className="relative h-full w-full overflow-hidden">
-                            <CityImageAvatar city={activity.city} className="absolute inset-0 h-full w-full rounded-none" sizes="(max-width: 768px) 100vw, 33vw" />
+                            <CityImageAvatar city={activity.city} className="absolute inset-0 h-full w-full rounded-none" sizes="(max-width: 768px) 100vw, 33vw" imageWidth={1000} quality={90} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                             <p className="absolute inset-x-4 bottom-4 text-center text-sm text-white/85">
                                 {userTier === "free" ? (

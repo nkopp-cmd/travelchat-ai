@@ -589,6 +589,8 @@ export default async function ProfilePage() {
                                                     className="absolute inset-0 h-full w-full rounded-none"
                                                     imageClassName="transition duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 768px) 100vw, 33vw"
+                                                    imageWidth={900}
+                                                    quality={90}
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
                                                 <div className="absolute bottom-2 left-3 right-3 flex justify-between items-end">

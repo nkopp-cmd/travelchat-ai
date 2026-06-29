@@ -128,6 +128,8 @@ export function ViatorSuggestions({
                     className="absolute inset-0 h-full w-full rounded-none opacity-45"
                     imageClassName="object-cover"
                     sizes="100vw"
+                    imageWidth={1200}
+                    quality={90}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-950/85 via-violet-900/65 to-transparent" />
                 <div className="relative">

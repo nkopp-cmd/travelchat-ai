@@ -126,7 +126,7 @@ export function ItineraryActivityCard({
                                     />
                                 )
                         ) : (
-                            <CityImageAvatar city={city} className="h-full w-full rounded-none" sizes="112px" />
+                            <CityImageAvatar city={city} className="h-full w-full rounded-none" sizes="112px" imageWidth={360} quality={90} />
                         )}
                         {placeData.isLoading && (
                             <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
