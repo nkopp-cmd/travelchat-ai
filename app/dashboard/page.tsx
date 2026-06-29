@@ -51,7 +51,7 @@ export default async function DashboardPage({
             <div className="flex flex-col h-full overflow-hidden">
                 {/* Top: Recent Itineraries Stories */}
                 {recentItineraries.length > 0 && (
-                    <div className="flex-shrink-0 border-b border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm px-4 py-3">
+                    <div className="flex-shrink-0 border-b border-white/10 bg-[#0b0714]/65 px-4 py-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
                         <RecentStories itineraries={recentItineraries} />
                     </div>
                 )}

@@ -17,6 +17,11 @@ import { BillingPortalButton } from "@/components/subscription/billing-portal-bu
 import { EmailPreferencesSection } from "@/components/settings/email-preferences";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences";
 
+const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
+const LIQUID_CARD_SOFT = "rounded-2xl border-white/10 bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
+const LIQUID_ROW = "flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07]";
+const LIQUID_INPUT = "border-white/10 bg-white/[0.05] backdrop-blur-xl";
+
 async function getSubscriptionData() {
     const { userId } = await auth();
 
@@ -108,20 +113,36 @@ export default async function SettingsPage() {
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
-            <div className="space-y-2">
-                <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                    Manage your account preferences and app settings
-                </p>
+        <div className="mx-auto w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-6">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.28),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(79,70,229,0.18),transparent_30%)]" />
+                <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="space-y-2">
+                        <Badge className="w-fit border-white/10 bg-white/10 text-white shadow-none hover:bg-white/10">
+                            Account cockpit
+                        </Badge>
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Settings</h1>
+                            <p className="mt-1 max-w-2xl text-sm text-muted-foreground sm:text-base">
+                                Manage billing, preferences, and privacy without leaving your trip planning flow.
+                            </p>
+                        </div>
+                    </div>
+                    <Link href="/pricing" className="sm:self-center">
+                        <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
+                            Compare plans
+                            <ArrowRight className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Subscription Management */}
-            <Card className={`overflow-hidden relative ${
+            <Card className={`relative overflow-hidden ${LIQUID_CARD} ${
                 subscription.tier === "premium"
-                    ? "border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 shadow-lg shadow-amber-200/50 dark:shadow-amber-900/20"
+                    ? "border-amber-300/30"
                     : subscription.tier === "pro"
-                    ? "border-violet-300 bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 shadow-lg shadow-violet-200/50 dark:shadow-violet-900/20"
+                    ? "border-violet-300/30"
                     : ""
             }`}>
                 {/* Premium glow effect */}
@@ -133,14 +154,14 @@ export default async function SettingsPage() {
                     }`} />
                 )}
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-3">
                             <div className={`p-2.5 rounded-full ${
                                 subscription.tier === "premium"
-                                    ? "bg-amber-100 dark:bg-amber-900/30"
+                                    ? "bg-amber-400/15"
                                     : subscription.tier === "pro"
-                                    ? "bg-violet-100 dark:bg-violet-900/30"
-                                    : "bg-muted"
+                                    ? "bg-violet-500/15"
+                                    : "bg-white/10"
                             }`}>
                                 <TierIcon className={`h-6 w-6 ${
                                     subscription.tier === "premium"
@@ -156,7 +177,7 @@ export default async function SettingsPage() {
                             </div>
                         </div>
                         {isActiveSub && (
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <Badge variant="secondary" className="w-fit border-emerald-400/20 bg-emerald-400/15 text-emerald-300">
                                 Active
                             </Badge>
                         )}
@@ -200,8 +221,8 @@ export default async function SettingsPage() {
                     </div>
 
                     {subscription.cancelAtPeriodEnd && (
-                        <div className="p-3 rounded-lg bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
-                            <p className="text-sm text-amber-800 dark:text-amber-200">
+                        <div className="rounded-xl border border-amber-300/20 bg-amber-400/10 p-3">
+                            <p className="text-sm text-amber-100">
                                 Your subscription will be cancelled at the end of the current billing period. You will retain access until then.
                             </p>
                         </div>
@@ -214,36 +235,36 @@ export default async function SettingsPage() {
                         <Label className="text-muted-foreground mb-3 block">Your Plan Includes</Label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-green-500" />
+                                <Check className="h-4 w-4 text-emerald-400" />
                                 <span>{tierConfig.limits.itinerariesPerMonth === 999 ? "Unlimited" : tierConfig.limits.itinerariesPerMonth} itineraries/month</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-green-500" />
+                                <Check className="h-4 w-4 text-emerald-400" />
                                 <span>{tierConfig.limits.chatMessagesPerDay === 999 ? "Unlimited" : tierConfig.limits.chatMessagesPerDay} messages/day</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-green-500" />
+                                <Check className="h-4 w-4 text-emerald-400" />
                                 <span>{tierConfig.limits.aiImagesPerMonth} AI images/month</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-green-500" />
+                                <Check className="h-4 w-4 text-emerald-400" />
                                 <span>{tierConfig.limits.savedSpotsLimit === 999 ? "Unlimited" : tierConfig.limits.savedSpotsLimit} saved spots</span>
                             </div>
                             {tierConfig.features.activityImages !== "placeholder" && (
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-green-500" />
+                                    <Check className="h-4 w-4 text-emerald-400" />
                                     <span>AI-generated activity images</span>
                                 </div>
                             )}
                             {tierConfig.features.addressDisplay !== "area-only" && (
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-green-500" />
+                                    <Check className="h-4 w-4 text-emerald-400" />
                                     <span>Full addresses revealed</span>
                                 </div>
                             )}
                             {tierConfig.features.bookingDeals && (
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-green-500" />
+                                    <Check className="h-4 w-4 text-emerald-400" />
                                     <span>Exclusive booking deals</span>
                                 </div>
                             )}
@@ -268,7 +289,7 @@ export default async function SettingsPage() {
                                 )}
                                 {subscription.tier === "pro" && (
                                     <Link href="/pricing">
-                                        <Button variant="outline" className="gap-2">
+                                        <Button variant="outline" className="gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15">
                                             <Crown className="h-4 w-4 text-amber-500" />
                                             Upgrade to Premium
                                         </Button>
@@ -277,7 +298,7 @@ export default async function SettingsPage() {
                             </>
                         )}
                         <Link href="/pricing">
-                            <Button variant="ghost" className="gap-2">
+                            <Button variant="ghost" className="gap-2 hover:bg-white/10">
                                 Compare Plans
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
@@ -287,7 +308,7 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Usage Overview */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Usage Overview</CardTitle>
                     <CardDescription>Your current usage this billing period</CardDescription>
@@ -370,7 +391,7 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Email Preferences */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Email Preferences</CardTitle>
                     <CardDescription>Manage what emails you receive from Localley</CardDescription>
@@ -381,7 +402,7 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Notification Preferences */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Notification Preferences</CardTitle>
                     <CardDescription>Control how and when you receive notifications</CardDescription>
@@ -392,13 +413,13 @@ export default async function SettingsPage() {
             </Card>
 
             {/* App Preferences */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>App Preferences</CardTitle>
                     <CardDescription>Customize your Localley experience</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between p-3 -m-3 rounded-lg hover:bg-muted/50 transition-colors group">
+                    <div className={`${LIQUID_ROW} group`}>
                         <div className="space-y-0.5">
                             <Label htmlFor="location" className="cursor-pointer group-hover:text-foreground transition-colors">Auto-detect Location</Label>
                             <p className="text-sm text-muted-foreground">
@@ -411,7 +432,7 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Display */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Display</CardTitle>
                     <CardDescription>Adjust how content is displayed</CardDescription>
@@ -420,7 +441,7 @@ export default async function SettingsPage() {
                     <div className="space-y-2">
                         <Label htmlFor="language">Language</Label>
                         <Select defaultValue="en">
-                            <SelectTrigger id="language">
+                            <SelectTrigger id="language" className={LIQUID_INPUT}>
                                 <SelectValue placeholder="Select language" />
                             </SelectTrigger>
                             <SelectContent>
@@ -435,7 +456,7 @@ export default async function SettingsPage() {
                     <div className="space-y-2">
                         <Label htmlFor="theme">Theme</Label>
                         <Select defaultValue="system">
-                            <SelectTrigger id="theme">
+                            <SelectTrigger id="theme" className={LIQUID_INPUT}>
                                 <SelectValue placeholder="Select theme" />
                             </SelectTrigger>
                             <SelectContent>
@@ -449,13 +470,13 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Privacy */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Privacy & Data</CardTitle>
                     <CardDescription>Control your data and privacy settings</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                    <div className="flex items-center justify-between p-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors group">
+                    <div className={`${LIQUID_ROW} group`}>
                         <div className="space-y-0.5">
                             <Label htmlFor="analytics" className="cursor-pointer group-hover:text-foreground transition-colors">Usage Analytics</Label>
                             <p className="text-sm text-muted-foreground">
@@ -465,7 +486,7 @@ export default async function SettingsPage() {
                         <Switch id="analytics" defaultChecked className="data-[state=checked]:bg-violet-600" />
                     </div>
 
-                    <div className="flex items-center justify-between p-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors group">
+                    <div className={`${LIQUID_ROW} group`}>
                         <div className="space-y-0.5">
                             <Label htmlFor="personalization" className="cursor-pointer group-hover:text-foreground transition-colors">Personalized Recommendations</Label>
                             <p className="text-sm text-muted-foreground">
@@ -478,7 +499,7 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Account */}
-            <Card>
+            <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Account</CardTitle>
                     <CardDescription>Manage your account settings</CardDescription>
@@ -491,6 +512,7 @@ export default async function SettingsPage() {
                             type="email"
                             value={user.emailAddresses[0]?.emailAddress || ""}
                             disabled
+                            className={LIQUID_INPUT}
                         />
                         <p className="text-xs text-muted-foreground">
                             Managed by your authentication provider
@@ -501,8 +523,8 @@ export default async function SettingsPage() {
 
                     <div className="space-y-2">
                         <Label>Danger Zone</Label>
-                        <div className="flex gap-2">
-                            <Button variant="outline" className="text-destructive hover:bg-destructive/10">
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                            <Button variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
                                 Clear All Data
                             </Button>
                             <Button variant="destructive">
@@ -514,8 +536,8 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Save Button */}
-            <div className="flex justify-end gap-2">
-                <Button variant="outline">Cancel</Button>
+            <div className="sticky bottom-4 z-10 flex justify-end gap-2 rounded-2xl border border-white/10 bg-[#0b0714]/80 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
+                <Button variant="outline" className="border-white/15 bg-white/10 hover:bg-white/15">Cancel</Button>
                 <Button className="bg-violet-600 hover:bg-violet-700">
                     Save Changes
                 </Button>

@@ -62,8 +62,7 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
             href={`/itineraries/${itinerary.id}`}
             className={cn(
                 "block rounded-2xl overflow-hidden group",
-                "bg-card/95 backdrop-blur-sm",
-                "border border-border/50",
+                "border border-white/10 bg-white/[0.055] backdrop-blur-xl",
                 "hover:shadow-xl hover:shadow-violet-500/10",
                 "hover:border-violet-400/50",
                 "transition-all duration-300",
@@ -108,7 +107,7 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
 
                 {/* Trip info */}
                 <div className="flex-1 min-w-0">
-                    <div className="font-semibold truncate group-hover:text-violet-600 transition-colors">
+                    <div className="font-semibold truncate group-hover:text-violet-300 transition-colors">
                         {itinerary.title}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
@@ -143,9 +142,11 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
     const hasItineraries = itineraries.length > 0;
 
     return (
-        <div className="w-full px-4 py-4 space-y-6">
+        <div className="w-full space-y-5 px-3 py-4 sm:px-4">
             {/* Welcome Section with premium styling */}
-            <div className="text-center mb-6">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-5 text-center shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.28),transparent_42%)]" />
+                <div className="relative">
                 <div className="relative inline-flex mb-4">
                     {/* Glow effect */}
                     <div className="absolute inset-0 h-18 w-18 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 blur-xl opacity-40" />
@@ -158,7 +159,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                         <Sparkles className="h-8 w-8 text-white" />
                     </div>
                 </div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-200 to-indigo-200">
                     {hasItineraries ? "Welcome back!" : "Hey there!"}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -166,6 +167,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                         ? "Continue exploring or plan a new adventure"
                         : "Ready to discover hidden gems?"}
                 </p>
+                </div>
             </div>
 
             {/* Premium CTA - Create New Itinerary */}
@@ -217,7 +219,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                         <Link
                             href="/itineraries"
                             className={cn(
-                                "text-sm text-violet-600 hover:text-violet-700",
+                                "text-sm text-violet-300 hover:text-violet-200",
                                 "flex items-center gap-1 group"
                             )}
                         >
@@ -250,8 +252,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                             href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                             className={cn(
                                 "group relative min-h-[138px] overflow-hidden rounded-2xl p-4",
-                                "bg-card/95 backdrop-blur-sm",
-                                "border border-border/50",
+                                "border border-white/10 bg-white/[0.055] backdrop-blur-xl",
                                 "hover:border-violet-400/50",
                                 "hover:shadow-lg hover:shadow-violet-500/10",
                                 "transition-all duration-300",
@@ -282,8 +283,8 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     href="/spots"
                     className={cn(
                         "rounded-2xl p-4 group",
-                        "bg-gradient-to-br from-emerald-500/10 to-teal-500/5",
-                        "border border-emerald-500/20",
+                        "bg-white/[0.055] backdrop-blur-xl",
+                        "border border-emerald-400/20",
                         "hover:border-emerald-500/40",
                         "hover:shadow-lg hover:shadow-emerald-500/10",
                         "transition-all duration-300",
@@ -308,7 +309,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     href="/templates"
                     className={cn(
                         "rounded-2xl p-4 group",
-                        "bg-gradient-to-br from-amber-500/10 to-orange-500/5",
+                        "bg-white/[0.055] backdrop-blur-xl",
                         "border border-amber-500/20",
                         "hover:border-amber-500/40",
                         "hover:shadow-lg hover:shadow-amber-500/10",
