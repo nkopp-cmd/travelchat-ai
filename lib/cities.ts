@@ -97,7 +97,7 @@ const RING_1_CITIES: CityConfig[] = [
         currency: "KRW",
         center: { lat: 37.5665, lng: 126.9780 },
         vibe: "K-culture & nightlife",
-        heroImage: "https://images.unsplash.com/photo-1583833008338-31a6657917ab?w=400",
+        heroImage: "https://images.unsplash.com/photo-1583833008338-31a6657917ab?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "tokyo",
@@ -121,7 +121,7 @@ const RING_1_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 35.6762, lng: 139.6503 },
         vibe: "Tradition meets tech",
-        heroImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400",
+        heroImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "bangkok",
@@ -145,7 +145,7 @@ const RING_1_CITIES: CityConfig[] = [
         currency: "THB",
         center: { lat: 13.7563, lng: 100.5018 },
         vibe: "Street food paradise",
-        heroImage: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400",
+        heroImage: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "singapore",
@@ -169,7 +169,7 @@ const RING_1_CITIES: CityConfig[] = [
         currency: "SGD",
         center: { lat: 1.3521, lng: 103.8198 },
         vibe: "Modern melting pot",
-        heroImage: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400",
+        heroImage: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200&q=90&auto=format&fit=crop",
     },
 ];
 
@@ -199,7 +199,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 34.6937, lng: 135.5023 },
         vibe: "Food & fun capital",
-        heroImage: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=400",
+        heroImage: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "kyoto",
@@ -222,7 +222,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 35.0116, lng: 135.7681 },
         vibe: "Ancient temples & tea",
-        heroImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400",
+        heroImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200&q=90&auto=format&fit=crop",
     },
     // Taiwan
     {
@@ -246,7 +246,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "TWD",
         center: { lat: 25.0330, lng: 121.5654 },
         vibe: "Night markets & bubble tea",
-        heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=400",
+        heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=1200&q=90&auto=format&fit=crop",
     },
     // Hong Kong
     {
@@ -270,7 +270,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "HKD",
         center: { lat: 22.3193, lng: 114.1694 },
         vibe: "Dim sum & skyline views",
-        heroImage: "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=400",
+        heroImage: "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=1200&q=90&auto=format&fit=crop",
     },
     // Korea
     {
@@ -294,7 +294,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "KRW",
         center: { lat: 35.1796, lng: 129.0756 },
         vibe: "Beaches & seafood",
-        heroImage: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=400",
+        heroImage: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "jeju",
@@ -317,7 +317,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "KRW",
         center: { lat: 33.4996, lng: 126.5312 },
         vibe: "Island paradise",
-        heroImage: "https://images.unsplash.com/photo-1616798249081-30877e213b16?w=400",
+        heroImage: "https://images.unsplash.com/photo-1616798249081-30877e213b16?w=1200&q=90&auto=format&fit=crop",
     },
     // Vietnam
     {
@@ -340,7 +340,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "VND",
         center: { lat: 21.0278, lng: 105.8342 },
         vibe: "Old Quarter charm",
-        heroImage: "https://images.unsplash.com/photo-1506236506587-53051b4197be?w=400",
+        heroImage: "https://images.unsplash.com/photo-1506236506587-53051b4197be?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "ho-chi-minh",
@@ -363,7 +363,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "VND",
         center: { lat: 10.8231, lng: 106.6297 },
         vibe: "Saigon hustle & buzz",
-        heroImage: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400",
+        heroImage: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&q=90&auto=format&fit=crop",
     },
     // Malaysia
     {
@@ -387,7 +387,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "MYR",
         center: { lat: 3.1390, lng: 101.6869 },
         vibe: "Towers & hawker stalls",
-        heroImage: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=400",
+        heroImage: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1200&q=90&auto=format&fit=crop",
     },
     // Indonesia (Bali split)
     {
@@ -411,7 +411,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "IDR",
         center: { lat: -8.5069, lng: 115.2625 },
         vibe: "Rice terraces & yoga",
-        heroImage: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400",
+        heroImage: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "bali-canggu",
@@ -433,7 +433,7 @@ const RING_2_CITIES: CityConfig[] = [
         currency: "IDR",
         center: { lat: -8.6478, lng: 115.1385 },
         vibe: "Surf & beach vibes",
-        heroImage: "https://images.unsplash.com/photo-1724568834710-d5db3faab7e8?w=400",
+        heroImage: "https://images.unsplash.com/photo-1724568834710-d5db3faab7e8?w=1200&q=90&auto=format&fit=crop",
     },
 ];
 
@@ -462,7 +462,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "THB",
         center: { lat: 18.7883, lng: 98.9853 },
         vibe: "Temples & digital nomads",
-        heroImage: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=400",
+        heroImage: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "da-nang",
@@ -484,7 +484,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "VND",
         center: { lat: 16.0544, lng: 108.2022 },
         vibe: "Dragon Bridge & beaches",
-        heroImage: "https://images.unsplash.com/photo-1701396173275-835886dd72ce?w=400",
+        heroImage: "https://images.unsplash.com/photo-1701396173275-835886dd72ce?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "penang",
@@ -506,7 +506,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "MYR",
         center: { lat: 5.4164, lng: 100.3327 },
         vibe: "Street art & hawker food",
-        heroImage: "https://images.unsplash.com/photo-1650163410135-e5355b4ff33e?w=400",
+        heroImage: "https://images.unsplash.com/photo-1650163410135-e5355b4ff33e?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "nara",
@@ -528,7 +528,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 34.6851, lng: 135.8048 },
         vibe: "Deer park & ancient temples",
-        heroImage: "https://images.unsplash.com/photo-1720573166278-4ac6ba745a2a?w=400",
+        heroImage: "https://images.unsplash.com/photo-1720573166278-4ac6ba745a2a?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "kanazawa",
@@ -550,7 +550,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 36.5613, lng: 136.6562 },
         vibe: "Samurai gardens",
-        heroImage: "https://images.unsplash.com/photo-1627304827615-3a05fafaed7a?w=400",
+        heroImage: "https://images.unsplash.com/photo-1627304827615-3a05fafaed7a?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "gyeongju",
@@ -572,7 +572,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "KRW",
         center: { lat: 35.8562, lng: 129.2247 },
         vibe: "Ancient kingdom ruins",
-        heroImage: "https://images.unsplash.com/photo-1684134549350-be5fd0d8feaa?w=400",
+        heroImage: "https://images.unsplash.com/photo-1684134549350-be5fd0d8feaa?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "sapporo",
@@ -594,7 +594,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 43.0618, lng: 141.3545 },
         vibe: "Snow & ramen paradise",
-        heroImage: "https://images.unsplash.com/photo-1736156725121-027231636f9d?w=400",
+        heroImage: "https://images.unsplash.com/photo-1736156725121-027231636f9d?w=1200&q=90&auto=format&fit=crop",
     },
     {
         slug: "okinawa",
@@ -616,7 +616,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "JPY",
         center: { lat: 26.3344, lng: 127.8056 },
         vibe: "Tropical island escape",
-        heroImage: "https://images.unsplash.com/photo-1664888882993-5bc4b906db5e?w=400",
+        heroImage: "https://images.unsplash.com/photo-1664888882993-5bc4b906db5e?w=1200&q=90&auto=format&fit=crop",
     },
     // Philippines
     {
@@ -640,7 +640,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "PHP",
         center: { lat: 14.5995, lng: 120.9842 },
         vibe: "Street food & nightlife",
-        heroImage: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=400",
+        heroImage: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=1200&q=90&auto=format&fit=crop",
     },
     // Thailand (South)
     {
@@ -664,7 +664,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "THB",
         center: { lat: 7.8804, lng: 98.3923 },
         vibe: "Islands & old town charm",
-        heroImage: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=400",
+        heroImage: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1200&q=90&auto=format&fit=crop",
     },
     // Cambodia
     {
@@ -688,7 +688,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "KHR",
         center: { lat: 13.3671, lng: 103.8448 },
         vibe: "Temples & local cuisine",
-        heroImage: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400",
+        heroImage: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=1200&q=90&auto=format&fit=crop",
     },
     // Vietnam (Central)
     {
@@ -712,7 +712,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "VND",
         center: { lat: 15.8801, lng: 108.3380 },
         vibe: "Lanterns & local cooking",
-        heroImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400",
+        heroImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&q=90&auto=format&fit=crop",
     },
     // Laos
     {
@@ -736,7 +736,7 @@ const RING_3_CITIES: CityConfig[] = [
         currency: "LAK",
         center: { lat: 19.8857, lng: 102.1347 },
         vibe: "Monks & Mekong sunsets",
-        heroImage: "https://images.unsplash.com/photo-1583417267826-aebc4d1542e1?w=400",
+        heroImage: "https://images.unsplash.com/photo-1583417267826-aebc4d1542e1?w=1200&q=90&auto=format&fit=crop",
     },
 ];
 

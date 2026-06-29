@@ -264,6 +264,8 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                                 className="absolute inset-0 h-full w-full rounded-none"
                                 imageClassName="transition duration-500 group-hover:scale-105"
                                 sizes="50vw"
+                                imageWidth={900}
+                                quality={90}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
                             <div className="relative mt-14">

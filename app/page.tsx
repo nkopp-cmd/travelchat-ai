@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -89,6 +90,23 @@ function citySlug(cityName: string) {
 
 function encodedInterests(interests: string[]) {
   return interests.join(",");
+}
+
+function highQualityUnsplashUrl(imageUrl: string | undefined, width = 1200, quality = 90) {
+  if (!imageUrl) return undefined;
+
+  try {
+    const url = new URL(imageUrl);
+    if (url.hostname.includes("images.unsplash.com")) {
+      url.searchParams.set("w", String(width));
+      url.searchParams.set("q", String(quality));
+      url.searchParams.set("auto", "format");
+      url.searchParams.set("fit", "crop");
+    }
+    return url.toString();
+  } catch {
+    return imageUrl;
+  }
 }
 
 export default function LandingPage() {
@@ -274,6 +292,8 @@ export default function LandingPage() {
                   className="absolute inset-0 h-full w-full rounded-none"
                   imageClassName="transition duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, 33vw"
+                  imageWidth={900}
+                  quality={90}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <span className="absolute bottom-3 left-4 rounded-md bg-black/45 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm">
@@ -326,29 +346,39 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURED_CITIES.map((city) => (
-              <Link
-                key={city.slug}
-                href={`/spots?city=${city.slug}&sort=local`}
-                className="group relative min-h-[180px] overflow-hidden rounded-lg border border-white/10 bg-slate-900 transition hover:border-violet-300/45"
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
-                  style={{ backgroundImage: city.heroImage ? `url(${city.heroImage})` : undefined }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{city.emoji}</span>
-                    <h3 className="text-xl font-black text-white">{city.name}</h3>
+            {FEATURED_CITIES.map((city) => {
+              const imageUrl = highQualityUnsplashUrl(city.heroImage, 1200, 90);
+
+              return (
+                <Link
+                  key={city.slug}
+                  href={`/spots?city=${city.slug}&sort=local`}
+                  className="group relative min-h-[180px] overflow-hidden rounded-lg border border-white/10 bg-slate-900 transition hover:border-violet-300/45"
+                >
+                  {imageUrl && (
+                    <Image
+                      src={imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      quality={90}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{city.emoji}</span>
+                      <h3 className="text-xl font-black text-white">{city.name}</h3>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-300">{city.vibe}</p>
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">
+                      Browse local spots
+                    </p>
                   </div>
-                  <p className="mt-1 text-sm text-slate-300">{city.vibe}</p>
-                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">
-                    Browse local spots
-                  </p>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

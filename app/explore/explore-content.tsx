@@ -250,6 +250,8 @@ export function ExploreContent({
                                         className="absolute inset-0 h-full w-full rounded-none"
                                         imageClassName="transition duration-500 group-hover:scale-105"
                                         sizes="(max-width: 768px) 100vw, 33vw"
+                                        imageWidth={1000}
+                                        quality={90}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
                                     <div className="flex justify-between items-start">
