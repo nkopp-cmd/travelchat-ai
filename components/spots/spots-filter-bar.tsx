@@ -141,18 +141,18 @@ export function SpotsFilterBar({
         currentFilters.search;
 
     return (
-        <div className="mb-6 space-y-4 p-4 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10">
+        <div className="mb-6 space-y-4 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-3 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-4">
             {/* Search Bar */}
             <div className="relative flex-1">
                 <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
+                    className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-violet-100/45"
                     aria-hidden="true"
                 />
                 <Input
                     placeholder="Search spots, neighborhoods, or cuisines..."
                     value={searchValue}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="pl-10 h-11 bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10"
+                    className="h-11 border-white/10 bg-white/[0.06] pl-10 text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400"
                     aria-label="Search spots"
                 />
                 {isPending && (
@@ -165,7 +165,7 @@ export function SpotsFilterBar({
 
             {/* Quick Filter Chips */}
             <div
-                className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide"
+                className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-2 scrollbar-hide sm:mx-0 sm:px-0"
                 role="group"
                 aria-label="Quick filters"
             >
@@ -181,10 +181,10 @@ export function SpotsFilterBar({
                             key={filter.id}
                             onClick={() => handleQuickFilter(filter.id)}
                             className={cn(
-                                "flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                                "flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all whitespace-nowrap",
                                 isActive
-                                    ? `${filter.color} ring-2 ring-offset-2 ring-current dark:ring-offset-background`
-                                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                                    ? "border-violet-300/50 bg-violet-500 text-white shadow-md shadow-violet-500/20"
+                                    : "border-white/10 bg-white/[0.055] text-violet-50/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
                             )}
                             aria-pressed={isActive}
                         >
@@ -197,11 +197,11 @@ export function SpotsFilterBar({
 
             {/* Advanced Filters Row */}
             <div
-                className="flex flex-wrap gap-3 items-center"
+                className="grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center"
                 role="group"
                 aria-label="Filter options"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 lg:col-span-1">
                     <Filter className="h-4 w-4" aria-hidden="true" />
                     Filters:
                 </div>
@@ -211,7 +211,7 @@ export function SpotsFilterBar({
                     value={currentFilters.city || "all"}
                     onValueChange={(v) => onFilterChange("city", v === "all" ? null : v)}
                 >
-                    <SelectTrigger className="w-[160px]" aria-label="Select city">
+                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[160px]" aria-label="Select city">
                         <MapPin className="h-4 w-4 mr-2" aria-hidden="true" />
                         <SelectValue placeholder="All Cities" />
                     </SelectTrigger>
@@ -238,7 +238,7 @@ export function SpotsFilterBar({
                     value={currentFilters.category || "all"}
                     onValueChange={(v) => onFilterChange("category", v === "all" ? null : v)}
                 >
-                    <SelectTrigger className="w-[160px]" aria-label="Select category">
+                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[160px]" aria-label="Select category">
                         <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -258,7 +258,7 @@ export function SpotsFilterBar({
                         onFilterChange("score", v === "all" ? null : parseInt(v))
                     }
                 >
-                    <SelectTrigger className="w-[180px]" aria-label="Select Localley score">
+                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[180px]" aria-label="Select Localley score">
                         <Star className="h-4 w-4 mr-2" aria-hidden="true" />
                         <SelectValue placeholder="Localley Score" />
                     </SelectTrigger>
@@ -277,7 +277,7 @@ export function SpotsFilterBar({
                     value={currentFilters.sortBy}
                     onValueChange={(v) => onFilterChange("sortBy", v)}
                 >
-                    <SelectTrigger className="w-[160px]" aria-label="Sort by">
+                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[160px]" aria-label="Sort by">
                         <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
@@ -295,7 +295,7 @@ export function SpotsFilterBar({
                         variant="ghost"
                         size="sm"
                         onClick={onClearFilters}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-violet-50/65 hover:bg-white/10 hover:text-white"
                     >
                         <X className="h-4 w-4 mr-1" aria-hidden="true" />
                         Clear

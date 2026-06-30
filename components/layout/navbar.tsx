@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ArrowRight, Map, Menu, Compass, Award } from "lucide-react";
+import { ArrowRight, Map, Menu, Compass, Award, Settings, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { SubscriptionBadge } from "@/components/subscription";
 import { NotificationCenter } from "@/components/notifications/notification-center";
@@ -27,6 +27,20 @@ const routes = [
         href: "/profile",
         label: "Profile",
         icon: Award,
+    },
+];
+
+const mobileRoutes = [
+    ...routes,
+    {
+        href: "/pricing",
+        label: "Plan",
+        icon: CreditCard,
+    },
+    {
+        href: "/settings",
+        label: "Settings",
+        icon: Settings,
     },
 ];
 
@@ -58,10 +72,18 @@ export function Navbar() {
         >
             <div className="container flex h-14 md:h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-2">
-                    {/* Mobile menu - hidden since we have bottom nav now */}
                     <Sheet>
                         <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="hidden text-foreground/80 hover:text-foreground">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                    "md:hidden",
+                                    isLanding
+                                        ? "text-white/80 hover:bg-white/10 hover:text-white"
+                                        : "text-foreground/80 hover:bg-violet-500/10 hover:text-foreground"
+                                )}
+                            >
                                 <Menu className="h-5 w-5" />
                                 <span className="sr-only">Toggle menu</span>
                             </Button>
@@ -74,24 +96,27 @@ export function Navbar() {
                                         Jump back into your local-first trips, saved places, and profile.
                                     </p>
                                 </div>
-                                {routes.map((route) => (
-                                    <Link
-                                        key={route.href}
-                                        href={route.href}
-                                        className={cn(
-                                            "group flex min-h-14 items-center gap-3 rounded-lg border px-3 py-3 transition",
-                                            pathname === route.href
-                                                ? "border-violet-300/40 bg-violet-500/15 text-white"
-                                                : "border-white/10 bg-white/[0.04] text-white/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
-                                        )}
-                                    >
-                                        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-200">
-                                            <route.icon className="h-5 w-5" />
-                                        </span>
-                                        <span className="flex-1 text-sm font-bold">{route.label}</span>
-                                        <ArrowRight className="h-4 w-4 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-violet-200" />
-                                    </Link>
-                                ))}
+                                <div className="grid gap-2">
+                                    {mobileRoutes.map((route) => (
+                                        <SheetClose asChild key={route.href}>
+                                            <Link
+                                                href={route.href}
+                                                className={cn(
+                                                    "group flex min-h-14 items-center gap-3 rounded-lg border px-3 py-3 transition",
+                                                    pathname === route.href
+                                                        ? "border-violet-300/40 bg-violet-500/15 text-white"
+                                                        : "border-white/10 bg-white/[0.04] text-white/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
+                                                )}
+                                            >
+                                                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-200">
+                                                    <route.icon className="h-5 w-5" />
+                                                </span>
+                                                <span className="flex-1 text-sm font-bold">{route.label}</span>
+                                                <ArrowRight className="h-4 w-4 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-violet-200" />
+                                            </Link>
+                                        </SheetClose>
+                                    ))}
+                                </div>
                             </nav>
                         </SheetContent>
                     </Sheet>
