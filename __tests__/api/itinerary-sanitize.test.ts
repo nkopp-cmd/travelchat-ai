@@ -59,6 +59,23 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ).toBe(true);
   });
 
+  it("treats generic meal or time-slot rows as tips but keeps named meal places", () => {
+    expect(
+      isTipLikeActivity({
+        name: "Lunch",
+        description: "Try a market stall near the museum.",
+      })
+    ).toBe(true);
+
+    expect(
+      isTipLikeActivity({
+        name: "Breakfast at Mangwon Market",
+        description: "Start with local dumplings.",
+        category: "Food",
+      })
+    ).toBe(false);
+  });
+
   it("normalizes display plans with all tips outside day sections", () => {
     const result = normalizeDailyPlansForDisplay([
       {

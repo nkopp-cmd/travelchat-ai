@@ -4,24 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Bookmark, Check, MapPin, Sparkles, Lightbulb } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { validateCityForItinerary } from "@/lib/cities";
+import {
+    cleanChatItineraryDescription,
+    parseChatItineraryPreview,
+} from "@/lib/itineraries/chat-preview-parser";
 
 interface ItineraryPreviewProps {
     content: string;
     conversationId?: string;
-}
-
-interface ParsedDay {
-    day: string;
-    activities: {
-        title: string;
-        description: string;
-        type: "hidden-gem" | "local-favorite" | "mixed" | "normal";
-    }[];
-}
-
-function isTipsHeading(line: string): boolean {
-    return /^[#*]*\s*(local\s+tips|tips|insider\s+tips)\s*\**$/i.test(line.trim());
 }
 
 export function ItineraryPreview({ content, conversationId }: ItineraryPreviewProps) {
@@ -29,134 +19,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
 
-    // Parse the itinerary content
-    const parseItinerary = (): { title: string; city: string; days: ParsedDay[]; tips: string[] } => {
-        const lines = content.split('\n');
-        const fullTitle = lines[0]?.replace(/^[#*]+\s*|\*+$/g, '').trim() || "Your Itinerary";
-
-        // Extract city from title (multiple patterns)
-        let city = "";
-        const inCityMatch = fullTitle.match(/in\s+([A-Za-z\s]+?)(?:\s*[:\-,]|$)/i);
-        const cityFirstMatch = fullTitle.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:Adventure|Guide|Trip|Experience|Itinerary|Hidden)/i);
-        const cityColonMatch = fullTitle.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?):\s+/);
-
-        if (inCityMatch) {
-            city = inCityMatch[1].trim();
-        } else if (cityFirstMatch) {
-            city = cityFirstMatch[1].trim();
-        } else if (cityColonMatch) {
-            city = cityColonMatch[1].trim();
-        }
-
-        // Validate against known cities
-        if (!city || city === "Unknown City") {
-            const validation = validateCityForItinerary(fullTitle);
-            if (validation.valid && validation.city) {
-                city = validation.city.name;
-            }
-        }
-
-        // Create SHORT title (3-5 words max)
-        let title = fullTitle;
-        const words = fullTitle.split(/\s+/);
-        if (words.length > 5) {
-            if (city) {
-                title = `${city} Hidden Gems`;
-            } else {
-                title = words.slice(0, 4).join(' ');
-            }
-        }
-
-        const days: ParsedDay[] = [];
-        const tips: string[] = [];
-        let currentDay: ParsedDay | null = null;
-        let inTipsSection = false;
-
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (isTipsHeading(trimmed)) {
-                if (currentDay) {
-                    days.push(currentDay);
-                    currentDay = null;
-                }
-                inTipsSection = true;
-                return;
-            }
-
-            // Day header (handles **, ***, ###, etc.)
-            if (/^[#*]+\s*Day \d+:/i.test(trimmed)) {
-                if (currentDay) days.push(currentDay);
-                inTipsSection = false;
-                currentDay = {
-                    day: trimmed.replace(/^[#*]+\s*|\*+$/g, '').trim(),
-                    activities: []
-                };
-            }
-            else if (inTipsSection && trimmed.startsWith('- ')) {
-                const tip = trimmed
-                    .replace(/^-\s*/, '')
-                    .replace(/^\*+|\*+$/g, '')
-                    .trim();
-                if (tip) tips.push(tip);
-            }
-            // Activity with bold marker (- **Title**: description)
-            else if (!inTipsSection && currentDay && /^-\s*\*+/.test(trimmed)) {
-                const match = trimmed.match(/- \*+(.+?)\*+:\s*(.+)/);
-                if (match) {
-                    const actTitle = match[1];
-                    const description = match[2];
-                    const typeMatch = actTitle.match(/\((.+?)\)/);
-                    const type = typeMatch ?
-                        (typeMatch[1].includes('Hidden Gem') ? 'hidden-gem' :
-                            typeMatch[1].includes('Local Favorite') ? 'local-favorite' :
-                                typeMatch[1].includes('Mixed') ? 'mixed' : 'normal') : 'normal';
-                    const cleanTitle = actTitle.replace(/\s*\(.+?\)\s*$/, '').trim();
-                    currentDay.activities.push({ title: cleanTitle, description, type });
-                }
-            }
-            // Plain activity (- Title: description OR - Title)
-            else if (!inTipsSection && currentDay && trimmed.startsWith('- ') && !trimmed.startsWith('  -')) {
-                const colonMatch = trimmed.match(/^- (.+?):\s*(.+)$/);
-                if (colonMatch) {
-                    const actTitle = colonMatch[1];
-                    const description = colonMatch[2];
-                    const typeMatch = actTitle.match(/\((.+?)\)/);
-                    const type = typeMatch ?
-                        (typeMatch[1].includes('Hidden Gem') ? 'hidden-gem' :
-                            typeMatch[1].includes('Local Favorite') ? 'local-favorite' :
-                                typeMatch[1].includes('Mixed') ? 'mixed' : 'normal') : 'normal';
-                    const cleanTitle = actTitle.replace(/\s*\(.+?\)\s*$/, '').trim();
-                    currentDay.activities.push({ title: cleanTitle, description, type });
-                } else {
-                    const actTitle = trimmed.substring(2).trim();
-                    const typeMatch = actTitle.match(/\((.+?)\)/);
-                    const type = typeMatch ?
-                        (typeMatch[1].includes('Hidden Gem') ? 'hidden-gem' :
-                            typeMatch[1].includes('Local Favorite') ? 'local-favorite' :
-                                typeMatch[1].includes('Mixed') ? 'mixed' : 'normal') : 'normal';
-                    const cleanTitle = actTitle.replace(/\s*\(.+?\)\s*$/, '').trim();
-                    currentDay.activities.push({ title: cleanTitle, description: '', type });
-                }
-            }
-            // Sub-items (indented with spaces)
-            else if (!inTipsSection && currentDay && trimmed.startsWith('  -')) {
-                const lastActivity = currentDay.activities[currentDay.activities.length - 1];
-                if (lastActivity) {
-                    const subItem = trimmed.substring(2).trim();
-                    if (lastActivity.description) {
-                        lastActivity.description += '\n' + subItem;
-                    } else {
-                        lastActivity.description = subItem;
-                    }
-                }
-            }
-        });
-
-        if (currentDay) days.push(currentDay);
-        return { title, city: city || "Unknown City", days, tips };
-    };
-
-    const { title, city, days, tips } = parseItinerary();
+    const { title, city, days, tips } = parseChatItineraryPreview(content);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -185,7 +48,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         time: `${9 + actIndex * 2}:00 AM`,
                         type: actIndex < 2 ? "morning" : actIndex < 4 ? "afternoon" : "evening",
                         name: act.title,
-                        address: extractedAddress || `${act.title}, ${city}`,
+                        address: act.address || extractedAddress || `${act.title}, ${city}`,
                         description: act.description,
                         category: "attraction",
                         localleyScore: act.type === 'hidden-gem' ? 6 : act.type === 'local-favorite' ? 5 : 4,
@@ -266,15 +129,6 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
         }
     };
 
-    // Clean description: remove "Address:" lines for display
-    const cleanDescription = (text: string): string => {
-        if (!text) return '';
-        return text
-            .replace(/Address:\s*.+?(?:\n|$)/gi, '')
-            .replace(/\n+/g, ' ')
-            .trim();
-    };
-
     return (
         <div className="bg-white/[0.15] dark:bg-white/[0.08] backdrop-blur-md rounded-2xl border border-white/20 dark:border-white/10 shadow-[0_0_20px_rgba(139,92,246,0.15)] overflow-hidden">
             {/* Header */}
@@ -338,7 +192,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         <div className="divide-y divide-black/5 dark:divide-white/10">
                             {day.activities.map((activity, actIndex) => {
                                 const badge = getTypeBadge(activity.type);
-                                const desc = cleanDescription(activity.description);
+                                const desc = cleanChatItineraryDescription(activity.description);
 
                                 return (
                                     <div key={actIndex} className="px-4 py-3 flex items-start gap-3">

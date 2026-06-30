@@ -46,6 +46,7 @@ const TIP_NAME_PATTERNS = [
 
 const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|reminder|reminders|getting around|transport|transportation)$/i;
 const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|kakao|maps?)\b/i;
+const GENERIC_ACTIVITY_NAME_PATTERN = /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
 
 export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const name = getStringValue(activity.name);
@@ -53,7 +54,12 @@ export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const type = getStringValue(activity.type);
 
   if (!name) return true;
-  if (TIP_VALUE_PATTERN.test(name) || TIP_VALUE_PATTERN.test(category) || TIP_VALUE_PATTERN.test(type)) {
+  if (
+    TIP_VALUE_PATTERN.test(name) ||
+    TIP_VALUE_PATTERN.test(category) ||
+    TIP_VALUE_PATTERN.test(type) ||
+    GENERIC_ACTIVITY_NAME_PATTERN.test(name)
+  ) {
     return true;
   }
 
