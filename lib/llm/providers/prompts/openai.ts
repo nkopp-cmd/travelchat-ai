@@ -1,7 +1,7 @@
 /**
- * OpenAI System Prompts
+ * Shared Itinerary Generation Prompts
  *
- * Centralized prompts for all OpenAI/ChatGPT interactions.
+ * Centralized prompts for GLM primary and OpenAI fallback interactions.
  * These prompts define the "Alley" personality and output structure.
  */
 

@@ -2,7 +2,7 @@
  * Multi-LLM Orchestrator
  *
  * The main coordinator that manages the multi-LLM pipeline:
- * 1. Phase 1 (Parallel): ChatGPT generates, Gemini validates, DB fetches spots
+ * 1. Phase 1 (Parallel): GLM generates, Gemini validates, DB fetches spots
  * 2. Phase 2 (Sequential): Claude supervises and approves
  *
  * Handles tier-based routing, fallbacks, retries, and caching.
@@ -211,7 +211,7 @@ export class LLMOrchestrator {
   }
 
   /**
-   * Phase 1: Parallel execution of ChatGPT, Gemini, and DB
+   * Phase 1: Parallel execution of GLM, Gemini, and DB
    */
   private async executePhase1(
     params: ItineraryParams,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import OpenAI from "openai";
+import { GLMProvider } from "@/lib/llm";
 import { addThumbnailsToItinerary } from "@/lib/activity-images";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import {
@@ -19,6 +20,62 @@ const getOpenAIClient = () => {
   }
   return new OpenAI({ apiKey });
 };
+
+async function generateRevisionWithOpenAI(userPrompt: string): Promise<string> {
+  const openai = getOpenAIClient();
+  const completion = await openai.chat.completions.create({
+    model: OPENAI_MODEL,
+    messages: [
+      { role: "system", content: REVISION_SYSTEM_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    response_format: { type: "json_object" },
+    temperature: 0.7,
+    max_tokens: 3000,
+  });
+
+  const rawContent = completion.choices[0].message.content;
+  if (!rawContent) {
+    throw new Error("OpenAI returned an empty revision response");
+  }
+
+  return rawContent;
+}
+
+async function generateRevision(userPrompt: string): Promise<{
+  rawContent: string;
+  provider: "glm" | "openai";
+}> {
+  const glm = new GLMProvider();
+
+  if (glm.isAvailable()) {
+    try {
+      const response = await glm.generateText({
+        systemPrompt: REVISION_SYSTEM_PROMPT,
+        userPrompt,
+        responseFormat: "json",
+        temperature: 0.7,
+        maxTokens: 3000,
+      });
+
+      if (!response.content) {
+        throw new Error("GLM returned an empty revision response");
+      }
+
+      return {
+        rawContent: response.content,
+        provider: "glm",
+      };
+    } catch (glmError) {
+      console.error("[revise] GLM primary failed; falling back to OpenAI:", glmError);
+    }
+  }
+
+  return {
+    rawContent: await generateRevisionWithOpenAI(userPrompt),
+    provider: "openai",
+  };
+}
 
 const REVISION_SYSTEM_PROMPT = `
 You are an AI assistant helping users revise their travel itineraries.
@@ -147,23 +204,7 @@ Make sure to:
 6. Return valid JSON in the exact format specified
 `;
 
-    // Call OpenAI to revise itinerary
-    const openai = getOpenAIClient();
-    const completion = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        { role: "system", content: REVISION_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 3000,
-    });
-
-    const rawContent = completion.choices[0].message.content;
-    if (!rawContent) {
-      return Errors.externalServiceError("OpenAI");
-    }
+    const { rawContent, provider: aiProvider } = await generateRevision(userPrompt);
 
     // Parse AI response
     let revisedItinerary;
@@ -228,6 +269,7 @@ Make sure to:
 
     return NextResponse.json({
       success: true,
+      provider: aiProvider,
       itinerary: {
         id: updatedItinerary.id,
         title: revisedItinerary.title,

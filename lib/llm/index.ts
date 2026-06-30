@@ -2,7 +2,7 @@
  * Multi-LLM Orchestration System
  *
  * Main entry point for the multi-LLM architecture that coordinates
- * ChatGPT, Gemini, and Claude for itinerary generation.
+ * GLM, OpenAI fallback, Gemini, and Claude for itinerary generation.
  *
  * Usage:
  * ```typescript

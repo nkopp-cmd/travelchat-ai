@@ -2,7 +2,7 @@
  * Multi-LLM Orchestration System - Core Types
  *
  * This module defines all shared types and interfaces for the multi-LLM
- * orchestration system that coordinates ChatGPT, Gemini, and Claude.
+ * orchestration system that coordinates GLM, OpenAI fallback, Gemini, and Claude.
  */
 
 // ============================================================================

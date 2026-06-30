@@ -2,7 +2,7 @@
  * OpenAI (ChatGPT) Provider
  *
  * Handles all interactions with OpenAI's API for itinerary generation.
- * This is the primary provider for creative content generation.
+ * This is the paid fallback provider when GLM is unavailable.
  */
 
 import { OpenAI } from 'openai';
@@ -61,7 +61,7 @@ export class OpenAIProvider
       this.lastHealthCheck = new Date();
       this.isHealthy = true;
       return true;
-    } catch (error) {
+    } catch {
       this.lastHealthCheck = new Date();
       this.isHealthy = false;
       return false;
