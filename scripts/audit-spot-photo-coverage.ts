@@ -172,13 +172,17 @@ function sortBucketEntries(buckets: Record<string, CoverageBucket>) {
 async function fetchAllSpots(
     supabase: SupabaseClient,
     city: string | undefined
-): Promise<SpotPhotoAuditRow[]> {
+): Promise<{ rows: SpotPhotoAuditRow[]; hasGooglePlaceIdColumn: boolean }> {
     const rows: SpotPhotoAuditRow[] = [];
+    let hasGooglePlaceIdColumn = true;
 
     for (let from = 0; ; from += PAGE_SIZE) {
+        const selectColumns = hasGooglePlaceIdColumn
+            ? "id, name, address, photos, category, google_place_id, created_at"
+            : "id, name, address, photos, category, created_at";
         let query = supabase
             .from("spots")
-            .select("id, name, address, photos, category, google_place_id, created_at")
+            .select(selectColumns)
             .order("created_at", { ascending: false })
             .range(from, from + PAGE_SIZE - 1);
 
@@ -187,13 +191,21 @@ async function fetchAllSpots(
         }
 
         const { data, error } = await query;
-        if (error) throw new Error(`Failed to fetch spots: ${error.message}`);
+        if (error) {
+            if (hasGooglePlaceIdColumn && /google_place_id/i.test(error.message)) {
+                hasGooglePlaceIdColumn = false;
+                from -= PAGE_SIZE;
+                continue;
+            }
 
-        rows.push(...((data || []) as SpotPhotoAuditRow[]));
+            throw new Error(`Failed to fetch spots: ${error.message}`);
+        }
+
+        rows.push(...(((data || []) as unknown) as SpotPhotoAuditRow[]));
         if (!data || data.length < PAGE_SIZE) break;
     }
 
-    return rows;
+    return { rows, hasGooglePlaceIdColumn };
 }
 
 async function main() {
@@ -201,7 +213,7 @@ async function main() {
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
     const generatedAt = new Date().toISOString();
-    const spots = await fetchAllSpots(supabase, args.city);
+    const { rows: spots, hasGooglePlaceIdColumn } = await fetchAllSpots(supabase, args.city);
     const summary = createBucket();
     const byLocation: Record<string, CoverageBucket> = {};
     const byCategory: Record<string, CoverageBucket> = {};
@@ -258,6 +270,9 @@ async function main() {
         filters: {
             city: args.city || null,
         },
+        schema: {
+            hasGooglePlaceIdColumn,
+        },
         summary: {
             ...summary,
             realPhotoCoveragePct: percent(summary.realPhotoSpots, summary.total),
@@ -282,6 +297,7 @@ async function main() {
     console.log(
         [
             `Spot photo coverage audit written to ${args.outPath}`,
+            `Google Place ID column: ${hasGooglePlaceIdColumn ? "present" : "missing"}`,
             `Spots: ${summary.total}`,
             `Real-photo coverage: ${report.summary.realPhotoCoveragePct}% (${summary.realPhotoSpots}/${summary.total})`,
             `Place identity coverage: ${report.summary.placeIdentityCoveragePct}% (${summary.placeIdentitySpots}/${summary.total})`,
