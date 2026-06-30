@@ -4,6 +4,8 @@
  * Usage:
  *   npx tsx scripts/review-spot-location-backfill.ts --limit=20
  *   npx tsx scripts/review-spot-location-backfill.ts --city=Tokyo --limit=10
+ *   npx tsx scripts/review-spot-location-backfill.ts --exact-only --limit=20
+ *   npx tsx scripts/review-spot-location-backfill.ts --exact-only --trusted-provider-only --limit=20
  *   npx tsx scripts/review-spot-location-backfill.ts --apply --limit=10
  */
 
@@ -30,15 +32,18 @@ const DEFAULT_OUT_PATH = "reports/spot-location-backfill-review.json";
 const DEFAULT_RATE_LIMIT_MS = 250;
 const MIN_CONFIDENT_DISTANCE_FROM_CITY_CENTER_KM = 0.25;
 const MAX_CONFIDENT_DISTANCE_KM = 75;
-const BROAD_NAME_PATTERN = /\b(day trip|islands?|countryside|residential|town|street|road|area|district|neighbou?rhood|market crawl|bar crawl|walking route|walk|trail|tour|farms?|villages?|various|multiple)\b/i;
-const BROAD_ADDRESS_PATTERN = /\b(various locations|multiple locations|around|near|area|areas|district|neighbou?rhood|countryside|region|zone)\b/i;
-const SPECIFIC_PLACE_PATTERN = /\b(hotel|garden|theater|theatre|stadium|cafe|coffee|restaurant|bar|book|books|museum|gallery|temple|shrine|aquarium|market|mall|center|centre|house|farm|park|bridge|station)\b/i;
+const BROAD_NAME_PATTERN = /\b(day trip|islands?|countryside|residential|town|street|road|area|district|neighbou?rhood|market crawl|bar crawl|walking route|walk|trail|tour|cruise|fireworks|farms?|villages?|various|multiple)\b/i;
+const BROAD_ADDRESS_PATTERN = /\b(various|multiple|around|near|along|area|areas|district|neighbou?rhood|countryside|region|zone)\b/i;
+const GENERIC_COLLECTION_NAME_PATTERN = /\b(alley|bars?|bbq|chicken|culture|eats|food halls?|lunch|restaurants?|shops?|street food)\b/i;
+const SPECIFIC_PLACE_PATTERN = /\b(airport|aquarium|beach|bridge|center|centre|exhibition|festival|garden|hotel|mall|market|museum|park|reservoir|shrine|stadium|temple|theater|theatre)\b/i;
 
 type ReviewStatus = "updated" | "would_update" | "skipped" | "failed";
 
 interface Args {
     apply: boolean;
     city?: string;
+    exactOnly: boolean;
+    trustedProviderOnly: boolean;
     limit: number;
     maxCandidates: number;
     outPath: string;
@@ -101,6 +106,8 @@ function parseArgs(argv: string[]): Args {
     return {
         apply: argv.includes("--apply"),
         city: getValue("--city"),
+        exactOnly: argv.includes("--exact-only"),
+        trustedProviderOnly: argv.includes("--trusted-provider-only"),
         limit: parsePositiveInt(getValue("--limit"), DEFAULT_LIMIT),
         maxCandidates: parsePositiveInt(getValue("--max-candidates"), DEFAULT_MAX_CANDIDATES),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
@@ -144,13 +151,48 @@ function isUnsafeBroadPlace(name: string, address: string): boolean {
     return broadAddress || (broadName && !looksSpecific);
 }
 
+function getAddressParts(address: string): string[] {
+    return address
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+}
+
+function normalizeComparableText(value: string): string {
+    return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function isCityLevelAddress(address: string, city: CityConfig): boolean {
+    const parts = getAddressParts(address);
+    if (parts.length !== 1) return false;
+    return normalizeComparableText(parts[0]) === normalizeComparableText(city.name);
+}
+
+function isAreaNameOnly(candidate: CandidateSpot): boolean {
+    if (!candidate.city) return false;
+    const firstAddressPart = getAddressParts(candidate.address)[0] || "";
+    if (!firstAddressPart) return false;
+    if (SPECIFIC_PLACE_PATTERN.test(candidate.name) || SPECIFIC_PLACE_PATTERN.test(candidate.address)) {
+        return false;
+    }
+
+    return (
+        normalizeComparableText(candidate.name) === normalizeComparableText(firstAddressPart) ||
+        normalizeComparableText(candidate.name) === normalizeComparableText(candidate.address)
+    );
+}
+
 function getSkipReason(candidate: CandidateSpot): string | null {
     if (!candidate.name || !candidate.address) return "missing_name_or_address";
     if (!candidate.city) return "unsupported_or_unrecognized_city";
     if (hasUsableCoordinates(candidate.lat, candidate.lng)) return "already_has_usable_coordinates";
+    if (candidate.confidence.exactAddress) return null;
     if (!candidate.confidence.reasons.includes("area_level_address")) {
         return "not_area_level_address_candidate";
     }
+    if (isCityLevelAddress(candidate.address, candidate.city)) return "city_level_address";
+    if (GENERIC_COLLECTION_NAME_PATTERN.test(candidate.name)) return "generic_collection_spot";
+    if (isAreaNameOnly(candidate)) return "area_name_only";
     if (isUnsafeBroadPlace(candidate.name, candidate.address)) return "broad_or_ambiguous_place";
     return null;
 }
@@ -158,6 +200,7 @@ function getSkipReason(candidate: CandidateSpot): string | null {
 async function fetchCandidates(
     supabase: SupabaseClient,
     city: string | undefined,
+    exactOnly: boolean,
     maxCandidates: number
 ): Promise<{ candidates: CandidateSpot[]; scanned: number }> {
     const candidates: CandidateSpot[] = [];
@@ -188,7 +231,8 @@ async function fetchCandidates(
             const lng = coordinates?.lng ?? null;
             const confidence = getSpotLocationConfidence({ address, lat, lng });
 
-            if (confidence.tone !== "area") continue;
+            if (confidence.usableCoordinates) continue;
+            if (exactOnly && !confidence.exactAddress) continue;
 
             candidates.push({
                 raw: row,
@@ -233,6 +277,7 @@ async function main() {
     const { candidates, scanned } = await fetchCandidates(
         supabase,
         args.city,
+        args.exactOnly,
         args.maxCandidates
     );
     const results: ReviewResult[] = [];
@@ -272,6 +317,24 @@ async function main() {
             }
 
             const distanceFromCityKm = getDistanceFromCity(geocoded, city);
+            if (
+                args.trustedProviderOnly &&
+                geocoded.provider !== "google" &&
+                geocoded.provider !== "kakao"
+            ) {
+                results.push({
+                    ...baseResult(candidate, "skipped"),
+                    reason: "untrusted_provider_for_batch",
+                    candidate: {
+                        ...geocoded,
+                        distanceFromCityKm,
+                        wkt: toWktPoint(geocoded),
+                    },
+                });
+                await sleep(args.rateLimitMs);
+                continue;
+            }
+
             if (
                 distanceFromCityKm !== null &&
                 distanceFromCityKm < MIN_CONFIDENT_DISTANCE_FROM_CITY_CENTER_KM
@@ -344,6 +407,8 @@ async function main() {
         finishedAt: new Date().toISOString(),
         dryRun: !args.apply,
         city: args.city || null,
+        exactOnly: args.exactOnly,
+        trustedProviderOnly: args.trustedProviderOnly,
         limit: args.limit,
         maxCandidates: args.maxCandidates,
         scanned,
