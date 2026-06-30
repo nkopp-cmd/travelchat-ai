@@ -20,10 +20,9 @@ import { useToast } from "@/hooks/use-toast";
 
 interface EditProfileDialogProps {
     initialBio?: string;
-    initialDisplayName?: string;
 }
 
-export function EditProfileDialog({ initialBio = "", initialDisplayName = "" }: EditProfileDialogProps) {
+export function EditProfileDialog({ initialBio = "" }: EditProfileDialogProps) {
     const { user, isLoaded } = useUser();
     const { toast } = useToast();
     const [open, setOpen] = useState(false);
@@ -82,7 +81,7 @@ export function EditProfileDialog({ initialBio = "", initialDisplayName = "" }: 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     <Settings className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Edit Profile</span>
                     <span className="sm:hidden">Edit</span>

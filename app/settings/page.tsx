@@ -19,8 +19,13 @@ import { NotificationPreferencesSection } from "@/components/settings/notificati
 
 const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
 const LIQUID_CARD_SOFT = "rounded-2xl border-white/10 bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const LIQUID_ROW = "flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07]";
+const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07] sm:flex-row sm:items-center sm:justify-between";
 const LIQUID_INPUT = "border-white/10 bg-white/[0.05] backdrop-blur-xl";
+
+function usagePercent(used: number, limit: number) {
+    if (!limit || limit === 999) return used > 0 ? 10 : 0;
+    return Math.min((used / limit) * 100, 100);
+}
 
 async function getSubscriptionData() {
     const { userId } = await auth();
@@ -274,10 +279,10 @@ export default async function SettingsPage() {
                     <Separator />
 
                     {/* Actions */}
-                    <div className="flex flex-wrap gap-3">
+                    <div className="grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
                         {subscription.tier === "free" ? (
-                            <Link href="/pricing">
-                                <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                            <Link href="/pricing" className="w-full sm:w-auto">
+                                <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 sm:w-auto">
                                     <Rocket className="h-4 w-4 mr-2" />
                                     Upgrade Plan
                                 </Button>
@@ -288,8 +293,8 @@ export default async function SettingsPage() {
                                     <BillingPortalButton />
                                 )}
                                 {subscription.tier === "pro" && (
-                                    <Link href="/pricing">
-                                        <Button variant="outline" className="gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15">
+                                    <Link href="/pricing" className="w-full sm:w-auto">
+                                        <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
                                             <Crown className="h-4 w-4 text-amber-500" />
                                             Upgrade to Premium
                                         </Button>
@@ -297,8 +302,8 @@ export default async function SettingsPage() {
                                 )}
                             </>
                         )}
-                        <Link href="/pricing">
-                            <Button variant="ghost" className="gap-2 hover:bg-white/10">
+                        <Link href="/pricing" className="w-full sm:w-auto">
+                            <Button variant="ghost" className="w-full gap-2 hover:bg-white/10 sm:w-auto">
                                 Compare Plans
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
@@ -327,7 +332,7 @@ export default async function SettingsPage() {
                                 </span>
                             </div>
                             <Progress
-                                value={tierConfig.limits.itinerariesPerMonth === 999 ? 10 : Math.min((usage.itinerariesThisMonth / tierConfig.limits.itinerariesPerMonth) * 100, 100)}
+                                value={usagePercent(usage.itinerariesThisMonth, tierConfig.limits.itinerariesPerMonth)}
                                 className="h-2"
                             />
                         </div>
@@ -344,7 +349,7 @@ export default async function SettingsPage() {
                                 </span>
                             </div>
                             <Progress
-                                value={tierConfig.limits.chatMessagesPerDay === 999 ? 10 : Math.min((usage.chatMessagesToday / tierConfig.limits.chatMessagesPerDay) * 100, 100)}
+                                value={usagePercent(usage.chatMessagesToday, tierConfig.limits.chatMessagesPerDay)}
                                 className="h-2"
                             />
                         </div>
@@ -361,7 +366,7 @@ export default async function SettingsPage() {
                                 </span>
                             </div>
                             <Progress
-                                value={Math.min((usage.aiImagesThisMonth / tierConfig.limits.aiImagesPerMonth) * 100, 100)}
+                                value={usagePercent(usage.aiImagesThisMonth, tierConfig.limits.aiImagesPerMonth)}
                                 className="h-2"
                             />
                         </div>
@@ -378,7 +383,7 @@ export default async function SettingsPage() {
                                 </span>
                             </div>
                             <Progress
-                                value={tierConfig.limits.savedSpotsLimit === 999 ? 10 : Math.min((usage.savedSpots / tierConfig.limits.savedSpotsLimit) * 100, 100)}
+                                value={usagePercent(usage.savedSpots, tierConfig.limits.savedSpotsLimit)}
                                 className="h-2"
                             />
                         </div>
@@ -426,7 +431,7 @@ export default async function SettingsPage() {
                                 Show spots near you automatically when browsing
                             </p>
                         </div>
-                        <Switch id="location" defaultChecked className="data-[state=checked]:bg-violet-600" />
+                        <Switch id="location" defaultChecked className="self-end data-[state=checked]:bg-violet-600 sm:self-auto" />
                     </div>
                 </CardContent>
             </Card>
@@ -483,7 +488,7 @@ export default async function SettingsPage() {
                                 Help us improve Localley with anonymous usage insights
                             </p>
                         </div>
-                        <Switch id="analytics" defaultChecked className="data-[state=checked]:bg-violet-600" />
+                        <Switch id="analytics" defaultChecked className="self-end data-[state=checked]:bg-violet-600 sm:self-auto" />
                     </div>
 
                     <div className={`${LIQUID_ROW} group`}>
@@ -493,7 +498,7 @@ export default async function SettingsPage() {
                                 Get smarter spot suggestions based on your travel style
                             </p>
                         </div>
-                        <Switch id="personalization" defaultChecked className="data-[state=checked]:bg-violet-600" />
+                        <Switch id="personalization" defaultChecked className="self-end data-[state=checked]:bg-violet-600 sm:self-auto" />
                     </div>
                 </CardContent>
             </Card>
@@ -536,7 +541,7 @@ export default async function SettingsPage() {
             </Card>
 
             {/* Save Button */}
-            <div className="sticky bottom-4 z-10 flex justify-end gap-2 rounded-2xl border border-white/10 bg-[#0b0714]/80 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
+            <div className="sticky bottom-20 z-10 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#0b0714]/88 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-xl md:bottom-4 md:flex md:justify-end">
                 <Button variant="outline" className="border-white/15 bg-white/10 hover:bg-white/15">Cancel</Button>
                 <Button className="bg-violet-600 hover:bg-violet-700">
                     Save Changes
