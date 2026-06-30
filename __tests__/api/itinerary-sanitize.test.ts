@@ -140,4 +140,45 @@ describe("sanitizeGeneratedDailyPlans", () => {
       "Go before lunch.",
     ]);
   });
+
+  it("builds update payloads with tips outside day sections", () => {
+    const normalized = normalizeDailyPlansForDisplay(
+      [
+        {
+          day: 1,
+          localTip: "Order at the counter before sitting.",
+          transportTips: "Use exit 4.",
+          activities: [
+            {
+              name: "Cafe Onion Anguk",
+              description: "Start with coffee in a real cafe.",
+              category: "Cafe",
+            },
+            {
+              name: "Pro tip",
+              description: "Weekday mornings are calmer.",
+              category: "Advice",
+            },
+          ],
+        },
+      ],
+      [{ label: "Booking note", text: "Reserve dinner.", kind: "local" }]
+    );
+
+    const payload = buildItineraryPlanPayload(normalized.dailyPlans, normalized.insights);
+
+    expect(normalized.dailyPlans[0].activities).toHaveLength(1);
+    expect(normalized.dailyPlans[0]).not.toHaveProperty("localTip");
+    expect(normalized.dailyPlans[0]).not.toHaveProperty("transportTips");
+    expect(payload).toEqual({
+      dailyPlans: normalized.dailyPlans,
+      insights: expect.arrayContaining([
+        expect.objectContaining({ text: "Reserve dinner." }),
+        expect.objectContaining({
+          text: "Order at the counter before sitting. Weekday mornings are calmer.",
+        }),
+        expect.objectContaining({ text: "Use exit 4." }),
+      ]),
+    });
+  });
 });

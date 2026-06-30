@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import { sanitizeGeneratedDailyPlans } from "@/lib/itineraries/normalize-daily-plans";
+import {
+    buildItineraryPlanPayload,
+    normalizeDailyPlansForDisplay,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 export async function PATCH(
     request: NextRequest,
@@ -17,7 +20,7 @@ export async function PATCH(
 
         const { id } = await context.params;
         const body = await request.json();
-        const { title, city, days, highlights, estimated_cost } = body;
+        const { title, city, days, insights, highlights, estimated_cost } = body;
 
         // Validate required fields
         if (!title || !city || !days || !Array.isArray(days)) {
@@ -48,7 +51,11 @@ export async function PATCH(
             return Errors.forbidden("You don't own this itinerary.");
         }
 
-        const sanitizedDays = sanitizeGeneratedDailyPlans(days);
+        const normalizedPlan = normalizeDailyPlansForDisplay(days, insights);
+        const activitiesPayload = buildItineraryPlanPayload(
+            normalizedPlan.dailyPlans,
+            normalizedPlan.insights
+        );
 
         // Update itinerary
         const { data, error } = await supabase
@@ -56,7 +63,7 @@ export async function PATCH(
             .update({
                 title,
                 city,
-                activities: sanitizedDays,
+                activities: activitiesPayload,
                 highlights: highlights || [],
                 estimated_cost: estimated_cost || null,
             })

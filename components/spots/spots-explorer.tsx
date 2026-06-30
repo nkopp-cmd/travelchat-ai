@@ -199,7 +199,7 @@ export function SpotsExplorer({
 
             {/* Spots Grid/List */}
             <ErrorBoundary>
-                <div className="pb-24 md:pb-0">
+                <div className="pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-0">
                 {initialSpots.length > 0 ? (
                     <>
                         {viewMode === "grid" ? (

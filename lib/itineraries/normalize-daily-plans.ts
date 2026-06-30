@@ -215,11 +215,11 @@ export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
       });
     }
 
-    return {
-      ...dayPlan,
-      localTip: undefined,
-      transportTips: undefined,
-    };
+    const dayPlanWithoutTips = { ...dayPlan };
+    delete dayPlanWithoutTips.localTip;
+    delete dayPlanWithoutTips.transportTips;
+
+    return dayPlanWithoutTips as T;
   });
 
   return { dailyPlans, insights };

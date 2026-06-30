@@ -112,11 +112,11 @@ function WizardContent({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-3">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-3">
         {steps[currentStep]}
       </div>
 
-      <div className="sticky bottom-0 z-20 shrink-0 border-t border-white/10 bg-black/92 p-2.5 pb-[calc(4.25rem+env(safe-area-inset-bottom))] shadow-[0_-14px_32px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-3 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="sticky bottom-0 z-20 shrink-0 border-t border-white/10 bg-black/92 p-2.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-14px_32px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-3 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-md">
           {templateApplied && (
             <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100">
@@ -254,7 +254,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex h-[calc(100dvh-4rem)] min-h-[420px] flex-col overflow-hidden rounded-2xl bg-background md:h-full md:min-h-0 md:rounded-none">
+      <div className="flex h-full min-h-[calc(100dvh-5.5rem)] flex-col overflow-hidden rounded-2xl bg-background md:min-h-0 md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>

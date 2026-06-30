@@ -9,7 +9,7 @@ export default function ItinerariesLayout({
     return (
         <AppBackground ambient fitParent className="h-full" contentClassName="flex h-full">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto bg-transparent p-3 pb-24 sm:p-4 md:rounded-tl-2xl md:p-8 md:pb-8">
+            <main className="flex-1 overflow-y-auto bg-transparent p-2 pb-4 sm:p-4 md:rounded-tl-2xl md:p-8 md:pb-8">
                 {children}
             </main>
         </AppBackground>

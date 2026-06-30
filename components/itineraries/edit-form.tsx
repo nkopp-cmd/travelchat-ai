@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DayEditor } from "./day-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, X, Check } from "lucide-react";
+import {
+    normalizeDailyPlansForDisplay,
+    parseDailyPlans,
+    type ItineraryInsight,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 interface Activity {
     name: string;
@@ -25,16 +30,14 @@ interface DayPlan {
     day: number;
     theme?: string;
     activities: Activity[];
-    localTip?: string;
-    transportTips?: string;
 }
 
 interface Itinerary {
     id: string;
     title: string;
     city: string;
-    days: any; // This is actually the number of days
-    activities: any; // This contains the day plans
+    days: number;
+    activities: unknown;
     highlights?: string[];
     estimated_cost?: string;
 }
@@ -47,16 +50,15 @@ export function EditForm({ itinerary }: EditFormProps) {
     const router = useRouter();
     const { toast } = useToast();
 
-    // Parse activities (which contains the day plans) if they're stored as JSON string
-    const parsedDays = typeof itinerary.activities === 'string'
-        ? JSON.parse(itinerary.activities)
-        : Array.isArray(itinerary.activities)
-            ? itinerary.activities
-            : [];
+    const parsedPlan = useMemo(
+        () => normalizeDailyPlansForDisplay<DayPlan>(parseDailyPlans(itinerary.activities)),
+        [itinerary.activities]
+    );
 
     const [title, setTitle] = useState(itinerary.title);
     const [city, setCity] = useState(itinerary.city);
-    const [dayPlans, setDayPlans] = useState<DayPlan[]>(parsedDays);
+    const [dayPlans, setDayPlans] = useState<DayPlan[]>(parsedPlan.dailyPlans);
+    const [insights, setInsights] = useState<ItineraryInsight[]>(parsedPlan.insights);
     const [highlights, setHighlights] = useState<string[]>(itinerary.highlights || []);
     const [estimatedCost, setEstimatedCost] = useState(itinerary.estimated_cost || "");
 
@@ -70,11 +72,12 @@ export function EditForm({ itinerary }: EditFormProps) {
             title !== itinerary.title ||
             city !== itinerary.city ||
             estimatedCost !== (itinerary.estimated_cost || "") ||
-            JSON.stringify(dayPlans) !== JSON.stringify(parsedDays) ||
+            JSON.stringify(dayPlans) !== JSON.stringify(parsedPlan.dailyPlans) ||
+            JSON.stringify(insights) !== JSON.stringify(parsedPlan.insights) ||
             JSON.stringify(highlights) !== JSON.stringify(itinerary.highlights || []);
 
         setHasUnsavedChanges(hasChanges);
-    }, [title, city, dayPlans, highlights, estimatedCost, itinerary, parsedDays]);
+    }, [title, city, dayPlans, insights, highlights, estimatedCost, itinerary, parsedPlan]);
 
     // Warn on navigation if unsaved changes
     useEffect(() => {
@@ -98,7 +101,9 @@ export function EditForm({ itinerary }: EditFormProps) {
         }, 30000); // 30 second debounce
 
         return () => clearTimeout(timeoutId);
-    }, [title, city, dayPlans, highlights, estimatedCost, hasUnsavedChanges]);
+        // Existing autosave pattern intentionally re-arms when edited fields change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [title, city, dayPlans, insights, highlights, estimatedCost, hasUnsavedChanges]);
 
     const handleSave = async (isAutoSave = false) => {
         setIsSaving(true);
@@ -114,6 +119,7 @@ export function EditForm({ itinerary }: EditFormProps) {
                     title,
                     city,
                     days: dayPlans,
+                    insights,
                     highlights,
                     estimated_cost: estimatedCost,
                 }),
@@ -176,6 +182,21 @@ export function EditForm({ itinerary }: EditFormProps) {
             .map((h) => h.trim())
             .filter((h) => h.length > 0);
         setHighlights(highlightsArray);
+    };
+
+    const handleInsightsChange = (value: string) => {
+        const nextInsights = value
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((text, index) => ({
+                id: insights[index]?.id || `trip-insight-${index + 1}`,
+                label: insights[index]?.label || "Trip insight",
+                kind: insights[index]?.kind || "insight",
+                text,
+            }));
+
+        setInsights(nextInsights);
     };
 
     return (
@@ -284,6 +305,26 @@ export function EditForm({ itinerary }: EditFormProps) {
                             rows={2}
                         />
                     </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Trip insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <label className="text-sm font-medium mb-1 block">
+                        Tips and getting-around notes
+                    </label>
+                    <Textarea
+                        value={insights.map((insight) => insight.text).join("\n")}
+                        onChange={(e) => handleInsightsChange(e.target.value)}
+                        placeholder="Add one trip-level insight per line. These stay outside the day sections."
+                        rows={Math.max(3, Math.min(6, insights.length + 1))}
+                    />
+                    <p className="mt-2 text-xs text-muted-foreground">
+                        These notes appear as trip insights, not as activities inside a day.
+                    </p>
                 </CardContent>
             </Card>
 

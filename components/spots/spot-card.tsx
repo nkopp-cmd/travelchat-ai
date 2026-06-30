@@ -7,7 +7,7 @@ import { Spot } from "@/types";
 import { LocalleyScaleIndicator } from "./localley-scale";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
-import { Flame, ImageIcon, MapPin, TrendingUp, Users } from "lucide-react";
+import { ImageIcon, MapPin, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 
@@ -98,7 +98,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     if (compact) {
         // Premium compact horizontal card for list view
         return (
-            <Link href={`/spots/${spot.id}`}>
+            <Link href={`/spots/${spot.id}`} className="block">
                 <Card className={cn(
                     "group flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
                     "bg-[#100b1c]/92 text-white backdrop-blur-xl",
@@ -180,9 +180,9 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
 
     // Premium grid card with glassmorphism and micro-animations
     return (
-        <Link href={`/spots/${spot.id}`}>
+        <Link href={`/spots/${spot.id}`} className="block">
             <Card className={cn(
-                "group relative flex h-full min-h-[124px] flex-row overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
+                "group relative flex min-h-[112px] flex-row items-start overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col sm:items-stretch",
                 "bg-[#100b1c]/92 text-white backdrop-blur-xl",
                 "border border-violet-200/15",
                 "transition-all duration-300 ease-out",
@@ -191,7 +191,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                 "hover:border-violet-300/45",
                 "hover:-translate-y-0.5"
             )}>
-                <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-28 sm:aspect-[2/1] sm:w-full">
+                <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-24 sm:aspect-[2/1] sm:w-full">
                     {!imageLoaded && (
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
@@ -229,29 +229,30 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <SaveSpotButton spotId={spot.id} className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white sm:h-8 sm:w-8" />
                         </div>
                     </div>
-
-                    {spot.trending && (
-                        <span className="absolute bottom-1.5 right-1.5 z-10 inline-flex items-center gap-1 rounded-full border border-rose-200/25 bg-rose-500/80 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-lg shadow-black/15 backdrop-blur sm:bottom-2.5 sm:right-2.5 sm:px-2 sm:text-[11px]" title="Trending">
-                            <Flame className="h-3 w-3" />
-                            <span className="hidden min-[420px]:inline">Hot</span>
-                        </span>
-                    )}
                 </div>
 
-                <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2.5 sm:p-2.5">
+                <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
                     <div className="mb-1.5 min-w-0">
-                        <span className="inline-flex max-w-full truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-100 sm:px-2.5 sm:text-[11px]">
-                            {spot.category}
-                        </span>
+                        <div className="flex min-w-0 flex-wrap items-center gap-1">
+                            <span className="inline-flex max-w-full truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-100 sm:px-2.5 sm:text-[11px]">
+                                {spot.category}
+                            </span>
+                            {spot.trending && (
+                                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-rose-200/25 bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100" title="Trending">
+                                    <TrendingUp className="h-3 w-3" />
+                                    Hot
+                                </span>
+                            )}
+                        </div>
                     </div>
 
-                    <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:line-clamp-1 sm:text-base">
+                    <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
                         {spot.name}
                     </h3>
 
                     <p className="mt-1 flex items-center gap-1.5 text-xs text-violet-50/55">
                         <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
-                        <span className="truncate">{spot.location.address.split(',')[0]}</span>
+                        <span className="truncate">{spot.location.address}</span>
                     </p>
 
                     <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-1.5 sm:gap-2">
@@ -261,9 +262,6 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-200/15 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-100 sm:px-2 sm:text-[11px]">
                             <Users className="h-3 w-3" />
                             {spot.localPercentage}%
-                        </span>
-                        <span className="basis-full text-[11px] font-medium text-violet-200 opacity-85 transition-opacity duration-300 sm:hidden">
-                            View details
                         </span>
                     </div>
                 </div>
