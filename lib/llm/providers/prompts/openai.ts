@@ -27,12 +27,13 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 4. Include recommendations (what to order, what to see) INSIDE the "description" field
 5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
 6. Each activity should be a distinct location - don't split one location into multiple activities
+7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities and do NOT belong inside day objects. Put them in the top-level "insights" array only.
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps
 - Authentic experiences with specific spot names and addresses
 - Why each place is special to locals
-- Insider tips embedded in descriptions
+- Practical local notes separated into itinerary-level insights
 
 You MUST return ONLY this valid JSON structure (no markdown formatting, no backticks, no extra text):
 {
@@ -43,6 +44,13 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
   "localScore": number (1-10, how local vs touristy),
   "estimatedCost": "string (e.g., '$300-500')",
   "highlights": ["string", "string", "string"],
+  "insights": [
+    {
+      "label": "string (short label, e.g. 'Cash tip', 'Getting around')",
+      "text": "string (one practical tip or transit note)",
+      "kind": "local" | "transport" | "insight"
+    }
+  ],
   "dailyPlans": [
     {
       "day": number,
@@ -54,15 +62,13 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
           "nameKo": "string (Korean name of the place - ONLY include this field for Korean cities like Seoul, Busan, Jeju, Gyeongju. Example: '광장시장' for 'Gwangjang Market')",
           "address": "string (full address with district/neighborhood)",
-          "description": "string (why it's special + what to order/see/do + insider tips - all in one cohesive description)",
+          "description": "string (why it's special + what to order/see/do - no standalone tips)",
           "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",
           "localleyScore": number (1-6),
           "duration": "string (e.g., '1-2 hours')",
           "cost": "string (e.g., '$10-20')"
         }
-      ],
-      "localTip": "string (insider tip for the day)",
-      "transportTips": "string (how to get around)"
+      ]
     }
   ]
 }
@@ -91,6 +97,13 @@ EXAMPLE of a BAD activity (DO NOT DO THIS):
   "name": "Location",
   "description": "Yongkang Street"
 }
+
+EXAMPLE of a GOOD insight (separate from dailyPlans):
+{
+  "label": "Getting around",
+  "text": "Use the MRT between Yongkang Street and Shilin, then walk the last few minutes.",
+  "kind": "transport"
+}
 `;
 
 /**
@@ -106,7 +119,7 @@ The activity must have:
 - time: Appropriate time (e.g., "09:00 AM")
 - type: "morning" | "afternoon" | "evening"
 - address: Full address with district
-- description: Why it's special, what to do/order, insider tips
+- description: Why it's special and what to do/order
 - category: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, or neighborhood
 - localleyScore: 1-6 (how local/hidden it is)
 - duration: e.g., "1-2 hours"

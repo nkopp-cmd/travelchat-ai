@@ -24,6 +24,10 @@ import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { getOrchestrator, featureFlags } from '@/lib/llm';
 import type { UserTier, GeneratedItinerary } from '@/lib/llm';
 import { sanitizeGeneratedDailyPlans } from '../../generate/sanitize-itinerary';
+import {
+  buildItineraryPlanPayload,
+  normalizeDailyPlansForDisplay,
+} from '@/lib/itineraries/normalize-daily-plans';
 
 // Maximum time for the entire generation process (5 minutes)
 const STREAM_TIMEOUT_MS = 5 * 60 * 1000;
@@ -282,9 +286,14 @@ export async function POST(req: NextRequest) {
 
       // Add thumbnails
       const itineraryData = result.data;
-      itineraryData.dailyPlans = sanitizeGeneratedDailyPlans(
-        itineraryData.dailyPlans as unknown as Parameters<typeof sanitizeGeneratedDailyPlans>[0]
-      ) as unknown as typeof itineraryData.dailyPlans;
+      const normalized = normalizeDailyPlansForDisplay(
+        sanitizeGeneratedDailyPlans(
+          itineraryData.dailyPlans as unknown as Parameters<typeof sanitizeGeneratedDailyPlans>[0]
+        ),
+        itineraryData.insights
+      );
+      itineraryData.dailyPlans = normalized.dailyPlans as unknown as typeof itineraryData.dailyPlans;
+      itineraryData.insights = normalized.insights;
       const dailyPlansForThumbnails = itineraryData.dailyPlans as unknown as Parameters<typeof addThumbnailsToItinerary>[0];
       const dailyPlansWithImages = addThumbnailsToItinerary(
         dailyPlansForThumbnails,
@@ -395,7 +404,7 @@ async function saveItineraryToDatabase(
         subtitle: itineraryData.subtitle,
         city: params.city,
         days: params.days,
-        activities: itineraryData.dailyPlans,
+        activities: buildItineraryPlanPayload(itineraryData.dailyPlans, itineraryData.insights),
         local_score: itineraryData.localScore,
         shared: false,
         highlights: itineraryData.highlights,

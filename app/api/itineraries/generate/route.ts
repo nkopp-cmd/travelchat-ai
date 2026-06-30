@@ -12,6 +12,10 @@ import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
 import { GLMProvider } from '@/lib/llm';
 import { isTipLikeActivity, sanitizeGeneratedDailyPlans } from './sanitize-itinerary';
+import {
+  buildItineraryPlanPayload,
+  normalizeDailyPlansForDisplay,
+} from '@/lib/itineraries/normalize-daily-plans';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -45,14 +49,14 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 4. Include recommendations (what to order, what to see) INSIDE the "description" field
 5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
 6. Each activity should be a distinct location - don't split one location into multiple activities
-7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities. Put them in "localTip" or "transportTips" only.
+7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities and do NOT belong inside day objects. Put them in the top-level "insights" array only.
 8. Never create an activity whose only purpose is a tip, route note, what-to-order note, or general advice. Every activity must be a mappable place.
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps
 - Authentic experiences with specific spot names and addresses
 - Why each place is special to locals
-- Insider tips embedded in descriptions
+- Practical local notes separated into itinerary-level insights
 
 You MUST return ONLY this valid JSON structure (no markdown formatting, no backticks, no extra text):
 {
@@ -63,6 +67,13 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
   "localScore": number (1-10, how local vs touristy),
   "estimatedCost": "string (e.g., '$300-500')",
   "highlights": ["string", "string", "string"],
+  "insights": [
+    {
+      "label": "string (short label, e.g. 'Cash tip', 'Getting around')",
+      "text": "string (one practical tip or transit note)",
+      "kind": "local" | "transport" | "insight"
+    }
+  ],
   "dailyPlans": [
     {
       "day": number,
@@ -73,15 +84,13 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
           "type": "morning" | "afternoon" | "evening",
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
           "address": "string (place name + district + city, e.g. 'Yongkang Beef Noodle, Da'an District, Taipei' — short and geocode-friendly, NO street numbers or lane details)",
-          "description": "string (why it's special + what to order/see/do + insider tips - all in one cohesive description)",
+          "description": "string (why it's special + what to order/see/do - no standalone tips)",
           "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",
           "localleyScore": number (1-6),
           "duration": "string (e.g., '1-2 hours')",
           "cost": "string (e.g., '$10-20')"
         }
-      ],
-      "localTip": "string (insider tip for the day)",
-      "transportTips": "string (how to get around)"
+      ]
     }
   ]
 }
@@ -110,6 +119,13 @@ EXAMPLE of a BAD activity (DO NOT DO THIS):
   "name": "Location",
   "description": "Yongkang Street"
 }
+
+EXAMPLE of a GOOD insight (separate from dailyPlans):
+{
+  "label": "Getting around",
+  "text": "Use the MRT between Yongkang Street and Shilin, then walk the last few minutes.",
+  "kind": "transport"
+}
 `;
 
 function parseAndSanitizeItinerary(rawContent: string, provider: string) {
@@ -119,7 +135,12 @@ function parseAndSanitizeItinerary(rawContent: string, provider: string) {
     throw new Error(`Invalid itinerary structure from ${provider}`);
   }
 
-  itineraryData.dailyPlans = sanitizeGeneratedDailyPlans(itineraryData.dailyPlans);
+  const normalized = normalizeDailyPlansForDisplay(
+    sanitizeGeneratedDailyPlans(itineraryData.dailyPlans),
+    itineraryData.insights
+  );
+  itineraryData.dailyPlans = normalized.dailyPlans;
+  itineraryData.insights = normalized.insights;
 
   for (const day of itineraryData.dailyPlans) {
     if (!day.activities || !Array.isArray(day.activities) || day.activities.length === 0) {
@@ -358,7 +379,7 @@ Make it exciting, authentic, and full of hidden gems!
               subtitle: itineraryData.subtitle,
               city: normalizedCity,
               days: days,
-              activities: itineraryData.dailyPlans,
+              activities: buildItineraryPlanPayload(itineraryData.dailyPlans, itineraryData.insights),
               local_score: itineraryData.localScore,
               shared: false,
               highlights: itineraryData.highlights,

@@ -19,6 +19,13 @@ Return ONLY valid JSON matching this structure:
   "localScore": 1-10,
   "estimatedCost": "$X-Y",
   "highlights": ["highlight1", "highlight2", "highlight3"],
+  "insights": [
+    {
+      "label": "Short label",
+      "text": "One practical local tip or transit note",
+      "kind": "local|transport|insight"
+    }
+  ],
   "dailyPlans": [
     {
       "day": 1,
@@ -36,9 +43,7 @@ Return ONLY valid JSON matching this structure:
           "duration": "1-2 hours",
           "cost": "$10-20"
         }
-      ],
-      "localTip": "Insider tip",
-      "transportTips": "How to get around"
+      ]
     }
   ]
 }
@@ -48,6 +53,7 @@ Important rules:
 - Never use generic names like "Breakfast" or "Location"
 - Include 3-5 activities per day
 - All activities must have complete details
+- Tips, transit notes, what-to-order notes, reminders, and advice must be in top-level insights, never as activities or day fields
 `;
 
 /**

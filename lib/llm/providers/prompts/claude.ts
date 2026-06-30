@@ -39,7 +39,7 @@ You will receive:
 
 ### 4. ENSURE Quality Standards
 - No generic or placeholder names (like "Location", "Breakfast spot", "Restaurant")
-- Each activity has meaningful description with insider tips
+- Each activity has a meaningful description with useful place context
 - Categories are accurately assigned
 - LocalleyScore values are consistent with descriptions
 

@@ -85,8 +85,15 @@ export interface DailyPlan {
   day: number;
   theme: string;
   activities: Activity[];
-  localTip: string;
-  transportTips: string;
+  localTip?: string;
+  transportTips?: string;
+}
+
+export interface GeneratedItineraryInsight {
+  id?: string;
+  label: string;
+  text: string;
+  kind?: 'local' | 'transport' | 'insight';
 }
 
 export interface GeneratedItinerary {
@@ -98,6 +105,7 @@ export interface GeneratedItinerary {
   estimatedCost: string;
   highlights: string[];
   dailyPlans: DailyPlan[];
+  insights?: GeneratedItineraryInsight[];
 }
 
 // ============================================================================

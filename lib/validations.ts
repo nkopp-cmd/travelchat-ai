@@ -29,6 +29,15 @@ export const saveItinerarySchema = z.object({
     city: z.string().min(1).max(100),
     days: z.number().int().min(1).max(14),
     activities: z.array(z.unknown()).min(1),
+    insights: z.array(z.union([
+        z.string(),
+        z.object({
+            id: z.string().optional(),
+            label: z.string().optional(),
+            text: z.string(),
+            kind: z.enum(["local", "transport", "insight"]).optional(),
+        }),
+    ])).optional(),
     localScore: z.number().int().min(1).max(10).optional(),
     subtitle: z.string().max(500).optional(),
     highlights: z.array(z.string()).optional(),

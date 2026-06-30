@@ -24,6 +24,10 @@ import type { UserTier, GeneratedItinerary } from '@/lib/llm';
 import { Errors, handleApiError } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
 import { sanitizeGeneratedDailyPlans } from '../generate/sanitize-itinerary';
+import {
+  buildItineraryPlanPayload,
+  normalizeDailyPlansForDisplay,
+} from '@/lib/itineraries/normalize-daily-plans';
 
 export async function POST(req: NextRequest) {
   try {
@@ -84,9 +88,14 @@ export async function POST(req: NextRequest) {
 
     // Geocode activities to store lat/lng for instant map rendering
     const itineraryData = result.data;
-    itineraryData.dailyPlans = sanitizeGeneratedDailyPlans(
-      itineraryData.dailyPlans as unknown as Parameters<typeof sanitizeGeneratedDailyPlans>[0]
-    ) as unknown as typeof itineraryData.dailyPlans;
+    const normalized = normalizeDailyPlansForDisplay(
+      sanitizeGeneratedDailyPlans(
+        itineraryData.dailyPlans as unknown as Parameters<typeof sanitizeGeneratedDailyPlans>[0]
+      ),
+      itineraryData.insights
+    );
+    itineraryData.dailyPlans = normalized.dailyPlans as unknown as typeof itineraryData.dailyPlans;
+    itineraryData.insights = normalized.insights;
 
     try {
       itineraryData.dailyPlans = await geocodeItineraryActivities(
@@ -208,7 +217,7 @@ async function saveItineraryToDatabase(
         subtitle: itineraryData.subtitle,
         city: params.city,
         days: params.days,
-        activities: itineraryData.dailyPlans,
+        activities: buildItineraryPlanPayload(itineraryData.dailyPlans, itineraryData.insights),
         local_score: itineraryData.localScore,
         shared: false,
         highlights: itineraryData.highlights,
