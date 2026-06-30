@@ -9,6 +9,7 @@ import {
     getGooglePlacesApiKey,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
+import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 
 /**
  * Category-based placeholder images for better UX when real images unavailable
@@ -100,9 +101,7 @@ export interface RawSpot {
     address: MultiLanguageField;
     category: string | null;
     subcategories: string[] | null;
-    location: {
-        coordinates: [number, number];
-    } | null;
+    location: unknown;
     localley_score: number | null;
     local_percentage: number | null;
     best_time: string | null;
@@ -127,9 +126,7 @@ export function getLocalizedText(field: MultiLanguageField): string {
  * Transform raw Supabase spot to application Spot type
  */
 export function transformSpot(spot: RawSpot): Spot {
-    // Handle PostGIS geography format - coordinates are [lng, lat]
-    const lat = spot.location?.coordinates?.[1] || 0;
-    const lng = spot.location?.coordinates?.[0] || 0;
+    const { lat, lng } = getSpotCoordinateValues(spot.location);
 
     // Build photos array, ensuring at least one image
     // Priority: real photos > category placeholder
