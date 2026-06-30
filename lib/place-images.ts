@@ -1,4 +1,4 @@
-import { MultiLanguageField } from "@/types";
+import type { MultiLanguageField } from "@/types";
 
 export interface SpotPhotoBackfillRow {
     id: string;
@@ -50,6 +50,7 @@ const GENERIC_SPOT_WORDS = new Set([
     "lunch",
     "market",
     "night",
+    "office",
     "park",
     "restaurant",
     "road",
@@ -70,6 +71,18 @@ const TRANSIT_TYPES = new Set([
     "transit_station",
 ]);
 const LODGING_TYPES = new Set(["lodging"]);
+const BUSINESS_PLACE_TYPES = new Set([
+    "furniture_store",
+    "home_goods_store",
+    "store",
+]);
+const COMMERCIAL_NAME_WORDS = new Set([
+    "apartment",
+    "apartments",
+    "office",
+    "shop",
+    "store",
+]);
 
 export function getGooglePlacesApiKey(): string | null {
     return (
@@ -167,6 +180,21 @@ function wordOverlap(source: string, target: string): number {
     return matches / sourceWords.size;
 }
 
+function extraComparableWords(source: string, target: string): string[] {
+    const sourceWords = comparableWords(source);
+    return [...comparableWords(target)].filter((word) => !sourceWords.has(word));
+}
+
+function hasLocationAnchorMatch(spotName: string, spotAddress: string, placeAddress: string): boolean {
+    const nameWords = comparableWords(spotName);
+    const addressWords = [...comparableWords(spotAddress)].filter((word) => !nameWords.has(word));
+
+    if (addressWords.length === 0) return true;
+
+    const placeAddressWords = comparableWords(placeAddress);
+    return addressWords.some((word) => placeAddressWords.has(word));
+}
+
 function hasWeakSingleWordNameMatch(source: string, target: string, addressScore: number): boolean {
     const sourceWords = comparableWords(source);
     if (sourceWords.size !== 1 || addressScore >= 0.75) return false;
@@ -175,6 +203,31 @@ function hasWeakSingleWordNameMatch(source: string, target: string, addressScore
     const extraTargetWords = [...targetWords].filter((word) => !sourceWords.has(word));
 
     return extraTargetWords.length > 0;
+}
+
+function hasSpecificBusinessMismatch(
+    spotName: string,
+    category: string | null | undefined,
+    place: Pick<PlacePhotoSearchResult, "displayName" | "types">
+): boolean {
+    const placeTypes = new Set(place.types || []);
+    const hasBusinessType = [...BUSINESS_PLACE_TYPES].some((type) => placeTypes.has(type));
+    const placeExtraWords = extraComparableWords(spotName, place.displayName || "");
+    const hasCommercialExtraWord = placeExtraWords.some((word) => COMMERCIAL_NAME_WORDS.has(word));
+
+    if (!hasBusinessType && !hasCommercialExtraWord) return false;
+
+    return category !== "Shopping";
+}
+
+function hasTransitNameMismatch(
+    category: string | null | undefined,
+    place: Pick<PlacePhotoSearchResult, "displayName" | "formattedAddress">
+): boolean {
+    if (category === "Transportation") return false;
+    return /\b(airport|station|terminal)\b/i.test(
+        [place.displayName, place.formattedAddress].filter(Boolean).join(" ")
+    );
 }
 
 export function getPlacePhotoMatchQuality(
@@ -206,6 +259,24 @@ export function getPlacePhotoMatchQuality(
         };
     }
 
+    if (hasTransitNameMismatch(category, place)) {
+        return {
+            acceptable: false,
+            reason: "transit_named_place_for_non_transit_spot",
+            nameScore: 0,
+            addressScore: 0,
+        };
+    }
+
+    if (hasSpecificBusinessMismatch(spotName, category, place)) {
+        return {
+            acceptable: false,
+            reason: "specific_business_for_broader_spot",
+            nameScore: 0,
+            addressScore: 0,
+        };
+    }
+
     const nameScore = wordOverlap(spotName, place.displayName || "");
     const addressScore = wordOverlap(spotAddress, place.formattedAddress || "");
     const placeNameWordCount = comparableWords(place.displayName || "").size;
@@ -215,6 +286,29 @@ export function getPlacePhotoMatchQuality(
         place.displayName || "",
         addressScore
     );
+    const locationAnchorMatches = hasLocationAnchorMatch(
+        spotName,
+        spotAddress,
+        place.formattedAddress || ""
+    );
+
+    if (!locationAnchorMatches) {
+        return {
+            acceptable: false,
+            reason: "missing_location_anchor_match",
+            nameScore,
+            addressScore,
+        };
+    }
+
+    if (nameScore < 0.67 && addressScore < 0.75) {
+        return {
+            acceptable: false,
+            reason: "partial_name_without_strong_address_match",
+            nameScore,
+            addressScore,
+        };
+    }
 
     if (
         !weakSingleWordNameMatch &&

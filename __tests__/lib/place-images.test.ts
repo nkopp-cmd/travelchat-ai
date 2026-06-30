@@ -48,6 +48,70 @@ describe("getPlacePhotoMatchQuality", () => {
         expect(quality.acceptable).toBe(false);
     });
 
+    it("rejects a matching area name when the returned address is a different city", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Sakuragawa",
+            "Sakuragawa, Naniwa-ku, Osaka",
+            "Culture",
+            {
+                displayName: "Sakuragawa",
+                formattedAddress: "Sakuragawa, Ibaraki, Japan",
+                types: ["neighborhood"],
+            }
+        );
+
+        expect(quality.acceptable).toBe(false);
+        expect(quality.reason).toBe("missing_location_anchor_match");
+    });
+
+    it("rejects a specific retail business for a broader culture area", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Tama New Town",
+            "Tama New Town, Tokyo",
+            "Culture",
+            {
+                displayName: "Nitori Tama New Town shop",
+                formattedAddress: "2 Chome Bessho, Hachioji, Tokyo 192-0363, Japan",
+                types: ["furniture_store", "home_goods_store", "store"],
+            }
+        );
+
+        expect(quality.acceptable).toBe(false);
+        expect(quality.reason).toBe("specific_business_for_broader_spot");
+    });
+
+    it("rejects station-named matches for non-transportation spots", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "MRT Thai Cultural Centre",
+            "Ratchadaphisek Road, Bangkok",
+            "Culture",
+            {
+                displayName: "MRT Station Thailand Cultural Center (Exit 1)",
+                formattedAddress: "QH8C+RGC, Huai Khwang, Bangkok 10310, Thailand",
+                types: ["point_of_interest"],
+            }
+        );
+
+        expect(quality.acceptable).toBe(false);
+        expect(quality.reason).toBe("transit_named_place_for_non_transit_spot");
+    });
+
+    it("rejects partial name matches without a strong address match", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Bogwang-dong International",
+            "Bogwang-dong, Yongsan-gu, Seoul",
+            "Food",
+            {
+                displayName: "International World in Korea",
+                formattedAddress: "South Korea, Seoul, Yongsan District, Duteopbawi-ro, 59-1 D-70",
+                types: ["point_of_interest"],
+            }
+        );
+
+        expect(quality.acceptable).toBe(false);
+        expect(quality.reason).toBe("partial_name_without_strong_address_match");
+    });
+
     it("accepts exact place names with matching location signal", () => {
         const quality = getPlacePhotoMatchQuality(
             "People's Park Complex",
