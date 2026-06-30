@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Bus, Sparkles, Home, Instagram } from "lucide-react";
+import { Sparkles, Home, Instagram } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { ItineraryJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { AppBackground } from "@/components/layout/app-background";
 import { HeroSection } from "@/components/itinerary/hero-section";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
+import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -268,38 +269,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                     )}
 
                 {/* Itinerary-level Tips */}
-                {itineraryInsights.length > 0 && (
-                    <Card className="bg-white/85 border-violet-200/50 shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Sparkles className="h-5 w-5 text-violet-600" />
-                                Trip Insights
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                                {itineraryInsights.map((insight) => {
-                                    const Icon = insight.kind === "transport" ? Bus : Lightbulb;
-                                    const tone = insight.kind === "transport"
-                                        ? "bg-blue-50 border-blue-200 text-blue-700"
-                                        : "bg-yellow-50 border-yellow-200 text-yellow-700";
-
-                                    return (
-                                        <div key={insight.id} className={`rounded-xl border p-4 ${tone}`}>
-                                            <div className="flex items-start gap-3">
-                                                <Icon className="mt-0.5 h-5 w-5 flex-shrink-0" />
-                                                <div>
-                                                    <h3 className="mb-1 text-sm font-semibold text-foreground">{insight.label}</h3>
-                                                    <p className="text-sm leading-relaxed text-muted-foreground">{insight.text}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
+                <ItineraryInsightsPanel insights={itineraryInsights} />
 
                     {/* Daily Plans */}
                     <div className="space-y-6 sm:space-y-8">

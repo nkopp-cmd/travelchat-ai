@@ -1,5 +1,6 @@
 import { validateCityForItinerary } from "@/lib/cities";
 import { isTipLikeActivity } from "@/lib/itineraries/normalize-daily-plans";
+import type { ItineraryInsight } from "@/lib/itineraries/normalize-daily-plans";
 
 export interface ParsedChatActivity {
   title: string;
@@ -106,6 +107,18 @@ function appendActivityNote(activity: ParsedChatActivity, note: string) {
   const text = note.trim();
   if (!text) return;
   activity.description = activity.description ? `${activity.description}\n${text}` : text;
+}
+
+export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
+  if (/\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|route|ride|getting around|kakao|maps?)\b/i.test(tip)) {
+    return "transport";
+  }
+
+  if (/\b(local|insider|cash|order|avoid|before you go|go early|queue|reservation|language|phrase)\b/i.test(tip)) {
+    return "local";
+  }
+
+  return "insight";
 }
 
 export function cleanChatItineraryDescription(text: string): string {

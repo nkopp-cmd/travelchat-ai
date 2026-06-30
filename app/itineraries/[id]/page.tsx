@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, ArrowLeft, Lightbulb, Bus, MessageSquare, Edit2, Navigation } from "lucide-react";
+import { Download, ArrowLeft, MessageSquare, Edit2, Navigation } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { ShareDialog } from "@/components/itineraries/share-dialog";
 import { EmailDialog } from "@/components/itineraries/email-dialog";
 import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
+import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
 import { AppBackground } from "@/components/layout/app-background";
@@ -269,43 +270,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Itinerary-level Tips */}
-            {itineraryInsights.length > 0 && (
-                <Card className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md shadow-lg shadow-violet-500/5">
-                    <CardContent className="p-5">
-                        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <h2 className="text-xl font-bold">Trip insights</h2>
-                                <p className="text-sm text-muted-foreground">
-                                    Local notes and transit guidance for the whole itinerary.
-                                </p>
-                            </div>
-                            <Badge variant="secondary" className="w-fit bg-violet-100/80 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
-                                {itineraryInsights.length} tips
-                            </Badge>
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {itineraryInsights.map((insight) => {
-                                const Icon = insight.kind === "transport" ? Bus : Lightbulb;
-                                const tone = insight.kind === "transport"
-                                    ? "bg-blue-50/80 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/30 text-blue-600"
-                                    : "bg-yellow-50/80 dark:bg-yellow-950/20 border-yellow-200/50 dark:border-yellow-900/30 text-yellow-600";
-
-                                return (
-                                    <div key={insight.id} className={`rounded-xl border p-4 backdrop-blur-sm ${tone}`}>
-                                        <div className="flex items-start gap-3">
-                                            <Icon className="mt-0.5 h-5 w-5 flex-shrink-0" />
-                                            <div>
-                                                <h3 className="mb-1 text-sm font-semibold text-foreground">{insight.label}</h3>
-                                                <p className="text-sm leading-relaxed text-muted-foreground">{insight.text}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+            <ItineraryInsightsPanel insights={itineraryInsights} />
 
             {/* Daily Plans */}
             <div className="space-y-8">

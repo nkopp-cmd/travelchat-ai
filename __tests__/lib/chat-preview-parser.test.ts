@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   cleanChatItineraryDescription,
+  getChatTipKind,
   parseChatItineraryPreview,
 } from "@/lib/itineraries/chat-preview-parser";
 
@@ -65,5 +66,11 @@ Day 1: Food Streets
 
     expect(result.days[0].day).toBe("Day 1: Food Streets");
     expect(result.days[0].activities[0].address).toBe("Yongkang Beef Noodle, Da'an District, Taipei");
+  });
+
+  it("classifies chat tips for saved itinerary insights", () => {
+    expect(getChatTipKind("Use the subway and walk the last few blocks.")).toBe("transport");
+    expect(getChatTipKind("Bring cash and go early.")).toBe("local");
+    expect(getChatTipKind("Pack a small umbrella in rainy season.")).toBe("insight");
   });
 });
