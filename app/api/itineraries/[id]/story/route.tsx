@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -958,7 +959,7 @@ export async function GET(
         // Normalize: detect DayPlan[] (has nested .activities) vs other formats
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dailyPlans: DayPlan[] = parsedActivities.length > 0 && (parsedActivities[0] as any)?.activities
-            ? parsedActivities as DayPlan[]
+            ? normalizeDailyPlansForDisplay<DayPlan>(parsedActivities).dailyPlans
             : [];
 
         console.log("[STORY_ROUTE] Parsed activities:", {

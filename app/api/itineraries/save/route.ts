@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { saveItinerarySchema, validateBody } from "@/lib/validations";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { geocodeItineraryActivities } from "@/lib/geocoding";
+import { sanitizeGeneratedDailyPlans } from "@/lib/itineraries/normalize-daily-plans";
 
 export async function POST(req: Request) {
     try {
@@ -35,9 +36,9 @@ export async function POST(req: Request) {
         // Geocode activities before saving (critical for chat-saved itineraries)
         // activities comes from validation as unknown[] — cast for geocoding
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let geocodedActivities: any = activities;
+        let geocodedActivities: any = sanitizeGeneratedDailyPlans(activities as any);
         try {
-            geocodedActivities = await geocodeItineraryActivities(activities as any, city);
+            geocodedActivities = await geocodeItineraryActivities(geocodedActivities, city);
         } catch (geoError) {
             console.error("[itinerary-save] Geocoding failed (non-fatal):", geoError);
         }

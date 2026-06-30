@@ -3,6 +3,7 @@ import {
   isTipLikeActivity,
   sanitizeGeneratedDailyPlans,
 } from "@/app/api/itineraries/generate/sanitize-itinerary";
+import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 
 describe("sanitizeGeneratedDailyPlans", () => {
   it("moves local and transport tips out of daily activities", () => {
@@ -53,5 +54,35 @@ describe("sanitizeGeneratedDailyPlans", () => {
         description: "Go before lunch to avoid queues.",
       })
     ).toBe(true);
+  });
+
+  it("normalizes display plans with all tips outside day sections", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        localTip: "Bring cash.",
+        transportTips: "Use the metro.",
+        activities: [
+          {
+            name: "Lunch at a real market",
+            description: "Eat at a named stall.",
+            category: "Food",
+          },
+          {
+            name: "Things to know",
+            description: "Many stalls close after lunch.",
+            category: "Advice",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].localTip).toBeUndefined();
+    expect(result.dailyPlans[0].transportTips).toBeUndefined();
+    expect(result.insights.map((insight) => insight.text)).toEqual([
+      "Bring cash. Things to know: Many stalls close after lunch.",
+      "Use the metro.",
+    ]);
   });
 });

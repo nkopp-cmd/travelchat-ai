@@ -20,6 +20,10 @@ import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
 import { isKoreanCity } from "@/hooks/use-map-provider";
 import { translateForGeocoding } from "@/lib/geocoding";
+import {
+    normalizeDailyPlansForDisplay,
+    parseDailyPlans,
+} from "@/lib/itineraries/normalize-daily-plans";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
@@ -44,108 +48,6 @@ interface DayPlan {
     localTip?: string;
     transportTips?: string;
     highlights?: string[];
-}
-
-interface ItineraryInsight {
-    id: string;
-    label: string;
-    text: string;
-    kind: "local" | "transport" | "insight";
-}
-
-const TIP_NAME_PATTERNS = [
-    /\b(local|insider|travel|pro|quick)\s+tips?\b/i,
-    /\btips?\s+(for|about|before|while)\b/i,
-    /\bthings?\s+to\s+know\b/i,
-    /\bwhat\s+to\s+(order|know|bring|avoid)\b/i,
-    /\bhow\s+to\s+(get|go|use|book)\b/i,
-    /\bbefore\s+you\s+go\b/i,
-    /\bgetting\s+around\b/i,
-    /\btransport(ation)?\s+tips?\b/i,
-    /\bheads?\s+up\b/i,
-    /\b(note|advice|insight|reminder)\s*(for|about|before|while)?\b/i,
-];
-
-const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|reminder|reminders|getting around|transport|transportation)$/i;
-
-function isTipLikeActivity(activity: ItineraryActivity): boolean {
-    const name = activity.name?.trim() || "";
-    const category = activity.category?.trim() || "";
-    const type = activity.type?.trim() || "";
-
-    if (!name) return true;
-    if (TIP_VALUE_PATTERN.test(name) || TIP_VALUE_PATTERN.test(category) || TIP_VALUE_PATTERN.test(type)) {
-        return true;
-    }
-
-    return TIP_NAME_PATTERNS.some((pattern) => pattern.test(name));
-}
-
-function getInsightText(activity: ItineraryActivity): string {
-    const name = activity.name?.trim();
-    const description = activity.description?.trim();
-
-    if (description && name && !TIP_VALUE_PATTERN.test(name)) {
-        return `${name}: ${description}`;
-    }
-
-    return description || name || "";
-}
-
-function normalizeDailyPlans(rawDailyPlans: unknown): {
-    dailyPlans: unknown;
-    insights: ItineraryInsight[];
-} {
-    if (!Array.isArray(rawDailyPlans)) {
-        return { dailyPlans: rawDailyPlans, insights: [] };
-    }
-
-    const insights: ItineraryInsight[] = [];
-    const dailyPlans = rawDailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
-        const dayNumber = dayPlan.day || dayIndex + 1;
-        const activities = (dayPlan.activities || []).filter((activity, activityIndex) => {
-            if (!isTipLikeActivity(activity)) return true;
-
-            const text = getInsightText(activity);
-            if (text) {
-                insights.push({
-                    id: `day-${dayNumber}-activity-tip-${activityIndex}`,
-                    label: `Day ${dayNumber} insight`,
-                    text,
-                    kind: "insight",
-                });
-            }
-
-            return false;
-        });
-
-        if (dayPlan.localTip) {
-            insights.push({
-                id: `day-${dayNumber}-local-tip`,
-                label: `Day ${dayNumber} local tip`,
-                text: dayPlan.localTip,
-                kind: "local",
-            });
-        }
-
-        if (dayPlan.transportTips) {
-            insights.push({
-                id: `day-${dayNumber}-transport-tip`,
-                label: `Day ${dayNumber} getting around`,
-                text: dayPlan.transportTips,
-                kind: "transport",
-            });
-        }
-
-        return {
-            ...dayPlan,
-            activities,
-            localTip: undefined,
-            transportTips: undefined,
-        };
-    });
-
-    return { dailyPlans, insights };
 }
 
 /**
@@ -315,11 +217,9 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
     const displayCity = resolveCity(itinerary);
 
     // Parse activities if they're stored as JSON
-    const parsedDailyPlans = typeof itinerary.activities === 'string'
-        ? JSON.parse(itinerary.activities)
-        : itinerary.activities;
-    const { dailyPlans, insights: itineraryInsights } = normalizeDailyPlans(parsedDailyPlans);
-    const dailyPlansForDisplay: DayPlan[] = Array.isArray(dailyPlans) ? dailyPlans : [];
+    const parsedDailyPlans = parseDailyPlans(itinerary.activities);
+    const { dailyPlans: dailyPlansForDisplay, insights: itineraryInsights } =
+        normalizeDailyPlansForDisplay<DayPlan>(parsedDailyPlans);
 
     // Pre-compute route URLs (async because Korean cities need translation)
     const dayRouteUrls: Record<number, string> = {};

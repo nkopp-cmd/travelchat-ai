@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import {
+  normalizeDailyPlansForDisplay,
+  parseDailyPlans,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 // Activity and Day types for export
 interface ExportActivity {
@@ -19,8 +23,6 @@ interface ExportDay {
   day?: number;
   theme?: string;
   activities?: ExportActivity[];
-  localTip?: string;
-  transportTips?: string;
 }
 
 export async function GET(
@@ -51,10 +53,8 @@ export async function GET(
       return Errors.forbidden();
     }
 
-    // Parse activities
-    const dailyPlans = typeof itinerary.activities === "string"
-      ? JSON.parse(itinerary.activities)
-      : itinerary.activities;
+    const { dailyPlans, insights: itineraryInsights } =
+      normalizeDailyPlansForDisplay<ExportDay>(parseDailyPlans(itinerary.activities));
 
     // Generate HTML content for PDF
     const html = `
@@ -195,10 +195,19 @@ export async function GET(
       font-size: 14px;
       color: #6b7280;
     }
-    .tips-section {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 2px solid #e5e7eb;
+    .insights-section {
+      background: #f8fafc;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    .insights-section h2 {
+      color: #7c3aed;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .insights-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
@@ -266,6 +275,28 @@ export async function GET(
       : ""
   }
 
+  ${
+    itineraryInsights.length > 0
+      ? `
+  <div class="insights-section">
+    <h2>💡 Trip Insights</h2>
+    <div class="insights-grid">
+      ${itineraryInsights
+        .map(
+          (insight) => `
+      <div class="tip">
+        <h4>${insight.kind === "transport" ? "🚌 Getting Around" : "💡 Local Tip"}</h4>
+        <p>${insight.text}</p>
+      </div>
+      `
+        )
+        .join("")}
+    </div>
+  </div>
+  `
+      : ""
+  }
+
   ${dailyPlans
     .map(
       (day: ExportDay) => `
@@ -294,34 +325,6 @@ export async function GET(
         )
         .join("")}
 
-      ${
-        day.localTip || day.transportTips
-          ? `
-      <div class="tips-section">
-        ${
-          day.localTip
-            ? `
-        <div class="tip">
-          <h4>💡 Local Tip</h4>
-          <p>${day.localTip}</p>
-        </div>
-        `
-            : ""
-        }
-        ${
-          day.transportTips
-            ? `
-        <div class="tip">
-          <h4>🚌 Getting Around</h4>
-          <p>${day.transportTips}</p>
-        </div>
-        `
-            : ""
-        }
-      </div>
-      `
-          : ""
-      }
     </div>
   </div>
   `
