@@ -1,4 +1,8 @@
 import { createSupabaseAdmin } from './supabase';
+import {
+  applyPublicSpotVisibilityFilters,
+  shouldShowPublicSpot,
+} from '@/lib/spots/public-quality';
 
 /**
  * Recommendation Engine
@@ -8,8 +12,31 @@ import { createSupabaseAdmin } from './supabase';
 interface UserItinerary {
   id: string;
   city: string;
-  activities: any;
+  activities: unknown;
   created_at: string;
+}
+
+type LocalizedField = string | Record<string, string> | null | undefined;
+
+interface ItineraryActivity {
+  name?: unknown;
+}
+
+interface ItineraryDay {
+  activities?: unknown;
+}
+
+interface RawRecommendationSpot {
+  id: string;
+  name: LocalizedField;
+  description: LocalizedField;
+  category: string | null;
+  subcategories: string[] | null;
+  localley_score: number | null;
+  location: unknown;
+  photos: string[] | null;
+  verified: boolean | null;
+  trending_score: number | null;
 }
 
 interface Spot {
@@ -19,7 +46,7 @@ interface Spot {
   category: string;
   subcategories: string[];
   localley_score: number;
-  location: any;
+  location: unknown;
   photos: string[];
   verified: boolean;
   trending_score: number;
@@ -49,10 +76,10 @@ function extractActivities(itinerary: UserItinerary): string[] {
 
     const activityNames: string[] = [];
 
-    activities.forEach((day: any) => {
-      if (day.activities && Array.isArray(day.activities)) {
-        day.activities.forEach((activity: any) => {
-          if (activity.name) {
+    (activities as ItineraryDay[]).forEach((day) => {
+      if (Array.isArray(day.activities)) {
+        (day.activities as ItineraryActivity[]).forEach((activity) => {
+          if (typeof activity.name === 'string') {
             activityNames.push(activity.name.toLowerCase());
           }
         });
@@ -178,22 +205,57 @@ function matchesPreferences(
 /**
  * Extract city from location data
  */
-function extractCityFromAddress(location: any): string | null {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function getLocalizedValue(field: LocalizedField): string {
+  if (!field) return '';
+  if (typeof field === 'string') return field;
+  return field.en || Object.values(field)[0] || '';
+}
+
+function normalizeRecommendationSpot(
+  spot: RawRecommendationSpot,
+  recommendationScore: number,
+  reason: string
+): RecommendedSpot {
+  return {
+    id: spot.id,
+    name: getLocalizedValue(spot.name),
+    description: getLocalizedValue(spot.description),
+    category: spot.category || 'Uncategorized',
+    subcategories: spot.subcategories || [],
+    localley_score: spot.localley_score || 3,
+    location: spot.location,
+    photos: spot.photos || [],
+    verified: spot.verified || false,
+    trending_score: spot.trending_score || 0,
+    recommendationScore,
+    reason,
+  };
+}
+
+function extractCityFromAddress(location: unknown): string | null {
   try {
     if (!location) return null;
 
     // Try to get address string
     let address = '';
-    if (typeof location.address === 'string') {
+    if (isRecord(location) && typeof location.address === 'string') {
       address = location.address;
-    } else if (typeof location.address === 'object' && location.address.en) {
+    } else if (
+      isRecord(location) &&
+      isRecord(location.address) &&
+      typeof location.address.en === 'string'
+    ) {
       address = location.address.en;
     }
 
     // Extract city (usually first part before comma)
     const parts = address.split(',');
     return parts[0]?.trim() || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -235,11 +297,15 @@ export async function getRecommendations(
     const visitedCities = getVisitedCities(itineraries);
 
     // 3. Fetch all available spots
-    const { data: spots, error: spotsError } = await supabase
+    let spotsQuery = supabase
       .from('spots')
       .select('*')
-      .gte('localley_score', 3) // Only recommend decent spots
+      .gte('localley_score', 3); // Only recommend decent spots
+
+    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
       .limit(200); // Limit to prevent too much data
+
+    const { data: spots, error: spotsError } = await spotsQuery;
 
     if (spotsError || !spots) {
       console.error('Error fetching spots:', spotsError);
@@ -247,27 +313,16 @@ export async function getRecommendations(
     }
 
     // 4. Score each spot based on preferences
-    const scoredSpots: RecommendedSpot[] = spots.map((spot: any) => {
+    const scoredSpots: RecommendedSpot[] = (spots as RawRecommendationSpot[])
+    .filter((spot) => shouldShowPublicSpot(spot))
+    .map((spot) => {
       const { score, reason } = matchesPreferences(
-        spot,
+        normalizeRecommendationSpot(spot, 0, ''),
         categoryPreferences,
         visitedCities
       );
 
-      return {
-        id: spot.id,
-        name: typeof spot.name === 'object' ? spot.name.en || Object.values(spot.name)[0] : spot.name,
-        description: typeof spot.description === 'object' ? spot.description.en || Object.values(spot.description)[0] : spot.description,
-        category: spot.category || 'Uncategorized',
-        subcategories: spot.subcategories || [],
-        localley_score: spot.localley_score || 3,
-        location: spot.location,
-        photos: spot.photos || [],
-        verified: spot.verified || false,
-        trending_score: spot.trending_score || 0,
-        recommendationScore: score,
-        reason,
-      };
+      return normalizeRecommendationSpot(spot, score, reason);
     });
 
     // 5. Sort by recommendation score and return top N
@@ -290,32 +345,29 @@ async function getDefaultRecommendations(limit: number = 10): Promise<Recommende
 
   try {
     // Return highest-rated, trending spots
-    const { data: spots, error } = await supabase
+    let spotsQuery = supabase
       .from('spots')
       .select('*')
       .gte('localley_score', 5) // Only legendary and hidden gems
-      .order('localley_score', { ascending: false })
+      .order('localley_score', { ascending: false });
+
+    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
       .limit(limit);
+
+    const { data: spots, error } = await spotsQuery;
 
     if (error || !spots) {
       console.error('Error fetching default recommendations:', error);
       return [];
     }
 
-    return spots.map((spot: any) => ({
-      id: spot.id,
-      name: typeof spot.name === 'object' ? spot.name.en || Object.values(spot.name)[0] : spot.name,
-      description: typeof spot.description === 'object' ? spot.description.en || Object.values(spot.description)[0] : spot.description,
-      category: spot.category || 'Uncategorized',
-      subcategories: spot.subcategories || [],
-      localley_score: spot.localley_score || 3,
-      location: spot.location,
-      photos: spot.photos || [],
-      verified: spot.verified || false,
-      trending_score: spot.trending_score || 0,
-      recommendationScore: spot.localley_score * 10,
-      reason: 'Popular hidden gem',
-    }));
+    return (spots as RawRecommendationSpot[])
+      .filter((spot) => shouldShowPublicSpot(spot))
+      .map((spot) => normalizeRecommendationSpot(
+        spot,
+        (spot.localley_score || 3) * 10,
+        'Popular hidden gem'
+      ));
   } catch (error) {
     console.error('Error fetching default recommendations:', error);
     return [];
@@ -334,33 +386,30 @@ export async function getCityRecommendations(
   const supabase = createSupabaseAdmin();
 
   try {
-    const { data: spots, error } = await supabase
+    let spotsQuery = supabase
       .from('spots')
       .select('*')
       .ilike('address->>en', `%${city}%`)
       .neq('id', currentSpotId) // Exclude current spot
       .gte('localley_score', 4) // Only good spots
-      .order('localley_score', { ascending: false })
+      .order('localley_score', { ascending: false });
+
+    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
       .limit(limit);
+
+    const { data: spots, error } = await spotsQuery;
 
     if (error || !spots) {
       return [];
     }
 
-    return spots.map((spot: any) => ({
-      id: spot.id,
-      name: typeof spot.name === 'object' ? spot.name.en || Object.values(spot.name)[0] : spot.name,
-      description: typeof spot.description === 'object' ? spot.description.en || Object.values(spot.description)[0] : spot.description,
-      category: spot.category || 'Uncategorized',
-      subcategories: spot.subcategories || [],
-      localley_score: spot.localley_score || 3,
-      location: spot.location,
-      photos: spot.photos || [],
-      verified: spot.verified || false,
-      trending_score: spot.trending_score || 0,
-      recommendationScore: spot.localley_score * 10,
-      reason: `More spots in ${city}`,
-    }));
+    return (spots as RawRecommendationSpot[])
+      .filter((spot) => shouldShowPublicSpot(spot))
+      .map((spot) => normalizeRecommendationSpot(
+        spot,
+        (spot.localley_score || 3) * 10,
+        `More spots in ${city}`
+      ));
   } catch (error) {
     console.error('Error fetching city recommendations:', error);
     return [];

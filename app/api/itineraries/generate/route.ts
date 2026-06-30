@@ -11,6 +11,10 @@ import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
 import { GLMProvider } from '@/lib/llm';
+import {
+  applyPublicSpotVisibilityFilters,
+  shouldShowPublicSpot,
+} from '@/lib/spots/public-quality';
 import { isTipLikeActivity, sanitizeGeneratedDailyPlans } from './sanitize-itinerary';
 import {
   buildItineraryPlanPayload,
@@ -236,16 +240,21 @@ export async function POST(req: NextRequest) {
 
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();
-    const { data: spots } = await supabase
+    let spotsQuery = supabase
       .from('spots')
       .select('*')
       .ilike('address->>en', `%${normalizedCity}%`)
-      .gte('localley_score', localnessLevel || 3)
+      .gte('localley_score', localnessLevel || 3);
+
+    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
       .limit(15);
 
-    const spotsContext = spots && spots.length > 0
+    const { data: spots } = await spotsQuery;
+    const visibleSpots = (spots || []).filter((spot) => shouldShowPublicSpot(spot));
+
+    const spotsContext = visibleSpots.length > 0
       ? `\n\nHere are some verified local spots in ${normalizedCity} that you SHOULD include:
-${spots.map(spot => {
+${visibleSpots.map(spot => {
         const name = typeof spot.name === 'object' ? spot.name.en : spot.name;
         const desc = typeof spot.description === 'object' ? spot.description.en : spot.description;
         const addr = typeof spot.address === 'object' ? spot.address.en : spot.address;

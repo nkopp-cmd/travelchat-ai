@@ -7,6 +7,10 @@ import { checkAndIncrementUsage } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getLocalizedText } from "@/lib/spots/transform";
+import {
+    applyPublicSpotVisibilityFilters,
+    shouldShowPublicSpot,
+} from "@/lib/spots/public-quality";
 import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
 import { GLMProvider } from "@/lib/llm";
 import type { MultiLanguageField } from "@/types";
@@ -86,8 +90,10 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         // Build query — get top spots for this city, prioritizing high localley scores
         let query = supabase
             .from("spots")
-            .select("name, description, address, category, subcategories, localley_score, local_percentage, best_time, tips, photos")
-            .ilike("address->>en", `%${cityConfig.name}%`)
+            .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos")
+            .ilike("address->>en", `%${cityConfig.name}%`);
+
+        query = applyPublicSpotVisibilityFilters(query)
             .order("localley_score", { ascending: false })
             .order("local_percentage", { ascending: false })
             .limit(20);
@@ -113,9 +119,11 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         if (matchedCategories.length > 0) {
             query = supabase
                 .from("spots")
-                .select("name, description, address, category, subcategories, localley_score, local_percentage, best_time, tips, photos")
+                .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos")
                 .ilike("address->>en", `%${cityConfig.name}%`)
-                .in("category", matchedCategories)
+                .in("category", matchedCategories);
+
+            query = applyPublicSpotVisibilityFilters(query)
                 .order("localley_score", { ascending: false })
                 .order("local_percentage", { ascending: false })
                 .limit(15);
@@ -128,13 +136,16 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         }
 
         // Format spots into a context block for the AI
-        const spotLines = spots.map((spot) => {
+        const visibleSpots = spots.filter((spot) => shouldShowPublicSpot(spot));
+        if (visibleSpots.length === 0) return "";
+
+        const spotLines = visibleSpots.map((spot) => {
             const name = getLocalizedText(spot.name as MultiLanguageField);
             const desc = getLocalizedText(spot.description as MultiLanguageField);
             const addr = getLocalizedText(spot.address as MultiLanguageField);
             const score = spot.localley_score || 3;
             const scoreLabel = LOCALNESS_LABELS[score] || "Mixed Crowd";
-            const bestTime = spot.best_time || "";
+            const bestTime = getLocalizedText(spot.best_times as MultiLanguageField) || "";
             const category = spot.category || "";
             const localPct = spot.local_percentage || 50;
             const tips = Array.isArray(spot.tips) ? spot.tips.slice(0, 2).join("; ") : "";

@@ -34,6 +34,11 @@ import type {
   ValidationReport,
 } from './types';
 import { createSupabaseAdmin } from '../supabase';
+import {
+  applyPublicSpotVisibilityFilters,
+  PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+  shouldShowPublicSpot,
+} from '../spots/public-quality';
 
 /**
  * Main LLM Orchestrator Class
@@ -513,7 +518,7 @@ export class LLMOrchestrator {
     localnessLevel: number | undefined,
     metrics: OrchestrationMetrics
   ): Promise<{ type: string; result: VerifiedSpot[] }> {
-    const cacheKey = cacheKeys.verifiedSpots(city);
+    const cacheKey = `${cacheKeys.verifiedSpots(city)}:${PUBLIC_SPOT_VISIBILITY_CACHE_VERSION}`;
 
     // Check cache
     const cached = await this.cache.get<VerifiedSpot[]>(cacheKey);
@@ -524,14 +529,18 @@ export class LLMOrchestrator {
 
     try {
       const supabase = createSupabaseAdmin();
-      const { data } = await supabase
+      let spotsQuery = supabase
         .from('spots')
         .select('*')
         .ilike('address->>en', `%${city}%`)
-        .gte('localley_score', localnessLevel || 3)
+        .gte('localley_score', localnessLevel || 3);
+
+      spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
         .limit(15);
 
-      const spots = (data || []) as VerifiedSpot[];
+      const { data } = await spotsQuery;
+
+      const spots = ((data || []) as VerifiedSpot[]).filter((spot) => shouldShowPublicSpot(spot));
 
       // Cache for 1 hour
       await this.cache.set(cacheKey, spots, 3600);

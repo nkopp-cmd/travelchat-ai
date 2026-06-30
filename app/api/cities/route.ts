@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { createSupabaseClient } from "@/lib/supabase";
 import { ENABLED_CITIES, CityConfig } from "@/lib/cities";
+import {
+  applyPublicSpotVisibilityFilters,
+  PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+} from "@/lib/spots/public-quality";
 
 // Thresholds for city status
 const THRESHOLDS = {
@@ -22,10 +26,13 @@ async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
 
   const cityPromises = ENABLED_CITIES.map(async (city) => {
     try {
-      const { count, error } = await supabase
+      let cityQuery = supabase
         .from("spots")
-        .select("*", { count: "exact", head: true })
-        .ilike("address->>en", `%${city.name}%`);
+        .select("*", { count: "exact", head: true });
+
+      cityQuery = applyPublicSpotVisibilityFilters(cityQuery);
+
+      const { count, error } = await cityQuery.ilike("address->>en", `%${city.name}%`);
 
       if (error) {
         console.error(`[api/cities] Supabase error for ${city.name}:`, error.message);
@@ -60,7 +67,7 @@ async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
 
 const getCachedCities = unstable_cache(
   fetchCitiesWithCounts,
-  ["cities-with-counts"],
+  ["cities-with-counts", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
   { revalidate: 300, tags: ["spots", "cities"] }
 );
 

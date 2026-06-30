@@ -76,7 +76,8 @@ export interface RawSpot {
     location: unknown;
     localley_score: number | null;
     local_percentage: number | null;
-    best_time: string | null;
+    best_time?: string | null;
+    best_times?: MultiLanguageField | null;
     photos: string[] | null;
     tips: string[] | null;
     verified: boolean | null;
@@ -118,7 +119,7 @@ export function transformSpot(spot: RawSpot): Spot {
         },
         localleyScore: spot.localley_score || 3,
         localPercentage: spot.local_percentage || 50,
-        bestTime: spot.best_time || "Anytime",
+        bestTime: getLocalizedText(spot.best_times || spot.best_time || "") || "Anytime",
         photos,
         hasRealPhoto: photoSummary.hasRealPhoto,
         tips: spot.tips || [],

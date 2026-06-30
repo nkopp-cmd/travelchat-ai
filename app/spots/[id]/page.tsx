@@ -16,6 +16,7 @@ import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { summarizeSpotPhotos } from "@/lib/place-images";
 import { getSpotLocationConfidence, hasUsableCoordinates } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
+import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
@@ -209,6 +210,10 @@ async function getSpot(id: string) {
         .single();
 
     if (error || !spot) {
+        return null;
+    }
+
+    if (!shouldShowPublicSpot({ name: spot.name, photos: spot.photos })) {
         return null;
     }
 
