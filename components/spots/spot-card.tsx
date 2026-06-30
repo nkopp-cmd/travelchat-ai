@@ -95,15 +95,15 @@ function SpotScoreChip({ score, className }: { score: number; className?: string
     return (
         <span
             className={cn(
-                "inline-flex h-6 shrink-0 items-center gap-1 rounded-full border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:px-2 sm:text-[11px]",
+                "inline-flex h-6 max-w-full shrink-0 items-center gap-1 rounded-full border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:px-2 sm:text-[11px]",
                 getScoreTone(score),
                 className
             )}
             title={`Localley score ${score} out of 6`}
         >
             <Sparkles className="h-3 w-3" aria-hidden="true" />
-            <span className="min-[420px]:hidden">{score}/6</span>
-            <span className="hidden min-[420px]:inline">Localley {score}/6</span>
+            <span>{score}/6</span>
+            <span className="hidden min-[560px]:inline">Localley</span>
         </span>
     );
 }
@@ -145,7 +145,7 @@ function LocationConfidenceChip({ spot, className }: { spot: Spot; className?: s
             title={hasPlaceMatch ? "Google Place match available for directions" : confidence.description}
         >
             <Navigation className="h-3 w-3" aria-hidden="true" />
-            <span>{hasPlaceMatch ? "Place match" : confidence.tone === "exact" ? "Exact" : confidence.tone === "pinned" ? "Pinned" : "Area"}</span>
+            <span>{hasPlaceMatch ? "Place" : confidence.tone === "exact" ? "Exact" : confidence.tone === "pinned" ? "Pinned" : "Area"}</span>
         </span>
     );
 }
@@ -252,17 +252,19 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <p className="mt-1.5 line-clamp-1 text-xs leading-5 text-violet-50/60 sm:line-clamp-2 sm:text-sm">
                             {spot.description}
                         </p>
-                        <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-2 text-xs text-violet-50/60">
-                            <span className="max-w-[8rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100 sm:max-w-none">
-                                {spot.category}
-                            </span>
-                            {spot.trending && (
-                                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 py-0.5 text-[11px] font-semibold text-rose-100" title="Trending">
-                                    <TrendingUp className="h-3 w-3" />
-                                    <span className="hidden min-[420px]:inline">Hot</span>
+                        <div className="mt-auto border-t border-white/10 pt-2 text-xs text-violet-50/60">
+                            <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-1.5">
+                                <span className="max-w-[8rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100 sm:max-w-none">
+                                    {spot.category}
                                 </span>
-                            )}
-                            <div className="flex basis-full flex-wrap items-center gap-1.5 sm:basis-auto">
+                                {spot.trending && (
+                                    <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 py-0.5 text-[11px] font-semibold text-rose-100" title="Trending">
+                                        <TrendingUp className="h-3 w-3" />
+                                        Hot
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                                 <SpotScoreChip score={spot.localleyScore} />
                                 <LocalCrowdChip percentage={spot.localPercentage} />
                                 <LocationConfidenceChip spot={spot} />
@@ -316,6 +318,12 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <SaveSpotButton spotId={spot.id} className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white sm:h-8 sm:w-8" />
                         </div>
                     </div>
+                    {spot.trending && (
+                        <div className="absolute left-1.5 top-1.5 z-10 rounded-full border border-rose-200/25 bg-rose-500/85 p-1 text-white shadow-lg shadow-black/15 backdrop-blur sm:left-2.5 sm:top-2.5">
+                            <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+                            <span className="sr-only">Trending</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
@@ -324,16 +332,10 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <span className="inline-flex max-w-[8.5rem] truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-100 sm:max-w-full sm:px-2.5 sm:text-[11px]">
                                 {spot.category}
                             </span>
-                            {spot.trending && (
-                                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-rose-200/25 bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100" title="Trending">
-                                    <TrendingUp className="h-3 w-3" />
-                                    Hot
-                                </span>
-                            )}
                         </div>
                     </div>
 
-                    <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
+                    <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:line-clamp-1 sm:text-base">
                         {spot.name}
                     </h3>
 
@@ -342,8 +344,8 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <span className="truncate">{spot.location.address}</span>
                     </p>
 
-                    <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-1.5">
-                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                    <div className="mt-auto border-t border-white/10 pt-1.5">
+                        <div className="flex min-w-0 flex-wrap items-center gap-1">
                             <SpotScoreChip score={spot.localleyScore} />
                             <LocalCrowdChip percentage={spot.localPercentage} />
                             <LocationConfidenceChip spot={spot} />
