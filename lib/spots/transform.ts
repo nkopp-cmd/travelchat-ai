@@ -4,6 +4,7 @@
  */
 
 import { Spot, MultiLanguageField } from "@/types";
+import { buildPlacePhotoProxyUrl, getGooglePlacesApiKey } from "@/lib/place-images";
 
 /**
  * Category-based placeholder images for better UX when real images unavailable
@@ -29,9 +30,38 @@ function getCategoryPlaceholder(category: string | null): string {
     return CATEGORY_PLACEHOLDERS[category] || DEFAULT_PLACEHOLDER;
 }
 
+function isPlaceholderPhoto(photo: string): boolean {
+    return photo.includes("/images/placeholders/") || photo.includes("placeholder");
+}
+
+function getProxiedGooglePhotoUrl(photo: string, width = 1200): string | null {
+    try {
+        const url = new URL(photo, "https://www.localley.io");
+        const host = url.hostname.toLowerCase();
+
+        if (url.pathname === "/api/places/photo") {
+            return photo;
+        }
+
+        if (host === "places.googleapis.com") {
+            const match = url.pathname.match(/^\/v1\/(places\/[^/]+\/photos\/[^/]+)(?:\/media)?$/);
+            return match ? buildPlacePhotoProxyUrl(match[1], width) : null;
+        }
+
+        if (host === "maps.googleapis.com" && url.pathname === "/maps/api/place/photo") {
+            const photoRef = url.searchParams.get("photo_reference");
+            return photoRef ? buildPlacePhotoProxyUrl(photoRef, width) : null;
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
 function isUsablePhotoUrl(photo: string): boolean {
     if (!photo) return false;
-    if (photo.startsWith("/")) return true;
+    if (photo.startsWith("/")) return !isPlaceholderPhoto(photo);
 
     try {
         const url = new URL(photo);
@@ -42,6 +72,20 @@ function isUsablePhotoUrl(photo: string): boolean {
     } catch {
         return true;
     }
+}
+
+export function normalizeSpotPhotos(
+    photos: string[] | null | undefined,
+    category: string | null,
+    width = 1200
+): string[] {
+    const canProxyGooglePhotos = !!getGooglePlacesApiKey();
+    const normalized = (photos || [])
+        .map((photo) => (canProxyGooglePhotos ? getProxiedGooglePhotoUrl(photo, width) : null) || photo)
+        .filter(isUsablePhotoUrl);
+
+    const uniquePhotos = Array.from(new Set(normalized));
+    return uniquePhotos.length ? uniquePhotos : [getCategoryPlaceholder(category)];
 }
 
 // Raw spot type from Supabase
@@ -85,10 +129,7 @@ export function transformSpot(spot: RawSpot): Spot {
 
     // Build photos array, ensuring at least one image
     // Priority: real photos > category placeholder
-    const usablePhotos = spot.photos?.filter(isUsablePhotoUrl) || [];
-    const photos = usablePhotos.length
-        ? usablePhotos
-        : [getCategoryPlaceholder(spot.category)];
+    const photos = normalizeSpotPhotos(spot.photos, spot.category);
 
     return {
         id: spot.id,
