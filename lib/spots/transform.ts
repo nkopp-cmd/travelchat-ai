@@ -9,6 +9,12 @@ import {
     summarizeSpotPhotos,
 } from "@/lib/place-images";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
+import {
+    getSpotBestTime,
+    normalizeLocalleyScore,
+    normalizeLocalPercentage,
+    normalizeSpotTips,
+} from "@/lib/spots/detail-normalization";
 
 /**
  * Category-based placeholder images for better UX when real images unavailable
@@ -80,7 +86,7 @@ export interface RawSpot {
     best_times?: MultiLanguageField | null;
     photos: string[] | null;
     google_place_id?: string | null;
-    tips: string[] | null;
+    tips: unknown;
     verified: boolean | null;
     trending_score: number;
 }
@@ -118,13 +124,13 @@ export function transformSpot(spot: RawSpot): Spot {
             lng,
             address: getLocalizedText(spot.address),
         },
-        localleyScore: spot.localley_score || 3,
-        localPercentage: spot.local_percentage || 50,
-        bestTime: getLocalizedText(spot.best_times || spot.best_time || "") || "Anytime",
+        localleyScore: normalizeLocalleyScore(spot.localley_score),
+        localPercentage: normalizeLocalPercentage(spot.local_percentage),
+        bestTime: getSpotBestTime(spot.best_times, spot.best_time),
         photos,
         hasRealPhoto: photoSummary.hasRealPhoto,
         googlePlaceId: spot.google_place_id || null,
-        tips: spot.tips || [],
+        tips: normalizeSpotTips(spot.tips),
         verified: spot.verified || false,
         trending: spot.trending_score > 0.7,
     };
