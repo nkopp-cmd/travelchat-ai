@@ -64,6 +64,9 @@ function WizardContent({
   };
 
   const isLastStep = currentStep === totalSteps - 1;
+  const templateApplied = Boolean(data.templateName);
+  const primaryActionLabel =
+    isLastStep ? "Generate Itinerary" : currentStep === 0 && templateApplied && !data.city ? "Pick a city" : "Next";
 
   const steps = [
     <StepDestination key="destination" />,
@@ -98,8 +101,8 @@ function WizardContent({
     <div className="flex h-full min-h-0 flex-col">
       <WizardProgress />
 
-      {data.templateName && (
-        <div className="mx-4 mt-3 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-2 text-sm text-violet-100">
+      {templateApplied && (
+        <div className="mx-4 mt-2 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-2 text-sm text-violet-100 sm:mt-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
             <span className="min-w-0 truncate">
@@ -113,8 +116,17 @@ function WizardContent({
         {steps[currentStep]}
       </div>
 
-      <div className="shrink-0 border-t border-white/10 bg-black/85 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="mx-auto flex max-w-md gap-2.5 sm:gap-3">
+      <div className="shrink-0 border-t border-white/10 bg-black/90 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-14px_32px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="mx-auto max-w-md">
+          {templateApplied && (
+            <div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-3 py-2 text-xs text-violet-100">
+              <span className="min-w-0 truncate">{data.templateName}</span>
+              <span className="shrink-0 text-violet-200">
+                Step {currentStep + 1}/{totalSteps}
+              </span>
+            </div>
+          )}
+          <div className="flex gap-2.5 sm:gap-3">
           {currentStep > 0 && (
             <Button
               variant="outline"
@@ -140,15 +152,16 @@ function WizardContent({
             {isLastStep ? (
               <>
                 <Sparkles className="mr-2 h-4 w-4" />
-                Generate Itinerary
+                {primaryActionLabel}
               </>
             ) : (
               <>
-                Next
+                {primaryActionLabel}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>
+          </div>
         </div>
       </div>
     </div>
