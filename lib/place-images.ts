@@ -186,6 +186,36 @@ export function isBackfilledPlacePhotoUrl(photo: string): boolean {
     }
 }
 
+export function getGooglePlaceIdFromPhotoUrl(photo: string): string | null {
+    if (!photo) return null;
+
+    try {
+        const url = new URL(photo, "https://www.localley.io");
+        let photoName: string | null = null;
+
+        if (url.pathname === GOOGLE_PHOTO_PROXY_PATH) {
+            photoName = url.searchParams.get("name");
+        } else if (url.hostname.toLowerCase() === "places.googleapis.com") {
+            const match = url.pathname.match(/^\/v1\/(places\/[^/]+)\/photos\/[^/]+(?:\/media)?$/);
+            photoName = match ? match[1] : null;
+        }
+
+        const match = photoName?.match(/^places\/([^/]+)(?:\/photos\/[^/]+)?$/);
+        return match ? match[1] : null;
+    } catch {
+        return null;
+    }
+}
+
+export function getGooglePlaceIdFromSpotPhotos(photos: string[] | null | undefined): string | null {
+    for (const photo of photos || []) {
+        const placeId = getGooglePlaceIdFromPhotoUrl(photo);
+        if (placeId) return placeId;
+    }
+
+    return null;
+}
+
 export function classifySpotPhoto(photo: string | null | undefined): SpotPhotoKind {
     const value = photo?.trim();
     if (!value) return "empty";
