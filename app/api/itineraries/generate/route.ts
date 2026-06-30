@@ -425,6 +425,9 @@ Make it exciting, authentic, and full of hidden gems!
         id: savedItinerary?.id,
         ...itineraryData,
       },
+      meta: {
+        provider: aiProvider,
+      },
       // For anonymous users, prompt them to sign up to save
       ...(isAnonymous && {
         signupPrompt: {

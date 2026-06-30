@@ -82,11 +82,12 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# Chat AI
+# Chat AI - GLM 5.2 primary
 GLM_API_KEY=your_glm_or_zai_api_key
+# ZAI_API_KEY=your_glm_or_zai_api_key # Optional alias supported by the app
 GLM_MODEL=glm-5.2
 # Optional, defaults to Z.AI's OpenAI-compatible endpoint:
-# GLM_BASE_URL=https://api.z.ai/api/paas/v4
+# GLM_BASE_URL=https://api.z.ai/api/paas/v4/
 
 # OpenAI fallback
 OPENAI_API_KEY=your_openai_api_key

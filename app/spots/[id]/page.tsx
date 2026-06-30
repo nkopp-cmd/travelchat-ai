@@ -72,7 +72,6 @@ function getDirectionsUrl(
     lng: number,
     address: string
 ): string {
-    const hasValidCoords = hasUsableCoordinates(lat, lng);
     const isKorea = isKoreanLocation(address);
     const exactQuery = [name, address].filter(Boolean).join(", ");
 
@@ -81,7 +80,8 @@ function getDirectionsUrl(
         return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || address)}`;
     }
 
-    const destination = hasValidCoords ? `${lat},${lng}` : exactQuery || address;
+    // Prefer the exact name/address query over raw coordinates; several imported coordinates are area-level pins.
+    const destination = exactQuery || (hasUsableCoordinates(lat, lng) ? `${lat},${lng}` : address);
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
@@ -89,8 +89,8 @@ function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof get
     const isKorea = isKoreanLocation(spot.location.address);
     const locationConfidence = getLocationConfidence(spot);
 
-    if (!isKorea && locationConfidence.usableCoordinates) {
-        return "Maps routes to the stored coordinate pin and keeps the spot name/address visible for context.";
+    if (!isKorea && locationConfidence.tone === "exact") {
+        return "Maps searches the exact spot name and address first instead of relying on imported coordinates alone.";
     }
 
     return isKorea
@@ -529,7 +529,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                         <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4">
                             <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
                                 <MapPin className="h-4 w-4 text-violet-300" />
-                                Exact location
+                                Location details
                             </h3>
                             <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
                             <p className="mt-2 text-xs font-medium text-violet-200/80">
