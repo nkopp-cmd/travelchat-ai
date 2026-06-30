@@ -26,6 +26,7 @@ export interface Spot {
     bestTime: string;
     photos: string[];
     hasRealPhoto?: boolean;
+    googlePlaceId?: string | null;
     tips: string[];
     verified: boolean;
     trending: boolean;

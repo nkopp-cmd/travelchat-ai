@@ -193,7 +193,10 @@ export async function POST(req: NextRequest) {
             if (!dryRun) {
                 const { error: updateError } = await supabase
                     .from("spots")
-                    .update({ photos: photoUrls })
+                    .update({
+                        photos: photoUrls,
+                        google_place_id: place?.placeId || null,
+                    })
                     .eq("id", spot.id);
 
                 if (updateError) {

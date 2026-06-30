@@ -79,6 +79,7 @@ export interface RawSpot {
     best_time?: string | null;
     best_times?: MultiLanguageField | null;
     photos: string[] | null;
+    google_place_id?: string | null;
     tips: string[] | null;
     verified: boolean | null;
     trending_score: number;
@@ -122,6 +123,7 @@ export function transformSpot(spot: RawSpot): Spot {
         bestTime: getLocalizedText(spot.best_times || spot.best_time || "") || "Anytime",
         photos,
         hasRealPhoto: photoSummary.hasRealPhoto,
+        googlePlaceId: spot.google_place_id || null,
         tips: spot.tips || [],
         verified: spot.verified || false,
         trending: spot.trending_score > 0.7,

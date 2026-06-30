@@ -6,9 +6,10 @@ import Link from "next/link";
 import { Spot } from "@/types";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
-import { ImageIcon, MapPin, Sparkles, TrendingUp, Users } from "lucide-react";
+import { ImageIcon, MapPin, Navigation, Sparkles, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCityGradient, getCityImageUrl } from "@/lib/city-images";
+import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 
 const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 const KNOWN_CITY_COORDS: Array<{ city: string; lat: [number, number]; lng: [number, number] }> = [
@@ -94,14 +95,15 @@ function SpotScoreChip({ score, className }: { score: number; className?: string
     return (
         <span
             className={cn(
-                "inline-flex h-7 shrink-0 items-center gap-1 rounded-full border px-2 text-[11px] font-semibold leading-none",
+                "inline-flex h-6 shrink-0 items-center gap-1 rounded-full border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:px-2 sm:text-[11px]",
                 getScoreTone(score),
                 className
             )}
             title={`Localley score ${score} out of 6`}
         >
             <Sparkles className="h-3 w-3" aria-hidden="true" />
-            <span>Localley {score}/6</span>
+            <span className="min-[420px]:hidden">{score}/6</span>
+            <span className="hidden min-[420px]:inline">Localley {score}/6</span>
         </span>
     );
 }
@@ -110,13 +112,40 @@ function LocalCrowdChip({ percentage, className }: { percentage: number; classNa
     return (
         <span
             className={cn(
-                "inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-emerald-200/15 bg-emerald-400/10 px-2 text-[11px] font-semibold leading-none text-emerald-100",
+                "inline-flex h-6 shrink-0 items-center gap-1 rounded-full border border-emerald-200/15 bg-emerald-400/10 px-1.5 text-[10px] font-semibold leading-none text-emerald-100 sm:h-7 sm:px-2 sm:text-[11px]",
                 className
             )}
             title={`${percentage}% local crowd signal`}
         >
             <Users className="h-3 w-3" aria-hidden="true" />
             {percentage}%
+        </span>
+    );
+}
+
+function LocationConfidenceChip({ spot, className }: { spot: Spot; className?: string }) {
+    const confidence = getSpotLocationConfidence({
+        address: spot.location.address,
+        lat: spot.location.lat,
+        lng: spot.location.lng,
+    });
+    const hasPlaceMatch = Boolean(spot.googlePlaceId);
+
+    return (
+        <span
+            className={cn(
+                "inline-flex h-6 shrink-0 items-center gap-1 rounded-full border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:px-2 sm:text-[11px]",
+                hasPlaceMatch || confidence.tone === "exact"
+                    ? "border-sky-200/20 bg-sky-400/10 text-sky-100"
+                    : confidence.tone === "pinned"
+                        ? "border-indigo-200/20 bg-indigo-400/10 text-indigo-100"
+                        : "border-amber-200/25 bg-amber-400/10 text-amber-100",
+                className
+            )}
+            title={hasPlaceMatch ? "Google Place match available for directions" : confidence.description}
+        >
+            <Navigation className="h-3 w-3" aria-hidden="true" />
+            <span>{hasPlaceMatch ? "Place match" : confidence.tone === "exact" ? "Exact" : confidence.tone === "pinned" ? "Pinned" : "Area"}</span>
         </span>
     );
 }
@@ -223,8 +252,8 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <p className="mt-1.5 line-clamp-1 text-xs leading-5 text-violet-50/60 sm:line-clamp-2 sm:text-sm">
                             {spot.description}
                         </p>
-                        <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-2 text-xs text-violet-50/60 sm:gap-2">
-                            <span className="min-w-0 truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100">
+                        <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-2 text-xs text-violet-50/60">
+                            <span className="max-w-[8rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100 sm:max-w-none">
                                 {spot.category}
                             </span>
                             {spot.trending && (
@@ -236,6 +265,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <div className="flex basis-full flex-wrap items-center gap-1.5 sm:basis-auto">
                                 <SpotScoreChip score={spot.localleyScore} />
                                 <LocalCrowdChip percentage={spot.localPercentage} />
+                                <LocationConfidenceChip spot={spot} />
                             </div>
                         </div>
                     </div>
@@ -246,7 +276,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     // Premium grid card with glassmorphism and micro-animations
     return (
         <Card className={cn(
-            "group relative flex min-h-[112px] flex-row items-start overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col sm:items-stretch",
+            "group relative flex min-h-[104px] flex-row items-start overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col sm:items-stretch",
             "bg-[#100b1c]/92 text-white backdrop-blur-xl",
             "border border-violet-200/15",
             "transition-all duration-300 ease-out",
@@ -262,7 +292,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
             >
                 <span className="sr-only">Open {spot.name}</span>
             </Link>
-                <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-24 sm:aspect-[2/1] sm:w-full">
+                <div className="relative aspect-[4/3] w-[4.75rem] shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-24 sm:aspect-[2/1] sm:w-full">
                     {!showGradientFallback && !imageLoaded && (
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
@@ -291,7 +321,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                 <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
                     <div className="mb-1.5 min-w-0">
                         <div className="flex min-w-0 flex-wrap items-center gap-1">
-                            <span className="inline-flex max-w-full truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-100 sm:px-2.5 sm:text-[11px]">
+                            <span className="inline-flex max-w-[8.5rem] truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-100 sm:max-w-full sm:px-2.5 sm:text-[11px]">
                                 {spot.category}
                             </span>
                             {spot.trending && (
@@ -312,10 +342,11 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <span className="truncate">{spot.location.address}</span>
                     </p>
 
-                    <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-1.5 sm:gap-2">
+                    <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-1.5">
                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                             <SpotScoreChip score={spot.localleyScore} />
                             <LocalCrowdChip percentage={spot.localPercentage} />
+                            <LocationConfidenceChip spot={spot} />
                         </div>
                     </div>
                 </div>

@@ -26,6 +26,7 @@ CREATE TABLE spots (
   local_percentage INTEGER DEFAULT 50,
   best_times JSONB,
   photos TEXT[],
+  google_place_id TEXT,
   tips JSONB,
   discovered_by UUID REFERENCES users(id),
   verified BOOLEAN DEFAULT false,
