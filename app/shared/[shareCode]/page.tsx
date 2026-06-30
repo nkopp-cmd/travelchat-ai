@@ -2,12 +2,15 @@ import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, DollarSign, Star, Lightbulb, Bus, Sparkles, Home, Instagram } from "lucide-react";
+import { Lightbulb, Bus, Sparkles, Home, Instagram } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SharedActions } from "./shared-actions";
 import { ItineraryJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { AppBackground } from "@/components/layout/app-background";
+import { HeroSection } from "@/components/itinerary/hero-section";
+import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -76,7 +79,9 @@ interface ItineraryActivity {
     cost?: string;
     address?: string;
     type?: string;
+    category?: string;
     localleyScore?: number;
+    image?: string;
 }
 
 interface DayPlan {
@@ -130,24 +135,6 @@ async function getSharedItinerary(shareCode: string) {
     };
 }
 
-// Get icon for activity type
-const getTypeIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
-        case 'morning': return '🌅';
-        case 'afternoon': return '☀️';
-        case 'evening': return '🌆';
-        default: return '📍';
-    }
-};
-
-// Get Localley score badge
-const getScoreBadge = (score: number) => {
-    if (score >= 6) return { label: 'Legendary', color: 'bg-yellow-500' };
-    if (score >= 5) return { label: 'Hidden Gem', color: 'bg-violet-500' };
-    if (score >= 4) return { label: 'Local Favorite', color: 'bg-indigo-500' };
-    return { label: 'Mixed Crowd', color: 'bg-blue-500' };
-};
-
 export default async function SharedItineraryPage({ params }: { params: Promise<{ shareCode: string }> }) {
     const { shareCode } = await params;
     const itinerary = await getSharedItinerary(shareCode);
@@ -180,7 +167,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                 ]}
             />
 
-            <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50">
+            <AppBackground ambient>
                 <div className="max-w-5xl mx-auto space-y-8 p-4 pb-16">
                     {/* Header with branding */}
                     <div className="flex items-center justify-between pt-4">
@@ -193,36 +180,17 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                                 Localley
                             </div>
                             <p className="text-xs text-muted-foreground">Shared Itinerary</p>
-                    </div>
-                </div>
-
-                {/* Itinerary Header */}
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                            {itinerary.title}
-                        </h1>
-                        <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
-                                <span>{itinerary.city}</span>
-                            </div>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                <span>{itinerary.days} {itinerary.days === 1 ? 'Day' : 'Days'}</span>
-                            </div>
-                            {itinerary.localScore && (
-                                <>
-                                    <span>•</span>
-                                    <div className="flex items-center gap-1">
-                                        <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                                        <span>Local Score: {itinerary.localScore}/10</span>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     </div>
+
+                    <HeroSection
+                        title={itinerary.title}
+                        city={itinerary.city}
+                        days={itinerary.days}
+                        localScore={itinerary.localScore ? itinerary.localScore * 10 : undefined}
+                        highlights={itinerary.highlights}
+                        className="overflow-hidden rounded-2xl"
+                    />
 
                     {/* CTA Banner */}
                     <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-violet-200/50">
@@ -245,82 +213,59 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                         </CardContent>
                     </Card>
 
-                    {/* Highlights Section */}
-                    {itinerary.highlights && Array.isArray(itinerary.highlights) && itinerary.highlights.length > 0 && (
-                        <Card className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border-violet-200/50">
+                    {/* Story Slides Gallery */}
+                    {itinerary.storySlides && Object.keys(itinerary.storySlides).length > 0 && (
+                        <Card className="border-violet-200/50 overflow-hidden">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
-                                    <Sparkles className="h-5 w-5 text-violet-600" />
-                                    Trip Highlights
+                                    <Instagram className="h-5 w-5 text-violet-600" />
+                                    Story Slides
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    {itinerary.highlights.map((highlight: string, i: number) => (
-                                        <li key={i} className="flex items-start gap-2 text-sm">
-                                            <span className="text-violet-600 mt-0.5">✓</span>
-                                            <span>{highlight}</span>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                    {(() => {
+                                        const slides = itinerary.storySlides!;
+                                        const orderedKeys: string[] = [];
+                                        if (slides.cover) orderedKeys.push("cover");
+                                        for (let i = 1; i <= itinerary.days; i++) {
+                                            if (slides[`day${i}`]) orderedKeys.push(`day${i}`);
+                                        }
+                                        if (slides.summary) orderedKeys.push("summary");
+
+                                        return orderedKeys.map((key) => {
+                                            const label = key === "cover" ? "Cover"
+                                                : key === "summary" ? "Summary"
+                                                : `Day ${key.replace("day", "")}`;
+                                            return (
+                                                <a
+                                                    key={key}
+                                                    href={slides[key]}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border/50 hover:border-violet-400 transition-all hover:shadow-lg"
+                                                >
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={slides[key]}
+                                                        alt={`${label} - ${itinerary.title}`}
+                                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        loading="lazy"
+                                                    />
+                                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                                                        <span className="text-white text-xs font-medium">{label}</span>
+                                                    </div>
+                                                </a>
+                                            );
+                                        });
+                                    })()}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-3 text-center">
+                                    Tap a slide to view full size
+                                </p>
                             </CardContent>
                         </Card>
                     )}
-                </div>
-
-                {/* Story Slides Gallery */}
-                {itinerary.storySlides && Object.keys(itinerary.storySlides).length > 0 && (
-                    <Card className="border-violet-200/50 overflow-hidden">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <Instagram className="h-5 w-5 text-violet-600" />
-                                Story Slides
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                                {(() => {
-                                    const slides = itinerary.storySlides!;
-                                    const orderedKeys: string[] = [];
-                                    if (slides.cover) orderedKeys.push("cover");
-                                    for (let i = 1; i <= itinerary.days; i++) {
-                                        if (slides[`day${i}`]) orderedKeys.push(`day${i}`);
-                                    }
-                                    if (slides.summary) orderedKeys.push("summary");
-
-                                    return orderedKeys.map((key) => {
-                                        const label = key === "cover" ? "Cover"
-                                            : key === "summary" ? "Summary"
-                                            : `Day ${key.replace("day", "")}`;
-                                        return (
-                                            <a
-                                                key={key}
-                                                href={slides[key]}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border/50 hover:border-violet-400 transition-all hover:shadow-lg"
-                                            >
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
-                                                    src={slides[key]}
-                                                    alt={`${label} - ${itinerary.title}`}
-                                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    loading="lazy"
-                                                />
-                                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                                                    <span className="text-white text-xs font-medium">{label}</span>
-                                                </div>
-                                            </a>
-                                        );
-                                    });
-                                })()}
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-3 text-center">
-                                Tap a slide to view full size
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
 
                 {/* Itinerary-level Tips */}
                 {itineraryInsights.length > 0 && (
@@ -356,106 +301,44 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                     </Card>
                 )}
 
-                {/* Daily Plans */}
-                <div className="space-y-8">
-                    {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
-                        const activities = dayPlan.activities || [];
+                    {/* Daily Plans */}
+                    <div className="space-y-6 sm:space-y-8">
+                        {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
+                            const activities = dayPlan.activities || [];
 
-                        return (
-                            <Card key={dayIndex} className="overflow-hidden border-border/40 shadow-lg">
-                                {/* Day Header */}
-                                <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h2 className="text-2xl font-bold">Day {dayPlan.day || dayIndex + 1}</h2>
-                                        <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                                            {activities.length} Activities
-                                        </Badge>
-                                    </div>
-                                    {dayPlan.theme && (
-                                        <p className="text-violet-100 text-lg">{dayPlan.theme}</p>
-                                    )}
-                                </div>
-
-                                <CardContent className="p-6 space-y-6">
-                                    {/* Activities Timeline */}
-                                    <div className="space-y-6">
-                                        {activities.map((activity: ItineraryActivity, activityIndex: number) => {
-                                            const scoreBadge = activity.localleyScore ? getScoreBadge(activity.localleyScore) : null;
-
-                                            return (
-                                                <div key={activityIndex} className="relative pl-8 border-l-2 border-violet-200 dark:border-violet-800">
-                                                    {/* Timeline Dot */}
-                                                    <div className="absolute -left-[9px] top-0">
-                                                        <div className="w-4 h-4 rounded-full bg-violet-600 border-4 border-background" />
-                                                    </div>
-
-                                                    <div className="space-y-3 pb-6">
-                                                        {/* Activity Header */}
-                                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                                                            <div className="space-y-1">
-                                                                <div className="flex items-center gap-2 flex-wrap">
-                                                                    <h3 className="font-bold text-lg">{activity.name}</h3>
-                                                                    {scoreBadge && (
-                                                                        <Badge className={`${scoreBadge.color} text-white`}>
-                                                                            {scoreBadge.label}
-                                                                        </Badge>
-                                                                    )}
-                                                                </div>
-                                                                {activity.address && (
-                                                                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                                                        <MapPin className="h-3 w-3" />
-                                                                        {activity.address}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex flex-wrap gap-2 text-sm">
-                                                                {activity.time && (
-                                                                    <Badge variant="outline" className="gap-1">
-                                                                        <Clock className="h-3 w-3" />
-                                                                        {activity.time}
-                                                                    </Badge>
-                                                                )}
-                                                                {activity.type && (
-                                                                    <Badge variant="outline">
-                                                                        {getTypeIcon(activity.type)} {activity.type}
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Activity Description */}
-                                                        {activity.description && (
-                                                            <p className="text-muted-foreground leading-relaxed">
-                                                                {activity.description}
-                                                            </p>
-                                                        )}
-
-                                                        {/* Activity Details */}
-                                                        <div className="flex flex-wrap gap-4 text-sm">
-                                                            {activity.duration && (
-                                                                <div className="flex items-center gap-1 text-muted-foreground">
-                                                                    <Clock className="h-4 w-4" />
-                                                                    <span>{activity.duration}</span>
-                                                                </div>
-                                                            )}
-                                                            {activity.cost && (
-                                                                <div className="flex items-center gap-1 text-muted-foreground">
-                                                                    <DollarSign className="h-4 w-4" />
-                                                                    <span>{activity.cost}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                            return (
+                                <Card key={dayIndex} className="!gap-0 !py-0 overflow-hidden border-black/5 bg-white/70 shadow-lg shadow-violet-500/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+                                    <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white sm:p-6">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <h2 className="text-xl font-bold sm:text-2xl">Day {dayPlan.day || dayIndex + 1}</h2>
+                                                {dayPlan.theme && (
+                                                    <p className="mt-1 line-clamp-2 text-sm text-violet-100 sm:text-base">{dayPlan.theme}</p>
+                                                )}
+                                            </div>
+                                            <Badge variant="secondary" className="shrink-0 bg-white/20 text-white hover:bg-white/30">
+                                                {activities.length} spots
+                                            </Badge>
+                                        </div>
                                     </div>
 
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
-                </div>
+                                    <CardContent className="p-4 sm:p-6">
+                                        <div className="space-y-2">
+                                            {activities.map((activity: ItineraryActivity, activityIndex: number) => (
+                                                <ItineraryActivityCard
+                                                    key={activityIndex}
+                                                    activity={activity}
+                                                    city={itinerary.city}
+                                                    userTier="pro"
+                                                    isLast={activityIndex === activities.length - 1}
+                                                />
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
 
                 {/* Footer CTA */}
                 <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border-violet-200/50">
@@ -474,8 +357,8 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                         </div>
                     </CardContent>
                 </Card>
-            </div>
-        </div>
+                </div>
+            </AppBackground>
         </>
     );
 }

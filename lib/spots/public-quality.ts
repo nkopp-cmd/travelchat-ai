@@ -1,9 +1,14 @@
 import type { MultiLanguageField } from "@/types";
+import { summarizeSpotPhotos } from "@/lib/place-images";
+import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
+import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 
 type PublicSpotTextField = MultiLanguageField | string | null | undefined;
 
 export interface PublicSpotQualityInput {
     name: PublicSpotTextField;
+    address?: PublicSpotTextField;
+    location?: unknown;
     photos?: string[] | null;
 }
 
@@ -24,7 +29,7 @@ export const PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS = [
     "%Multiple%",
 ] as const;
 
-export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v3";
+export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v4";
 
 const PUBLIC_BROAD_SPOT_NAME_PATTERN =
     /\b(?:residential(?:\s+area)?|(?:office|working)\s+district|station\s+area|local\s+scene|industrial\s+area|walking\s+route|day\s+trip|bar\s+crawl|market\s+crawl|various|multiple)\b|\blocal$|\bindustrial$/i;
@@ -43,6 +48,16 @@ function getPublicSpotText(field: PublicSpotTextField): string {
     return field;
 }
 
+function getPublicSpotLocationIssue(spot: PublicSpotQualityInput): string | null {
+    if (!("address" in spot)) return null;
+
+    const address = getPublicSpotText(spot.address).trim();
+    const { lat, lng } = getSpotCoordinateValues(spot.location);
+    const confidence = getSpotLocationConfidence({ address, lat, lng });
+
+    return confidence.exactAddress ? null : "inexact_location";
+}
+
 export function getPublicSpotQualityIssue(
     spot: PublicSpotQualityInput
 ): string | null {
@@ -50,7 +65,11 @@ export function getPublicSpotQualityIssue(
 
     if (!name) return "missing_name";
     if (PUBLIC_BROAD_SPOT_NAME_PATTERN.test(name)) return "broad_place_name";
-    if ("photos" in spot && !spot.photos?.length) return "missing_real_photo";
+    if ("photos" in spot && !summarizeSpotPhotos(spot.photos).hasRealPhoto) {
+        return "missing_real_photo";
+    }
+    const locationIssue = getPublicSpotLocationIssue(spot);
+    if (locationIssue) return locationIssue;
 
     return null;
 }
