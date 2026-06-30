@@ -72,9 +72,12 @@ function getInitialImage(spot: Spot) {
     const realPhoto = spot.photos.find((photo) => !isPlaceholderImage(photo));
     if (realPhoto) return realPhoto;
 
+    return getCityFallbackImage(spot) ?? spot.photos[0] ?? PLACEHOLDER_IMAGE;
+}
+
+function getCityFallbackImage(spot: Spot) {
     const city = inferSpotCity(spot);
-    const cityImage = city ? getCityImageUrl(city, { width: 1200, height: 900, quality: 90 }) : null;
-    return cityImage ?? spot.photos[0] ?? PLACEHOLDER_IMAGE;
+    return city ? getCityImageUrl(city, { width: 1200, height: 900, quality: 90 }) : null;
 }
 
 export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
@@ -82,7 +85,8 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     const [imageSrc, setImageSrc] = useState(() => getInitialImage(spot));
 
     const handleImageError = () => {
-        setImageSrc(PLACEHOLDER_IMAGE);
+        const cityFallback = getCityFallbackImage(spot);
+        setImageSrc(cityFallback && imageSrc !== cityFallback ? cityFallback : PLACEHOLDER_IMAGE);
         setImageLoaded(true);
     };
 
@@ -91,7 +95,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
         return (
             <Link href={`/spots/${spot.id}`}>
                 <Card className={cn(
-                    "overflow-hidden group flex flex-row !py-0 !gap-0",
+                    "group flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
                     "bg-[#100b1c]/92 text-white backdrop-blur-xl",
                     "border border-violet-200/15",
                     "transition-all duration-300 ease-out",
@@ -99,63 +103,60 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     "hover:border-violet-300/45",
                     "hover:-translate-y-0.5"
                 )}>
-                    {/* Image with skeleton loader */}
-                    <div className="relative w-32 sm:w-44 aspect-[4/3] flex-shrink-0 overflow-hidden bg-muted">
+                    <div className="relative aspect-[4/3] w-28 flex-shrink-0 overflow-hidden bg-violet-950/60 sm:w-40">
                         {!imageLoaded && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/80 to-muted animate-pulse" />
+                            <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
                         )}
                         <Image
                             src={imageSrc}
                             alt={spot.name}
                             fill
-                            sizes="(max-width: 640px) 128px, 176px"
+                            sizes="(max-width: 640px) 112px, 160px"
                             quality={90}
                             priority={priority}
                             className={cn(
-                                "object-cover transition-all duration-500",
+                                "object-cover transition-all duration-500 ease-out",
                                 "group-hover:scale-110",
                                 imageLoaded ? "opacity-100" : "opacity-0"
                             )}
                             onLoad={() => setImageLoaded(true)}
                             onError={handleImageError}
                         />
-                        {/* Gradient overlay for depth */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
 
                         {spot.trending && (
-                            <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[10px] font-semibold flex items-center gap-1 shadow-lg shadow-rose-500/30">
+                            <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-rose-500/92 px-2 py-0.5 text-[10px] font-semibold text-white shadow-lg shadow-rose-500/30 backdrop-blur">
                                 <TrendingUp className="h-2.5 w-2.5" />
                                 Hot
                             </div>
                         )}
                     </div>
 
-                    {/* Content with glassmorphism hover effect */}
-                    <div className="flex-1 p-4 flex flex-col min-w-0 relative">
-                        <div className="flex items-start justify-between gap-3">
+                    <div className="relative flex min-w-0 flex-1 flex-col p-3 sm:p-3.5">
+                        <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-base leading-tight line-clamp-1 text-white transition-colors duration-200 group-hover:text-violet-100">
+                                <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
                                     {spot.name}
                                 </h3>
-                                <p className="mt-1.5 flex items-center gap-1.5 text-sm text-violet-50/60">
-                                    <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-500" />
+                                <p className="mt-1 flex items-center gap-1.5 text-xs text-violet-50/60 sm:text-sm">
+                                    <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
                                     <span className="truncate">{spot.location.address}</span>
                                 </p>
                             </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                                <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} />
-                                <SaveSpotButton spotId={spot.id} size="sm" />
+                            <div className="flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur">
+                                <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} className="[&>div]:px-1.5 [&>div]:py-0 [&_svg]:h-3 [&_svg]:w-3" />
+                                <SaveSpotButton spotId={spot.id} size="sm" className="h-7 w-7 bg-white/10 p-0 hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5" />
                             </div>
                         </div>
-                        <p className="mt-2 line-clamp-2 text-sm text-violet-50/60">
+                        <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-violet-50/60 sm:text-sm">
                             {spot.description}
                         </p>
-                        <div className="mt-auto flex items-center gap-4 border-t border-white/10 pt-3 text-xs text-violet-50/60">
-                            <span className="rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100">
+                        <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-white/10 pt-2 text-xs text-violet-50/60">
+                            <span className="min-w-0 truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100">
                                 {spot.category}
                             </span>
-                            <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3 text-emerald-500" />
+                            <span className="flex items-center gap-1 whitespace-nowrap">
+                                <Users className="h-3 w-3 text-emerald-300" />
                                 {spot.localPercentage}% locals
                             </span>
                         </div>
@@ -169,26 +170,18 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     return (
         <Link href={`/spots/${spot.id}`}>
             <Card className={cn(
-                "overflow-hidden h-full flex flex-col group !py-0 !gap-0",
+                "group relative flex h-full flex-col overflow-hidden rounded-lg !gap-0 !py-0",
                 "bg-[#100b1c]/92 text-white backdrop-blur-xl",
                 "border border-violet-200/15",
                 "transition-all duration-300 ease-out",
-                "shadow-lg shadow-violet-950/20",
-                "hover:shadow-2xl hover:shadow-violet-500/20",
+                "shadow-md shadow-violet-950/20",
+                "hover:shadow-xl hover:shadow-violet-500/20",
                 "hover:border-violet-300/45",
-                "hover:-translate-y-1",
-                "relative"
+                "hover:-translate-y-0.5"
             )}>
-                {/* Animated gradient border on hover */}
-                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                    <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-indigo-500/20 blur-sm" />
-                </div>
-
-                {/* Image section with premium effects */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                    {/* Skeleton loader */}
+                <div className="relative aspect-[16/11] w-full overflow-hidden bg-violet-950/60">
                     {!imageLoaded && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted">
+                        <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
                                  style={{ backgroundSize: '200% 100%' }} />
                         </div>
@@ -210,75 +203,59 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         onError={handleImageError}
                     />
 
-                    {/* Premium gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/18 to-transparent opacity-80 group-hover:opacity-65 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
-                    {/* Localley Score badge - glassmorphism style */}
-                    <div className="absolute top-3 right-3 z-10">
-                        <div className="bg-white/90 dark:bg-black/70 backdrop-blur-md rounded-full px-2.5 py-1 shadow-lg shadow-black/10 border border-white/20">
-                            <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} />
-                        </div>
-                    </div>
-
-                    {/* Save button - always visible with glassmorphism */}
-                    <div className="absolute top-3 left-3 z-10">
-                        <div className="bg-white/80 dark:bg-black/60 backdrop-blur-md rounded-full p-1 shadow-lg shadow-black/10 border border-white/20 transition-all duration-300 hover:scale-105 sm:opacity-0 sm:group-hover:opacity-100">
-                            <SaveSpotButton spotId={spot.id} />
-                        </div>
-                    </div>
-
-                    {/* Trending badge with glow */}
-                    {spot.trending && (
-                        <div className="absolute bottom-3 left-3 z-10">
-                            <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-rose-500/40 animate-pulse-subtle">
-                                <Sparkles className="h-3 w-3" />
-                                Trending
+                    <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-2">
+                        {spot.trending ? (
+                            <div className="flex max-w-[calc(100%-3rem)] items-center gap-1.5 rounded-full bg-rose-500/92 px-2.5 py-1 text-xs font-semibold text-white shadow-lg shadow-rose-500/35 backdrop-blur">
+                                <Sparkles className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">Trending</span>
                             </div>
+                        ) : (
+                            <span aria-hidden="true" />
+                        )}
+                        <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 sm:opacity-0 sm:group-hover:opacity-100">
+                            <SaveSpotButton spotId={spot.id} className="h-8 w-8 bg-white/90 p-0 hover:bg-white text-slate-900" />
                         </div>
-                    )}
+                    </div>
 
-                    {/* Bottom info bar with glassmorphism */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent">
-                        <div className="flex items-center justify-between">
-                            <span className="min-w-0 text-white/90 text-xs font-medium flex items-center gap-1.5 drop-shadow-md">
-                                <MapPin className="h-3 w-3" />
-                                <span className="truncate">{spot.location.address.split(',')[0]}</span>
-                            </span>
-                            <span className="text-white/80 text-xs flex items-center gap-1 drop-shadow-md">
-                                <Users className="h-3 w-3" />
-                                {spot.localPercentage}%
-                            </span>
+                    <div className="absolute bottom-3 left-3 z-10">
+                        <div className="rounded-full border border-white/20 bg-white/90 px-2 py-1 shadow-lg shadow-black/10 backdrop-blur-md dark:bg-black/70">
+                            <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} className="[&>div]:px-1.5 [&>div]:py-0 [&_svg]:h-3.5 [&_svg]:w-3.5" />
                         </div>
                     </div>
                 </div>
 
-                {/* Content section - clean and premium */}
-                <div className="p-4 flex-1 flex flex-col relative z-10">
-                    {/* Category pill */}
-                    <div className="mb-2">
-                        <span className="inline-flex items-center rounded-full border border-violet-200/20 bg-violet-400/10 px-2.5 py-0.5 text-[11px] font-medium text-violet-100">
+                <div className="relative z-10 flex flex-1 flex-col p-3.5">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                        <span className="min-w-0 truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2.5 py-0.5 text-[11px] font-medium text-violet-100">
                             {spot.category}
+                        </span>
+                        <span className="flex flex-shrink-0 items-center gap-1 text-xs font-medium text-emerald-200">
+                            <Users className="h-3 w-3" />
+                            {spot.localPercentage}%
                         </span>
                     </div>
 
-                    {/* Title with hover effect */}
-                    <h3 className="font-semibold text-base leading-snug line-clamp-1 text-white transition-colors duration-200 group-hover:text-violet-100">
+                    <h3 className="line-clamp-1 text-base font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100">
                         {spot.name}
                     </h3>
 
-                    {/* Description with better typography */}
-                    <p className="mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-violet-50/60">
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-violet-50/55">
+                        <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
+                        <span className="truncate">{spot.location.address.split(',')[0]}</span>
+                    </p>
+
+                    <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-violet-50/60">
                         {spot.description}
                     </p>
 
-                    {/* Premium footer with subtle animation */}
-                    <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-200">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            {spot.localPercentage}% local favorite
-                        </div>
-                        <span className="text-xs font-medium text-violet-200 opacity-80 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
-                            View details →
+                    <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2.5">
+                        <span className="text-xs font-medium text-violet-50/55">
+                            Local favorite
+                        </span>
+                        <span className="text-xs font-medium text-violet-200 opacity-85 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
+                            View details
                         </span>
                     </div>
                 </div>

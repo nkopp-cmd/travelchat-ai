@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ItineraryTemplate } from "@/lib/templates";
-import { Clock, Users, Zap, ArrowRight, Sparkles } from "lucide-react";
+import { Clock, Users, Zap, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -74,10 +74,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
-        "hover:shadow-xl hover:shadow-violet-500/10",
+        "hover:shadow-lg hover:shadow-violet-500/10",
         accent.glow,
         "hover:border-violet-400/50 dark:hover:border-violet-500/40",
-        "hover:-translate-y-1"
+        "hover:-translate-y-0.5"
       )}>
         {/* Animated gradient background */}
         <div className={cn(
@@ -86,79 +86,72 @@ export function TemplateCard({ template }: TemplateCardProps) {
         )} />
 
         {/* Decorative pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]"
+        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]"
              style={{
                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
              }} />
 
         {/* Main Content */}
-        <div className="p-5 flex-1 flex flex-col relative z-10">
-          {/* Header: Large Emoji with glow effect */}
-          <div className="flex items-start gap-4">
+        <div className="p-4 flex-1 flex flex-col relative z-10">
+          {/* Header */}
+          <div className="flex items-start gap-3">
             <div className="relative">
-              <div className="text-5xl transform group-hover:scale-110 transition-transform duration-300">
+              <div className="text-4xl transform group-hover:scale-105 transition-transform duration-300">
                 {template.emoji}
               </div>
-              {/* Emoji glow on hover */}
-              <div className="absolute inset-0 blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 text-5xl">
+              <div className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-25 transition-opacity duration-300 text-4xl">
                 {template.emoji}
               </div>
             </div>
-            <div className="min-w-0 flex-1 pt-1">
-              <h3 className="font-bold text-lg leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-bold text-base leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200">
                 {template.name}
               </h3>
-              <p className="text-sm text-muted-foreground/80 mt-1.5 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-muted-foreground/80 mt-1 line-clamp-2 leading-relaxed">
                 {template.description}
               </p>
             </div>
           </div>
 
           {/* Stats Pills Row */}
-          <div className="flex flex-wrap items-center gap-2 mt-5">
+          <div className="flex flex-wrap items-center gap-1.5 mt-4">
             {/* Days pill */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
               <Clock className="h-3 w-3" />
               {template.days} {template.days === 1 ? 'day' : 'days'}
             </span>
 
             {/* Pace pill */}
             <span className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm",
+              "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border backdrop-blur-sm",
               accent.bg, accent.text, accent.border
             )}>
               {pace.icon} {pace.label}
             </span>
 
             {/* Activities pill */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/50 dark:bg-white/5 text-muted-foreground border border-black/5 dark:border-white/10 backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-white/50 dark:bg-white/5 text-muted-foreground border border-black/5 dark:border-white/10 backdrop-blur-sm">
               <Zap className="h-3 w-3" />
               {template.activitiesPerDay}/day
             </span>
           </div>
 
           {/* Target Audience - simplified inline */}
-          <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1.5">
+          <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5 line-clamp-1">
             <Users className="h-3 w-3 text-violet-500" />
             Perfect for {template.targetAudience.toLowerCase()}
           </p>
 
           {/* Spacer */}
-          <div className="flex-1 min-h-3" />
+          <div className="flex-1 min-h-2" />
 
-          {/* Premium CTA */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/10">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Sparkles className="h-3 w-3 text-amber-500" />
-              AI-powered
-            </div>
+          {/* Primary action */}
+          <div className="flex items-center justify-end mt-3 pt-3 border-t border-black/5 dark:border-white/10">
             <div className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
               "bg-violet-600 text-white",
-              "opacity-0 group-hover:opacity-100",
-              "transform translate-y-2 group-hover:translate-y-0",
-              "transition-all duration-300 ease-out",
-              "shadow-lg shadow-violet-500/30"
+              "transition-all duration-200 ease-out",
+              "shadow-sm shadow-violet-500/20 group-hover:shadow-md group-hover:shadow-violet-500/30"
             )}>
               Use Template
               <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />

@@ -9,7 +9,7 @@
 // Provider Types
 // ============================================================================
 
-export type LLMProviderName = 'openai' | 'gemini' | 'claude';
+export type LLMProviderName = 'glm' | 'openai' | 'gemini' | 'claude';
 
 export interface LLMProviderStatus {
   name: LLMProviderName;
@@ -132,11 +132,7 @@ export interface OrchestrationMetrics {
   cacheHits: number;
   retryCount: number;
   fallbackRoute?: string;
-  tokenUsage?: {
-    openai?: TokenUsage;
-    gemini?: TokenUsage;
-    claude?: TokenUsage;
-  };
+  tokenUsage?: Partial<Record<LLMProviderName, TokenUsage>>;
 }
 
 // ============================================================================

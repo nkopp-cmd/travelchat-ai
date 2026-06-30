@@ -70,18 +70,20 @@ function getDirectionsUrl(
 ): string {
     const hasValidCoords = lat !== 0 && lng !== 0;
     const isKorea = isKoreanLocation(address);
+    const exactQuery = [name, address].filter(Boolean).join(", ");
 
     if (isKorea) {
-        // Kakao Maps - better coverage in Korea
-        return hasValidCoords
-            ? `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`
-            : `https://map.kakao.com/link/search/${encodeURIComponent(address)}`;
-    } else {
-        // Google Maps - better for rest of the world
-        return hasValidCoords
-            ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
-            : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+        // Prefer exact place search over raw coordinates; imported coordinates can be neighborhood-level.
+        return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || address)}`;
     }
+
+    // Prefer exact place/address query over raw coordinates; keep coordinates only when address is absent.
+    const destination = exactQuery || (hasValidCoords ? `${lat},${lng}` : address);
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+}
+
+function formatCoordinate(value: number) {
+    return value ? value.toFixed(5) : null;
 }
 
 function isPlaceholderImage(src: string | undefined) {
@@ -137,7 +139,7 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
         >
             <Button className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 rounded-xl" size="lg">
                 <Navigation className="mr-2 h-5 w-5" />
-                {isKorea ? "Open in Kakao Maps" : "Get Directions"}
+                {isKorea ? "Open exact spot in Kakao" : "Get exact directions"}
             </Button>
         </Link>
     );
@@ -398,6 +400,19 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                         </div>
 
                         <GetDirectionsButton spot={spot} />
+
+                        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4">
+                            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
+                                <MapPin className="h-4 w-4 text-violet-300" />
+                                Exact location
+                            </h3>
+                            <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
+                            {formatCoordinate(spot.location.lat) && formatCoordinate(spot.location.lng) && (
+                                <p className="mt-2 text-xs text-violet-50/45">
+                                    Coordinates: {formatCoordinate(spot.location.lat)}, {formatCoordinate(spot.location.lng)}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

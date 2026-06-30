@@ -67,6 +67,7 @@ interface MetricEntry {
 // ============================================================================
 
 const COST_PER_1K_TOKENS: Record<LLMProviderName, { input: number; output: number }> = {
+  glm: { input: 0.0002, output: 0.001 },
   openai: { input: 0.0025, output: 0.01 },
   gemini: { input: 0.000075, output: 0.0003 },
   claude: { input: 0.003, output: 0.015 },
@@ -79,6 +80,7 @@ const COST_PER_1K_TOKENS: Record<LLMProviderName, { input: number; output: numbe
 export class MetricsCollector {
   private entries: MetricEntry[] = [];
   private providerLatencies: Record<LLMProviderName, number[]> = {
+    glm: [],
     openai: [],
     gemini: [],
     claude: [],
@@ -133,9 +135,7 @@ export class MetricsCollector {
    */
   recordProviderCall(
     provider: LLMProviderName,
-    latencyMs: number,
-    success: boolean,
-    tokens?: TokenUsage
+    latencyMs: number
   ): void {
     this.providerLatencies[provider].push(latencyMs);
 
@@ -186,7 +186,7 @@ export class MetricsCollector {
 
     // Provider metrics
     const providerMetrics: Record<LLMProviderName, ProviderMetrics> = {} as Record<LLMProviderName, ProviderMetrics>;
-    for (const provider of ['openai', 'gemini', 'claude'] as LLMProviderName[]) {
+    for (const provider of ['glm', 'openai', 'gemini', 'claude'] as LLMProviderName[]) {
       providerMetrics[provider] = this.calculateProviderMetrics(provider, recentEntries);
     }
 
@@ -310,6 +310,7 @@ export class MetricsCollector {
   clear(): void {
     this.entries = [];
     this.providerLatencies = {
+      glm: [],
       openai: [],
       gemini: [],
       claude: [],
@@ -366,14 +367,14 @@ export function estimateOrchestrationCost(tier: UserTier): number {
   // Typical token usage estimates per request
   const estimates: Record<UserTier, Partial<Record<LLMProviderName, TokenUsage>>> = {
     free: {
-      openai: { inputTokens: 500, outputTokens: 2000, totalTokens: 2500 },
+      glm: { inputTokens: 500, outputTokens: 2000, totalTokens: 2500 },
     },
     pro: {
-      openai: { inputTokens: 500, outputTokens: 2000, totalTokens: 2500 },
+      glm: { inputTokens: 500, outputTokens: 2000, totalTokens: 2500 },
       gemini: { inputTokens: 300, outputTokens: 500, totalTokens: 800 },
     },
     premium: {
-      openai: { inputTokens: 500, outputTokens: 2000, totalTokens: 2500 },
+      glm: { inputTokens: 500, outputTokens: 2000, totalTokens: 2500 },
       gemini: { inputTokens: 300, outputTokens: 500, totalTokens: 800 },
       claude: { inputTokens: 1500, outputTokens: 500, totalTokens: 2000 },
     },

@@ -31,7 +31,6 @@ export function SpotsExplorer({
     totalCount,
     currentPage,
     pageSize,
-    hasMore,
     filterOptions,
     currentFilters,
 }: SpotsExplorerProps) {
@@ -133,9 +132,9 @@ export function SpotsExplorer({
             />
 
             {/* Results Header */}
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div
-                    className="text-sm text-muted-foreground flex items-center gap-2"
+                    className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground"
                     aria-live="polite"
                 >
                     {isPending && (
@@ -155,7 +154,7 @@ export function SpotsExplorer({
 
                 {/* View Mode Toggle */}
                 <div
-                    className="flex border border-black/5 dark:border-white/10 rounded-lg overflow-hidden bg-white/50 dark:bg-white/5"
+                    className="flex flex-shrink-0 overflow-hidden rounded-lg border border-black/5 bg-white/50 dark:border-white/10 dark:bg-white/5"
                     role="group"
                     aria-label="View mode"
                 >
@@ -189,7 +188,7 @@ export function SpotsExplorer({
                         {viewMode === "grid" ? (
                             <div
                                 className={cn(
-                                    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
+                                    "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3",
                                     "transition-opacity duration-200",
                                     isPending && "opacity-60"
                                 )}

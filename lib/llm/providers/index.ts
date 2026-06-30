@@ -21,6 +21,7 @@ export {
 
 // Provider implementations
 export { OpenAIProvider } from './openai';
+export { GLMProvider } from './glm';
 export { GeminiProvider } from './gemini';
 export { ClaudeProvider } from './claude';
 

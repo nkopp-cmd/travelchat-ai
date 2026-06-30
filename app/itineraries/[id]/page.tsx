@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Download, ArrowLeft, Lightbulb, Bus, MessageSquare, Edit2, Navigation } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
@@ -45,6 +44,106 @@ interface DayPlan {
     localTip?: string;
     transportTips?: string;
     highlights?: string[];
+}
+
+interface ItineraryInsight {
+    id: string;
+    label: string;
+    text: string;
+    kind: "local" | "transport" | "insight";
+}
+
+const TIP_NAME_PATTERNS = [
+    /\b(local|insider|travel|pro|quick)\s+tips?\b/i,
+    /\btips?\s+(for|about|before|while)\b/i,
+    /\bthings?\s+to\s+know\b/i,
+    /\bwhat\s+to\s+(order|know|bring|avoid)\b/i,
+    /\bhow\s+to\s+(get|go|use|book)\b/i,
+    /\bgetting\s+around\b/i,
+    /\btransport(ation)?\s+tips?\b/i,
+    /\bheads?\s+up\b/i,
+];
+
+const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|getting around|transport|transportation)$/i;
+
+function isTipLikeActivity(activity: ItineraryActivity): boolean {
+    const name = activity.name?.trim() || "";
+    const category = activity.category?.trim() || "";
+    const type = activity.type?.trim() || "";
+
+    if (!name) return true;
+    if (TIP_VALUE_PATTERN.test(name) || TIP_VALUE_PATTERN.test(category) || TIP_VALUE_PATTERN.test(type)) {
+        return true;
+    }
+
+    return TIP_NAME_PATTERNS.some((pattern) => pattern.test(name));
+}
+
+function getInsightText(activity: ItineraryActivity): string {
+    const name = activity.name?.trim();
+    const description = activity.description?.trim();
+
+    if (description && name && !TIP_VALUE_PATTERN.test(name)) {
+        return `${name}: ${description}`;
+    }
+
+    return description || name || "";
+}
+
+function normalizeDailyPlans(rawDailyPlans: unknown): {
+    dailyPlans: unknown;
+    insights: ItineraryInsight[];
+} {
+    if (!Array.isArray(rawDailyPlans)) {
+        return { dailyPlans: rawDailyPlans, insights: [] };
+    }
+
+    const insights: ItineraryInsight[] = [];
+    const dailyPlans = rawDailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
+        const dayNumber = dayPlan.day || dayIndex + 1;
+        const activities = (dayPlan.activities || []).filter((activity, activityIndex) => {
+            if (!isTipLikeActivity(activity)) return true;
+
+            const text = getInsightText(activity);
+            if (text) {
+                insights.push({
+                    id: `day-${dayNumber}-activity-tip-${activityIndex}`,
+                    label: `Day ${dayNumber} insight`,
+                    text,
+                    kind: "insight",
+                });
+            }
+
+            return false;
+        });
+
+        if (dayPlan.localTip) {
+            insights.push({
+                id: `day-${dayNumber}-local-tip`,
+                label: `Day ${dayNumber} local tip`,
+                text: dayPlan.localTip,
+                kind: "local",
+            });
+        }
+
+        if (dayPlan.transportTips) {
+            insights.push({
+                id: `day-${dayNumber}-transport-tip`,
+                label: `Day ${dayNumber} getting around`,
+                text: dayPlan.transportTips,
+                kind: "transport",
+            });
+        }
+
+        return {
+            ...dayPlan,
+            activities,
+            localTip: undefined,
+            transportTips: undefined,
+        };
+    });
+
+    return { dailyPlans, insights };
 }
 
 /**
@@ -214,14 +313,16 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
     const displayCity = resolveCity(itinerary);
 
     // Parse activities if they're stored as JSON
-    const dailyPlans = typeof itinerary.activities === 'string'
+    const parsedDailyPlans = typeof itinerary.activities === 'string'
         ? JSON.parse(itinerary.activities)
         : itinerary.activities;
+    const { dailyPlans, insights: itineraryInsights } = normalizeDailyPlans(parsedDailyPlans);
+    const dailyPlansForDisplay: DayPlan[] = Array.isArray(dailyPlans) ? dailyPlans : [];
 
     // Pre-compute route URLs (async because Korean cities need translation)
     const dayRouteUrls: Record<number, string> = {};
-    if (Array.isArray(dailyPlans)) {
-        const routePromises = dailyPlans.map(async (dayPlan: DayPlan, dayIndex: number) => {
+    if (dailyPlansForDisplay.length > 0) {
+        const routePromises = dailyPlansForDisplay.map(async (dayPlan: DayPlan, dayIndex: number) => {
             const activities = dayPlan.activities || [];
             const url = await getDayRouteUrl(activities, displayCity);
             dayRouteUrls[dayIndex] = url;
@@ -238,7 +339,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             ? itinerary.highlights.join(', ')
             : `A ${itinerary.days}-day travel itinerary for ${itinerary.city}`,
         touristType: 'Local experiences',
-        itinerary: dailyPlans?.map((day: DayPlan) => ({
+        itinerary: dailyPlansForDisplay.map((day: DayPlan) => ({
             '@type': 'TouristAttraction',
             name: day.theme || `Day ${day.day}`,
             description: day.activities?.map((a: ItineraryActivity) => a.name).join(', ') || '',
@@ -297,23 +398,62 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                 </a>
                 <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
                 <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlans} />
+                <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlansForDisplay} />
             </div>
 
             {/* Interactive Map */}
             <div className="space-y-4">
-                {Array.isArray(dailyPlans) && dailyPlans.length > 0 && (
+                {dailyPlansForDisplay.length > 0 && (
                     <ItineraryMap
                         city={displayCity}
-                        dailyPlans={dailyPlans}
+                        dailyPlans={dailyPlansForDisplay}
                         userTier={userTier}
                     />
                 )}
             </div>
 
+            {/* Itinerary-level Tips */}
+            {itineraryInsights.length > 0 && (
+                <Card className="border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md shadow-lg shadow-violet-500/5">
+                    <CardContent className="p-5">
+                        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h2 className="text-xl font-bold">Trip insights</h2>
+                                <p className="text-sm text-muted-foreground">
+                                    Local notes and transit guidance for the whole itinerary.
+                                </p>
+                            </div>
+                            <Badge variant="secondary" className="w-fit bg-violet-100/80 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                {itineraryInsights.length} tips
+                            </Badge>
+                        </div>
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            {itineraryInsights.map((insight) => {
+                                const Icon = insight.kind === "transport" ? Bus : Lightbulb;
+                                const tone = insight.kind === "transport"
+                                    ? "bg-blue-50/80 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/30 text-blue-600"
+                                    : "bg-yellow-50/80 dark:bg-yellow-950/20 border-yellow-200/50 dark:border-yellow-900/30 text-yellow-600";
+
+                                return (
+                                    <div key={insight.id} className={`rounded-xl border p-4 backdrop-blur-sm ${tone}`}>
+                                        <div className="flex items-start gap-3">
+                                            <Icon className="mt-0.5 h-5 w-5 flex-shrink-0" />
+                                            <div>
+                                                <h3 className="mb-1 text-sm font-semibold text-foreground">{insight.label}</h3>
+                                                <p className="text-sm leading-relaxed text-muted-foreground">{insight.text}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             {/* Daily Plans */}
             <div className="space-y-8">
-                {Array.isArray(dailyPlans) && dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
+                {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => {
                     const activities = dayPlan.activities || [];
 
                     return (
@@ -349,7 +489,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                 )}
                             </div>
 
-                            <CardContent className="p-6 space-y-6">
+                            <CardContent className="p-6">
                                 {/* Activities Timeline with Enhanced Cards */}
                                 <div className="space-y-2">
                                     {activities.map((activity: ItineraryActivity, activityIndex: number) => (
@@ -362,41 +502,13 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                         />
                                     ))}
                                 </div>
-
-                                <Separator />
-
-                                {/* Day Tips */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {dayPlan.localTip && (
-                                        <div className="p-4 rounded-xl bg-yellow-50/80 dark:bg-yellow-950/20 border border-yellow-200/50 dark:border-yellow-900/30 backdrop-blur-sm">
-                                            <div className="flex items-start gap-3">
-                                                <Lightbulb className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                                                <div>
-                                                    <h4 className="font-semibold text-sm mb-1">Local Tip</h4>
-                                                    <p className="text-sm text-muted-foreground">{dayPlan.localTip}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {dayPlan.transportTips && (
-                                        <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/30 backdrop-blur-sm">
-                                            <div className="flex items-start gap-3">
-                                                <Bus className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                                                <div>
-                                                    <h4 className="font-semibold text-sm mb-1">Getting Around</h4>
-                                                    <p className="text-sm text-muted-foreground">{dayPlan.transportTips}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
                             </CardContent>
                         </Card>
                     );
                 })}
 
                 {/* Fallback if no activities */}
-                {(!Array.isArray(dailyPlans) || dailyPlans.length === 0) && (
+                {dailyPlansForDisplay.length === 0 && (
                     <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10">
                         <CardContent className="pt-6">
                             <p className="text-muted-foreground text-center py-8">
@@ -425,7 +537,7 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                         <div className="flex gap-2 flex-wrap">
                             <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
                             <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                            <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlans} />
+                            <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlansForDisplay} />
                             <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
                                 <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 gap-2">
                                     <Download className="h-4 w-4" />

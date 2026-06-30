@@ -23,6 +23,7 @@ import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { getOrchestrator, featureFlags } from '@/lib/llm';
 import type { UserTier, GeneratedItinerary } from '@/lib/llm';
+import { sanitizeGeneratedDailyPlans } from '../../generate/sanitize-itinerary';
 
 // Maximum time for the entire generation process (5 minutes)
 const STREAM_TIMEOUT_MS = 5 * 60 * 1000;
@@ -281,6 +282,9 @@ export async function POST(req: NextRequest) {
 
       // Add thumbnails
       const itineraryData = result.data;
+      itineraryData.dailyPlans = sanitizeGeneratedDailyPlans(
+        itineraryData.dailyPlans as unknown as Parameters<typeof sanitizeGeneratedDailyPlans>[0]
+      ) as unknown as typeof itineraryData.dailyPlans;
       const dailyPlansForThumbnails = itineraryData.dailyPlans as unknown as Parameters<typeof addThumbnailsToItinerary>[0];
       const dailyPlansWithImages = addThumbnailsToItinerary(
         dailyPlansForThumbnails,
