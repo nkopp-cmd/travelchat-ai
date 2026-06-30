@@ -20,7 +20,8 @@ ANTHROPIC_API_KEY=your_anthropic_fallback_key
 
 - `/api/chat` tries `GLMProvider` first and falls back to Anthropic if GLM is unavailable or fails.
 - `/api/itineraries/generate` tries `GLMProvider` first and falls back to OpenAI if GLM is unavailable, errors, or returns invalid JSON.
-- `/api/itineraries/generate-v2` uses the LLM orchestrator, where GLM is the primary structure generator and OpenAI remains an emergency fallback.
+- `/api/itineraries/generate-v2` uses the LLM orchestrator, where GLM is the primary structure generator and OpenAI is the direct fallback when simple single-model generation is active.
+- The orchestrated Pro/Premium path still uses GLM for structure generation first, with OpenAI/Gemini/Claude available only as validation or fallback routes depending on the tier and configured API keys.
 
 ## Manual rollout steps
 
