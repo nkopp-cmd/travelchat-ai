@@ -219,6 +219,7 @@ IMPORTANT for itineraries:
 - ALWAYS include "Address: [Place name, District, City]" on a new line after each description — critical for mapping
 - Address format: SHORT and geocode-friendly: "Place Name, District, City" (NO street numbers)
 - Mark special spots as (Hidden Gem), (Local Favorite), or (Mixed)
+- Put tips, transit advice, what-to-order notes, and practical reminders ONLY under **Local Tips**. Never create a day activity named "Tip", "Getting around", "What to order", "Breakfast", "Lunch", or "Dinner".
 - NO conversational intro like "Absolutely!" or "Here you go!"
 ${spotsContext}`;
 }

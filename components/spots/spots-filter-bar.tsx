@@ -93,6 +93,9 @@ export function SpotsFilterBar({
     isPending,
 }: SpotsFilterBarProps) {
     const [searchValue, setSearchValue] = useState(currentFilters.search || "");
+    const [showMobileFilters, setShowMobileFilters] = useState(
+        Boolean(currentFilters.city || currentFilters.category || currentFilters.score)
+    );
 
     // Debounce search input - 300ms delay
     const debouncedSearch = useDebouncedCallback((value: string) => {
@@ -140,8 +143,15 @@ export function SpotsFilterBar({
         currentFilters.score ||
         currentFilters.search;
 
+    const advancedFilterCount = [
+        currentFilters.city,
+        currentFilters.category,
+        currentFilters.score,
+        currentFilters.sortBy !== "score" ? currentFilters.sortBy : null,
+    ].filter(Boolean).length;
+
     return (
-        <div className="mb-5 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-3 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:space-y-4 sm:p-4">
+        <div className="mb-4 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-3 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
             {/* Search Bar */}
             <div className="relative flex-1">
                 <Search
@@ -195,9 +205,47 @@ export function SpotsFilterBar({
                 })}
             </div>
 
+            <div className="flex items-center gap-2 md:hidden">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowMobileFilters((value) => !value)}
+                    className="h-10 flex-1 justify-between rounded-lg border border-white/10 bg-white/[0.055] px-3 text-violet-50/80 hover:bg-white/10 hover:text-white"
+                    aria-expanded={showMobileFilters}
+                    aria-controls="spots-advanced-filters"
+                >
+                    <span className="inline-flex items-center gap-2">
+                        <Filter className="h-4 w-4" aria-hidden="true" />
+                        Filters
+                    </span>
+                    {advancedFilterCount > 0 && (
+                        <span className="rounded-full bg-violet-500 px-2 py-0.5 text-xs font-semibold text-white">
+                            {advancedFilterCount}
+                        </span>
+                    )}
+                </Button>
+                {hasActiveFilters && (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClearFilters}
+                        className="h-10 rounded-lg border border-white/10 bg-white/[0.045] px-3 text-violet-50/65 hover:bg-white/10 hover:text-white"
+                    >
+                        <X className="h-4 w-4" aria-hidden="true" />
+                        <span className="sr-only">Clear filters</span>
+                    </Button>
+                )}
+            </div>
+
             {/* Advanced Filters Row */}
             <div
-                className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 md:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center"
+                id="spots-advanced-filters"
+                className={cn(
+                    "grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 md:grid md:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center",
+                    !showMobileFilters && "hidden md:grid"
+                )}
                 role="group"
                 aria-label="Filter options"
             >
@@ -295,7 +343,7 @@ export function SpotsFilterBar({
                         variant="ghost"
                         size="sm"
                         onClick={onClearFilters}
-                        className="h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white min-[420px]:col-span-2 md:col-span-4 xl:col-span-1 xl:w-auto"
+                        className="hidden h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white md:inline-flex md:col-span-4 xl:col-span-1 xl:w-auto"
                     >
                         <X className="mr-1 h-4 w-4" aria-hidden="true" />
                         Clear

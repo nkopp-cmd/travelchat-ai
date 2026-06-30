@@ -183,6 +183,7 @@ export function SpotsExplorer({
 
             {/* Spots Grid/List */}
             <ErrorBoundary>
+                <div className="pb-24 md:pb-0">
                 {initialSpots.length > 0 ? (
                     <>
                         {viewMode === "grid" ? (
@@ -247,6 +248,7 @@ export function SpotsExplorer({
                         )}
                     </div>
                 )}
+                </div>
             </ErrorBoundary>
         </>
     );
