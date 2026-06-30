@@ -5,6 +5,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import {
     buildSpotPhotoUrls,
     findGooglePlacePhotos,
+    getPlacePhotoMatchQuality,
     getGooglePlacesApiKey,
     getLocalizedFieldValue,
     needsSpotPhotoBackfill,
@@ -127,6 +128,30 @@ export async function POST(req: NextRequest) {
                 timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS,
             });
             const photoUrls = place ? buildSpotPhotoUrls(place.photos) : [];
+
+            if (place && photoUrls.length > 0) {
+                const quality = getPlacePhotoMatchQuality(
+                    name,
+                    address,
+                    spot.category,
+                    place
+                );
+
+                if (!quality.acceptable) {
+                    results.push({
+                        id: spot.id,
+                        name,
+                        address,
+                        status: "skipped",
+                        reason: `low_confidence:${quality.reason}`,
+                        placeId: place.placeId || null,
+                        placeName: place.displayName || null,
+                        photoCount: photoUrls.length,
+                    });
+                    await sleep(150);
+                    continue;
+                }
+            }
 
             if (photoUrls.length === 0) {
                 results.push({

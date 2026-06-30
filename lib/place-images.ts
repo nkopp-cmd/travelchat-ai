@@ -17,6 +17,8 @@ export interface GooglePlacePhotoCandidate {
 export interface PlacePhotoSearchResult {
     placeId: string | null;
     displayName: string | null;
+    formattedAddress: string | null;
+    types: string[];
     photos: GooglePlacePhotoCandidate[];
 }
 
@@ -27,6 +29,33 @@ export interface FindGooglePlacePhotosOptions {
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
 const MAX_PHOTOS_PER_SPOT = 3;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
+const GENERIC_SPOT_WORDS = new Set([
+    "alley",
+    "center",
+    "centre",
+    "district",
+    "dong",
+    "dori",
+    "food",
+    "local",
+    "lunch",
+    "market",
+    "park",
+    "residential",
+    "scene",
+    "shopping",
+    "street",
+    "town",
+    "trail",
+    "village",
+]);
+const TRANSIT_TYPES = new Set([
+    "airport",
+    "bus_station",
+    "subway_station",
+    "train_station",
+    "transit_station",
+]);
 
 export function getGooglePlacesApiKey(): string | null {
     return (
@@ -99,6 +128,65 @@ export function needsSpotPhotoBackfill(photos: string[] | null | undefined): boo
     });
 }
 
+function comparableWords(value: string): Set<string> {
+    return new Set(
+        value
+            .toLowerCase()
+            .normalize("NFKD")
+            .replace(/[^a-z0-9\s-]/g, " ")
+            .split(/\s+/)
+            .filter((word) => word.length >= 3 && !GENERIC_SPOT_WORDS.has(word))
+    );
+}
+
+function wordOverlap(source: string, target: string): number {
+    const sourceWords = comparableWords(source);
+    if (sourceWords.size === 0) return 0;
+
+    const targetWords = comparableWords(target);
+    let matches = 0;
+
+    sourceWords.forEach((word) => {
+        if (targetWords.has(word)) matches++;
+    });
+
+    return matches / sourceWords.size;
+}
+
+export function getPlacePhotoMatchQuality(
+    spotName: string,
+    spotAddress: string,
+    category: string | null | undefined,
+    place: Pick<PlacePhotoSearchResult, "displayName" | "formattedAddress" | "types">
+): { acceptable: boolean; reason: string; nameScore: number; addressScore: number } {
+    const placeTypes = new Set(place.types || []);
+    const hasTransitType = [...TRANSIT_TYPES].some((type) => placeTypes.has(type));
+    const allowsTransit = category === "Transportation";
+
+    if (hasTransitType && !allowsTransit) {
+        return {
+            acceptable: false,
+            reason: "transit_place_for_non_transit_spot",
+            nameScore: 0,
+            addressScore: 0,
+        };
+    }
+
+    const nameScore = wordOverlap(spotName, place.displayName || "");
+    const addressScore = wordOverlap(spotAddress, place.formattedAddress || "");
+
+    if (nameScore >= 0.34 || addressScore >= 0.2) {
+        return { acceptable: true, reason: "accepted", nameScore, addressScore };
+    }
+
+    return {
+        acceptable: false,
+        reason: "low_name_and_address_match",
+        nameScore,
+        addressScore,
+    };
+}
+
 export async function findGooglePlacePhotos(
     name: string,
     address: string,
@@ -119,7 +207,7 @@ export async function findGooglePlacePhotos(
             headers: {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.id,places.displayName,places.photos",
+                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos,places.types",
             },
             body: JSON.stringify({
                 textQuery,
@@ -145,7 +233,9 @@ export async function findGooglePlacePhotos(
         places?: Array<{
             id?: string;
             displayName?: { text?: string };
+            formattedAddress?: string;
             photos?: GooglePlacePhotoCandidate[];
+            types?: string[];
         }>;
     };
     const place = data.places?.[0];
@@ -155,6 +245,8 @@ export async function findGooglePlacePhotos(
     return {
         placeId: place.id || null,
         displayName: place.displayName?.text || null,
+        formattedAddress: place.formattedAddress || null,
+        types: place.types || [],
         photos: (place.photos || []).filter((photo) => Boolean(photo.name)),
     };
 }
