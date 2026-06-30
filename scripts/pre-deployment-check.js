@@ -46,6 +46,39 @@ function fileContains(filepath, searchString) {
   }
 }
 
+function parseEnvFile(filepath) {
+  try {
+    const content = fs.readFileSync(path.join(__dirname, '..', filepath), 'utf-8');
+    const env = {};
+
+    for (const rawLine of content.split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+
+      const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+      if (!match) continue;
+
+      let value = match[2].trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+
+      env[match[1]] = value.trim();
+    }
+
+    return env;
+  } catch {
+    return {};
+  }
+}
+
+function hasEnvValue(env, key) {
+  return typeof env[key] === 'string' && env[key].trim().length > 0;
+}
+
 // 1. Core Files Check
 console.log('📁 Core Files');
 check('package.json exists', fileExists('package.json'));
@@ -112,17 +145,19 @@ console.log();
 // 7. Environment Variables (from .env.local if exists)
 console.log('🔐 Environment Configuration');
 if (fileExists('.env.local')) {
-  check('NEXT_PUBLIC_SUPABASE_URL configured', fileContains('.env.local', 'NEXT_PUBLIC_SUPABASE_URL'));
-  check('NEXT_PUBLIC_SUPABASE_ANON_KEY configured', fileContains('.env.local', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'));
-  check('SUPABASE_SERVICE_ROLE_KEY configured', fileContains('.env.local', 'SUPABASE_SERVICE_ROLE_KEY'));
-  check('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY configured', fileContains('.env.local', 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'));
-  check('CLERK_SECRET_KEY configured', fileContains('.env.local', 'CLERK_SECRET_KEY'));
-  check('GLM primary key configured', fileContains('.env.local', 'GLM_API_KEY') || fileContains('.env.local', 'ZAI_API_KEY'));
-  check('GLM model configured', fileContains('.env.local', 'GLM_MODEL'), true);
-  check('OPENAI_API_KEY configured', fileContains('.env.local', 'OPENAI_API_KEY'));
-  check('ANTHROPIC_API_KEY configured', fileContains('.env.local', 'ANTHROPIC_API_KEY'));
-  check('NEXT_PUBLIC_SENTRY_DSN configured', fileContains('.env.local', 'NEXT_PUBLIC_SENTRY_DSN'), true);
-  check('NEXT_PUBLIC_BASE_URL configured', fileContains('.env.local', 'NEXT_PUBLIC_BASE_URL'), true);
+  const env = parseEnvFile('.env.local');
+
+  check('NEXT_PUBLIC_SUPABASE_URL configured', hasEnvValue(env, 'NEXT_PUBLIC_SUPABASE_URL'));
+  check('NEXT_PUBLIC_SUPABASE_ANON_KEY configured', hasEnvValue(env, 'NEXT_PUBLIC_SUPABASE_ANON_KEY'));
+  check('SUPABASE_SERVICE_ROLE_KEY configured', hasEnvValue(env, 'SUPABASE_SERVICE_ROLE_KEY'));
+  check('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY configured', hasEnvValue(env, 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'));
+  check('CLERK_SECRET_KEY configured', hasEnvValue(env, 'CLERK_SECRET_KEY'));
+  check('GLM primary key configured', hasEnvValue(env, 'GLM_API_KEY') || hasEnvValue(env, 'ZAI_API_KEY'));
+  check('GLM model configured', hasEnvValue(env, 'GLM_MODEL'), true);
+  check('OPENAI_API_KEY configured', hasEnvValue(env, 'OPENAI_API_KEY'));
+  check('ANTHROPIC_API_KEY configured', hasEnvValue(env, 'ANTHROPIC_API_KEY'));
+  check('NEXT_PUBLIC_SENTRY_DSN configured', hasEnvValue(env, 'NEXT_PUBLIC_SENTRY_DSN'), true);
+  check('NEXT_PUBLIC_BASE_URL configured', hasEnvValue(env, 'NEXT_PUBLIC_BASE_URL'), true);
 } else {
   console.log('⚠️  .env.local not found - skipping environment checks');
   warnings++;

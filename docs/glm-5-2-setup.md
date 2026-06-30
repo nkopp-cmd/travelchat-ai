@@ -32,6 +32,8 @@ ANTHROPIC_API_KEY=your_anthropic_fallback_key
 
 Use the standard Z.AI OpenAI-compatible endpoint for Localley chat/completions. Do not use the coding-plan endpoint for the app runtime unless the provider implementation is changed deliberately.
 
+Important: Vercel can contain a variable name with a blank value, for example `GLM_API_KEY=""`. That is not configured. In that state Localley will treat GLM as unavailable and fall back to Anthropic/OpenAI.
+
 ## Vercel CLI setup
 
 From the project root, add the GLM variables like this:
@@ -44,3 +46,26 @@ printf "%s" "https://api.z.ai/api/paas/v4/" | vercel env add GLM_BASE_URL produc
 ```
 
 Repeat the same three commands for `preview` and `development` if those environments should use GLM too. After changing Vercel env vars, redeploy because running deployments do not automatically reload new secrets.
+
+## Verify the deployed env
+
+Pull the production env and verify the GLM key is non-empty without printing the secret:
+
+```bash
+cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
+tmp_env=$(mktemp)
+vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
+node - <<'NODE' "$tmp_env"
+const fs = require("fs");
+const dotenv = require("dotenv");
+const parsed = dotenv.parse(fs.readFileSync(process.argv[2], "utf8"));
+console.log({
+  hasGlmKey: Boolean(parsed.GLM_API_KEY || parsed.ZAI_API_KEY),
+  glmModel: parsed.GLM_MODEL || "glm-5.2",
+  glmBaseUrl: parsed.GLM_BASE_URL || parsed.ZAI_BASE_URL || "https://api.z.ai/api/paas/v4/",
+});
+NODE
+rm -f "$tmp_env"
+```
+
+If `hasGlmKey` is `false`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
