@@ -54,6 +54,7 @@ export interface SpotPhotoSummary {
 }
 
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
+export const DEFAULT_SPOT_PHOTO_FALLBACK = "/images/placeholders/default.svg";
 const MAX_PHOTOS_PER_SPOT = 3;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
 const GENERIC_SPOT_WORDS = new Set([
@@ -127,6 +128,38 @@ export function buildPlacePhotoProxyUrl(photoName: string, width = 1200): string
     }
 
     return `${GOOGLE_PHOTO_PROXY_PATH}?${params.toString()}`;
+}
+
+export function getProxiedGooglePhotoUrl(photo: string, width = 1200): string | null {
+    try {
+        const url = new URL(photo, "https://www.localley.io");
+        const host = url.hostname.toLowerCase();
+
+        if (url.pathname === GOOGLE_PHOTO_PROXY_PATH) {
+            return photo;
+        }
+
+        if (host === "places.googleapis.com") {
+            const match = url.pathname.match(/^\/v1\/(places\/[^/]+\/photos\/[^/]+)(?:\/media)?$/);
+            return match ? buildPlacePhotoProxyUrl(match[1], width) : null;
+        }
+
+        if (host === "maps.googleapis.com" && url.pathname === "/maps/api/place/photo") {
+            const photoRef = url.searchParams.get("photo_reference");
+            return photoRef ? buildPlacePhotoProxyUrl(photoRef, width) : null;
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+export function normalizeStoredSpotPhotoUrls(
+    photos: string[] | null | undefined,
+    width = 1200
+): string[] {
+    return (photos || []).map((photo) => getProxiedGooglePhotoUrl(photo, width) || photo);
 }
 
 export function normalizePhotoWidth(value: string | null, fallback = 1200): number {

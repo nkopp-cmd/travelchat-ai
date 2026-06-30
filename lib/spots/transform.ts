@@ -5,8 +5,7 @@
 
 import { Spot, MultiLanguageField } from "@/types";
 import {
-    buildPlacePhotoProxyUrl,
-    getGooglePlacesApiKey,
+    normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
@@ -39,31 +38,6 @@ function isPlaceholderPhoto(photo: string): boolean {
     return photo.includes("/images/placeholders/") || photo.includes("placeholder");
 }
 
-function getProxiedGooglePhotoUrl(photo: string, width = 1200): string | null {
-    try {
-        const url = new URL(photo, "https://www.localley.io");
-        const host = url.hostname.toLowerCase();
-
-        if (url.pathname === "/api/places/photo") {
-            return photo;
-        }
-
-        if (host === "places.googleapis.com") {
-            const match = url.pathname.match(/^\/v1\/(places\/[^/]+\/photos\/[^/]+)(?:\/media)?$/);
-            return match ? buildPlacePhotoProxyUrl(match[1], width) : null;
-        }
-
-        if (host === "maps.googleapis.com" && url.pathname === "/maps/api/place/photo") {
-            const photoRef = url.searchParams.get("photo_reference");
-            return photoRef ? buildPlacePhotoProxyUrl(photoRef, width) : null;
-        }
-
-        return null;
-    } catch {
-        return null;
-    }
-}
-
 function isUsablePhotoUrl(photo: string): boolean {
     if (!photo) return false;
     if (photo.startsWith("/")) return !isPlaceholderPhoto(photo);
@@ -84,9 +58,7 @@ export function normalizeSpotPhotos(
     category: string | null,
     width = 1200
 ): string[] {
-    const canProxyGooglePhotos = !!getGooglePlacesApiKey();
-    const normalized = (photos || [])
-        .map((photo) => (canProxyGooglePhotos ? getProxiedGooglePhotoUrl(photo, width) : null) || photo)
+    const normalized = normalizeStoredSpotPhotoUrls(photos, width)
         .filter(isUsablePhotoUrl);
 
     const uniquePhotos = Array.from(new Set(normalized));

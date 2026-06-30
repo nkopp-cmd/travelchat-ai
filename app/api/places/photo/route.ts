@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+    DEFAULT_SPOT_PHOTO_FALLBACK,
     getGooglePlacesApiKey,
     normalizePhotoWidth,
 } from "@/lib/place-images";
+
+function redirectToFallback(req: NextRequest, reason: string) {
+    const fallbackUrl = new URL(DEFAULT_SPOT_PHOTO_FALLBACK, req.url);
+
+    return NextResponse.redirect(fallbackUrl, {
+        status: 302,
+        headers: {
+            "Cache-Control": "public, max-age=300, s-maxage=300",
+            "X-Localley-Photo-Fallback": reason,
+        },
+    });
+}
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -16,19 +29,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (!apiKey) {
-        return NextResponse.json(
-            { error: "Google Places API key is not configured" },
-            { status: 503 }
-        );
+        return redirectToFallback(req, "missing_google_places_api_key");
     }
 
     if (photoName && !/^places\/[^/]+\/photos\/[^/]+$/.test(photoName)) {
-        return NextResponse.json({ error: "Invalid photo name" }, { status: 400 });
+        return redirectToFallback(req, "invalid_photo_name");
     }
 
     if (legacyPhotoRef) {
         if (!/^[A-Za-z0-9_-]+$/.test(legacyPhotoRef)) {
-            return NextResponse.json({ error: "Invalid photo reference" }, { status: 400 });
+            return redirectToFallback(req, "invalid_photo_reference");
         }
 
         const legacyUrl = new URL("https://maps.googleapis.com/maps/api/place/photo");
@@ -43,10 +53,7 @@ export async function GET(req: NextRequest) {
         const location = legacyResponse.headers.get("location");
 
         if (!location) {
-            return NextResponse.json(
-                { error: "Place photo lookup failed" },
-                { status: legacyResponse.status === 404 ? 404 : 502 }
-            );
+            return redirectToFallback(req, `legacy_lookup_failed_${legacyResponse.status}`);
         }
 
         return NextResponse.redirect(location, {
@@ -68,15 +75,12 @@ export async function GET(req: NextRequest) {
     });
 
     if (!response.ok) {
-        return NextResponse.json(
-            { error: "Place photo lookup failed" },
-            { status: response.status === 404 ? 404 : 502 }
-        );
+        return redirectToFallback(req, `lookup_failed_${response.status}`);
     }
 
     const data = (await response.json()) as { photoUri?: string };
     if (!data.photoUri) {
-        return NextResponse.json({ error: "Place photo unavailable" }, { status: 404 });
+        return redirectToFallback(req, "photo_uri_missing");
     }
 
     return NextResponse.redirect(data.photoUri, {
