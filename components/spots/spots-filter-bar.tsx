@@ -197,11 +197,11 @@ export function SpotsFilterBar({
 
             {/* Advanced Filters Row */}
             <div
-                className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center"
+                className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center"
                 role="group"
                 aria-label="Filter options"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 lg:col-span-4 xl:hidden">
+                <div className="col-span-2 flex items-center gap-2 text-sm font-medium text-violet-50/65 md:col-span-4 xl:hidden">
                     <Filter className="h-4 w-4" aria-hidden="true" />
                     Filters:
                 </div>
@@ -211,8 +211,8 @@ export function SpotsFilterBar({
                     value={currentFilters.city || "all"}
                     onValueChange={(v) => onFilterChange("city", v === "all" ? null : v)}
                 >
-                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select city">
-                        <MapPin className="mr-1 h-4 w-4" aria-hidden="true" />
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select city">
+                        <MapPin className="mr-1 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden="true" />
                         <SelectValue placeholder="All Cities" />
                     </SelectTrigger>
                     <SelectContent>
@@ -238,7 +238,7 @@ export function SpotsFilterBar({
                     value={currentFilters.category || "all"}
                     onValueChange={(v) => onFilterChange("category", v === "all" ? null : v)}
                 >
-                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select category">
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select category">
                         <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -258,9 +258,9 @@ export function SpotsFilterBar({
                         onFilterChange("score", v === "all" ? null : parseInt(v))
                     }
                 >
-                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select Localley score">
-                        <Star className="mr-1 h-4 w-4" aria-hidden="true" />
-                        <SelectValue placeholder="Localley Score" />
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select Localley score">
+                        <Star className="mr-1 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden="true" />
+                        <SelectValue placeholder="Score" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All Scores</SelectItem>
@@ -277,7 +277,7 @@ export function SpotsFilterBar({
                     value={currentFilters.sortBy}
                     onValueChange={(v) => onFilterChange("sortBy", v)}
                 >
-                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Sort by">
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Sort by">
                         <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
@@ -295,7 +295,7 @@ export function SpotsFilterBar({
                         variant="ghost"
                         size="sm"
                         onClick={onClearFilters}
-                        className="h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 lg:col-span-4 xl:col-span-1 xl:w-auto"
+                        className="col-span-2 h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white md:col-span-4 xl:col-span-1 xl:w-auto"
                     >
                         <X className="mr-1 h-4 w-4" aria-hidden="true" />
                         Clear

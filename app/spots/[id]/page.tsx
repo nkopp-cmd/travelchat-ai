@@ -12,6 +12,7 @@ import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
+import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
@@ -82,6 +83,13 @@ function getDirectionsUrl(
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
+function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
+    const isKorea = isKoreanLocation(spot.location.address);
+    return isKorea
+        ? "Searches Kakao by the exact spot name and address, not the imported map pin."
+        : "Searches maps by the exact spot name and address, not the imported map pin.";
+}
+
 function getSpotContextCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
     const inferredCity = inferSpotCity(spot);
     if (inferredCity) return inferredCity;
@@ -99,7 +107,7 @@ function formatCoordinate(value: number) {
 }
 
 function isPlaceholderImage(src: string | undefined) {
-    return !src || src.startsWith("/") || src.includes("placeholder");
+    return !src || src.startsWith("/images/placeholders/") || src === "/placeholder-spot.svg" || src.includes("placeholder");
 }
 
 function inferSpotCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string | null {
@@ -191,7 +199,7 @@ async function getSpot(id: string) {
         localleyScore: spot.localley_score as LocalleyScale,
         localPercentage: spot.local_percentage,
         bestTime: spot.best_times?.en || "Anytime",
-        photos: spot.photos || ["/placeholder-spot.svg"],
+        photos: normalizeSpotPhotos(spot.photos, spot.category, 1600),
         tips: spot.tips?.en || [],
         verified: spot.verified,
         trending: spot.trending_score > 0.8,
@@ -363,10 +371,28 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                         ))}
                     </div>
 
-                    <div className={`${LIQUID_CARD} p-4 sm:p-5`}>
+                    <div className={`${LIQUID_CARD} space-y-4 p-4 sm:p-5`}>
                         <p className="text-base leading-7 text-violet-50/70 sm:text-lg">
                             {spot.description}
                         </p>
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                <span className="block text-xs text-violet-50/45">Category</span>
+                                <span className="mt-1 block truncate text-sm font-semibold text-white">{spot.category}</span>
+                            </div>
+                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                <span className="block text-xs text-violet-50/45">Localley</span>
+                                <span className="mt-1 block text-sm font-semibold text-violet-100">{spot.localleyScore}/6</span>
+                            </div>
+                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                <span className="block text-xs text-violet-50/45">Crowd</span>
+                                <span className="mt-1 block text-sm font-semibold text-emerald-100">{spot.localPercentage}% local</span>
+                            </div>
+                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                <span className="block text-xs text-violet-50/45">Best time</span>
+                                <span className="mt-1 block truncate text-sm font-semibold text-white">{spot.bestTime}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className={`${LIQUID_CARD} space-y-5 p-4 sm:p-6`}>
@@ -445,9 +471,12 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             <p className="mt-2 text-xs font-medium text-violet-200/80">
                                 Search context: {spot.name}, {city}
                             </p>
+                            <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
+                                {getDirectionsHelperText(spot)}
+                            </p>
                             {formatCoordinate(spot.location.lat) && formatCoordinate(spot.location.lng) && (
                                 <p className="mt-2 text-xs text-violet-50/45">
-                                    Coordinates: {formatCoordinate(spot.location.lat)}, {formatCoordinate(spot.location.lng)}
+                                    Approximate imported pin: {formatCoordinate(spot.location.lat)}, {formatCoordinate(spot.location.lng)}
                                 </p>
                             )}
                         </div>
