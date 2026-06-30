@@ -34,10 +34,12 @@ export function getActivitySearchText(activity: MapLinkActivity, city: string): 
 
 export function buildActivityMapUrl(activity: MapLinkActivity, city: string): string | null {
   const address = cleanPart(activity.address);
-  if (!address) return null;
+  const cityName = cleanPart(city);
+  const name = cleanPart(activity.name);
+  if (!address && !name) return null;
 
   if (isKoreanCity(city)) {
-    const kakaoQuery = cleanPart(activity.nameKo) || `${cleanPart(activity.name)} ${address}`.trim();
+    const kakaoQuery = cleanPart(activity.nameKo) || uniqueParts([name, address, cityName]).join(" ");
     return `https://map.kakao.com/link/search/${encodeURIComponent(kakaoQuery)}`;
   }
 

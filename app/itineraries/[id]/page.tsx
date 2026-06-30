@@ -267,7 +267,10 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Itinerary-level Tips */}
-            <ItineraryInsightsPanel insights={itineraryInsights} />
+            <ItineraryInsightsPanel
+                insights={itineraryInsights}
+                className="border-violet-300/15 bg-violet-950/[0.18]"
+            />
 
             {/* Daily Plans */}
             <div className="space-y-4 sm:space-y-5">
@@ -275,13 +278,13 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                     const activities = dayPlan.activities || [];
 
                     return (
-                        <section key={dayIndex} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-2xl shadow-violet-950/15 backdrop-blur-xl">
+                        <section key={dayIndex} className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.045] shadow-xl shadow-violet-950/12 backdrop-blur-xl">
                             {/* Day Header */}
-                            <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-4 py-4 text-white sm:px-5">
+                            <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-4 py-3.5 text-white sm:px-5 sm:py-4">
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <span className="rounded-full bg-white/18 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-violet-50">
+                                            <span className="rounded-full bg-white/18 px-2.5 py-1 text-xs font-bold uppercase text-violet-50">
                                                 Day {dayPlan.day || dayIndex + 1}
                                             </span>
                                             <Badge variant="secondary" className="w-fit bg-white/18 text-white hover:bg-white/24">

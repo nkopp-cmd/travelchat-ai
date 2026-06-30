@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Bookmark, Check, MapPin, Sparkles } from "lucide-react";
+import { Bookmark, Calendar, Check, Gem, MapPin, Sparkles, Star } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
@@ -129,15 +129,15 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
 
     const getTypeIcon = (type: string) => {
         switch (type) {
-            case 'hidden-gem': return '💎';
-            case 'local-favorite': return '⭐';
-            case 'mixed': return '🌟';
-            default: return '📍';
+            case 'hidden-gem': return Gem;
+            case 'local-favorite': return Star;
+            case 'mixed': return Sparkles;
+            default: return MapPin;
         }
     };
 
     return (
-        <div className="bg-white/[0.15] dark:bg-white/[0.08] backdrop-blur-md rounded-2xl border border-white/20 dark:border-white/10 shadow-[0_0_20px_rgba(139,92,246,0.15)] overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/[0.15] shadow-[0_0_20px_rgba(139,92,246,0.15)] backdrop-blur-md dark:border-white/10 dark:bg-white/[0.08]">
             {/* Header */}
             <div className="px-5 pt-5 pb-4">
                 <div className="flex items-start justify-between gap-3">
@@ -183,12 +183,23 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 </div>
             </div>
 
+            {insights.length > 0 && (
+                <div className="px-4 pb-3 sm:px-5">
+                    <ItineraryInsightsPanel
+                        insights={insights}
+                        title="Trip notes"
+                        compact
+                        className="border-white/15 bg-white/55 shadow-none dark:bg-white/[0.04]"
+                    />
+                </div>
+            )}
+
             {/* Days */}
-            <div className="px-5 pb-5 space-y-3">
+            <div className="space-y-3 px-4 pb-5 sm:px-5">
                 {days.map((day, dayIndex) => (
-                    <div key={dayIndex} className="bg-white/70 dark:bg-white/5 backdrop-blur-sm rounded-xl border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
+                    <div key={dayIndex} className="overflow-hidden rounded-xl border border-black/5 bg-white/70 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                         {/* Day Header - Gradient */}
-                        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 flex items-center justify-between">
+                        <div className="flex items-center justify-between bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 sm:px-4">
                             <h4 className="font-semibold text-white text-sm">{day.day}</h4>
                             <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
                                 {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
@@ -200,15 +211,16 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                             {day.activities.map((activity, actIndex) => {
                                 const badge = getTypeBadge(activity.type);
                                 const desc = cleanChatItineraryDescription(activity.description);
+                                const TypeIcon = getTypeIcon(activity.type);
 
                                 return (
-                                    <div key={actIndex} className="px-4 py-3 flex items-start gap-3">
-                                        <span className="text-lg leading-none mt-0.5 flex-shrink-0">
-                                            {getTypeIcon(activity.type)}
+                                    <div key={actIndex} className="flex items-start gap-3 px-3.5 py-3 sm:px-4">
+                                        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-violet-300/20 bg-violet-400/10 text-violet-200">
+                                            <TypeIcon className="h-3.5 w-3.5" aria-hidden="true" />
                                         </span>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <h5 className="font-semibold text-sm text-foreground">
+                                                <h5 className="font-semibold text-sm leading-snug text-foreground">
                                                     {activity.title}
                                                 </h5>
                                                 {badge && (
@@ -218,7 +230,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                                 )}
                                             </div>
                                             {desc && (
-                                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                                                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                                                     {desc}
                                                 </p>
                                             )}
@@ -230,17 +242,6 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                     </div>
                 ))}
             </div>
-
-            {insights.length > 0 && (
-                <div className="px-5 pb-4 pt-0">
-                    <ItineraryInsightsPanel
-                        insights={insights}
-                        title="Trip notes"
-                        compact
-                        className="border-white/15 bg-white/55 shadow-none dark:bg-white/[0.04]"
-                    />
-                </div>
-            )}
         </div>
     );
 }
