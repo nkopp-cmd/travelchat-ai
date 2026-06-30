@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { handleApiError, Errors } from '@/lib/api-errors';
 import { getUserTier } from '@/lib/usage-tracking';
+import { buildPlacePhotoProxyUrl, getGooglePlacesApiKey } from '@/lib/place-images';
 
 /**
  * GET /api/places/photos?query=Lucyd+Brunch&city=Seoul
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
             return Errors.validationError('query parameter is required');
         }
 
-        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        const apiKey = getGooglePlacesApiKey();
         if (!apiKey) {
             return NextResponse.json({ error: 'Google Maps API key not configured' }, { status: 503 });
         }
@@ -90,10 +91,10 @@ export async function GET(req: NextRequest) {
             placeId: place.place_id || null,
         };
 
-        // Get photo URL
+        // Get photo URL through the Localley proxy so no Google API key is exposed.
         if (place.photos && place.photos.length > 0) {
             const photoRef = place.photos[0].photo_reference;
-            result.photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoRef}&key=${apiKey}`;
+            result.photoUrl = buildPlacePhotoProxyUrl(photoRef, 900);
         }
 
         // Get phone from Place Details if available
