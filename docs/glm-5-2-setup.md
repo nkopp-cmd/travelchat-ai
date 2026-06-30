@@ -70,3 +70,12 @@ rm -f "$tmp_env"
 ```
 
 If `hasGlmKey` is `false`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
+
+## Verify the runtime provider
+
+Admin users can verify runtime routing without exposing secrets:
+
+- `GET /api/admin/llm-metrics` reports `chatProviderReadiness`, including whether GLM is configured as the primary chat provider and whether Anthropic fallback is configured.
+- `GET /api/admin/llm-metrics?health=glm` runs a lightweight GLM health check and returns `chatProviderReadiness.glm.healthy`.
+
+The health-check query intentionally runs only when `health=glm` is present so normal metrics reads do not spend model tokens.
