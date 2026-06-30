@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
     classifySpotPhoto,
+    getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
     needsSpotPhotoBackfill,
+    normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
 
@@ -49,6 +51,32 @@ describe("spot photo classification", () => {
         });
         expect(summary.kinds.local_asset).toBe(1);
         expect(summary.kinds.remote_https).toBe(1);
+    });
+
+    it("converts stored direct Google photo URLs to Localley proxy URLs", () => {
+        expect(
+            getProxiedGooglePhotoUrl(
+                "https://places.googleapis.com/v1/places/abc/photos/def/media?maxWidthPx=800&key=old"
+            )
+        ).toBe("/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef");
+
+        expect(
+            getProxiedGooglePhotoUrl(
+                "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=legacy_ref&key=old"
+            )
+        ).toBe("/api/places/photo?w=1200&ref=legacy_ref");
+    });
+
+    it("normalizes only convertible stored photo URLs", () => {
+        expect(
+            normalizeStoredSpotPhotoUrls([
+                "https://places.googleapis.com/v1/places/abc/photos/def/media?key=old",
+                "https://cdn.example.com/spot.jpg",
+            ])
+        ).toEqual([
+            "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
+            "https://cdn.example.com/spot.jpg",
+        ]);
     });
 });
 
