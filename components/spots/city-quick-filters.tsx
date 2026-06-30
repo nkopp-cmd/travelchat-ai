@@ -49,7 +49,7 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0">
             {cities.map((city) => {
                 const isActive = currentCity === city.slug;
 
@@ -58,15 +58,15 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                         key={city.slug}
                         onClick={() => handleCityClick(city.slug)}
                         disabled={isPending}
-                        className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded-full"
+                        className="group shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
                     >
                         <Badge
                             variant={isActive ? "default" : "secondary"}
                             className={cn(
-                                "gap-2 py-1.5 pl-1.5 pr-3 text-sm cursor-pointer transition-all duration-200",
+                                "min-h-10 cursor-pointer gap-2 rounded-full py-1.5 pl-1.5 pr-3 text-sm transition-all duration-200",
                                 isActive
-                                    ? "bg-violet-600 text-white hover:bg-violet-700 shadow-md shadow-violet-500/20"
-                                    : "bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 hover:border-violet-300 dark:hover:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-900/20",
+                                    ? "border border-violet-300/45 bg-violet-500 text-white shadow-md shadow-violet-500/20 hover:bg-violet-400"
+                                    : "border border-violet-200/15 bg-[#100b1c]/78 text-violet-50/75 backdrop-blur-sm hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white",
                                 isPending && "opacity-60"
                             )}
                         >
@@ -77,7 +77,7 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                                     "ml-1.5 text-xs",
                                     isActive
                                         ? "text-violet-200"
-                                        : "text-muted-foreground"
+                                        : "text-violet-50/45"
                                 )}
                             >
                                 {city.count} spots
@@ -90,7 +90,7 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
             {/* Total spots indicator */}
             <Badge
                 variant="outline"
-                className="px-3 py-1.5 text-sm border-dashed bg-white/50 dark:bg-white/5 backdrop-blur-sm"
+                className="min-h-10 shrink-0 rounded-full border-dashed border-violet-200/20 bg-[#100b1c]/70 px-3 py-1.5 text-sm text-violet-50/70 backdrop-blur-sm"
             >
                 {isPending ? (
                     <Loader2 className="h-3.5 w-3.5 mr-1.5 text-violet-500 animate-spin" />

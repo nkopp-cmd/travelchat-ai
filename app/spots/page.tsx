@@ -5,6 +5,7 @@ import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { MapPin } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
+import { CityImageAvatar } from "@/components/ui/city-image";
 import {
     fetchFilteredSpots,
     fetchFilterOptions,
@@ -32,11 +33,11 @@ function SpotsLoading() {
     return (
         <div className="space-y-6">
             {/* Filter bar skeleton */}
-            <div className="p-4 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10">
-                <div className="h-11 bg-white/50 dark:bg-white/5 rounded-lg animate-pulse mb-4" />
+            <div className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
+                <div className="h-11 animate-pulse rounded-lg bg-white/10 mb-4" />
                 <div className="flex gap-2">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-8 w-20 bg-white/50 dark:bg-white/5 rounded-full animate-pulse" />
+                        <div key={i} className="h-8 w-20 animate-pulse rounded-full bg-white/10" />
                     ))}
                 </div>
             </div>
@@ -112,22 +113,37 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
 
     return (
         <AppBackground ambient fitParent>
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
                 {/* Header */}
-                <div className="mb-8 space-y-4">
-                    <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 text-violet-700 dark:text-violet-400 text-sm font-medium mb-3">
-                            <MapPin className="h-4 w-4" />
-                            Asia-First Discovery
+                <div className="mb-6 space-y-4 md:mb-8">
+                    <div className="relative overflow-hidden rounded-lg border border-violet-200/15 bg-[#100b1c]/82 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
+                        <div className="absolute right-3 top-3 hidden -space-x-3 sm:flex">
+                            {["Seoul", "Tokyo", "Bangkok", "Singapore"].map((city) => (
+                                <CityImageAvatar
+                                    key={city}
+                                    city={city}
+                                    className="h-14 w-14 rounded-lg ring-2 ring-[#100b1c]"
+                                    imageClassName="saturate-110"
+                                    imageWidth={240}
+                                    quality={90}
+                                    sizes="56px"
+                                />
+                            ))}
                         </div>
-                        <h1 className="text-4xl font-bold mb-2">
-                            <GradientText variant="violet">
-                                Discover Hidden Gems
-                            </GradientText>
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Curated local favorites where neighborhood culture matters most
-                        </p>
+                        <div className="relative max-w-2xl">
+                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+                                <MapPin className="h-4 w-4" />
+                                Asia-First Discovery
+                            </div>
+                            <h1 className="mb-2 text-3xl font-bold tracking-tight md:text-4xl">
+                                <GradientText variant="violet">
+                                    Discover Hidden Gems
+                                </GradientText>
+                            </h1>
+                            <p className="text-sm leading-6 text-violet-50/65 md:text-base">
+                                Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
+                            </p>
+                        </div>
                     </div>
 
                     {/* City Coverage Stats */}
@@ -137,7 +153,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                 {[1, 2, 3, 4].map((i) => (
                                     <div
                                         key={i}
-                                        className="h-8 w-32 bg-white/50 dark:bg-white/5 backdrop-blur-sm animate-pulse rounded-full"
+                                        className="h-9 w-32 animate-pulse rounded-full bg-white/10 backdrop-blur-sm"
                                     />
                                 ))}
                             </div>
