@@ -109,6 +109,16 @@ function appendActivityNote(activity: ParsedChatActivity, note: string) {
   activity.description = activity.description ? `${activity.description}\n${text}` : text;
 }
 
+function parseIndentedTip(note: string): string | null {
+  const parsed = parseActivityLine(`- ${note}`);
+  if (!parsed) return null;
+
+  const cleanTitle = cleanActivityTitle(parsed.title);
+  if (!isTipLikeActivity({ name: cleanTitle, description: parsed.description })) return null;
+
+  return parsed.description ? `${cleanTitle}: ${parsed.description}` : cleanTitle;
+}
+
 export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
   if (/\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|route|ride|getting around|kakao|maps?)\b/i.test(tip)) {
     return "transport";
@@ -217,7 +227,12 @@ export function parseChatItineraryPreview(content: string): ParsedChatItinerary 
       if (noteAddress) {
         lastActivity.address = noteAddress;
       } else {
-        appendActivityNote(lastActivity, indentedNote);
+        const tip = parseIndentedTip(indentedNote);
+        if (tip) {
+          tips.push(tip);
+        } else {
+          appendActivityNote(lastActivity, indentedNote);
+        }
       }
     }
   });
