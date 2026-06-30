@@ -71,12 +71,13 @@ function NewItineraryContent() {
         else if (fl.includes("street food")) mappedInterests.push("Street Food");
         else if (fl.includes("vintage") || fl.includes("thrift")) mappedInterests.push("Vintage & Thrift");
         else if (fl.includes("music") || fl.includes("entertainment")) mappedInterests.push("Music & Entertainment");
+        else if (fl.includes("hidden") || fl.includes("local") || fl.includes("authentic")) mappedInterests.push("Art & Culture");
       });
 
       initialData = {
         days: template.days,
         pace: template.pace,
-        interests: [...new Set(mappedInterests)],
+        interests: [...new Set(mappedInterests.length ? mappedInterests : ["Food & Dining"])],
         templatePrompt: template.prompt,
         templateName: template.name,
       };

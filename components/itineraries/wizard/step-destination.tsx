@@ -23,7 +23,7 @@ interface CitiesResponse {
 }
 
 export function StepDestination() {
-  const { data, setData, setCanProceed, nextStep } = useWizard();
+  const { data, setData, setCanProceed, goToStep } = useWizard();
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,10 +59,10 @@ export function StepDestination() {
       setData({ city: cityName });
 
       if (data.templateName) {
-        window.setTimeout(nextStep, 120);
+        window.setTimeout(() => goToStep(3), 120);
       }
     },
-    [data.templateName, nextStep, setData]
+    [data.templateName, goToStep, setData]
   );
 
   if (isLoading) {
@@ -77,7 +77,9 @@ export function StepDestination() {
           <MapPin className="h-5 w-5 text-violet-400 sm:h-7 sm:w-7" />
         </div>
         <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
-        <p className="text-sm text-gray-400 sm:text-base">Pick a city to explore like a local</p>
+        <p className="text-sm text-gray-400 sm:text-base">
+          {data.templateName ? "Pick a city and tune the final details" : "Pick a city to explore like a local"}
+        </p>
       </div>
 
       {/* Unified City Grid */}

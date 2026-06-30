@@ -68,9 +68,13 @@ export function TemplateCard({ template }: TemplateCardProps) {
   const gradient = getTemplateGradient(template);
 
   return (
-    <Link href={`/itineraries/new?template=${template.id}`} className="block h-full">
+    <Link
+      href={`/itineraries/new?template=${template.id}`}
+      className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background"
+      aria-label={`Use ${template.name} template`}
+    >
       <Card className={cn(
-        "group relative flex min-h-[74px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[88px]",
+        "group relative flex min-h-[68px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[78px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -85,45 +89,39 @@ export function TemplateCard({ template }: TemplateCardProps) {
           gradient
         )} />
 
-        {/* Decorative pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]"
-             style={{
-               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-             }} />
-
         {/* Main Content */}
-        <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2.5">
+        <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2">
           {/* Header */}
-          <div className="flex items-start gap-1.5 sm:gap-2">
+          <div className="flex items-start gap-1.5">
             <div className="relative">
-              <div className="text-base transition-transform duration-300 group-hover:scale-105 sm:text-xl">
+              <div className="text-base transition-transform duration-300 group-hover:scale-105 sm:text-lg">
                 {template.emoji}
               </div>
-              <div aria-hidden="true" className="absolute inset-0 text-base opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-xl">
+              <div aria-hidden="true" className="absolute inset-0 text-base opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-lg">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-sm">
+              <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
                 {template.name}
               </h3>
-              <p className="mt-1 hidden text-xs leading-snug text-muted-foreground/80 md:line-clamp-2 md:block">
+              <p className="mt-0.5 hidden text-[11px] leading-snug text-muted-foreground/80 lg:line-clamp-1 lg:block">
                 {template.description}
               </p>
             </div>
           </div>
 
           {/* Stats Pills Row */}
-          <div className="mt-auto grid grid-cols-2 gap-1 pt-1.5 min-[420px]:flex min-[420px]:flex-wrap">
+          <div className="mt-auto grid grid-cols-2 gap-1 pt-1 min-[420px]:flex min-[420px]:flex-wrap">
             {/* Days pill */}
-            <span className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-violet-200/50 bg-violet-100/80 px-1.5 py-1 text-[10px] font-medium leading-none text-violet-700 backdrop-blur-sm dark:border-violet-700/50 dark:bg-violet-900/40 dark:text-violet-300">
+            <span className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-violet-200/50 bg-violet-100/80 px-1.5 py-0.5 text-[9px] font-medium leading-none text-violet-700 backdrop-blur-sm dark:border-violet-700/50 dark:bg-violet-900/40 dark:text-violet-300">
               <Clock className="h-2.5 w-2.5 shrink-0" />
               <span className="truncate whitespace-nowrap">{template.days} {template.days === 1 ? 'day' : 'days'}</span>
             </span>
 
             {/* Pace pill */}
             <span className={cn(
-              "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border px-1.5 py-1 text-[10px] font-medium leading-none backdrop-blur-sm",
+              "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-medium leading-none backdrop-blur-sm",
               accent.bg, accent.text, accent.border
             )}>
               <span className="shrink-0">{pace.icon}</span>
