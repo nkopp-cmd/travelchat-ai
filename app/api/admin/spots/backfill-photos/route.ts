@@ -16,6 +16,7 @@ const DEFAULT_LIMIT = 15;
 const MAX_PROCESSED = 250;
 const DEFAULT_PROCESSED_MULTIPLIER = 3;
 const GOOGLE_LOOKUP_TIMEOUT_MS = 12_000;
+const SPOT_PAGE_SIZE = 1000;
 
 interface BackfillRequestBody {
     limit?: number;
@@ -53,6 +54,42 @@ function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function fetchBackfillCandidates(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    city: string | undefined,
+    maxProcessed: number
+): Promise<{ candidates: SpotPhotoBackfillRow[]; scanned: number }> {
+    const candidates: SpotPhotoBackfillRow[] = [];
+    let scanned = 0;
+
+    for (let from = 0; candidates.length < maxProcessed; from += SPOT_PAGE_SIZE) {
+        let query = supabase
+            .from("spots")
+            .select("id, name, address, photos, category")
+            .order("created_at", { ascending: false })
+            .range(from, from + SPOT_PAGE_SIZE - 1);
+
+        if (city) {
+            query = query.ilike("address->>en", `%${city}%`);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            throw new Error(`Failed to fetch spots: ${error.message}`);
+        }
+
+        const rows = (data || []) as SpotPhotoBackfillRow[];
+        scanned += rows.length;
+
+        candidates.push(...rows.filter((spot) => needsSpotPhotoBackfill(spot.photos)));
+
+        if (rows.length < SPOT_PAGE_SIZE) break;
+    }
+
+    return { candidates: candidates.slice(0, maxProcessed), scanned };
+}
+
 export async function POST(req: NextRequest) {
     const { response } = await requireAdmin(
         "/api/admin/spots/backfill-photos",
@@ -81,27 +118,20 @@ export async function POST(req: NextRequest) {
     const city = body.city?.trim();
     const supabase = createSupabaseAdmin();
 
-    let query = supabase
-        .from("spots")
-        .select("id, name, address, photos, category")
-        .order("created_at", { ascending: false });
-
-    if (city) {
-        query = query.ilike("address->>en", `%${city}%`);
-    }
-
-    const { data, error } = await query.limit(Math.max(maxProcessed, 250));
-
-    if (error) {
+    let backfillRows: { candidates: SpotPhotoBackfillRow[]; scanned: number };
+    try {
+        backfillRows = await fetchBackfillCandidates(supabase, city, maxProcessed);
+    } catch (error) {
         return NextResponse.json(
-            { error: "Failed to fetch spots", details: error.message },
+            {
+                error: "Failed to fetch spots",
+                details: error instanceof Error ? error.message : "unknown_error",
+            },
             { status: 500 }
         );
     }
 
-    const candidates = ((data || []) as SpotPhotoBackfillRow[])
-        .filter((spot) => needsSpotPhotoBackfill(spot.photos))
-        .slice(0, maxProcessed);
+    const candidates = backfillRows.candidates;
 
     const results: BackfillResult[] = [];
     let successfulCandidates = 0;
@@ -217,7 +247,7 @@ export async function POST(req: NextRequest) {
         limit,
         maxProcessed,
         city: city || null,
-        scanned: data?.length || 0,
+        scanned: backfillRows.scanned,
         candidates: candidates.length,
         processed: results.length,
         updated: results.filter((result) => result.status === "updated").length,
