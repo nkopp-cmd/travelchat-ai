@@ -9,6 +9,8 @@ import {
 describe("spot location confidence", () => {
   it("recognizes specific street-style addresses", () => {
     expect(hasSpecificStreetAddress("No. 17, Lane 31, Section 2, Jinshan South Road, Taipei")).toBe(true);
+    expect(hasSpecificStreetAddress("B1, 200 Roosevelt Road Sec 4, Zhongzheng District, Taipei")).toBe(true);
+    expect(hasSpecificStreetAddress("367 Beining Road, Zhongzheng District, Keelung")).toBe(true);
     expect(hasSpecificStreetAddress("〒150-0001 Tokyo, Shibuya City, Jingumae 1 Chome")).toBe(true);
     expect(hasSpecificStreetAddress("Mangwon-dong, Mapo-gu, Seoul")).toBe(false);
   });
@@ -16,6 +18,8 @@ describe("spot location confidence", () => {
   it("flags area-level addresses", () => {
     expect(isAreaLevelAddress("Ta Phin Village, Sa Pa countryside")).toBe(true);
     expect(isAreaLevelAddress("Gion, Kyoto")).toBe(true);
+    expect(isAreaLevelAddress("B1, 200 Roosevelt Road Sec 4, Zhongzheng District, Taipei")).toBe(false);
+    expect(isAreaLevelAddress("367 Beining Road, Zhongzheng District, Keelung")).toBe(false);
     expect(isAreaLevelAddress("10 Bayfront Avenue, Singapore")).toBe(false);
     expect(isAreaLevelAddress("")).toBe(true);
   });

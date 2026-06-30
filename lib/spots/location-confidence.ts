@@ -40,8 +40,9 @@ export function hasSpecificStreetAddress(address: string): boolean {
 export function isAreaLevelAddress(address: string): boolean {
     const value = address.trim();
     if (!value) return true;
-    if (AREA_LEVEL_ADDRESS_PATTERN.test(value)) return true;
-    return !hasSpecificStreetAddress(value);
+    const specificStreetAddress = hasSpecificStreetAddress(value);
+    if (specificStreetAddress) return false;
+    return AREA_LEVEL_ADDRESS_PATTERN.test(value) || !specificStreetAddress;
 }
 
 export function getSpotLocationConfidence(input: SpotLocationInput): SpotLocationConfidence {
