@@ -67,9 +67,53 @@ function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof get
         return "Maps searches the exact spot name and address first instead of relying on imported coordinates alone.";
     }
 
+    if (locationConfidence.tone === "area") {
+        return isKorea
+            ? "Kakao opens a name and area search because this source record does not have an exact address or usable coordinate pin yet."
+            : "Maps opens a name and area search because this source record does not have an exact address or usable coordinate pin yet.";
+    }
+
     return isKorea
         ? "Kakao uses the spot name and stored address before the imported coordinate pin."
         : "Maps uses the spot name and stored address before the imported coordinate pin.";
+}
+
+function getLocationPlanningCopy(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
+    const confidence = getLocationConfidence(spot);
+
+    if (spot.googlePlaceId && confidence.tone === "exact") {
+        return {
+            heading: "Plan this exact stop",
+            description: "Matched place data gives this spot a reliable navigation target.",
+            routeTitle: "Navigate with place match",
+            locationHeading: "Exact location",
+        };
+    }
+
+    if (confidence.tone === "exact") {
+        return {
+            heading: "Plan this exact stop",
+            description: "The stored address is specific enough for maps to search directly.",
+            routeTitle: "Navigate by name and address",
+            locationHeading: "Exact location",
+        };
+    }
+
+    if (confidence.tone === "pinned") {
+        return {
+            heading: "Plan this pinned area",
+            description: "This is area-level source data with a saved map pin. Confirm the map context before you go.",
+            routeTitle: "Route to saved area pin",
+            locationHeading: "Pinned area",
+        };
+    }
+
+    return {
+        heading: "Plan this area carefully",
+        description: "This record still needs exact address enrichment. Use the map result as a search starting point.",
+        routeTitle: "Search by name and area",
+        locationHeading: "Area-level location",
+    };
 }
 
 function getSpotContextCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
@@ -183,7 +227,7 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
                     ? isKorea ? "Open exact spot in Kakao" : "Get exact directions"
                     : locationConfidence.tone === "pinned"
                         ? isKorea ? "Search area in Kakao" : "Route to saved pin"
-                    : isKorea ? "Search area in Kakao" : "Search area in Maps"}
+                    : isKorea ? "Search name in Kakao" : "Search name in Maps"}
             </Button>
         </Link>
     );
@@ -317,6 +361,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     const locationConfidence = getLocationConfidence(spot);
     const primaryArea = getPrimaryArea(spot.location.address, city);
     const scoreNarrative = getScoreNarrative(spot.localleyScore);
+    const locationPlanningCopy = getLocationPlanningCopy(spot);
 
     return (
         <>
@@ -496,16 +541,20 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             <div className="border-t border-white/10 bg-white/[0.035] p-4 sm:p-6 md:border-l md:border-t-0">
                                 <div className="mb-4 flex items-center justify-between gap-3">
                                     <div>
-                                        <h3 className="font-semibold text-white">Plan this stop</h3>
-                                        <p className="text-xs text-violet-50/55">Use this as an exact destination, not a vague area pin.</p>
+                                        <h3 className="font-semibold text-white">{locationPlanningCopy.heading}</h3>
+                                        <p className="text-xs leading-5 text-violet-50/55">{locationPlanningCopy.description}</p>
                                     </div>
-                                    <ShieldCheck className="h-5 w-5 text-emerald-300" />
+                                    {locationConfidence.tone === "area" ? (
+                                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-300" />
+                                    ) : (
+                                        <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-300" />
+                                    )}
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex gap-3 rounded-lg border border-white/10 bg-black/10 p-3">
                                         <Route className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
                                         <div>
-                                            <p className="text-sm font-medium text-white">Navigate by name and address</p>
+                                            <p className="text-sm font-medium text-white">{locationPlanningCopy.routeTitle}</p>
                                             <p className="mt-1 text-xs leading-5 text-violet-50/60">{spot.name}, {spot.location.address}</p>
                                         </div>
                                     </div>
@@ -605,8 +654,12 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             </div>
                             <div className="p-4">
                             <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
-                                <MapPin className="h-4 w-4 text-violet-300" />
-                                Exact location
+                                {locationConfidence.tone === "area" ? (
+                                    <AlertTriangle className="h-4 w-4 text-amber-300" />
+                                ) : (
+                                    <MapPin className="h-4 w-4 text-violet-300" />
+                                )}
+                                {locationPlanningCopy.locationHeading}
                             </h3>
                             <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
                             <p className="mt-2 text-xs font-medium text-violet-200/80">

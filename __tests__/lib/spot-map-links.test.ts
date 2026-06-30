@@ -62,6 +62,22 @@ describe("spot map links", () => {
         expect(url.searchParams.get("destination")).toBe("13.9101,100.6149");
     });
 
+    it("searches by name and area when non-Korean area-level records have no usable pin", () => {
+        const url = new URL(
+            buildSpotDirectionsUrl({
+                name: "Westin Tokyo Garden",
+                address: "Westin Tokyo, Meguro-ku, Tokyo",
+                lat: 0,
+                lng: 0,
+            })
+        );
+
+        expect(url.searchParams.get("destination")).toBe(
+            "Westin Tokyo Garden, Westin Tokyo, Meguro-ku, Tokyo"
+        );
+        expect(url.searchParams.has("destination_place_id")).toBe(false);
+    });
+
     it("uses Kakao search for Korean locations", () => {
         const url = buildSpotDirectionsUrl({
             name: "Gwangjang Market",
@@ -85,5 +101,18 @@ describe("spot map links", () => {
         });
 
         expect(url).toBe("https://map.kakao.com/link/to/Gwangjang%20Market,37.5701,126.9996");
+    });
+
+    it("uses Kakao search for Korean area-level records without a usable pin", () => {
+        const url = buildSpotDirectionsUrl({
+            name: "Haengdang Market Alley",
+            address: "Haengdang-dong, Seongdong-gu, Seoul, Korea",
+            lat: 0,
+            lng: 0,
+        });
+
+        expect(url).toBe(
+            "https://map.kakao.com/link/search/Haengdang%20Market%20Alley%2C%20Haengdang-dong%2C%20Seongdong-gu%2C%20Seoul%2C%20Korea"
+        );
     });
 });
