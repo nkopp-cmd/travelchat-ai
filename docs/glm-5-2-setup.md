@@ -4,10 +4,15 @@ Localley uses GLM 5.2 as the primary low-cost chat and itinerary model. The exis
 
 ## Required Vercel variables
 
-Set these in Vercel for Production, Preview, and Development:
+Set this in Vercel for Production. Also add it to Preview and Development if those environments should use GLM:
 
 ```env
 GLM_API_KEY=your_zai_api_key
+```
+
+These are optional because the app has production defaults, but adding them makes the runtime configuration explicit in Vercel:
+
+```env
 GLM_MODEL=glm-5.2
 GLM_BASE_URL=https://api.z.ai/api/paas/v4/
 OPENAI_API_KEY=your_openai_fallback_key
@@ -15,6 +20,8 @@ ANTHROPIC_API_KEY=your_anthropic_fallback_key
 ```
 
 `ZAI_API_KEY` and `ZAI_BASE_URL` are also supported aliases, but prefer the `GLM_*` names in Vercel so the Localley provider configuration is easy to scan.
+
+Localley trims these values before use. A variable that exists but contains only spaces is treated as missing, so the app falls back instead of trying a broken provider request.
 
 ## Where GLM is used
 
@@ -26,14 +33,16 @@ ANTHROPIC_API_KEY=your_anthropic_fallback_key
 ## Manual rollout steps
 
 1. In Vercel, open the `travelchat-ai` project settings.
-2. Add or update the variables above in Production, Preview, and Development.
-3. Redeploy the latest `main` deployment.
-4. Test `/chat` and create one itinerary.
-5. Check API JSON responses for `provider: "glm"` on chat responses, or server logs for GLM-first itinerary generation.
+2. Add or update `GLM_API_KEY` in Production.
+3. Optionally add `GLM_MODEL=glm-5.2` and `GLM_BASE_URL=https://api.z.ai/api/paas/v4/`.
+4. Repeat for Preview and Development if those environments should use GLM.
+5. Redeploy the latest `main` deployment.
+6. Test `/chat` and create one itinerary.
+7. Check API JSON responses for `provider: "glm"` on chat responses, or server logs for GLM-first itinerary generation.
 
 Use the standard Z.AI OpenAI-compatible endpoint for Localley chat/completions. Do not use the coding-plan endpoint for the app runtime unless the provider implementation is changed deliberately.
 
-Important: Vercel can contain a variable name with a blank value, for example `GLM_API_KEY=""`. That is not configured. In that state Localley will treat GLM as unavailable and fall back to Anthropic/OpenAI.
+Important: Vercel can contain a variable name with a blank value, for example `GLM_API_KEY=""`. That is not configured. In that state Localley treats GLM as unavailable and falls back to Anthropic/OpenAI.
 
 ## Vercel CLI setup
 
@@ -46,7 +55,7 @@ printf "%s" "glm-5.2" | vercel env add GLM_MODEL production --scope nkopp-cmds-p
 printf "%s" "https://api.z.ai/api/paas/v4/" | vercel env add GLM_BASE_URL production --scope nkopp-cmds-projects
 ```
 
-Repeat the same three commands for `preview` and `development` if those environments should use GLM too. After changing Vercel env vars, redeploy because running deployments do not automatically reload new secrets.
+Only the first command is required. Repeat the same commands for `preview` and `development` if those environments should use GLM too. After changing Vercel env vars, redeploy because running deployments do not automatically reload new secrets.
 
 ## Verify the deployed env
 

@@ -64,6 +64,7 @@ describe("admin LLM metrics readiness", () => {
         env: {
           hasGlmApiKey: true,
           hasZaiApiKey: false,
+          apiKeySource: "GLM_API_KEY",
         },
       },
       anthropicFallback: {
@@ -88,5 +89,31 @@ describe("admin LLM metrics readiness", () => {
       healthy: true,
     });
     expect(mocks.glmHealthCheck).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports blank GLM keys as not configured", async () => {
+    mocks.glmIsAvailable.mockReturnValueOnce(false);
+    process.env.GLM_API_KEY = "   ";
+    process.env.ANTHROPIC_API_KEY = "  ";
+
+    const { GET } = await import("@/app/api/admin/llm-metrics/route");
+
+    const response = await GET(
+      new NextRequest("https://www.localley.io/api/admin/llm-metrics")
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.chatProviderReadiness.glm).toMatchObject({
+      configured: false,
+      model: "glm-5.2",
+      baseUrl: "https://api.z.ai/api/paas/v4/",
+      env: {
+        hasGlmApiKey: false,
+        hasZaiApiKey: false,
+        apiKeySource: null,
+      },
+    });
+    expect(body.chatProviderReadiness.anthropicFallback.configured).toBe(false);
   });
 });

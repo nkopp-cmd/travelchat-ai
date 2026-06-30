@@ -24,10 +24,7 @@ import type {
   TokenUsage,
 } from '../types';
 import { OPENAI_ITINERARY_PROMPT, OPENAI_SINGLE_ACTIVITY_PROMPT } from './prompts/openai';
-
-const GLM_MODEL = process.env.GLM_MODEL || 'glm-5.2';
-const GLM_API_KEY = process.env.GLM_API_KEY || process.env.ZAI_API_KEY;
-const GLM_BASE_URL = process.env.GLM_BASE_URL || process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4/';
+import { readGLMProviderConfig, type GLMProviderConfig } from '../env';
 
 export class GLMProvider
   extends AbstractLLMProvider
@@ -35,23 +32,25 @@ export class GLMProvider
 {
   readonly name = 'glm' as const;
   private client: OpenAI | null = null;
+  private config: GLMProviderConfig;
 
   constructor() {
     super();
+    this.config = readGLMProviderConfig();
     this.initializeClient();
   }
 
   private initializeClient(): void {
-    if (GLM_API_KEY) {
+    if (this.config.apiKey) {
       this.client = new OpenAI({
-        apiKey: GLM_API_KEY,
-        baseURL: GLM_BASE_URL,
+        apiKey: this.config.apiKey,
+        baseURL: this.config.baseURL,
       });
     }
   }
 
   isAvailable(): boolean {
-    return !!GLM_API_KEY && this.client !== null;
+    return !!this.config.apiKey && this.client !== null;
   }
 
   async healthCheck(): Promise<boolean> {
@@ -84,7 +83,7 @@ export class GLMProvider
     const { result, latencyMs } = await this.measureLatency(async () => {
       try {
         const completion = await this.client!.chat.completions.create({
-          model: GLM_MODEL,
+          model: this.config.model,
           messages: [
             { role: 'system', content: options.systemPrompt },
             { role: 'user', content: options.userPrompt },
