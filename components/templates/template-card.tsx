@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ItineraryTemplate } from "@/lib/templates";
-import { Clock, Users, Zap, ArrowRight } from "lucide-react";
+import { Clock, Zap, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +70,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   return (
     <Link href={`/itineraries/new?template=${template.id}`}>
       <Card className={cn(
-        "group relative flex min-h-[132px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[152px]",
+        "group relative flex min-h-[112px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[132px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -92,67 +92,61 @@ export function TemplateCard({ template }: TemplateCardProps) {
              }} />
 
         {/* Main Content */}
-        <div className="p-3 sm:p-3.5 flex-1 flex flex-col relative z-10">
+        <div className="p-2.5 sm:p-3 flex-1 flex flex-col relative z-10">
           {/* Header */}
-          <div className="flex items-start gap-2.5">
+          <div className="flex items-start gap-2">
             <div className="relative">
-              <div className="text-2xl sm:text-3xl transform group-hover:scale-105 transition-transform duration-300">
+              <div className="text-xl sm:text-2xl transform group-hover:scale-105 transition-transform duration-300">
                 {template.emoji}
               </div>
-              <div aria-hidden="true" className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-25 transition-opacity duration-300 text-2xl sm:text-3xl">
+              <div aria-hidden="true" className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-25 transition-opacity duration-300 text-xl sm:text-2xl">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-sm sm:text-[15px] leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200">
+              <h3 className="line-clamp-2 font-bold text-sm leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200 sm:text-[15px]">
                 {template.name}
               </h3>
-              <p className="mt-1 hidden text-xs leading-relaxed text-muted-foreground/80 sm:line-clamp-2 sm:block">
+              <p className="mt-1 hidden text-xs leading-snug text-muted-foreground/80 sm:line-clamp-2 sm:block">
                 {template.description}
               </p>
             </div>
           </div>
 
           {/* Stats Pills Row */}
-          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {/* Days pill */}
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
-              <Clock className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
+              <Clock className="h-2.5 w-2.5" />
               {template.days} {template.days === 1 ? 'day' : 'days'}
             </span>
 
             {/* Pace pill */}
             <span className={cn(
-              "inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] sm:text-xs font-medium border backdrop-blur-sm",
+              "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium border backdrop-blur-sm",
               accent.bg, accent.text, accent.border
             )}>
               {pace.icon} {pace.label}
             </span>
 
             {/* Activities pill */}
-            <span className="hidden items-center gap-1 rounded-full border border-black/5 bg-white/50 px-2 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:inline-flex sm:text-xs">
-              <Zap className="h-3 w-3" />
+            <span className="hidden items-center gap-1 rounded-full border border-black/5 bg-white/50 px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:inline-flex">
+              <Zap className="h-2.5 w-2.5" />
               {template.activitiesPerDay}/day
             </span>
           </div>
-
-          {/* Target Audience - simplified inline */}
-          <p className="mt-2 hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex sm:text-xs">
-            <Users className="h-3 w-3 text-violet-500" />
-            Perfect for {template.targetAudience.toLowerCase()}
-          </p>
 
           {/* Spacer */}
           <div className="flex-1 min-h-1" />
 
           {/* Primary action */}
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-black/5 dark:border-white/10">
+          <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-black/5 dark:border-white/10">
             <span className="text-[11px] font-medium text-muted-foreground group-hover:text-violet-600 dark:group-hover:text-violet-300">
               Start from here
             </span>
             <div className={cn(
               "flex items-center justify-center rounded-full",
-              "h-7 w-7 bg-violet-600 text-white",
+              "h-6 w-6 sm:h-7 sm:w-7 bg-violet-600 text-white",
               "transition-all duration-200 ease-out",
               "shadow-sm shadow-violet-500/20 group-hover:shadow-md group-hover:shadow-violet-500/30"
             )}>
