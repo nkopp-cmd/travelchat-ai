@@ -22,22 +22,22 @@ interface SubscriptionBadgeProps {
 
 const tierConfig = {
     free: {
-        label: "Free",
+        label: "Choose plan",
         icon: User,
-        color: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-        borderColor: "border-gray-200",
+        color: "bg-violet-500/12 text-violet-100 hover:bg-violet-500/18",
+        borderColor: "border-violet-300/25",
     },
     pro: {
         label: "Pro",
         icon: Rocket,
-        color: "bg-violet-100 text-violet-700 hover:bg-violet-200",
-        borderColor: "border-violet-300",
+        color: "bg-violet-500/15 text-violet-100 hover:bg-violet-500/22",
+        borderColor: "border-violet-300/30",
     },
     premium: {
         label: "Premium",
         icon: Crown,
-        color: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 hover:from-amber-200 hover:to-yellow-200",
-        borderColor: "border-amber-300",
+        color: "bg-gradient-to-r from-amber-400/18 to-violet-500/14 text-amber-100 hover:from-amber-400/24 hover:to-violet-500/20",
+        borderColor: "border-amber-300/35",
     },
 };
 
@@ -85,7 +85,7 @@ export function SubscriptionBadge({
                     <span className="text-sm font-medium">{config.label}</span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
+            <PopoverContent className="w-80 border-white/10 bg-[#0b0714]/96 text-white shadow-2xl shadow-violet-950/30 backdrop-blur-xl" align="end">
                 <div className="space-y-4">
                     {/* Header */}
                     <div className="flex items-center justify-between">
@@ -94,30 +94,30 @@ export function SubscriptionBadge({
                                 className={cn(
                                     "p-2 rounded-full",
                                     tier === "premium"
-                                        ? "bg-amber-100"
+                                        ? "bg-amber-400/15"
                                         : tier === "pro"
-                                        ? "bg-violet-100"
-                                        : "bg-gray-100"
+                                        ? "bg-violet-500/15"
+                                        : "bg-violet-500/12"
                                 )}
                             >
                                 <Icon
                                     className={cn(
                                         "h-4 w-4",
                                         tier === "premium"
-                                            ? "text-amber-600"
+                                            ? "text-amber-200"
                                             : tier === "pro"
-                                            ? "text-violet-600"
-                                            : "text-gray-600"
+                                            ? "text-violet-200"
+                                            : "text-violet-200"
                                     )}
                                 />
                             </div>
                             <div>
                                 <p className="font-semibold">
-                                    {tier === "free" ? "No paid plan" : `${config.label} Plan`}
+                                    {tier === "free" ? "Choose a paid plan" : `${config.label} Plan`}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
                                     {tier === "free"
-                                        ? "Choose Pro or Premium to continue"
+                                        ? "Pro or Premium is required for full access"
                                         : `$${tierLimits.price}/month`}
                                 </p>
                             </div>
@@ -134,32 +134,33 @@ export function SubscriptionBadge({
                         )}
                     </div>
 
-                    <Separator />
-
                     {/* Usage Section */}
-                    {subscription && (
-                        <div className="space-y-3">
-                            <p className="text-sm font-medium text-muted-foreground">
-                                Usage
-                            </p>
-                            <UsageIndicator
-                                label="Itineraries"
-                                current={subscription.usage.itinerariesThisMonth}
-                                limit={tierLimits.limits.itinerariesPerMonth}
-                                periodLabel="this month"
-                            />
-                            <UsageIndicator
-                                label="Chat Messages"
-                                current={subscription.usage.chatMessagesToday}
-                                limit={tierLimits.limits.chatMessagesPerDay}
-                                periodLabel="today"
-                            />
-                            <UsageIndicator
-                                label="Saved Spots"
-                                current={subscription.usage.savedSpots}
-                                limit={tierLimits.limits.savedSpotsLimit}
-                            />
-                        </div>
+                    {subscription && tier !== "free" && (
+                        <>
+                            <Separator />
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    Usage
+                                </p>
+                                <UsageIndicator
+                                    label="Itineraries"
+                                    current={subscription.usage.itinerariesThisMonth}
+                                    limit={tierLimits.limits.itinerariesPerMonth}
+                                    periodLabel="this month"
+                                />
+                                <UsageIndicator
+                                    label="Chat Messages"
+                                    current={subscription.usage.chatMessagesToday}
+                                    limit={tierLimits.limits.chatMessagesPerDay}
+                                    periodLabel="today"
+                                />
+                                <UsageIndicator
+                                    label="Saved Spots"
+                                    current={subscription.usage.savedSpots}
+                                    limit={tierLimits.limits.savedSpotsLimit}
+                                />
+                            </div>
+                        </>
                     )}
 
                     <Separator />
@@ -173,7 +174,7 @@ export function SubscriptionBadge({
                             >
                                 <Link href="/pricing">
                                     <Sparkles className="h-4 w-4 mr-2" />
-                                    Upgrade to Pro
+                                    Choose Pro
                                 </Link>
                             </Button>
                         )}
@@ -194,7 +195,7 @@ export function SubscriptionBadge({
                                 onClick={() => openBillingPortal()}
                             >
                                 <Crown className="h-4 w-4 mr-2" />
-                                Manage or Upgrade
+                                Manage or compare
                             </Button>
                         )}
                         {tier === "premium" && subscription?.hasBillingPortal && (

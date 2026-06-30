@@ -179,7 +179,7 @@ export default async function ProfilePage() {
 
     const tierConfig = TIER_CONFIGS[subscription.tier];
     const isActiveSub = ["active", "trialing"].includes(subscription.status);
-    const planLabel = subscription.tier === "free" ? "No paid plan" : `${tierConfig.name} Plan`;
+    const planLabel = subscription.tier === "free" ? "Choose a paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
 
@@ -346,11 +346,16 @@ export default async function ProfilePage() {
                                     <CardTitle className="text-lg">{planLabel}</CardTitle>
                                     <CardDescription>
                                         {subscription.tier === "free"
-                                            ? "Choose a paid plan to start planning with Localley"
+                                            ? "Pro or Premium is required for the full Localley app"
                                             : `$${tierConfig.price}/month`}
                                     </CardDescription>
                                 </div>
                             </div>
+                            {subscription.tier === "free" && (
+                                <Badge variant="secondary" className="bg-violet-400/15 text-violet-200">
+                                    Plan required
+                                </Badge>
+                            )}
                             {subscription.tier !== "free" && isActiveSub && (
                                 <Badge variant="secondary" className="bg-emerald-400/15 text-emerald-300">
                                     Active
@@ -362,13 +367,13 @@ export default async function ProfilePage() {
                         {subscription.tier === "free" ? (
                             <div className="space-y-3">
                                 <p className="text-sm text-muted-foreground">
-                                    Pick Pro or Premium to unlock richer AI planning, full addresses, booking deals, and trip exports.
+                                    Pick Pro or Premium to activate richer AI planning, exact addresses, booking deals, and trip exports.
                                 </p>
                                 <div className="flex gap-2">
                                     <Link href="/pricing" className="flex-1">
                                         <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
                                             <Rocket className="h-4 w-4 mr-2" />
-                                            Upgrade to Pro
+                                            Choose Pro
                                         </Button>
                                     </Link>
                                 </div>
@@ -405,9 +410,19 @@ export default async function ProfilePage() {
                 <Card className={LIQUID_CARD_SOFT}>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg">Your Activity</CardTitle>
-                        <CardDescription>Here&apos;s what you&apos;ve been up to</CardDescription>
+                        <CardDescription>
+                            {subscription.tier === "free"
+                                ? "Activity tracking starts after plan activation"
+                                : "Here&apos;s what you&apos;ve been up to"}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        {subscription.tier === "free" ? (
+                            <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
+                                Choose Pro or Premium to start planning with Localley. Your saved trips, chats, images, and spot collection will appear here.
+                            </div>
+                        ) : (
+                        <>
                         {/* Itineraries - contextual messaging */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
@@ -497,6 +512,8 @@ export default async function ProfilePage() {
                                 className="h-2"
                             />
                         </div>
+                        </>
+                        )}
                     </CardContent>
                 </Card>
             </div>

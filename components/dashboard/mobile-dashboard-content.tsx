@@ -144,27 +144,29 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
     return (
         <div className="w-full space-y-4 px-3 py-3 sm:px-4">
             {/* Welcome Section with premium styling */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-4 text-center shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-4 shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.28),transparent_42%)]" />
-                <div className="relative">
-                    <div className="relative mb-3 inline-flex">
-                        <div className="absolute inset-0 h-16 w-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 opacity-40 blur-xl" />
+                <div className="relative flex items-center gap-3">
+                    <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 opacity-40 blur-xl" />
                         <div className={cn(
-                            "relative flex h-16 w-16 items-center justify-center rounded-2xl",
+                            "relative flex h-14 w-14 items-center justify-center rounded-2xl",
                             "bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600",
                             "shadow-2xl shadow-violet-500/40"
                         )}>
-                            <Sparkles className="h-7 w-7 text-white" />
+                            <Sparkles className="h-6 w-6 text-white" />
                         </div>
                     </div>
-                    <h1 className="bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text text-2xl font-bold text-transparent">
-                        {hasItineraries ? "Welcome back!" : "Hey there!"}
-                    </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {hasItineraries
-                            ? "Continue exploring or plan a new adventure"
-                            : "Ready to discover hidden gems?"}
-                    </p>
+                    <div className="min-w-0 text-left">
+                        <h1 className="bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text text-xl font-bold text-transparent">
+                            {hasItineraries ? "Welcome back" : "Start with one good local plan"}
+                        </h1>
+                        <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                            {hasItineraries
+                                ? "Continue a trip, browse real spots, or ask Alley for a tighter route."
+                                : "Pick a city or use Alley to build the first version for you."}
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -196,9 +198,9 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     )}>
                         <Plus className="h-6 w-6" />
                     </div>
-                    <div className="flex-1">
-                        <div className="font-bold">Create New Itinerary</div>
-                        <div className="text-sm text-white/80">AI-powered local recommendations</div>
+                    <div className="min-w-0 flex-1">
+                        <div className="font-bold">Create itinerary</div>
+                        <div className="text-sm text-white/80">One guided flow, local-first spots</div>
                     </div>
                     <ArrowRight className="h-6 w-6 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
@@ -249,7 +251,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                             key={city.name}
                             href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                             className={cn(
-                                "group relative min-h-[118px] overflow-hidden rounded-2xl p-3",
+                                "group relative min-h-[96px] overflow-hidden rounded-xl p-3",
                                 "border border-white/10 bg-white/[0.055] backdrop-blur-xl",
                                 "hover:border-violet-400/50",
                                 "hover:shadow-lg hover:shadow-violet-500/10",
@@ -266,8 +268,8 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                                 quality={90}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
-                            <div className="relative mt-12">
-                                <div className="font-semibold text-white">
+                            <div className="relative mt-9">
+                                <div className="truncate font-semibold text-white">
                                     {city.name}
                                 </div>
                                 <div className="text-xs text-white/75">{city.country}</div>
