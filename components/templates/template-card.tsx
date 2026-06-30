@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ItineraryTemplate } from "@/lib/templates";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, Clock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +74,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
       aria-label={`Use ${template.name} template`}
     >
       <Card className={cn(
-        "group relative flex min-h-[72px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[88px]",
+        "group relative flex min-h-[68px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[82px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -94,10 +94,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
           {/* Header */}
           <div className="flex items-start gap-2">
             <div className="relative">
-              <div className="text-lg leading-none transition-transform duration-300 group-hover:scale-105 sm:text-xl">
+              <div className="text-base leading-none transition-transform duration-300 group-hover:scale-105 sm:text-lg">
                 {template.emoji}
               </div>
-              <div aria-hidden="true" className="absolute inset-0 text-lg leading-none opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-xl">
+              <div aria-hidden="true" className="absolute inset-0 text-base leading-none opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-lg">
                 {template.emoji}
               </div>
             </div>
@@ -126,6 +126,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
               <span className="whitespace-nowrap min-[420px]:hidden">{pace.shortLabel}</span>
             </span>
             <ArrowRight className="ml-auto h-3.5 w-3.5 shrink-0 text-violet-300/80 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </div>
+          <div className="mt-1 hidden items-center gap-1 text-[10px] font-semibold text-violet-300/90 min-[520px]:flex">
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
+            Use template
           </div>
         </div>
 

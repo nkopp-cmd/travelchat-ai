@@ -33,6 +33,18 @@ describe("itinerary map links", () => {
     );
   });
 
+  it("keeps map actions available when an activity has no stored address", () => {
+    const url = buildActivityMapUrl(
+      {
+        name: "LADRIO",
+      },
+      "Tokyo"
+    );
+
+    expect(url).toContain("https://www.google.com/maps/search/");
+    expect(decodeURIComponent(url || "")).toContain("query=LADRIO, Tokyo");
+  });
+
   it("uses name plus address for day route waypoints", () => {
     const url = buildDayRouteUrl(
       [

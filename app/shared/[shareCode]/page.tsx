@@ -269,16 +269,19 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                     )}
 
                 {/* Itinerary-level Tips */}
-                <ItineraryInsightsPanel insights={itineraryInsights} />
+                <ItineraryInsightsPanel
+                    insights={itineraryInsights}
+                    className="border-violet-300/15 bg-violet-950/[0.18]"
+                />
 
                     {/* Daily Plans */}
-                    <div className="space-y-6 sm:space-y-8">
+                    <div className="space-y-4 sm:space-y-5">
                         {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
                             const activities = dayPlan.activities || [];
 
                             return (
-                                <Card key={dayIndex} className="!gap-0 !py-0 overflow-hidden border-black/5 bg-white/70 shadow-lg shadow-violet-500/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
-                                    <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white sm:p-6">
+                                <Card key={dayIndex} className="!gap-0 !py-0 overflow-hidden rounded-xl border-black/5 bg-white/70 shadow-lg shadow-violet-500/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+                                    <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white sm:p-5">
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <h2 className="text-xl font-bold sm:text-2xl">Day {dayPlan.day || dayIndex + 1}</h2>
@@ -292,7 +295,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                                         </div>
                                     </div>
 
-                                    <CardContent className="p-4 sm:p-6">
+                                    <CardContent className="p-3 sm:p-4">
                                         <div className="space-y-2">
                                             {activities.map((activity: ItineraryActivity, activityIndex: number) => (
                                                 <ItineraryActivityCard

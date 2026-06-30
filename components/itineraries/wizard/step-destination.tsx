@@ -71,7 +71,7 @@ export function StepDestination() {
   }
 
   return (
-    <div className="flex min-h-full flex-col px-4 py-3 pb-24 sm:py-5">
+    <div className="flex min-h-full flex-col px-3 py-3 pb-24 sm:px-4 sm:py-5">
       {/* Header */}
       <div className={cn("text-center", templateMode ? "mb-2 sm:mb-3" : "mb-3 sm:mb-5")}>
         <div className={cn(
@@ -89,7 +89,7 @@ export function StepDestination() {
       {/* Unified City Grid */}
       {cities.length > 0 && (
         <div className={cn(
-          "grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3",
+          "grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 md:gap-3",
           templateMode && "gap-1.5 md:gap-2"
         )}>
           {cities.map((city) => (
@@ -151,7 +151,7 @@ function CityCard({
       onClick={onSelect}
       className={cn(
         "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
-        compact ? "aspect-[2.25/1] sm:aspect-[2/1]" : "aspect-[1.7/1] sm:aspect-[3/2]",
+        compact ? "aspect-[2.55/1] sm:aspect-[2.35/1]" : "aspect-[1.7/1] sm:aspect-[3/2]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
         isSelected && "ring-2 ring-violet-500"
       )}

@@ -117,7 +117,7 @@ function WizardContent({
       </div>
 
       <div className="sticky bottom-0 z-20 shrink-0 border-t border-white/10 bg-black/92 p-2.5 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] shadow-[0_-14px_32px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-3 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
-        <div className="mx-auto max-w-md">
+        <div className="mx-auto max-w-xl">
           {templateApplied && (
             <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-3 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:text-xs">
               <span className="min-w-0 truncate">{data.templateName}</span>

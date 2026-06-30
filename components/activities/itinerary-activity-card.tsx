@@ -95,20 +95,24 @@ export function ItineraryActivityCard({
         : activity.address
             ? compactAddress(activity.address, city)
             : `${city} Area`;
-    const exactMapUrl = buildActivityMapUrl(activity, city);
+    const mapActivity = canShowFullAddress
+        ? activity
+        : { name: activity.name, nameKo: activity.nameKo };
+    const exactMapUrl = buildActivityMapUrl(mapActivity, city);
+    const hasExactAddress = canShowFullAddress && Boolean(activity.address?.trim());
 
     return (
-        <div className={cn("relative border-l border-violet-300/20 pl-4 sm:pl-6", !isLast && "pb-3 sm:pb-4")}>
+        <div className={cn("relative border-l border-violet-300/20 pl-3 sm:pl-5", !isLast && "pb-3 sm:pb-4")}>
             {/* Timeline Dot */}
             <div className="absolute -left-[7px] top-4 sm:top-5">
                 <div className="h-3.5 w-3.5 rounded-full border-2 border-[#12091f] bg-violet-400 shadow-lg shadow-violet-500/35" />
             </div>
 
             <div className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-xl shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075]">
-                <div className="flex gap-3 p-2.5 sm:gap-4 sm:p-3.5">
+                <div className="flex gap-2.5 p-2.5 sm:gap-4 sm:p-3.5">
                     {/* Activity Thumbnail - shows existing image or Google Places photo */}
                     <div className="flex-shrink-0">
-                        <div className="relative h-[76px] w-[76px] overflow-hidden rounded-xl bg-violet-950/20 sm:h-24 sm:w-28">
+                        <div className="relative h-[72px] w-[72px] overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
                             {displayImage ? (
                                 activity.image ? (
                                     <Image
@@ -146,12 +150,14 @@ export function ItineraryActivityCard({
 
                     <div className="min-w-0 flex-1 space-y-2">
                     {/* Activity Header */}
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex flex-col gap-2">
                         <div className="min-w-0 space-y-1.5">
-                            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                                <h3 className="min-w-0 text-sm font-bold leading-snug text-foreground sm:text-base">
+                            <div className="min-w-0">
+                                <h3 className="break-words text-sm font-bold leading-snug text-foreground sm:text-base">
                                     {activity.name}
                                 </h3>
+                            </div>
+                            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                                 {scoreBadge && (
                                     <Badge className={cn("h-5 rounded-full border px-2 text-[10px] font-semibold", scoreBadge.className)}>
                                         {scoreBadge.label}
@@ -220,16 +226,16 @@ export function ItineraryActivityCard({
                             activityName={activity.name}
                             showDeals={showDeals}
                         />
-                        {canShowFullAddress && exactMapUrl && (
+                        {exactMapUrl && (
                             <Button
                                 variant="outline"
                                 size="sm"
                                 className="h-8 gap-1.5 rounded-full border-violet-400/20 bg-violet-400/10 px-3 text-xs text-violet-100 hover:bg-violet-400/15"
                                 onClick={() => window.open(exactMapUrl, "_blank", "noopener,noreferrer")}
-                                aria-label={`Open exact map location for ${activity.name}`}
+                                aria-label={`Open map location for ${activity.name}`}
                             >
                                 <Navigation className="h-3.5 w-3.5" />
-                                Exact map
+                                {hasExactAddress ? "Exact map" : "Search map"}
                                 <ExternalLink className="h-3 w-3" />
                             </Button>
                         )}
