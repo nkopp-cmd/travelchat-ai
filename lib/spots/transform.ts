@@ -4,7 +4,11 @@
  */
 
 import { Spot, MultiLanguageField } from "@/types";
-import { buildPlacePhotoProxyUrl, getGooglePlacesApiKey } from "@/lib/place-images";
+import {
+    buildPlacePhotoProxyUrl,
+    getGooglePlacesApiKey,
+    summarizeSpotPhotos,
+} from "@/lib/place-images";
 
 /**
  * Category-based placeholder images for better UX when real images unavailable
@@ -129,6 +133,7 @@ export function transformSpot(spot: RawSpot): Spot {
 
     // Build photos array, ensuring at least one image
     // Priority: real photos > category placeholder
+    const photoSummary = summarizeSpotPhotos(spot.photos);
     const photos = normalizeSpotPhotos(spot.photos, spot.category);
 
     return {
@@ -146,6 +151,7 @@ export function transformSpot(spot: RawSpot): Spot {
         localPercentage: spot.local_percentage || 50,
         bestTime: spot.best_time || "Anytime",
         photos,
+        hasRealPhoto: photoSummary.hasRealPhoto,
         tips: spot.tips || [],
         verified: spot.verified || false,
         trending: spot.trending_score > 0.7,

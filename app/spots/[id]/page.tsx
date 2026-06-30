@@ -1,18 +1,19 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { LocalleyScale } from "@/types";
 import { LocalleyScaleIndicator } from "@/components/spots/localley-scale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, Users, Navigation, ArrowLeft } from "lucide-react";
+import { AlertTriangle, ImageIcon, MapPin, Clock, Users, Navigation, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
+import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
+import { summarizeSpotPhotos } from "@/lib/place-images";
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
@@ -86,8 +87,8 @@ function getDirectionsUrl(
 function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
     const isKorea = isKoreanLocation(spot.location.address);
     return isKorea
-        ? "Searches Kakao by the exact spot name and address, not the imported map pin."
-        : "Searches maps by the exact spot name and address, not the imported map pin.";
+        ? "Kakao uses the spot name and stored address before the imported coordinate pin."
+        : "Maps uses the spot name and stored address before the imported coordinate pin.";
 }
 
 function getSpotContextCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
@@ -104,6 +105,29 @@ function getSpotContextCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>
 
 function formatCoordinate(value: number) {
     return value ? value.toFixed(5) : null;
+}
+
+function hasSpecificStreetAddress(address: string): boolean {
+    const value = address.trim();
+    if (!value) return false;
+
+    const hasNumber = /\d/.test(value);
+    const hasPostalCode = /\b\d{4,6}\b/.test(value) || value.includes("〒");
+    const hasStreetWord = /\b(street|st\.?|road|rd\.?|lane|ln\.?|avenue|ave\.?|blvd|boulevard|soi|gil|ro|dori|chome|ward|district)\b/i.test(value);
+    const hasMultipleParts = value.split(",").filter((part) => part.trim()).length >= 3;
+
+    return hasPostalCode || (hasNumber && (hasStreetWord || hasMultipleParts));
+}
+
+function isAreaLevelAddress(address: string): boolean {
+    const value = address.toLowerCase();
+    if (!value.trim()) return true;
+
+    if (/\b(various|multiple|near|around|area|areas|district|neighborhood|countryside)\b/.test(value)) {
+        return true;
+    }
+
+    return !hasSpecificStreetAddress(address);
 }
 
 function isPlaceholderImage(src: string | undefined) {
@@ -140,9 +164,34 @@ function getSpotHeroImage(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>
         : "/placeholder-spot.svg";
 }
 
+function getSpotFallbackImage(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
+    const city = inferSpotCity(spot);
+    return city
+        ? getCityImageUrl(city, { width: 1600, height: 900, quality: 90 }) ?? "/placeholder-spot.svg"
+        : "/placeholder-spot.svg";
+}
+
 function getSpotGalleryImages(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
     const photos = (spot.photos as string[]).filter((photo: string) => !isPlaceholderImage(photo));
     return photos.length > 1 ? photos.slice(1, 4) : [];
+}
+
+function getLocationConfidence(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
+    const exactAddress = !isAreaLevelAddress(spot.location.address);
+
+    if (exactAddress) {
+        return {
+            label: "Exact address",
+            description: "Directions use the spot name and full address first.",
+            tone: "exact" as const,
+        };
+    }
+
+    return {
+        label: "Area-level address",
+        description: "This record has neighborhood-level source data. Maps opens a name and area search; confirm the pin before navigating.",
+        tone: "area" as const,
+    };
 }
 
 // Get Directions button component
@@ -154,6 +203,7 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
         spot.location.address
     );
     const isKorea = isKoreanLocation(spot.location.address);
+    const locationConfidence = getLocationConfidence(spot);
 
     return (
         <Link
@@ -164,7 +214,9 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
         >
             <Button className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 rounded-xl" size="lg">
                 <Navigation className="mr-2 h-5 w-5" />
-                {isKorea ? "Open exact spot in Kakao" : "Get exact directions"}
+                {locationConfidence.tone === "exact"
+                    ? isKorea ? "Open exact spot in Kakao" : "Get exact directions"
+                    : isKorea ? "Search area in Kakao" : "Search area in Maps"}
             </Button>
         </Link>
     );
@@ -189,6 +241,8 @@ async function getSpot(id: string) {
     const lng = spot.location?.coordinates?.[0] || 0;
     const address = getName(spot.address);
 
+    const photoSummary = summarizeSpotPhotos(spot.photos);
+
     return {
         id: spot.id,
         name: getName(spot.name),
@@ -200,6 +254,14 @@ async function getSpot(id: string) {
         localPercentage: spot.local_percentage,
         bestTime: spot.best_times?.en || "Anytime",
         photos: normalizeSpotPhotos(spot.photos, spot.category, 1600),
+        hasRealPhoto: photoSummary.hasRealPhoto,
+        realPhotoCount: Object.entries(photoSummary.kinds).reduce(
+            (count, [kind, value]) =>
+                kind === "proxy" || kind === "remote_https" || kind === "local_asset"
+                    ? count + value
+                    : count,
+            0
+        ),
         tips: spot.tips?.en || [],
         verified: spot.verified,
         trending: spot.trending_score > 0.8,
@@ -279,7 +341,9 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     // Use city-level context for related activities; the first address segment is often a district.
     const city = getSpotContextCity(spot);
     const heroImage = getSpotHeroImage(spot);
+    const fallbackImage = getSpotFallbackImage(spot);
     const galleryImages = getSpotGalleryImages(spot);
+    const locationConfidence = getLocationConfidence(spot);
 
     return (
         <>
@@ -310,10 +374,10 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                 </Link>
 
             <div className="relative min-h-[430px] w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 md:aspect-[21/9] md:min-h-0">
-                <Image
+                <SpotPhotoImage
                     src={heroImage}
+                    fallbackSrc={fallbackImage}
                     alt={spot.name}
-                    fill
                     className="object-cover"
                     priority
                     quality={90}
@@ -331,6 +395,30 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                 {spot.verified && (
                                     <Badge variant="outline" className="border-emerald-300/40 bg-emerald-400/10 text-emerald-200 backdrop-blur-sm">Verified</Badge>
                                 )}
+                                <Badge
+                                    variant="outline"
+                                    className={spot.hasRealPhoto
+                                        ? "border-violet-200/30 bg-violet-400/10 text-violet-100 backdrop-blur-sm"
+                                        : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                                    }
+                                >
+                                    <ImageIcon className="mr-1 h-3.5 w-3.5" />
+                                    {spot.hasRealPhoto ? `${spot.realPhotoCount} spot photo${spot.realPhotoCount === 1 ? "" : "s"}` : "Area image"}
+                                </Badge>
+                                <Badge
+                                    variant="outline"
+                                    className={locationConfidence.tone === "exact"
+                                        ? "border-emerald-200/35 bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
+                                        : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                                    }
+                                >
+                                    {locationConfidence.tone === "exact" ? (
+                                        <MapPin className="mr-1 h-3.5 w-3.5" />
+                                    ) : (
+                                        <AlertTriangle className="mr-1 h-3.5 w-3.5" />
+                                    )}
+                                    {locationConfidence.label}
+                                </Badge>
                             </div>
                             <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl">{spot.name}</h1>
                             <div className="mt-3 flex items-start gap-2 text-sm leading-6 text-violet-50/75">
@@ -348,10 +436,10 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {galleryImages.map((photo, index) => (
                         <div key={photo} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40">
-                            <Image
+                            <SpotPhotoImage
                                 src={photo}
+                                fallbackSrc={fallbackImage}
                                 alt={`${spot.name} photo ${index + 2}`}
-                                fill
                                 className="object-cover"
                                 quality={90}
                                 sizes="(max-width: 768px) 33vw, 320px"
@@ -472,7 +560,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                 Search context: {spot.name}, {city}
                             </p>
                             <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
-                                {getDirectionsHelperText(spot)}
+                                {locationConfidence.description} {getDirectionsHelperText(spot)}
                             </p>
                             {formatCoordinate(spot.location.lat) && formatCoordinate(spot.location.lng) && (
                                 <p className="mt-2 text-xs text-violet-50/45">
