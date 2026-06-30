@@ -98,11 +98,11 @@ function WizardContent({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <WizardProgress />
 
       {templateApplied && (
-        <div className="mx-4 mt-2 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-2 text-sm text-violet-100 sm:mt-3">
+        <div className="mx-3 mt-1.5 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
             <span className="min-w-0 truncate">
@@ -112,14 +112,14 @@ function WizardContent({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto pb-3">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {steps[currentStep]}
       </div>
 
-      <div className="sticky bottom-0 z-20 shrink-0 border-t border-white/10 bg-black/92 p-2.5 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] shadow-[0_-14px_32px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-3 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+      <div className="sticky bottom-0 z-30 shrink-0 border-t border-white/10 bg-black/92 p-2 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
           {templateApplied && (
-            <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-3 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:text-xs">
+            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
               <span className="min-w-0 truncate">{data.templateName}</span>
               <span className="shrink-0 text-violet-200">
                 Step {currentStep + 1}/{totalSteps}
@@ -127,40 +127,40 @@ function WizardContent({
             </div>
           )}
           <div className="flex gap-2.5 sm:gap-3">
-          {currentStep > 0 && (
+            {currentStep > 0 && (
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                className="h-10 flex-1 border-white/20 text-white hover:bg-white/10 sm:h-11"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+            )}
             <Button
-              variant="outline"
-              onClick={prevStep}
-              className="h-10 flex-1 border-white/20 text-white hover:bg-white/10 sm:h-11"
+              onClick={handleNext}
+              disabled={!canProceed}
+              className={cn(
+                "h-10 flex-1 sm:h-11",
+                currentStep === 0 && "w-full",
+                "bg-gradient-to-r from-violet-600 to-indigo-600",
+                "hover:from-violet-500 hover:to-indigo-500",
+                "shadow-lg shadow-violet-500/30",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
+              {isLastStep ? (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  {primaryActionLabel}
+                </>
+              ) : (
+                <>
+                  {primaryActionLabel}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
-          )}
-          <Button
-            onClick={handleNext}
-            disabled={!canProceed}
-            className={cn(
-              "h-10 flex-1 sm:h-11",
-              currentStep === 0 && "w-full",
-              "bg-gradient-to-r from-violet-600 to-indigo-600",
-              "hover:from-violet-500 hover:to-indigo-500",
-              "shadow-lg shadow-violet-500/30",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-          >
-            {isLastStep ? (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                {primaryActionLabel}
-              </>
-            ) : (
-              <>
-                {primaryActionLabel}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex h-[calc(100dvh-3.5rem)] min-h-0 flex-col overflow-hidden rounded-2xl bg-background md:h-full md:rounded-none">
+      <div className="flex h-[calc(100dvh-8.5rem)] min-h-0 flex-col overflow-hidden rounded-2xl bg-background md:h-full md:max-h-none md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>

@@ -17,6 +17,11 @@ interface ItineraryPreviewProps {
     conversationId?: string;
 }
 
+function getDayTheme(dayTitle: string): string {
+    const match = dayTitle.match(/^Day\s+\d+\s*:\s*(.+)$/i);
+    return match?.[1]?.trim() || dayTitle;
+}
+
 export function ItineraryPreview({ content, conversationId }: ItineraryPreviewProps) {
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -38,7 +43,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
         try {
             const activities = days.map((day, index) => ({
                 day: index + 1,
-                theme: day.day,
+                theme: getDayTheme(day.day),
                 activities: day.activities.map((act, actIndex) => {
                     let extractedAddress = "";
                     const addressLineMatch = act.description.match(/Address:\s*(.+?)(?:\n|$)/i);
@@ -199,9 +204,11 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 {days.map((day, dayIndex) => (
                     <div key={dayIndex} className="overflow-hidden rounded-xl border border-black/5 bg-white/70 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                         {/* Day Header - Gradient */}
-                        <div className="flex items-center justify-between bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 sm:px-4">
-                            <h4 className="font-semibold text-white text-sm">{day.day}</h4>
-                            <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
+                        <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 sm:px-4">
+                            <h4 className="min-w-0 flex-1 truncate text-sm font-semibold text-white" title={day.day}>
+                                {day.day}
+                            </h4>
+                            <span className="shrink-0 whitespace-nowrap rounded-full bg-white/20 px-2 py-0.5 text-xs text-white">
                                 {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
                             </span>
                         </div>
