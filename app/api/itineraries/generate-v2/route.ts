@@ -2,13 +2,13 @@
  * Multi-LLM Itinerary Generation Endpoint (V2)
  *
  * This endpoint uses the multi-LLM orchestration system:
- * - ChatGPT: Creative itinerary design
+ * - GLM: Creative itinerary design
  * - Gemini: Location validation + images
  * - Claude: Quality assurance and fact-checking
  *
  * Tier-based features:
- * - Free: Single LLM (ChatGPT only) - same as V1
- * - Pro: ChatGPT + Gemini validation + Basic Claude check
+ * - Free: Single LLM (GLM primary, OpenAI fallback)
+ * - Pro: GLM + Gemini validation + Basic Claude check
  * - Premium: Full orchestration with Claude supervision
  */
 

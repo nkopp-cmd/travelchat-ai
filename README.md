@@ -40,7 +40,7 @@ AI-powered travel itinerary platform that helps travelers discover authentic hid
 - **UI Components**: shadcn/ui
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Clerk
-- **AI**: OpenAI GPT-4
+- **AI**: GLM 5.2 primary with OpenAI fallback
 - **Monitoring**: Sentry
 - **Deployment**: Vercel
 
@@ -52,7 +52,8 @@ AI-powered travel itinerary platform that helps travelers discover authentic hid
 - npm or yarn
 - Supabase account
 - Clerk account
-- OpenAI API key
+- GLM/Z.AI API key
+- OpenAI API key for fallback
 
 ### Installation
 

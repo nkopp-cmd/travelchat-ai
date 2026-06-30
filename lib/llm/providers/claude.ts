@@ -2,7 +2,7 @@
  * Claude (Anthropic) Provider
  *
  * Claude serves as the Team Leader/Supervisor in the multi-LLM system:
- * - Reviews and validates itineraries from ChatGPT
+ * - Reviews and validates itineraries from GLM/OpenAI generation
  * - Performs fact-checking on locations
  * - Provides quality assurance and final approval
  * - Gives feedback for improvements
