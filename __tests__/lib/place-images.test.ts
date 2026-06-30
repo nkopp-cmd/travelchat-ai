@@ -13,7 +13,7 @@ import {
 
 describe("spot photo classification", () => {
     it("treats proxied Google Places photos as real backfilled images", () => {
-        const photo = "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef";
+        const photo = "/api/places/photo?w=1200&v=2&name=places%2Fabc%2Fphotos%2Fdef";
 
         expect(classifySpotPhoto(photo)).toBe("proxy");
         expect(needsSpotPhotoBackfill([photo])).toBe(false);
@@ -61,13 +61,13 @@ describe("spot photo classification", () => {
             getProxiedGooglePhotoUrl(
                 "https://places.googleapis.com/v1/places/abc/photos/def/media?maxWidthPx=800&key=old"
             )
-        ).toBe("/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef");
+        ).toBe("/api/places/photo?w=1200&v=2&name=places%2Fabc%2Fphotos%2Fdef");
 
         expect(
             getProxiedGooglePhotoUrl(
                 "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=legacy_ref&key=old"
             )
-        ).toBe("/api/places/photo?w=1200&ref=legacy_ref");
+        ).toBe("/api/places/photo?w=1200&v=2&ref=legacy_ref");
     });
 
     it("normalizes only convertible stored photo URLs", () => {
@@ -77,8 +77,18 @@ describe("spot photo classification", () => {
                 "https://cdn.example.com/spot.jpg",
             ])
         ).toEqual([
-            "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
+            "/api/places/photo?w=1200&v=2&name=places%2Fabc%2Fphotos%2Fdef",
             "https://cdn.example.com/spot.jpg",
+        ]);
+    });
+
+    it("adds the current cache-busting version to stored proxy URLs", () => {
+        expect(
+            normalizeStoredSpotPhotoUrls([
+                "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
+            ])
+        ).toEqual([
+            "/api/places/photo?w=1200&v=2&name=places%2Fabc%2Fphotos%2Fdef",
         ]);
     });
 
