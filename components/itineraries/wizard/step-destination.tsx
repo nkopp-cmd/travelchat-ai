@@ -23,7 +23,7 @@ interface CitiesResponse {
 }
 
 export function StepDestination() {
-  const { data, setData, setCanProceed } = useWizard();
+  const { data, setData, setCanProceed, nextStep } = useWizard();
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,6 +54,16 @@ export function StepDestination() {
 
   const hasError = citiesError || (citiesData && !citiesData.success);
   const cities = citiesData?.cities || [];
+  const handleSelectCity = useCallback(
+    (cityName: string) => {
+      setData({ city: cityName });
+
+      if (data.templateName) {
+        window.setTimeout(nextStep, 120);
+      }
+    },
+    [data.templateName, nextStep, setData]
+  );
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -78,7 +88,7 @@ export function StepDestination() {
               key={city.slug}
               city={city}
               isSelected={data.city === city.name}
-              onSelect={() => setData({ city: city.name })}
+              onSelect={() => handleSelectCity(city.name)}
             />
           ))}
         </div>

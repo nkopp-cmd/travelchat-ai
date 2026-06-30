@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import {
-    DEFAULT_SPOT_PHOTO_FALLBACK,
     getGooglePlacesApiKey,
     normalizePhotoWidth,
 } from "@/lib/place-images";
 
-function redirectToFallback(req: NextRequest, reason: string) {
-    const fallbackUrl = new URL(DEFAULT_SPOT_PHOTO_FALLBACK, req.url);
+let fallbackImagePromise: Promise<Buffer> | null = null;
 
-    return NextResponse.redirect(fallbackUrl, {
-        status: 302,
+function getFallbackImage() {
+    fallbackImagePromise ??= readFile(
+        path.join(process.cwd(), "public/images/placeholders/default.png")
+    );
+    return fallbackImagePromise;
+}
+
+async function fallbackImageResponse(reason: string) {
+    const image = await getFallbackImage();
+
+    return new NextResponse(new Uint8Array(image), {
+        status: 200,
         headers: {
+            "Content-Type": "image/png",
             "Cache-Control": "public, max-age=300, s-maxage=300",
             "X-Localley-Photo-Fallback": reason,
         },
@@ -29,16 +40,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (!apiKey) {
-        return redirectToFallback(req, "missing_google_places_api_key");
+        return fallbackImageResponse("missing_google_places_api_key");
     }
 
     if (photoName && !/^places\/[^/]+\/photos\/[^/]+$/.test(photoName)) {
-        return redirectToFallback(req, "invalid_photo_name");
+        return fallbackImageResponse("invalid_photo_name");
     }
 
     if (legacyPhotoRef) {
         if (!/^[A-Za-z0-9_-]+$/.test(legacyPhotoRef)) {
-            return redirectToFallback(req, "invalid_photo_reference");
+            return fallbackImageResponse("invalid_photo_reference");
         }
 
         const legacyUrl = new URL("https://maps.googleapis.com/maps/api/place/photo");
@@ -53,7 +64,7 @@ export async function GET(req: NextRequest) {
         const location = legacyResponse.headers.get("location");
 
         if (!location) {
-            return redirectToFallback(req, `legacy_lookup_failed_${legacyResponse.status}`);
+            return fallbackImageResponse(`legacy_lookup_failed_${legacyResponse.status}`);
         }
 
         return NextResponse.redirect(location, {
@@ -75,12 +86,12 @@ export async function GET(req: NextRequest) {
     });
 
     if (!response.ok) {
-        return redirectToFallback(req, `lookup_failed_${response.status}`);
+        return fallbackImageResponse(`lookup_failed_${response.status}`);
     }
 
     const data = (await response.json()) as { photoUri?: string };
     if (!data.photoUri) {
-        return redirectToFallback(req, "photo_uri_missing");
+        return fallbackImageResponse("photo_uri_missing");
     }
 
     return NextResponse.redirect(data.photoUri, {

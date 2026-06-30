@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useTransition } from "react";
+import { useRef, useState, useCallback, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SpotCard } from "@/components/spots/spot-card";
 import { SpotsFilterBar } from "./spots-filter-bar";
@@ -40,6 +40,23 @@ export function SpotsExplorer({
     const [isPending, startTransition] = useTransition();
 
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    const resultsTopRef = useRef<HTMLDivElement | null>(null);
+
+    const scrollResultsIntoView = useCallback(() => {
+        const target = resultsTopRef.current;
+        if (!target) return;
+
+        const scrollHost = document.querySelector("main");
+        if (scrollHost instanceof HTMLElement) {
+            scrollHost.scrollTo({
+                top: Math.max(target.offsetTop - 16, 0),
+                behavior: "smooth",
+            });
+            return;
+        }
+
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, []);
 
     /**
      * Update URL with new filter values
@@ -96,10 +113,9 @@ export function SpotsExplorer({
     const handlePageChange = useCallback(
         (page: number) => {
             updateFilters({ page });
-            // Scroll to top of results
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.setTimeout(scrollResultsIntoView, 80);
         },
-        [updateFilters]
+        [scrollResultsIntoView, updateFilters]
     );
 
     /**
@@ -132,7 +148,7 @@ export function SpotsExplorer({
             />
 
             {/* Results Header */}
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div ref={resultsTopRef} className="mb-4 flex flex-wrap items-center justify-between gap-3 scroll-mt-4">
                 <div
                     className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground"
                     aria-live="polite"
@@ -189,7 +205,7 @@ export function SpotsExplorer({
                         {viewMode === "grid" ? (
                             <div
                                 className={cn(
-                                    "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3",
+                                    "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3",
                                     "transition-opacity duration-200",
                                     isPending && "opacity-60"
                                 )}

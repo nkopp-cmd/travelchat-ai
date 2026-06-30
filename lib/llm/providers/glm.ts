@@ -27,7 +27,7 @@ import { OPENAI_ITINERARY_PROMPT, OPENAI_SINGLE_ACTIVITY_PROMPT } from './prompt
 
 const GLM_MODEL = process.env.GLM_MODEL || 'glm-5.2';
 const GLM_API_KEY = process.env.GLM_API_KEY || process.env.ZAI_API_KEY;
-const GLM_BASE_URL = process.env.GLM_BASE_URL || process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4';
+const GLM_BASE_URL = process.env.GLM_BASE_URL || process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4/';
 
 export class GLMProvider
   extends AbstractLLMProvider

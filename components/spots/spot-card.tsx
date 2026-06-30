@@ -7,7 +7,7 @@ import { Spot } from "@/types";
 import { LocalleyScaleIndicator } from "./localley-scale";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
-import { ImageIcon, MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
+import { Flame, ImageIcon, MapPin, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 
@@ -128,12 +128,6 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             onError={handleImageError}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-                        {spot.trending && (
-                            <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full border border-rose-200/30 bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-rose-100 backdrop-blur">
-                                <TrendingUp className="h-3 w-3" />
-                                Hot
-                            </span>
-                        )}
                         {!hasRealPhoto && (
                             <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2 py-0.5 text-[10px] font-medium text-violet-50/80 backdrop-blur">
                                 <ImageIcon className="h-3 w-3" />
@@ -164,6 +158,12 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <span className="min-w-0 truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 font-medium text-violet-100">
                                 {spot.category}
                             </span>
+                            {spot.trending && (
+                                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 py-0.5 text-[11px] font-semibold text-rose-100">
+                                    <TrendingUp className="h-3 w-3" />
+                                    Hot
+                                </span>
+                            )}
                             <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} className="[&>div]:px-1.5 [&>div]:py-0 [&_svg]:h-3 [&_svg]:w-3" />
                             <span className="col-span-2 flex items-center gap-1 whitespace-nowrap text-[11px] text-emerald-100/80 sm:col-span-1">
                                 <Users className="h-3 w-3 text-emerald-300" />
@@ -180,7 +180,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     return (
         <Link href={`/spots/${spot.id}`}>
             <Card className={cn(
-                "group relative flex h-full flex-row overflow-hidden rounded-lg !gap-0 !py-0 sm:flex-col",
+                "group relative flex h-full min-h-[132px] flex-row overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
                 "bg-[#100b1c]/92 text-white backdrop-blur-xl",
                 "border border-violet-200/15",
                 "transition-all duration-300 ease-out",
@@ -189,7 +189,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                 "hover:border-violet-300/45",
                 "hover:-translate-y-0.5"
             )}>
-                <div className="relative aspect-[4/3] w-[112px] shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-32 sm:aspect-[16/9] sm:w-full">
+                <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-28 sm:aspect-[16/9] sm:w-full">
                     {!imageLoaded && (
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
@@ -215,13 +215,6 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
-                    {spot.trending && (
-                        <span className="absolute left-1.5 top-1.5 z-10 inline-flex max-w-[calc(100%-0.75rem)] items-center gap-1 rounded-full border border-rose-200/30 bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100 shadow-lg shadow-black/15 backdrop-blur sm:left-2.5 sm:top-2.5 sm:px-2.5 sm:py-1 sm:text-[11px]">
-                            <Sparkles className="h-3 w-3 flex-shrink-0" />
-                            <span className="sm:hidden">Hot</span>
-                            <span className="hidden sm:inline">Trending</span>
-                        </span>
-                    )}
                     {!hasRealPhoto && (
                         <span className="absolute bottom-1.5 left-1.5 z-10 inline-flex max-w-[calc(100%-0.75rem)] items-center gap-1 rounded-full border border-violet-100/20 bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-50/80 shadow-lg shadow-black/15 backdrop-blur sm:bottom-2.5 sm:left-2.5 sm:max-w-[calc(100%-5.5rem)] sm:px-2.5 sm:py-1 sm:text-[11px]">
                             <ImageIcon className="h-3 w-3 flex-shrink-0" />
@@ -236,11 +229,17 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     </div>
                 </div>
 
-                <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2.5 sm:p-3">
+                <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2 sm:p-3">
                     <div className="mb-1.5 flex min-w-0 items-center gap-1.5 sm:mb-2 sm:justify-between sm:gap-2">
                         <span className="min-w-0 max-w-full truncate rounded-full border border-violet-200/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-100 sm:px-2.5 sm:text-[11px]">
                             {spot.category}
                         </span>
+                        {spot.trending && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-rose-200/20 bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100 sm:px-2 sm:text-[11px]">
+                                <Flame className="h-3 w-3" />
+                                Hot
+                            </span>
+                        )}
                         <span className="flex flex-shrink-0 items-center gap-1 rounded-full border border-emerald-200/15 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-100 sm:px-2 sm:text-[11px]">
                             <Users className="h-3 w-3" />
                             {spot.localPercentage}%
@@ -260,7 +259,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         {spot.description}
                     </p>
 
-                    <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/10 pt-2">
+                    <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/10 pt-1.5 sm:pt-2">
                         <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} className="[&>div]:px-1.5 [&>div]:py-0 [&_svg]:h-3.5 [&_svg]:w-3.5" />
                         <span className="hidden text-xs font-medium text-violet-50/55 sm:inline">
                             Local favorite
