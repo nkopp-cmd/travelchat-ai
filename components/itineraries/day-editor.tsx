@@ -25,8 +25,6 @@ interface DayPlan {
     day: number;
     theme?: string;
     activities: Activity[];
-    localTip?: string;
-    transportTips?: string;
 }
 
 interface DayEditorProps {
@@ -275,32 +273,6 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                                 )}
                             </Droppable>
                         </DragDropContext>
-                    </div>
-
-                    {/* Day Tips */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                        <div>
-                            <label className="text-sm font-medium mb-1 block">Local Tip</label>
-                            <Textarea
-                                value={dayPlan.localTip || ""}
-                                onChange={(e) =>
-                                    onUpdate({ ...dayPlan, localTip: e.target.value })
-                                }
-                                placeholder="Insider tip for this day..."
-                                rows={3}
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium mb-1 block">Transport Tips</label>
-                            <Textarea
-                                value={dayPlan.transportTips || ""}
-                                onChange={(e) =>
-                                    onUpdate({ ...dayPlan, transportTips: e.target.value })
-                                }
-                                placeholder="How to get around..."
-                                rows={3}
-                            />
-                        </div>
                     </div>
                 </CardContent>
             )}

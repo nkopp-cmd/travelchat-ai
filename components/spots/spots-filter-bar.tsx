@@ -243,13 +243,13 @@ export function SpotsFilterBar({
             <div
                 id="spots-advanced-filters"
                 className={cn(
-                    "grid grid-cols-1 gap-2 min-[430px]:grid-cols-2 md:grid md:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center",
+                    "grid grid-cols-1 gap-2 md:grid md:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center",
                     !showMobileFilters && "hidden md:grid"
                 )}
                 role="group"
                 aria-label="Filter options"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 min-[430px]:col-span-2 md:col-span-4 xl:hidden">
+                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 md:col-span-4 xl:hidden">
                     <Filter className="h-4 w-4" aria-hidden="true" />
                     Filters:
                 </div>

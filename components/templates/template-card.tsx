@@ -68,9 +68,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
   const gradient = getTemplateGradient(template);
 
   return (
-    <Link href={`/itineraries/new?template=${template.id}`}>
+    <Link href={`/itineraries/new?template=${template.id}`} className="block h-full">
       <Card className={cn(
-        "group relative flex min-h-[82px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[96px]",
+        "group relative flex min-h-[74px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[88px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -92,19 +92,19 @@ export function TemplateCard({ template }: TemplateCardProps) {
              }} />
 
         {/* Main Content */}
-        <div className="relative z-10 flex flex-1 flex-col p-2 sm:p-2.5">
+        <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2.5">
           {/* Header */}
           <div className="flex items-start gap-1.5 sm:gap-2">
             <div className="relative">
-              <div className="text-lg transition-transform duration-300 group-hover:scale-105 sm:text-2xl">
+              <div className="text-base transition-transform duration-300 group-hover:scale-105 sm:text-xl">
                 {template.emoji}
               </div>
-              <div aria-hidden="true" className="absolute inset-0 text-lg opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-2xl">
+              <div aria-hidden="true" className="absolute inset-0 text-base opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-xl">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[12px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-sm">
+              <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-sm">
                 {template.name}
               </h3>
               <p className="mt-1 hidden text-xs leading-snug text-muted-foreground/80 md:line-clamp-2 md:block">
