@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import OpenAI from "openai";
 import { addThumbnailsToItinerary } from "@/lib/activity-images";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { sanitizeGeneratedDailyPlans } from "@/lib/itineraries/normalize-daily-plans";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -166,13 +167,15 @@ Make sure to:
         throw new Error("Invalid itinerary structure");
       }
 
-      // Validate that each day has activities
+      revisedItinerary.dailyPlans = sanitizeGeneratedDailyPlans(revisedItinerary.dailyPlans);
+
+      // Validate that each day has activities after moving tips out of activities
       for (const day of revisedItinerary.dailyPlans) {
         if (!day.activities || !Array.isArray(day.activities) || day.activities.length === 0) {
           throw new Error(`Day ${day.day} has no activities`);
         }
       }
-    } catch (parseError) {
+    } catch {
       console.error("Failed to parse AI response:", rawContent);
       return Errors.externalServiceError("AI response parsing");
     }

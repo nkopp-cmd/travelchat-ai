@@ -4,6 +4,10 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { ItineraryEmail } from "@/emails/itinerary-email";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
+import {
+    normalizeDailyPlansForDisplay,
+    parseDailyPlans,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 export async function POST(
     req: NextRequest,
@@ -42,8 +46,7 @@ export async function POST(
             return Errors.notFound("Itinerary");
         }
 
-        // Transform activities to email format
-        const days = (itinerary.activities || []).map((dayPlan: {
+        const { dailyPlans, insights } = normalizeDailyPlansForDisplay<{
             day: number;
             theme?: string;
             activities: Array<{
@@ -52,8 +55,10 @@ export async function POST(
                 time?: string;
                 localleyScore?: number;
             }>;
-            localTip?: string;
-        }) => ({
+        }>(parseDailyPlans(itinerary.activities));
+
+        // Transform activities to email format
+        const days = dailyPlans.map((dayPlan) => ({
             day: `Day ${dayPlan.day}${dayPlan.theme ? `: ${dayPlan.theme}` : ""}`,
             activities: (dayPlan.activities || []).map((activity) => ({
                 title: activity.name,
@@ -63,10 +68,9 @@ export async function POST(
                     ? "hidden-gem"
                     : activity.localleyScore && activity.localleyScore >= 4
                         ? "local-favorite"
-                        : "mixed" as const,
+                        : "mixed",
             })),
-            localTip: dayPlan.localTip,
-        }));
+        })) satisfies Parameters<typeof ItineraryEmail>[0]["days"];
 
         // Generate share URL if itinerary is shared
         const shareUrl = itinerary.share_code
@@ -90,6 +94,7 @@ export async function POST(
                 recipientName,
                 shareUrl,
                 highlights: itinerary.highlights,
+                insights,
             }),
         });
 

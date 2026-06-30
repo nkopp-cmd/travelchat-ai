@@ -5,7 +5,6 @@ import {
     Heading,
     Hr,
     Html,
-    Img,
     Link,
     Preview,
     Section,
@@ -22,7 +21,12 @@ interface Activity {
 interface DayPlan {
     day: string;
     activities: Activity[];
-    localTip?: string;
+}
+
+interface EmailInsight {
+    label: string;
+    text: string;
+    kind: "local" | "transport" | "insight";
 }
 
 interface ItineraryEmailProps {
@@ -32,6 +36,7 @@ interface ItineraryEmailProps {
     recipientName?: string;
     shareUrl?: string;
     highlights?: string[];
+    insights?: EmailInsight[];
 }
 
 export function ItineraryEmail({
@@ -41,6 +46,7 @@ export function ItineraryEmail({
     recipientName,
     shareUrl,
     highlights,
+    insights = [],
 }: ItineraryEmailProps) {
     const previewText = `Your ${city} itinerary from Localley`;
 
@@ -75,7 +81,7 @@ export function ItineraryEmail({
                             {recipientName ? `Hey ${recipientName}!` : "Hey Explorer!"}
                         </Heading>
                         <Text style={paragraph}>
-                            Your personalized {city} adventure is ready! Here's your
+                            Your personalized {city} adventure is ready. Here is your
                             itinerary packed with local favorites and hidden gems.
                         </Text>
                     </Section>
@@ -93,6 +99,17 @@ export function ItineraryEmail({
                             {highlights.map((highlight, index) => (
                                 <Text key={index} style={highlightItem}>
                                     • {highlight}
+                                </Text>
+                            ))}
+                        </Section>
+                    )}
+
+                    {insights.length > 0 && (
+                        <Section style={insightsSection}>
+                            <Text style={sectionTitle}>💡 Trip Insights</Text>
+                            {insights.map((insight, index) => (
+                                <Text key={index} style={insightItem}>
+                                    {insight.kind === "transport" ? "🚌" : "💡"} {insight.label}: {insight.text}
                                 </Text>
                             ))}
                         </Section>
@@ -119,13 +136,6 @@ export function ItineraryEmail({
                                 </Section>
                             ))}
 
-                            {day.localTip && (
-                                <Section style={localTipBox}>
-                                    <Text style={localTipText}>
-                                        💡 Local Tip: {day.localTip}
-                                    </Text>
-                                </Section>
-                            )}
                         </Section>
                     ))}
 
@@ -233,6 +243,11 @@ const highlightsSection = {
     padding: "24px 40px",
 };
 
+const insightsSection = {
+    padding: "24px 40px",
+    backgroundColor: "#f8fafc",
+};
+
 const sectionTitle = {
     color: "#1f2937",
     fontSize: "16px",
@@ -244,6 +259,13 @@ const highlightItem = {
     color: "#4b5563",
     fontSize: "14px",
     margin: "4px 0",
+};
+
+const insightItem = {
+    color: "#4b5563",
+    fontSize: "14px",
+    lineHeight: "22px",
+    margin: "8px 0",
 };
 
 const hr = {
@@ -288,19 +310,6 @@ const activityDescription = {
     color: "#4b5563",
     fontSize: "14px",
     lineHeight: "22px",
-    margin: "0",
-};
-
-const localTipBox = {
-    backgroundColor: "#fef3c7",
-    borderRadius: "8px",
-    padding: "12px 16px",
-    marginTop: "8px",
-};
-
-const localTipText = {
-    color: "#92400e",
-    fontSize: "13px",
     margin: "0",
 };
 
