@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ArrowRight, Map, Menu, Compass, Award, Settings, CreditCard } from "lucide-react";
+import { ArrowRight, Map, Menu, Compass, Award, Settings, CreditCard, Sparkles, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,16 @@ const routes = [
 ];
 
 const mobileRoutes = [
-    ...routes,
+    {
+        href: "/spots",
+        label: "Spots",
+        icon: Search,
+    },
+    {
+        href: "/templates",
+        label: "Templates",
+        icon: Sparkles,
+    },
     {
         href: "/pricing",
         label: "Plan",
@@ -89,33 +98,59 @@ export function Navbar() {
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-[86vw] max-w-[340px] border-r border-violet-200/15 bg-[#0b0714]/96 p-0 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
-                            <nav className="flex h-full min-h-dvh flex-col gap-5 px-4 pb-6 pt-6">
-                                <div className="space-y-2">
+                            <nav className="flex h-full min-h-dvh flex-col gap-4 px-4 pb-5 pt-5">
+                                <div className="space-y-3">
                                     <Logo size="md" isLanding={isLanding} />
-                                    <p className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-white/65">
-                                        Jump back into your local-first trips, saved places, and profile.
-                                    </p>
+                                    <div className="overflow-hidden rounded-xl border border-violet-200/15 bg-white/[0.055] shadow-xl shadow-violet-950/20">
+                                        <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-3 py-3">
+                                            <p className="text-sm font-bold text-white">Localley cockpit</p>
+                                            <p className="mt-0.5 text-xs leading-5 text-violet-100/75">
+                                                Account tools, real spots, templates, and plan controls.
+                                            </p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 p-2">
+                                            <SheetClose asChild>
+                                                <Link
+                                                    href="/itineraries/new"
+                                                    className="flex min-h-10 items-center justify-center rounded-lg bg-white text-sm font-bold text-violet-700 transition hover:bg-violet-50"
+                                                >
+                                                    New trip
+                                                </Link>
+                                            </SheetClose>
+                                            <SheetClose asChild>
+                                                <Link
+                                                    href="/spots"
+                                                    className="flex min-h-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-sm font-bold text-white transition hover:bg-white/[0.1]"
+                                                >
+                                                    Find spots
+                                                </Link>
+                                            </SheetClose>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="grid gap-2">
+                                <div className="grid gap-1.5">
                                     {mobileRoutes.map((route) => (
                                         <SheetClose asChild key={route.href}>
                                             <Link
                                                 href={route.href}
                                                 className={cn(
-                                                    "group flex min-h-14 items-center gap-3 rounded-lg border px-3 py-3 transition",
+                                                    "group flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2.5 transition",
                                                     pathname === route.href
                                                         ? "border-violet-300/40 bg-violet-500/15 text-white"
                                                         : "border-white/10 bg-white/[0.04] text-white/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
                                                 )}
                                             >
-                                                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-200">
-                                                    <route.icon className="h-5 w-5" />
+                                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-500/15 text-violet-200 transition group-hover:bg-violet-500/25">
+                                                    <route.icon className="h-[18px] w-[18px]" />
                                                 </span>
-                                                <span className="flex-1 text-sm font-bold">{route.label}</span>
+                                                <span className="flex-1 text-sm font-semibold">{route.label}</span>
                                                 <ArrowRight className="h-4 w-4 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-violet-200" />
                                             </Link>
                                         </SheetClose>
                                     ))}
+                                </div>
+                                <div className="mt-auto rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-5 text-white/55">
+                                    Use the bottom bar for Explore, Chat, and My Trips. This drawer keeps the extra tools close.
                                 </div>
                             </nav>
                         </SheetContent>

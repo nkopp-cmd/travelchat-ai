@@ -113,7 +113,7 @@ export default async function SettingsPage() {
     const { subscription, usage } = await getSubscriptionData();
     const tierConfig = TIER_CONFIGS[subscription.tier];
     const isActiveSub = ["active", "trialing"].includes(subscription.status);
-    const planLabel = subscription.tier === "free" ? "No paid plan" : `${tierConfig.name} Plan`;
+    const planLabel = subscription.tier === "free" ? "Choose a paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
 
@@ -186,6 +186,11 @@ export default async function SettingsPage() {
                                 Active
                             </Badge>
                         )}
+                        {subscription.tier === "free" && (
+                            <Badge variant="secondary" className="w-fit bg-violet-400/15 text-violet-200">
+                                Plan required
+                            </Badge>
+                        )}
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -237,43 +242,51 @@ export default async function SettingsPage() {
 
                     {/* Plan Features */}
                     <div>
-                        <Label className="text-muted-foreground mb-3 block">Your Plan Includes</Label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-emerald-400" />
-                                <span>{tierConfig.limits.itinerariesPerMonth === 999 ? "Unlimited" : tierConfig.limits.itinerariesPerMonth} itineraries/month</span>
+                        <Label className="text-muted-foreground mb-3 block">
+                            {subscription.tier === "free" ? "Pick a plan to activate" : "Your Plan Includes"}
+                        </Label>
+                        {subscription.tier === "free" ? (
+                            <div className="rounded-xl border border-violet-300/20 bg-violet-400/10 p-4 text-sm leading-6 text-violet-50/80">
+                                Localley is paid-only. Choose Pro for fast AI planning and exact addresses, or Premium for richer media, exports, and collaboration.
                             </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-emerald-400" />
-                                <span>{tierConfig.limits.chatMessagesPerDay === 999 ? "Unlimited" : tierConfig.limits.chatMessagesPerDay} messages/day</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-emerald-400" />
-                                <span>{tierConfig.limits.aiImagesPerMonth} AI images/month</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <Check className="h-4 w-4 text-emerald-400" />
-                                <span>{tierConfig.limits.savedSpotsLimit === 999 ? "Unlimited" : tierConfig.limits.savedSpotsLimit} saved spots</span>
-                            </div>
-                            {tierConfig.features.activityImages !== "placeholder" && (
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div className="flex items-center gap-2 text-sm">
                                     <Check className="h-4 w-4 text-emerald-400" />
-                                    <span>AI-generated activity images</span>
+                                    <span>{tierConfig.limits.itinerariesPerMonth === 999 ? "Unlimited" : tierConfig.limits.itinerariesPerMonth} itineraries/month</span>
                                 </div>
-                            )}
-                            {tierConfig.features.addressDisplay !== "area-only" && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Check className="h-4 w-4 text-emerald-400" />
-                                    <span>Full addresses revealed</span>
+                                    <span>{tierConfig.limits.chatMessagesPerDay === 999 ? "Unlimited" : tierConfig.limits.chatMessagesPerDay} messages/day</span>
                                 </div>
-                            )}
-                            {tierConfig.features.bookingDeals && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Check className="h-4 w-4 text-emerald-400" />
-                                    <span>Exclusive booking deals</span>
+                                    <span>{tierConfig.limits.aiImagesPerMonth} AI images/month</span>
                                 </div>
-                            )}
-                        </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Check className="h-4 w-4 text-emerald-400" />
+                                    <span>{tierConfig.limits.savedSpotsLimit === 999 ? "Unlimited" : tierConfig.limits.savedSpotsLimit} saved spots</span>
+                                </div>
+                                {tierConfig.features.activityImages !== "placeholder" && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Check className="h-4 w-4 text-emerald-400" />
+                                        <span>AI-generated activity images</span>
+                                    </div>
+                                )}
+                                {tierConfig.features.addressDisplay !== "area-only" && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Check className="h-4 w-4 text-emerald-400" />
+                                        <span>Full addresses revealed</span>
+                                    </div>
+                                )}
+                                {tierConfig.features.bookingDeals && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Check className="h-4 w-4 text-emerald-400" />
+                                        <span>Exclusive booking deals</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <Separator />
@@ -284,7 +297,7 @@ export default async function SettingsPage() {
                             <Link href="/pricing" className="w-full sm:w-auto">
                                 <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 sm:w-auto">
                                     <Rocket className="h-4 w-4 mr-2" />
-                                    Upgrade Plan
+                                    Choose Pro
                                 </Button>
                             </Link>
                         ) : (
@@ -296,7 +309,7 @@ export default async function SettingsPage() {
                                     <Link href="/pricing" className="w-full sm:w-auto">
                                         <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
                                             <Crown className="h-4 w-4 text-amber-500" />
-                                            Upgrade to Premium
+                                            Choose Premium
                                         </Button>
                                     </Link>
                                 )}
@@ -316,9 +329,18 @@ export default async function SettingsPage() {
             <Card className={LIQUID_CARD_SOFT}>
                 <CardHeader>
                     <CardTitle>Usage Overview</CardTitle>
-                    <CardDescription>Your current usage this billing period</CardDescription>
+                    <CardDescription>
+                        {subscription.tier === "free"
+                            ? "Usage tracking starts after plan activation"
+                            : "Your current usage this billing period"}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    {subscription.tier === "free" ? (
+                        <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
+                            Choose Pro or Premium to start planning with Localley. Your billing-period usage will appear here after activation.
+                        </div>
+                    ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Itineraries */}
                         <div className="space-y-2">
@@ -388,10 +410,13 @@ export default async function SettingsPage() {
                             />
                         </div>
                     </div>
+                    )}
 
-                    <p className="text-xs text-muted-foreground">
-                        Usage resets at the start of each billing period. Chat messages reset daily.
-                    </p>
+                    {subscription.tier !== "free" && (
+                        <p className="text-xs text-muted-foreground">
+                            Usage resets at the start of each billing period. Chat messages reset daily.
+                        </p>
+                    )}
                 </CardContent>
             </Card>
 
