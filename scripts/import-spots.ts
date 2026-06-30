@@ -52,6 +52,7 @@ interface SpotInput {
     time_of_day?: string[];
     best_for?: string[];
     source_meta?: string;
+    google_place_id?: string;
 }
 
 interface SpotRecord {
@@ -66,6 +67,7 @@ interface SpotRecord {
     local_percentage: number;
     best_times: Record<string, string>;
     photos: string[];
+    google_place_id?: string | null;
     tips: Record<string, string[]>;
     verified: boolean;
     trending_score: number;
@@ -281,6 +283,7 @@ async function importSpots(
             local_percentage: spot.local_percentage || 50,
             best_times: toMultiLang(spot.best_times || "Anytime"),
             photos: spot.photos || [],
+            google_place_id: spot.google_place_id || null,
             tips: toMultiLangArray(spot.tips),
             verified: spot.verified || false,
             trending_score: spot.trending_score || 0,

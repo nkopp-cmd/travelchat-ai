@@ -232,7 +232,10 @@ async function main() {
             if (args.apply) {
                 const { error } = await supabase
                     .from("spots")
-                    .update({ photos: photoUrls })
+                    .update({
+                        photos: photoUrls,
+                        google_place_id: place?.placeId || null,
+                    })
                     .eq("id", spot.id);
 
                 if (error) {

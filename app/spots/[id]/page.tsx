@@ -232,7 +232,7 @@ async function getSpot(id: string) {
                     : count,
             0
         ),
-        googlePlaceId: getGooglePlaceIdFromSpotPhotos(normalizedPhotos),
+        googlePlaceId: spot.google_place_id || getGooglePlaceIdFromSpotPhotos(normalizedPhotos),
         tips: spot.tips?.en || [],
         verified: spot.verified,
         trending: spot.trending_score > 0.8,

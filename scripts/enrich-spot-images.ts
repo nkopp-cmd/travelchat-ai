@@ -213,10 +213,19 @@ async function getTripAdvisorPhotos(locationId: string): Promise<string[]> {
 /**
  * Update spot photos in database
  */
-async function updateSpotPhotos(spotId: string, photos: string[]): Promise<boolean> {
+async function updateSpotPhotos(
+    spotId: string,
+    photos: string[],
+    googlePlaceId?: string | null
+): Promise<boolean> {
+    const updateData: { photos: string[]; google_place_id?: string } = { photos };
+    if (googlePlaceId) {
+        updateData.google_place_id = googlePlaceId;
+    }
+
     const { error } = await supabase
         .from('spots')
-        .update({ photos })
+        .update(updateData)
         .eq('id', spotId);
 
     if (error) {
@@ -329,7 +338,7 @@ async function enrichSpotImages() {
 
         // Update database if we found photos
         if (photos.length > 0) {
-            const updated = await updateSpotPhotos(spot.id, photos);
+            const updated = await updateSpotPhotos(spot.id, photos, placeId);
             if (!updated) {
                 failCount++;
             }
