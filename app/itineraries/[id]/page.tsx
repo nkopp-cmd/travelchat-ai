@@ -19,7 +19,7 @@ import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
 import { isKoreanCity } from "@/hooks/use-map-provider";
-import { translateForGeocoding } from "@/lib/geocoding";
+import { buildDayRouteUrl } from "@/lib/itineraries/map-links";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -62,51 +62,6 @@ function resolveCity(itinerary: { city: string; title: string }): string {
     const validation = validateCityForItinerary(itinerary.title);
     if (validation.valid && validation.city) return validation.city.name;
     return getDisplayCity(itinerary.city);
-}
-
-// Generate route URL for a day's activities
-// Korea → Kakao Maps (Google Maps has limited data there), everywhere else → Google Maps
-// For Korean cities: translates place names/addresses to Korean for better Kakao search results
-async function getDayRouteUrl(activities: ItineraryActivity[], city: string): Promise<string> {
-    const activitiesWithAddress = activities.filter(a => a.address);
-    if (activitiesWithAddress.length === 0) return "";
-
-    // Korean cities: use Kakao Maps (which has full Korea coverage)
-    if (isKoreanCity(city)) {
-        const firstActivity = activitiesWithAddress[0];
-
-        // Use Korean name if available (from LLM), otherwise translate
-        let query: string;
-        if (firstActivity.nameKo) {
-            query = firstActivity.nameKo;
-        } else {
-            const searchText = firstActivity.address || firstActivity.name;
-            const translated = await translateForGeocoding(searchText, "ko");
-            query = translated || searchText;
-        }
-
-        return `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
-    }
-
-    // All other cities: use Google Maps with multi-waypoint routing
-    const waypoints = activitiesWithAddress
-        .map(a => encodeURIComponent(`${a.address}, ${city}`));
-
-    if (waypoints.length === 1) {
-        return `https://www.google.com/maps/search/?api=1&query=${waypoints[0]}`;
-    }
-
-    const origin = waypoints[0];
-    const destination = waypoints[waypoints.length - 1];
-    const middleWaypoints = waypoints.slice(1, -1);
-
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-    if (middleWaypoints.length > 0) {
-        url += `&waypoints=${middleWaypoints.join("|")}`;
-    }
-    url += "&travelmode=walking";
-
-    return url;
 }
 
 // Fetch itinerary from Supabase
@@ -221,15 +176,14 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
     const { dailyPlans: dailyPlansForDisplay, insights: itineraryInsights } =
         normalizeDailyPlansForDisplay<DayPlan>(parsedDailyPlans);
 
-    // Pre-compute route URLs (async because Korean cities need translation)
+    // Pre-compute exact route URLs from activity names, addresses, and city context.
     const dayRouteUrls: Record<number, string> = {};
     if (dailyPlansForDisplay.length > 0) {
-        const routePromises = dailyPlansForDisplay.map(async (dayPlan: DayPlan, dayIndex: number) => {
+        dailyPlansForDisplay.forEach((dayPlan: DayPlan, dayIndex: number) => {
             const activities = dayPlan.activities || [];
-            const url = await getDayRouteUrl(activities, displayCity);
+            const url = buildDayRouteUrl(activities, displayCity);
             dayRouteUrls[dayIndex] = url;
         });
-        await Promise.all(routePromises);
     }
 
     // Prepare JSON-LD structured data
