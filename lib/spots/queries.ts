@@ -9,6 +9,7 @@ import { getCityBySlug, ENABLED_CITIES } from "@/lib/cities";
 import { transformSpot, RawSpot } from "./transform";
 import {
     applyPublicSpotVisibilityFilters,
+    PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
     shouldShowPublicSpot,
 } from "./public-quality";
 import {
@@ -186,6 +187,7 @@ export async function fetchFilteredSpots(
 ): Promise<SpotsResponse> {
     // Create a cache key from filters
     const cacheKey = JSON.stringify({
+        visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
         city: filters.city,
         category: filters.category,
         score: filters.score,
@@ -274,7 +276,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
 export async function fetchFilterOptions(): Promise<FilterOptions> {
     const cachedFetch = unstable_cache(
         fetchFilterOptionsInternal,
-        ["spots-filter-options"],
+        ["spots-filter-options", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
         {
             revalidate: 600, // 10 minutes
             tags: ["spots"],
