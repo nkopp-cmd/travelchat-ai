@@ -23,7 +23,7 @@ interface CitiesResponse {
 }
 
 export function StepDestination() {
-  const { data, setData, setCanProceed, goToStep } = useWizard();
+  const { data, setData, setCanProceed } = useWizard();
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,12 +58,8 @@ export function StepDestination() {
   const handleSelectCity = useCallback(
     (cityName: string) => {
       setData({ city: cityName });
-
-      if (data.templateName) {
-        window.setTimeout(() => goToStep(3), 120);
-      }
     },
-    [data.templateName, goToStep, setData]
+    [setData]
   );
 
   if (isLoading) {
@@ -90,7 +86,7 @@ export function StepDestination() {
       {cities.length > 0 && (
         <div className={cn(
           "grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 md:gap-3",
-          templateMode && "gap-1.5 md:gap-2"
+          templateMode && "gap-1.5 md:gap-2 lg:grid-cols-4"
         )}>
           {cities.map((city) => (
             <CityCard
