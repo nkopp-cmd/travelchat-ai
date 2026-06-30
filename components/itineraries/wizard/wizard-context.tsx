@@ -11,6 +11,7 @@ export interface WizardData {
   pace: "relaxed" | "moderate" | "active" | "packed";
   groupType: string;
   templatePrompt?: string;
+  templateName?: string;
 }
 
 interface WizardContextType {

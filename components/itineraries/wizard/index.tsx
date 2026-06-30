@@ -98,6 +98,17 @@ function WizardContent({
     <div className="flex h-full min-h-0 flex-col">
       <WizardProgress />
 
+      {data.templateName && (
+        <div className="mx-4 mt-3 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-2 text-sm text-violet-100">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
+            <span className="min-w-0 truncate">
+              {data.templateName} applied. Pick a city and we will keep the template settings.
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-0 flex-1 overflow-y-auto pb-24">
         {steps[currentStep]}
       </div>

@@ -78,6 +78,7 @@ function NewItineraryContent() {
         pace: template.pace,
         interests: [...new Set(mappedInterests)],
         templatePrompt: template.prompt,
+        templateName: template.name,
       };
     }
   }
