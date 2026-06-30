@@ -45,14 +45,18 @@ const GENERIC_SPOT_WORDS = new Set([
     "dong",
     "dori",
     "food",
+    "hotel",
     "local",
     "lunch",
     "market",
     "night",
     "park",
+    "restaurant",
+    "road",
     "residential",
     "scene",
     "shopping",
+    "soi",
     "street",
     "town",
     "trail",
@@ -65,6 +69,7 @@ const TRANSIT_TYPES = new Set([
     "train_station",
     "transit_station",
 ]);
+const LODGING_TYPES = new Set(["lodging"]);
 
 export function getGooglePlacesApiKey(): string | null {
     return (
@@ -162,6 +167,16 @@ function wordOverlap(source: string, target: string): number {
     return matches / sourceWords.size;
 }
 
+function hasWeakSingleWordNameMatch(source: string, target: string, addressScore: number): boolean {
+    const sourceWords = comparableWords(source);
+    if (sourceWords.size !== 1 || addressScore >= 0.75) return false;
+
+    const targetWords = comparableWords(target);
+    const extraTargetWords = [...targetWords].filter((word) => !sourceWords.has(word));
+
+    return extraTargetWords.length > 0;
+}
+
 export function getPlacePhotoMatchQuality(
     spotName: string,
     spotAddress: string,
@@ -171,6 +186,7 @@ export function getPlacePhotoMatchQuality(
     const placeTypes = new Set(place.types || []);
     const hasTransitType = [...TRANSIT_TYPES].some((type) => placeTypes.has(type));
     const allowsTransit = category === "Transportation";
+    const hasLodgingType = [...LODGING_TYPES].some((type) => placeTypes.has(type));
 
     if (hasTransitType && !allowsTransit) {
         return {
@@ -181,14 +197,32 @@ export function getPlacePhotoMatchQuality(
         };
     }
 
+    if (hasLodgingType) {
+        return {
+            acceptable: false,
+            reason: "lodging_place_for_local_spot",
+            nameScore: 0,
+            addressScore: 0,
+        };
+    }
+
     const nameScore = wordOverlap(spotName, place.displayName || "");
     const addressScore = wordOverlap(spotAddress, place.formattedAddress || "");
+    const placeNameWordCount = comparableWords(place.displayName || "").size;
+    const hasNonLatinPlaceName = Boolean(place.displayName?.trim()) && placeNameWordCount === 0;
+    const weakSingleWordNameMatch = hasWeakSingleWordNameMatch(
+        spotName,
+        place.displayName || "",
+        addressScore
+    );
 
     if (
-        nameScore >= 0.5 ||
-        addressScore >= 0.55 ||
-        (nameScore >= 0.34 && addressScore >= 0.05) ||
-        (nameScore > 0 && addressScore >= 0.2)
+        !weakSingleWordNameMatch &&
+        (
+            (nameScore >= 0.67 && addressScore >= 0.2) ||
+            (nameScore >= 0.5 && addressScore >= 0.33) ||
+            (hasNonLatinPlaceName && addressScore >= 0.55)
+        )
     ) {
         return { acceptable: true, reason: "accepted", nameScore, addressScore };
     }
