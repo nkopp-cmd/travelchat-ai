@@ -205,7 +205,12 @@ export function SpotsFilterBar({
                 })}
             </div>
 
-            <div className="grid grid-cols-[minmax(0,1fr)_2.75rem] items-center gap-2 md:hidden">
+            <div
+                className={cn(
+                    "grid items-center gap-2 md:hidden",
+                    hasActiveFilters ? "grid-cols-[minmax(0,1fr)_2.75rem]" : "grid-cols-1"
+                )}
+            >
                 <Button
                     type="button"
                     variant="ghost"
