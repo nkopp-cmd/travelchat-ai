@@ -4,6 +4,10 @@ import {
     normalizePhotoWidth,
 } from "@/lib/place-images";
 
+interface GooglePlacePhotoLookup {
+    photos?: Array<{ name?: string }>;
+}
+
 function photoFetchFailureResponse(reason: string, status = 502) {
     return new NextResponse("Place photo unavailable", {
         status,
@@ -13,6 +17,38 @@ function photoFetchFailureResponse(reason: string, status = 502) {
             "X-Localley-Photo-Fallback": reason,
         },
     });
+}
+
+function getPlaceIdFromPhotoName(photoName: string): string | null {
+    const match = photoName.match(/^places\/([^/]+)\/photos\/[^/]+$/);
+    return match?.[1] || null;
+}
+
+async function findReplacementPhotoName(
+    photoName: string,
+    apiKey: string
+): Promise<string | null> {
+    const placeId = getPlaceIdFromPhotoName(photoName);
+    if (!placeId) return null;
+
+    const placeUrl = new URL(`https://places.googleapis.com/v1/places/${placeId}`);
+    placeUrl.searchParams.set("key", apiKey);
+
+    const response = await fetch(placeUrl.toString(), {
+        headers: {
+            "X-Goog-FieldMask": "photos",
+        },
+        next: { revalidate: 60 * 60 * 24 },
+    });
+
+    if (!response.ok) return null;
+
+    const data = (await response.json()) as GooglePlacePhotoLookup;
+    return (
+        data.photos
+            ?.map((photo) => photo.name)
+            .find((name): name is string => Boolean(name && name !== photoName)) || null
+    );
 }
 
 async function proxiedImageResponse(imageUrl: string, fallbackReason: string) {
@@ -93,6 +129,27 @@ export async function GET(req: NextRequest) {
     });
 
     if (!response.ok) {
+        if (response.status === 404 && photoName) {
+            const replacementPhotoName = await findReplacementPhotoName(photoName, apiKey);
+            if (replacementPhotoName) {
+                const replacementUrl = new URL(`https://places.googleapis.com/v1/${replacementPhotoName}/media`);
+                replacementUrl.searchParams.set("maxWidthPx", String(width));
+                replacementUrl.searchParams.set("skipHttpRedirect", "true");
+                replacementUrl.searchParams.set("key", apiKey);
+
+                const replacementResponse = await fetch(replacementUrl.toString(), {
+                    next: { revalidate: 60 * 60 * 24 * 30 },
+                });
+
+                if (replacementResponse.ok) {
+                    const replacementData = (await replacementResponse.json()) as { photoUri?: string };
+                    if (replacementData.photoUri) {
+                        return proxiedImageResponse(replacementData.photoUri, "replacement_image_fetch_failed");
+                    }
+                }
+            }
+        }
+
         return photoFetchFailureResponse(`lookup_failed_${response.status}`);
     }
 
