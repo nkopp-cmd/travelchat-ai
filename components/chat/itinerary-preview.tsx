@@ -1,13 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Bookmark, Check, MapPin, Sparkles, Lightbulb } from "lucide-react";
+import { Calendar, Bookmark, Check, MapPin, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import {
     cleanChatItineraryDescription,
+    getChatTipKind,
     parseChatItineraryPreview,
 } from "@/lib/itineraries/chat-preview-parser";
+import type { ItineraryInsight } from "@/lib/itineraries/normalize-daily-plans";
 
 interface ItineraryPreviewProps {
     content: string;
@@ -20,6 +23,15 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
     const { toast } = useToast();
 
     const { title, city, days, tips } = parseChatItineraryPreview(content);
+    const insights: ItineraryInsight[] = tips.map((tip, index) => {
+        const kind = getChatTipKind(tip);
+        return {
+            id: `chat-tip-${index + 1}`,
+            label: kind === "transport" ? "Getting around" : kind === "local" ? "Local tip" : "Trip insight",
+            text: tip,
+            kind,
+        };
+    });
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -66,12 +78,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                     city,
                     days: days.length,
                     activities,
-                    insights: tips.map((tip, index) => ({
-                        id: `chat-tip-${index + 1}`,
-                        label: "Local tip",
-                        text: tip,
-                        kind: "local",
-                    })),
+                    insights,
                     localScore: 7,
                 }),
             });
@@ -224,22 +231,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 ))}
             </div>
 
-            {/* Local tips stay separate from the day timeline */}
-            {tips.length > 0 && (
+            {insights.length > 0 && (
                 <div className="px-5 pb-4 pt-0">
-                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2.5">
-                        <div className="mb-1.5 flex items-center gap-2">
-                            <Lightbulb className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
-                                Local Tips
-                            </p>
-                        </div>
-                        <ul className="space-y-1 text-xs text-amber-800/90 dark:text-amber-200/90">
-                            {tips.map((tip, index) => (
-                                <li key={index}>{tip}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    <ItineraryInsightsPanel
+                        insights={insights}
+                        title="Trip notes"
+                        compact
+                        className="border-white/15 bg-white/55 shadow-none dark:bg-white/[0.04]"
+                    />
                 </div>
             )}
         </div>
