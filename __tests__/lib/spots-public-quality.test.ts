@@ -66,4 +66,53 @@ describe("public spot quality", () => {
             })
         ).toBe(true);
     });
+
+    it("hides placeholder and invalid image references from public spot surfaces", () => {
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Nice Looking Placeholder",
+                photos: ["/images/placeholders/market.svg"],
+            })
+        ).toBe("missing_real_photo");
+
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Broken Photo Spot",
+                photos: ["not-a-url"],
+            })
+        ).toBe("missing_real_photo");
+
+        expect(
+            shouldShowPublicSpot({
+                name: "Backfilled Google Place",
+                photos: ["/api/places/photo?name=places%2Fabc%2Fphotos%2Fdef&w=1200"],
+            })
+        ).toBe(true);
+    });
+
+    it("hides records with area-level addresses when address data is available", () => {
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Gion Corner",
+                address: { en: "Gion, Kyoto" },
+                location: {
+                    type: "Point",
+                    coordinates: [135.7788, 35.0037],
+                },
+                photos: ["https://example.com/gion-corner.jpg"],
+            })
+        ).toBe("inexact_location");
+
+        expect(
+            shouldShowPublicSpot({
+                name: "Taipei Tea House",
+                address: { en: "No. 17, Lane 31, Section 2, Jinshan South Road, Taipei" },
+                location: {
+                    type: "Point",
+                    coordinates: [121.565, 25.033],
+                },
+                photos: ["https://example.com/taipei-tea-house.jpg"],
+            })
+        ).toBe(true);
+    });
 });

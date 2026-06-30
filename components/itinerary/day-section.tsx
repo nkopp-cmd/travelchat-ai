@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Clock, MapPin, Lightbulb, Navigation } from "lucide-react";
+import { ChevronDown, Clock, MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -34,8 +34,6 @@ export function DaySection({
   day,
   theme,
   activities,
-  localTip,
-  transportTips,
   routeUrl,
   defaultExpanded = true,
   className,
@@ -138,23 +136,6 @@ export function DaySection({
               </div>
             ))}
           </div>
-
-          {/* Local tip */}
-          {localTip && (
-            <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <div className="flex items-start gap-2">
-                <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-200">{localTip}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Transport tips */}
-          {transportTips && (
-            <div className="mt-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-              <p className="text-sm text-blue-200">{transportTips}</p>
-            </div>
-          )}
 
           {/* Route button */}
           {routeUrl && (

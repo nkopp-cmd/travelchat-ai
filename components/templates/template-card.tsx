@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ItineraryTemplate } from "@/lib/templates";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +70,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   return (
     <Link href={`/itineraries/new?template=${template.id}`}>
       <Card className={cn(
-        "group relative flex min-h-[96px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[112px]",
+        "group relative flex min-h-[82px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[96px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -114,7 +114,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
 
           {/* Stats Pills Row */}
-          <div className="mt-1.5 grid grid-cols-2 gap-1 min-[420px]:flex min-[420px]:flex-wrap">
+          <div className="mt-auto grid grid-cols-2 gap-1 pt-1.5 min-[420px]:flex min-[420px]:flex-wrap">
             {/* Days pill */}
             <span className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-violet-200/50 bg-violet-100/80 px-1.5 py-1 text-[10px] font-medium leading-none text-violet-700 backdrop-blur-sm dark:border-violet-700/50 dark:bg-violet-900/40 dark:text-violet-300">
               <Clock className="h-2.5 w-2.5 shrink-0" />
@@ -129,24 +129,6 @@ export function TemplateCard({ template }: TemplateCardProps) {
               <span className="shrink-0">{pace.icon}</span>
               <span className="truncate whitespace-nowrap">{pace.label}</span>
             </span>
-          </div>
-
-          {/* Spacer */}
-          <div className="flex-1 min-h-1" />
-
-          {/* Primary action */}
-          <div className="mt-1 flex items-center justify-between border-t border-black/5 pt-1.5 dark:border-white/10">
-            <span className="min-w-0 truncate text-[11px] font-medium text-muted-foreground group-hover:text-violet-600 dark:group-hover:text-violet-300">
-              Use template
-            </span>
-            <div className={cn(
-              "flex items-center justify-center rounded-full",
-              "h-6 w-6 sm:h-7 sm:w-7 bg-violet-600 text-white",
-              "transition-all duration-200 ease-out",
-              "shadow-sm shadow-violet-500/20 group-hover:shadow-md group-hover:shadow-violet-500/30"
-            )}>
-              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </div>
           </div>
         </div>
 
