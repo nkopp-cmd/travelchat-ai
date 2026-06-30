@@ -13,7 +13,7 @@ import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
-import { summarizeSpotPhotos } from "@/lib/place-images";
+import { getGooglePlaceIdFromSpotPhotos, summarizeSpotPhotos } from "@/lib/place-images";
 import { getSpotLocationConfidence, hasUsableCoordinates } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
@@ -71,7 +71,8 @@ function getDirectionsUrl(
     name: string,
     lat: number,
     lng: number,
-    address: string
+    address: string,
+    googlePlaceId?: string | null
 ): string {
     const isKorea = isKoreanLocation(address);
     const exactQuery = [name, address].filter(Boolean).join(", ");
@@ -83,12 +84,21 @@ function getDirectionsUrl(
 
     // Prefer the exact name/address query over raw coordinates; several imported coordinates are area-level pins.
     const destination = exactQuery || (hasUsableCoordinates(lat, lng) ? `${lat},${lng}` : address);
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+    const params = new URLSearchParams({ api: "1", destination });
+    if (googlePlaceId) {
+        params.set("destination_place_id", googlePlaceId);
+    }
+
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
 function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
     const isKorea = isKoreanLocation(spot.location.address);
     const locationConfidence = getLocationConfidence(spot);
+
+    if (!isKorea && spot.googlePlaceId) {
+        return "Maps opens with the matched Google Place ID from the spot photo source for a more precise destination.";
+    }
 
     if (!isKorea && locationConfidence.tone === "exact") {
         return "Maps searches the exact spot name and address first instead of relying on imported coordinates alone.";
@@ -191,7 +201,8 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
         spot.name,
         spot.location.lat,
         spot.location.lng,
-        spot.location.address
+        spot.location.address,
+        spot.googlePlaceId
     );
     const isKorea = isKoreanLocation(spot.location.address);
     const locationConfidence = getLocationConfidence(spot);
@@ -236,7 +247,8 @@ async function getSpot(id: string) {
         return null;
     }
 
-    const photoSummary = summarizeSpotPhotos(spot.photos);
+    const normalizedPhotos = normalizeSpotPhotos(spot.photos, spot.category, 1600);
+    const photoSummary = summarizeSpotPhotos(normalizedPhotos);
 
     return {
         id: spot.id,
@@ -248,7 +260,7 @@ async function getSpot(id: string) {
         localleyScore: spot.localley_score as LocalleyScale,
         localPercentage: spot.local_percentage,
         bestTime: spot.best_times?.en || "Anytime",
-        photos: normalizeSpotPhotos(spot.photos, spot.category, 1600),
+        photos: normalizedPhotos,
         hasRealPhoto: photoSummary.hasRealPhoto,
         realPhotoCount: Object.entries(photoSummary.kinds).reduce(
             (count, [kind, value]) =>
@@ -257,6 +269,7 @@ async function getSpot(id: string) {
                     : count,
             0
         ),
+        googlePlaceId: getGooglePlaceIdFromSpotPhotos(normalizedPhotos),
         tips: spot.tips?.en || [],
         verified: spot.verified,
         trending: spot.trending_score > 0.8,
@@ -639,6 +652,11 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
                                 {locationConfidence.description} {getDirectionsHelperText(spot)}
                             </p>
+                            {spot.googlePlaceId && !isKoreanLocation(spot.location.address) && (
+                                <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+                                    Google place match available. Directions include the matched place ID, not only a text search.
+                                </p>
+                            )}
                             {formatCoordinate(spot.location.lat) && formatCoordinate(spot.location.lng) && (
                                 <p className="mt-2 text-xs text-violet-50/45">
                                     Approximate imported pin: {formatCoordinate(spot.location.lat)}, {formatCoordinate(spot.location.lng)}

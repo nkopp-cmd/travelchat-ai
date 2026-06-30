@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
     classifySpotPhoto,
     findBestGooglePlacePhotos,
+    getGooglePlaceIdFromPhotoUrl,
+    getGooglePlaceIdFromSpotPhotos,
     getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
     needsSpotPhotoBackfill,
@@ -78,6 +80,29 @@ describe("spot photo classification", () => {
             "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
             "https://cdn.example.com/spot.jpg",
         ]);
+    });
+
+    it("extracts Google Place IDs from proxied and direct Places photo URLs", () => {
+        expect(
+            getGooglePlaceIdFromPhotoUrl(
+                "/api/places/photo?w=1200&name=places%2FChIJabc123%2Fphotos%2Fphoto456"
+            )
+        ).toBe("ChIJabc123");
+
+        expect(
+            getGooglePlaceIdFromPhotoUrl(
+                "https://places.googleapis.com/v1/places/ChIJxyz789/photos/photo123/media?maxWidthPx=1200"
+            )
+        ).toBe("ChIJxyz789");
+
+        expect(
+            getGooglePlaceIdFromSpotPhotos([
+                "https://cdn.example.com/spot.jpg",
+                "/api/places/photo?w=1200&name=places%2FChIJsecond%2Fphotos%2Fphoto456",
+            ])
+        ).toBe("ChIJsecond");
+
+        expect(getGooglePlaceIdFromPhotoUrl("/api/places/photo?ref=legacy_ref")).toBeNull();
     });
 });
 
