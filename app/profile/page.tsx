@@ -20,6 +20,15 @@ const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl sha
 const LIQUID_CARD_SOFT = "rounded-2xl border-white/10 bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
 const STAT_TILE = "rounded-xl border border-white/10 bg-white/[0.055] p-3 backdrop-blur-xl";
 
+function usagePercent(used: number, limit: number) {
+    if (!limit || limit === 999) return used > 0 ? 10 : 0;
+    return Math.min((used / limit) * 100, 100);
+}
+
+function remainingCount(used: number, limit: number) {
+    return Math.max(limit - used, 0);
+}
+
 async function getUserProgress() {
     const { userId } = await auth();
 
@@ -233,11 +242,11 @@ export default async function ProfilePage() {
                                 )}
                             </div>
                         </div>
-                        <div className="flex w-full gap-2 mb-1 sm:w-auto">
+                        <div className="mb-1 grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
                             <EditProfileDialog
                                 initialBio={(user.unsafeMetadata?.bio as string) || ""}
                             />
-                            <Button size="sm" className="flex-1 bg-violet-600 hover:bg-violet-700 sm:flex-none">
+                            <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
                                 <Share2 className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Share Profile</span>
                                 <span className="sm:hidden">Share</span>
@@ -262,7 +271,7 @@ export default async function ProfilePage() {
                         </div>
 
                         {/* Stats with friendlier labels */}
-                        <div className="flex justify-between items-center gap-4">
+                        <div className="grid grid-cols-3 gap-2 sm:gap-4">
                             <div className={`${STAT_TILE} text-center flex-1`}>
                                 <div className="flex justify-center mb-1">
                                     <MapPin className="h-5 w-5 text-violet-500" />
@@ -412,12 +421,12 @@ export default async function ProfilePage() {
                                 </div>
                                 {tierConfig.limits.itinerariesPerMonth !== 999 && (
                                     <span className="text-xs text-muted-foreground">
-                                        {tierConfig.limits.itinerariesPerMonth - usage.itinerariesThisMonth} left
+                                        {remainingCount(usage.itinerariesThisMonth, tierConfig.limits.itinerariesPerMonth)} left
                                     </span>
                                 )}
                             </div>
                             <Progress
-                                value={tierConfig.limits.itinerariesPerMonth === 999 ? 10 : (usage.itinerariesThisMonth / tierConfig.limits.itinerariesPerMonth) * 100}
+                                value={usagePercent(usage.itinerariesThisMonth, tierConfig.limits.itinerariesPerMonth)}
                                 className="h-2"
                             />
                         </div>
@@ -435,12 +444,12 @@ export default async function ProfilePage() {
                                 </div>
                                 {tierConfig.limits.chatMessagesPerDay !== 999 && (
                                     <span className="text-xs text-muted-foreground">
-                                        {tierConfig.limits.chatMessagesPerDay - usage.chatMessagesToday} left today
+                                        {remainingCount(usage.chatMessagesToday, tierConfig.limits.chatMessagesPerDay)} left today
                                     </span>
                                 )}
                             </div>
                             <Progress
-                                value={tierConfig.limits.chatMessagesPerDay === 999 ? 10 : (usage.chatMessagesToday / tierConfig.limits.chatMessagesPerDay) * 100}
+                                value={usagePercent(usage.chatMessagesToday, tierConfig.limits.chatMessagesPerDay)}
                                 className="h-2"
                             />
                         </div>
@@ -457,11 +466,11 @@ export default async function ProfilePage() {
                                     </span>
                                 </div>
                                 <span className="text-xs text-muted-foreground">
-                                    {tierConfig.limits.aiImagesPerMonth - usage.aiImagesThisMonth} left
+                                    {remainingCount(usage.aiImagesThisMonth, tierConfig.limits.aiImagesPerMonth)} left
                                 </span>
                             </div>
                             <Progress
-                                value={(usage.aiImagesThisMonth / tierConfig.limits.aiImagesPerMonth) * 100}
+                                value={usagePercent(usage.aiImagesThisMonth, tierConfig.limits.aiImagesPerMonth)}
                                 className="h-2"
                             />
                         </div>
@@ -479,12 +488,12 @@ export default async function ProfilePage() {
                                 </div>
                                 {tierConfig.limits.savedSpotsLimit !== 999 && (
                                     <span className="text-xs text-muted-foreground">
-                                        {tierConfig.limits.savedSpotsLimit - usage.savedSpots} slots left
+                                        {remainingCount(usage.savedSpots, tierConfig.limits.savedSpotsLimit)} slots left
                                     </span>
                                 )}
                             </div>
                             <Progress
-                                value={tierConfig.limits.savedSpotsLimit === 999 ? 10 : (usage.savedSpots / tierConfig.limits.savedSpotsLimit) * 100}
+                                value={usagePercent(usage.savedSpots, tierConfig.limits.savedSpotsLimit)}
                                 className="h-2"
                             />
                         </div>

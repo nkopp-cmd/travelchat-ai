@@ -142,31 +142,29 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
     const hasItineraries = itineraries.length > 0;
 
     return (
-        <div className="w-full space-y-5 px-3 py-4 sm:px-4">
+        <div className="w-full space-y-4 px-3 py-3 sm:px-4">
             {/* Welcome Section with premium styling */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-5 text-center shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-4 text-center shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.28),transparent_42%)]" />
                 <div className="relative">
-                <div className="relative inline-flex mb-4">
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 h-18 w-18 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 blur-xl opacity-40" />
-                    <div className={cn(
-                        "relative h-18 w-18 rounded-2xl",
-                        "bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600",
-                        "flex items-center justify-center",
-                        "shadow-2xl shadow-violet-500/40"
-                    )}>
-                        <Sparkles className="h-8 w-8 text-white" />
+                    <div className="relative mb-3 inline-flex">
+                        <div className="absolute inset-0 h-16 w-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 opacity-40 blur-xl" />
+                        <div className={cn(
+                            "relative flex h-16 w-16 items-center justify-center rounded-2xl",
+                            "bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600",
+                            "shadow-2xl shadow-violet-500/40"
+                        )}>
+                            <Sparkles className="h-7 w-7 text-white" />
+                        </div>
                     </div>
-                </div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-200 to-indigo-200">
-                    {hasItineraries ? "Welcome back!" : "Hey there!"}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-2">
-                    {hasItineraries
-                        ? "Continue exploring or plan a new adventure"
-                        : "Ready to discover hidden gems?"}
-                </p>
+                    <h1 className="bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text text-2xl font-bold text-transparent">
+                        {hasItineraries ? "Welcome back!" : "Hey there!"}
+                    </h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {hasItineraries
+                            ? "Continue exploring or plan a new adventure"
+                            : "Ready to discover hidden gems?"}
+                    </p>
                 </div>
             </div>
 
@@ -174,7 +172,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
             <Link
                 href="/itineraries/new"
                 className={cn(
-                    "block w-full rounded-2xl p-5 group",
+                    "block w-full rounded-2xl p-4 group",
                     "bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600",
                     "text-white",
                     "shadow-xl shadow-violet-500/30",
@@ -189,17 +187,17 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </div>
 
-                <div className="relative flex items-center gap-4">
+                <div className="relative flex items-center gap-3">
                     <div className={cn(
-                        "h-14 w-14 rounded-xl",
+                        "h-12 w-12 rounded-xl",
                         "bg-white/20 backdrop-blur-sm",
                         "flex items-center justify-center",
                         "group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300"
                     )}>
-                        <Plus className="h-7 w-7" />
+                        <Plus className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                        <div className="font-bold text-lg">Create New Itinerary</div>
+                        <div className="font-bold">Create New Itinerary</div>
                         <div className="text-sm text-white/80">AI-powered local recommendations</div>
                     </div>
                     <ArrowRight className="h-6 w-6 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
@@ -246,12 +244,12 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     </h2>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                    {SUPPORTED_CITIES.map((city) => (
+                    {SUPPORTED_CITIES.slice(0, 8).map((city) => (
                         <Link
                             key={city.name}
                             href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                             className={cn(
-                                "group relative min-h-[138px] overflow-hidden rounded-2xl p-4",
+                                "group relative min-h-[118px] overflow-hidden rounded-2xl p-3",
                                 "border border-white/10 bg-white/[0.055] backdrop-blur-xl",
                                 "hover:border-violet-400/50",
                                 "hover:shadow-lg hover:shadow-violet-500/10",
@@ -268,7 +266,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                                 quality={90}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
-                            <div className="relative mt-14">
+                            <div className="relative mt-12">
                                 <div className="font-semibold text-white">
                                     {city.name}
                                 </div>
@@ -277,6 +275,13 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                         </Link>
                     ))}
                 </div>
+                <Link
+                    href="/spots"
+                    className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.055] text-sm font-semibold text-violet-100 transition hover:border-violet-300/35 hover:bg-violet-400/10"
+                >
+                    Browse all cities
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
             </div>
 
             {/* Premium Quick Actions */}
@@ -284,7 +289,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                 <Link
                     href="/spots"
                     className={cn(
-                        "rounded-2xl p-4 group",
+                        "rounded-2xl p-3 group",
                         "bg-white/[0.055] backdrop-blur-xl",
                         "border border-emerald-400/20",
                         "hover:border-emerald-500/40",
@@ -294,7 +299,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     )}
                 >
                     <div className={cn(
-                        "h-12 w-12 rounded-xl mb-3",
+                        "h-10 w-10 rounded-xl mb-2",
                         "bg-gradient-to-br from-emerald-600 to-teal-600",
                         "flex items-center justify-center",
                         "shadow-lg shadow-emerald-500/30",
@@ -302,7 +307,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     )}>
                         <Compass className="h-6 w-6 text-white" />
                     </div>
-                    <div className="font-semibold group-hover:text-emerald-600 transition-colors">
+                    <div className="font-semibold transition-colors group-hover:text-emerald-600">
                         Browse Spots
                     </div>
                     <div className="text-xs text-muted-foreground">Discover local gems</div>
@@ -310,7 +315,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                 <Link
                     href="/templates"
                     className={cn(
-                        "rounded-2xl p-4 group",
+                        "rounded-2xl p-3 group",
                         "bg-white/[0.055] backdrop-blur-xl",
                         "border border-amber-500/20",
                         "hover:border-amber-500/40",
@@ -320,7 +325,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     )}
                 >
                     <div className={cn(
-                        "h-12 w-12 rounded-xl mb-3",
+                        "h-10 w-10 rounded-xl mb-2",
                         "bg-gradient-to-br from-amber-500 to-orange-500",
                         "flex items-center justify-center",
                         "shadow-lg shadow-amber-500/30",
@@ -328,7 +333,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     )}>
                         <Sparkles className="h-6 w-6 text-white" />
                     </div>
-                    <div className="font-semibold group-hover:text-amber-600 transition-colors">
+                    <div className="font-semibold transition-colors group-hover:text-amber-600">
                         Templates
                     </div>
                     <div className="text-xs text-muted-foreground">Pre-made trip ideas</div>
