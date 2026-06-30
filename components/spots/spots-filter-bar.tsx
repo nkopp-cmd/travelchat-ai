@@ -197,11 +197,11 @@ export function SpotsFilterBar({
 
             {/* Advanced Filters Row */}
             <div
-                className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-[auto_minmax(9rem,1fr)_minmax(9rem,1fr)_minmax(12rem,1.15fr)_minmax(9rem,1fr)_auto] xl:items-center"
+                className="grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center"
                 role="group"
                 aria-label="Filter options"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 xl:col-span-1">
+                <div className="col-span-2 flex items-center gap-2 text-sm font-medium text-violet-50/65 lg:col-span-4 xl:hidden">
                     <Filter className="h-4 w-4" aria-hidden="true" />
                     Filters:
                 </div>
@@ -295,7 +295,7 @@ export function SpotsFilterBar({
                         variant="ghost"
                         size="sm"
                         onClick={onClearFilters}
-                        className="h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 xl:col-span-1 xl:w-auto"
+                        className="col-span-2 h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white lg:col-span-4 xl:col-span-1 xl:w-auto"
                     >
                         <X className="mr-1 h-4 w-4" aria-hidden="true" />
                         Clear

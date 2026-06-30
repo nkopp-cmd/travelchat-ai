@@ -26,6 +26,14 @@ export interface FindGooglePlacePhotosOptions {
     timeoutMs?: number;
 }
 
+export interface BestGooglePlacePhotoResult {
+    place: PlacePhotoSearchResult | null;
+    quality: ReturnType<typeof getPlacePhotoMatchQuality> | null;
+    query: string | null;
+    rejectedPlace?: PlacePhotoSearchResult | null;
+    rejectedQuality?: ReturnType<typeof getPlacePhotoMatchQuality> | null;
+}
+
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
 const MAX_PHOTOS_PER_SPOT = 3;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
@@ -40,6 +48,7 @@ const GENERIC_SPOT_WORDS = new Set([
     "local",
     "lunch",
     "market",
+    "night",
     "park",
     "residential",
     "scene",
@@ -175,7 +184,12 @@ export function getPlacePhotoMatchQuality(
     const nameScore = wordOverlap(spotName, place.displayName || "");
     const addressScore = wordOverlap(spotAddress, place.formattedAddress || "");
 
-    if (nameScore >= 0.34 || addressScore >= 0.2) {
+    if (
+        nameScore >= 0.5 ||
+        addressScore >= 0.55 ||
+        (nameScore >= 0.34 && addressScore >= 0.05) ||
+        (nameScore > 0 && addressScore >= 0.2)
+    ) {
         return { acceptable: true, reason: "accepted", nameScore, addressScore };
     }
 
@@ -196,6 +210,36 @@ export async function findGooglePlacePhotos(
     const textQuery = [name, address].filter(Boolean).join(", ");
     if (!textQuery) return null;
 
+    return findGooglePlacePhotosByQuery(textQuery, apiKey, options);
+}
+
+function getAddressParts(address: string): string[] {
+    return address
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+}
+
+export function buildPlacePhotoSearchQueries(name: string, address: string): string[] {
+    const parts = getAddressParts(address);
+    const cityCountry = parts.slice(-2).join(", ");
+    const city = parts.length > 1 ? parts[parts.length - 2] : "";
+
+    return [
+        [name, address].filter(Boolean).join(", "),
+        [name, cityCountry].filter(Boolean).join(", "),
+        [name, city].filter(Boolean).join(", "),
+        name,
+    ]
+        .map((query) => query.trim())
+        .filter((query, index, queries) => query && queries.indexOf(query) === index);
+}
+
+async function findGooglePlacePhotosByQuery(
+    textQuery: string,
+    apiKey: string,
+    options: FindGooglePlacePhotosOptions = {}
+): Promise<PlacePhotoSearchResult | null> {
     const timeoutMs = options.timeoutMs ?? DEFAULT_GOOGLE_PLACES_TIMEOUT_MS;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -248,6 +292,38 @@ export async function findGooglePlacePhotos(
         formattedAddress: place.formattedAddress || null,
         types: place.types || [],
         photos: (place.photos || []).filter((photo) => Boolean(photo.name)),
+    };
+}
+
+export async function findBestGooglePlacePhotos(
+    name: string,
+    address: string,
+    category: string | null | undefined,
+    apiKey: string,
+    options: FindGooglePlacePhotosOptions = {}
+): Promise<BestGooglePlacePhotoResult> {
+    let rejectedPlace: PlacePhotoSearchResult | null = null;
+    let rejectedQuality: ReturnType<typeof getPlacePhotoMatchQuality> | null = null;
+
+    for (const query of buildPlacePhotoSearchQueries(name, address)) {
+        const place = await findGooglePlacePhotosByQuery(query, apiKey, options);
+        if (!place || place.photos.length === 0) continue;
+
+        const quality = getPlacePhotoMatchQuality(name, address, category, place);
+        if (quality.acceptable) {
+            return { place, quality, query };
+        }
+
+        rejectedPlace = place;
+        rejectedQuality = quality;
+    }
+
+    return {
+        place: null,
+        quality: null,
+        query: null,
+        rejectedPlace,
+        rejectedQuality,
     };
 }
 

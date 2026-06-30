@@ -47,6 +47,11 @@ const nextConfig: NextConfig = {
     root: projectRoot,
   },
   images: {
+    localPatterns: [
+      {
+        pathname: '/**',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',

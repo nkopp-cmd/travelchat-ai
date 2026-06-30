@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useUser } from "@clerk/nextjs";
 import { ArrowLeft, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { WizardProgress } from "./wizard-progress";
@@ -96,14 +95,14 @@ function WizardContent({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full min-h-0 flex-col">
       <WizardProgress />
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-24">
         {steps[currentStep]}
       </div>
 
-      <div className="p-4 border-t border-white/10 bg-black/50 backdrop-blur-xl safe-area-bottom">
+      <div className="fixed inset-x-0 bottom-0 z-40 shrink-0 p-4 border-t border-white/10 bg-black/80 backdrop-blur-xl safe-area-bottom">
         <div className="flex gap-3 max-w-md mx-auto">
           {currentStep > 0 && (
             <Button
@@ -153,7 +152,6 @@ interface ItineraryWizardProps {
 export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const { isSignedIn } = useUser();
 
   const handleGenerate = async (data: WizardData) => {
     try {
@@ -232,7 +230,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex h-dvh flex-col overflow-hidden bg-background">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>

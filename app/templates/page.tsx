@@ -34,7 +34,7 @@ export default function TemplatesPage() {
 
   return (
     <AppBackground ambient className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-5 sm:py-7">
         {/* Back Button */}
         <Link
           href="/dashboard"
@@ -45,19 +45,19 @@ export default function TemplatesPage() {
         </Link>
 
         {/* Header */}
-        <div className="text-center mb-8 space-y-3">
+        <div className="text-center mb-6 space-y-2.5">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 rounded-full text-violet-700 dark:text-violet-400 text-sm font-medium">
             <Sparkles className="h-4 w-4" />
             Start with a Template
           </div>
 
-          <h1 className="text-4xl font-bold sm:text-5xl">
+          <h1 className="text-3xl font-bold sm:text-4xl">
             <GradientText variant="violet">
               Itinerary Templates
             </GradientText>
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
             Jump-start your trip planning with our curated templates designed for every travel style
           </p>
 
@@ -75,7 +75,7 @@ export default function TemplatesPage() {
         </div>
 
         {/* Browse by Pace - Primary Sections */}
-        <div className="space-y-10">
+        <div className="space-y-7">
           {/* Relaxed Pace */}
           {paceGroups.relaxed.length > 0 && (
             <section className="relative">
@@ -94,7 +94,7 @@ export default function TemplatesPage() {
                   {paceGroups.relaxed.length} templates
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
                 {paceGroups.relaxed.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
@@ -120,7 +120,7 @@ export default function TemplatesPage() {
                   {paceGroups.moderate.length} templates
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
                 {paceGroups.moderate.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
@@ -146,7 +146,7 @@ export default function TemplatesPage() {
                   {paceGroups.active.length} templates
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
                 {paceGroups.active.map((template) => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
@@ -156,7 +156,7 @@ export default function TemplatesPage() {
         </div>
 
         {/* Custom Option CTA */}
-        <div className="mt-10 text-center p-6 bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-xl border border-black/5 dark:border-white/10 shadow-lg shadow-violet-500/5">
+        <div className="mt-8 text-center p-5 bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-lg border border-black/5 dark:border-white/10 shadow-lg shadow-violet-500/5">
           <h3 className="text-xl font-bold mb-2">
             Don&apos;t see what you&apos;re looking for?
           </h3>

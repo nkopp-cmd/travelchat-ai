@@ -20,13 +20,17 @@ interface ParsedDay {
     }[];
 }
 
+function isTipsHeading(line: string): boolean {
+    return /^[#*]*\s*(local\s+tips|tips|insider\s+tips)\s*\**$/i.test(line.trim());
+}
+
 export function ItineraryPreview({ content, conversationId }: ItineraryPreviewProps) {
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
 
     // Parse the itinerary content
-    const parseItinerary = (): { title: string; city: string; days: ParsedDay[] } => {
+    const parseItinerary = (): { title: string; city: string; days: ParsedDay[]; tips: string[] } => {
         const lines = content.split('\n');
         const fullTitle = lines[0]?.replace(/^[#*]+\s*|\*+$/g, '').trim() || "Your Itinerary";
 
@@ -64,21 +68,39 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
         }
 
         const days: ParsedDay[] = [];
+        const tips: string[] = [];
         let currentDay: ParsedDay | null = null;
+        let inTipsSection = false;
 
         lines.forEach(line => {
             const trimmed = line.trim();
+            if (isTipsHeading(trimmed)) {
+                if (currentDay) {
+                    days.push(currentDay);
+                    currentDay = null;
+                }
+                inTipsSection = true;
+                return;
+            }
 
             // Day header (handles **, ***, ###, etc.)
             if (/^[#*]+\s*Day \d+:/i.test(trimmed)) {
                 if (currentDay) days.push(currentDay);
+                inTipsSection = false;
                 currentDay = {
                     day: trimmed.replace(/^[#*]+\s*|\*+$/g, '').trim(),
                     activities: []
                 };
             }
+            else if (inTipsSection && trimmed.startsWith('- ')) {
+                const tip = trimmed
+                    .replace(/^-\s*/, '')
+                    .replace(/^\*+|\*+$/g, '')
+                    .trim();
+                if (tip) tips.push(tip);
+            }
             // Activity with bold marker (- **Title**: description)
-            else if (currentDay && /^-\s*\*+/.test(trimmed)) {
+            else if (!inTipsSection && currentDay && /^-\s*\*+/.test(trimmed)) {
                 const match = trimmed.match(/- \*+(.+?)\*+:\s*(.+)/);
                 if (match) {
                     const actTitle = match[1];
@@ -93,7 +115,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 }
             }
             // Plain activity (- Title: description OR - Title)
-            else if (currentDay && trimmed.startsWith('- ') && !trimmed.startsWith('  -')) {
+            else if (!inTipsSection && currentDay && trimmed.startsWith('- ') && !trimmed.startsWith('  -')) {
                 const colonMatch = trimmed.match(/^- (.+?):\s*(.+)$/);
                 if (colonMatch) {
                     const actTitle = colonMatch[1];
@@ -117,7 +139,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 }
             }
             // Sub-items (indented with spaces)
-            else if (currentDay && trimmed.startsWith('  -')) {
+            else if (!inTipsSection && currentDay && trimmed.startsWith('  -')) {
                 const lastActivity = currentDay.activities[currentDay.activities.length - 1];
                 if (lastActivity) {
                     const subItem = trimmed.substring(2).trim();
@@ -131,10 +153,10 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
         });
 
         if (currentDay) days.push(currentDay);
-        return { title, city: city || "Unknown City", days };
+        return { title, city: city || "Unknown City", days, tips };
     };
 
-    const { title, city, days } = parseItinerary();
+    const { title, city, days, tips } = parseItinerary();
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -342,14 +364,21 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 ))}
             </div>
 
-            {/* Footer - Local Tips indicator */}
-            {content.includes('Local Tips') && (
+            {/* Local tips stay separate from the day timeline */}
+            {tips.length > 0 && (
                 <div className="px-5 pb-4 pt-0">
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                        <Lightbulb className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                        <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
-                            Local Tips included — save to see insider advice!
-                        </p>
+                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2.5">
+                        <div className="mb-1.5 flex items-center gap-2">
+                            <Lightbulb className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                                Local Tips
+                            </p>
+                        </div>
+                        <ul className="space-y-1 text-xs text-amber-800/90 dark:text-amber-200/90">
+                            {tips.map((tip, index) => (
+                                <li key={index}>{tip}</li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             )}

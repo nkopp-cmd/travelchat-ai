@@ -70,7 +70,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   return (
     <Link href={`/itineraries/new?template=${template.id}`}>
       <Card className={cn(
-        "group overflow-hidden h-full flex flex-col cursor-pointer relative",
+        "group overflow-hidden h-full min-h-[190px] flex flex-col cursor-pointer relative",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -92,29 +92,29 @@ export function TemplateCard({ template }: TemplateCardProps) {
              }} />
 
         {/* Main Content */}
-        <div className="p-4 flex-1 flex flex-col relative z-10">
+        <div className="p-3 flex-1 flex flex-col relative z-10">
           {/* Header */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2.5">
             <div className="relative">
-              <div className="text-4xl transform group-hover:scale-105 transition-transform duration-300">
+              <div className="text-3xl transform group-hover:scale-105 transition-transform duration-300">
                 {template.emoji}
               </div>
-              <div className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-25 transition-opacity duration-300 text-4xl">
+              <div className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-25 transition-opacity duration-300 text-3xl">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-base leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200">
+              <h3 className="font-bold text-sm leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200">
                 {template.name}
               </h3>
-              <p className="text-xs text-muted-foreground/80 mt-1 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-muted-foreground/80 mt-1 line-clamp-1 leading-relaxed">
                 {template.description}
               </p>
             </div>
           </div>
 
           {/* Stats Pills Row */}
-          <div className="flex flex-wrap items-center gap-1.5 mt-4">
+          <div className="flex flex-wrap items-center gap-1.5 mt-3">
             {/* Days pill */}
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
               <Clock className="h-3 w-3" />
@@ -137,7 +137,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
 
           {/* Target Audience - simplified inline */}
-          <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5 line-clamp-1">
+          <p className="text-xs text-muted-foreground mt-2.5 flex items-center gap-1.5 line-clamp-1">
             <Users className="h-3 w-3 text-violet-500" />
             Perfect for {template.targetAudience.toLowerCase()}
           </p>
@@ -146,9 +146,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <div className="flex-1 min-h-2" />
 
           {/* Primary action */}
-          <div className="flex items-center justify-end mt-3 pt-3 border-t border-black/5 dark:border-white/10">
+          <div className="flex items-center justify-end mt-2.5 pt-2.5 border-t border-black/5 dark:border-white/10">
             <div className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium",
               "bg-violet-600 text-white",
               "transition-all duration-200 ease-out",
               "shadow-sm shadow-violet-500/20 group-hover:shadow-md group-hover:shadow-violet-500/30"

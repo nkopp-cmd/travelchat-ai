@@ -120,6 +120,11 @@ function getSpotHeroImage(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>
         : "/placeholder-spot.svg";
 }
 
+function getSpotGalleryImages(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
+    const photos = (spot.photos as string[]).filter((photo: string) => !isPlaceholderImage(photo));
+    return photos.length > 1 ? photos.slice(1, 4) : [];
+}
+
 // Get Directions button component
 function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<typeof getSpot>>> }) {
     const directionsUrl = getDirectionsUrl(
@@ -254,6 +259,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     // Extract city from address for Viator activities
     const city = spot.location.address.split(',')[0].trim();
     const heroImage = getSpotHeroImage(spot);
+    const galleryImages = getSpotGalleryImages(spot);
 
     return (
         <>
@@ -317,6 +323,23 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
             </div>
+
+            {galleryImages.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                    {galleryImages.map((photo, index) => (
+                        <div key={photo} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40">
+                            <Image
+                                src={photo}
+                                alt={`${spot.name} photo ${index + 2}`}
+                                fill
+                                className="object-cover"
+                                quality={90}
+                                sizes="(max-width: 768px) 33vw, 320px"
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-8">
                 <div className="space-y-5 lg:col-span-2 lg:space-y-8">

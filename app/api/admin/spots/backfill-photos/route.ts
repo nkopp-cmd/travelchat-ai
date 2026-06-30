@@ -4,8 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import {
     buildSpotPhotoUrls,
-    findGooglePlacePhotos,
-    getPlacePhotoMatchQuality,
+    findBestGooglePlacePhotos,
     getGooglePlacesApiKey,
     getLocalizedFieldValue,
     needsSpotPhotoBackfill,
@@ -33,6 +32,7 @@ interface BackfillResult {
     reason?: string;
     placeId?: string | null;
     placeName?: string | null;
+    query?: string | null;
     photoCount?: number;
 }
 
@@ -124,33 +124,25 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            const place = await findGooglePlacePhotos(name, address, apiKey, {
+            const match = await findBestGooglePlacePhotos(name, address, spot.category, apiKey, {
                 timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS,
             });
+            const place = match.place;
             const photoUrls = place ? buildSpotPhotoUrls(place.photos) : [];
 
-            if (place && photoUrls.length > 0) {
-                const quality = getPlacePhotoMatchQuality(
+            if (!place && match.rejectedPlace) {
+                results.push({
+                    id: spot.id,
                     name,
                     address,
-                    spot.category,
-                    place
-                );
-
-                if (!quality.acceptable) {
-                    results.push({
-                        id: spot.id,
-                        name,
-                        address,
-                        status: "skipped",
-                        reason: `low_confidence:${quality.reason}`,
-                        placeId: place.placeId || null,
-                        placeName: place.displayName || null,
-                        photoCount: photoUrls.length,
-                    });
-                    await sleep(150);
-                    continue;
-                }
+                    status: "skipped",
+                    reason: `low_confidence:${match.rejectedQuality?.reason || "rejected"}`,
+                    placeId: match.rejectedPlace.placeId || null,
+                    placeName: match.rejectedPlace.displayName || null,
+                    photoCount: match.rejectedPlace.photos.length,
+                });
+                await sleep(150);
+                continue;
             }
 
             if (photoUrls.length === 0) {
@@ -162,6 +154,7 @@ export async function POST(req: NextRequest) {
                     reason: "no_google_place_photos_found",
                     placeId: place?.placeId || null,
                     placeName: place?.displayName || null,
+                    query: match.query,
                 });
                 await sleep(150);
                 continue;
@@ -182,6 +175,7 @@ export async function POST(req: NextRequest) {
                         reason: updateError.message,
                         placeId: place?.placeId || null,
                         placeName: place?.displayName || null,
+                        query: match.query,
                         photoCount: photoUrls.length,
                     });
                     await sleep(150);
@@ -196,6 +190,7 @@ export async function POST(req: NextRequest) {
                 status: dryRun ? "would_update" : "updated",
                 placeId: place?.placeId || null,
                 placeName: place?.displayName || null,
+                query: match.query,
                 photoCount: photoUrls.length,
             });
             successfulCandidates++;
