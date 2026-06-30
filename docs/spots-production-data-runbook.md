@@ -41,6 +41,23 @@ npx tsx scripts/audit-spot-location-quality.ts --out="$out_dir/location.json"
 rm -f "$tmp_env"
 ```
 
+## Admin Enrichment Queue
+
+Use the admin workbench after each audit run:
+
+- `/admin/spots/quality` shows records blocked by missing real images, inexact addresses, broad names, or missing place identity.
+- `GET /api/admin/spots/quality?issue=missing_real_photo&city=Tokyo&limit=80` returns the same queue as JSON for inspection.
+- `PATCH /api/admin/spots/quality` updates one spot at a time with `address`, `lat`, `lng`, `photos`, and `googlePlaceId`.
+
+The patch endpoint preserves existing localized address fields, writes coordinates as `POINT(lng lat)`, deduplicates photo URLs, rejects invalid coordinates, and refuses to save `googlePlaceId` until the `spots.google_place_id` migration exists.
+
+Recommended manual loop:
+
+1. Filter by `Images`, add real Google proxy or trusted HTTPS spot photos.
+2. Filter by `Location`, replace area-level addresses with exact mappable addresses plus coordinates.
+3. Filter by `Place ID` after the migration is applied, then save durable Google Place IDs.
+4. Re-run the photo and location audits and confirm the public-ready count increases.
+
 Review strict Google Places backfill candidates before applying:
 
 ```bash
