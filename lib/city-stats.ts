@@ -8,6 +8,7 @@ import {
     getCityBySlug,
     getCoverageMessage,
 } from "./cities";
+import { applyPublicSpotVisibilityFilters } from "./spots/public-quality";
 
 export interface CitySpotCount {
     slug: string;
@@ -28,10 +29,13 @@ export async function getCitySpotCounts(): Promise<CitySpotCount[]> {
     for (const city of ENABLED_CITIES) {
         // Query spots that match this city's name in address
         // Using separate ilike calls since .or() with JSONB can be tricky
-        const { count } = await supabase
+        let countQuery = supabase
             .from("spots")
-            .select("*", { count: "exact", head: true })
-            .ilike("address->>en", `%${city.name}%`);
+            .select("*", { count: "exact", head: true });
+
+        countQuery = applyPublicSpotVisibilityFilters(countQuery);
+
+        const { count } = await countQuery.ilike("address->>en", `%${city.name}%`);
 
         const spotCount = count || 0;
         const coverage = getCoverageMessage(city, spotCount, 8); // Assume 8 templates for now
@@ -58,10 +62,13 @@ export async function getCitySpotCount(citySlug: string): Promise<CitySpotCount 
 
     const supabase = createSupabaseAdmin();
 
-    const { count } = await supabase
+    let countQuery = supabase
         .from("spots")
-        .select("*", { count: "exact", head: true })
-        .ilike("address->>en", `%${city.name}%`);
+        .select("*", { count: "exact", head: true });
+
+    countQuery = applyPublicSpotVisibilityFilters(countQuery);
+
+    const { count } = await countQuery.ilike("address->>en", `%${city.name}%`);
 
     const spotCount = count || 0;
     const coverage = getCoverageMessage(city, spotCount, 8);
@@ -82,9 +89,13 @@ export async function getCitySpotCount(citySlug: string): Promise<CitySpotCount 
 export async function getTotalSpotCount(): Promise<number> {
     const supabase = createSupabaseAdmin();
 
-    const { count } = await supabase
+    let countQuery = supabase
         .from("spots")
         .select("*", { count: "exact", head: true });
+
+    countQuery = applyPublicSpotVisibilityFilters(countQuery);
+
+    const { count } = await countQuery;
 
     return count || 0;
 }
@@ -98,12 +109,16 @@ export async function getSpotsByCity(citySlug: string, limit: number = 50) {
 
     const supabase = createSupabaseAdmin();
 
-    const { data, count, error } = await supabase
+    let spotsQuery = supabase
         .from("spots")
         .select("*", { count: "exact" })
         .ilike("address->>en", `%${city.name}%`)
-        .order("localley_score", { ascending: false })
+        .order("localley_score", { ascending: false });
+
+    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
         .limit(limit);
+
+    const { data, count, error } = await spotsQuery;
 
     if (error) {
         console.error(`[city-stats] Error fetching spots for ${city.name}:`, error);

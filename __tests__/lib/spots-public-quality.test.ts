@@ -12,6 +12,9 @@ describe("public spot quality", () => {
         "Shinjuku Office District",
         "Daebang Station Area",
         "Yukigaya-Otsuka Local",
+        "Yeomgok-dong Local Scene",
+        "Oji-Kamiya Industrial",
+        "Kwun Tong Industrial Area",
         "Bangkok Hidden Day Trip",
         "Seoul Walking Route",
         "Tokyo Bar Crawl",
@@ -25,6 +28,7 @@ describe("public spot quality", () => {
         "Guryong Village",
         "Jujo Shopping Street",
         "Haengdang-dong Local Market",
+        "Yeongdo Industrial Cafe",
         "200 Xom Chieu Street Food Alley",
         "Kitakagaya Street Art",
     ])("keeps named public places for deeper location review: %s", (name) => {

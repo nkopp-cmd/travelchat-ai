@@ -13,6 +13,9 @@ export const PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS = [
     "%Working District%",
     "%Station Area%",
     "% Local",
+    "% Local Scene%",
+    "% Industrial",
+    "%Industrial Area%",
     "%Walking Route%",
     "%Day Trip%",
     "%Bar Crawl%",
@@ -21,10 +24,10 @@ export const PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS = [
     "%Multiple%",
 ] as const;
 
-export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v2";
+export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v3";
 
 const PUBLIC_BROAD_SPOT_NAME_PATTERN =
-    /\b(?:residential(?:\s+area)?|(?:office|working)\s+district|station\s+area|walking\s+route|day\s+trip|bar\s+crawl|market\s+crawl|various|multiple)\b|\blocal$/i;
+    /\b(?:residential(?:\s+area)?|(?:office|working)\s+district|station\s+area|local\s+scene|industrial\s+area|walking\s+route|day\s+trip|bar\s+crawl|market\s+crawl|various|multiple)\b|\blocal$|\bindustrial$/i;
 
 type PublicSpotFilterBuilder<TQuery> = {
     not: (column: string, operator: string, value: string | null) => TQuery;
