@@ -13,9 +13,13 @@ import {
 
 const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 15;
+const MAX_PROCESSED = 250;
+const DEFAULT_PROCESSED_MULTIPLIER = 3;
+const GOOGLE_LOOKUP_TIMEOUT_MS = 12_000;
 
 interface BackfillRequestBody {
     limit?: number;
+    maxProcessed?: number;
     city?: string;
     dryRun?: boolean;
 }
@@ -35,6 +39,13 @@ function getLimit(value: unknown): number {
     const parsed = typeof value === "number" ? value : Number.parseInt(String(value || ""), 10);
     if (!Number.isFinite(parsed)) return DEFAULT_LIMIT;
     return Math.min(MAX_LIMIT, Math.max(1, parsed));
+}
+
+function getMaxProcessed(value: unknown, limit: number): number {
+    const fallback = Math.min(MAX_PROCESSED, limit * DEFAULT_PROCESSED_MULTIPLIER);
+    const parsed = typeof value === "number" ? value : Number.parseInt(String(value || ""), 10);
+    if (!Number.isFinite(parsed)) return fallback;
+    return Math.min(MAX_PROCESSED, Math.max(limit, parsed));
 }
 
 function sleep(ms: number): Promise<void> {
@@ -64,6 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     const limit = getLimit(body.limit);
+    const maxProcessed = getMaxProcessed(body.maxProcessed, limit);
     const dryRun = body.dryRun !== false;
     const city = body.city?.trim();
     const supabase = createSupabaseAdmin();
@@ -77,7 +89,7 @@ export async function POST(req: NextRequest) {
         query = query.ilike("address->>en", `%${city}%`);
     }
 
-    const { data, error } = await query.limit(250);
+    const { data, error } = await query.limit(Math.max(maxProcessed, 250));
 
     if (error) {
         return NextResponse.json(
@@ -88,11 +100,14 @@ export async function POST(req: NextRequest) {
 
     const candidates = ((data || []) as SpotPhotoBackfillRow[])
         .filter((spot) => needsSpotPhotoBackfill(spot.photos))
-        .slice(0, limit);
+        .slice(0, maxProcessed);
 
     const results: BackfillResult[] = [];
+    let successfulCandidates = 0;
 
     for (const spot of candidates) {
+        if (successfulCandidates >= limit) break;
+
         const name = getLocalizedFieldValue(spot.name);
         const address = getLocalizedFieldValue(spot.address);
 
@@ -108,7 +123,9 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            const place = await findGooglePlacePhotos(name, address, apiKey);
+            const place = await findGooglePlacePhotos(name, address, apiKey, {
+                timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS,
+            });
             const photoUrls = place ? buildSpotPhotoUrls(place.photos) : [];
 
             if (photoUrls.length === 0) {
@@ -156,6 +173,7 @@ export async function POST(req: NextRequest) {
                 placeName: place?.displayName || null,
                 photoCount: photoUrls.length,
             });
+            successfulCandidates++;
         } catch (error) {
             results.push({
                 id: spot.id,
@@ -177,9 +195,11 @@ export async function POST(req: NextRequest) {
         success: true,
         dryRun,
         limit,
+        maxProcessed,
         city: city || null,
         scanned: data?.length || 0,
         candidates: candidates.length,
+        processed: results.length,
         updated: results.filter((result) => result.status === "updated").length,
         wouldUpdate: results.filter((result) => result.status === "would_update").length,
         skipped: results.filter((result) => result.status === "skipped").length,
