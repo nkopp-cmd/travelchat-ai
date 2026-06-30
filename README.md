@@ -85,8 +85,8 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 # Chat AI - GLM 5.2 primary
 GLM_API_KEY=your_glm_or_zai_api_key
 # ZAI_API_KEY=your_glm_or_zai_api_key # Optional alias supported by the app
-GLM_MODEL=glm-5.2
-# Optional, defaults to Z.AI's OpenAI-compatible endpoint:
+GLM_MODEL=glm-5.2 # Optional, defaults to glm-5.2
+# Optional, defaults to Z.AI's OpenAI-compatible endpoint. Blank values are ignored.
 # GLM_BASE_URL=https://api.z.ai/api/paas/v4/
 
 # OpenAI fallback

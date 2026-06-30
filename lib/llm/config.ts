@@ -6,6 +6,9 @@
  */
 
 import type { FallbackConfig, FallbackRoute, LLMProviderName, UserTier } from './types';
+import { readGLMProviderConfig } from './env';
+
+const glmProviderConfig = readGLMProviderConfig();
 
 // ============================================================================
 // Feature Flags
@@ -65,8 +68,8 @@ export const providerConfig = {
   },
 
   glm: {
-    model: process.env.GLM_MODEL || 'glm-5.2',
-    baseURL: process.env.GLM_BASE_URL || process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4/',
+    model: glmProviderConfig.model,
+    baseURL: glmProviderConfig.baseURL,
     maxTokens: 3000,
     temperature: 0.8,
   },
