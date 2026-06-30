@@ -26,7 +26,8 @@ import type {
 import { OPENAI_ITINERARY_PROMPT, OPENAI_SINGLE_ACTIVITY_PROMPT } from './prompts/openai';
 
 const GLM_MODEL = process.env.GLM_MODEL || 'glm-5.2';
-const ZAI_BASE_URL = process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4';
+const GLM_API_KEY = process.env.GLM_API_KEY || process.env.ZAI_API_KEY;
+const GLM_BASE_URL = process.env.GLM_BASE_URL || process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4';
 
 export class GLMProvider
   extends AbstractLLMProvider
@@ -41,17 +42,16 @@ export class GLMProvider
   }
 
   private initializeClient(): void {
-    const apiKey = process.env.ZAI_API_KEY;
-    if (apiKey) {
+    if (GLM_API_KEY) {
       this.client = new OpenAI({
-        apiKey,
-        baseURL: ZAI_BASE_URL,
+        apiKey: GLM_API_KEY,
+        baseURL: GLM_BASE_URL,
       });
     }
   }
 
   isAvailable(): boolean {
-    return !!process.env.ZAI_API_KEY && this.client !== null;
+    return !!GLM_API_KEY && this.client !== null;
   }
 
   async healthCheck(): Promise<boolean> {
