@@ -4,7 +4,11 @@
  */
 export function isItineraryContent(content: string): boolean {
     return (
-        (/\*+Day \d+:/i.test(content) || /^#{1,6}\s*Day \d+:/im.test(content)) &&
+        (
+            /\*+Day \d+:/i.test(content) ||
+            /^#{1,6}\s*Day \d+:/im.test(content) ||
+            /^Day \d+:/im.test(content)
+        ) &&
         content.split('\n').length > 10
     );
 }

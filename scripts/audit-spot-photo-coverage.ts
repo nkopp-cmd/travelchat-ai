@@ -13,6 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 import {
     getLocalizedFieldValue,
+    needsSpotPlaceIdentityBackfill,
     SpotPhotoBackfillRow,
     SpotPhotoKind,
     summarizeSpotPhotos,
@@ -39,6 +40,8 @@ interface CoverageBucket {
     total: number;
     realPhotoSpots: number;
     needsBackfill: number;
+    placeIdentitySpots: number;
+    needsPlaceIdentityBackfill: number;
     anyPhotoSpots: number;
     noPhotoSpots: number;
 }
@@ -50,6 +53,8 @@ interface BackfillCandidateSample {
     category: string | null;
     location: string;
     reason: string;
+    needsPhotoBackfill: boolean;
+    needsPlaceIdBackfill: boolean;
     photoCount: number;
     primaryKind: SpotPhotoKind | "none";
     kinds: Record<SpotPhotoKind, number>;
@@ -93,17 +98,26 @@ function createBucket(): CoverageBucket {
         total: 0,
         realPhotoSpots: 0,
         needsBackfill: 0,
+        placeIdentitySpots: 0,
+        needsPlaceIdentityBackfill: 0,
         anyPhotoSpots: 0,
         noPhotoSpots: 0,
     };
 }
 
-function addToBucket(bucket: CoverageBucket, hasAnyPhoto: boolean, hasRealPhoto: boolean) {
+function addToBucket(
+    bucket: CoverageBucket,
+    hasAnyPhoto: boolean,
+    hasRealPhoto: boolean,
+    hasPlaceIdentity: boolean
+) {
     bucket.total++;
     if (hasAnyPhoto) bucket.anyPhotoSpots++;
     if (!hasAnyPhoto) bucket.noPhotoSpots++;
     if (hasRealPhoto) bucket.realPhotoSpots++;
     if (!hasRealPhoto) bucket.needsBackfill++;
+    if (hasPlaceIdentity) bucket.placeIdentitySpots++;
+    if (!hasPlaceIdentity) bucket.needsPlaceIdentityBackfill++;
 }
 
 function createKindCounts(): Record<SpotPhotoKind, number> {
@@ -164,7 +178,7 @@ async function fetchAllSpots(
     for (let from = 0; ; from += PAGE_SIZE) {
         let query = supabase
             .from("spots")
-            .select("id, name, address, photos, category, created_at")
+            .select("id, name, address, photos, category, google_place_id, created_at")
             .order("created_at", { ascending: false })
             .range(from, from + PAGE_SIZE - 1);
 
@@ -200,25 +214,38 @@ async function main() {
         const category = spot.category || "Uncategorized";
         const location = extractLocationLabel(address);
         const photoSummary = summarizeSpotPhotos(spot.photos);
+        const needsPlaceIdBackfill = needsSpotPlaceIdentityBackfill(
+            spot.photos,
+            spot.google_place_id
+        );
+        const hasPlaceIdentity = !needsPlaceIdBackfill;
 
-        addToBucket(summary, photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto);
+        addToBucket(summary, photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity);
         byLocation[location] ||= createBucket();
         byCategory[category] ||= createBucket();
-        addToBucket(byLocation[location], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto);
-        addToBucket(byCategory[category], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto);
+        addToBucket(byLocation[location], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity);
+        addToBucket(byCategory[category], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity);
 
         for (const [kind, count] of Object.entries(photoSummary.kinds)) {
             photoKinds[kind as SpotPhotoKind] += count;
         }
 
-        if (photoSummary.needsBackfill && backfillCandidates.length < args.sampleLimit) {
+        if (
+            (photoSummary.needsBackfill || needsPlaceIdBackfill) &&
+            backfillCandidates.length < args.sampleLimit
+        ) {
             backfillCandidates.push({
                 id: spot.id,
                 name,
                 address,
                 category: spot.category || null,
                 location,
-                reason: getBackfillReason(photoSummary),
+                reason: [
+                    photoSummary.needsBackfill ? getBackfillReason(photoSummary) : null,
+                    needsPlaceIdBackfill ? "missing_google_place_id" : null,
+                ].filter(Boolean).join("+"),
+                needsPhotoBackfill: photoSummary.needsBackfill,
+                needsPlaceIdBackfill,
                 photoCount: photoSummary.total,
                 primaryKind: photoSummary.primaryKind,
                 kinds: photoSummary.kinds,
@@ -235,6 +262,8 @@ async function main() {
             ...summary,
             realPhotoCoveragePct: percent(summary.realPhotoSpots, summary.total),
             backfillNeededPct: percent(summary.needsBackfill, summary.total),
+            placeIdentityCoveragePct: percent(summary.placeIdentitySpots, summary.total),
+            placeIdentityBackfillNeededPct: percent(summary.needsPlaceIdentityBackfill, summary.total),
         },
         photoKinds,
         byLocation: sortBucketEntries(byLocation),
@@ -255,7 +284,9 @@ async function main() {
             `Spot photo coverage audit written to ${args.outPath}`,
             `Spots: ${summary.total}`,
             `Real-photo coverage: ${report.summary.realPhotoCoveragePct}% (${summary.realPhotoSpots}/${summary.total})`,
+            `Place identity coverage: ${report.summary.placeIdentityCoveragePct}% (${summary.placeIdentitySpots}/${summary.total})`,
             `Needs backfill: ${summary.needsBackfill}`,
+            `Needs place identity backfill: ${summary.needsPlaceIdentityBackfill}`,
             `No photos: ${summary.noPhotoSpots}`,
             `Backfill samples: ${backfillCandidates.length}`,
         ].join("\n")

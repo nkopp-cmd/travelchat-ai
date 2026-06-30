@@ -8,6 +8,8 @@ import {
     getGooglePlacesApiKey,
     getLocalizedFieldValue,
     needsSpotPhotoBackfill,
+    needsSpotPhotoOrPlaceBackfill,
+    needsSpotPlaceIdentityBackfill,
     SpotPhotoBackfillRow,
 } from "@/lib/place-images";
 
@@ -35,6 +37,9 @@ interface BackfillResult {
     placeName?: string | null;
     query?: string | null;
     photoCount?: number;
+    needsPhotoBackfill?: boolean;
+    needsPlaceIdBackfill?: boolean;
+    updatedFields?: string[];
 }
 
 function getLimit(value: unknown): number {
@@ -65,7 +70,7 @@ async function fetchBackfillCandidates(
     for (let from = 0; candidates.length < maxProcessed; from += SPOT_PAGE_SIZE) {
         let query = supabase
             .from("spots")
-            .select("id, name, address, photos, category")
+            .select("id, name, address, photos, category, google_place_id")
             .order("created_at", { ascending: false })
             .range(from, from + SPOT_PAGE_SIZE - 1);
 
@@ -82,7 +87,11 @@ async function fetchBackfillCandidates(
         const rows = (data || []) as SpotPhotoBackfillRow[];
         scanned += rows.length;
 
-        candidates.push(...rows.filter((spot) => needsSpotPhotoBackfill(spot.photos)));
+        candidates.push(
+            ...rows.filter((spot) =>
+                needsSpotPhotoOrPlaceBackfill(spot.photos, spot.google_place_id)
+            )
+        );
 
         if (rows.length < SPOT_PAGE_SIZE) break;
     }
@@ -141,12 +150,22 @@ export async function POST(req: NextRequest) {
 
         const name = getLocalizedFieldValue(spot.name);
         const address = getLocalizedFieldValue(spot.address);
+        const needsPhotoBackfill = needsSpotPhotoBackfill(spot.photos);
+        const needsPlaceIdBackfill = needsSpotPlaceIdentityBackfill(
+            spot.photos,
+            spot.google_place_id
+        );
+        const baseResult = {
+            id: spot.id,
+            name,
+            address,
+            needsPhotoBackfill,
+            needsPlaceIdBackfill,
+        };
 
         if (!name || !address) {
             results.push({
-                id: spot.id,
-                name,
-                address,
+                ...baseResult,
                 status: "skipped",
                 reason: "missing_name_or_address",
             });
@@ -162,9 +181,7 @@ export async function POST(req: NextRequest) {
 
             if (!place && match.rejectedPlace) {
                 results.push({
-                    id: spot.id,
-                    name,
-                    address,
+                    ...baseResult,
                     status: "skipped",
                     reason: `low_confidence:${match.rejectedQuality?.reason || "rejected"}`,
                     placeId: match.rejectedPlace.placeId || null,
@@ -177,9 +194,7 @@ export async function POST(req: NextRequest) {
 
             if (photoUrls.length === 0) {
                 results.push({
-                    id: spot.id,
-                    name,
-                    address,
+                    ...baseResult,
                     status: "skipped",
                     reason: "no_google_place_photos_found",
                     placeId: place?.placeId || null,
@@ -190,26 +205,37 @@ export async function POST(req: NextRequest) {
                 continue;
             }
 
+            const updatePayload: {
+                google_place_id?: string | null;
+                photos?: string[];
+            } = {};
+
+            if (needsPlaceIdBackfill) {
+                updatePayload.google_place_id = place?.placeId || null;
+            }
+
+            if (needsPhotoBackfill) {
+                updatePayload.photos = photoUrls;
+            }
+
+            const updatedFields = Object.keys(updatePayload);
+
             if (!dryRun) {
                 const { error: updateError } = await supabase
                     .from("spots")
-                    .update({
-                        photos: photoUrls,
-                        google_place_id: place?.placeId || null,
-                    })
+                    .update(updatePayload)
                     .eq("id", spot.id);
 
                 if (updateError) {
                     results.push({
-                        id: spot.id,
-                        name,
-                        address,
+                        ...baseResult,
                         status: "failed",
                         reason: updateError.message,
                         placeId: place?.placeId || null,
                         placeName: place?.displayName || null,
                         query: match.query,
                         photoCount: photoUrls.length,
+                        updatedFields,
                     });
                     await sleep(150);
                     continue;
@@ -217,21 +243,18 @@ export async function POST(req: NextRequest) {
             }
 
             results.push({
-                id: spot.id,
-                name,
-                address,
+                ...baseResult,
                 status: dryRun ? "would_update" : "updated",
                 placeId: place?.placeId || null,
                 placeName: place?.displayName || null,
                 query: match.query,
                 photoCount: photoUrls.length,
+                updatedFields,
             });
             successfulCandidates++;
         } catch (error) {
             results.push({
-                id: spot.id,
-                name,
-                address,
+                ...baseResult,
                 status: "failed",
                 reason: error instanceof Error ? error.message : "unknown_error",
             });

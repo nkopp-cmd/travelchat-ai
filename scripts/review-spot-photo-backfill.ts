@@ -17,6 +17,8 @@ import {
     getGooglePlacesApiKey,
     getLocalizedFieldValue,
     needsSpotPhotoBackfill,
+    needsSpotPhotoOrPlaceBackfill,
+    needsSpotPlaceIdentityBackfill,
     SpotPhotoBackfillRow,
 } from "../lib/place-images";
 
@@ -49,6 +51,9 @@ interface ReviewResult {
     placeName?: string | null;
     formattedAddress?: string | null;
     photoCount?: number;
+    needsPhotoBackfill?: boolean;
+    needsPlaceIdBackfill?: boolean;
+    updatedFields?: string[];
     quality?: {
         reason: string;
         nameScore: number;
@@ -115,7 +120,7 @@ async function fetchCandidates(
     for (let from = 0; candidates.length < maxCandidates; from += PAGE_SIZE) {
         let query = supabase
             .from("spots")
-            .select("id, name, address, photos, category")
+            .select("id, name, address, photos, category, google_place_id")
             .order("created_at", { ascending: false })
             .range(from, from + PAGE_SIZE - 1);
 
@@ -128,7 +133,11 @@ async function fetchCandidates(
 
         const rows = (data || []) as SpotPhotoBackfillRow[];
         scanned += rows.length;
-        candidates.push(...rows.filter((spot) => needsSpotPhotoBackfill(spot.photos)));
+        candidates.push(
+            ...rows.filter((spot) =>
+                needsSpotPhotoOrPlaceBackfill(spot.photos, spot.google_place_id)
+            )
+        );
 
         if (rows.length < PAGE_SIZE) break;
     }
@@ -171,11 +180,18 @@ async function main() {
 
         const name = getLocalizedFieldValue(spot.name);
         const address = getLocalizedFieldValue(spot.address);
+        const needsPhotoBackfill = needsSpotPhotoBackfill(spot.photos);
+        const needsPlaceIdBackfill = needsSpotPlaceIdentityBackfill(
+            spot.photos,
+            spot.google_place_id
+        );
         const base = {
             id: spot.id,
             name,
             address,
             category: spot.category || null,
+            needsPhotoBackfill,
+            needsPlaceIdBackfill,
         };
 
         if (!name || !address) {
@@ -230,12 +246,22 @@ async function main() {
             }
 
             if (args.apply) {
+                const updatePayload: {
+                    google_place_id?: string | null;
+                    photos?: string[];
+                } = {};
+
+                if (needsPlaceIdBackfill) {
+                    updatePayload.google_place_id = place?.placeId || null;
+                }
+
+                if (needsPhotoBackfill) {
+                    updatePayload.photos = photoUrls;
+                }
+
                 const { error } = await supabase
                     .from("spots")
-                    .update({
-                        photos: photoUrls,
-                        google_place_id: place?.placeId || null,
-                    })
+                    .update(updatePayload)
                     .eq("id", spot.id);
 
                 if (error) {
@@ -248,6 +274,7 @@ async function main() {
                         placeName: place?.displayName || null,
                         formattedAddress: place?.formattedAddress || null,
                         photoCount: photoUrls.length,
+                        updatedFields: Object.keys(updatePayload),
                         quality: toQuality(match.quality),
                     });
                     await sleep(150);
@@ -263,6 +290,10 @@ async function main() {
                 placeName: place?.displayName || null,
                 formattedAddress: place?.formattedAddress || null,
                 photoCount: photoUrls.length,
+                updatedFields: [
+                    ...(needsPhotoBackfill ? ["photos"] : []),
+                    ...(needsPlaceIdBackfill ? ["google_place_id"] : []),
+                ],
                 quality: toQuality(match.quality),
             });
             successfulCandidates++;

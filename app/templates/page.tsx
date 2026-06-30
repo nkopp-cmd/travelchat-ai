@@ -34,41 +34,41 @@ export default function TemplatesPage() {
 
   return (
     <AppBackground ambient className="min-h-screen">
-      <div className="container mx-auto px-3 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] pt-3 sm:px-4 sm:py-5">
+      <div className="container mx-auto max-w-6xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] pt-2 sm:px-4 sm:py-4 md:pb-8">
         {/* Back Button */}
         <Link
           href="/dashboard"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-3 sm:mb-4"
+          className="mb-2 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground sm:mb-3"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Link>
 
         {/* Header */}
-        <div className="mx-auto mb-3 max-w-3xl text-center sm:mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 rounded-full text-violet-700 dark:text-violet-400 text-xs sm:text-sm font-medium">
-            <Sparkles className="h-4 w-4" />
+        <div className="mx-auto mb-2 max-w-3xl text-center sm:mb-3">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-black/5 bg-white/70 px-2.5 py-1 text-xs font-medium text-violet-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 dark:text-violet-400">
+            <Sparkles className="h-3.5 w-3.5" />
             Start with a Template
           </div>
 
-          <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
+          <h1 className="mt-1.5 text-2xl font-bold sm:text-3xl">
             <GradientText variant="violet">
               Itinerary Templates
             </GradientText>
           </h1>
 
-          <p className="mx-auto mt-1 max-w-2xl text-sm text-muted-foreground sm:text-base">
+          <p className="mx-auto mt-1 max-w-2xl text-sm text-muted-foreground">
             Pick a travel style, choose a city, and let Alley build the full route.
           </p>
 
-          <div className="mt-2 flex flex-wrap justify-center gap-1.5 sm:gap-2">
-            <Badge variant="secondary" className="text-xs sm:text-sm bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10">
+          <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+            <Badge variant="secondary" className="border border-black/5 bg-white/70 text-[11px] backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:text-xs">
               {templates.length} Templates
             </Badge>
-            <Badge variant="secondary" className="text-xs sm:text-sm bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10">
+            <Badge variant="secondary" className="border border-black/5 bg-white/70 text-[11px] backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:text-xs">
               AI-Powered
             </Badge>
-            <Badge variant="secondary" className="text-xs sm:text-sm bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10">
+            <Badge variant="secondary" className="border border-black/5 bg-white/70 text-[11px] backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:text-xs">
               Fully Customizable
             </Badge>
           </div>
@@ -87,7 +87,7 @@ export default function TemplatesPage() {
         </div>
 
         <section>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-3 sm:gap-2 lg:grid-cols-4 2xl:grid-cols-5">
             {templates.map((template) => (
               <TemplateCard key={template.id} template={template} />
             ))}
@@ -96,14 +96,14 @@ export default function TemplatesPage() {
 
         {/* Custom Option CTA */}
         <div className="mt-3 border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4">
-          <h3 className="text-lg sm:text-xl font-bold mb-2">
+          <h3 className="mb-1.5 text-base font-bold sm:text-lg">
             Don&apos;t see what you&apos;re looking for?
           </h3>
-          <p className="text-sm sm:text-base text-muted-foreground mb-3">
+          <p className="mb-2.5 text-sm text-muted-foreground">
             Create a fully custom itinerary from scratch with Alley AI
           </p>
           <Link href="/dashboard">
-            <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20">
+            <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700">
               Create Custom Itinerary
             </Button>
           </Link>

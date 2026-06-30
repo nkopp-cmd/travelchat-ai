@@ -6,7 +6,10 @@ import {
     getGooglePlaceIdFromSpotPhotos,
     getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
+    hasStoredGooglePlaceIdentity,
     needsSpotPhotoBackfill,
+    needsSpotPhotoOrPlaceBackfill,
+    needsSpotPlaceIdentityBackfill,
     normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
@@ -113,6 +116,21 @@ describe("spot photo classification", () => {
         ).toBe("ChIJsecond");
 
         expect(getGooglePlaceIdFromPhotoUrl("/api/places/photo?ref=legacy_ref")).toBeNull();
+    });
+
+    it("tracks place identity separately from image backfill", () => {
+        const localPhoto = "/images/spots/seoul-market.jpg";
+        const proxiedPlacePhoto = "/api/places/photo?w=1200&name=places%2FChIJabc123%2Fphotos%2Fphoto456";
+
+        expect(needsSpotPhotoBackfill([localPhoto])).toBe(false);
+        expect(needsSpotPlaceIdentityBackfill([localPhoto], null)).toBe(true);
+        expect(needsSpotPhotoOrPlaceBackfill([localPhoto], null)).toBe(true);
+
+        expect(hasStoredGooglePlaceIdentity([localPhoto], "ChIJstored")).toBe(true);
+        expect(needsSpotPhotoOrPlaceBackfill([localPhoto], "ChIJstored")).toBe(false);
+
+        expect(hasStoredGooglePlaceIdentity([proxiedPlacePhoto], null)).toBe(true);
+        expect(needsSpotPlaceIdentityBackfill([proxiedPlacePhoto], null)).toBe(false);
     });
 });
 

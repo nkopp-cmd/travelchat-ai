@@ -6,6 +6,7 @@ export interface SpotPhotoBackfillRow {
     address: MultiLanguageField;
     photos: string[] | null;
     category?: string | null;
+    google_place_id?: string | null;
 }
 
 export interface GooglePlacePhotoCandidate {
@@ -289,6 +290,30 @@ export function summarizeSpotPhotos(photos: string[] | null | undefined): SpotPh
 
 export function needsSpotPhotoBackfill(photos: string[] | null | undefined): boolean {
     return summarizeSpotPhotos(photos).needsBackfill;
+}
+
+export function hasStoredGooglePlaceIdentity(
+    photos: string[] | null | undefined,
+    googlePlaceId?: string | null
+): boolean {
+    return Boolean(googlePlaceId?.trim() || getGooglePlaceIdFromSpotPhotos(photos));
+}
+
+export function needsSpotPlaceIdentityBackfill(
+    photos: string[] | null | undefined,
+    googlePlaceId?: string | null
+): boolean {
+    return !hasStoredGooglePlaceIdentity(photos, googlePlaceId);
+}
+
+export function needsSpotPhotoOrPlaceBackfill(
+    photos: string[] | null | undefined,
+    googlePlaceId?: string | null
+): boolean {
+    return (
+        needsSpotPhotoBackfill(photos) ||
+        needsSpotPlaceIdentityBackfill(photos, googlePlaceId)
+    );
 }
 
 function comparableWords(value: string): Set<string> {
