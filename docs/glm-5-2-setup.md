@@ -31,3 +31,16 @@ ANTHROPIC_API_KEY=your_anthropic_fallback_key
 5. Check API JSON responses for `provider: "glm"` on chat responses, or server logs for GLM-first itinerary generation.
 
 Use the standard Z.AI OpenAI-compatible endpoint for Localley chat/completions. Do not use the coding-plan endpoint for the app runtime unless the provider implementation is changed deliberately.
+
+## Vercel CLI setup
+
+From the project root, add the GLM variables like this:
+
+```bash
+cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
+printf "%s" "your_zai_api_key" | vercel env add GLM_API_KEY production --scope nkopp-cmds-projects
+printf "%s" "glm-5.2" | vercel env add GLM_MODEL production --scope nkopp-cmds-projects
+printf "%s" "https://api.z.ai/api/paas/v4/" | vercel env add GLM_BASE_URL production --scope nkopp-cmds-projects
+```
+
+Repeat the same three commands for `preview` and `development` if those environments should use GLM too. After changing Vercel env vars, redeploy because running deployments do not automatically reload new secrets.

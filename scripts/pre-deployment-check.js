@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 /**
  * Pre-Deployment Checklist Script
@@ -40,7 +41,7 @@ function fileContains(filepath, searchString) {
   try {
     const content = fs.readFileSync(path.join(__dirname, '..', filepath), 'utf-8');
     return content.includes(searchString);
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -116,7 +117,10 @@ if (fileExists('.env.local')) {
   check('SUPABASE_SERVICE_ROLE_KEY configured', fileContains('.env.local', 'SUPABASE_SERVICE_ROLE_KEY'));
   check('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY configured', fileContains('.env.local', 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'));
   check('CLERK_SECRET_KEY configured', fileContains('.env.local', 'CLERK_SECRET_KEY'));
+  check('GLM primary key configured', fileContains('.env.local', 'GLM_API_KEY') || fileContains('.env.local', 'ZAI_API_KEY'));
+  check('GLM model configured', fileContains('.env.local', 'GLM_MODEL'), true);
   check('OPENAI_API_KEY configured', fileContains('.env.local', 'OPENAI_API_KEY'));
+  check('ANTHROPIC_API_KEY configured', fileContains('.env.local', 'ANTHROPIC_API_KEY'));
   check('NEXT_PUBLIC_SENTRY_DSN configured', fileContains('.env.local', 'NEXT_PUBLIC_SENTRY_DSN'), true);
   check('NEXT_PUBLIC_BASE_URL configured', fileContains('.env.local', 'NEXT_PUBLIC_BASE_URL'), true);
 } else {

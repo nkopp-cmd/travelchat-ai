@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ItineraryTemplate } from "@/lib/templates";
-import { Clock, Zap, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +70,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   return (
     <Link href={`/itineraries/new?template=${template.id}`}>
       <Card className={cn(
-        "group relative flex min-h-[104px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[118px]",
+        "group relative flex min-h-[96px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[112px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -92,19 +92,19 @@ export function TemplateCard({ template }: TemplateCardProps) {
              }} />
 
         {/* Main Content */}
-        <div className="p-2 sm:p-2.5 flex-1 flex flex-col relative z-10">
+        <div className="relative z-10 flex flex-1 flex-col p-2 sm:p-2.5">
           {/* Header */}
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-1.5 sm:gap-2">
             <div className="relative">
-              <div className="text-xl sm:text-2xl transform group-hover:scale-105 transition-transform duration-300">
+              <div className="text-lg transition-transform duration-300 group-hover:scale-105 sm:text-2xl">
                 {template.emoji}
               </div>
-              <div aria-hidden="true" className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-25 transition-opacity duration-300 text-xl sm:text-2xl">
+              <div aria-hidden="true" className="absolute inset-0 text-lg opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-2xl">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 font-bold text-[13px] leading-tight group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200 sm:text-sm">
+              <h3 className="line-clamp-2 text-[12px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-sm">
                 {template.name}
               </h3>
               <p className="mt-1 hidden text-xs leading-snug text-muted-foreground/80 md:line-clamp-2 md:block">
@@ -114,25 +114,20 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
 
           {/* Stats Pills Row */}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+          <div className="mt-1.5 grid grid-cols-2 gap-1 min-[420px]:flex min-[420px]:flex-wrap">
             {/* Days pill */}
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-violet-100/80 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border border-violet-200/50 dark:border-violet-700/50 backdrop-blur-sm">
-              <Clock className="h-2.5 w-2.5" />
-              {template.days} {template.days === 1 ? 'day' : 'days'}
+            <span className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-violet-200/50 bg-violet-100/80 px-1.5 py-1 text-[10px] font-medium leading-none text-violet-700 backdrop-blur-sm dark:border-violet-700/50 dark:bg-violet-900/40 dark:text-violet-300">
+              <Clock className="h-2.5 w-2.5 shrink-0" />
+              <span className="truncate whitespace-nowrap">{template.days} {template.days === 1 ? 'day' : 'days'}</span>
             </span>
 
             {/* Pace pill */}
             <span className={cn(
-              "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border backdrop-blur-sm",
+              "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border px-1.5 py-1 text-[10px] font-medium leading-none backdrop-blur-sm",
               accent.bg, accent.text, accent.border
             )}>
-              {pace.icon} {pace.label}
-            </span>
-
-            {/* Activities pill */}
-            <span className="hidden items-center gap-1 rounded-full border border-black/5 bg-white/50 px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:inline-flex">
-              <Zap className="h-2.5 w-2.5" />
-              {template.activitiesPerDay}/day
+              <span className="shrink-0">{pace.icon}</span>
+              <span className="truncate whitespace-nowrap">{pace.label}</span>
             </span>
           </div>
 
@@ -140,9 +135,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <div className="flex-1 min-h-1" />
 
           {/* Primary action */}
-          <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-black/5 dark:border-white/10">
-            <span className="text-[11px] font-medium text-muted-foreground group-hover:text-violet-600 dark:group-hover:text-violet-300">
-              Start from here
+          <div className="mt-1 flex items-center justify-between border-t border-black/5 pt-1.5 dark:border-white/10">
+            <span className="min-w-0 truncate text-[11px] font-medium text-muted-foreground group-hover:text-violet-600 dark:group-hover:text-violet-300">
+              Use template
             </span>
             <div className={cn(
               "flex items-center justify-center rounded-full",

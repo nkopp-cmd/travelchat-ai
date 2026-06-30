@@ -11,7 +11,11 @@ import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
 import { GLMProvider } from "@/lib/llm";
 import type { MultiLanguageField } from "@/types";
 
-const CLAUDE_MODEL = process.env.CHAT_MODEL || "claude-sonnet-4-20250514";
+const CLAUDE_MODEL =
+    process.env.CLAUDE_MODEL ||
+    process.env.ANTHROPIC_MODEL ||
+    process.env.CHAT_MODEL ||
+    "claude-sonnet-4-20250514";
 
 function buildChatTranscript(messages: Array<{ role: string; content: string }>) {
     return messages
