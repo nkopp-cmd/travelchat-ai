@@ -26,15 +26,15 @@ export const metadata: Metadata = {
 };
 
 export default function TemplatesPage() {
-  const paceGroups = {
-    relaxed: templates.filter((t) => t.pace === 'relaxed'),
-    moderate: templates.filter((t) => t.pace === 'moderate'),
-    active: templates.filter((t) => t.pace === 'active'),
+  const paceCounts = {
+    relaxed: templates.filter((template) => template.pace === "relaxed").length,
+    moderate: templates.filter((template) => template.pace === "moderate").length,
+    active: templates.filter((template) => template.pace === "active").length,
   };
 
   return (
     <AppBackground ambient className="min-h-screen">
-      <div className="container mx-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] pt-3 sm:py-5">
+      <div className="container mx-auto px-3 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] pt-3 sm:px-4 sm:py-5">
         {/* Back Button */}
         <Link
           href="/dashboard"
@@ -45,23 +45,23 @@ export default function TemplatesPage() {
         </Link>
 
         {/* Header */}
-        <div className="text-center mb-3 space-y-2 sm:mb-4 sm:space-y-2.5">
+        <div className="mx-auto mb-3 max-w-3xl text-center sm:mb-4">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10 rounded-full text-violet-700 dark:text-violet-400 text-xs sm:text-sm font-medium">
             <Sparkles className="h-4 w-4" />
             Start with a Template
           </div>
 
-          <h1 className="text-2xl font-bold sm:text-3xl">
+          <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
             <GradientText variant="violet">
               Itinerary Templates
             </GradientText>
           </h1>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            Jump-start your trip planning with our curated templates designed for every travel style
+          <p className="mx-auto mt-1 max-w-2xl text-sm text-muted-foreground sm:text-base">
+            Pick a travel style, choose a city, and let Alley build the full route.
           </p>
 
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center pt-1 sm:pt-2">
+          <div className="mt-2 flex flex-wrap justify-center gap-1.5 sm:gap-2">
             <Badge variant="secondary" className="text-xs sm:text-sm bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10">
               {templates.length} Templates
             </Badge>
@@ -74,93 +74,32 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        {/* Browse by Pace - Primary Sections */}
-        <div className="space-y-3 sm:space-y-4">
-          {/* Relaxed Pace */}
-          {paceGroups.relaxed.length > 0 && (
-            <section className="relative">
-              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-400 to-teal-400 rounded-full hidden lg:block" />
-              <div className="flex items-center gap-2 mb-2 rounded-lg border border-black/5 bg-white/50 p-2 sm:p-2.5 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-                <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 text-base sm:text-lg dark:from-emerald-900/30 dark:to-teal-900/30">
-                  🌊
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-base sm:text-lg font-bold">Relaxed Pace</h2>
-                  <p className="text-muted-foreground text-xs sm:text-sm line-clamp-1 sm:line-clamp-none">
-                    Take it easy with leisurely itineraries perfect for unwinding
-                  </p>
-                </div>
-                <Badge className="ml-auto shrink-0 bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-700/30 text-[11px] sm:text-xs">
-                  {paceGroups.relaxed.length}
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {paceGroups.relaxed.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Moderate Pace */}
-          {paceGroups.moderate.length > 0 && (
-            <section className="relative">
-              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-400 rounded-full hidden lg:block" />
-              <div className="flex items-center gap-2 mb-2 rounded-lg border border-black/5 bg-white/50 p-2 sm:p-2.5 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-                <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 text-base sm:text-lg dark:from-blue-900/30 dark:to-indigo-900/30">
-                  🚶
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-base sm:text-lg font-bold">Moderate Pace</h2>
-                  <p className="text-muted-foreground text-xs sm:text-sm line-clamp-1 sm:line-clamp-none">
-                    Balanced itineraries with a mix of activities and downtime
-                  </p>
-                </div>
-                <Badge className="ml-auto shrink-0 bg-blue-100/80 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200/50 dark:border-blue-700/30 text-[11px] sm:text-xs">
-                  {paceGroups.moderate.length}
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {paceGroups.moderate.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Active Pace */}
-          {paceGroups.active.length > 0 && (
-            <section className="relative">
-              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-red-400 rounded-full hidden lg:block" />
-              <div className="flex items-center gap-2 mb-2 rounded-lg border border-black/5 bg-white/50 p-2 sm:p-2.5 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-                <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-100 to-red-100 text-base sm:text-lg dark:from-orange-900/30 dark:to-red-900/30">
-                  ⚡
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-base sm:text-lg font-bold">Active Pace</h2>
-                  <p className="text-muted-foreground text-xs sm:text-sm line-clamp-1 sm:line-clamp-none">
-                    Packed itineraries for travelers who want to see and do it all
-                  </p>
-                </div>
-                <Badge className="ml-auto shrink-0 bg-orange-100/80 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200/50 dark:border-orange-700/30 text-[11px] sm:text-xs">
-                  {paceGroups.active.length}
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {paceGroups.active.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
-                ))}
-              </div>
-            </section>
-          )}
+        <div className="mb-2 grid grid-cols-3 gap-1.5 text-center sm:mx-auto sm:mb-3 sm:max-w-xl sm:gap-2">
+          <Badge className="justify-center border border-emerald-200/50 bg-emerald-100/80 px-2 py-1 text-[11px] text-emerald-700 dark:border-emerald-700/30 dark:bg-emerald-900/30 dark:text-emerald-300">
+            Relaxed {paceCounts.relaxed}
+          </Badge>
+          <Badge className="justify-center border border-blue-200/50 bg-blue-100/80 px-2 py-1 text-[11px] text-blue-700 dark:border-blue-700/30 dark:bg-blue-900/30 dark:text-blue-300">
+            Moderate {paceCounts.moderate}
+          </Badge>
+          <Badge className="justify-center border border-orange-200/50 bg-orange-100/80 px-2 py-1 text-[11px] text-orange-700 dark:border-orange-700/30 dark:bg-orange-900/30 dark:text-orange-300">
+            Active {paceCounts.active}
+          </Badge>
         </div>
 
+        <section>
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
+            {templates.map((template) => (
+              <TemplateCard key={template.id} template={template} />
+            ))}
+          </div>
+        </section>
+
         {/* Custom Option CTA */}
-        <div className="mt-4 sm:mt-5 text-center p-3 sm:p-4 bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-lg border border-black/5 dark:border-white/10 shadow-lg shadow-violet-500/5">
+        <div className="mt-3 border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4">
           <h3 className="text-lg sm:text-xl font-bold mb-2">
             Don&apos;t see what you&apos;re looking for?
           </h3>
-          <p className="text-sm sm:text-base text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-3">
             Create a fully custom itinerary from scratch with Alley AI
           </p>
           <Link href="/dashboard">
