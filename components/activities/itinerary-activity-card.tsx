@@ -35,22 +35,19 @@ interface ItineraryActivityCardProps {
 
 // Get Localley score badge
 const getScoreBadge = (score: number) => {
-    if (score >= 6) return { label: "Legendary", color: "bg-yellow-500", icon: "🏆" };
-    if (score >= 5) return { label: "Hidden Gem", color: "bg-violet-500", icon: "💎" };
-    if (score >= 4) return { label: "Local Favorite", color: "bg-indigo-500", icon: "⭐" };
-    return { label: "Mixed Crowd", color: "bg-blue-500", icon: "👥" };
+    if (score >= 6) return { label: "Legendary", className: "border-amber-300/25 bg-amber-400/15 text-amber-100" };
+    if (score >= 5) return { label: "Hidden gem", className: "border-violet-300/25 bg-violet-400/15 text-violet-100" };
+    if (score >= 4) return { label: "Local favorite", className: "border-indigo-300/25 bg-indigo-400/15 text-indigo-100" };
+    return { label: "Mixed crowd", className: "border-sky-300/25 bg-sky-400/15 text-sky-100" };
 };
 
-// Get icon for activity type
-const getTypeIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
-        case "morning": return "🌅";
-        case "afternoon": return "☀️";
-        case "evening": return "🌆";
-        case "night": return "🌙";
-        default: return "📍";
-    }
-};
+function formatActivityType(type: string) {
+    return type
+        .split(/[\s_-]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(" ");
+}
 
 function compactAddress(address: string, city: string): string {
     const parts = address
@@ -101,19 +98,19 @@ export function ItineraryActivityCard({
     const exactMapUrl = buildActivityMapUrl(activity, city);
 
     return (
-        <div className={cn("relative pl-5 sm:pl-7 border-l border-violet-200/70 dark:border-violet-800/70", !isLast && "pb-3 sm:pb-4")}>
+        <div className={cn("relative border-l border-violet-300/20 pl-4 sm:pl-6", !isLast && "pb-3 sm:pb-4")}>
             {/* Timeline Dot */}
-            <div className="absolute -left-[7px] top-4">
-                <div className="h-3.5 w-3.5 rounded-full border-2 border-background bg-violet-500 shadow-sm shadow-violet-500/35" />
+            <div className="absolute -left-[7px] top-4 sm:top-5">
+                <div className="h-3.5 w-3.5 rounded-full border-2 border-[#12091f] bg-violet-400 shadow-lg shadow-violet-500/35" />
             </div>
 
-            <div className="group overflow-hidden rounded-lg border border-black/5 bg-white/80 shadow-sm shadow-violet-500/5 backdrop-blur-md transition-colors hover:border-violet-300/40 dark:border-white/10 dark:bg-white/[0.055]">
+            <div className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-xl shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075]">
                 <div className="flex gap-3 p-2.5 sm:gap-4 sm:p-3.5">
-                {/* Activity Thumbnail — shows existing image or Google Places photo */}
-                <div className="flex-shrink-0">
-                    <div className="relative h-20 w-20 overflow-hidden rounded-lg bg-violet-950/10 sm:h-24 sm:w-28">
-                        {displayImage ? (
-                            activity.image ? (
+                    {/* Activity Thumbnail - shows existing image or Google Places photo */}
+                    <div className="flex-shrink-0">
+                        <div className="relative h-[76px] w-[76px] overflow-hidden rounded-xl bg-violet-950/20 sm:h-24 sm:w-28">
+                            {displayImage ? (
+                                activity.image ? (
                                     <Image
                                         src={activity.image}
                                         alt={activity.name}
@@ -131,23 +128,23 @@ export function ItineraryActivityCard({
                                         loading="lazy"
                                     />
                                 )
-                        ) : (
-                            <CityImageAvatar city={city} className="h-full w-full rounded-none" sizes="112px" imageWidth={360} quality={90} />
-                        )}
-                        {placeData.isLoading && (
-                            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
-                                <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
-                            </div>
-                        )}
-                        {activity.time && (
-                            <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/65 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur">
-                                {activity.time}
-                            </span>
-                        )}
+                            ) : (
+                                <CityImageAvatar city={city} className="h-full w-full rounded-none" sizes="112px" imageWidth={360} quality={90} />
+                            )}
+                            {placeData.isLoading && (
+                                <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
+                                    <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                                </div>
+                            )}
+                            {activity.time && (
+                                <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+                                    {activity.time}
+                                </span>
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <div className="min-w-0 flex-1 space-y-2">
+                    <div className="min-w-0 flex-1 space-y-2">
                     {/* Activity Header */}
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0 space-y-1.5">
@@ -156,24 +153,24 @@ export function ItineraryActivityCard({
                                     {activity.name}
                                 </h3>
                                 {scoreBadge && (
-                                    <Badge className={`${scoreBadge.color} h-5 rounded-full px-2 text-[10px] font-semibold text-white`}>
-                                        {scoreBadge.icon} {scoreBadge.label}
+                                    <Badge className={cn("h-5 rounded-full border px-2 text-[10px] font-semibold", scoreBadge.className)}>
+                                        {scoreBadge.label}
                                     </Badge>
                                 )}
                                 {activity.category && (
-                                    <Badge variant="secondary" className="h-5 rounded-full px-2 text-[10px]">
+                                    <Badge variant="secondary" className="h-5 rounded-full border border-white/10 bg-white/[0.06] px-2 text-[10px] text-violet-100">
                                         {activity.category}
                                     </Badge>
                                 )}
                             </div>
                             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                                 <div className="flex min-w-0 items-start gap-1 text-xs text-muted-foreground sm:text-sm">
-                                    <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-violet-500" />
+                                    <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
                                     <span className="line-clamp-2 min-w-0 break-words">{displayAddress}</span>
                                 </div>
                                 {/* Google Places rating */}
                                 {displayRating && (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/15 bg-amber-400/10 px-1.5 py-0.5 text-xs font-medium text-amber-100/85">
                                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                                         {displayRating.toFixed(1)}
                                         {displayTotalRatings && (
@@ -185,8 +182,8 @@ export function ItineraryActivityCard({
                         </div>
                         <div className="flex flex-wrap gap-1.5 text-xs">
                             {activity.type && (
-                                <Badge variant="outline" className="h-6 rounded-full px-2">
-                                    {getTypeIcon(activity.type)} {activity.type}
+                                <Badge variant="outline" className="h-6 rounded-full border-white/10 bg-white/[0.04] px-2 text-violet-100/80">
+                                    {formatActivityType(activity.type)}
                                 </Badge>
                             )}
                         </div>
@@ -227,7 +224,7 @@ export function ItineraryActivityCard({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-8 gap-1.5 rounded-full border-violet-200/50 bg-violet-50/70 px-3 text-xs text-violet-700 hover:bg-violet-100 dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-200 dark:hover:bg-violet-400/15"
+                                className="h-8 gap-1.5 rounded-full border-violet-400/20 bg-violet-400/10 px-3 text-xs text-violet-100 hover:bg-violet-400/15"
                                 onClick={() => window.open(exactMapUrl, "_blank", "noopener,noreferrer")}
                                 aria-label={`Open exact map location for ${activity.name}`}
                             >
@@ -237,12 +234,12 @@ export function ItineraryActivityCard({
                             </Button>
                         )}
                         {!canShowFullAddress && activity.address && (
-                            <span className="inline-flex h-8 items-center rounded-full border border-violet-200/40 bg-violet-50/60 px-3 text-xs font-medium text-violet-700 dark:border-violet-400/15 dark:bg-violet-400/10 dark:text-violet-200">
+                            <span className="inline-flex h-8 items-center rounded-full border border-violet-400/15 bg-violet-400/10 px-3 text-xs font-medium text-violet-100/80">
                                 Full address on paid plans
                             </span>
                         )}
                     </div>
-                </div>
+                    </div>
                 </div>
             </div>
         </div>

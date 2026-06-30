@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Download, ArrowLeft, MessageSquare, Edit2, Navigation } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -12,7 +11,6 @@ import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
-import { AppBackground } from "@/components/layout/app-background";
 import { HeroSection } from "@/components/itinerary/hero-section";
 import { auth } from "@clerk/nextjs/server";
 import { getUserTier } from "@/lib/usage-tracking";
@@ -211,15 +209,14 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            <AppBackground ambient fitParent>
-            <div className="max-w-5xl mx-auto space-y-8 p-4 pb-16">
+            <div className="mx-auto w-full max-w-5xl space-y-5 px-3 pb-8 pt-3 sm:px-4 sm:pb-10 md:space-y-6 md:px-0 md:pt-0">
                 {/* Back Button */}
                 <Link
                     href="/itineraries"
-                    className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex min-h-10 items-center rounded-full border border-white/10 bg-white/[0.045] px-3 text-sm font-medium text-violet-100/70 transition hover:border-violet-300/30 hover:bg-white/[0.075] hover:text-white"
                 >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Itineraries
+                    My trips
                 </Link>
 
             {/* Hero Section */}
@@ -230,25 +227,25 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                 days={itinerary.days}
                 localScore={itinerary.localScore ? itinerary.localScore * 10 : undefined}
                 highlights={itinerary.highlights}
-                className="rounded-2xl overflow-hidden"
+                className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-violet-950/20"
             />
 
             {/* Action Bar */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-[#0b0714]/72 p-2 shadow-2xl shadow-violet-950/20 backdrop-blur-xl md:flex-wrap md:overflow-visible">
                 <Link href={`/itineraries/${itinerary.id}/edit`}>
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Button variant="outline" size="sm" className="h-10 shrink-0 gap-2 rounded-xl border-white/15 bg-white/[0.055] hover:bg-white/[0.09]">
                         <Edit2 className="h-4 w-4" />
                         Edit
                     </Button>
                 </Link>
                 <Link href={`/dashboard?itinerary=${itinerary.id}&title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(displayCity)}&days=${itinerary.days}`}>
-                    <Button size="sm" className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                    <Button size="sm" className="h-10 shrink-0 gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700">
                         <MessageSquare className="h-4 w-4" />
                         Revise with Alley
                     </Button>
                 </Link>
                 <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Button variant="outline" size="sm" className="h-10 shrink-0 gap-2 rounded-xl border-white/15 bg-white/[0.055] hover:bg-white/[0.09]">
                         <Download className="h-4 w-4" />
                         Export
                     </Button>
@@ -273,17 +270,29 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             <ItineraryInsightsPanel insights={itineraryInsights} />
 
             {/* Daily Plans */}
-            <div className="space-y-8">
+            <div className="space-y-4 sm:space-y-5">
                 {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => {
                     const activities = dayPlan.activities || [];
 
                     return (
-                        <Card key={dayIndex} className="!py-0 !gap-0 overflow-hidden border-black/5 dark:border-white/10 shadow-lg bg-white/70 dark:bg-white/5 backdrop-blur-md">
+                        <section key={dayIndex} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-2xl shadow-violet-950/15 backdrop-blur-xl">
                             {/* Day Header */}
-                            <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-6">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h2 className="text-2xl font-bold">Day {dayPlan.day || dayIndex + 1}</h2>
-                                    <div className="flex items-center gap-2">
+                            <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-4 py-4 text-white sm:px-5">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="rounded-full bg-white/18 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-violet-50">
+                                                Day {dayPlan.day || dayIndex + 1}
+                                            </span>
+                                            <Badge variant="secondary" className="w-fit bg-white/18 text-white hover:bg-white/24">
+                                                {activities.length} {activities.length === 1 ? "stop" : "stops"}
+                                            </Badge>
+                                        </div>
+                                        {dayPlan.theme && (
+                                            <h2 className="mt-2 text-xl font-bold leading-tight sm:text-2xl">{dayPlan.theme}</h2>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
                                         {dayRouteUrls[dayIndex] && (
                                             <a
                                                 href={dayRouteUrls[dayIndex]}
@@ -293,24 +302,18 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                                 <Button
                                                     variant="secondary"
                                                     size="sm"
-                                                    className="bg-white/20 text-white hover:bg-white/30 border-0 gap-1.5"
+                                                    className="h-9 rounded-xl border-0 bg-white/18 text-white hover:bg-white/28"
                                                 >
                                                     <Navigation className="h-4 w-4" />
-                                                    {isKoreanCity(displayCity) ? "View in Kakao Maps" : "View Route"}
+                                                    {isKoreanCity(displayCity) ? "Kakao route" : "View route"}
                                                 </Button>
                                             </a>
                                         )}
-                                        <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                                            {activities.length} Activities
-                                        </Badge>
                                     </div>
                                 </div>
-                                {dayPlan.theme && (
-                                    <p className="text-violet-100 text-lg">{dayPlan.theme}</p>
-                                )}
                             </div>
 
-                            <CardContent className="p-6">
+                            <div className="px-3 py-3 sm:px-4 sm:py-4">
                                 {/* Activities Timeline with Enhanced Cards */}
                                 <div className="space-y-2">
                                     {activities.map((activity: ItineraryActivity, activityIndex: number) => (
@@ -323,20 +326,16 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
                                         />
                                     ))}
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </section>
                     );
                 })}
 
                 {/* Fallback if no activities */}
                 {dailyPlansForDisplay.length === 0 && (
-                    <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10">
-                        <CardContent className="pt-6">
-                            <p className="text-muted-foreground text-center py-8">
-                                No activities planned yet. Start exploring!
-                            </p>
-                        </CardContent>
-                    </Card>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 text-center text-muted-foreground backdrop-blur-xl">
+                        No activities planned yet. Start exploring!
+                    </div>
                 )}
             </div>
 
@@ -348,29 +347,26 @@ export default async function ItineraryViewPage({ params }: { params: Promise<{ 
             />
 
             {/* Footer Actions */}
-            <Card className="bg-white/70 dark:bg-white/5 backdrop-blur-md border-black/5 dark:border-white/10 shadow-lg shadow-violet-500/5">
-                <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div>
-                            <h3 className="font-semibold mb-1">Love this itinerary?</h3>
-                            <p className="text-sm text-muted-foreground">Share it with friends or save it for later</p>
-                        </div>
-                        <div className="flex gap-2 flex-wrap">
-                            <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                            <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
-                            <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlansForDisplay} />
-                            <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
-                                <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 gap-2">
-                                    <Download className="h-4 w-4" />
-                                    Download PDF
-                                </Button>
-                            </a>
-                        </div>
+            <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl shadow-violet-950/15 backdrop-blur-xl sm:p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                        <h3 className="font-semibold">Ready to use this trip?</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">Share it, send it, or export a clean copy for the road.</p>
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="flex flex-wrap gap-2">
+                        <ShareDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
+                        <EmailDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} />
+                        <StoryDialog itineraryId={itinerary.id} itineraryTitle={itinerary.title} totalDays={itinerary.days} city={displayCity} dailyPlans={dailyPlansForDisplay} />
+                        <a href={`/api/itineraries/${itinerary.id}/export`} target="_blank" rel="noopener noreferrer">
+                            <Button className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                                <Download className="h-4 w-4" />
+                                Download PDF
+                            </Button>
+                        </a>
+                    </div>
+                </div>
+            </section>
         </div>
-        </AppBackground>
         </>
     );
 }

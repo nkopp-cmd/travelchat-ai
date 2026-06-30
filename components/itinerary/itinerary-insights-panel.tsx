@@ -16,8 +16,8 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
     return {
       Icon: Bus,
       itemClass:
-        "border-sky-200/50 bg-sky-50/85 text-sky-700 dark:border-sky-400/20 dark:bg-sky-400/10 dark:text-sky-200",
-      iconClass: "text-sky-500 dark:text-sky-300",
+        "border-sky-300/20 bg-sky-400/10 text-sky-100",
+      iconClass: "text-sky-300",
     };
   }
 
@@ -25,16 +25,16 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
     return {
       Icon: Lightbulb,
       itemClass:
-        "border-amber-200/55 bg-amber-50/85 text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200",
-      iconClass: "text-amber-500 dark:text-amber-300",
+        "border-amber-300/20 bg-amber-400/10 text-amber-100",
+      iconClass: "text-amber-300",
     };
   }
 
   return {
     Icon: Sparkles,
     itemClass:
-      "border-violet-200/50 bg-violet-50/85 text-violet-700 dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-200",
-    iconClass: "text-violet-500 dark:text-violet-300",
+      "border-violet-300/20 bg-violet-400/10 text-violet-100",
+    iconClass: "text-violet-300",
   };
 }
 
@@ -50,7 +50,7 @@ export function ItineraryInsightsPanel({
   return (
     <section
       className={cn(
-        "rounded-lg border border-violet-200/15 bg-white/75 shadow-lg shadow-violet-500/5 backdrop-blur-md dark:border-white/10 dark:bg-white/[0.055]",
+        "rounded-2xl border border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/15 backdrop-blur-xl",
         compact ? "p-3" : "p-4 sm:p-5",
         className
       )}
@@ -59,7 +59,7 @@ export function ItineraryInsightsPanel({
       <div className={cn("flex gap-3", compact ? "mb-2 items-center" : "mb-4 flex-col sm:flex-row sm:items-end sm:justify-between")}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-violet-500" aria-hidden="true" />
+            <Sparkles className="h-4 w-4 text-violet-300" aria-hidden="true" />
             <h2 className={cn("font-bold text-foreground", compact ? "text-sm" : "text-xl")}>
               {title}
             </h2>
@@ -70,7 +70,7 @@ export function ItineraryInsightsPanel({
         </div>
         <Badge
           variant="secondary"
-          className="w-fit shrink-0 border border-violet-200/30 bg-violet-100/80 text-violet-700 dark:border-violet-400/15 dark:bg-violet-900/30 dark:text-violet-300"
+          className="w-fit shrink-0 border border-violet-300/20 bg-violet-400/12 text-violet-100"
         >
           {insights.length} {insights.length === 1 ? "tip" : "tips"}
         </Badge>
@@ -81,7 +81,7 @@ export function ItineraryInsightsPanel({
           const { Icon, itemClass, iconClass } = getInsightTone(insight.kind);
 
           return (
-            <article key={insight.id} className={cn("rounded-lg border p-3", !compact && "sm:p-4", itemClass)}>
+            <article key={insight.id} className={cn("rounded-xl border p-3", !compact && "sm:p-4", itemClass)}>
               <div className="flex items-start gap-3">
                 <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", !compact && "h-5 w-5", iconClass)} aria-hidden="true" />
                 <div className="min-w-0">
