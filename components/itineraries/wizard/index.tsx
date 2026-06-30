@@ -18,7 +18,7 @@ const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
   "Discovering local favorites...",
   "Mapping the best routes...",
-  "Adding insider tips...",
+  "Adding trip insights...",
   "Curating your perfect trip...",
   "Almost there...",
 ];

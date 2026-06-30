@@ -12,11 +12,23 @@ export interface ItineraryDayPlanLike {
   transportTips?: string;
 }
 
+export interface ItineraryInsightLike {
+  id?: unknown;
+  label?: unknown;
+  text?: unknown;
+  kind?: unknown;
+}
+
 export interface ItineraryInsight {
   id: string;
   label: string;
   text: string;
   kind: "local" | "transport" | "insight";
+}
+
+export interface ItineraryPlanPayload<T extends ItineraryDayPlanLike = ItineraryDayPlanLike> {
+  dailyPlans: T[];
+  insights?: ItineraryInsightLike[];
 }
 
 const TIP_NAME_PATTERNS = [
@@ -68,6 +80,11 @@ function appendTip(existing: unknown, tips: string[]): string | undefined {
   return parts.length ? parts.join(" ") : undefined;
 }
 
+function normalizeInsightKind(value: unknown): ItineraryInsight["kind"] {
+  if (value === "local" || value === "transport" || value === "insight") return value;
+  return "insight";
+}
+
 function getStringValue(value: unknown): string {
   if (typeof value === "string") return value.trim();
   if (value && typeof value === "object") {
@@ -75,6 +92,42 @@ function getStringValue(value: unknown): string {
     return typeof localized === "string" ? localized.trim() : "";
   }
   return "";
+}
+
+export function normalizeItineraryInsights(rawInsights: unknown): ItineraryInsight[] {
+  if (!Array.isArray(rawInsights)) return [];
+
+  return rawInsights
+    .map((rawInsight, index) => {
+      if (typeof rawInsight === "string") {
+        const text = rawInsight.trim();
+        if (!text) return null;
+
+        return {
+          id: `trip-insight-${index + 1}`,
+          label: "Trip insight",
+          text,
+          kind: "insight" as const,
+        };
+      }
+
+      if (!rawInsight || typeof rawInsight !== "object") return null;
+
+      const insight = rawInsight as ItineraryInsightLike;
+      const text = getStringValue(insight.text);
+      if (!text) return null;
+
+      const kind = normalizeInsightKind(insight.kind);
+      const fallbackLabel = kind === "transport" ? "Getting around" : kind === "local" ? "Local tip" : "Trip insight";
+
+      return {
+        id: getStringValue(insight.id) || `trip-insight-${index + 1}`,
+        label: getStringValue(insight.label) || fallbackLabel,
+        text,
+        kind,
+      };
+    })
+    .filter((insight): insight is ItineraryInsight => Boolean(insight));
 }
 
 function isTransportTip(activity: ItineraryActivityLike): boolean {
@@ -112,14 +165,28 @@ export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(dail
 }
 
 export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
-  rawDailyPlans: unknown
+  rawDailyPlans: unknown,
+  rawInsights?: unknown
 ): { dailyPlans: T[]; insights: ItineraryInsight[] } {
+  if (
+    rawDailyPlans &&
+    typeof rawDailyPlans === "object" &&
+    !Array.isArray(rawDailyPlans) &&
+    Array.isArray((rawDailyPlans as ItineraryPlanPayload<T>).dailyPlans)
+  ) {
+    const payload = rawDailyPlans as ItineraryPlanPayload<T>;
+    return normalizeDailyPlansForDisplay<T>(
+      payload.dailyPlans,
+      rawInsights ?? payload.insights
+    );
+  }
+
   if (!Array.isArray(rawDailyPlans)) {
-    return { dailyPlans: [], insights: [] };
+    return { dailyPlans: [], insights: normalizeItineraryInsights(rawInsights) };
   }
 
   const sanitizedPlans = sanitizeGeneratedDailyPlans(rawDailyPlans as T[]);
-  const insights: ItineraryInsight[] = [];
+  const insights: ItineraryInsight[] = normalizeItineraryInsights(rawInsights);
 
   const dailyPlans = sanitizedPlans.map((dayPlan, dayIndex) => {
     const dayNumber = dayPlan.day || dayIndex + 1;
@@ -150,6 +217,13 @@ export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
   });
 
   return { dailyPlans, insights };
+}
+
+export function buildItineraryPlanPayload<T extends ItineraryDayPlanLike>(
+  dailyPlans: T[],
+  insights: ItineraryInsightLike[] = []
+): T[] | ItineraryPlanPayload<T> {
+  return insights.length > 0 ? { dailyPlans, insights } : dailyPlans;
 }
 
 export function parseDailyPlans(value: unknown): unknown {

@@ -4,7 +4,13 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { saveItinerarySchema, validateBody } from "@/lib/validations";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { geocodeItineraryActivities } from "@/lib/geocoding";
-import { sanitizeGeneratedDailyPlans } from "@/lib/itineraries/normalize-daily-plans";
+import type { DailyPlan } from "@/lib/llm/types";
+import {
+    buildItineraryPlanPayload,
+    normalizeDailyPlansForDisplay,
+    sanitizeGeneratedDailyPlans,
+    type ItineraryDayPlanLike,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 export async function POST(req: Request) {
     try {
@@ -18,7 +24,7 @@ export async function POST(req: Request) {
             return Errors.validationError(validation.error || "Invalid request");
         }
 
-        const { title, city, days, activities, localScore } = validation.data;
+        const { title, city, days, activities, insights, localScore } = validation.data;
 
         // Get internal user ID from Supabase based on Clerk ID
         const supabase = await createSupabaseServerClient();
@@ -34,14 +40,20 @@ export async function POST(req: Request) {
         }
 
         // Geocode activities before saving (critical for chat-saved itineraries)
-        // activities comes from validation as unknown[] — cast for geocoding
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let geocodedActivities: any = sanitizeGeneratedDailyPlans(activities as any);
+        const normalized = normalizeDailyPlansForDisplay(
+            sanitizeGeneratedDailyPlans(activities as ItineraryDayPlanLike[]),
+            insights
+        );
+        let geocodedActivities = normalized.dailyPlans as DailyPlan[];
         try {
             geocodedActivities = await geocodeItineraryActivities(geocodedActivities, city);
         } catch (geoError) {
             console.error("[itinerary-save] Geocoding failed (non-fatal):", geoError);
         }
+        const activitiesPayload = buildItineraryPlanPayload(
+            geocodedActivities,
+            normalized.insights
+        );
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")
@@ -51,7 +63,7 @@ export async function POST(req: Request) {
                 title,
                 city,
                 days,
-                activities: geocodedActivities,
+                activities: activitiesPayload,
                 local_score: localScore || 50,
             })
             .select()

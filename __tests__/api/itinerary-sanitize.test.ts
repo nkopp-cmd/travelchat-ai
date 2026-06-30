@@ -3,7 +3,10 @@ import {
   isTipLikeActivity,
   sanitizeGeneratedDailyPlans,
 } from "@/app/api/itineraries/generate/sanitize-itinerary";
-import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
+import {
+  buildItineraryPlanPayload,
+  normalizeDailyPlansForDisplay,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 describe("sanitizeGeneratedDailyPlans", () => {
   it("moves local and transport tips out of daily activities", () => {
@@ -83,6 +86,41 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result.insights.map((insight) => insight.text)).toEqual([
       "Bring cash. Things to know: Many stalls close after lunch.",
       "Use the metro.",
+    ]);
+  });
+
+  it("supports structured itinerary payloads with top-level insights", () => {
+    const payload = buildItineraryPlanPayload(
+      [
+        {
+          day: 1,
+          localTip: "Go before lunch.",
+          activities: [
+            {
+              name: "Gwangjang Market",
+              description: "Try bindaetteok at a named stall.",
+              category: "market",
+            },
+          ],
+        },
+      ],
+      [
+        {
+          id: "trip-cash",
+          label: "Cash tip",
+          text: "Bring small bills for market stalls.",
+          kind: "local",
+        },
+      ]
+    );
+
+    const result = normalizeDailyPlansForDisplay(payload);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].localTip).toBeUndefined();
+    expect(result.insights.map((insight) => insight.text)).toEqual([
+      "Bring small bills for market stalls.",
+      "Go before lunch.",
     ]);
   });
 });

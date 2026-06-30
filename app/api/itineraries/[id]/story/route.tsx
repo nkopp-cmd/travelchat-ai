@@ -954,18 +954,12 @@ export async function GET(
         if (typeof rawActivities === "string") {
             try { rawActivities = JSON.parse(rawActivities); } catch { rawActivities = []; }
         }
-        const parsedActivities = Array.isArray(rawActivities) ? rawActivities : [];
-
-        // Normalize: detect DayPlan[] (has nested .activities) vs other formats
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const dailyPlans: DayPlan[] = parsedActivities.length > 0 && (parsedActivities[0] as any)?.activities
-            ? normalizeDailyPlansForDisplay<DayPlan>(parsedActivities).dailyPlans
-            : [];
+        const dailyPlans = normalizeDailyPlansForDisplay<DayPlan>(rawActivities).dailyPlans;
 
         console.log("[STORY_ROUTE] Parsed activities:", {
             rawType: typeof itinerary.activities,
             isArray: Array.isArray(rawActivities),
-            parsedLength: parsedActivities.length,
+            parsedLength: Array.isArray(rawActivities) ? rawActivities.length : dailyPlans.length,
             dailyPlansLength: dailyPlans.length,
             hasDayActivities: dailyPlans.length > 0 ? !!dailyPlans[0]?.activities : false,
         });

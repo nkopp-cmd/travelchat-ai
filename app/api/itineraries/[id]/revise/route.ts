@@ -4,7 +4,11 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import OpenAI from "openai";
 import { addThumbnailsToItinerary } from "@/lib/activity-images";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import { sanitizeGeneratedDailyPlans } from "@/lib/itineraries/normalize-daily-plans";
+import {
+  buildItineraryPlanPayload,
+  normalizeDailyPlansForDisplay,
+  sanitizeGeneratedDailyPlans,
+} from "@/lib/itineraries/normalize-daily-plans";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
 
@@ -32,11 +36,19 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 4. Include recommendations (what to order, what to see) INSIDE the "description" field
 5. Each day MUST have 3-5 activities - NEVER return a day with 0 activities
 6. Each activity should be a distinct location - don't split one location into multiple activities
+7. Tips, reminders, transit guidance, and advice must be returned in top-level "insights", never as activities or day fields.
 
 The JSON structure must be:
 {
   "title": "SHORT 3-5 word title (e.g., 'Seoul Hidden Gems', 'Taipei Family Trip')",
   "subtitle": "Brief tagline describing the trip",
+  "insights": [
+    {
+      "label": "Short label",
+      "text": "One practical local tip or transit note",
+      "kind": "local/transport/insight"
+    }
+  ],
   "dailyPlans": [
     {
       "day": 1,
@@ -46,16 +58,14 @@ The JSON structure must be:
           "name": "REAL spot/business name (e.g., 'Din Tai Fung' NOT 'Lunch' or 'Location')",
           "time": "09:00 AM",
           "duration": "2 hours",
-          "description": "Why it's special + what to order/see/do + insider tips - all in one cohesive description",
+          "description": "Why it's special + what to order/see/do - no standalone tips",
           "address": "Full address with district/neighborhood",
           "category": "restaurant/cafe/bar/market/temple/park/museum/shopping/attraction/neighborhood",
           "cost": "€15-25",
           "type": "morning/afternoon/evening",
           "localleyScore": 5
         }
-      ],
-      "localTip": "Local insider tip",
-      "transportTips": "How to get around"
+      ]
     }
   ],
   "highlights": ["Highlight 1", "Highlight 2"],
@@ -167,7 +177,12 @@ Make sure to:
         throw new Error("Invalid itinerary structure");
       }
 
-      revisedItinerary.dailyPlans = sanitizeGeneratedDailyPlans(revisedItinerary.dailyPlans);
+      const normalized = normalizeDailyPlansForDisplay(
+        sanitizeGeneratedDailyPlans(revisedItinerary.dailyPlans),
+        revisedItinerary.insights
+      );
+      revisedItinerary.dailyPlans = normalized.dailyPlans;
+      revisedItinerary.insights = normalized.insights;
 
       // Validate that each day has activities after moving tips out of activities
       for (const day of revisedItinerary.dailyPlans) {
@@ -195,7 +210,7 @@ Make sure to:
       .from("itineraries")
       .update({
         title: revisedItinerary.title || itinerary.title,
-        activities: revisedItinerary.dailyPlans,
+        activities: buildItineraryPlanPayload(revisedItinerary.dailyPlans, revisedItinerary.insights),
         days: newDaysCount,
         local_score: revisedItinerary.localScore || itinerary.local_score,
         highlights: revisedItinerary.highlights || itinerary.highlights,
@@ -217,6 +232,7 @@ Make sure to:
         id: updatedItinerary.id,
         title: revisedItinerary.title,
         dailyPlans: revisedItinerary.dailyPlans,
+        insights: revisedItinerary.insights,
         localScore: revisedItinerary.localScore,
         highlights: revisedItinerary.highlights,
         estimatedCost: revisedItinerary.estimatedCost,

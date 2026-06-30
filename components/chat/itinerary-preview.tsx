@@ -203,6 +203,12 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                     city,
                     days: days.length,
                     activities,
+                    insights: tips.map((tip, index) => ({
+                        id: `chat-tip-${index + 1}`,
+                        label: "Local tip",
+                        text: tip,
+                        kind: "local",
+                    })),
                     localScore: 7,
                 }),
             });
