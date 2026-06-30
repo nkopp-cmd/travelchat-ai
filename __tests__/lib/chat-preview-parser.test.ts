@@ -1,0 +1,69 @@
+import { describe, expect, it } from "vitest";
+import {
+  cleanChatItineraryDescription,
+  parseChatItineraryPreview,
+} from "@/lib/itineraries/chat-preview-parser";
+
+describe("parseChatItineraryPreview", () => {
+  it("preserves address lines as activity addresses instead of dropping them", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Markets & Alleys**
+
+- **Gwangjang Market (Hidden Gem)**: Try bindaetteok and mayak gimbap before the lunch rush.
+  Address: Gwangjang Market, Jongno-gu, Seoul
+
+**Local Tips**
+- Bring small bills.
+`);
+
+    expect(result.days).toHaveLength(1);
+    expect(result.days[0].activities[0]).toMatchObject({
+      title: "Gwangjang Market",
+      address: "Gwangjang Market, Jongno-gu, Seoul",
+    });
+    expect(result.tips).toEqual(["Bring small bills."]);
+  });
+
+  it("keeps practical tips out of day activities even when the model emits them inline", () => {
+    const result = parseChatItineraryPreview(`# Tokyo Hidden Gems
+
+**Day 1: Local Food**
+
+- **Tsukiji Outer Market (Local Favorite)**: Snack through named stalls in the morning.
+  Address: Tsukiji Outer Market, Chuo City, Tokyo
+- **Getting around**: Use the subway and walk the last few blocks.
+- **Lunch**: Avoid peak hour if you want shorter queues.
+
+**Getting Around**
+- Get a Suica card before the first train ride.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Tsukiji Outer Market",
+    ]);
+    expect(result.tips).toEqual([
+      "Getting around: Use the subway and walk the last few blocks.",
+      "Lunch: Avoid peak hour if you want shorter queues.",
+      "Get a Suica card before the first train ride.",
+    ]);
+  });
+
+  it("removes address and location lines from the preview description", () => {
+    expect(
+      cleanChatItineraryDescription("Go early.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")
+    ).toBe("Go early. Order the seasonal tea.");
+  });
+
+  it("parses plain day headings without requiring markdown decoration", () => {
+    const result = parseChatItineraryPreview(`# Taipei Hidden Gems
+
+Day 1: Food Streets
+- Yongkang Beef Noodle (Local Favorite): Order the half-spicy bowl.
+  Address: Yongkang Beef Noodle, Da'an District, Taipei
+`);
+
+    expect(result.days[0].day).toBe("Day 1: Food Streets");
+    expect(result.days[0].activities[0].address).toBe("Yongkang Beef Noodle, Da'an District, Taipei");
+  });
+});
