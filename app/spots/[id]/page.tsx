@@ -370,7 +370,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     Back to spots
                 </Link>
 
-            <div className="relative min-h-[430px] w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 md:aspect-[21/9] md:min-h-0">
+            <div className="relative aspect-[4/3] min-h-[300px] w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">
                 <SpotPhotoImage
                     src={heroImage}
                     fallbackSrc={fallbackImage}
