@@ -33,18 +33,18 @@ export function StepInterests() {
   };
 
   return (
-    <div className="flex flex-col h-full px-4 py-6">
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-violet-600/20 mb-4">
-          <Heart className="w-7 h-7 text-violet-400" />
+    <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
+      <div className="mb-4 text-center sm:mb-6">
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600/20 sm:mb-4 sm:h-14 sm:w-14">
+          <Heart className="h-6 w-6 text-violet-400 sm:h-7 sm:w-7" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Your interests</h2>
-        <p className="text-gray-400">
+        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Your interests</h2>
+        <p className="text-sm text-gray-400 sm:text-base">
           Pick at least one (the more, the better!)
         </p>
       </div>
 
-      <div className="flex-1 grid grid-cols-2 gap-2.5 content-start">
+      <div className="grid flex-1 grid-cols-2 content-start gap-2">
         {INTERESTS.map((interest) => {
           const isSelected = data.interests.includes(interest.id);
           return (
@@ -53,18 +53,17 @@ export function StepInterests() {
               onClick={() => toggleInterest(interest.id)}
               aria-pressed={isSelected}
               className={cn(
-                "relative flex items-center gap-2 p-3 rounded-xl transition-all",
-                "text-left min-h-[56px]",
+                "relative flex min-h-[50px] items-center gap-2 rounded-xl p-2.5 text-left transition-all sm:min-h-[56px] sm:p-3",
                 "focus:outline-none focus:ring-2 focus:ring-violet-500",
                 isSelected
                   ? "bg-violet-600/20 border-2 border-violet-500"
                   : "bg-white/5 border-2 border-transparent hover:bg-white/10"
               )}
             >
-              <span className="text-xl">{interest.emoji}</span>
+              <span className="text-lg sm:text-xl">{interest.emoji}</span>
               <span
                 className={cn(
-                  "text-sm font-medium flex-1",
+                  "flex-1 text-xs font-medium sm:text-sm",
                   isSelected ? "text-white" : "text-gray-300"
                 )}
               >
@@ -80,7 +79,7 @@ export function StepInterests() {
         })}
       </div>
 
-      <div className="pt-4 border-t border-white/10 mt-4">
+      <div className="mt-3 border-t border-white/10 pt-3 sm:mt-4 sm:pt-4">
         <p className="text-center text-sm text-gray-400">
           Selected:{" "}
           <span className="text-violet-400 font-medium">

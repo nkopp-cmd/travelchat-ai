@@ -36,20 +36,20 @@ export function StepDuration() {
   }, [setCanProceed]);
 
   return (
-    <div className="flex flex-col h-full px-4 py-6">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-violet-600/20 mb-4">
-          <Calendar className="w-7 h-7 text-violet-400" />
+    <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
+      <div className="mb-6 text-center sm:mb-8">
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600/20 sm:mb-4 sm:h-14 sm:w-14">
+          <Calendar className="h-6 w-6 text-violet-400 sm:h-7 sm:w-7" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Trip details</h2>
-        <p className="text-gray-400">
+        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Trip details</h2>
+        <p className="text-sm text-gray-400 sm:text-base">
           How long and what&apos;s your budget?
         </p>
       </div>
 
       {/* Days Slider */}
-      <div className="mb-10">
-        <div className="flex justify-between items-center mb-4">
+      <div className="mb-7 sm:mb-10">
+        <div className="mb-4 flex items-center justify-between">
           <span className="text-sm font-medium text-gray-400">Duration</span>
           <span className="text-lg font-bold text-white">
             {data.days} {data.days === 1 ? "day" : "days"}
@@ -85,7 +85,7 @@ export function StepDuration() {
                 onClick={() => setData({ budget: option.value })}
                 aria-pressed={isSelected}
                 className={cn(
-                  "w-full p-4 rounded-xl transition-all text-left",
+              "w-full rounded-xl p-3.5 text-left transition-all sm:p-4",
                   "border-2",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",
                   isSelected

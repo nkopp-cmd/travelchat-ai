@@ -15,7 +15,7 @@ export function WizardProgress() {
   const { currentStep, goToStep } = useWizard();
 
   return (
-    <div className="w-full px-4 py-4">
+    <div className="w-full px-4 py-3 sm:py-4">
       {/* Mobile: Simple dots */}
       <div className="flex md:hidden items-center justify-center gap-2">
         {steps.map((_, index) => (
