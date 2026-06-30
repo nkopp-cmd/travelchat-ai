@@ -34,6 +34,25 @@ export interface BestGooglePlacePhotoResult {
     rejectedQuality?: ReturnType<typeof getPlacePhotoMatchQuality> | null;
 }
 
+export type SpotPhotoKind =
+    | "proxy"
+    | "remote_https"
+    | "local_asset"
+    | "direct_google"
+    | "unsplash"
+    | "placeholder"
+    | "invalid"
+    | "empty";
+
+export interface SpotPhotoSummary {
+    total: number;
+    kinds: Record<SpotPhotoKind, number>;
+    hasAnyPhoto: boolean;
+    hasRealPhoto: boolean;
+    needsBackfill: boolean;
+    primaryKind: SpotPhotoKind | "none";
+}
+
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
 const MAX_PHOTOS_PER_SPOT = 3;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
@@ -130,29 +149,71 @@ export function isBackfilledPlacePhotoUrl(photo: string): boolean {
     }
 }
 
-export function needsSpotPhotoBackfill(photos: string[] | null | undefined): boolean {
-    if (!photos || photos.length === 0) return true;
+export function classifySpotPhoto(photo: string | null | undefined): SpotPhotoKind {
+    const value = photo?.trim();
+    if (!value) return "empty";
 
-    return !photos.some((photo) => {
-        if (!photo) return false;
-        if (isBackfilledPlacePhotoUrl(photo)) return true;
+    const isRelativeAsset = value.startsWith("/") && !value.startsWith("//");
+    const hasHttpProtocol = /^https?:\/\//i.test(value);
+    if (!isRelativeAsset && !hasHttpProtocol) return "invalid";
 
-        try {
-            const url = new URL(photo, "https://www.localley.io");
-            const host = url.hostname.toLowerCase();
-            const path = url.pathname.toLowerCase();
+    try {
+        const url = new URL(value, "https://www.localley.io");
+        const host = url.hostname.toLowerCase();
+        const path = url.pathname.toLowerCase();
 
-            if (path.includes("placeholder")) return false;
-            if (host.includes("unsplash.com")) return false;
-            if (host === "places.googleapis.com" || host === "maps.googleapis.com") {
-                return false;
-            }
-
-            return url.protocol === "https:";
-        } catch {
-            return false;
+        if (path.includes("placeholder")) return "placeholder";
+        if (isBackfilledPlacePhotoUrl(value)) return "proxy";
+        if (host.includes("unsplash.com")) return "unsplash";
+        if (host === "places.googleapis.com" || host === "maps.googleapis.com") {
+            return "direct_google";
         }
-    });
+        if (isRelativeAsset) return "local_asset";
+        if (url.protocol === "https:") return "remote_https";
+
+        return "invalid";
+    } catch {
+        return "invalid";
+    }
+}
+
+export function isRealSpotPhotoKind(kind: SpotPhotoKind): boolean {
+    return kind === "proxy" || kind === "remote_https" || kind === "local_asset";
+}
+
+export function summarizeSpotPhotos(photos: string[] | null | undefined): SpotPhotoSummary {
+    const kinds: Record<SpotPhotoKind, number> = {
+        proxy: 0,
+        remote_https: 0,
+        local_asset: 0,
+        direct_google: 0,
+        unsplash: 0,
+        placeholder: 0,
+        invalid: 0,
+        empty: 0,
+    };
+
+    for (const photo of photos || []) {
+        kinds[classifySpotPhoto(photo)]++;
+    }
+
+    const primaryKind = photos?.length ? classifySpotPhoto(photos[0]) : "none";
+    const hasRealPhoto = (Object.keys(kinds) as SpotPhotoKind[]).some(
+        (kind) => isRealSpotPhotoKind(kind) && kinds[kind] > 0
+    );
+
+    return {
+        total: photos?.length || 0,
+        kinds,
+        hasAnyPhoto: Boolean(photos?.some((photo) => photo?.trim())),
+        hasRealPhoto,
+        needsBackfill: !hasRealPhoto,
+        primaryKind,
+    };
+}
+
+export function needsSpotPhotoBackfill(photos: string[] | null | undefined): boolean {
+    return summarizeSpotPhotos(photos).needsBackfill;
 }
 
 function comparableWords(value: string): Set<string> {

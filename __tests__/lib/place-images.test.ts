@@ -1,5 +1,56 @@
 import { describe, expect, it } from "vitest";
-import { getPlacePhotoMatchQuality } from "@/lib/place-images";
+import {
+    classifySpotPhoto,
+    getPlacePhotoMatchQuality,
+    needsSpotPhotoBackfill,
+    summarizeSpotPhotos,
+} from "@/lib/place-images";
+
+describe("spot photo classification", () => {
+    it("treats proxied Google Places photos as real backfilled images", () => {
+        const photo = "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef";
+
+        expect(classifySpotPhoto(photo)).toBe("proxy");
+        expect(needsSpotPhotoBackfill([photo])).toBe(false);
+    });
+
+    it("rejects placeholder, unsplash, direct google, empty, and invalid photos", () => {
+        const photos = [
+            "/images/placeholder-spot.jpg",
+            "https://images.unsplash.com/photo-123",
+            "https://places.googleapis.com/v1/places/abc/photos/def/media",
+            "",
+            "not a url",
+        ];
+
+        expect(photos.map((photo) => classifySpotPhoto(photo))).toEqual([
+            "placeholder",
+            "unsplash",
+            "direct_google",
+            "empty",
+            "invalid",
+        ]);
+        expect(needsSpotPhotoBackfill(photos)).toBe(true);
+    });
+
+    it("summarizes mixed photo arrays and only requires one real image", () => {
+        const summary = summarizeSpotPhotos([
+            "/images/placeholder-spot.jpg",
+            "/images/spots/seoul-market.jpg",
+            "https://cdn.localley.io/spots/seoul-market.jpg",
+        ]);
+
+        expect(summary).toMatchObject({
+            total: 3,
+            hasAnyPhoto: true,
+            hasRealPhoto: true,
+            needsBackfill: false,
+            primaryKind: "placeholder",
+        });
+        expect(summary.kinds.local_asset).toBe(1);
+        expect(summary.kinds.remote_https).toBe(1);
+    });
+});
 
 describe("getPlacePhotoMatchQuality", () => {
     it("rejects address-only matches for unrelated place names", () => {
