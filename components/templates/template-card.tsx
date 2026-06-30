@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ItineraryTemplate } from "@/lib/templates";
-import { Clock } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -58,9 +58,9 @@ const paceAccents = {
 
 export function TemplateCard({ template }: TemplateCardProps) {
   const paceConfig = {
-    relaxed: { icon: "🌊", label: "Relaxed" },
-    moderate: { icon: "🚶", label: "Moderate" },
-    active: { icon: "⚡", label: "Active" },
+    relaxed: { icon: "🌊", label: "Relaxed", shortLabel: "Relax" },
+    moderate: { icon: "🚶", label: "Moderate", shortLabel: "Medium" },
+    active: { icon: "⚡", label: "Active", shortLabel: "Active" },
   };
 
   const pace = paceConfig[template.pace];
@@ -74,7 +74,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
       aria-label={`Use ${template.name} template`}
     >
       <Card className={cn(
-        "group relative flex min-h-[68px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[78px]",
+        "group relative flex min-h-[72px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[88px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -90,19 +90,19 @@ export function TemplateCard({ template }: TemplateCardProps) {
         )} />
 
         {/* Main Content */}
-        <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2">
+        <div className="relative z-10 flex flex-1 flex-col p-2 sm:p-2.5">
           {/* Header */}
-          <div className="flex items-start gap-1.5">
+          <div className="flex items-start gap-2">
             <div className="relative">
-              <div className="text-base transition-transform duration-300 group-hover:scale-105 sm:text-lg">
+              <div className="text-lg leading-none transition-transform duration-300 group-hover:scale-105 sm:text-xl">
                 {template.emoji}
               </div>
-              <div aria-hidden="true" className="absolute inset-0 text-base opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-lg">
+              <div aria-hidden="true" className="absolute inset-0 text-lg leading-none opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-xl">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
+              <h3 className="line-clamp-2 text-xs font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-sm">
                 {template.name}
               </h3>
               <p className="mt-0.5 hidden text-[11px] leading-snug text-muted-foreground/80 lg:line-clamp-1 lg:block">
@@ -111,22 +111,21 @@ export function TemplateCard({ template }: TemplateCardProps) {
             </div>
           </div>
 
-          {/* Stats Pills Row */}
-          <div className="mt-auto grid grid-cols-2 gap-1 pt-1 min-[420px]:flex min-[420px]:flex-wrap">
-            {/* Days pill */}
-            <span className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-violet-200/50 bg-violet-100/80 px-1.5 py-0.5 text-[9px] font-medium leading-none text-violet-700 backdrop-blur-sm dark:border-violet-700/50 dark:bg-violet-900/40 dark:text-violet-300">
-              <Clock className="h-2.5 w-2.5 shrink-0" />
-              <span className="truncate whitespace-nowrap">{template.days} {template.days === 1 ? 'day' : 'days'}</span>
+          {/* Compact Meta Row */}
+          <div className="mt-auto flex items-center gap-1.5 pt-1.5 text-[10px] font-semibold leading-none text-muted-foreground sm:text-xs">
+            <span className="inline-flex min-w-0 items-center gap-1 rounded-md border border-violet-200/40 bg-violet-100/65 px-1.5 py-1 text-violet-700 dark:border-violet-700/35 dark:bg-violet-900/30 dark:text-violet-200">
+              <Clock className="h-3 w-3 shrink-0" />
+              <span className="whitespace-nowrap">{template.days}d</span>
             </span>
-
-            {/* Pace pill */}
             <span className={cn(
-              "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-medium leading-none backdrop-blur-sm",
+              "inline-flex min-w-0 items-center gap-1 rounded-md border px-1.5 py-1",
               accent.bg, accent.text, accent.border
             )}>
-              <span className="shrink-0">{pace.icon}</span>
-              <span className="truncate whitespace-nowrap">{pace.label}</span>
+              <span aria-hidden="true" className="shrink-0 text-[11px] leading-none sm:text-xs">{pace.icon}</span>
+              <span className="hidden whitespace-nowrap min-[420px]:inline">{pace.label}</span>
+              <span className="whitespace-nowrap min-[420px]:hidden">{pace.shortLabel}</span>
             </span>
+            <ArrowRight className="ml-auto h-3.5 w-3.5 shrink-0 text-violet-300/80 transition-transform duration-200 group-hover:translate-x-0.5" />
           </div>
         </div>
 

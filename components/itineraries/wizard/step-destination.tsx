@@ -54,6 +54,7 @@ export function StepDestination() {
 
   const hasError = citiesError || (citiesData && !citiesData.success);
   const cities = citiesData?.cities || [];
+  const templateMode = Boolean(data.templateName);
   const handleSelectCity = useCallback(
     (cityName: string) => {
       setData({ city: cityName });
@@ -70,13 +71,16 @@ export function StepDestination() {
   }
 
   return (
-    <div className="flex min-h-full flex-col px-4 py-3 pb-6 sm:py-5">
+    <div className="flex min-h-full flex-col px-4 py-3 pb-24 sm:py-5">
       {/* Header */}
-      <div className="mb-3 text-center sm:mb-5">
-        <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-violet-600/20 sm:mb-3 sm:h-14 sm:w-14">
+      <div className={cn("text-center", templateMode ? "mb-2 sm:mb-3" : "mb-3 sm:mb-5")}>
+        <div className={cn(
+          "mb-2 inline-flex items-center justify-center rounded-full bg-violet-600/20 sm:mb-3",
+          templateMode ? "h-9 w-9 sm:h-11 sm:w-11" : "h-10 w-10 sm:h-14 sm:w-14"
+        )}>
           <MapPin className="h-5 w-5 text-violet-400 sm:h-7 sm:w-7" />
         </div>
-        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
+        <h2 className="mb-1 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
         <p className="text-sm text-gray-400 sm:text-base">
           {data.templateName ? "Pick a city and tune the final details" : "Pick a city to explore like a local"}
         </p>
@@ -84,13 +88,17 @@ export function StepDestination() {
 
       {/* Unified City Grid */}
       {cities.length > 0 && (
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3">
+        <div className={cn(
+          "grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3",
+          templateMode && "gap-1.5 md:gap-2"
+        )}>
           {cities.map((city) => (
             <CityCard
               key={city.slug}
               city={city}
               isSelected={data.city === city.name}
               onSelect={() => handleSelectCity(city.name)}
+              compact={templateMode}
             />
           ))}
         </div>
@@ -131,16 +139,19 @@ function CityCard({
   city,
   isSelected,
   onSelect,
+  compact = false,
 }: {
   city: CityOption;
   isSelected: boolean;
   onSelect: () => void;
+  compact?: boolean;
 }) {
   return (
     <button
       onClick={onSelect}
       className={cn(
-        "relative rounded-lg overflow-hidden transition-all aspect-[1.7/1] sm:aspect-[3/2] sm:rounded-xl",
+        "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
+        compact ? "aspect-[2.25/1] sm:aspect-[2/1]" : "aspect-[1.7/1] sm:aspect-[3/2]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
         isSelected && "ring-2 ring-violet-500"
       )}
@@ -164,33 +175,46 @@ function CityCard({
 
       {/* Status badge */}
       {city.status === "recommended" && (
-        <div className="absolute top-1.5 left-1.5 rounded-full bg-violet-600/90 px-1.5 py-0.5 text-[9px] font-semibold text-white backdrop-blur-sm sm:top-2 sm:left-2 sm:px-2 sm:text-[10px]">
+        <div className={cn(
+          "absolute rounded-full bg-violet-600/90 font-semibold text-white backdrop-blur-sm",
+          compact
+            ? "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px]"
+            : "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
+        )}>
           Popular
         </div>
       )}
       {city.status === "beta" && (
-        <div className="absolute top-1.5 left-1.5 rounded-full border border-white/10 bg-white/15 px-1.5 py-0.5 text-[9px] font-semibold text-white/80 backdrop-blur-sm sm:top-2 sm:left-2 sm:px-2 sm:text-[10px]">
+        <div className={cn(
+          "absolute rounded-full border border-white/10 bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
+          compact
+            ? "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px]"
+            : "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
+        )}>
           Beta
         </div>
       )}
 
       {/* Selected checkmark */}
       {isSelected && (
-        <div className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 sm:top-2 sm:right-2 sm:h-7 sm:w-7">
+        <div className={cn(
+          "absolute right-1.5 top-1.5 flex items-center justify-center rounded-full bg-violet-600 sm:right-2 sm:top-2",
+          compact ? "h-5 w-5 sm:h-6 sm:w-6" : "h-6 w-6 sm:h-7 sm:w-7"
+        )}>
           <Check className="h-3.5 w-3.5 text-white sm:h-4 sm:w-4" />
         </div>
       )}
 
       {/* City info */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
+      <div className={cn("absolute bottom-0 left-0 right-0", compact ? "p-1.5 sm:p-2" : "p-2 sm:p-3")}>
         <div className="mb-0.5 flex items-center gap-1.5">
-          <span className="text-base sm:text-lg">{city.emoji}</span>
-          <span className="font-bold text-white text-sm leading-tight">{city.name}</span>
+          <span className={cn("leading-none", compact ? "text-sm sm:text-base" : "text-base sm:text-lg")}>{city.emoji}</span>
+          <span className={cn("font-bold leading-tight text-white", compact ? "text-xs sm:text-sm" : "text-sm")}>{city.name}</span>
         </div>
-        {city.vibe && (
+        {city.vibe && !compact && (
           <p className="line-clamp-1 text-[10px] leading-tight text-gray-300 sm:text-[11px]">{city.vibe}</p>
         )}
-        <p className="text-[10px] text-gray-400 mt-0.5">{city.spotCount} spots</p>
+        <p className={cn("mt-0.5 text-gray-300/85", compact ? "text-[9px]" : "text-[10px] text-gray-400")}>{city.spotCount} spots</p>
       </div>
     </button>
   );
