@@ -9,6 +9,7 @@ import { isKoreanCity } from "@/hooks/use-map-provider";
 import { getCityBySlug, getCityByName } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
 import type { SubscriptionTier } from "@/lib/subscription";
+import { buildDayRouteUrl, getActivitySearchText } from "@/lib/itineraries/map-links";
 
 interface Activity {
     name: string;
@@ -47,19 +48,6 @@ interface UnmappedActivity {
     nameKo?: string;
     address?: string;
     day: number;
-}
-
-/**
- * Get a search URL for an unmapped activity.
- * Korea → Kakao Maps (uses Korean name if available), everywhere else → Google Maps
- */
-function getMapSearchUrl(name: string, city: string, nameKo?: string): string {
-    if (isKoreanCity(city)) {
-        // Use Korean name for Kakao Maps search (much better hit rate)
-        const searchQuery = nameKo || name;
-        return `https://map.kakao.com/link/search/${encodeURIComponent(searchQuery)}`;
-    }
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${city}`)}`;
 }
 
 export function ItineraryMap({ city, dailyPlans, className, userTier }: ItineraryMapProps) {
@@ -248,16 +236,12 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
     // Get unique days
     const days = [...new Set(locations.map((l) => l.day))].sort();
 
-    // Google Maps route URL for total failure fallback
+    // Maps route URL for total failure fallback
     const getRouteUrl = () => {
-        const allActivities = dailyPlans.flatMap((d) =>
-            d.activities.map((a) => a.name)
+        return buildDayRouteUrl(
+            dailyPlans.flatMap((dayPlan) => dayPlan.activities).slice(0, 10),
+            city
         );
-        const waypoints = allActivities.slice(0, 10).join("/");
-        return `https://www.google.com/maps/dir/${encodeURIComponent(city)}/${waypoints
-            .split("/")
-            .map((w) => encodeURIComponent(w + ", " + city))
-            .join("/")}`;
     };
 
     if (loading) {
@@ -324,19 +308,27 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                             onClick={(e) => {
                                 e.stopPropagation();
                                 const locs = filteredLocations;
-                                const waypoints = locs.map(l => encodeURIComponent(`${l.title}, ${city}`));
-                                let url: string;
+                                let url = "";
                                 if (isKoreanCity(city)) {
-                                    url = `https://map.kakao.com/link/search/${encodeURIComponent(locs[0].title || city)}`;
-                                } else if (waypoints.length === 1) {
-                                    url = `https://www.google.com/maps/search/?api=1&query=${waypoints[0]}`;
+                                    const first = locs[0];
+                                    const query =
+                                        first.titleKo ||
+                                        getActivitySearchText(
+                                            { name: first.activityName || first.title || city, address: first.address },
+                                            city
+                                        );
+                                    url = `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
                                 } else {
-                                    const origin = waypoints[0];
-                                    const destination = waypoints[waypoints.length - 1];
-                                    const middle = waypoints.slice(1, -1);
-                                    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${middle.length > 0 ? `&waypoints=${middle.join("|")}` : ""}&travelmode=walking`;
+                                    url = buildDayRouteUrl(
+                                        locs.map((loc) => ({
+                                            name: loc.activityName || loc.title || city,
+                                            nameKo: loc.titleKo,
+                                            address: loc.address,
+                                        })),
+                                        city
+                                    );
                                 }
-                                window.open(url, "_blank");
+                                if (url) window.open(url, "_blank", "noopener,noreferrer");
                             }}
                         >
                             <Navigation className="h-4 w-4" />
