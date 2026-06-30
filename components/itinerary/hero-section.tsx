@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { MapPin, Calendar, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -25,16 +26,21 @@ export function HeroSection({
   highlights,
   className,
 }: HeroSectionProps) {
-  const backgroundImage = getCityImageUrl(city, { width: 1200, quality: 80 });
+  const backgroundImage = getCityImageUrl(city, { width: 1800, quality: 92 });
 
   return (
     <div className={cn("relative w-full rounded-2xl overflow-hidden", className)}>
       {/* Background image or gradient fallback */}
       <div className="relative h-[280px] sm:h-[320px] md:h-[400px] w-full overflow-hidden">
         {backgroundImage ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${backgroundImage})` }}
+          <Image
+            src={backgroundImage}
+            alt={`${city} itinerary`}
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 1024px"
+            quality={92}
           />
         ) : (
           <div className={cn("absolute inset-0 bg-gradient-to-br", getCityGradient(city))} />
@@ -87,13 +93,13 @@ export function HeroSection({
 
       {/* Highlights pills - horizontal scroll */}
       {highlights && highlights.length > 0 && (
-        <div className="px-4 py-3 overflow-x-auto scrollbar-hide bg-white/70 dark:bg-white/5 backdrop-blur-md">
+        <div className="scrollbar-hide overflow-x-auto border-t border-white/10 bg-[#0b0714]/70 px-4 py-3 backdrop-blur-xl">
           <div className="flex gap-2">
             {highlights.map((highlight, index) => (
               <Badge
                 key={index}
                 variant="outline"
-                className="whitespace-nowrap bg-violet-50/50 dark:bg-white/5 border-violet-200/50 dark:border-white/10 text-foreground"
+                className="whitespace-nowrap border-violet-300/20 bg-violet-400/10 text-violet-50"
               >
                 {highlight}
               </Badge>
