@@ -7,7 +7,7 @@ import { Spot } from "@/types";
 import { LocalleyScaleIndicator } from "./localley-scale";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
-import { MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
+import { ImageIcon, MapPin, TrendingUp, Users, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 
@@ -80,9 +80,14 @@ function getCityFallbackImage(spot: Spot) {
     return city ? getCityImageUrl(city, { width: 1200, height: 900, quality: 90 }) : null;
 }
 
+function hasRealSpotPhoto(spot: Spot) {
+    return spot.hasRealPhoto ?? spot.photos.some((photo) => !isPlaceholderImage(photo));
+}
+
 export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageSrc, setImageSrc] = useState(() => getInitialImage(spot));
+    const hasRealPhoto = hasRealSpotPhoto(spot);
 
     const handleImageError = () => {
         const cityFallback = getCityFallbackImage(spot);
@@ -127,6 +132,12 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full border border-rose-200/30 bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-rose-100 backdrop-blur">
                                 <TrendingUp className="h-3 w-3" />
                                 Hot
+                            </span>
+                        )}
+                        {!hasRealPhoto && (
+                            <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2 py-0.5 text-[10px] font-medium text-violet-50/80 backdrop-blur">
+                                <ImageIcon className="h-3 w-3" />
+                                Area image
                             </span>
                         )}
                     </div>
@@ -208,6 +219,12 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <span className="absolute left-2.5 top-2.5 z-10 inline-flex items-center gap-1 rounded-full border border-rose-200/30 bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-rose-100 shadow-lg shadow-black/15 backdrop-blur">
                             <Sparkles className="h-3 w-3 flex-shrink-0" />
                             Trending
+                        </span>
+                    )}
+                    {!hasRealPhoto && (
+                        <span className="absolute bottom-2.5 left-2.5 z-10 inline-flex max-w-[calc(100%-5.5rem)] items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2.5 py-1 text-[11px] font-medium text-violet-50/80 shadow-lg shadow-black/15 backdrop-blur">
+                            <ImageIcon className="h-3 w-3 flex-shrink-0" />
+                            Area image
                         </span>
                     )}
 

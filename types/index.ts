@@ -25,6 +25,7 @@ export interface Spot {
     localPercentage: number;
     bestTime: string;
     photos: string[];
+    hasRealPhoto?: boolean;
     tips: string[];
     verified: boolean;
     trending: boolean;
