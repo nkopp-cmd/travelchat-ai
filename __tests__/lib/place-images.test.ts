@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
     classifySpotPhoto,
+    findBestGooglePlacePhotos,
     getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
     needsSpotPhotoBackfill,
@@ -77,6 +78,48 @@ describe("spot photo classification", () => {
             "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
             "https://cdn.example.com/spot.jpg",
         ]);
+    });
+});
+
+describe("findBestGooglePlacePhotos", () => {
+    it("checks later Google Places results when the first result is not acceptable", async () => {
+        const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    places: [
+                        {
+                            id: "wrong-place",
+                            displayName: { text: "People Park Food Centre" },
+                            formattedAddress: "Kuala Lumpur, Malaysia",
+                            types: ["restaurant"],
+                            photos: [{ name: "places/wrong/photos/one" }],
+                        },
+                        {
+                            id: "right-place",
+                            displayName: { text: "People's Park Complex" },
+                            formattedAddress: "1 Park Road, Singapore 059108",
+                            types: ["shopping_mall"],
+                            photos: [{ name: "places/right/photos/one" }],
+                        },
+                    ],
+                }),
+                { status: 200 }
+            )
+        );
+
+        const match = await findBestGooglePlacePhotos(
+            "People's Park Complex",
+            "1 Park Road, Singapore",
+            "Shopping",
+            "test-api-key"
+        );
+
+        expect(match.place?.placeId).toBe("right-place");
+        expect(match.place?.photos).toHaveLength(1);
+        expect(match.quality?.acceptable).toBe(true);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+
+        fetchMock.mockRestore();
     });
 });
 
@@ -191,6 +234,38 @@ describe("getPlacePhotoMatchQuality", () => {
         expect(quality.reason).toBe("partial_name_without_strong_address_match");
     });
 
+    it("rejects a generated office district when Google only returns the base neighborhood", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Sogong-dong Office District",
+            "Sogong-dong, Jung-gu, Seoul",
+            "Food",
+            {
+                displayName: "Sogong-dong",
+                formattedAddress: "Sogong-dong, Jung District, Seoul, South Korea",
+                types: ["sublocality", "political"],
+            }
+        );
+
+        expect(quality.acceptable).toBe(false);
+        expect(quality.reason).toBe("missing_broad_spot_qualifier");
+    });
+
+    it("rejects a residential spot when Google only returns the base neighborhood", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Jamwon-dong Residential",
+            "Jamwon-dong, Seocho-gu, Seoul",
+            "Food",
+            {
+                displayName: "Jamwon-dong",
+                formattedAddress: "Jamwon-dong, Seocho District, Seoul, South Korea",
+                types: ["sublocality", "political"],
+            }
+        );
+
+        expect(quality.acceptable).toBe(false);
+        expect(quality.reason).toBe("missing_broad_spot_qualifier");
+    });
+
     it("accepts exact place names with matching location signal", () => {
         const quality = getPlacePhotoMatchQuality(
             "People's Park Complex",
@@ -235,5 +310,23 @@ describe("getPlacePhotoMatchQuality", () => {
         );
 
         expect(quality.acceptable).toBe(true);
+    });
+
+    it("accepts non-latin official place names with a strong address match", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Setagaya Boroichi Flea Market",
+            "Setagaya, Setagaya-ku, Tokyo",
+            "Market",
+            {
+                displayName: "世田谷ボロ市",
+                formattedAddress: "1-chōme-23-1 Setagaya, Setagaya City, Tokyo 154-0017, Japan",
+                types: ["tourist_attraction", "market"],
+            }
+        );
+
+        expect(quality).toMatchObject({
+            acceptable: true,
+            reason: "accepted",
+        });
     });
 });

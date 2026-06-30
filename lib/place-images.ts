@@ -24,6 +24,7 @@ export interface PlacePhotoSearchResult {
 
 export interface FindGooglePlacePhotosOptions {
     timeoutMs?: number;
+    maxResults?: number;
 }
 
 export interface BestGooglePlacePhotoResult {
@@ -57,6 +58,8 @@ const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
 export const DEFAULT_SPOT_PHOTO_FALLBACK = "/images/placeholders/default.svg";
 const MAX_PHOTOS_PER_SPOT = 3;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
+const DEFAULT_GOOGLE_PLACES_SEARCH_RESULTS = 5;
+const MAX_GOOGLE_PLACES_SEARCH_RESULTS = 10;
 const GENERIC_SPOT_WORDS = new Set([
     "alley",
     "center",
@@ -103,6 +106,7 @@ const COMMERCIAL_NAME_WORDS = new Set([
     "shop",
     "store",
 ]);
+const BROAD_SPOT_QUALIFIER_WORDS = new Set(["district", "office", "residential"]);
 
 export function getGooglePlacesApiKey(): string | null {
     return (
@@ -260,6 +264,17 @@ function comparableWords(value: string): Set<string> {
     );
 }
 
+function rawComparableWords(value: string): Set<string> {
+    return new Set(
+        value
+            .toLowerCase()
+            .normalize("NFKD")
+            .replace(/[^a-z0-9\s-]/g, " ")
+            .split(/\s+/)
+            .filter((word) => word.length >= 3)
+    );
+}
+
 function wordOverlap(source: string, target: string): number {
     const sourceWords = comparableWords(source);
     if (sourceWords.size === 0) return 0;
@@ -297,6 +312,15 @@ function hasWeakSingleWordNameMatch(source: string, target: string, addressScore
     const extraTargetWords = [...targetWords].filter((word) => !sourceWords.has(word));
 
     return extraTargetWords.length > 0;
+}
+
+function hasMissingBroadSpotQualifier(spotName: string, placeName: string | null): boolean {
+    const spotWords = rawComparableWords(spotName);
+    const placeWords = rawComparableWords(placeName || "");
+
+    return [...BROAD_SPOT_QUALIFIER_WORDS].some(
+        (word) => spotWords.has(word) && !placeWords.has(word)
+    );
 }
 
 function hasSpecificBusinessMismatch(
@@ -395,6 +419,19 @@ export function getPlacePhotoMatchQuality(
         };
     }
 
+    if (hasMissingBroadSpotQualifier(spotName, place.displayName || "")) {
+        return {
+            acceptable: false,
+            reason: "missing_broad_spot_qualifier",
+            nameScore,
+            addressScore,
+        };
+    }
+
+    if (!weakSingleWordNameMatch && hasNonLatinPlaceName && addressScore >= 0.55) {
+        return { acceptable: true, reason: "accepted", nameScore, addressScore };
+    }
+
     if (nameScore < 0.67 && addressScore < 0.75) {
         return {
             acceptable: false,
@@ -408,8 +445,7 @@ export function getPlacePhotoMatchQuality(
         !weakSingleWordNameMatch &&
         (
             (nameScore >= 0.67 && addressScore >= 0.2) ||
-            (nameScore >= 0.5 && addressScore >= 0.33) ||
-            (hasNonLatinPlaceName && addressScore >= 0.55)
+            (nameScore >= 0.5 && addressScore >= 0.33)
         )
     ) {
         return { acceptable: true, reason: "accepted", nameScore, addressScore };
@@ -462,7 +498,20 @@ async function findGooglePlacePhotosByQuery(
     apiKey: string,
     options: FindGooglePlacePhotosOptions = {}
 ): Promise<PlacePhotoSearchResult | null> {
+    const places = await findGooglePlacePhotoCandidatesByQuery(textQuery, apiKey, options);
+    return places[0] || null;
+}
+
+async function findGooglePlacePhotoCandidatesByQuery(
+    textQuery: string,
+    apiKey: string,
+    options: FindGooglePlacePhotosOptions = {}
+): Promise<PlacePhotoSearchResult[]> {
     const timeoutMs = options.timeoutMs ?? DEFAULT_GOOGLE_PLACES_TIMEOUT_MS;
+    const maxResultCount = Math.min(
+        MAX_GOOGLE_PLACES_SEARCH_RESULTS,
+        Math.max(1, options.maxResults ?? DEFAULT_GOOGLE_PLACES_SEARCH_RESULTS)
+    );
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -477,7 +526,7 @@ async function findGooglePlacePhotosByQuery(
             },
             body: JSON.stringify({
                 textQuery,
-                maxResultCount: 1,
+                maxResultCount,
             }),
             signal: controller.signal,
         });
@@ -504,17 +553,13 @@ async function findGooglePlacePhotosByQuery(
             types?: string[];
         }>;
     };
-    const place = data.places?.[0];
-
-    if (!place) return null;
-
-    return {
+    return (data.places || []).map((place) => ({
         placeId: place.id || null,
         displayName: place.displayName?.text || null,
         formattedAddress: place.formattedAddress || null,
         types: place.types || [],
         photos: (place.photos || []).filter((photo) => Boolean(photo.name)),
-    };
+    }));
 }
 
 export async function findBestGooglePlacePhotos(
@@ -528,16 +573,20 @@ export async function findBestGooglePlacePhotos(
     let rejectedQuality: ReturnType<typeof getPlacePhotoMatchQuality> | null = null;
 
     for (const query of buildPlacePhotoSearchQueries(name, address)) {
-        const place = await findGooglePlacePhotosByQuery(query, apiKey, options);
-        if (!place || place.photos.length === 0) continue;
+        const places = await findGooglePlacePhotoCandidatesByQuery(query, apiKey, options);
+        if (places.length === 0) continue;
 
-        const quality = getPlacePhotoMatchQuality(name, address, category, place);
-        if (quality.acceptable) {
-            return { place, quality, query };
+        for (const place of places) {
+            if (place.photos.length === 0) continue;
+
+            const quality = getPlacePhotoMatchQuality(name, address, category, place);
+            if (quality.acceptable) {
+                return { place, quality, query };
+            }
+
+            rejectedPlace = place;
+            rejectedQuality = quality;
         }
-
-        rejectedPlace = place;
-        rejectedQuality = quality;
     }
 
     return {
