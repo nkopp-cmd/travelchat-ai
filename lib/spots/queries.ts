@@ -8,6 +8,10 @@ import { createSupabaseClient } from "@/lib/supabase";
 import { getCityBySlug, ENABLED_CITIES } from "@/lib/cities";
 import { transformSpot, RawSpot } from "./transform";
 import {
+    applyPublicSpotVisibilityFilters,
+    shouldShowPublicSpot,
+} from "./public-quality";
+import {
     SpotsFilterParams,
     SpotsFilterState,
     SpotsResponse,
@@ -72,6 +76,8 @@ async function fetchFilteredSpotsInternal(
     let query = supabase
         .from("spots")
         .select("*", { count: "exact" });
+
+    query = applyPublicSpotVisibilityFilters(query);
 
     // City filter - query by address JSONB field
     if (filters.city) {
@@ -142,7 +148,9 @@ async function fetchFilteredSpotsInternal(
         };
     }
 
-    const allSpots = (data || []).map((spot: RawSpot) => transformSpot(spot));
+    const allSpots = (data || [])
+        .filter((spot: RawSpot) => shouldShowPublicSpot(spot))
+        .map((spot: RawSpot) => transformSpot(spot));
 
     // Safety net: deduplicate by (name + address) in case DB has dupes
     const seen = new Map<string, boolean>();
@@ -206,10 +214,13 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
 
     // Get city counts in parallel
     const cityCountPromises = ENABLED_CITIES.map(async (city) => {
-        const { count } = await supabase
+        let cityQuery = supabase
             .from("spots")
-            .select("*", { count: "exact", head: true })
-            .ilike("address->>en", `%${city.name}%`);
+            .select("*", { count: "exact", head: true });
+
+        cityQuery = applyPublicSpotVisibilityFilters(cityQuery);
+
+        const { count } = await cityQuery.ilike("address->>en", `%${city.name}%`);
 
         return {
             slug: city.slug,
@@ -220,9 +231,13 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
     });
 
     // Get all spots for category and score distribution
-    const { data: allSpots } = await supabase
+    let allSpotsQuery = supabase
         .from("spots")
         .select("category, localley_score");
+
+    allSpotsQuery = applyPublicSpotVisibilityFilters(allSpotsQuery);
+
+    const { data: allSpots } = await allSpotsQuery;
 
     // Calculate category counts
     const categoryCounts: Record<string, number> = {};
@@ -274,8 +289,10 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
  */
 export async function getTotalSpotCount(): Promise<number> {
     const supabase = createSupabaseClient();
-    const { count } = await supabase
+    let countQuery = supabase
         .from("spots")
         .select("*", { count: "exact", head: true });
+    countQuery = applyPublicSpotVisibilityFilters(countQuery);
+    const { count } = await countQuery;
     return count || 0;
 }
