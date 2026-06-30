@@ -14,6 +14,8 @@ import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { summarizeSpotPhotos } from "@/lib/place-images";
+import { getSpotLocationConfidence, hasUsableCoordinates } from "@/lib/spots/location-confidence";
+import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
@@ -70,7 +72,7 @@ function getDirectionsUrl(
     lng: number,
     address: string
 ): string {
-    const hasValidCoords = lat !== 0 && lng !== 0;
+    const hasValidCoords = hasUsableCoordinates(lat, lng);
     const isKorea = isKoreanLocation(address);
     const exactQuery = [name, address].filter(Boolean).join(", ");
 
@@ -79,13 +81,18 @@ function getDirectionsUrl(
         return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || address)}`;
     }
 
-    // Prefer exact place/address query over raw coordinates; keep coordinates only when address is absent.
-    const destination = exactQuery || (hasValidCoords ? `${lat},${lng}` : address);
+    const destination = hasValidCoords ? `${lat},${lng}` : exactQuery || address;
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
 function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
     const isKorea = isKoreanLocation(spot.location.address);
+    const locationConfidence = getLocationConfidence(spot);
+
+    if (!isKorea && locationConfidence.usableCoordinates) {
+        return "Maps routes to the stored coordinate pin and keeps the spot name/address visible for context.";
+    }
+
     return isKorea
         ? "Kakao uses the spot name and stored address before the imported coordinate pin."
         : "Maps uses the spot name and stored address before the imported coordinate pin.";
@@ -105,29 +112,6 @@ function getSpotContextCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>
 
 function formatCoordinate(value: number) {
     return value ? value.toFixed(5) : null;
-}
-
-function hasSpecificStreetAddress(address: string): boolean {
-    const value = address.trim();
-    if (!value) return false;
-
-    const hasNumber = /\d/.test(value);
-    const hasPostalCode = /\b\d{4,6}\b/.test(value) || value.includes("〒");
-    const hasStreetWord = /\b(street|st\.?|road|rd\.?|lane|ln\.?|avenue|ave\.?|blvd|boulevard|soi|gil|ro|dori|chome|ward|district)\b/i.test(value);
-    const hasMultipleParts = value.split(",").filter((part) => part.trim()).length >= 3;
-
-    return hasPostalCode || (hasNumber && (hasStreetWord || hasMultipleParts));
-}
-
-function isAreaLevelAddress(address: string): boolean {
-    const value = address.toLowerCase();
-    if (!value.trim()) return true;
-
-    if (/\b(various|multiple|near|around|area|areas|district|neighborhood|countryside)\b/.test(value)) {
-        return true;
-    }
-
-    return !hasSpecificStreetAddress(address);
 }
 
 function isPlaceholderImage(src: string | undefined) {
@@ -177,21 +161,11 @@ function getSpotGalleryImages(spot: NonNullable<Awaited<ReturnType<typeof getSpo
 }
 
 function getLocationConfidence(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
-    const exactAddress = !isAreaLevelAddress(spot.location.address);
-
-    if (exactAddress) {
-        return {
-            label: "Exact address",
-            description: "Directions use the spot name and full address first.",
-            tone: "exact" as const,
-        };
-    }
-
-    return {
-        label: "Area-level address",
-        description: "This record has neighborhood-level source data. Maps opens a name and area search; confirm the pin before navigating.",
-        tone: "area" as const,
-    };
+    return getSpotLocationConfidence({
+        address: spot.location.address,
+        lat: spot.location.lat,
+        lng: spot.location.lng,
+    });
 }
 
 // Get Directions button component
@@ -216,6 +190,8 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
                 <Navigation className="mr-2 h-5 w-5" />
                 {locationConfidence.tone === "exact"
                     ? isKorea ? "Open exact spot in Kakao" : "Get exact directions"
+                    : locationConfidence.tone === "pinned"
+                        ? isKorea ? "Search area in Kakao" : "Route to saved pin"
                     : isKorea ? "Search area in Kakao" : "Search area in Maps"}
             </Button>
         </Link>
@@ -236,9 +212,7 @@ async function getSpot(id: string) {
         return null;
     }
 
-    // Parse location coordinates
-    const lat = spot.location?.coordinates?.[1] || 0;
-    const lng = spot.location?.coordinates?.[0] || 0;
+    const { lat, lng } = getSpotCoordinateValues(spot.location);
     const address = getName(spot.address);
 
     const photoSummary = summarizeSpotPhotos(spot.photos);
@@ -409,13 +383,15 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                     variant="outline"
                                     className={locationConfidence.tone === "exact"
                                         ? "border-emerald-200/35 bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
-                                        : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                                        : locationConfidence.tone === "pinned"
+                                            ? "border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
+                                            : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
                                     }
                                 >
-                                    {locationConfidence.tone === "exact" ? (
-                                        <MapPin className="mr-1 h-3.5 w-3.5" />
-                                    ) : (
+                                    {locationConfidence.tone === "area" ? (
                                         <AlertTriangle className="mr-1 h-3.5 w-3.5" />
+                                    ) : (
+                                        <MapPin className="mr-1 h-3.5 w-3.5" />
                                     )}
                                     {locationConfidence.label}
                                 </Badge>
