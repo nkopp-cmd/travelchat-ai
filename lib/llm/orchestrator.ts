@@ -560,29 +560,47 @@ export class LLMOrchestrator {
     metrics: OrchestrationMetrics,
     startTime: number
   ): Promise<OrchestrationResult> {
-    try {
-      const provider = this.glm.isAvailable() ? this.glm : this.openai;
-      const itinerary = await provider.generateItineraryStructure(request.params);
-      metrics.providersUsed.push(provider.name);
-      metrics.totalLatencyMs = Date.now() - startTime;
+    const providers = [
+      { name: 'glm' as const, provider: this.glm },
+      { name: 'openai' as const, provider: this.openai },
+    ];
+    let lastError: unknown;
 
-      return {
-        success: true,
-        data: itinerary,
-        qualityScore: null,
-        validationReport: null,
-        metrics,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        metrics: {
-          ...metrics,
-          totalLatencyMs: Date.now() - startTime,
-        },
-      };
+    for (const { name, provider } of providers) {
+      if (!provider.isAvailable() || !this.circuitBreakers.isAvailable(name)) {
+        continue;
+      }
+
+      try {
+        const itinerary = await provider.generateItineraryStructure(request.params);
+        metrics.providersUsed.push(name);
+        metrics.totalLatencyMs = Date.now() - startTime;
+
+        return {
+          success: true,
+          data: itinerary,
+          qualityScore: null,
+          validationReport: null,
+          fallbackUsed: name === 'openai' ? 'chatgpt_fallback' : undefined,
+          metrics,
+        };
+      } catch (error) {
+        lastError = error;
+        metrics.retryCount++;
+        this.circuitBreakers.recordFailure(name);
+        console.error(`[Orchestrator] ${name} single-LLM generation failed:`, error);
+      }
     }
+
+    return {
+      success: false,
+      error: lastError instanceof Error ? lastError.message : 'All single-LLM providers failed',
+      fallbackUsed: 'emergency',
+      metrics: {
+        ...metrics,
+        totalLatencyMs: Date.now() - startTime,
+      },
+    };
   }
 
   /**
