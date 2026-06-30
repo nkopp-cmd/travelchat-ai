@@ -14,8 +14,9 @@ import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { getGooglePlaceIdFromSpotPhotos, summarizeSpotPhotos } from "@/lib/place-images";
-import { getSpotLocationConfidence, hasUsableCoordinates } from "@/lib/spots/location-confidence";
+import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
+import { buildSpotDirectionsUrl, isKoreanLocation } from "@/lib/spots/map-links";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import type { Metadata } from "next";
 
@@ -52,44 +53,6 @@ function getName(field: string | Record<string, string> | null | undefined): str
         return field.en || Object.values(field)[0] || "";
     }
     return field || "";
-}
-
-// Helper to determine if location is in Korea
-function isKoreanLocation(address: string): boolean {
-    const koreanIndicators = [
-        "Korea", "Seoul", "Busan", "Incheon", "Daegu", "Daejeon",
-        "Gwangju", "Ulsan", "Gyeonggi", "Gangwon", "Jeju",
-        "대한민국", "서울", "부산", "인천", "대구", "대전", "광주", "울산", "제주"
-    ];
-    return koreanIndicators.some(indicator =>
-        address.toLowerCase().includes(indicator.toLowerCase())
-    );
-}
-
-// Helper to build directions URL (Kakao Maps for Korea, Google Maps for others)
-function getDirectionsUrl(
-    name: string,
-    lat: number,
-    lng: number,
-    address: string,
-    googlePlaceId?: string | null
-): string {
-    const isKorea = isKoreanLocation(address);
-    const exactQuery = [name, address].filter(Boolean).join(", ");
-
-    if (isKorea) {
-        // Prefer exact place search over raw coordinates; imported coordinates can be neighborhood-level.
-        return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || address)}`;
-    }
-
-    // Prefer the exact name/address query over raw coordinates; several imported coordinates are area-level pins.
-    const destination = exactQuery || (hasUsableCoordinates(lat, lng) ? `${lat},${lng}` : address);
-    const params = new URLSearchParams({ api: "1", destination });
-    if (googlePlaceId) {
-        params.set("destination_place_id", googlePlaceId);
-    }
-
-    return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
 function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
@@ -197,13 +160,13 @@ function getPrimaryArea(address: string, city: string): string {
 
 // Get Directions button component
 function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<typeof getSpot>>> }) {
-    const directionsUrl = getDirectionsUrl(
-        spot.name,
-        spot.location.lat,
-        spot.location.lng,
-        spot.location.address,
-        spot.googlePlaceId
-    );
+    const directionsUrl = buildSpotDirectionsUrl({
+        name: spot.name,
+        address: spot.location.address,
+        lat: spot.location.lat,
+        lng: spot.location.lng,
+        googlePlaceId: spot.googlePlaceId,
+    });
     const isKorea = isKoreanLocation(spot.location.address);
     const locationConfidence = getLocationConfidence(spot);
 

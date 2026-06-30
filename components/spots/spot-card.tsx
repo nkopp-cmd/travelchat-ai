@@ -98,16 +98,22 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     if (compact) {
         // Premium compact horizontal card for list view
         return (
-            <Link href={`/spots/${spot.id}`} className="block">
-                <Card className={cn(
-                    "group flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
-                    "bg-[#100b1c]/92 text-white backdrop-blur-xl",
-                    "border border-violet-200/15",
-                    "transition-all duration-300 ease-out",
-                    "hover:shadow-xl hover:shadow-violet-500/10",
-                    "hover:border-violet-300/45",
-                    "hover:-translate-y-0.5"
-                )}>
+            <Card className={cn(
+                "group relative flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
+                "bg-[#100b1c]/92 text-white backdrop-blur-xl",
+                "border border-violet-200/15",
+                "transition-all duration-300 ease-out",
+                "hover:shadow-xl hover:shadow-violet-500/10",
+                "hover:border-violet-300/45",
+                "hover:-translate-y-0.5"
+            )}>
+                <Link
+                    href={`/spots/${spot.id}`}
+                    aria-label={`Open ${spot.name}`}
+                    className="absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714]"
+                >
+                    <span className="sr-only">Open {spot.name}</span>
+                </Link>
                     <div className="relative aspect-[4/3] w-24 flex-shrink-0 overflow-hidden bg-violet-950/60 sm:w-40">
                         {!imageLoaded && (
                             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
@@ -147,7 +153,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                                     <span className="truncate">{spot.location.address}</span>
                                 </p>
                             </div>
-                            <div className="flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur">
+                            <div className="relative z-20 flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur">
                                 <SaveSpotButton spotId={spot.id} size="sm" className="h-7 w-7 bg-white/10 p-0 hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5" />
                             </div>
                         </div>
@@ -174,23 +180,28 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         </div>
                     </div>
                 </Card>
-            </Link>
         );
     }
 
     // Premium grid card with glassmorphism and micro-animations
     return (
-        <Link href={`/spots/${spot.id}`} className="block">
-            <Card className={cn(
-                "group relative flex min-h-[112px] flex-row items-start overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col sm:items-stretch",
-                "bg-[#100b1c]/92 text-white backdrop-blur-xl",
-                "border border-violet-200/15",
-                "transition-all duration-300 ease-out",
-                "shadow-md shadow-violet-950/20",
-                "hover:shadow-xl hover:shadow-violet-500/20",
-                "hover:border-violet-300/45",
-                "hover:-translate-y-0.5"
-            )}>
+        <Card className={cn(
+            "group relative flex min-h-[112px] flex-row items-start overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col sm:items-stretch",
+            "bg-[#100b1c]/92 text-white backdrop-blur-xl",
+            "border border-violet-200/15",
+            "transition-all duration-300 ease-out",
+            "shadow-md shadow-violet-950/20",
+            "hover:shadow-xl hover:shadow-violet-500/20",
+            "hover:border-violet-300/45",
+            "hover:-translate-y-0.5"
+        )}>
+            <Link
+                href={`/spots/${spot.id}`}
+                aria-label={`Open ${spot.name}`}
+                className="absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714]"
+            >
+                <span className="sr-only">Open {spot.name}</span>
+            </Link>
                 <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-24 sm:aspect-[2/1] sm:w-full">
                     {!imageLoaded && (
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
@@ -225,7 +236,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     )}
 
                     <div className="absolute right-1.5 top-1.5 z-10 sm:right-2.5 sm:top-2.5">
-                        <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 sm:opacity-0 sm:group-hover:opacity-100">
+                        <div className="relative z-20 flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 sm:opacity-0 sm:group-hover:opacity-100">
                             <SaveSpotButton spotId={spot.id} className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white sm:h-8 sm:w-8" />
                         </div>
                     </div>
@@ -266,6 +277,5 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     </div>
                 </div>
             </Card>
-        </Link>
     );
 }
