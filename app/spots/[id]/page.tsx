@@ -3,7 +3,7 @@ import { LocalleyScale } from "@/types";
 import { LocalleyScaleIndicator } from "@/components/spots/localley-scale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ImageIcon, MapPin, Clock, Users, Navigation, ArrowLeft } from "lucide-react";
+import { AlertTriangle, ImageIcon, MapPin, Clock, Users, Navigation, ArrowLeft, Camera, Compass, Route, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
@@ -169,6 +169,22 @@ function getLocationConfidence(spot: NonNullable<Awaited<ReturnType<typeof getSp
     });
 }
 
+function getScoreNarrative(score: LocalleyScale): string {
+    if (score >= LocalleyScale.LEGENDARY_ALLEY) return "Almost entirely local energy with a strong reason to build a day around it.";
+    if (score >= LocalleyScale.HIDDEN_GEM) return "A rare local-first find that still feels tucked away from the obvious routes.";
+    if (score >= LocalleyScale.LOCAL_FAVORITE) return "A dependable neighborhood favorite with enough local signal to be worth a detour.";
+    return "A useful stop with a mixed crowd and clear practical value for a nearby route.";
+}
+
+function getPrimaryArea(address: string, city: string): string {
+    const parts = address
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    return parts.length > 1 ? parts[0] : city;
+}
+
 // Get Directions button component
 function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<typeof getSpot>>> }) {
     const directionsUrl = getDirectionsUrl(
@@ -213,12 +229,12 @@ async function getSpot(id: string) {
         return null;
     }
 
-    if (!shouldShowPublicSpot({ name: spot.name, photos: spot.photos })) {
-        return null;
-    }
-
     const { lat, lng } = getSpotCoordinateValues(spot.location);
     const address = getName(spot.address);
+
+    if (!shouldShowPublicSpot({ name: spot.name, address: spot.address, location: spot.location, photos: spot.photos })) {
+        return null;
+    }
 
     const photoSummary = summarizeSpotPhotos(spot.photos);
 
@@ -323,6 +339,8 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     const fallbackImage = getSpotFallbackImage(spot);
     const galleryImages = getSpotGalleryImages(spot);
     const locationConfidence = getLocationConfidence(spot);
+    const primaryArea = getPrimaryArea(spot.location.address, city);
+    const scoreNarrative = getScoreNarrative(spot.localleyScore);
 
     return (
         <>
@@ -464,6 +482,69 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                         </div>
                     </div>
 
+                    <div className={`${LIQUID_CARD} overflow-hidden`}>
+                        <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
+                            <div className="space-y-4 p-4 sm:p-6">
+                                <div>
+                                    <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-violet-200/80">
+                                        <Sparkles className="h-4 w-4 text-violet-300" />
+                                        Why locals go
+                                    </div>
+                                    <h2 className="text-2xl font-bold leading-tight text-white">
+                                        A verified stop in {primaryArea}
+                                    </h2>
+                                    <p className="mt-2 text-sm leading-6 text-violet-50/65">
+                                        {scoreNarrative}
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                        <Users className="mb-2 h-4 w-4 text-emerald-300" />
+                                        <span className="block text-xl font-bold text-white">{spot.localPercentage}%</span>
+                                        <span className="text-xs text-violet-50/55">local crowd signal</span>
+                                    </div>
+                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                        <Clock className="mb-2 h-4 w-4 text-indigo-300" />
+                                        <span className="block truncate text-sm font-semibold text-white">{spot.bestTime}</span>
+                                        <span className="text-xs text-violet-50/55">best time to visit</span>
+                                    </div>
+                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                        <Camera className="mb-2 h-4 w-4 text-violet-300" />
+                                        <span className="block text-xl font-bold text-white">{spot.realPhotoCount}</span>
+                                        <span className="text-xs text-violet-50/55">real spot photo{spot.realPhotoCount === 1 ? "" : "s"}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-white/10 bg-white/[0.035] p-4 sm:p-6 md:border-l md:border-t-0">
+                                <div className="mb-4 flex items-center justify-between gap-3">
+                                    <div>
+                                        <h3 className="font-semibold text-white">Plan this stop</h3>
+                                        <p className="text-xs text-violet-50/55">Use this as an exact destination, not a vague area pin.</p>
+                                    </div>
+                                    <ShieldCheck className="h-5 w-5 text-emerald-300" />
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex gap-3 rounded-lg border border-white/10 bg-black/10 p-3">
+                                        <Route className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
+                                        <div>
+                                            <p className="text-sm font-medium text-white">Navigate by name and address</p>
+                                            <p className="mt-1 text-xs leading-5 text-violet-50/60">{spot.name}, {spot.location.address}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3 rounded-lg border border-white/10 bg-black/10 p-3">
+                                        <Compass className="mt-0.5 h-4 w-4 shrink-0 text-indigo-300" />
+                                        <div>
+                                            <p className="text-sm font-medium text-white">Build nearby time around {primaryArea}</p>
+                                            <p className="mt-1 text-xs leading-5 text-violet-50/60">Save it first, then add cafes, food, markets, or evening stops around the same pocket.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className={`${LIQUID_CARD} space-y-5 p-4 sm:p-6`}>
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                             <Users className="h-5 w-5 text-violet-300" />
@@ -531,10 +612,25 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
 
                         <GetDirectionsButton spot={spot} />
 
-                        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4">
+                        <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.055]">
+                            <div className="relative h-36 border-b border-white/10 bg-[#171128]">
+                                <div className="absolute inset-0 opacity-35" style={{
+                                    backgroundImage: "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
+                                    backgroundSize: "24px 24px",
+                                }} />
+                                <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-violet-200/30 bg-violet-500/25 text-violet-100 shadow-lg shadow-violet-950/40 backdrop-blur">
+                                        <MapPin className="h-6 w-6" />
+                                    </div>
+                                    <span className="max-w-[13rem] truncate rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                                        {primaryArea}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="p-4">
                             <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
                                 <MapPin className="h-4 w-4 text-violet-300" />
-                                Location details
+                                Exact location
                             </h3>
                             <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
                             <p className="mt-2 text-xs font-medium text-violet-200/80">
@@ -548,6 +644,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                     Approximate imported pin: {formatCoordinate(spot.location.lat)}, {formatCoordinate(spot.location.lng)}
                                 </p>
                             )}
+                            </div>
                         </div>
                     </div>
                 </div>
