@@ -50,6 +50,30 @@ describe("parseChatItineraryPreview", () => {
     ]);
   });
 
+  it("keeps indented practical notes out of activity descriptions", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Small Places**
+
+- **Ikseon Teahouse (Hidden Gem)**: Order seasonal tea before the afternoon rush.
+  Address: Ikseon-dong, Jongno-gu, Seoul
+  Tip: Bring cash for smaller shops.
+  Getting around: Walk from Jongno 3-ga exit 4.
+  The hanok courtyard is best for photos.
+`);
+
+    const activity = result.days[0].activities[0];
+
+    expect(activity.address).toBe("Ikseon-dong, Jongno-gu, Seoul");
+    expect(activity.description).toBe(
+      "Order seasonal tea before the afternoon rush.\nThe hanok courtyard is best for photos."
+    );
+    expect(result.tips).toEqual([
+      "Tip: Bring cash for smaller shops.",
+      "Getting around: Walk from Jongno 3-ga exit 4.",
+    ]);
+  });
+
   it("removes address and location lines from the preview description", () => {
     expect(
       cleanChatItineraryDescription("Go early.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")
