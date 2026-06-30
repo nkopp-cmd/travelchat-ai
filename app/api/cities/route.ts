@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseClient } from "@/lib/supabase";
 import { ENABLED_CITIES, CityConfig } from "@/lib/cities";
 
 // Thresholds for city status
@@ -18,7 +18,7 @@ interface CityWithCount extends CityConfig {
 }
 
 async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
-  const supabase = createSupabaseAdmin();
+  const supabase = createSupabaseClient();
 
   const cityPromises = ENABLED_CITIES.map(async (city) => {
     try {

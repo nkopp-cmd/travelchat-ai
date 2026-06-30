@@ -20,12 +20,14 @@ const TIP_NAME_PATTERNS = [
   /\bthings?\s+to\s+know\b/i,
   /\bwhat\s+to\s+(order|know|bring|avoid)\b/i,
   /\bhow\s+to\s+(get|go|use|book)\b/i,
+  /\bbefore\s+you\s+go\b/i,
   /\bgetting\s+around\b/i,
   /\btransport(ation)?\s+tips?\b/i,
   /\bheads?\s+up\b/i,
+  /\b(note|advice|insight|reminder)\s*(for|about|before|while)?\b/i,
 ];
 
-const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|getting around|transport|transportation)$/i;
+const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|reminder|reminders|getting around|transport|transportation)$/i;
 const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|kakao|maps?)\b/i;
 
 export function isTipLikeActivity(activity: GeneratedActivity): boolean {

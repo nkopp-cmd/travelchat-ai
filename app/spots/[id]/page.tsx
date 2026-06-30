@@ -82,6 +82,18 @@ function getDirectionsUrl(
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
+function getSpotContextCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
+    const inferredCity = inferSpotCity(spot);
+    if (inferredCity) return inferredCity;
+
+    const addressParts = spot.location.address
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    return addressParts.at(-1) || spot.location.address;
+}
+
 function formatCoordinate(value: number) {
     return value ? value.toFixed(5) : null;
 }
@@ -256,8 +268,8 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
         notFound();
     }
 
-    // Extract city from address for Viator activities
-    const city = spot.location.address.split(',')[0].trim();
+    // Use city-level context for related activities; the first address segment is often a district.
+    const city = getSpotContextCity(spot);
     const heroImage = getSpotHeroImage(spot);
     const galleryImages = getSpotGalleryImages(spot);
 
@@ -430,6 +442,9 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                 Exact location
                             </h3>
                             <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
+                            <p className="mt-2 text-xs font-medium text-violet-200/80">
+                                Search context: {spot.name}, {city}
+                            </p>
                             {formatCoordinate(spot.location.lat) && formatCoordinate(spot.location.lng) && (
                                 <p className="mt-2 text-xs text-violet-50/45">
                                     Coordinates: {formatCoordinate(spot.location.lat)}, {formatCoordinate(spot.location.lng)}
