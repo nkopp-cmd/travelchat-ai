@@ -21,6 +21,8 @@ import {
     SCORE_LABELS,
 } from "./types";
 
+const SPOTS_QUERY_PAGE_SIZE = 1000;
+
 /**
  * Parse and validate filter params from URL searchParams
  */
@@ -65,18 +67,13 @@ export function buildFilterUrl(filters: Partial<SpotsFilterState>): string {
     return queryString ? `?${queryString}` : "";
 }
 
-/**
- * Internal: Fetch filtered spots from database
- */
-async function fetchFilteredSpotsInternal(
+function applySpotSqlFilters(
+    supabase: ReturnType<typeof createSupabaseClient>,
     filters: SpotsFilterState
-): Promise<SpotsResponse> {
-    const supabase = createSupabaseClient();
-
-    // Start building query
+) {
     let query = supabase
         .from("spots")
-        .select("*", { count: "exact" });
+        .select("*");
 
     query = applyPublicSpotVisibilityFilters(query);
 
@@ -123,14 +120,88 @@ async function fetchFilteredSpotsInternal(
             break;
     }
 
-    // Secondary sort by ID for consistent pagination
-    query = query.order("id", { ascending: true });
+    // Secondary sort by ID for stable pagination after public-quality filtering.
+    return query.order("id", { ascending: true });
+}
 
-    // Pagination using range
-    const offset = (filters.page - 1) * filters.limit;
-    query = query.range(offset, offset + filters.limit - 1);
+async function fetchFilteredSpotRows(
+    filters: SpotsFilterState
+): Promise<{ rows: RawSpot[]; error: string | null }> {
+    const supabase = createSupabaseClient();
+    const rows: RawSpot[] = [];
 
-    const { data, error, count } = await query;
+    for (let from = 0; ; from += SPOTS_QUERY_PAGE_SIZE) {
+        const query = applySpotSqlFilters(supabase, filters).range(
+            from,
+            from + SPOTS_QUERY_PAGE_SIZE - 1
+        );
+        const { data, error } = await query;
+
+        if (error) {
+            return { rows: [], error: error.message };
+        }
+
+        rows.push(...((data || []) as RawSpot[]));
+
+        if (!data || data.length < SPOTS_QUERY_PAGE_SIZE) {
+            break;
+        }
+    }
+
+    return { rows, error: null };
+}
+
+async function fetchPublicCandidateRows(): Promise<{ rows: RawSpot[]; error: string | null }> {
+    const supabase = createSupabaseClient();
+    const rows: RawSpot[] = [];
+
+    for (let from = 0; ; from += SPOTS_QUERY_PAGE_SIZE) {
+        let query = supabase
+            .from("spots")
+            .select("*");
+
+        query = applyPublicSpotVisibilityFilters(query).range(
+            from,
+            from + SPOTS_QUERY_PAGE_SIZE - 1
+        );
+
+        const { data, error } = await query;
+        if (error) {
+            return { rows: [], error: error.message };
+        }
+
+        rows.push(...((data || []) as RawSpot[]));
+
+        if (!data || data.length < SPOTS_QUERY_PAGE_SIZE) {
+            break;
+        }
+    }
+
+    return { rows, error: null };
+}
+
+function getPublicTransformedSpots(rows: RawSpot[]): SpotsResponse["spots"] {
+    const allSpots = rows
+        .filter((spot) => shouldShowPublicSpot(spot))
+        .map((spot) => transformSpot(spot));
+
+    // Safety net: deduplicate by (name + address) in case DB has dupes.
+    const seen = new Map<string, boolean>();
+    return allSpots.filter((spot) => {
+        const key = `${spot.name.toLowerCase().trim()}|${spot.location.address.toLowerCase().trim()}`;
+        if (seen.has(key)) return false;
+        seen.set(key, true);
+        return true;
+    });
+}
+
+/**
+ * Internal: Fetch filtered spots from database
+ */
+async function fetchFilteredSpotsInternal(
+    filters: SpotsFilterState
+): Promise<SpotsResponse> {
+    const { rows, error } = await fetchFilteredSpotRows(filters);
 
     if (error) {
         console.error("[spots/queries] Error fetching spots:", error);
@@ -149,27 +220,17 @@ async function fetchFilteredSpotsInternal(
         };
     }
 
-    const allSpots = (data || [])
-        .filter((spot: RawSpot) => shouldShowPublicSpot(spot))
-        .map((spot: RawSpot) => transformSpot(spot));
-
-    // Safety net: deduplicate by (name + address) in case DB has dupes
-    const seen = new Map<string, boolean>();
-    const spots = allSpots.filter((spot) => {
-        const key = `${spot.name.toLowerCase().trim()}|${spot.location.address.toLowerCase().trim()}`;
-        if (seen.has(key)) return false;
-        seen.set(key, true);
-        return true;
-    });
-
-    const total = count || 0;
+    const publicSpots = getPublicTransformedSpots(rows);
+    const total = publicSpots.length;
+    const offset = (filters.page - 1) * filters.limit;
+    const spots = publicSpots.slice(offset, offset + filters.limit);
 
     return {
         spots,
         total,
         page: filters.page,
         pageSize: filters.limit,
-        hasMore: offset + spots.length < total,
+        hasMore: offset + filters.limit < total,
         filters: {
             city: filters.city,
             category: filters.category,
@@ -212,50 +273,56 @@ export async function fetchFilteredSpots(
  * Internal: Fetch filter options with counts
  */
 async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
-    const supabase = createSupabaseClient();
+    // Get all candidate spots, then apply the same public-quality filter used
+    // by the list/detail views so counts do not include hidden weak records.
+    const { rows, error } = await fetchPublicCandidateRows();
+    if (error) {
+        console.error("[spots/queries] Error fetching filter options:", error);
+        return {
+            cities: [],
+            categories: [],
+            scores: [6, 5, 4, 3].map((value) => ({
+                value,
+                label: SCORE_LABELS[value] || "Unknown",
+                count: 0,
+            })),
+        };
+    }
 
-    // Get city counts in parallel
-    const cityCountPromises = ENABLED_CITIES.map(async (city) => {
-        let cityQuery = supabase
-            .from("spots")
-            .select("*", { count: "exact", head: true });
+    const publicSpots = rows.filter((spot) =>
+        shouldShowPublicSpot(spot)
+    );
 
-        cityQuery = applyPublicSpotVisibilityFilters(cityQuery);
+    const cities = ENABLED_CITIES.map((city) => {
+        const count = publicSpots.filter((spot) => {
+            const address = typeof spot.address === "object" && spot.address !== null
+                ? spot.address.en || Object.values(spot.address)[0] || ""
+                : spot.address || "";
 
-        const { count } = await cityQuery.ilike("address->>en", `%${city.name}%`);
+            return address.toLowerCase().includes(city.name.toLowerCase());
+        }).length;
 
         return {
             slug: city.slug,
             name: city.name,
             emoji: city.emoji,
-            count: count || 0,
+            count,
         };
     });
 
-    // Get all spots for category and score distribution
-    let allSpotsQuery = supabase
-        .from("spots")
-        .select("category, localley_score");
-
-    allSpotsQuery = applyPublicSpotVisibilityFilters(allSpotsQuery);
-
-    const { data: allSpots } = await allSpotsQuery;
-
     // Calculate category counts
     const categoryCounts: Record<string, number> = {};
-    (allSpots || []).forEach((spot) => {
+    publicSpots.forEach((spot) => {
         const cat = spot.category || "Uncategorized";
         categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
     });
 
     // Calculate score distribution
     const scoreCounts: Record<number, number> = {};
-    (allSpots || []).forEach((spot) => {
+    publicSpots.forEach((spot) => {
         const score = spot.localley_score || 3;
         scoreCounts[score] = (scoreCounts[score] || 0) + 1;
     });
-
-    const cities = await Promise.all(cityCountPromises);
 
     return {
         cities: cities.filter((c) => c.count > 0),
@@ -290,11 +357,11 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
  * Get total spot count (for header display)
  */
 export async function getTotalSpotCount(): Promise<number> {
-    const supabase = createSupabaseClient();
-    let countQuery = supabase
-        .from("spots")
-        .select("*", { count: "exact", head: true });
-    countQuery = applyPublicSpotVisibilityFilters(countQuery);
-    const { count } = await countQuery;
-    return count || 0;
+    const { rows, error } = await fetchPublicCandidateRows();
+    if (error) {
+        console.error("[spots/queries] Error counting spots:", error);
+        return 0;
+    }
+
+    return rows.filter((spot) => shouldShowPublicSpot(spot)).length;
 }

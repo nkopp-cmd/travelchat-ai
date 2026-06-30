@@ -28,6 +28,32 @@ async function fallbackImageResponse(reason: string) {
     });
 }
 
+async function proxiedImageResponse(imageUrl: string, fallbackReason: string) {
+    const response = await fetch(imageUrl, {
+        next: { revalidate: 60 * 60 * 24 * 30 },
+    });
+
+    if (!response.ok) {
+        return fallbackImageResponse(`${fallbackReason}_${response.status}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().startsWith("image/")) {
+        return fallbackImageResponse(`${fallbackReason}_non_image`);
+    }
+
+    const image = new Uint8Array(await response.arrayBuffer());
+
+    return new NextResponse(image, {
+        status: 200,
+        headers: {
+            "Content-Type": contentType,
+            "Cache-Control":
+                "public, max-age=2592000, s-maxage=2592000, stale-while-revalidate=86400",
+        },
+    });
+}
+
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const photoName = searchParams.get("name");
@@ -67,13 +93,7 @@ export async function GET(req: NextRequest) {
             return fallbackImageResponse(`legacy_lookup_failed_${legacyResponse.status}`);
         }
 
-        return NextResponse.redirect(location, {
-            status: 302,
-            headers: {
-                "Cache-Control":
-                    "public, max-age=2592000, s-maxage=2592000, stale-while-revalidate=86400",
-            },
-        });
+        return proxiedImageResponse(location, "legacy_image_fetch_failed");
     }
 
     const photoUrl = new URL(`https://places.googleapis.com/v1/${photoName}/media`);
@@ -94,11 +114,5 @@ export async function GET(req: NextRequest) {
         return fallbackImageResponse("photo_uri_missing");
     }
 
-    return NextResponse.redirect(data.photoUri, {
-        status: 302,
-        headers: {
-            "Cache-Control":
-                "public, max-age=2592000, s-maxage=2592000, stale-while-revalidate=86400",
-        },
-    });
+    return proxiedImageResponse(data.photoUri, "image_fetch_failed");
 }
