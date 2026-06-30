@@ -20,8 +20,13 @@ export interface PlacePhotoSearchResult {
     photos: GooglePlacePhotoCandidate[];
 }
 
+export interface FindGooglePlacePhotosOptions {
+    timeoutMs?: number;
+}
+
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
 const MAX_PHOTOS_PER_SPOT = 3;
+const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
 
 export function getGooglePlacesApiKey(): string | null {
     return (
@@ -97,23 +102,40 @@ export function needsSpotPhotoBackfill(photos: string[] | null | undefined): boo
 export async function findGooglePlacePhotos(
     name: string,
     address: string,
-    apiKey: string
+    apiKey: string,
+    options: FindGooglePlacePhotosOptions = {}
 ): Promise<PlacePhotoSearchResult | null> {
     const textQuery = [name, address].filter(Boolean).join(", ");
     if (!textQuery) return null;
 
-    const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": apiKey,
-            "X-Goog-FieldMask": "places.id,places.displayName,places.photos",
-        },
-        body: JSON.stringify({
-            textQuery,
-            maxResultCount: 1,
-        }),
-    });
+    const timeoutMs = options.timeoutMs ?? DEFAULT_GOOGLE_PLACES_TIMEOUT_MS;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response: Response;
+    try {
+        response = await fetch("https://places.googleapis.com/v1/places:searchText", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Goog-Api-Key": apiKey,
+                "X-Goog-FieldMask": "places.id,places.displayName,places.photos",
+            },
+            body: JSON.stringify({
+                textQuery,
+                maxResultCount: 1,
+            }),
+            signal: controller.signal,
+        });
+    } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+            throw new Error(`Google Places search timed out after ${timeoutMs}ms`);
+        }
+
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
 
     if (!response.ok) {
         throw new Error(`Google Places search failed with ${response.status}`);
