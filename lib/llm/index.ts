@@ -24,6 +24,7 @@ export { LLMOrchestrator, getOrchestrator } from './orchestrator';
 
 // Providers
 export {
+  GLMProvider,
   OpenAIProvider,
   GeminiProvider,
   ClaudeProvider,

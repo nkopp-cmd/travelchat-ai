@@ -10,6 +10,7 @@ import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
+import { isTipLikeActivity, sanitizeGeneratedDailyPlans } from './sanitize-itinerary';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -43,6 +44,7 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 4. Include recommendations (what to order, what to see) INSIDE the "description" field
 5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
 6. Each activity should be a distinct location - don't split one location into multiple activities
+7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities. Put them in "localTip" or "transportTips" only.
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps
@@ -226,6 +228,8 @@ Make it exciting, authentic, and full of hidden gems!
         throw new Error("Invalid itinerary structure from OpenAI");
       }
 
+      itineraryData.dailyPlans = sanitizeGeneratedDailyPlans(itineraryData.dailyPlans);
+
       // Validate that each day has activities
       for (const day of itineraryData.dailyPlans) {
         if (!day.activities || !Array.isArray(day.activities) || day.activities.length === 0) {
@@ -233,7 +237,7 @@ Make it exciting, authentic, and full of hidden gems!
         }
         // Validate each activity has required fields
         for (const activity of day.activities) {
-          if (!activity.name || activity.name === "Location" || activity.name === "Breakfast" || activity.name === "Lunch" || activity.name === "Dinner") {
+          if (!activity.name || activity.name === "Location" || activity.name === "Breakfast" || activity.name === "Lunch" || activity.name === "Dinner" || isTipLikeActivity(activity)) {
             throw new Error("Invalid activity name generated - please try again");
           }
         }

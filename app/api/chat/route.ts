@@ -8,9 +8,17 @@ import { Errors, handleApiError } from "@/lib/api-errors";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getLocalizedText } from "@/lib/spots/transform";
 import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
+import { GLMProvider } from "@/lib/llm";
 import type { MultiLanguageField } from "@/types";
 
 const CLAUDE_MODEL = process.env.CHAT_MODEL || "claude-sonnet-4-20250514";
+
+function buildChatTranscript(messages: Array<{ role: string; content: string }>) {
+    return messages
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .map(m => `${m.role === "assistant" ? "Alley" : "User"}: ${m.content}`)
+        .join("\n\n");
+}
 
 const getAnthropicClient = () => {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -26,8 +34,6 @@ const limiter = rateLimit({
     maxRequests: 20,
 });
 
-// All supported city names for detection
-const CITY_NAMES = ALL_CITIES.map(c => c.name.toLowerCase());
 const CITY_ALIASES: Record<string, string> = {
     "saigon": "ho chi minh city",
     "hcmc": "ho chi minh city",
@@ -261,6 +267,25 @@ export async function POST(req: NextRequest) {
 
         const systemPrompt = buildSystemPrompt(detectedCity, spotsContext);
 
+        const glm = new GLMProvider();
+        if (glm.isAvailable()) {
+            try {
+                const response = await glm.generateText({
+                    systemPrompt,
+                    userPrompt: buildChatTranscript(messages),
+                    maxTokens: 2048,
+                    temperature: 0.7,
+                });
+
+                return NextResponse.json({
+                    message: response.content,
+                    provider: "glm",
+                });
+            } catch (glmError) {
+                console.error("[CHAT] GLM primary failed; falling back to Anthropic:", glmError);
+            }
+        }
+
         // Convert messages to Anthropic format (filter out system messages)
         const anthropicMessages = messages
             .filter(m => m.role === "user" || m.role === "assistant")
@@ -279,7 +304,7 @@ export async function POST(req: NextRequest) {
 
         const reply = response.content[0].type === "text" ? response.content[0].text : "";
 
-        return NextResponse.json({ message: reply });
+        return NextResponse.json({ message: reply, provider: "anthropic" });
     } catch (error) {
         return handleApiError(error, "[CHAT_ERROR]");
     }

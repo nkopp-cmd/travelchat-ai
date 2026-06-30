@@ -19,11 +19,11 @@ import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/acti
 import { hasFeature } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';
-import { TIER_CONFIGS } from '@/lib/subscription';
 import { getOrchestrator, featureFlags } from '@/lib/llm';
 import type { UserTier, GeneratedItinerary } from '@/lib/llm';
 import { Errors, handleApiError } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
+import { sanitizeGeneratedDailyPlans } from '../generate/sanitize-itinerary';
 
 export async function POST(req: NextRequest) {
   try {
@@ -84,9 +84,13 @@ export async function POST(req: NextRequest) {
 
     // Geocode activities to store lat/lng for instant map rendering
     const itineraryData = result.data;
+    itineraryData.dailyPlans = sanitizeGeneratedDailyPlans(
+      itineraryData.dailyPlans as unknown as Parameters<typeof sanitizeGeneratedDailyPlans>[0]
+    ) as unknown as typeof itineraryData.dailyPlans;
+
     try {
       itineraryData.dailyPlans = await geocodeItineraryActivities(
-        itineraryData.dailyPlans,
+        itineraryData.dailyPlans as unknown as Parameters<typeof geocodeItineraryActivities>[0],
         params.city
       ) as typeof itineraryData.dailyPlans;
     } catch (geoError) {
@@ -123,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     // Usage already tracked atomically - no need for separate call
     // Award XP for creating itinerary (fire and forget)
-    awardXP(req, userId).catch(console.error);
+    awardXP(req).catch(console.error);
 
     // Build response with metadata
     const response: Record<string, unknown> = {
@@ -225,7 +229,7 @@ async function saveItineraryToDatabase(
 /**
  * Award XP for creating itinerary (fire and forget)
  */
-async function awardXP(req: NextRequest, userId: string): Promise<void> {
+async function awardXP(req: NextRequest): Promise<void> {
   try {
     await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
       method: 'POST',

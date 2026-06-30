@@ -186,7 +186,7 @@ export class CircuitBreakerManager {
 
   constructor(config: CircuitBreakerConfig = circuitBreakerConfig) {
     // Initialize breakers for all providers
-    const providers: LLMProviderName[] = ['openai', 'gemini', 'claude'];
+    const providers: LLMProviderName[] = ['glm', 'openai', 'gemini', 'claude'];
     for (const provider of providers) {
       this.breakers.set(provider, new CircuitBreaker(provider, config));
     }

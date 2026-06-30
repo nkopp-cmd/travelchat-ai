@@ -8,7 +8,7 @@
  * Handles tier-based routing, fallbacks, retries, and caching.
  */
 
-import { OpenAIProvider, GeminiProvider, ClaudeProvider } from './providers';
+import { GLMProvider, OpenAIProvider, GeminiProvider, ClaudeProvider } from './providers';
 import { CircuitBreakerManager, getCircuitBreakerManager } from './circuit-breaker';
 import { LLMCache, getLLMCache, cacheKeys } from './cache';
 import { retryWithBackoff } from './retry';
@@ -40,6 +40,7 @@ import { createSupabaseAdmin } from '../supabase';
  */
 export class LLMOrchestrator {
   private openai: OpenAIProvider;
+  private glm: GLMProvider;
   private gemini: GeminiProvider;
   private claude: ClaudeProvider;
   private circuitBreakers: CircuitBreakerManager;
@@ -47,6 +48,7 @@ export class LLMOrchestrator {
 
   constructor() {
     this.openai = new OpenAIProvider();
+    this.glm = new GLMProvider();
     this.gemini = new GeminiProvider();
     this.claude = new ClaudeProvider();
     this.circuitBreakers = getCircuitBreakerManager();
@@ -114,6 +116,11 @@ export class LLMOrchestrator {
     const tierConfig = tierLLMConfigs[tier];
 
     // Check which providers are available
+    const glmAvailable =
+      tierConfig.providers.includes('glm') &&
+      this.glm.isAvailable() &&
+      this.circuitBreakers.isAvailable('glm');
+
     const openaiAvailable =
       tierConfig.providers.includes('openai') &&
       this.openai.isAvailable() &&
@@ -130,7 +137,7 @@ export class LLMOrchestrator {
       this.circuitBreakers.isAvailable('claude');
 
     // Determine best route
-    if (openaiAvailable && geminiAvailable && claudeAvailable) {
+    if (glmAvailable && geminiAvailable && claudeAvailable) {
       return 'primary';
     }
 
@@ -139,6 +146,8 @@ export class LLMOrchestrator {
       const config = fallbackRoutes[route];
       const allAvailable = config.providers.every((provider) => {
         switch (provider) {
+          case 'glm':
+            return glmAvailable;
           case 'openai':
             return openaiAvailable;
           case 'gemini':
@@ -213,7 +222,28 @@ export class LLMOrchestrator {
     const retryOpts = retryConfig.forTier('pro'); // Use pro retry config for phase 1
 
     // Task 1: Generate itinerary structure
-    if (providers.includes('openai') && this.openai.isAvailable()) {
+    if (providers.includes('glm') && this.glm.isAvailable()) {
+      tasks.push(
+        retryWithBackoff(
+          () => this.glm.generateItineraryStructure(params),
+          {
+            ...retryOpts,
+            onRetry: () => {
+              metrics.retryCount++;
+            },
+          }
+        )
+          .then((result) => {
+            metrics.providersUsed.push('glm');
+            this.circuitBreakers.recordSuccess('glm');
+            return { type: 'structure', result };
+          })
+          .catch((error) => {
+            this.circuitBreakers.recordFailure('glm');
+            throw error;
+          })
+      );
+    } else if (providers.includes('openai') && this.openai.isAvailable()) {
       tasks.push(
         retryWithBackoff(
           () => this.openai.generateItineraryStructure(params),
@@ -418,13 +448,14 @@ export class LLMOrchestrator {
     qualityScore: number | null;
     validationReport: ValidationReport | null;
   }> {
-    let revisedItinerary = phase1Results.itinerary!;
+    const revisedItinerary = phase1Results.itinerary!;
 
     // Apply targeted revisions
     for (const suggestion of supervisionResult.suggestions) {
       if (suggestion.suggestedAction === 'replace') {
         try {
-          const newActivity = await this.openai.generateSingleActivity({
+          const revisionProvider = this.glm.isAvailable() ? this.glm : this.openai;
+          const newActivity = await revisionProvider.generateSingleActivity({
             city: params.city,
             dayTheme: revisedItinerary.dailyPlans[suggestion.dayIndex].theme,
             timeSlot: revisedItinerary.dailyPlans[suggestion.dayIndex]
@@ -521,8 +552,9 @@ export class LLMOrchestrator {
     startTime: number
   ): Promise<OrchestrationResult> {
     try {
-      const itinerary = await this.openai.generateItineraryStructure(request.params);
-      metrics.providersUsed.push('openai');
+      const provider = this.glm.isAvailable() ? this.glm : this.openai;
+      const itinerary = await provider.generateItineraryStructure(request.params);
+      metrics.providersUsed.push(provider.name);
       metrics.totalLatencyMs = Date.now() - startTime;
 
       return {
@@ -558,6 +590,7 @@ export class LLMOrchestrator {
 
     // Try each provider in order
     const providers = [
+      { name: 'glm' as const, provider: this.glm },
       { name: 'openai' as const, provider: this.openai },
       { name: 'gemini' as const, provider: this.gemini },
     ];
@@ -608,6 +641,7 @@ export class LLMOrchestrator {
   } {
     return {
       providers: {
+        glm: this.glm.isAvailable(),
         openai: this.openai.isAvailable(),
         gemini: this.gemini.isAvailable(),
         claude: this.claude.isAvailable(),

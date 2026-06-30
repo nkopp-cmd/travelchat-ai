@@ -141,7 +141,7 @@ export function SpotsFilterBar({
         currentFilters.search;
 
     return (
-        <div className="mb-6 space-y-4 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-3 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+        <div className="mb-5 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-3 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:space-y-4 sm:p-4">
             {/* Search Bar */}
             <div className="relative flex-1">
                 <Search
@@ -152,7 +152,7 @@ export function SpotsFilterBar({
                     placeholder="Search spots, neighborhoods, or cuisines..."
                     value={searchValue}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="h-11 border-white/10 bg-white/[0.06] pl-10 text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400"
+                    className="h-11 min-w-0 border-white/10 bg-white/[0.06] pl-10 pr-10 text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400"
                     aria-label="Search spots"
                 />
                 {isPending && (
@@ -165,7 +165,7 @@ export function SpotsFilterBar({
 
             {/* Quick Filter Chips */}
             <div
-                className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-2 scrollbar-hide sm:mx-0 sm:px-0"
+                className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1.5 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0"
                 role="group"
                 aria-label="Quick filters"
             >
@@ -181,7 +181,7 @@ export function SpotsFilterBar({
                             key={filter.id}
                             onClick={() => handleQuickFilter(filter.id)}
                             className={cn(
-                                "flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all whitespace-nowrap",
+                                "flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-medium transition-all",
                                 isActive
                                     ? "border-violet-300/50 bg-violet-500 text-white shadow-md shadow-violet-500/20"
                                     : "border-white/10 bg-white/[0.055] text-violet-50/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
@@ -197,11 +197,11 @@ export function SpotsFilterBar({
 
             {/* Advanced Filters Row */}
             <div
-                className="grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center"
+                className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-[auto_minmax(9rem,1fr)_minmax(9rem,1fr)_minmax(12rem,1.15fr)_minmax(9rem,1fr)_auto] xl:items-center"
                 role="group"
                 aria-label="Filter options"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 lg:col-span-1">
+                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 xl:col-span-1">
                     <Filter className="h-4 w-4" aria-hidden="true" />
                     Filters:
                 </div>
@@ -211,8 +211,8 @@ export function SpotsFilterBar({
                     value={currentFilters.city || "all"}
                     onValueChange={(v) => onFilterChange("city", v === "all" ? null : v)}
                 >
-                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[160px]" aria-label="Select city">
-                        <MapPin className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select city">
+                        <MapPin className="mr-1 h-4 w-4" aria-hidden="true" />
                         <SelectValue placeholder="All Cities" />
                     </SelectTrigger>
                     <SelectContent>
@@ -238,7 +238,7 @@ export function SpotsFilterBar({
                     value={currentFilters.category || "all"}
                     onValueChange={(v) => onFilterChange("category", v === "all" ? null : v)}
                 >
-                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[160px]" aria-label="Select category">
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select category">
                         <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -258,8 +258,8 @@ export function SpotsFilterBar({
                         onFilterChange("score", v === "all" ? null : parseInt(v))
                     }
                 >
-                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[180px]" aria-label="Select Localley score">
-                        <Star className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Select Localley score">
+                        <Star className="mr-1 h-4 w-4" aria-hidden="true" />
                         <SelectValue placeholder="Localley Score" />
                     </SelectTrigger>
                     <SelectContent>
@@ -277,7 +277,7 @@ export function SpotsFilterBar({
                     value={currentFilters.sortBy}
                     onValueChange={(v) => onFilterChange("sortBy", v)}
                 >
-                    <SelectTrigger className="w-full border-white/10 bg-white/[0.055] text-white lg:w-[160px]" aria-label="Sort by">
+                    <SelectTrigger className="h-10 w-full min-w-0 border-white/10 bg-white/[0.055] text-white [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate" aria-label="Sort by">
                         <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
@@ -295,9 +295,9 @@ export function SpotsFilterBar({
                         variant="ghost"
                         size="sm"
                         onClick={onClearFilters}
-                        className="text-violet-50/65 hover:bg-white/10 hover:text-white"
+                        className="h-10 w-full text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 xl:col-span-1 xl:w-auto"
                     >
-                        <X className="h-4 w-4 mr-1" aria-hidden="true" />
+                        <X className="mr-1 h-4 w-4" aria-hidden="true" />
                         Clear
                     </Button>
                 )}
@@ -305,52 +305,56 @@ export function SpotsFilterBar({
 
             {/* Active Filters Display */}
             {hasActiveFilters && (
-                <div className="flex flex-wrap gap-2.5" role="list" aria-label="Active filters">
+                <div className="flex flex-wrap gap-2" role="list" aria-label="Active filters">
                     {currentFilters.search && (
-                        <Badge variant="secondary" className="gap-1">
-                            Search: &quot;{currentFilters.search}&quot;
+                        <Badge variant="secondary" className="max-w-full gap-1">
+                            <span className="max-w-[15rem] truncate sm:max-w-[22rem]">
+                                Search: &quot;{currentFilters.search}&quot;
+                            </span>
                             <button
                                 onClick={() => onFilterChange("search", null)}
                                 aria-label="Remove search filter"
-                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
                             >
                                 <X className="h-3 w-3" />
                             </button>
                         </Badge>
                     )}
                     {currentFilters.city && (
-                        <Badge variant="secondary" className="gap-1">
+                        <Badge variant="secondary" className="max-w-full gap-1">
                             <MapPin className="h-3 w-3" aria-hidden="true" />
-                            {filterOptions.cities.find((c) => c.slug === currentFilters.city)?.name}
+                            <span className="max-w-[11rem] truncate">
+                                {filterOptions.cities.find((c) => c.slug === currentFilters.city)?.name}
+                            </span>
                             <button
                                 onClick={() => onFilterChange("city", null)}
                                 aria-label="Remove city filter"
-                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
                             >
                                 <X className="h-3 w-3" />
                             </button>
                         </Badge>
                     )}
                     {currentFilters.category && (
-                        <Badge variant="secondary" className="gap-1">
-                            {currentFilters.category}
+                        <Badge variant="secondary" className="max-w-full gap-1">
+                            <span className="max-w-[11rem] truncate">{currentFilters.category}</span>
                             <button
                                 onClick={() => onFilterChange("category", null)}
                                 aria-label="Remove category filter"
-                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
                             >
                                 <X className="h-3 w-3" />
                             </button>
                         </Badge>
                     )}
                     {currentFilters.score && (
-                        <Badge variant="secondary" className="gap-1">
+                        <Badge variant="secondary" className="max-w-full gap-1">
                             <Star className="h-3 w-3" aria-hidden="true" />
                             Score: {currentFilters.score}
                             <button
                                 onClick={() => onFilterChange("score", null)}
                                 aria-label="Remove score filter"
-                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
                             >
                                 <X className="h-3 w-3" />
                             </button>
