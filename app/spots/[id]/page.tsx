@@ -18,6 +18,13 @@ import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import { buildSpotDirectionsUrl, isKoreanLocation } from "@/lib/spots/map-links";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
+import {
+    getSpotBestTime,
+    getSpotDirectionsButtonLabel,
+    normalizeLocalleyScore,
+    normalizeLocalPercentage,
+    normalizeSpotTips,
+} from "@/lib/spots/detail-normalization";
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
@@ -223,11 +230,7 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
         >
             <Button className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 rounded-xl" size="lg">
                 <Navigation className="mr-2 h-5 w-5" />
-                {locationConfidence.tone === "exact"
-                    ? isKorea ? "Open exact spot in Kakao" : "Get exact directions"
-                    : locationConfidence.tone === "pinned"
-                        ? isKorea ? "Search area in Kakao" : "Route to saved pin"
-                    : isKorea ? "Search name in Kakao" : "Search name in Maps"}
+                {getSpotDirectionsButtonLabel(locationConfidence.tone, isKorea)}
             </Button>
         </Link>
     );
@@ -264,9 +267,9 @@ async function getSpot(id: string) {
         location: { lat, lng, address },
         category: spot.category || "Local spot",
         subcategories: spot.subcategories || [],
-        localleyScore: spot.localley_score as LocalleyScale,
-        localPercentage: spot.local_percentage,
-        bestTime: spot.best_times?.en || "Anytime",
+        localleyScore: normalizeLocalleyScore(spot.localley_score),
+        localPercentage: normalizeLocalPercentage(spot.local_percentage),
+        bestTime: getSpotBestTime(spot.best_times, spot.best_time),
         photos: normalizedPhotos,
         hasRealPhoto: photoSummary.hasRealPhoto,
         realPhotoCount: Object.entries(photoSummary.kinds).reduce(
@@ -277,8 +280,8 @@ async function getSpot(id: string) {
             0
         ),
         googlePlaceId: spot.google_place_id || getGooglePlaceIdFromSpotPhotos(normalizedPhotos),
-        tips: spot.tips?.en || [],
-        verified: spot.verified,
+        tips: normalizeSpotTips(spot.tips),
+        verified: Boolean(spot.verified),
         trending: spot.trending_score > 0.8,
     };
 }
