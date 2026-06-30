@@ -55,6 +55,7 @@ export interface SpotPhotoSummary {
 }
 
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
+const GOOGLE_PHOTO_PROXY_VERSION = "2";
 export const DEFAULT_SPOT_PHOTO_FALLBACK = "/images/placeholders/default.svg";
 const MAX_PHOTOS_PER_SPOT = 3;
 const DEFAULT_GOOGLE_PLACES_TIMEOUT_MS = 12_000;
@@ -123,7 +124,10 @@ export function getLocalizedFieldValue(field: MultiLanguageField): string {
 }
 
 export function buildPlacePhotoProxyUrl(photoName: string, width = 1200): string {
-    const params = new URLSearchParams({ w: String(width) });
+    const params = new URLSearchParams({
+        w: String(width),
+        v: GOOGLE_PHOTO_PROXY_VERSION,
+    });
 
     if (photoName.startsWith("places/")) {
         params.set("name", photoName);
@@ -140,6 +144,10 @@ export function getProxiedGooglePhotoUrl(photo: string, width = 1200): string | 
         const host = url.hostname.toLowerCase();
 
         if (url.pathname === GOOGLE_PHOTO_PROXY_PATH) {
+            const photoName = url.searchParams.get("name");
+            const photoRef = url.searchParams.get("ref");
+            if (photoName) return buildPlacePhotoProxyUrl(photoName, width);
+            if (photoRef) return buildPlacePhotoProxyUrl(photoRef, width);
             return photo;
         }
 

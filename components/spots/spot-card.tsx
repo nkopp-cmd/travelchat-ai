@@ -4,12 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Spot } from "@/types";
-import { LocalleyScaleIndicator } from "./localley-scale";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
-import { ImageIcon, MapPin, TrendingUp, Users } from "lucide-react";
+import { ImageIcon, MapPin, Sparkles, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getCityImageUrl } from "@/lib/city-images";
+import { getCityGradient, getCityImageUrl } from "@/lib/city-images";
 
 const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 const KNOWN_CITY_COORDS: Array<{ city: string; lat: [number, number]; lng: [number, number] }> = [
@@ -46,7 +45,7 @@ interface SpotCardProps {
 }
 
 function isPlaceholderImage(src: string | undefined) {
-    return !src || src.startsWith("/images/placeholders/");
+    return !src || src.includes("placeholder") || src.startsWith("/images/placeholders/");
 }
 
 function inferSpotCity(spot: Spot): string | null {
@@ -84,15 +83,93 @@ function hasRealSpotPhoto(spot: Spot) {
     return spot.hasRealPhoto ?? spot.photos.some((photo) => !isPlaceholderImage(photo));
 }
 
+function getScoreTone(score: number) {
+    if (score >= 6) return "border-fuchsia-300/25 bg-fuchsia-400/12 text-fuchsia-100";
+    if (score >= 5) return "border-violet-300/25 bg-violet-400/12 text-violet-100";
+    if (score >= 4) return "border-emerald-300/20 bg-emerald-400/10 text-emerald-100";
+    return "border-sky-300/20 bg-sky-400/10 text-sky-100";
+}
+
+function SpotScoreChip({ score, className }: { score: number; className?: string }) {
+    return (
+        <span
+            className={cn(
+                "inline-flex h-7 shrink-0 items-center gap-1 rounded-full border px-2 text-[11px] font-semibold leading-none",
+                getScoreTone(score),
+                className
+            )}
+            title={`Localley score ${score} out of 6`}
+        >
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
+            <span>Localley {score}/6</span>
+        </span>
+    );
+}
+
+function LocalCrowdChip({ percentage, className }: { percentage: number; className?: string }) {
+    return (
+        <span
+            className={cn(
+                "inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-emerald-200/15 bg-emerald-400/10 px-2 text-[11px] font-semibold leading-none text-emerald-100",
+                className
+            )}
+            title={`${percentage}% local crowd signal`}
+        >
+            <Users className="h-3 w-3" aria-hidden="true" />
+            {percentage}%
+        </span>
+    );
+}
+
 export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageSrc, setImageSrc] = useState(() => getInitialImage(spot));
+    const [showGradientFallback, setShowGradientFallback] = useState(false);
     const hasRealPhoto = hasRealSpotPhoto(spot);
+    const inferredCity = inferSpotCity(spot);
+    const fallbackLabel = inferredCity ? `${inferredCity} area` : spot.category;
+    const fallbackGradient = getCityGradient(fallbackLabel);
 
     const handleImageError = () => {
         const cityFallback = getCityFallbackImage(spot);
-        setImageSrc(cityFallback && imageSrc !== cityFallback ? cityFallback : PLACEHOLDER_IMAGE);
+        if (cityFallback && imageSrc !== cityFallback) {
+            setImageSrc(cityFallback);
+            setImageLoaded(false);
+            return;
+        }
+
+        setShowGradientFallback(true);
         setImageLoaded(true);
+    };
+
+    const renderImage = (sizes: string) => {
+        if (showGradientFallback) {
+            return (
+                <div className={cn("flex h-full w-full items-end bg-gradient-to-br p-2", fallbackGradient)}>
+                    <span className="rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+                        {fallbackLabel}
+                    </span>
+                </div>
+            );
+        }
+
+        return (
+            <Image
+                src={imageSrc}
+                alt={spot.name}
+                fill
+                sizes={sizes}
+                quality={90}
+                priority={priority}
+                className={cn(
+                    "object-cover transition-all duration-500 ease-out",
+                    "group-hover:scale-110",
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                )}
+                onLoad={() => setImageLoaded(true)}
+                onError={handleImageError}
+            />
+        );
     };
 
     if (compact) {
@@ -115,24 +192,10 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     <span className="sr-only">Open {spot.name}</span>
                 </Link>
                     <div className="relative aspect-[4/3] w-24 flex-shrink-0 overflow-hidden bg-violet-950/60 sm:w-40">
-                        {!imageLoaded && (
+                        {!showGradientFallback && !imageLoaded && (
                             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
                         )}
-                        <Image
-                            src={imageSrc}
-                            alt={spot.name}
-                            fill
-                            sizes="(max-width: 640px) 112px, 160px"
-                            quality={90}
-                            priority={priority}
-                            className={cn(
-                                "object-cover transition-all duration-500 ease-out",
-                                "group-hover:scale-110",
-                                imageLoaded ? "opacity-100" : "opacity-0"
-                            )}
-                            onLoad={() => setImageLoaded(true)}
-                            onError={handleImageError}
-                        />
+                        {renderImage("(max-width: 640px) 112px, 160px")}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
                         {!hasRealPhoto && (
                             <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2 py-0.5 text-[10px] font-medium text-violet-50/80 backdrop-blur">
@@ -170,13 +233,10 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                                     <span className="hidden min-[420px]:inline">Hot</span>
                                 </span>
                             )}
-                            <div className="min-w-0 flex-1 basis-full sm:basis-auto">
-                                <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} className="[&>div]:px-1.5 [&>div]:py-0 [&_svg]:h-3 [&_svg]:w-3" />
+                            <div className="flex basis-full flex-wrap items-center gap-1.5 sm:basis-auto">
+                                <SpotScoreChip score={spot.localleyScore} />
+                                <LocalCrowdChip percentage={spot.localPercentage} />
                             </div>
-                            <span className="ml-auto flex items-center justify-end gap-1 whitespace-nowrap text-[11px] text-emerald-100/80">
-                                <Users className="h-3 w-3 text-emerald-300" />
-                                {spot.localPercentage}% locals
-                            </span>
                         </div>
                     </div>
                 </Card>
@@ -203,28 +263,14 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                 <span className="sr-only">Open {spot.name}</span>
             </Link>
                 <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-24 sm:aspect-[2/1] sm:w-full">
-                    {!imageLoaded && (
+                    {!showGradientFallback && !imageLoaded && (
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
                                  style={{ backgroundSize: '200% 100%' }} />
                         </div>
                     )}
 
-                    <Image
-                        src={imageSrc}
-                        alt={spot.name}
-                        fill
-                        sizes="(max-width: 640px) 128px, (max-width: 1024px) 50vw, 33vw"
-                        quality={90}
-                        priority={priority}
-                        className={cn(
-                            "object-cover transition-all duration-700 ease-out",
-                            "group-hover:scale-110",
-                            imageLoaded ? "opacity-100" : "opacity-0"
-                        )}
-                        onLoad={() => setImageLoaded(true)}
-                        onError={handleImageError}
-                    />
+                    {renderImage("(max-width: 640px) 128px, (max-width: 1024px) 50vw, 33vw")}
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
@@ -267,13 +313,10 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     </p>
 
                     <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-1.5 sm:gap-2">
-                        <div className="min-w-0 flex-1 basis-full min-[420px]:basis-auto sm:basis-full lg:basis-auto">
-                            <LocalleyScaleIndicator score={spot.localleyScore} showLabel={false} className="[&>div]:px-1.5 [&>div]:py-0 [&_svg]:h-3.5 [&_svg]:w-3.5" />
+                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                            <SpotScoreChip score={spot.localleyScore} />
+                            <LocalCrowdChip percentage={spot.localPercentage} />
                         </div>
-                        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-200/15 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-100 sm:px-2 sm:text-[11px]">
-                            <Users className="h-3 w-3" />
-                            {spot.localPercentage}%
-                        </span>
                     </div>
                 </div>
             </Card>
