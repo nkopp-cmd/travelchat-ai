@@ -109,19 +109,19 @@ function WizardContent({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto pb-24">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {steps[currentStep]}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 shrink-0 p-4 border-t border-white/10 bg-black/80 backdrop-blur-xl safe-area-bottom">
-        <div className="flex gap-3 max-w-md mx-auto">
+      <div className="shrink-0 border-t border-white/10 bg-black/85 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="mx-auto flex max-w-md gap-2.5 sm:gap-3">
           {currentStep > 0 && (
             <Button
               variant="outline"
               onClick={prevStep}
-              className="flex-1 h-12 border-white/20 text-white hover:bg-white/10"
+              className="h-11 flex-1 border-white/20 text-white hover:bg-white/10 sm:h-12"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
           )}
@@ -129,7 +129,7 @@ function WizardContent({
             onClick={handleNext}
             disabled={!canProceed}
             className={cn(
-              "flex-1 h-12",
+              "h-11 flex-1 sm:h-12",
               currentStep === 0 && "w-full",
               "bg-gradient-to-r from-violet-600 to-indigo-600",
               "hover:from-violet-500 hover:to-indigo-500",
@@ -139,13 +139,13 @@ function WizardContent({
           >
             {isLastStep ? (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="mr-2 h-4 w-4" />
                 Generate Itinerary
               </>
             ) : (
               <>
                 Next
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>
@@ -241,7 +241,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex h-dvh flex-col overflow-hidden bg-background">
+      <div className="flex h-[calc(100dvh-7rem)] min-h-[420px] flex-col overflow-hidden rounded-2xl bg-background md:h-full md:min-h-0 md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>

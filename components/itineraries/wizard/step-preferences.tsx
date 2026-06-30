@@ -37,26 +37,26 @@ export function StepPreferences() {
   }, [setCanProceed]);
 
   return (
-    <div className="flex flex-col h-full px-4 py-6 overflow-y-auto">
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-violet-600/20 mb-4">
-          <Settings className="w-7 h-7 text-violet-400" />
+    <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
+      <div className="mb-4 text-center sm:mb-6">
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600/20 sm:mb-4 sm:h-14 sm:w-14">
+          <Settings className="h-6 w-6 text-violet-400 sm:h-7 sm:w-7" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Almost there!</h2>
-        <p className="text-gray-400">
+        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Almost there!</h2>
+        <p className="text-sm text-gray-400 sm:text-base">
           Customize your experience
         </p>
       </div>
 
       {/* Localness Level */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="mb-6 sm:mb-8">
+        <div className="mb-3 flex items-center gap-2 sm:mb-4">
           <Compass className="w-4 h-4 text-violet-400" />
           <span className="text-sm font-medium text-white">How local?</span>
         </div>
-        <div className="bg-white/5 rounded-xl p-4">
-          <div className="text-center mb-4">
-            <span className="text-lg font-semibold text-violet-400">
+        <div className="rounded-xl bg-white/5 p-3.5 sm:p-4">
+          <div className="mb-4 text-center">
+            <span className="text-base font-semibold text-violet-400 sm:text-lg">
               {LOCALNESS_LABELS[data.localnessLevel - 1]}
             </span>
           </div>
@@ -77,8 +77,8 @@ export function StepPreferences() {
       </div>
 
       {/* Pace */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="mb-6 sm:mb-8">
+        <div className="mb-3 flex items-center gap-2">
           <Zap className="w-4 h-4 text-violet-400" />
           <span className="text-sm font-medium text-white">Travel pace</span>
         </div>
@@ -91,7 +91,7 @@ export function StepPreferences() {
                 onClick={() => setData({ pace: option.value })}
                 aria-pressed={isSelected}
                 className={cn(
-                  "p-3 rounded-xl transition-all text-center",
+                  "rounded-xl p-2.5 text-center transition-all sm:p-3",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",
                   isSelected
                     ? "bg-violet-600/20 border-2 border-violet-500"
@@ -110,11 +110,11 @@ export function StepPreferences() {
 
       {/* Group Type */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
+        <div className="mb-3 flex items-center gap-2">
           <Users className="w-4 h-4 text-violet-400" />
           <span className="text-sm font-medium text-white">Traveling with</span>
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
           {GROUP_OPTIONS.map((option) => {
             const isSelected = data.groupType === option.value;
             return (
@@ -123,14 +123,14 @@ export function StepPreferences() {
                 onClick={() => setData({ groupType: option.value })}
                 aria-pressed={isSelected}
                 className={cn(
-                  "p-3 rounded-xl transition-all text-center",
+                  "rounded-xl p-2 text-center transition-all sm:p-3",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",
                   isSelected
                     ? "bg-violet-600/20 border-2 border-violet-500"
                     : "bg-white/5 border-2 border-transparent hover:bg-white/10"
                 )}
               >
-                <div className="text-2xl mb-1">{option.emoji}</div>
+                <div className="mb-1 text-xl sm:text-2xl">{option.emoji}</div>
                 <div className={cn("text-xs font-medium", isSelected ? "text-white" : "text-gray-400")}>
                   {option.label}
                 </div>

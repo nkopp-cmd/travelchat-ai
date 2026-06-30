@@ -60,19 +60,19 @@ export function StepDestination() {
   }
 
   return (
-    <div className="flex flex-col h-full px-4 py-6 overflow-y-auto">
+    <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
       {/* Header */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-violet-600/20 mb-4">
-          <MapPin className="w-7 h-7 text-violet-400" />
+      <div className="mb-4 text-center sm:mb-6">
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600/20 sm:mb-4 sm:h-14 sm:w-14">
+          <MapPin className="h-6 w-6 text-violet-400 sm:h-7 sm:w-7" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Where to?</h2>
-        <p className="text-gray-400">Pick a city to explore like a local</p>
+        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
+        <p className="text-sm text-gray-400 sm:text-base">Pick a city to explore like a local</p>
       </div>
 
       {/* Unified City Grid */}
       {cities.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-3">
           {cities.map((city) => (
             <CityCard
               key={city.slug}
@@ -128,7 +128,7 @@ function CityCard({
     <button
       onClick={onSelect}
       className={cn(
-        "relative rounded-xl overflow-hidden transition-all aspect-[3/2]",
+        "relative rounded-xl overflow-hidden transition-all aspect-[1.45/1] sm:aspect-[3/2]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
         isSelected && "ring-2 ring-violet-500"
       )}
@@ -170,13 +170,13 @@ function CityCard({
       )}
 
       {/* City info */}
-      <div className="absolute bottom-0 left-0 right-0 p-3">
+      <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <span className="text-lg">{city.emoji}</span>
+          <span className="text-base sm:text-lg">{city.emoji}</span>
           <span className="font-bold text-white text-sm leading-tight">{city.name}</span>
         </div>
         {city.vibe && (
-          <p className="text-[11px] text-gray-300 leading-tight">{city.vibe}</p>
+          <p className="text-[10px] text-gray-300 leading-tight sm:text-[11px]">{city.vibe}</p>
         )}
         <p className="text-[10px] text-gray-400 mt-0.5">{city.spotCount} spots</p>
       </div>
