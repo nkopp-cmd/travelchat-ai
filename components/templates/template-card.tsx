@@ -6,7 +6,7 @@ import {
   getTemplateSampleCity,
   ItineraryTemplate,
 } from "@/lib/templates";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, Check, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -90,7 +90,7 @@ function TemplateCardContent({
 
   return (
       <Card className={cn(
-        "group relative flex min-h-[72px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[82px]",
+        "group relative flex min-h-[66px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[78px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -110,7 +110,7 @@ function TemplateCardContent({
         <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2">
           {/* Header */}
           <div className="flex items-start gap-2 sm:gap-2.5">
-            <div className="relative h-11 w-12 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-12 sm:w-14">
+            <div className="relative h-10 w-11 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-12 sm:w-14">
               <Image
                 src={imageUrl}
                 alt={`${sampleCity} inspiration for ${template.name}`}
@@ -127,7 +127,7 @@ function TemplateCardContent({
               <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
                 {template.name}
               </h3>
-              <p className="mt-0.5 truncate text-[9px] font-medium leading-none text-violet-200/70 sm:text-[10px]">
+              <p className="mt-0.5 hidden truncate text-[9px] font-medium leading-none text-violet-200/70 min-[360px]:block sm:text-[10px]">
                 Inspired by {sampleCity}
               </p>
               <p className="mt-0.5 hidden text-[10px] leading-snug text-muted-foreground/80 xl:line-clamp-1 xl:block">
@@ -137,7 +137,7 @@ function TemplateCardContent({
           </div>
 
           {/* Compact Meta Row */}
-          <div className="mt-auto flex items-center gap-1 pt-1 text-[9px] font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:text-[10px]">
+          <div className="mt-auto flex items-center gap-1 pt-0.5 text-[9px] font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:pt-1 sm:text-[10px]">
             <span className="inline-flex min-w-0 items-center gap-0.5 rounded-md border border-violet-200/40 bg-violet-100/65 px-1 py-0.5 text-violet-700 dark:border-violet-700/35 dark:bg-violet-900/30 dark:text-violet-200 sm:gap-1 sm:px-1.5 sm:py-1">
               <Clock className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" />
               <span className="whitespace-nowrap">{template.days}d</span>
@@ -155,8 +155,9 @@ function TemplateCardContent({
         </div>
 
         {isSelected && (
-          <div className="absolute right-1.5 top-1.5 rounded-full border border-violet-200/40 bg-violet-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-lg shadow-violet-950/20 sm:right-2 sm:top-2">
-            Use
+          <div className="absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full border border-violet-100/50 bg-violet-600 text-white shadow-lg shadow-violet-950/20">
+            <Check className="h-3 w-3" aria-hidden="true" />
+            <span className="sr-only">Selected</span>
           </div>
         )}
 
