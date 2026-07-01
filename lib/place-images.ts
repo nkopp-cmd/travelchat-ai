@@ -51,6 +51,8 @@ export interface SpotPhotoSummary {
     kinds: Record<SpotPhotoKind, number>;
     hasAnyPhoto: boolean;
     hasRealPhoto: boolean;
+    hasGooglePlacePhoto: boolean;
+    googlePlacePhotoIds: string[];
     needsBackfill: boolean;
     primaryKind: SpotPhotoKind | "none";
 }
@@ -233,12 +235,18 @@ export function getGooglePlaceIdFromPhotoUrl(photo: string): string | null {
 }
 
 export function getGooglePlaceIdFromSpotPhotos(photos: string[] | null | undefined): string | null {
+    return getGooglePlaceIdsFromSpotPhotos(photos)[0] || null;
+}
+
+export function getGooglePlaceIdsFromSpotPhotos(photos: string[] | null | undefined): string[] {
+    const placeIds = new Set<string>();
+
     for (const photo of photos || []) {
         const placeId = getGooglePlaceIdFromPhotoUrl(photo);
-        if (placeId) return placeId;
+        if (placeId) placeIds.add(placeId);
     }
 
-    return null;
+    return [...placeIds];
 }
 
 export function classifySpotPhoto(photo: string | null | undefined): SpotPhotoKind {
@@ -293,14 +301,47 @@ export function summarizeSpotPhotos(photos: string[] | null | undefined): SpotPh
     const hasRealPhoto = (Object.keys(kinds) as SpotPhotoKind[]).some(
         (kind) => isRealSpotPhotoKind(kind) && kinds[kind] > 0
     );
+    const googlePlacePhotoIds = getGooglePlaceIdsFromSpotPhotos(photos);
 
     return {
         total: photos?.length || 0,
         kinds,
         hasAnyPhoto: Boolean(photos?.some((photo) => photo?.trim())),
         hasRealPhoto,
+        hasGooglePlacePhoto: googlePlacePhotoIds.length > 0,
+        googlePlacePhotoIds,
         needsBackfill: !hasRealPhoto,
         primaryKind,
+    };
+}
+
+export function getSpotPlacePhotoIdentityStatus(
+    photos: string[] | null | undefined,
+    googlePlaceId?: string | null
+): {
+    photoPlaceIds: string[];
+    storedPlaceId: string | null;
+    hasGooglePlacePhoto: boolean;
+    hasStoredPlaceId: boolean;
+    hasOwnPlacePhoto: boolean;
+    hasIdentityMismatch: boolean;
+    ready: boolean;
+} {
+    const photoPlaceIds = getGooglePlaceIdsFromSpotPhotos(photos);
+    const storedPlaceId = googlePlaceId?.trim() || null;
+    const hasStoredPlaceId = Boolean(storedPlaceId);
+    const hasGooglePlacePhoto = photoPlaceIds.length > 0;
+    const hasOwnPlacePhoto = hasGooglePlacePhoto && (!storedPlaceId || photoPlaceIds.includes(storedPlaceId));
+    const hasIdentityMismatch = Boolean(storedPlaceId && hasGooglePlacePhoto && !photoPlaceIds.includes(storedPlaceId));
+
+    return {
+        photoPlaceIds,
+        storedPlaceId,
+        hasGooglePlacePhoto,
+        hasStoredPlaceId,
+        hasOwnPlacePhoto,
+        hasIdentityMismatch,
+        ready: hasOwnPlacePhoto && hasStoredPlaceId && !hasIdentityMismatch,
     };
 }
 

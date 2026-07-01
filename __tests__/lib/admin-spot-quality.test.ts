@@ -31,6 +31,7 @@ describe("admin spot quality", () => {
         expect(item.issues).toEqual(["missing_real_photo", "inexact_location"]);
         expect(item.locationConfidence.tone).toBe("area");
         expect(item.photoSummary.hasRealPhoto).toBe(false);
+        expect(item.placePhotoIdentity.ready).toBe(false);
     });
 
     it("tracks missing place identity after a spot has a real photo without a place ID", () => {
@@ -47,6 +48,28 @@ describe("admin spot quality", () => {
         expect(item.publicReady).toBe(false);
         expect(item.photoReadiness.status).toBe("place_ready");
         expect(item.photoReadiness.canAutoBackfill).toBe(true);
+        expect(item.placePhotoIdentity.hasGooglePlacePhoto).toBe(false);
+    });
+
+    it("marks proxied photos ready only when the stored Place ID matches", () => {
+        const item = toSpotQualityItem(
+            createRow({
+                address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                location: "POINT(139.7580000 35.6950000)",
+                photos: ["/api/places/photo?name=places/ChIJ-test-place/photos/photo_1&w=1200"],
+                google_place_id: "ChIJ-test-place",
+            }),
+            true
+        );
+
+        expect(item.photoSummary.hasGooglePlacePhoto).toBe(true);
+        expect(item.placePhotoIdentity).toMatchObject({
+            photoPlaceIds: ["ChIJ-test-place"],
+            storedPlaceId: "ChIJ-test-place",
+            hasOwnPlacePhoto: true,
+            hasIdentityMismatch: false,
+            ready: true,
+        });
     });
 
     it("summarizes photo readiness for safe operator backfill decisions", () => {

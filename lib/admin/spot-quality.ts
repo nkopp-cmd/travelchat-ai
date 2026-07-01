@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MultiLanguageField } from "@/types";
 import {
     getLocalizedFieldValue,
+    getSpotPlacePhotoIdentityStatus,
     needsSpotPlaceIdentityBackfill,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
@@ -39,6 +40,7 @@ export interface SpotQualityItem {
     category: string | null;
     photos: string[];
     photoSummary: ReturnType<typeof summarizeSpotPhotos>;
+    placePhotoIdentity: ReturnType<typeof getSpotPlacePhotoIdentityStatus>;
     photoReadiness: SpotPhotoReadiness;
     lat: number | null;
     lng: number | null;
@@ -260,11 +262,12 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
     const description = getText(row.description);
     const photos = row.photos || [];
     const photoSummary = summarizeSpotPhotos(photos);
+    const googlePlaceId = row.google_place_id || null;
+    const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(photos, googlePlaceId);
     const coordinates = parseSpotCoordinates(row.location);
     const lat = coordinates?.lat ?? null;
     const lng = coordinates?.lng ?? null;
     const locationConfidence = getSpotLocationConfidence({ address, lat, lng });
-    const googlePlaceId = row.google_place_id || null;
     const photoReadiness = getSpotPhotoReadiness(
         photoSummary,
         googlePlaceId,
@@ -298,6 +301,7 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
         category: row.category,
         photos,
         photoSummary,
+        placePhotoIdentity,
         photoReadiness,
         lat,
         lng,

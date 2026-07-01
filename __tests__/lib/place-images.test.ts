@@ -5,6 +5,8 @@ import {
     findBestGooglePlacePhotos,
     getGooglePlaceIdFromPhotoUrl,
     getGooglePlaceIdFromSpotPhotos,
+    getGooglePlaceIdsFromSpotPhotos,
+    getSpotPlacePhotoIdentityStatus,
     getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
     hasStoredGooglePlaceIdentity,
@@ -53,6 +55,8 @@ describe("spot photo classification", () => {
             total: 3,
             hasAnyPhoto: true,
             hasRealPhoto: true,
+            hasGooglePlacePhoto: false,
+            googlePlacePhotoIds: [],
             needsBackfill: false,
             primaryKind: "placeholder",
         });
@@ -139,8 +143,48 @@ describe("spot photo classification", () => {
                 "/api/places/photo?w=1200&name=places%2FChIJsecond%2Fphotos%2Fphoto456",
             ])
         ).toBe("ChIJsecond");
+        expect(
+            getGooglePlaceIdsFromSpotPhotos([
+                "/api/places/photo?w=1200&name=places%2FChIJfirst%2Fphotos%2Fphoto456",
+                "/api/places/photo?w=1200&name=places%2FChIJfirst%2Fphotos%2Fphoto789",
+                "https://places.googleapis.com/v1/places/ChIJsecond/photos/photo123/media?maxWidthPx=1200",
+            ])
+        ).toEqual(["ChIJfirst", "ChIJsecond"]);
 
         expect(getGooglePlaceIdFromPhotoUrl("/api/places/photo?ref=legacy_ref")).toBeNull();
+    });
+
+    it("reports whether Google Place photos match the stored place identity", () => {
+        const matchingPhoto = "/api/places/photo?w=1200&name=places%2FChIJmatch%2Fphotos%2Fphoto456";
+        const otherPhoto = "/api/places/photo?w=1200&name=places%2FChIJother%2Fphotos%2Fphoto456";
+
+        expect(summarizeSpotPhotos([matchingPhoto])).toMatchObject({
+            hasRealPhoto: true,
+            hasGooglePlacePhoto: true,
+            googlePlacePhotoIds: ["ChIJmatch"],
+        });
+
+        expect(getSpotPlacePhotoIdentityStatus([matchingPhoto], "ChIJmatch")).toMatchObject({
+            photoPlaceIds: ["ChIJmatch"],
+            storedPlaceId: "ChIJmatch",
+            hasGooglePlacePhoto: true,
+            hasStoredPlaceId: true,
+            hasOwnPlacePhoto: true,
+            hasIdentityMismatch: false,
+            ready: true,
+        });
+
+        expect(getSpotPlacePhotoIdentityStatus([matchingPhoto], null)).toMatchObject({
+            hasOwnPlacePhoto: true,
+            hasStoredPlaceId: false,
+            ready: false,
+        });
+
+        expect(getSpotPlacePhotoIdentityStatus([otherPhoto], "ChIJmatch")).toMatchObject({
+            hasOwnPlacePhoto: false,
+            hasIdentityMismatch: true,
+            ready: false,
+        });
     });
 
     it("tracks place identity separately from image backfill", () => {

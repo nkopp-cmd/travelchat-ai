@@ -463,6 +463,22 @@ export function SpotQualityWorkbench() {
                                             <p className="mt-1 text-xs text-violet-50/45">
                                                 {selectedItem.photoReadiness.realPhotoCount} real / {selectedItem.photoSummary.total} stored photo{selectedItem.photoSummary.total === 1 ? "" : "s"}
                                             </p>
+                                            <p className={cn(
+                                                "mt-1 text-xs font-medium",
+                                                selectedItem.placePhotoIdentity.ready
+                                                    ? "text-emerald-100/80"
+                                                    : selectedItem.placePhotoIdentity.hasIdentityMismatch
+                                                        ? "text-rose-100/80"
+                                                        : "text-amber-100/80"
+                                            )}>
+                                                {selectedItem.placePhotoIdentity.ready
+                                                    ? "Own Google Place image + ID ready"
+                                                    : selectedItem.placePhotoIdentity.hasIdentityMismatch
+                                                        ? "Photo place ID does not match stored Place ID"
+                                                        : selectedItem.placePhotoIdentity.hasGooglePlacePhoto
+                                                            ? "Google Place image found; durable Place ID still needed"
+                                                            : "Needs own Google Place image"}
+                                            </p>
                                         </div>
                                         <Badge className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] text-[10px] text-violet-100">
                                             {selectedItem.photoSummary.primaryKind}
