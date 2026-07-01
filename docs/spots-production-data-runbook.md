@@ -110,6 +110,12 @@ A production dry-run on July 1, 2026 found zero safe automatic photo updates and
 
 Do not apply batch backfills when the dry-run looks like this. Work through `action-plan.csv` and `/admin/spots/quality` instead, using the research links to find the exact place, exact address, coordinates, and reviewed real images.
 
+After adding Yilan to the city registry, one exact-address production row was safe to update:
+
+- `6727af36-6e24-4ac2-a823-8279946b09f0` — Yilan National Center for Traditional Arts
+- Applied coordinate backfill: `POINT(121.824053 24.685587)`
+- Post-apply Yilan dry-run: 5 scanned, 0 candidates, 0 `would_update`, 0 failed.
+
 ## Interpretation
 
 - `hasGooglePlaceIdColumn: false` means the schema migration is still blocking exact Place ID storage.
