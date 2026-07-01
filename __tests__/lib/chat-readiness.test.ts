@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getChatProviderReadiness } from "@/lib/llm/chat-readiness";
+import {
+  getChatProviderReadiness,
+  getChatProviderReadinessFailure,
+} from "@/lib/llm/chat-readiness";
 
 const ENV_NAMES = [
   "GLM_API_KEY",
@@ -214,5 +217,21 @@ describe("chat provider readiness", () => {
         model: "gpt-4o",
       },
     });
+  });
+
+  it("returns a strict failure message when production AI is not ready", () => {
+    expect(
+      getChatProviderReadinessFailure({
+        readyForProductionAI: false,
+        issues: ["glm_api_key_missing"],
+      }),
+    ).toBe("Production AI readiness failed: glm_api_key_missing");
+
+    expect(
+      getChatProviderReadinessFailure({
+        readyForProductionAI: true,
+        issues: [],
+      }),
+    ).toBeNull();
   });
 });

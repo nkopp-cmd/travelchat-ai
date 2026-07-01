@@ -77,6 +77,12 @@ This should report:
 - `Ready for production AI: yes`
 - `Issues: none`
 
+Use strict mode for deployment checks. It exits non-zero when GLM primary, chat fallback, or itinerary fallback readiness is incomplete:
+
+```bash
+npm run llm:readiness -- --strict
+```
+
 Add `-- --health` only when you want to spend one lightweight provider call to verify the remote GLM endpoint:
 
 ```bash
@@ -89,7 +95,7 @@ Pull the production env and verify the GLM key is non-empty without printing the
 cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
 tmp_env=$(mktemp)
 vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
-npm run llm:readiness -- --env-file="$tmp_env"
+npm run llm:readiness -- --env-file="$tmp_env" --strict
 rm -f "$tmp_env"
 ```
 
@@ -97,6 +103,12 @@ For machine-readable checks, add `-- --json`:
 
 ```bash
 npm run llm:readiness -- --json
+```
+
+Strict mode can be combined with JSON output for machine checks:
+
+```bash
+npm run llm:readiness -- --json --strict
 ```
 
 If `GLM configured` is `no`, `readyForGlmPrimary` is `false`, or `issues` includes `glm_api_key_missing`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.

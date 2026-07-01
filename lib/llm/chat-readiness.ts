@@ -39,6 +39,18 @@ export interface ChatProviderReadiness {
   };
 }
 
+export function getChatProviderReadinessFailure(
+  readiness: Pick<ChatProviderReadiness, "readyForProductionAI" | "issues">,
+): string | null {
+  if (readiness.readyForProductionAI) return null;
+
+  const issueList = readiness.issues.length
+    ? readiness.issues.join(", ")
+    : "unknown_readiness_gap";
+
+  return `Production AI readiness failed: ${issueList}`;
+}
+
 export async function getChatProviderReadiness({
   runGlmHealthCheck = false,
   glmProvider,

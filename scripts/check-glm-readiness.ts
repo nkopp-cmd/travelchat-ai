@@ -5,15 +5,20 @@
  *   npm run llm:readiness
  *   npm run llm:readiness -- --env-file=.env.local
  *   npm run llm:readiness -- --health
+ *   npm run llm:readiness -- --strict
  */
 
 import * as dotenv from "dotenv";
-import { getChatProviderReadiness } from "../lib/llm/chat-readiness";
+import {
+  getChatProviderReadiness,
+  getChatProviderReadinessFailure,
+} from "../lib/llm/chat-readiness";
 
 interface Args {
   envFile?: string;
   health: boolean;
   json: boolean;
+  strict: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -26,6 +31,7 @@ function parseArgs(argv: string[]): Args {
     envFile: getValue("--env-file"),
     health: argv.includes("--health"),
     json: argv.includes("--json"),
+    strict: argv.includes("--strict"),
   };
 }
 
@@ -60,6 +66,13 @@ async function main() {
 
   if (args.json) {
     console.log(JSON.stringify(summary, null, 2));
+    if (args.strict) {
+      const failure = getChatProviderReadinessFailure(readiness);
+      if (failure) {
+        console.error(failure);
+        process.exit(1);
+      }
+    }
     return;
   }
 
@@ -98,6 +111,14 @@ async function main() {
       `Issues: ${summary.issues.length ? summary.issues.join(", ") : "none"}`,
     ].join("\n")
   );
+
+  if (args.strict) {
+    const failure = getChatProviderReadinessFailure(readiness);
+    if (failure) {
+      console.error(failure);
+      process.exit(1);
+    }
+  }
 }
 
 main().catch((error) => {
