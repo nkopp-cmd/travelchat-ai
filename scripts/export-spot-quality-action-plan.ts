@@ -19,9 +19,12 @@ import {
     type SpotQualityRow,
 } from "../lib/admin/spot-quality";
 import {
+    buildSpotQualityOperatorChecklist,
     buildSpotQualitySchemaStatus,
+    getSpotQualityOperatorStatus,
     getSpotQualityPriority,
     getSpotQualityRecommendedAction,
+    type SpotQualityOperatorStatus,
 } from "../lib/admin/spot-quality-action-plan";
 import { buildSpotQualityItemResearchLinks } from "../lib/admin/spot-quality-research";
 
@@ -43,6 +46,12 @@ interface ActionPlanItem extends SpotQualityItem {
     priority: number;
     recommendedAction: string;
     schemaBlockingAction: string | null;
+    operatorStatus: SpotQualityOperatorStatus;
+    operatorChecklist: string[];
+    primaryPhotoUrl: string | null;
+    photoPlaceIds: string[];
+    locationIssues: string[];
+    coordinateText: string | null;
     researchQuery: string;
     researchFocus: string;
     mapsResearchUrl: string;
@@ -133,6 +142,7 @@ function toActionPlanItem(
     baseUrl: string
 ): ActionPlanItem {
     const researchLinks = buildSpotQualityItemResearchLinks(item);
+    const operatorStatus = getSpotQualityOperatorStatus(item);
 
     return {
         ...item,
@@ -141,6 +151,12 @@ function toActionPlanItem(
         schemaBlockingAction: hasGooglePlaceIdColumn
             ? null
             : "apply_google_place_id_migration_before_place_id_writes",
+        operatorStatus,
+        operatorChecklist: buildSpotQualityOperatorChecklist(item),
+        primaryPhotoUrl: item.photos[0] || null,
+        photoPlaceIds: item.photoSummary.googlePlacePhotoIds,
+        locationIssues: item.locationConfidence.reasons,
+        coordinateText: researchLinks.coordinateText,
         researchQuery: researchLinks.query,
         researchFocus: researchLinks.recommendedFocus,
         mapsResearchUrl: researchLinks.mapsUrl,
@@ -175,6 +191,11 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "issues",
         "recommendedAction",
         "schemaBlockingAction",
+        "realImageStatus",
+        "locationStatus",
+        "directionsStatus",
+        "publicCardStatus",
+        "operatorChecklist",
         "researchFocus",
         "researchQuery",
         "mapsResearchUrl",
@@ -183,11 +204,15 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "placeIdGuideUrl",
         "hasGooglePlaceIdColumn",
         "googlePlaceId",
+        "photoPlaceIds",
         "photoCount",
         "primaryPhotoKind",
+        "primaryPhotoUrl",
         "lat",
         "lng",
+        "coordinateText",
         "locationConfidence",
+        "locationIssues",
         "publicReady",
         "adminUrl",
         "publicUrl",
@@ -202,6 +227,11 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.issues.join("|"),
         item.recommendedAction,
         item.schemaBlockingAction || "",
+        item.operatorStatus.realImage,
+        item.operatorStatus.location,
+        item.operatorStatus.directions,
+        item.operatorStatus.publicCard,
+        item.operatorChecklist.join(" | "),
         item.researchFocus,
         item.researchQuery,
         item.mapsResearchUrl,
@@ -210,11 +240,15 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.placeIdGuideUrl,
         hasGooglePlaceIdColumn,
         item.googlePlaceId || "",
+        item.photoPlaceIds.join("|"),
         item.photoSummary.total,
         item.photoSummary.primaryKind,
+        item.primaryPhotoUrl || "",
         item.lat ?? "",
         item.lng ?? "",
+        item.coordinateText || "",
         item.locationConfidence.label,
+        item.locationIssues.join("|"),
         item.publicReady,
         item.adminUrl,
         item.publicUrl,

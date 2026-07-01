@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+    buildSpotQualityOperatorChecklist,
     buildSpotQualitySchemaStatus,
+    getSpotQualityOperatorStatus,
     getSpotQualityPriority,
     getSpotQualityRecommendedAction,
     SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH,
@@ -59,6 +61,61 @@ describe("spot quality action plan", () => {
         expect(getSpotQualityRecommendedAction(missingPlaceId)).toBe("save_google_place_id");
         expect(getSpotQualityPriority(missingPhotoAndLocation)).toBeGreaterThan(
             getSpotQualityPriority(missingPlaceId)
+        );
+    });
+
+    it("builds operator statuses and checklists for exact place cleanup", () => {
+        const needsExactPlace = toSpotQualityItem(
+            createRow({
+                address: { en: "Tokyo" },
+                photos: ["/images/placeholders/default.svg"],
+                location: "POINT(0 0)",
+            }),
+            true
+        );
+        const trustedPlace = toSpotQualityItem(
+            createRow({
+                photos: ["/api/places/photo?name=places/ChIJ-ladrio/photos/photo_1&w=1200"],
+                google_place_id: "ChIJ-ladrio",
+            }),
+            true
+        );
+
+        expect(getSpotQualityOperatorStatus(needsExactPlace)).toEqual({
+            realImage: "needs_real_image",
+            location: "needs_exact_address_and_pin",
+            directions: "search_first",
+            publicCard: "hidden_until_enriched",
+        });
+        expect(buildSpotQualityOperatorChecklist(needsExactPlace)).toEqual([
+            "Find the exact Google Maps place before changing photos or coordinates.",
+            "Save the exact street address and verified coordinates from the matched place.",
+            "Add a reviewed real spot image, preferably a Localley proxied Google Place photo.",
+        ]);
+        expect(getSpotQualityOperatorStatus(trustedPlace)).toEqual({
+            realImage: "ready",
+            location: "exact",
+            directions: "trusted_place_id",
+            publicCard: "ready",
+        });
+    });
+
+    it("blocks direction trust when place photos and stored place ID disagree", () => {
+        const mismatch = toSpotQualityItem(
+            createRow({
+                photos: ["/api/places/photo?name=places/ChIJ-photo/photos/photo_1&w=1200"],
+                google_place_id: "ChIJ-stored",
+            }),
+            true
+        );
+
+        expect(getSpotQualityOperatorStatus(mismatch)).toMatchObject({
+            realImage: "needs_place_photo_match",
+            directions: "blocked_by_place_photo_mismatch",
+            publicCard: "hidden_until_enriched",
+        });
+        expect(buildSpotQualityOperatorChecklist(mismatch)).toContain(
+            "Make the stored Google Place ID and proxied place-photo source refer to the same place."
         );
     });
 });

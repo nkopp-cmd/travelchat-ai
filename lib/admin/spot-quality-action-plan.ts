@@ -3,6 +3,13 @@ import type { SpotQualityItem, SpotQualityIssue } from "@/lib/admin/spot-quality
 export const SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH =
     "supabase/migrations/006_spots_google_place_id.sql";
 
+export interface SpotQualityOperatorStatus {
+    realImage: "ready" | "needs_real_image" | "needs_image_review" | "needs_place_photo_match";
+    location: "exact" | "pinned_needs_address_review" | "needs_exact_address_and_pin";
+    directions: "trusted_place_id" | "place_id_needs_location_review" | "search_first" | "blocked_by_place_photo_mismatch";
+    publicCard: "ready" | "hidden_until_enriched";
+}
+
 export interface SpotQualitySchemaStatus {
     hasGooglePlaceIdColumn: boolean;
     migrationRequired: boolean;
@@ -54,6 +61,71 @@ export function getSpotQualityRecommendedAction(item: SpotQualityItem): string {
         return "rename_or_remove_broad_spot";
     }
     return "review";
+}
+
+export function getSpotQualityOperatorStatus(item: SpotQualityItem): SpotQualityOperatorStatus {
+    const realImage = item.placePhotoIdentity.hasIdentityMismatch
+        ? "needs_place_photo_match"
+        : item.photoSummary.hasRealPhoto
+            ? item.photoReadiness.status === "manual_review"
+                ? "needs_image_review"
+                : "ready"
+            : "needs_real_image";
+
+    const location = item.locationConfidence.exactAddress
+        ? "exact"
+        : item.locationConfidence.usableCoordinates
+            ? "pinned_needs_address_review"
+            : "needs_exact_address_and_pin";
+
+    const directions = item.placePhotoIdentity.hasIdentityMismatch
+        ? "blocked_by_place_photo_mismatch"
+        : item.googlePlaceId && item.locationConfidence.exactAddress
+            ? "trusted_place_id"
+            : item.googlePlaceId
+                ? "place_id_needs_location_review"
+                : "search_first";
+
+    return {
+        realImage,
+        location,
+        directions,
+        publicCard: item.publicReady ? "ready" : "hidden_until_enriched",
+    };
+}
+
+export function buildSpotQualityOperatorChecklist(item: SpotQualityItem): string[] {
+    const steps: string[] = [];
+
+    if (item.issues.includes("missing_name") || item.issues.includes("broad_place_name")) {
+        steps.push("Replace broad or missing name with the exact traveler-searchable place name.");
+    }
+
+    if (item.issues.includes("missing_real_photo") || item.issues.includes("inexact_location")) {
+        steps.push("Find the exact Google Maps place before changing photos or coordinates.");
+    }
+
+    if (item.issues.includes("inexact_location")) {
+        steps.push("Save the exact street address and verified coordinates from the matched place.");
+    }
+
+    if (item.issues.includes("missing_real_photo")) {
+        steps.push("Add a reviewed real spot image, preferably a Localley proxied Google Place photo.");
+    }
+
+    if (item.issues.includes("mismatched_place_photo_identity")) {
+        steps.push("Make the stored Google Place ID and proxied place-photo source refer to the same place.");
+    }
+
+    if (item.issues.includes("missing_place_id")) {
+        steps.push("Save the durable Google Place ID that matches the chosen map and image evidence.");
+    }
+
+    if (steps.length === 0) {
+        steps.push("Review the public card, detail page, and directions preview before marking complete.");
+    }
+
+    return steps;
 }
 
 export function buildSpotQualitySchemaStatus(hasGooglePlaceIdColumn: boolean): SpotQualitySchemaStatus {
