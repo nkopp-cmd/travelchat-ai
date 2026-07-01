@@ -48,6 +48,10 @@ function createSupabaseMock(batchRows: Array<Record<string, unknown>> = []) {
   const readQuery = {
     select: vi.fn(() => readQuery),
     eq: vi.fn(() => readQuery),
+    in: vi.fn(async (_column: string, ids: string[]) => ({
+      data: batchRows.filter((row) => ids.includes(String(row.id))),
+      error: null,
+    })),
     ilike: vi.fn(() => readQuery),
     order: vi.fn(() => readQuery),
     range: vi.fn(async () => ({
@@ -263,5 +267,51 @@ describe("/api/admin/spots/backfill-location", () => {
     });
     expect(mocks.updatePayloads).toEqual([]);
     expect(mocks.revalidateTag).not.toHaveBeenCalled();
+  });
+
+  it("applies only the previewed batch spot ids", async () => {
+    const supabase = createSupabaseMock([
+      {
+        id: "spot_batch_1",
+        name: { en: "LADRIO" },
+        address: { en: "Kanda Jinbocho, Tokyo" },
+        photos: [],
+        category: "Cafe",
+        location: "POINT(0 0)",
+        google_place_id: null,
+      },
+      {
+        id: "spot_batch_2",
+        name: { en: "Other Cafe" },
+        address: { en: "Tokyo" },
+        photos: [],
+        category: "Cafe",
+        location: "POINT(0 0)",
+        google_place_id: null,
+      },
+    ]);
+    mocks.createSupabaseAdmin.mockReturnValueOnce(supabase);
+    const { POST } = await import("@/app/api/admin/spots/backfill-location/route");
+
+    const response = await POST(createRequest({
+      spotIds: ["spot_batch_1"],
+      limit: 1,
+      dryRun: false,
+      includePhotos: true,
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      dryRun: false,
+      spotIds: ["spot_batch_1"],
+      scanned: 1,
+      candidates: 1,
+      processed: 1,
+      updated: 1,
+    });
+    expect(supabase.from("spots").select().in).toHaveBeenCalledWith("id", ["spot_batch_1"]);
+    expect(mocks.updatePayloads).toHaveLength(1);
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
   });
 });

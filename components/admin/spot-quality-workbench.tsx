@@ -127,6 +127,14 @@ interface LocationBackfillPreviewResult {
     }>;
 }
 
+function getPreviewedUpdateIds(
+    results: Array<{ id: string; status: "updated" | "would_update" | "skipped" | "failed" }> | undefined
+): string[] {
+    return (results || [])
+        .filter((result) => result.status === "would_update")
+        .map((result) => result.id);
+}
+
 function getPrimaryPhoto(item: SpotQualityItem): string | null {
     return item.photos.find((photo) => photo && !photo.toLowerCase().includes("placeholder")) || null;
 }
@@ -337,6 +345,12 @@ export function SpotQualityWorkbench() {
     const applySelectedPhotoBackfill = () => runSelectedPhotoBackfill(false);
 
     const runBatchPhotoBackfill = async (dryRun: boolean) => {
+        const previewedIds = getPreviewedUpdateIds(batchPhotoBackfillPreview?.results);
+        if (!dryRun && previewedIds.length === 0) {
+            setError("Preview the real-image batch before applying it.");
+            return;
+        }
+
         if (dryRun) {
             setPreviewingBatchPhotoBackfill(true);
             setBatchPhotoBackfillPreview(null);
@@ -352,7 +366,8 @@ export function SpotQualityWorkbench() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     city: city.trim() || undefined,
-                    limit: 10,
+                    spotIds: dryRun ? undefined : previewedIds,
+                    limit: dryRun ? 10 : previewedIds.length,
                     maxProcessed: 80,
                     dryRun,
                     upgradeToPlacePhotos: true,
@@ -384,6 +399,12 @@ export function SpotQualityWorkbench() {
     const applyBatchPhotoBackfill = () => runBatchPhotoBackfill(false);
 
     const runBatchLocationBackfill = async (dryRun: boolean) => {
+        const previewedIds = getPreviewedUpdateIds(batchLocationBackfillPreview?.results);
+        if (!dryRun && previewedIds.length === 0) {
+            setError("Preview the exact-location batch before applying it.");
+            return;
+        }
+
         if (dryRun) {
             setPreviewingBatchLocationBackfill(true);
             setBatchLocationBackfillPreview(null);
@@ -399,7 +420,8 @@ export function SpotQualityWorkbench() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     city: city.trim() || undefined,
-                    limit: 8,
+                    spotIds: dryRun ? undefined : previewedIds,
+                    limit: dryRun ? 8 : previewedIds.length,
                     maxProcessed: 80,
                     dryRun,
                     includePhotos: true,

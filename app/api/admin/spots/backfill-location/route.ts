@@ -22,6 +22,7 @@ const SPOT_PAGE_SIZE = 1000;
 
 interface LocationBackfillRequestBody {
     spotId?: string;
+    spotIds?: string[];
     city?: string;
     limit?: number;
     maxProcessed?: number;
@@ -71,6 +72,24 @@ function sleep(ms: number): Promise<void> {
 
 function formatPoint(lng: number, lat: number): string {
     return `POINT(${lng.toFixed(7)} ${lat.toFixed(7)})`;
+}
+
+function getSpotIds(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+
+    return Array.from(
+        new Set(
+            value
+                .map((id) => typeof id === "string" ? id.trim() : "")
+                .filter(Boolean)
+        )
+    ).slice(0, MAX_LIMIT);
+}
+
+function selectLocationBackfillColumns(hasGooglePlaceIdColumn: boolean): string {
+    return hasGooglePlaceIdColumn
+        ? "id, name, address, photos, category, location, google_place_id"
+        : "id, name, address, photos, category, location";
 }
 
 function normalizeAddressField(
@@ -301,12 +320,9 @@ async function fetchBackfillCandidates(
     let hasGooglePlaceIdColumn = true;
 
     for (let from = 0; candidates.length < maxProcessed; from += SPOT_PAGE_SIZE) {
-        const selectColumns = hasGooglePlaceIdColumn
-            ? "id, name, address, photos, category, location, google_place_id"
-            : "id, name, address, photos, category, location";
         let query = supabase
             .from("spots")
-            .select(selectColumns as string);
+            .select(selectLocationBackfillColumns(hasGooglePlaceIdColumn));
 
         if (city) {
             query = query.ilike("address->>en", `%${city}%`);
@@ -342,6 +358,44 @@ async function fetchBackfillCandidates(
     return { candidates: candidates.slice(0, maxProcessed), scanned, hasGooglePlaceIdColumn };
 }
 
+async function fetchBackfillCandidatesByIds(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    spotIds: string[],
+    includePhotos: boolean
+): Promise<{ candidates: LocationBackfillRow[]; scanned: number; hasGooglePlaceIdColumn: boolean }> {
+    let hasGooglePlaceIdColumn = true;
+    let result = await supabase
+        .from("spots")
+        .select(selectLocationBackfillColumns(hasGooglePlaceIdColumn))
+        .in("id", spotIds);
+
+    if (result.error && /google_place_id/i.test(result.error.message)) {
+        hasGooglePlaceIdColumn = false;
+        result = await supabase
+            .from("spots")
+            .select(selectLocationBackfillColumns(hasGooglePlaceIdColumn))
+            .in("id", spotIds);
+    }
+
+    if (result.error) {
+        throw new Error(`Failed to fetch spots: ${result.error.message}`);
+    }
+
+    const rows = ((result.data || []) as unknown) as LocationBackfillRow[];
+    const rowById = new Map(rows.map((row) => [row.id, row]));
+    const orderedRows = spotIds
+        .map((id) => rowById.get(id))
+        .filter((row): row is LocationBackfillRow => Boolean(row));
+
+    return {
+        candidates: orderedRows.filter((spot) =>
+            needsLocationBackfill(spot, includePhotos, hasGooglePlaceIdColumn)
+        ),
+        scanned: rows.length,
+        hasGooglePlaceIdColumn,
+    };
+}
+
 export async function POST(req: NextRequest) {
     const { response } = await requireAdmin(
         "/api/admin/spots/backfill-location",
@@ -365,6 +419,7 @@ export async function POST(req: NextRequest) {
     }
 
     const spotId = body.spotId?.trim();
+    const spotIds = getSpotIds(body.spotIds);
     const dryRun = body.dryRun !== false;
     const includePhotos = body.includePhotos === true;
     const limit = getLimit(body.limit);
@@ -409,12 +464,18 @@ export async function POST(req: NextRequest) {
         hasGooglePlaceIdColumn: boolean;
     };
     try {
-        backfillRows = await fetchBackfillCandidates(
-            supabase,
-            city,
-            maxProcessed,
-            includePhotos
-        );
+        backfillRows = spotIds.length > 0
+            ? await fetchBackfillCandidatesByIds(
+                supabase,
+                spotIds,
+                includePhotos
+            )
+            : await fetchBackfillCandidates(
+                supabase,
+                city,
+                maxProcessed,
+                includePhotos
+            );
     } catch (error) {
         return NextResponse.json(
             {
@@ -458,6 +519,7 @@ export async function POST(req: NextRequest) {
         maxProcessed,
         city: city || null,
         spotId: null,
+        spotIds: spotIds.length > 0 ? spotIds : null,
         hasGooglePlaceIdColumn: backfillRows.hasGooglePlaceIdColumn,
         scanned: backfillRows.scanned,
         candidates: backfillRows.candidates.length,
