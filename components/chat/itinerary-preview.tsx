@@ -125,9 +125,9 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
 
     const getTypeBadge = (type: string) => {
         switch (type) {
-            case 'hidden-gem': return { label: 'Hidden Gem', className: 'text-violet-700 dark:text-violet-300 bg-violet-500/10 border-violet-500/20' };
-            case 'local-favorite': return { label: 'Local Fave', className: 'text-blue-700 dark:text-blue-300 bg-blue-500/10 border-blue-500/20' };
-            case 'mixed': return { label: 'Mixed', className: 'text-amber-700 dark:text-amber-300 bg-amber-500/10 border-amber-500/20' };
+            case 'hidden-gem': return { label: 'Hidden Gem', className: 'text-violet-100 bg-violet-500/15 border-violet-300/25' };
+            case 'local-favorite': return { label: 'Local Fave', className: 'text-sky-100 bg-sky-500/15 border-sky-300/25' };
+            case 'mixed': return { label: 'Mixed', className: 'text-amber-100 bg-amber-500/15 border-amber-300/25' };
             default: return null;
         }
     };
@@ -142,20 +142,20 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
     };
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/[0.15] shadow-[0_0_20px_rgba(139,92,246,0.15)] backdrop-blur-md dark:border-white/10 dark:bg-white/[0.08]">
+        <div className="overflow-hidden rounded-lg border border-violet-200/15 bg-[#100b1c]/92 text-white shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
             {/* Header */}
-            <div className="px-5 pt-5 pb-4">
+            <div className="border-b border-white/10 px-4 pb-4 pt-4 sm:px-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                            <Sparkles className="h-4 w-4 text-violet-500 flex-shrink-0" />
-                            <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-foreground sm:truncate">{title}</h3>
+                    <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 flex-shrink-0 text-violet-300" />
+                            <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-white sm:text-xl">{title}</h3>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-                            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-violet-50/60">
+                            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
                             <span>{city}</span>
-                            <span className="text-border">|</span>
-                            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span className="text-white/20">|</span>
+                            <Calendar className="h-3.5 w-3.5 flex-shrink-0 text-indigo-300" />
                             <span>{days.length} {days.length === 1 ? 'day' : 'days'}</span>
                         </div>
                     </div>
@@ -164,8 +164,8 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         disabled={isSaved || isSaving}
                         size="sm"
                         className={isSaved
-                            ? "w-full bg-green-600 shadow-md hover:bg-green-700 sm:w-auto"
-                            : "w-full bg-gradient-to-r from-violet-600 to-indigo-600 shadow-md shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700 sm:w-auto"
+                            ? "h-10 w-full rounded-lg bg-emerald-600 shadow-md hover:bg-emerald-700 sm:w-auto"
+                            : "h-10 w-full rounded-lg bg-violet-600 shadow-md shadow-violet-500/20 hover:bg-violet-700 sm:w-auto"
                         }
                     >
                         {isSaved ? (
@@ -200,34 +200,39 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
             )}
 
             {/* Days */}
-            <div className="space-y-3 px-4 pb-5 sm:px-5">
+            <div className="space-y-3 px-3 pb-4 sm:px-5 sm:pb-5">
                 {days.map((day, dayIndex) => (
-                    <div key={dayIndex} className="overflow-hidden rounded-xl border border-black/5 bg-white/70 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+                    <div key={dayIndex} className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
                         {/* Day Header - Gradient */}
-                        <div className="flex flex-col gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-                            <h4 className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
-                                {day.day}
-                            </h4>
-                            <span className="shrink-0 whitespace-nowrap rounded-full bg-white/20 px-2 py-0.5 text-xs text-white">
+                        <div className="flex flex-col gap-2 border-b border-white/10 bg-violet-500/16 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                            <div className="flex min-w-0 items-start gap-2">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/20 bg-violet-500/25 text-xs font-bold text-violet-100">
+                                    {dayIndex + 1}
+                                </span>
+                                <h4 className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
+                                    {day.day}
+                                </h4>
+                            </div>
+                            <span className="w-fit shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
                                 {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
                             </span>
                         </div>
 
                         {/* Activities */}
-                        <div className="divide-y divide-black/5 dark:divide-white/10">
+                        <div className="divide-y divide-white/10">
                             {day.activities.map((activity, actIndex) => {
                                 const badge = getTypeBadge(activity.type);
                                 const desc = cleanChatItineraryDescription(activity.description);
                                 const TypeIcon = getTypeIcon(activity.type);
 
                                 return (
-                                    <div key={actIndex} className="flex items-start gap-3 px-3.5 py-3 sm:px-4">
-                                        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-violet-300/20 bg-violet-400/10 text-violet-200">
+                                    <div key={actIndex} className="flex items-start gap-3 px-3 py-3 sm:px-4">
+                                        <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-400/10 text-violet-200">
                                             <TypeIcon className="h-3.5 w-3.5" aria-hidden="true" />
                                         </span>
-                                        <div className="flex-1 min-w-0">
+                                        <div className="min-w-0 flex-1">
                                             <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                                <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-foreground">
+                                                <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white">
                                                     {activity.title}
                                                 </h5>
                                                 {badge && (
@@ -236,8 +241,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                                     </span>
                                                 )}
                                             </div>
+                                            {activity.address && (
+                                                <div className="mt-1 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/55">
+                                                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
+                                                    <span className="line-clamp-1 min-w-0 break-words">{activity.address}</span>
+                                                </div>
+                                            )}
                                             {desc && (
-                                                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                                                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-violet-50/60">
                                                     {desc}
                                                 </p>
                                             )}
