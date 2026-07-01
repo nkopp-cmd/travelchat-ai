@@ -50,13 +50,13 @@ export function ItineraryInsightsPanel({
   return (
     <section
       className={cn(
-        "rounded-xl border border-white/10 bg-white/[0.045] shadow-xl shadow-violet-950/10 backdrop-blur-xl",
-        compact ? "p-3" : "p-3.5 sm:p-4",
+        "rounded-xl border border-white/10 bg-[#130b22]/76 shadow-xl shadow-violet-950/10 backdrop-blur-xl",
+        compact ? "p-3" : "p-3.5 sm:p-4 md:p-5",
         className
       )}
       aria-label={title}
     >
-      <div className={cn("flex gap-3", compact ? "mb-2 items-center" : "mb-3 flex-col sm:flex-row sm:items-end sm:justify-between")}>
+      <div className={cn("flex gap-3", compact ? "mb-2 items-center justify-between" : "mb-3 flex-col sm:flex-row sm:items-start sm:justify-between")}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-violet-300" aria-hidden="true" />
@@ -76,17 +76,17 @@ export function ItineraryInsightsPanel({
         </Badge>
       </div>
 
-      <div className={cn("grid grid-cols-1", compact ? "gap-2" : "gap-2.5 sm:grid-cols-2")}>
+      <div className={cn("grid grid-cols-1", compact ? "gap-2" : "gap-2.5 md:grid-cols-2")}>
         {insights.map((insight) => {
           const { Icon, itemClass, iconClass } = getInsightTone(insight.kind);
 
           return (
-            <article key={insight.id} className={cn("rounded-lg border p-2.5", !compact && "sm:p-3", itemClass)}>
+            <article key={insight.id} className={cn("rounded-lg border p-2.5", !compact && "sm:p-3.5", itemClass)}>
               <div className="flex items-start gap-3">
                 <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", !compact && "h-5 w-5", iconClass)} aria-hidden="true" />
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold leading-tight text-foreground">{insight.label}</h3>
-                  <p className={cn("mt-1 leading-relaxed text-muted-foreground", compact ? "text-xs" : "text-sm")}>
+                  <h3 className="break-words text-sm font-semibold leading-tight text-foreground">{insight.label}</h3>
+                  <p className={cn("mt-1 break-words leading-relaxed text-muted-foreground", compact ? "text-xs" : "text-sm")}>
                     {insight.text}
                   </p>
                 </div>

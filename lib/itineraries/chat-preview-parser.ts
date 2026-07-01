@@ -44,6 +44,23 @@ function cleanActivityTitle(title: string): string {
   return title.replace(/\s*\(.+?\)\s*$/, "").trim();
 }
 
+const LABELED_TIP_FRAGMENT_PATTERN =
+  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|transport|transportation|transit)\s*:\s*([^.\n]+(?:[.!?]|$)?)/gi;
+
+function splitChatDescriptionTips(description: string): { description: string; tips: string[] } {
+  const tips: string[] = [];
+  const cleanedDescription = description
+    .replace(LABELED_TIP_FRAGMENT_PATTERN, (_match, label: string, text: string) => {
+      const tip = `${label}: ${text.trim()}`.trim();
+      if (tip) tips.push(tip);
+      return " ";
+    })
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  return { description: cleanedDescription, tips };
+}
+
 function parseActivityLine(trimmedLine: string): { title: string; description: string } | null {
   const boldMatch = trimmedLine.match(/^[-*]\s*\*+(.+?)\*+:\s*(.+)$/);
   if (boldMatch) {
@@ -91,9 +108,12 @@ function pushActivityOrTip(
     return;
   }
 
+  const splitDescription = splitChatDescriptionTips(description);
+  tips.push(...splitDescription.tips);
+
   currentDay.activities.push({
     title: cleanTitle,
-    description,
+    description: splitDescription.description,
     type: getActivityType(rawTitle),
   });
 }

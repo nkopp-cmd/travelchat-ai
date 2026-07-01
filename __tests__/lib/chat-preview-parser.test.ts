@@ -74,6 +74,23 @@ describe("parseChatItineraryPreview", () => {
     ]);
   });
 
+  it("pulls labeled tips out of activity descriptions before preview or save", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Cafes**
+
+- **Ikseon Teahouse (Hidden Gem)**: Order seasonal tea before the afternoon rush. Tip: Bring cash for smaller shops.
+  Address: Ikseon-dong, Jongno-gu, Seoul
+`);
+
+    expect(result.days[0].activities[0]).toMatchObject({
+      title: "Ikseon Teahouse",
+      description: "Order seasonal tea before the afternoon rush.",
+      address: "Ikseon-dong, Jongno-gu, Seoul",
+    });
+    expect(result.tips).toEqual(["Tip: Bring cash for smaller shops."]);
+  });
+
   it("removes address and location lines from the preview description", () => {
     expect(
       cleanChatItineraryDescription("Go early.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")

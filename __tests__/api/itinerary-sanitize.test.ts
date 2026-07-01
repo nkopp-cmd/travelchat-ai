@@ -106,6 +106,37 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ]);
   });
 
+  it("extracts labeled tip lines from real activities without dropping the stop", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Ikseon Teahouse",
+            description:
+              "Order seasonal tea before the afternoon rush.\nTip: Bring cash for smaller shops.\nGetting around: Walk from Jongno 3-ga exit 4.",
+            category: "Cafe",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Order seasonal tea before the afternoon rush."
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Tip: Bring cash for smaller shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Getting around: Walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
   it("supports structured itinerary payloads with top-level insights", () => {
     const payload = buildItineraryPlanPayload(
       [
