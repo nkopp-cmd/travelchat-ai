@@ -154,11 +154,14 @@ export function TemplateCard({ template, href, actionHref, isSelected, onSelect 
   const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background";
   const content = <TemplateCardContent template={template} isSelected={isSelected} />;
 
-  if (isSelected && actionHref) {
+  if (actionHref) {
     return (
       <Link
         href={actionHref}
         className={className}
+        onMouseEnter={onSelect}
+        onFocus={onSelect}
+        onClick={onSelect}
         aria-label={`Use ${template.name} template`}
       >
         {content}
