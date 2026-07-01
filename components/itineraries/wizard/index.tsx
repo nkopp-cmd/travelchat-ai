@@ -63,11 +63,27 @@ function WizardContent({
     }
   };
 
+  const handleGenerateNow = async () => {
+    setIsGenerating(true);
+    try {
+      await onGenerate(data);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const isLastStep = currentStep === totalSteps - 1;
   const templateApplied = Boolean(data.templateName);
   const compactTemplateFooter = templateApplied && currentStep === 0;
+  const canGenerateFromTemplate = compactTemplateFooter && Boolean(data.city);
   const primaryActionLabel =
-    isLastStep ? "Generate Itinerary" : currentStep === 0 && templateApplied && !data.city ? "Pick a city" : "Next";
+    isLastStep
+      ? "Generate Itinerary"
+      : canGenerateFromTemplate
+        ? "Generate route"
+        : currentStep === 0 && templateApplied && !data.city
+          ? "Pick a city"
+          : "Next";
 
   const steps = [
     <StepDestination key="destination" />,
@@ -131,8 +147,8 @@ function WizardContent({
             {compactTemplateFooter && (
               <div className="min-w-0 flex-1 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:px-3 sm:text-xs">
                 <span className="block truncate">{data.templateName}</span>
-                <span className="block text-violet-200/80">
-                  Step {currentStep + 1}/{totalSteps}
+                <span className="block truncate text-violet-200/80">
+                  {data.city ? `${data.city} ready` : `Step ${currentStep + 1}/${totalSteps}`}
                 </span>
               </div>
             )}
@@ -146,13 +162,23 @@ function WizardContent({
                 Back
               </Button>
             )}
+            {canGenerateFromTemplate && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={nextStep}
+                className="h-10 shrink-0 border-white/20 px-3 text-white hover:bg-white/10 sm:h-11"
+              >
+                Tune
+              </Button>
+            )}
             <Button
-              onClick={handleNext}
+              onClick={canGenerateFromTemplate ? handleGenerateNow : handleNext}
               disabled={!canProceed}
               className={cn(
                 "h-10 flex-1 sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
-                compactTemplateFooter && "max-w-[9rem] shrink-0 px-3",
+                compactTemplateFooter && "max-w-[10.5rem] shrink-0 px-3",
                 "bg-gradient-to-r from-violet-600 to-indigo-600",
                 "hover:from-violet-500 hover:to-indigo-500",
                 "shadow-lg shadow-violet-500/30",
