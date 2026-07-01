@@ -109,6 +109,7 @@ A production dry-run on July 1, 2026 found zero safe automatic photo updates and
 - Location dry-run with `--exact-only --trusted-provider-only`: 4 candidates, 0 `would_update`, 4 skipped because results fell back to city centers or unsupported cities.
 
 Do not apply batch backfills when the dry-run looks like this. Work through `action-plan.csv` and `/admin/spots/quality` instead, using the research links to find the exact place, exact address, coordinates, and reviewed real images.
+Location backfill reports include `manualReview.mapsSearchUrl` and `manualReview.recommendedAction` for skipped rows. Treat `geocode_city_center_fallback` as a manual-only case, because the geocoder found the city center instead of the actual place.
 
 After adding Yilan to the city registry, one exact-address production row was safe to update:
 

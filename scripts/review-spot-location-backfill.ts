@@ -23,7 +23,7 @@ import {
 import { parseSpotCoordinates } from "../lib/spots/coordinates";
 import type { MultiLanguageField } from "../types";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env.local", quiet: true });
 
 const PAGE_SIZE = 1000;
 const DEFAULT_LIMIT = 20;
@@ -88,6 +88,11 @@ interface ReviewResult {
         distanceFromCityKm: number | null;
         wkt: string;
     };
+    manualReview: {
+        query: string;
+        mapsSearchUrl: string;
+        recommendedAction: string;
+    };
     confidenceReasons: string[];
 }
 
@@ -141,6 +146,18 @@ function getDistanceFromCity(result: GeocodingResult, city: CityConfig | null): 
     return Number(
         distanceKm(result.lat, result.lng, city.center.lat, city.center.lng).toFixed(1)
     );
+}
+
+function buildManualReview(candidate: CandidateSpot, recommendedAction = "review_exact_coordinates") {
+    const query = [candidate.name, candidate.address, candidate.city?.name]
+        .filter(Boolean)
+        .join(" ");
+
+    return {
+        query,
+        mapsSearchUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
+        recommendedAction,
+    };
 }
 
 function isUnsafeBroadPlace(name: string, address: string): boolean {
@@ -265,6 +282,7 @@ function baseResult(candidate: CandidateSpot, status: ReviewStatus): ReviewResul
             lat: candidate.lat,
             lng: candidate.lng,
         },
+        manualReview: buildManualReview(candidate),
         confidenceReasons: candidate.confidence.reasons,
     };
 }
@@ -311,6 +329,7 @@ async function main() {
                 results.push({
                     ...baseResult(candidate, "skipped"),
                     reason: "geocode_not_found",
+                    manualReview: buildManualReview(candidate, "find_exact_place_and_coordinates"),
                 });
                 await sleep(args.rateLimitMs);
                 continue;
@@ -325,6 +344,7 @@ async function main() {
                 results.push({
                     ...baseResult(candidate, "skipped"),
                     reason: "untrusted_provider_for_batch",
+                    manualReview: buildManualReview(candidate, "verify_provider_result_before_applying"),
                     candidate: {
                         ...geocoded,
                         distanceFromCityKm,
@@ -342,6 +362,7 @@ async function main() {
                 results.push({
                     ...baseResult(candidate, "skipped"),
                     reason: "geocode_city_center_fallback",
+                    manualReview: buildManualReview(candidate, "manual_exact_coordinate_required"),
                     candidate: {
                         ...geocoded,
                         distanceFromCityKm,
@@ -356,6 +377,7 @@ async function main() {
                 results.push({
                     ...baseResult(candidate, "skipped"),
                     reason: "geocode_too_far_from_city",
+                    manualReview: buildManualReview(candidate, "verify_far_geocode_before_applying"),
                     candidate: {
                         ...geocoded,
                         distanceFromCityKm,
