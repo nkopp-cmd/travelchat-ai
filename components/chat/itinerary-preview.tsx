@@ -253,8 +253,34 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 </div>
             </div>
 
+            {insights.length > 0 && (
+                <div className="border-b border-white/10 px-3 py-3 sm:px-5 sm:py-4">
+                    <ItineraryInsightsPanel
+                        insights={insights}
+                        title="Trip notes"
+                        description="Local context, transit, and booking notes for the full route."
+                        compact
+                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
+                    />
+                </div>
+            )}
+
             {/* Days */}
-            <div className="space-y-3 px-3 pb-4 sm:px-5 sm:pb-5">
+            <div className="space-y-3 px-3 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
+                <div className="flex items-center justify-between gap-3 px-1">
+                    <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-violet-200/70">
+                            Day schedule
+                        </p>
+                        <h4 className="text-sm font-bold leading-tight text-white">
+                            Route by day
+                        </h4>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-violet-50/75">
+                        {days.length} {days.length === 1 ? "day" : "days"}
+                    </span>
+                </div>
+
                 {days.map((day, dayIndex) => (
                     <div key={dayIndex} className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
                         {/* Day Header - Gradient */}
@@ -325,14 +351,6 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                     </div>
                 ))}
 
-                {insights.length > 0 && (
-                    <ItineraryInsightsPanel
-                        insights={insights}
-                        title="Trip notes"
-                        compact
-                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
-                    />
-                )}
             </div>
         </div>
     );

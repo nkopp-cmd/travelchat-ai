@@ -64,8 +64,10 @@ export function ItineraryInsightsPanel({
               {title}
             </h2>
           </div>
-          {!compact && (
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          {(!compact || description) && (
+            <p className={cn("mt-1 text-muted-foreground", compact ? "text-xs" : "text-sm")}>
+              {description}
+            </p>
           )}
         </div>
         <Badge

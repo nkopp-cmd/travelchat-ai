@@ -281,6 +281,37 @@ Booking note: No reservations needed, but go before peak dinner.
     ]);
   });
 
+  it("keeps practical tip sections between days out of the day schedule", () => {
+    const result = parseChatItineraryPreview(`# Kyoto Hidden Gems
+
+### Day 1: Old Streets
+- **Kissa Master (Hidden Gem)**: Order hand-drip coffee in a quiet kissaten.
+  Address: Gion, Kyoto
+
+### Practical Tips
+- Bring cash for older cafes.
+- Getting around: Walk from Gion-Shijo Station.
+
+### Day 2: Markets
+- **Nishiki Pickle Stall (Local Favorite)**: Try seasonal tsukemono before noon.
+  Address: Nishiki Market, Kyoto
+`);
+
+    expect(result.days.map((day) => day.day)).toEqual([
+      "Day 1: Old Streets",
+      "Day 2: Markets",
+    ]);
+    expect(
+      result.days.flatMap((day) =>
+        day.activities.map((activity) => activity.title),
+      ),
+    ).toEqual(["Kissa Master", "Nishiki Pickle Stall"]);
+    expect(result.tips).toEqual([
+      "Bring cash for older cafes.",
+      "Getting around: Walk from Gion-Shijo Station.",
+    ]);
+  });
+
   it("classifies chat tips for saved itinerary insights", () => {
     expect(getChatTipKind("Use the subway and walk the last few blocks.")).toBe("transport");
     expect(getChatTipKind("Bring cash and go early.")).toBe("local");
