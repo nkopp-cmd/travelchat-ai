@@ -150,6 +150,42 @@ function looksLikePracticalSentence(value: string): boolean {
   );
 }
 
+function looksLikeUnlabeledDescriptionTip(value: string): boolean {
+  const line = value.replace(/^[-*]\s*/, "").trim();
+  if (!line || line.length > 180) return false;
+
+  if (
+    /^(bring|pack|wear|use|book|reserve|check|avoid|ask|arrive|get|download|carry|keep|remember|try to)\b/i.test(
+      line,
+    )
+  ) {
+    return true;
+  }
+
+  if (/^go\s+(early|before|after|around|when)\b/i.test(line)) return true;
+
+  if (/^take\b/i.test(line)) {
+    return /\b(subway|metro|bus|train|taxi|ride|route|exit|line|tram|ferry)\b/i.test(
+      line,
+    );
+  }
+
+  if (
+    /^(cash|cards?|tickets?|reservations?|queues?|lines?|weather|rain|metro|subway|bus|train|taxi|rideshare|wifi|sim)\b/i.test(
+      line,
+    )
+  ) {
+    return true;
+  }
+
+  return (
+    /[.!?]$/.test(line) &&
+    /\b(cash only|small bills|book ahead|reserve ahead|reservation|avoid peak|queue|line|umbrella|rain|closed|opening hours?)\b/i.test(
+      line,
+    )
+  );
+}
+
 function getTipText(activity: ItineraryActivityLike): string {
   const name = getStringValue(activity.name);
   const description = getStringValue(activity.description);
@@ -198,6 +234,15 @@ function splitDescriptionTips(activity: ItineraryActivityLike): {
     }
 
     cleanedLine = cleanedLine.trim();
+
+    if (cleanedLine && looksLikeUnlabeledDescriptionTip(cleanedLine)) {
+      if (TRANSPORT_PATTERN.test(cleanedLine)) {
+        transportTips.push(cleanedLine);
+      } else {
+        localTips.push(cleanedLine);
+      }
+      return;
+    }
 
     if (cleanedLine) keptLines.push(cleanedLine);
   });

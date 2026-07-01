@@ -274,6 +274,60 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ]);
   });
 
+  it("extracts unlabeled practical description lines from real activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Ikseon Teahouse",
+            description:
+              "Order seasonal tea in the hanok courtyard.\nBring cash for smaller shops.\nUse the metro and walk from Jongno 3-ga exit 4.\nThe courtyard seats are best for photos.",
+            category: "Cafe",
+            address: "Ikseon-dong, Jongno-gu, Seoul",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Order seasonal tea in the hanok courtyard.\nThe courtyard seats are best for photos.",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Bring cash for smaller shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Use the metro and walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
+  it("keeps unlabeled descriptive activity lines when they are not practical tips", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Seochon Photo Walk",
+            description:
+              "Walk through old alleys with small galleries.\nTake photos from the quiet rooftop view.",
+            category: "Culture",
+            address: "Seochon, Jongno-gu, Seoul",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Walk through old alleys with small galleries.\nTake photos from the quiet rooftop view.",
+    );
+    expect(result.insights).toEqual([]);
+  });
+
   it("extracts food, booking, and route notes from real activities", () => {
     const result = normalizeDailyPlansForDisplay([
       {
