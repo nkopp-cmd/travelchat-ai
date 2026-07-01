@@ -163,7 +163,7 @@ function LocationConfidenceChip({
       }
     >
       <Navigation className="h-3 w-3" aria-hidden="true" />
-      <span>
+      <span className="truncate">
         {hasPlaceMatch
           ? "Place"
           : confidence.tone === "exact"
@@ -228,16 +228,13 @@ function CategoryTrendRow({
 }) {
   return (
     <div
-      className={cn(
-        "grid min-w-0 items-center gap-1",
-        trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
-      )}
+      className="flex min-w-0 flex-wrap items-center gap-1"
     >
       <span
         className={cn(
-          "min-w-0 truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium text-violet-100",
+          "min-w-0 max-w-full truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium text-violet-100",
           compact
-            ? "px-1.5 py-0.5 text-xs min-[390px]:px-2"
+            ? "px-1.5 py-0.5 text-[10px] min-[390px]:px-2 min-[390px]:text-xs"
             : "px-1.5 py-0.5 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
         )}
         title={category}
@@ -385,7 +382,7 @@ export function SpotCard({
             </div>
             <div
               data-spot-card-meta
-              className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 overflow-hidden min-[640px]:grid-cols-[auto_auto_auto]"
+              className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden"
             >
               <SpotScoreChip score={spot.localleyScore} />
               <LocalCrowdChip
@@ -425,7 +422,7 @@ export function SpotCard({
       >
         <span className="sr-only">Open {spot.name}</span>
       </Link>
-      <div className="relative w-[4.25rem] shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-20 min-[420px]:w-24 md:aspect-[2/1] md:w-full">
+      <div className="relative w-[5rem] shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-24 min-[460px]:w-28 md:aspect-[2/1] md:w-full">
         {!showGradientFallback && !imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
             <div
@@ -445,14 +442,6 @@ export function SpotCard({
           <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
 
-        <div className="absolute left-1.5 top-1.5 z-10 max-w-[calc(100%-3rem)] overflow-hidden md:hidden">
-          <CategoryTrendRow
-            category={spot.category}
-            trending={spot.trending}
-            compact
-          />
-        </div>
-
         <div className="absolute right-1.5 top-1.5 z-10 hidden md:right-2.5 md:top-2.5 md:block">
           <div className="relative z-20 flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
             <SaveSpotButton
@@ -464,6 +453,13 @@ export function SpotCard({
       </div>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-3">
+        <div className="mb-1 min-w-0 md:hidden">
+          <CategoryTrendRow
+            category={spot.category}
+            trending={spot.trending}
+            compact
+          />
+        </div>
         <div className="mb-1.5 hidden min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 md:grid">
           <div className="min-w-0">
             <CategoryTrendRow
@@ -493,7 +489,7 @@ export function SpotCard({
         <div className="mt-auto border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 overflow-hidden min-[640px]:grid-cols-[auto_auto_auto]"
+            className="flex min-w-0 flex-wrap items-center gap-1"
           >
             <SpotScoreChip score={spot.localleyScore} />
             <LocalCrowdChip
