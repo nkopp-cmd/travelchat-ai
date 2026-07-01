@@ -47,6 +47,21 @@ function getCityFallbackImage(spot: Spot) {
     return city ? getCityImageUrl(city, { width: 1200, height: 900, quality: 90 }) : null;
 }
 
+function withPlacePhotoFallback(src: string, fallbackSrc: string | null) {
+    if (!fallbackSrc || !src.startsWith("/api/places/photo")) return src;
+
+    try {
+        const url = new URL(src, "https://www.localley.io");
+        if (!url.searchParams.has("fallback")) {
+            url.searchParams.set("fallback", fallbackSrc);
+        }
+
+        return `${url.pathname}?${url.searchParams.toString()}`;
+    } catch {
+        return src;
+    }
+}
+
 function hasRealSpotPhoto(spot: Spot) {
     return spot.hasRealPhoto ?? spot.photos.some((photo) => !isPlaceholderImage(photo));
 }
@@ -120,16 +135,19 @@ function LocationConfidenceChip({ spot, className }: { spot: Spot; className?: s
 export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
     const initialImage = getInitialImage(spot);
     const [imageLoaded, setImageLoaded] = useState(false);
-    const [imageSrc, setImageSrc] = useState(initialImage.src);
     const [usingAreaImage, setUsingAreaImage] = useState(initialImage.isAreaFallback);
     const [showGradientFallback, setShowGradientFallback] = useState(false);
     const hasRealPhoto = hasRealSpotPhoto(spot);
     const inferredCity = inferSpotCity(spot);
+    const cityFallbackImage = getCityFallbackImage(spot);
+    const [imageSrc, setImageSrc] = useState(
+        withPlacePhotoFallback(initialImage.src, cityFallbackImage)
+    );
     const fallbackLabel = inferredCity ? `${inferredCity} area` : spot.category;
     const fallbackGradient = getCityGradient(fallbackLabel);
 
     const handleImageError = () => {
-        const cityFallback = getCityFallbackImage(spot);
+        const cityFallback = cityFallbackImage;
         if (cityFallback && imageSrc !== cityFallback) {
             setImageSrc(cityFallback);
             setUsingAreaImage(true);
