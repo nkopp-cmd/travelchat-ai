@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
     fallback: "anthropic",
     readyForGlmPrimary: true,
     readyForProductionChat: true,
+    readyForProductionItinerary: true,
+    readyForProductionAI: true,
     issues: [],
     glm: {
       configured: true,
@@ -23,6 +25,11 @@ const mocks = vi.hoisted(() => ({
     anthropicFallback: {
       configured: true,
       model: "claude-sonnet-4-20250514",
+    },
+    itineraryFallback: {
+      provider: "openai",
+      configured: true,
+      model: "gpt-4o",
     },
   })),
 }));
@@ -56,10 +63,12 @@ describe("admin LLM metrics readiness", () => {
     vi.clearAllMocks();
     process.env.GLM_API_KEY = "test-glm-key";
     process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
+    process.env.OPENAI_API_KEY = "test-openai-key";
     delete process.env.ZAI_API_KEY;
     delete process.env.GLM_MODEL;
     delete process.env.GLM_BASE_URL;
     delete process.env.ZAI_BASE_URL;
+    delete process.env.OPENAI_MODEL;
   });
 
   it("reports GLM primary readiness without running a health check by default", async () => {
@@ -76,6 +85,8 @@ describe("admin LLM metrics readiness", () => {
       fallback: "anthropic",
       readyForGlmPrimary: true,
       readyForProductionChat: true,
+      readyForProductionItinerary: true,
+      readyForProductionAI: true,
       issues: [],
       glm: {
         configured: true,
@@ -90,6 +101,10 @@ describe("admin LLM metrics readiness", () => {
         },
       },
       anthropicFallback: {
+        configured: true,
+      },
+      itineraryFallback: {
+        provider: "openai",
         configured: true,
       },
     });

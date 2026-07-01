@@ -49,8 +49,12 @@ async function main() {
     glmApiKeySource: readiness.glm.env.apiKeySource,
     anthropicFallbackConfigured: readiness.anthropicFallback.configured,
     anthropicFallbackModel: readiness.anthropicFallback.model,
+    openaiItineraryFallbackConfigured: readiness.itineraryFallback.configured,
+    openaiItineraryFallbackModel: readiness.itineraryFallback.model,
     readyForGlmPrimary: readiness.readyForGlmPrimary,
     readyForProductionChat: readiness.readyForProductionChat,
+    readyForProductionItinerary: readiness.readyForProductionItinerary,
+    readyForProductionAI: readiness.readyForProductionAI,
     issues: readiness.issues,
   };
 
@@ -77,9 +81,19 @@ async function main() {
         summary.anthropicFallbackConfigured ? "yes" : "no"
       }`,
       `Anthropic fallback model: ${summary.anthropicFallbackModel}`,
+      `OpenAI itinerary fallback configured: ${
+        summary.openaiItineraryFallbackConfigured ? "yes" : "no"
+      }`,
+      `OpenAI itinerary fallback model: ${summary.openaiItineraryFallbackModel}`,
       `Ready for GLM primary: ${summary.readyForGlmPrimary ? "yes" : "no"}`,
       `Ready for production chat: ${
         summary.readyForProductionChat ? "yes" : "no"
+      }`,
+      `Ready for production itineraries: ${
+        summary.readyForProductionItinerary ? "yes" : "no"
+      }`,
+      `Ready for production AI: ${
+        summary.readyForProductionAI ? "yes" : "no"
       }`,
       `Issues: ${summary.issues.length ? summary.issues.join(", ") : "none"}`,
     ].join("\n")

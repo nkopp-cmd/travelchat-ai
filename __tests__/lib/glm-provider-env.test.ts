@@ -6,6 +6,7 @@ import {
   readGLMProviderConfig,
 } from "@/lib/llm/env";
 import { GLMProvider } from "@/lib/llm/providers/glm";
+import { OpenAI } from "openai";
 
 vi.mock("openai", () => ({
   OpenAI: vi.fn().mockImplementation(function OpenAIMock() {
@@ -66,6 +67,13 @@ describe("GLM provider env handling", () => {
       baseURL: "https://api.z.ai/api/paas/v4/",
     });
     expect(new GLMProvider().isAvailable()).toBe(true);
+    expect(OpenAI).toHaveBeenLastCalledWith({
+      apiKey: "glm_live_key",
+      baseURL: "https://api.z.ai/api/paas/v4/",
+      defaultHeaders: {
+        "Accept-Language": "en-US,en",
+      },
+    });
   });
 
   it("uses the ZAI alias when GLM_API_KEY is absent or blank", () => {

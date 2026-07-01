@@ -8,10 +8,13 @@ export interface ChatProviderReadiness {
   fallback: "anthropic";
   readyForGlmPrimary: boolean;
   readyForProductionChat: boolean;
+  readyForProductionItinerary: boolean;
+  readyForProductionAI: boolean;
   issues: Array<
     | "glm_api_key_missing"
     | "glm_health_failed"
     | "anthropic_fallback_missing"
+    | "openai_itinerary_fallback_missing"
   >;
   glm: {
     configured: boolean;
@@ -26,6 +29,11 @@ export interface ChatProviderReadiness {
     };
   };
   anthropicFallback: {
+    configured: boolean;
+    model: string;
+  };
+  itineraryFallback: {
+    provider: "openai";
     configured: boolean;
     model: string;
   };
@@ -48,6 +56,7 @@ export async function getChatProviderReadiness({
   }
 
   const anthropicFallbackConfigured = Boolean(getTrimmedEnv("ANTHROPIC_API_KEY"));
+  const openaiItineraryFallbackConfigured = Boolean(getTrimmedEnv("OPENAI_API_KEY"));
   const readyForGlmPrimary =
     glmConfigured && (!runGlmHealthCheck || glmHealthy === true);
   const issues: ChatProviderReadiness["issues"] = [];
@@ -59,12 +68,21 @@ export async function getChatProviderReadiness({
   if (!anthropicFallbackConfigured) {
     issues.push("anthropic_fallback_missing");
   }
+  if (!openaiItineraryFallbackConfigured) {
+    issues.push("openai_itinerary_fallback_missing");
+  }
+
+  const readyForProductionChat = readyForGlmPrimary && anthropicFallbackConfigured;
+  const readyForProductionItinerary =
+    readyForGlmPrimary && openaiItineraryFallbackConfigured;
 
   return {
     primary: "glm",
     fallback: "anthropic",
     readyForGlmPrimary,
-    readyForProductionChat: readyForGlmPrimary && anthropicFallbackConfigured,
+    readyForProductionChat,
+    readyForProductionItinerary,
+    readyForProductionAI: readyForProductionChat && readyForProductionItinerary,
     issues,
     glm: {
       configured: glmConfigured,
@@ -81,6 +99,11 @@ export async function getChatProviderReadiness({
     anthropicFallback: {
       configured: anthropicFallbackConfigured,
       model: getAnthropicChatModel(),
+    },
+    itineraryFallback: {
+      provider: "openai",
+      configured: openaiItineraryFallbackConfigured,
+      model: getTrimmedEnv("OPENAI_MODEL") || "gpt-4o",
     },
   };
 }

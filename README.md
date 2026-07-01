@@ -71,7 +71,7 @@ npm install
 
 3. Set up environment variables:
 
-Create a `.env.local` file with:
+Copy `.env.example` to `.env.local`, then fill in your real keys. At minimum:
 
 ```env
 # Clerk Authentication

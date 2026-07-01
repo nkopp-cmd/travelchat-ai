@@ -46,6 +46,9 @@ export class GLMProvider
       this.client = new OpenAI({
         apiKey: this.config.apiKey,
         baseURL: this.config.baseURL,
+        defaultHeaders: {
+          'Accept-Language': 'en-US,en',
+        },
       });
     }
   }

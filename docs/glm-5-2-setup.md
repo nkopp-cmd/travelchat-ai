@@ -73,6 +73,8 @@ This should report:
 - `GLM key source: GLM_API_KEY`
 - `Ready for GLM primary: yes`
 - `Ready for production chat: yes`
+- `Ready for production itineraries: yes`
+- `Ready for production AI: yes`
 - `Issues: none`
 
 Add `-- --health` only when you want to spend one lightweight provider call to verify the remote GLM endpoint:
@@ -99,7 +101,9 @@ npm run llm:readiness -- --json
 
 If `GLM configured` is `no`, `readyForGlmPrimary` is `false`, or `issues` includes `glm_api_key_missing`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
 
-If `issues` includes `anthropic_fallback_missing`, add `ANTHROPIC_API_KEY` before launch so the existing fallback remains available when GLM fails or is temporarily unavailable.
+If `issues` includes `anthropic_fallback_missing`, add `ANTHROPIC_API_KEY` before launch so the existing chat fallback remains available when GLM fails or is temporarily unavailable.
+
+If `issues` includes `openai_itinerary_fallback_missing`, add `OPENAI_API_KEY` before launch so itinerary generation can fall back when GLM fails or returns invalid JSON.
 
 If `issues` includes `glm_health_failed`, the key is present but the provider call failed. Confirm the Z.AI account, model access, and `GLM_BASE_URL`, then rerun `npm run llm:readiness -- --health`.
 
@@ -107,7 +111,7 @@ If `issues` includes `glm_health_failed`, the key is present but the provider ca
 
 Admin users can verify runtime routing without exposing secrets:
 
-- `GET /api/admin/llm-metrics` reports `chatProviderReadiness`, including `readyForGlmPrimary`, `readyForProductionChat`, `issues`, whether GLM is configured as the primary chat provider, and whether Anthropic fallback is configured.
+- `GET /api/admin/llm-metrics` reports `chatProviderReadiness`, including `readyForGlmPrimary`, `readyForProductionChat`, `readyForProductionItinerary`, `readyForProductionAI`, `issues`, whether GLM is configured as the primary provider, whether Anthropic chat fallback is configured, and whether OpenAI itinerary fallback is configured.
 - `GET /api/admin/llm-metrics?health=glm` runs a lightweight GLM health check and returns `chatProviderReadiness.glm.healthy`.
 - `POST /api/chat` returns `provider` and `fallbackUsed`. A healthy GLM-primary response should return `provider: "glm"` and `fallbackUsed: false`; `provider: "anthropic"` with `fallbackUsed: true` means GLM was attempted but failed and Anthropic handled the message.
 - `POST /api/itineraries/generate` returns `meta.provider` and `meta.fallbackUsed`. A healthy GLM-primary response should return `meta.provider: "glm"` and `meta.fallbackUsed: false`; `meta.provider: "openai"` with `meta.fallbackUsed: true` means GLM was attempted but failed or returned invalid JSON, and OpenAI handled the itinerary.
