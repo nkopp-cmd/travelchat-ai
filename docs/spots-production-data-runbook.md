@@ -41,6 +41,17 @@ npx tsx scripts/audit-spot-location-quality.ts --out="$out_dir/location.json"
 rm -f "$tmp_env"
 ```
 
+For a prioritized operator packet that combines image, address, name, and place-identity issues into one JSON/CSV action list:
+
+```bash
+cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
+tmp_env=$(mktemp)
+vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
+set -a; source "$tmp_env"; set +a
+npm run spots:quality:action-plan -- --out=reports/spot-quality-action-plan.json --csv=reports/spot-quality-action-plan.csv --limit=250
+rm -f "$tmp_env"
+```
+
 ## Admin Enrichment Queue
 
 Use the admin workbench after each audit run:
