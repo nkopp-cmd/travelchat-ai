@@ -56,6 +56,27 @@ export interface SpotNavigationMode {
     helper: string;
 }
 
+export interface SpotRecordConfidenceInput {
+    hasRealPhoto: boolean;
+    realPhotoCount: number;
+    locationTone: SpotLocationConfidence["tone"];
+    hasTrustedGooglePlaceId: boolean;
+    verified: boolean;
+}
+
+export interface SpotRecordConfidenceCheck {
+    label: string;
+    value: string;
+    ready: boolean;
+}
+
+export interface SpotRecordConfidence {
+    label: string;
+    helper: string;
+    tone: "emerald" | "sky" | "amber";
+    checks: SpotRecordConfidenceCheck[];
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -224,6 +245,73 @@ export function getSpotDirectionsButtonLabel(
     }
 
     return isKorea ? "Search name in Kakao" : "Search area in Maps";
+}
+
+export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotRecordConfidence {
+    const imageReady = input.hasRealPhoto && input.realPhotoCount > 0;
+    const routeReady = input.hasTrustedGooglePlaceId || input.locationTone === "exact";
+    const imageValue = imageReady
+        ? `${input.realPhotoCount} real photo${input.realPhotoCount === 1 ? "" : "s"}`
+        : "Needs photo";
+    const routeValue = input.hasTrustedGooglePlaceId
+        ? "Place matched"
+        : input.locationTone === "exact"
+            ? "Exact address"
+            : input.locationTone === "pinned"
+                ? "Pinned area"
+                : "Area search";
+
+    const checks: SpotRecordConfidenceCheck[] = [
+        {
+            label: "Image",
+            value: imageValue,
+            ready: imageReady,
+        },
+        {
+            label: "Map target",
+            value: routeValue,
+            ready: routeReady,
+        },
+        {
+            label: "Curation",
+            value: input.verified ? "Verified" : "Curated",
+            ready: true,
+        },
+    ];
+
+    if (imageReady && routeReady) {
+        return {
+            label: input.verified ? "Verified route-ready record" : "Route-ready record",
+            helper: "This spot has real image evidence and a specific map target for trip planning.",
+            tone: "emerald",
+            checks,
+        };
+    }
+
+    if (routeReady) {
+        return {
+            label: "Route-ready, image pending",
+            helper: "The map target is specific, but the visual record still needs a reviewed real spot image.",
+            tone: "sky",
+            checks,
+        };
+    }
+
+    if (imageReady) {
+        return {
+            label: "Image-ready, route needs review",
+            helper: "The spot has real imagery, but directions should stay search-first until the address is exact.",
+            tone: "amber",
+            checks,
+        };
+    }
+
+    return {
+        label: "Needs photo and route review",
+        helper: "This record should stay search-first until a real image and exact location evidence are added.",
+        tone: "amber",
+        checks,
+    };
 }
 
 export function getTrustedSpotGooglePlaceId(

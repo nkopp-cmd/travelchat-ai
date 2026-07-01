@@ -7,6 +7,7 @@ import {
     getSpotNavigationMode,
     getSpotPhotoEvidenceHelper,
     getSpotPhotoEvidenceLabel,
+    getSpotRecordConfidence,
     getTrustedSpotGooglePlaceId,
     normalizeLocalleyScore,
     normalizeLocalPercentage,
@@ -48,7 +49,7 @@ describe("spot detail normalization", () => {
 
     it("labels pinned directions as search-first until the address is exact", () => {
         expect(getSpotDirectionsButtonLabel("exact", true)).toBe("Search exact spot in Kakao");
-        expect(getSpotDirectionsButtonLabel("exact", false)).toBe("Search exact spot in Maps");
+        expect(getSpotDirectionsButtonLabel("exact", false)).toBe("Get exact directions");
         expect(getSpotDirectionsButtonLabel("exact", false, true)).toBe("Get exact directions");
         expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Search area in Kakao");
         expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Search name in Maps");
@@ -186,5 +187,61 @@ describe("spot detail normalization", () => {
                 photos: ["/api/places/photo?name=places%2FChIJ-photo-place%2Fphotos%2Fabc&w=1200"],
             })
         ).toBe("ChIJ-photo-place");
+    });
+
+    it("summarizes record confidence for detail page trust signals", () => {
+        expect(
+            getSpotRecordConfidence({
+                hasRealPhoto: true,
+                realPhotoCount: 3,
+                locationTone: "area",
+                hasTrustedGooglePlaceId: true,
+                verified: true,
+            })
+        ).toMatchObject({
+            label: "Verified route-ready record",
+            tone: "emerald",
+            checks: [
+                { label: "Image", value: "3 real photos", ready: true },
+                { label: "Map target", value: "Place matched", ready: true },
+                { label: "Curation", value: "Verified", ready: true },
+            ],
+        });
+
+        expect(
+            getSpotRecordConfidence({
+                hasRealPhoto: true,
+                realPhotoCount: 1,
+                locationTone: "pinned",
+                hasTrustedGooglePlaceId: false,
+                verified: false,
+            })
+        ).toMatchObject({
+            label: "Image-ready, route needs review",
+            tone: "amber",
+            checks: [
+                { label: "Image", value: "1 real photo", ready: true },
+                { label: "Map target", value: "Pinned area", ready: false },
+                { label: "Curation", value: "Curated", ready: true },
+            ],
+        });
+
+        expect(
+            getSpotRecordConfidence({
+                hasRealPhoto: false,
+                realPhotoCount: 0,
+                locationTone: "area",
+                hasTrustedGooglePlaceId: false,
+                verified: false,
+            })
+        ).toMatchObject({
+            label: "Needs photo and route review",
+            tone: "amber",
+            checks: [
+                { label: "Image", value: "Needs photo", ready: false },
+                { label: "Map target", value: "Area search", ready: false },
+                { label: "Curation", value: "Curated", ready: true },
+            ],
+        });
     });
 });

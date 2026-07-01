@@ -58,6 +58,7 @@ import {
   getSpotNavigationMode,
   getSpotPhotoEvidenceHelper,
   getSpotPhotoEvidenceLabel,
+  getSpotRecordConfidence,
   getSpotVisitPlan,
   getTrustedSpotGooglePlaceId,
   normalizeLocalleyScore,
@@ -450,6 +451,62 @@ function SpotFact({
   );
 }
 
+function RecordConfidencePanel({
+  confidence,
+}: {
+  confidence: ReturnType<typeof getSpotRecordConfidence>;
+}) {
+  const toneClasses = {
+    emerald: "border-emerald-200/20 bg-emerald-400/10 text-emerald-100",
+    sky: "border-sky-200/20 bg-sky-400/10 text-sky-100",
+    amber: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+  }[confidence.tone];
+
+  return (
+    <section
+      className={`${LIQUID_CARD} grid gap-3 p-3 sm:grid-cols-[minmax(0,0.95fr)_minmax(0,1.6fr)] sm:p-4`}
+      aria-label="Spot record confidence"
+    >
+      <div className="min-w-0">
+        <span
+          className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${toneClasses}`}
+        >
+          {confidence.label}
+        </span>
+        <p className="mt-2 text-sm leading-6 text-violet-50/65">
+          {confidence.helper}
+        </p>
+      </div>
+      <div className="grid min-w-0 grid-cols-3 gap-2">
+        {confidence.checks.map((check) => (
+          <div
+            key={check.label}
+            className="min-w-0 rounded-lg border border-white/10 bg-white/[0.055] p-2.5"
+          >
+            <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-violet-50/45">
+              {check.ready ? (
+                <ShieldCheck
+                  className="h-3.5 w-3.5 shrink-0 text-emerald-300"
+                  aria-hidden="true"
+                />
+              ) : (
+                <AlertTriangle
+                  className="h-3.5 w-3.5 shrink-0 text-amber-300"
+                  aria-hidden="true"
+                />
+              )}
+              <span className="truncate">{check.label}</span>
+            </div>
+            <p className="truncate text-xs font-semibold text-white sm:text-sm">
+              {check.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // Get Directions button component
 function GetDirectionsButton({
   spot,
@@ -829,6 +886,13 @@ export default async function SpotPage({
     hasRealPhoto: spot.hasRealPhoto,
     realPhotoCount: spot.realPhotoCount,
   });
+  const recordConfidence = getSpotRecordConfidence({
+    hasRealPhoto: spot.hasRealPhoto,
+    realPhotoCount: spot.realPhotoCount,
+    locationTone: locationConfidence.tone,
+    hasTrustedGooglePlaceId: Boolean(spot.googlePlaceId),
+    verified: spot.verified,
+  });
 
   return (
     <>
@@ -1011,6 +1075,8 @@ export default async function SpotPage({
             tone={locationSignalTone}
           />
         </section>
+
+        <RecordConfidencePanel confidence={recordConfidence} />
 
         {galleryImages.length > 0 && (
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
