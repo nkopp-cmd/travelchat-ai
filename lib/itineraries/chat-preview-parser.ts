@@ -31,7 +31,7 @@ const ADDRESS_LINE_PATTERN =
 const PIN_ADDRESS_LINE_PATTERN = /^(?:[-*]\s*)?\u{1F4CD}\s*(.+)$/u;
 
 function isTipsHeading(line: string): boolean {
-  return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|practical\s+notes|route\s+notes|map\s+notes|booking\s+notes|notes|getting\s+around|getting\s+there|transport|transport\s+tips|transit|transit\s+tips)\s*\**$/i.test(line.trim());
+  return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|practical\s+notes|route\s+notes|map\s+notes|booking\s+notes|food\s+notes|money\s+notes|notes|what\s+to\s+order|before\s+you\s+go|getting\s+around|getting\s+there|transport|transport\s+tips|transit|transit\s+tips)\s*\**$/i.test(line.trim());
 }
 
 function getActivityType(title: string): ParsedChatActivity["type"] {
@@ -50,7 +50,7 @@ function cleanActivityTitle(title: string): string {
 }
 
 const LABELED_TIP_FRAGMENT_PATTERN =
-  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|getting there|transport|transportation|transit)\s*:\s*([^.\n]+(?:[.!?]|$)?)/gi;
+  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*:\s*([^.\n]+(?:[.!?]|$)?)/gi;
 
 function splitChatDescriptionTips(description: string): { description: string; tips: string[] } {
   const tips: string[] = [];
@@ -148,6 +148,26 @@ function parseIndentedTip(note: string): string | null {
   return parsed.description ? `${cleanTitle}: ${parsed.description}` : cleanTitle;
 }
 
+function parseTipsSectionLine(line: string): string | null {
+  const tip = line
+    .replace(/^[-*]\s*/, "")
+    .replace(/^\*+|\*+$/g, "")
+    .trim();
+
+  return tip || null;
+}
+
+function parseStandaloneTipLine(line: string): string | null {
+  const withoutBullet = line.replace(/^[-*]\s*/, "").trim();
+  const parsed = parseActivityLine(`- ${withoutBullet}`);
+  if (!parsed) return null;
+
+  const cleanTitle = cleanActivityTitle(parsed.title);
+  if (!isTipLikeActivity({ name: cleanTitle, description: parsed.description })) return null;
+
+  return parsed.description ? `${cleanTitle}: ${parsed.description}` : cleanTitle;
+}
+
 export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
   if (/\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|route|ride|getting around|kakao|maps?)\b/i.test(tip)) {
     return "transport";
@@ -230,11 +250,8 @@ export function parseChatItineraryPreview(content: string): ParsedChatItinerary 
       return;
     }
 
-    if (inTipsSection && /^[-*]\s+/.test(trimmed)) {
-      const tip = trimmed
-        .replace(/^[-*]\s*/, "")
-        .replace(/^\*+|\*+$/g, "")
-        .trim();
+    if (inTipsSection) {
+      const tip = parseTipsSectionLine(trimmed);
       if (tip) tips.push(tip);
       return;
     }
@@ -252,6 +269,14 @@ export function parseChatItineraryPreview(content: string): ParsedChatItinerary 
         pushActivityOrTip(currentDay, tips, parsed.title, parsed.description);
       }
       return;
+    }
+
+    if (!inTipsSection && currentDay) {
+      const tip = parseStandaloneTipLine(trimmed);
+      if (tip) {
+        tips.push(tip);
+        return;
+      }
     }
 
     const indentedNote = line.match(/^\s+(.+)$/)?.[1]?.trim();
@@ -275,7 +300,7 @@ export function parseChatItineraryPreview(content: string): ParsedChatItinerary 
   return {
     title,
     city: city || "Unknown City",
-    days,
+    days: days.filter((day) => day.activities.length > 0),
     tips,
   };
 }

@@ -36,6 +36,7 @@ const TIP_NAME_PATTERNS = [
   /\btips?\s+(for|about|before|while)\b/i,
   /\bthings?\s+to\s+know\b/i,
   /\bwhat\s+to\s+(order|know|bring|avoid)\b/i,
+  /\b(booking|map|route|food|money)\s+notes?\b/i,
   /\bhow\s+to\s+(get|go|use|book)\b/i,
   /\bbefore\s+you\s+go\b/i,
   /\bgetting\s+(around|there)\b/i,
@@ -44,10 +45,10 @@ const TIP_NAME_PATTERNS = [
   /\b(note|advice|insight|reminder)\s*(for|about|before|while)?\b/i,
 ];
 
-const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|reminder|reminders|getting around|getting there|transport|transportation|transit)$/i;
+const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|notes|advice|insight|insights|reminder|reminders|heads up|getting around|getting there|transport|transportation|transit)$/i;
 const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|getting there|kakao|maps?)\b/i;
 const GENERIC_ACTIVITY_NAME_PATTERN = /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
-const LABELED_TIP_LINE_PATTERN = /^(?:[-*]\s*)?(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|getting there|transport|transportation|transit)\s*:\s*(.+)$/i;
+const LABELED_TIP_LINE_PATTERN = /^(?:[-*]\s*)?(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*:\s*(.+)$/i;
 const PRACTICAL_NOTE_NAME_PATTERN =
   /^(bring|pack|wear|use|take|book|reserve|check|avoid|ask|go|arrive|get|download|carry|keep|remember|try to)\b/i;
 const MAPPABLE_CONTEXT_FIELDS = ["address", "location", "lat", "lng", "latitude", "longitude", "localleyScore"] as const;

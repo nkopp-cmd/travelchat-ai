@@ -169,6 +169,69 @@ Before you go
     expect(result.tips).toEqual(["Getting there: Walk from Anguk Station exit 3."]);
   });
 
+  it("keeps plain lines inside tips sections outside day activities", () => {
+    const result = parseChatItineraryPreview(`# Osaka Hidden Gems
+
+**Day 1: Food Alleys**
+- **Kuromon Market (Local Favorite)**: Start with named seafood stalls.
+  Address: Kuromon Market, Chuo Ward, Osaka
+
+**Local Tips**
+Bring cash for smaller counters.
+What to order: grilled scallops before noon.
+Getting around: Use Nippombashi Station exit 10.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Kuromon Market",
+    ]);
+    expect(result.tips).toEqual([
+      "Bring cash for smaller counters.",
+      "What to order: grilled scallops before noon.",
+      "Getting around: Use Nippombashi Station exit 10.",
+    ]);
+  });
+
+  it("moves standalone practical label rows into tips even without bullets", () => {
+    const result = parseChatItineraryPreview(`# Busan Hidden Gems
+
+**Day 1: Markets**
+- **Bupyeong Kkangtong Market (Hidden Gem)**: Eat through named stalls after dark.
+  Address: Bupyeong Kkangtong Market, Jung-gu, Busan
+What to order: seed hotteok and eomuk.
+Booking note: No reservations needed, but go before peak dinner.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Bupyeong Kkangtong Market",
+    ]);
+    expect(result.tips).toEqual([
+      "What to order: seed hotteok and eomuk.",
+      "Booking note: No reservations needed, but go before peak dinner.",
+    ]);
+  });
+
+  it("drops day sections that only contain notes after filtering", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Practical setup**
+- Bring cash for smaller vendors.
+- Getting around: Use the subway.
+
+**Day 2: Real stops**
+- **Ikseon Teahouse (Hidden Gem)**: Order seasonal tea.
+  Address: Ikseon-dong, Jongno-gu, Seoul
+`);
+
+    expect(result.days).toHaveLength(1);
+    expect(result.days[0].day).toBe("Day 2: Real stops");
+    expect(result.days[0].activities[0].title).toBe("Ikseon Teahouse");
+    expect(result.tips).toEqual([
+      "Bring cash for smaller vendors.",
+      "Getting around: Use the subway.",
+    ]);
+  });
+
   it("classifies chat tips for saved itinerary insights", () => {
     expect(getChatTipKind("Use the subway and walk the last few blocks.")).toBe("transport");
     expect(getChatTipKind("Bring cash and go early.")).toBe("local");

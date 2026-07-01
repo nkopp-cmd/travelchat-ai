@@ -163,6 +163,37 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ]);
   });
 
+  it("extracts food, booking, and route notes from real activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Bupyeong Kkangtong Market",
+            description:
+              "Eat through named stalls after dark.\nWhat to order: seed hotteok and eomuk.\nBooking note: No reservation needed.\nRoute note: Start at Jagalchi Station.",
+            category: "Market",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Eat through named stalls after dark."
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "What to order: seed hotteok and eomuk. Booking note: No reservation needed.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Route note: Start at Jagalchi Station.",
+      }),
+    ]);
+  });
+
   it("supports structured itinerary payloads with top-level insights", () => {
     const payload = buildItineraryPlanPayload(
       [
