@@ -465,6 +465,50 @@ const RING_3_CITIES: CityConfig[] = [
         heroImage: "https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&q=90&auto=format&fit=crop",
     },
     {
+        slug: "keelung",
+        name: "Keelung",
+        country: "Taiwan",
+        countryCode: "TW",
+        emoji: "🇹🇼",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Zhongzheng", "Ren'ai", "Miaokou", "Badouzi", "Heping Island"
+        ],
+        timezone: "Asia/Taipei",
+        languages: ["zh", "en"],
+        currency: "TWD",
+        center: { lat: 25.1276, lng: 121.7392 },
+        vibe: "Harbor markets & coastal walks",
+        heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=1200&q=90&auto=format&fit=crop",
+    },
+    {
+        slug: "yilan",
+        name: "Yilan",
+        country: "Taiwan",
+        countryCode: "TW",
+        emoji: "🇹🇼",
+        ring: 3,
+        isEnabled: true,
+        targets: {
+            spots: { min: 80, ideal: 150 },
+            templates: { min: 4, ideal: 8 },
+        },
+        neighborhoods: [
+            "Yilan City", "Luodong", "Jiaoxi", "Wujie", "Dongshan"
+        ],
+        timezone: "Asia/Taipei",
+        languages: ["zh", "en"],
+        currency: "TWD",
+        center: { lat: 24.7021, lng: 121.7378 },
+        vibe: "Hot springs & coastal craft",
+        heroImage: "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=1200&q=90&auto=format&fit=crop",
+    },
+    {
         slug: "da-nang",
         name: "Da Nang",
         country: "Vietnam",

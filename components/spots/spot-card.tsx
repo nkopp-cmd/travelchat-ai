@@ -23,6 +23,8 @@ const KNOWN_CITY_COORDS: Array<{ city: string; lat: [number, number]; lng: [numb
     { city: "Jeju", lat: [33.1, 33.65], lng: [126.05, 126.95] },
     { city: "Hong Kong", lat: [22.1, 22.6], lng: [113.75, 114.45] },
     { city: "Taipei", lat: [24.85, 25.25], lng: [121.25, 121.8] },
+    { city: "Keelung", lat: [25, 25.25], lng: [121.6, 121.9] },
+    { city: "Yilan", lat: [24.5, 24.95], lng: [121.55, 121.95] },
     { city: "Hanoi", lat: [20.8, 21.25], lng: [105.65, 106.15] },
     { city: "Ho Chi Minh", lat: [10.6, 11], lng: [106.45, 106.95] },
     { city: "Kuala Lumpur", lat: [2.95, 3.35], lng: [101.5, 101.85] },
@@ -34,6 +36,8 @@ const LOCATION_KEYWORDS: Array<{ city: string; terms: string[] }> = [
     { city: "Bangkok", terms: ["don muang", "taopoon", "ari", "thonglor", "sukhumvit"] },
     { city: "Busan", terms: ["ilgwang", "haeundae", "gwangalli", "seomyeon"] },
     { city: "Kyoto", terms: ["gion", "arashiyama", "temple courtyard", "shrine"] },
+    { city: "Keelung", terms: ["beining road", "badouzi", "miaokou", "heping island"] },
+    { city: "Yilan", terms: ["wubin road", "wujie", "luodong", "jiaoxi", "dongshan"] },
     { city: "Seoul", terms: ["euljiro", "hongdae", "mullae", "haengdang", "hongje", "hwarang", "daebang", "hyehwa"] },
     { city: "Tokyo", terms: ["shinjuku", "kita city", "harmonica yokocho", "shimokitazawa", "koenji"] },
 ];

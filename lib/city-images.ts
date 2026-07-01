@@ -16,6 +16,8 @@ const CITY_IMAGES: Record<string, string> = {
   "osaka": "https://images.unsplash.com/photo-1590559899731-a382839e5549",
   "kyoto": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e",
   "taipei": "https://images.unsplash.com/photo-1470004914212-05527e49370b",
+  "keelung": "https://images.unsplash.com/photo-1470004914212-05527e49370b",
+  "yilan": "https://images.unsplash.com/photo-1470004914212-05527e49370b",
   "bali": "https://images.unsplash.com/photo-1537996194471-e657df975ab4",
   "hanoi": "https://images.unsplash.com/photo-1509030450996-dd1a26dda07a",
   "ho chi minh": "https://images.unsplash.com/photo-1583417319070-4a69db38a482",
