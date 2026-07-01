@@ -20,6 +20,10 @@ import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { addFallbackToPlacePhotoUrl } from "@/lib/place-images";
 import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
+import {
+  getFirstRealDisplaySpotPhoto,
+  hasRealDisplaySpotPhoto,
+} from "@/lib/spots/display-images";
 
 const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
@@ -28,14 +32,6 @@ interface SpotCardProps {
   compact?: boolean;
   /** Set to true for above-the-fold images (first 6 cards) */
   priority?: boolean;
-}
-
-function isPlaceholderImage(src: string | undefined) {
-  return (
-    !src ||
-    src.includes("placeholder") ||
-    src.startsWith("/images/placeholders/")
-  );
 }
 
 function inferSpotCity(spot: Spot): string | null {
@@ -48,7 +44,7 @@ function inferSpotCity(spot: Spot): string | null {
 }
 
 function getInitialImage(spot: Spot) {
-  const realPhoto = spot.photos.find((photo) => !isPlaceholderImage(photo));
+  const realPhoto = getFirstRealDisplaySpotPhoto(spot.photos);
   if (realPhoto) return { src: realPhoto, isAreaFallback: false };
 
   const fallback =
@@ -72,9 +68,7 @@ function getCityFallbackImage(spot: Spot) {
 }
 
 function hasRealSpotPhoto(spot: Spot) {
-  return (
-    spot.hasRealPhoto ?? spot.photos.some((photo) => !isPlaceholderImage(photo))
-  );
+  return spot.hasRealPhoto ?? hasRealDisplaySpotPhoto(spot.photos);
 }
 
 function getScoreTone(score: number) {

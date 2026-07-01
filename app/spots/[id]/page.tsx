@@ -43,6 +43,11 @@ import {
 } from "@/lib/spots/map-links";
 import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
 import {
+  countRealDisplaySpotPhotos,
+  getFirstRealDisplaySpotPhoto,
+  isRealDisplaySpotPhoto,
+} from "@/lib/spots/display-images";
+import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
@@ -181,15 +186,6 @@ function formatCoordinate(value: number) {
   return value ? value.toFixed(5) : null;
 }
 
-function isPlaceholderImage(src: string | undefined) {
-  return (
-    !src ||
-    src.startsWith("/images/placeholders/") ||
-    src === "/placeholder-spot.svg" ||
-    src.includes("placeholder")
-  );
-}
-
 function inferSpotCity(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
 ): string | null {
@@ -216,7 +212,7 @@ function getSpotHeroImage(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
 ) {
   const photos = spot.photos as string[];
-  const realPhoto = photos.find((photo: string) => !isPlaceholderImage(photo));
+  const realPhoto = getFirstRealDisplaySpotPhoto(photos);
   if (realPhoto) return realPhoto;
 
   const city = inferSpotCity(spot);
@@ -253,9 +249,7 @@ function getSpotFallbackImage(
 function getSpotGalleryImages(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
 ) {
-  const photos = (spot.photos as string[]).filter(
-    (photo: string) => !isPlaceholderImage(photo),
-  );
+  const photos = (spot.photos as string[]).filter(isRealDisplaySpotPhoto);
   return photos.length > 1 ? photos.slice(1, 4) : [];
 }
 
@@ -566,13 +560,7 @@ async function getSpot(id: string) {
     bestTime: getSpotBestTime(spot.best_times, spot.best_time),
     photos: normalizedPhotos,
     hasRealPhoto: photoSummary.hasRealPhoto,
-    realPhotoCount: Object.entries(photoSummary.kinds).reduce(
-      (count, [kind, value]) =>
-        kind === "proxy" || kind === "remote_https" || kind === "local_asset"
-          ? count + value
-          : count,
-      0,
-    ),
+    realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
     googlePlaceId: getTrustedSpotGooglePlaceId({
       photos: normalizedPhotos,
       storedGooglePlaceId: spot.google_place_id,
@@ -643,9 +631,7 @@ async function getRelatedSpots(
         height: 675,
         quality: 90,
       });
-      const realPhoto = normalizedPhotos.find(
-        (photo) => !isPlaceholderImage(photo),
-      );
+      const realPhoto = getFirstRealDisplaySpotPhoto(normalizedPhotos);
 
       return {
         id: spot.id,
@@ -660,15 +646,7 @@ async function getRelatedSpots(
         ),
         fallbackImage,
         hasRealPhoto: photoSummary.hasRealPhoto,
-        realPhotoCount: Object.entries(photoSummary.kinds).reduce(
-          (count, [kind, value]) =>
-            kind === "proxy" ||
-            kind === "remote_https" ||
-            kind === "local_asset"
-              ? count + value
-              : count,
-          0,
-        ),
+        realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
       };
     });
 }
