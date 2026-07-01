@@ -59,6 +59,21 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ).toBe(true);
   });
 
+  it("moves imperative practical note rows into insights", () => {
+    expect(
+      isTipLikeActivity({
+        name: "Bring cash for smaller vendors.",
+      })
+    ).toBe(true);
+
+    expect(
+      isTipLikeActivity({
+        name: "Reserve popular restaurants before the trip",
+        description: "Weekend dinner slots book out fast.",
+      })
+    ).toBe(true);
+  });
+
   it("treats generic meal or time-slot rows as tips but keeps named meal places", () => {
     expect(
       isTipLikeActivity({
@@ -93,6 +108,10 @@ describe("sanitizeGeneratedDailyPlans", () => {
             description: "Many stalls close after lunch.",
             category: "Advice",
           },
+          {
+            name: "Use the metro between stops.",
+            category: "Transport",
+          },
         ],
       },
     ]);
@@ -102,7 +121,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result.dailyPlans[0].transportTips).toBeUndefined();
     expect(result.insights.map((insight) => insight.text)).toEqual([
       "Bring cash. Things to know: Many stalls close after lunch.",
-      "Use the metro.",
+      "Use the metro. Use the metro between stops.",
     ]);
   });
 

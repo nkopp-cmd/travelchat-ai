@@ -48,6 +48,9 @@ const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|n
 const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|kakao|maps?)\b/i;
 const GENERIC_ACTIVITY_NAME_PATTERN = /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
 const LABELED_TIP_LINE_PATTERN = /^(?:[-*]\s*)?(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|transport|transportation|transit)\s*:\s*(.+)$/i;
+const PRACTICAL_NOTE_NAME_PATTERN =
+  /^(bring|pack|wear|use|take|book|reserve|check|avoid|ask|go|arrive|get|download|carry|keep|remember|try to)\b/i;
+const MAPPABLE_CONTEXT_FIELDS = ["address", "location", "lat", "lng", "latitude", "longitude", "localleyScore"] as const;
 
 export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const name = getStringValue(activity.name);
@@ -59,12 +62,31 @@ export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
     TIP_VALUE_PATTERN.test(name) ||
     TIP_VALUE_PATTERN.test(category) ||
     TIP_VALUE_PATTERN.test(type) ||
-    GENERIC_ACTIVITY_NAME_PATTERN.test(name)
+    GENERIC_ACTIVITY_NAME_PATTERN.test(name) ||
+    PRACTICAL_NOTE_NAME_PATTERN.test(name)
   ) {
     return true;
   }
 
+  if (!getStringValue(activity.description) && !hasMappableContext(activity) && looksLikePracticalSentence(name)) {
+    return true;
+  }
+
   return TIP_NAME_PATTERNS.some((pattern) => pattern.test(name));
+}
+
+function hasMappableContext(activity: ItineraryActivityLike): boolean {
+  const record = activity as Record<string, unknown>;
+
+  return MAPPABLE_CONTEXT_FIELDS.some((field) => {
+    const value = record[field];
+    if (typeof value === "number") return Number.isFinite(value);
+    return getStringValue(value).length > 0;
+  });
+}
+
+function looksLikePracticalSentence(value: string): boolean {
+  return /[.!?]$/.test(value) && /\b(cash|card|ticket|reservation|queue|line|rush|metro|subway|bus|train|taxi|walk|umbrella|rain|passport|wifi|sim|translation|closed|open|hours?)\b/i.test(value);
 }
 
 function getTipText(activity: ItineraryActivityLike): string {

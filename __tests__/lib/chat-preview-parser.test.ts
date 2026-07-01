@@ -50,6 +50,26 @@ describe("parseChatItineraryPreview", () => {
     ]);
   });
 
+  it("keeps plain practical bullet rows out of day activities", () => {
+    const result = parseChatItineraryPreview(`# Taipei Hidden Gems
+
+**Day 1: Local Food**
+
+- **Yongkang Beef Noodle (Local Favorite)**: Order the half-spicy bowl.
+  Address: Yongkang Beef Noodle, Da'an District, Taipei
+- Bring cash for smaller vendors.
+- Use the MRT between stops.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Yongkang Beef Noodle",
+    ]);
+    expect(result.tips).toEqual([
+      "Bring cash for smaller vendors.",
+      "Use the MRT between stops.",
+    ]);
+  });
+
   it("keeps indented practical notes out of activity descriptions", () => {
     const result = parseChatItineraryPreview(`# Seoul Hidden Gems
 

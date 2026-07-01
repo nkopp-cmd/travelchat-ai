@@ -112,7 +112,7 @@ function WizardContent({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-32">
         {steps[currentStep]}
       </div>
 
@@ -254,7 +254,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex h-[calc(100dvh-8.5rem)] min-h-0 flex-col overflow-hidden rounded-2xl bg-background md:h-full md:max-h-none md:rounded-none">
+      <div className="flex h-[calc(100dvh-4.5rem)] min-h-0 flex-col overflow-hidden bg-background sm:h-[calc(100dvh-6rem)] sm:rounded-2xl md:h-full md:max-h-none md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>

@@ -89,7 +89,7 @@ export default function TemplatesPage() {
         <TemplatePicker templates={templates} />
 
         {/* Custom Option CTA */}
-        <div className="mt-3 border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4 lg:max-w-[calc(100%-22rem)]">
+        <div className="mt-3 hidden border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4 md:block lg:max-w-[calc(100%-22rem)]">
           <h3 className="mb-1.5 text-base font-bold sm:text-lg">
             Don&apos;t see what you&apos;re looking for?
           </h3>

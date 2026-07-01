@@ -238,7 +238,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                             <div className="flex min-w-0 flex-wrap items-center gap-1">
                                 <SpotScoreChip score={spot.localleyScore} />
                                 <LocalCrowdChip percentage={spot.localPercentage} />
-                                <LocationConfidenceChip spot={spot} />
+                                <LocationConfidenceChip spot={spot} className="hidden min-[430px]:inline-flex" />
                             </div>
                         </div>
                     </div>
@@ -322,7 +322,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         <div className="flex min-w-0 flex-wrap items-center gap-1">
                             <SpotScoreChip score={spot.localleyScore} />
                             <LocalCrowdChip percentage={spot.localPercentage} />
-                            <LocationConfidenceChip spot={spot} />
+                            <LocationConfidenceChip spot={spot} className="hidden min-[430px]:inline-flex sm:inline-flex" />
                         </div>
                     </div>
                 </div>
