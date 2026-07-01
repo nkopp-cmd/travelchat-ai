@@ -79,6 +79,26 @@ interface PhotoBackfillPreviewResult {
     }>;
 }
 
+interface LocationBackfillPreviewResult {
+    success?: boolean;
+    dryRun?: boolean;
+    includePhotos?: boolean;
+    result?: {
+        id: string;
+        name: string;
+        status: "updated" | "would_update" | "skipped" | "failed";
+        reason?: string;
+        placeName?: string | null;
+        placeId?: string | null;
+        formattedAddress?: string | null;
+        lat?: number | null;
+        lng?: number | null;
+        query?: string | null;
+        photoCount?: number;
+        updatedFields?: string[];
+    };
+}
+
 function getPrimaryPhoto(item: SpotQualityItem): string | null {
     return item.photos.find((photo) => photo && !photo.toLowerCase().includes("placeholder")) || null;
 }
@@ -169,7 +189,10 @@ export function SpotQualityWorkbench() {
     const [saving, setSaving] = useState(false);
     const [previewingPhotoBackfill, setPreviewingPhotoBackfill] = useState(false);
     const [applyingPhotoBackfill, setApplyingPhotoBackfill] = useState(false);
+    const [previewingLocationBackfill, setPreviewingLocationBackfill] = useState(false);
+    const [applyingLocationBackfill, setApplyingLocationBackfill] = useState(false);
     const [photoBackfillPreview, setPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
+    const [locationBackfillPreview, setLocationBackfillPreview] = useState<LocationBackfillPreviewResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
     const [editState, setEditState] = useState<EditState | null>(null);
@@ -222,6 +245,7 @@ export function SpotQualityWorkbench() {
         if (selectedItem) {
             setEditState(createEditState(selectedItem));
             setPhotoBackfillPreview(null);
+            setLocationBackfillPreview(null);
         } else {
             setEditState(null);
         }
@@ -277,6 +301,56 @@ export function SpotQualityWorkbench() {
 
     const previewSelectedPhotoBackfill = () => runSelectedPhotoBackfill(true);
     const applySelectedPhotoBackfill = () => runSelectedPhotoBackfill(false);
+
+    const runSelectedLocationBackfill = async (dryRun: boolean) => {
+        if (!selectedItem) return;
+
+        if (dryRun) {
+            setPreviewingLocationBackfill(true);
+        } else {
+            setApplyingLocationBackfill(true);
+        }
+        setError(null);
+        setNotice(null);
+        if (dryRun) setLocationBackfillPreview(null);
+
+        try {
+            const response = await fetch("/api/admin/spots/backfill-location", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    spotId: selectedItem.id,
+                    dryRun,
+                    includePhotos: true,
+                }),
+            });
+            const data = (await response.json()) as LocationBackfillPreviewResult & { error?: string; details?: string };
+            if (!response.ok) {
+                throw new Error(data.result?.reason || data.details || data.error || "Failed to preview exact location");
+            }
+
+            setLocationBackfillPreview(data);
+            const result = data.result;
+            if (!dryRun && result?.status === "updated") {
+                setNotice(`Applied exact place match: ${result.formattedAddress || result.placeName || "updated spot"}.`);
+                await loadQueue();
+            } else if (result?.status === "would_update") {
+                setNotice(`Exact match preview ready: ${result.formattedAddress || result.placeName || "place found"}.`);
+            } else if (result?.status === "skipped") {
+                setNotice(`Exact match skipped: ${result.reason || "no confident match"}.`);
+            } else {
+                setNotice(dryRun ? "Exact match dry run completed." : "Exact match backfill completed.");
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to run exact location backfill");
+        } finally {
+            setPreviewingLocationBackfill(false);
+            setApplyingLocationBackfill(false);
+        }
+    };
+
+    const previewSelectedLocationBackfill = () => runSelectedLocationBackfill(true);
+    const applySelectedLocationBackfill = () => runSelectedLocationBackfill(false);
 
     const saveSelected = async () => {
         if (!selectedItem || !editState) return;
@@ -696,6 +770,89 @@ export function SpotQualityWorkbench() {
                                             Place ID lookup guide
                                             <ExternalLink className="ml-1 h-3 w-3" />
                                         </Link>
+                                    </div>
+                                )}
+
+                                {selectedItem.issues.some((itemIssue) => itemIssue === "inexact_location" || itemIssue === "missing_place_id" || itemIssue === "missing_real_photo") && (
+                                    <div className="rounded-lg border border-sky-200/15 bg-sky-400/10 p-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                                    <MapPin className="h-4 w-4 text-sky-200" />
+                                                    Exact place match
+                                                </div>
+                                                <p className="mt-1 text-xs leading-5 text-violet-50/65">
+                                                    Preview a Google Places match that can update the exact address, map pin, Place ID, and eligible place photos together.
+                                                </p>
+                                            </div>
+                                            <Badge className="shrink-0 rounded-md border border-sky-200/20 bg-sky-300/10 text-[10px] text-sky-100">
+                                                Dry-run first
+                                            </Badge>
+                                        </div>
+
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={previewSelectedLocationBackfill}
+                                            disabled={previewingLocationBackfill}
+                                            className="mt-3 h-9 w-full border-white/10 bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
+                                        >
+                                            {previewingLocationBackfill ? (
+                                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="mr-2 h-3.5 w-3.5" />
+                                            )}
+                                            Preview exact match
+                                        </Button>
+
+                                        {locationBackfillPreview?.result && (
+                                            <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                                <p className="font-semibold text-white">
+                                                    {locationBackfillPreview.result.status.replace("_", " ")}
+                                                </p>
+                                                {locationBackfillPreview.result.placeName && (
+                                                    <p>Matched: {locationBackfillPreview.result.placeName}</p>
+                                                )}
+                                                {locationBackfillPreview.result.formattedAddress && (
+                                                    <p>Address: {locationBackfillPreview.result.formattedAddress}</p>
+                                                )}
+                                                {typeof locationBackfillPreview.result.lat === "number" &&
+                                                    typeof locationBackfillPreview.result.lng === "number" && (
+                                                        <p>
+                                                            Pin: {locationBackfillPreview.result.lat.toFixed(7)}, {locationBackfillPreview.result.lng.toFixed(7)}
+                                                        </p>
+                                                    )}
+                                                {locationBackfillPreview.result.placeId && (
+                                                    <p>Place ID: {locationBackfillPreview.result.placeId}</p>
+                                                )}
+                                                {locationBackfillPreview.result.photoCount !== undefined && (
+                                                    <p>{locationBackfillPreview.result.photoCount} photo candidate{locationBackfillPreview.result.photoCount === 1 ? "" : "s"}</p>
+                                                )}
+                                                {locationBackfillPreview.result.updatedFields?.length ? (
+                                                    <p>Would update: {locationBackfillPreview.result.updatedFields.join(", ")}</p>
+                                                ) : null}
+                                                {locationBackfillPreview.result.reason && (
+                                                    <p>Reason: {locationBackfillPreview.result.reason}</p>
+                                                )}
+                                                {locationBackfillPreview.result.status === "would_update" && (
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        onClick={applySelectedLocationBackfill}
+                                                        disabled={applyingLocationBackfill}
+                                                        className="mt-2 h-8 w-full bg-emerald-600 text-xs text-white hover:bg-emerald-700"
+                                                    >
+                                                        {applyingLocationBackfill ? (
+                                                            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                                        ) : (
+                                                            <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
+                                                        )}
+                                                        Apply exact match
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 

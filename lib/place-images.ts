@@ -19,6 +19,10 @@ export interface PlacePhotoSearchResult {
     placeId: string | null;
     displayName: string | null;
     formattedAddress: string | null;
+    location: {
+        latitude: number;
+        longitude: number;
+    } | null;
     types: string[];
     photos: GooglePlacePhotoCandidate[];
 }
@@ -676,7 +680,7 @@ async function findGooglePlacePhotoCandidatesByQuery(
             headers: {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos,places.types",
+                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.types",
             },
             body: JSON.stringify({
                 textQuery,
@@ -703,6 +707,10 @@ async function findGooglePlacePhotoCandidatesByQuery(
             id?: string;
             displayName?: { text?: string };
             formattedAddress?: string;
+            location?: {
+                latitude?: number;
+                longitude?: number;
+            };
             photos?: GooglePlacePhotoCandidate[];
             types?: string[];
         }>;
@@ -711,6 +719,14 @@ async function findGooglePlacePhotoCandidatesByQuery(
         placeId: place.id || null,
         displayName: place.displayName?.text || null,
         formattedAddress: place.formattedAddress || null,
+        location:
+            typeof place.location?.latitude === "number" &&
+            typeof place.location?.longitude === "number"
+                ? {
+                    latitude: place.location.latitude,
+                    longitude: place.location.longitude,
+                }
+                : null,
         types: place.types || [],
         photos: (place.photos || []).filter((photo) => Boolean(photo.name)),
     }));
