@@ -215,23 +215,26 @@ function CategoryTrendRow({
   category,
   trending,
   compact = false,
+  className,
 }: {
   category: string;
   trending?: boolean;
   compact?: boolean;
+  className?: string;
 }) {
   return (
     <div
       className={cn(
         "grid min-w-0 items-center gap-1",
         trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+        className,
       )}
     >
       <span
         className={cn(
           "min-w-0 max-w-full truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium leading-none text-violet-100",
           compact
-            ? "px-1.5 py-1 text-[10px] min-[390px]:px-2 min-[390px]:text-xs"
+            ? "h-5 px-1.5 py-0.5 text-[9px] min-[390px]:px-2 min-[390px]:text-[10px]"
             : "px-1.5 py-1 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
         )}
         title={category}
@@ -242,7 +245,7 @@ function CategoryTrendRow({
         <TrendingChip
           className={cn(
             "justify-self-end",
-            compact ? "w-7 px-1" : "max-w-[4.5rem]",
+            compact ? "h-5 w-6 px-0.5" : "max-w-[4.5rem]",
           )}
           showLabel={!compact}
         />
@@ -454,13 +457,6 @@ export function SpotCard({
       </div>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-2.5">
-        <div className="mb-1 min-w-0 md:hidden">
-          <CategoryTrendRow
-            category={spot.category}
-            trending={spot.trending}
-            compact
-          />
-        </div>
         <div className="mb-1.5 hidden min-w-0 md:block">
           <div className="min-w-0">
             <CategoryTrendRow
@@ -497,6 +493,12 @@ export function SpotCard({
             data-spot-card-meta
             className="flex min-w-0 flex-wrap items-center gap-1"
           >
+            <CategoryTrendRow
+              category={spot.category}
+              trending={spot.trending}
+              compact
+              className="max-w-[7.5rem] flex-1 md:hidden"
+            />
             <SpotScoreChip score={spot.localleyScore} />
             <LocalCrowdChip
               percentage={spot.localPercentage}

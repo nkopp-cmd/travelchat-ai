@@ -243,24 +243,24 @@ export function SpotsFilterBar({
         })}
       </div>
 
-      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:hidden">
+      <div className="flex min-w-0 items-center gap-2 md:hidden">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => setShowMobileFilters((value) => !value)}
-          className="h-10 min-w-0 justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] px-3 text-violet-50/80 hover:bg-white/10 hover:text-white"
+          className="h-9 max-w-full shrink-0 justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
           aria-expanded={showMobileFilters}
           aria-controls="spots-advanced-filters"
         >
-          <span className="inline-flex min-w-0 flex-1 items-center gap-2">
+          <span className="inline-flex min-w-0 items-center gap-1.5">
             <Filter className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span className="truncate">
               {advancedFilterCount > 0 ? "Edit filters" : "Filters"}
             </span>
           </span>
           {advancedFilterCount > 0 && (
-            <span className="ml-auto shrink-0 rounded-full bg-violet-500 px-2 py-0.5 text-xs font-semibold text-white">
+            <span className="ml-1.5 shrink-0 rounded-full bg-violet-500 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
               {advancedFilterCount}
             </span>
           )}
@@ -270,7 +270,7 @@ export function SpotsFilterBar({
             type="button"
             variant="ghost"
             onClick={onClearFilters}
-            className="h-10 w-10 shrink-0 rounded-lg border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
+            className="h-9 w-9 shrink-0 rounded-full border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
           >
             <X className="h-4 w-4" aria-hidden="true" />
             <span className="sr-only">Clear filters</span>
