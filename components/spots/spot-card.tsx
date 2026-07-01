@@ -335,11 +335,8 @@ export function SpotCard({
         <Link
           href={`/spots/${spot.id}`}
           aria-label={`Open ${spot.name}`}
-          className="absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714]"
+          className="relative aspect-[4/3] w-[4.25rem] flex-shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-20 min-[430px]:w-24 sm:w-32 md:w-36"
         >
-          <span className="sr-only">Open {spot.name}</span>
-        </Link>
-        <div className="relative aspect-[4/3] w-[4.25rem] flex-shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-20 min-[430px]:w-24 sm:w-32 md:w-36">
           {!showGradientFallback && !imageLoaded && (
             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
           )}
@@ -348,14 +345,19 @@ export function SpotCard({
           {(!hasRealPhoto || usingAreaImage) && (
             <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10" />
           )}
-        </div>
+        </Link>
 
         <div className="relative flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
-                {spot.name}
-              </h3>
+              <Link
+                href={`/spots/${spot.id}`}
+                className="block rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
+              >
+                <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
+                  {spot.name}
+                </h3>
+              </Link>
               <p className="mt-1 flex items-center gap-1.5 text-xs text-violet-50/60 sm:text-sm">
                 <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
                 <span className="truncate">{spot.location.address}</span>
@@ -418,11 +420,8 @@ export function SpotCard({
       <Link
         href={`/spots/${spot.id}`}
         aria-label={`Open ${spot.name}`}
-        className="absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714]"
+        className="relative w-[5rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-24 min-[460px]:w-28 md:aspect-[2/1] md:w-full"
       >
-        <span className="sr-only">Open {spot.name}</span>
-      </Link>
-      <div className="relative w-[5rem] shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-24 min-[460px]:w-28 md:aspect-[2/1] md:w-full">
         {!showGradientFallback && !imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
             <div
@@ -441,14 +440,13 @@ export function SpotCard({
         {(!hasRealPhoto || usingAreaImage) && (
           <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
-
-        <div className="absolute right-1.5 top-1.5 z-10 hidden md:right-2.5 md:top-2.5 md:block">
-          <div className="relative z-20 flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
-            <SaveSpotButton
-              spotId={spot.id}
-              className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-8 md:w-8"
-            />
-          </div>
+      </Link>
+      <div className="absolute right-1.5 top-1.5 z-20 hidden md:right-2.5 md:top-2.5 md:block">
+        <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
+          <SaveSpotButton
+            spotId={spot.id}
+            className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-8 md:w-8"
+          />
         </div>
       </div>
 
@@ -470,9 +468,14 @@ export function SpotCard({
         </div>
 
         <div className="mb-1 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 md:mb-0 md:block">
-          <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
-            {spot.name}
-          </h3>
+          <Link
+            href={`/spots/${spot.id}`}
+            className="block min-w-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
+          >
+            <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
+              {spot.name}
+            </h3>
+          </Link>
           <div className="relative z-20 shrink-0 md:hidden">
             <SaveSpotButton
               spotId={spot.id}
