@@ -62,7 +62,12 @@ interface EditState {
 interface PhotoBackfillPreviewResult {
     success?: boolean;
     dryRun?: boolean;
+    limit?: number;
+    maxProcessed?: number;
+    city?: string | null;
+    candidates?: number;
     processed?: number;
+    updated?: number;
     wouldUpdate?: number;
     skipped?: number;
     failed?: number;
@@ -189,9 +194,12 @@ export function SpotQualityWorkbench() {
     const [saving, setSaving] = useState(false);
     const [previewingPhotoBackfill, setPreviewingPhotoBackfill] = useState(false);
     const [applyingPhotoBackfill, setApplyingPhotoBackfill] = useState(false);
+    const [previewingBatchPhotoBackfill, setPreviewingBatchPhotoBackfill] = useState(false);
+    const [applyingBatchPhotoBackfill, setApplyingBatchPhotoBackfill] = useState(false);
     const [previewingLocationBackfill, setPreviewingLocationBackfill] = useState(false);
     const [applyingLocationBackfill, setApplyingLocationBackfill] = useState(false);
     const [photoBackfillPreview, setPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
+    const [batchPhotoBackfillPreview, setBatchPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
     const [locationBackfillPreview, setLocationBackfillPreview] = useState<LocationBackfillPreviewResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
@@ -301,6 +309,53 @@ export function SpotQualityWorkbench() {
 
     const previewSelectedPhotoBackfill = () => runSelectedPhotoBackfill(true);
     const applySelectedPhotoBackfill = () => runSelectedPhotoBackfill(false);
+
+    const runBatchPhotoBackfill = async (dryRun: boolean) => {
+        if (dryRun) {
+            setPreviewingBatchPhotoBackfill(true);
+            setBatchPhotoBackfillPreview(null);
+        } else {
+            setApplyingBatchPhotoBackfill(true);
+        }
+        setError(null);
+        setNotice(null);
+
+        try {
+            const response = await fetch("/api/admin/spots/backfill-photos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    city: city.trim() || undefined,
+                    limit: 10,
+                    maxProcessed: 80,
+                    dryRun,
+                    upgradeToPlacePhotos: true,
+                }),
+            });
+            const data = (await response.json()) as PhotoBackfillPreviewResult & { error?: string; details?: string };
+            if (!response.ok) {
+                throw new Error(data.details || data.error || "Failed to run real-image batch");
+            }
+
+            setBatchPhotoBackfillPreview(data);
+            if (!dryRun && data.updated) {
+                setNotice(`Applied ${data.updated} real-image update${data.updated === 1 ? "" : "s"}.`);
+                await loadQueue();
+            } else if (dryRun && data.wouldUpdate) {
+                setNotice(`Dry run found ${data.wouldUpdate} real-image update${data.wouldUpdate === 1 ? "" : "s"}.`);
+            } else {
+                setNotice(dryRun ? "Real-image batch dry run completed." : "Real-image batch completed.");
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to run real-image batch");
+        } finally {
+            setPreviewingBatchPhotoBackfill(false);
+            setApplyingBatchPhotoBackfill(false);
+        }
+    };
+
+    const previewBatchPhotoBackfill = () => runBatchPhotoBackfill(true);
+    const applyBatchPhotoBackfill = () => runBatchPhotoBackfill(false);
 
     const runSelectedLocationBackfill = async (dryRun: boolean) => {
         if (!selectedItem) return;
@@ -475,6 +530,85 @@ export function SpotQualityWorkbench() {
                             {queue.city ? ` in ${queue.city}` : ""}.
                         </span>
                     </div>
+                </div>
+            )}
+
+            {queue && (
+                <div className="mb-4 rounded-lg border border-violet-200/15 bg-[#100b1c]/88 p-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                <Images className="h-4 w-4 text-violet-200" />
+                                Real-image batch
+                            </div>
+                            <p className="mt-1 max-w-3xl text-xs leading-5 text-violet-50/60">
+                                Dry-run the next capped set of spots that need own Google Place photos. Apply only after the preview shows confident matches.
+                            </p>
+                            <p className="mt-1 text-xs text-violet-50/45">
+                                Scope: {city.trim() ? city.trim() : "all cities"} / 10 updates max / 80 spots scanned.
+                            </p>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[22rem]">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={previewBatchPhotoBackfill}
+                                disabled={previewingBatchPhotoBackfill}
+                                className="h-10 border-white/10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
+                            >
+                                {previewingBatchPhotoBackfill ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                )}
+                                Preview 10 images
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={applyBatchPhotoBackfill}
+                                disabled={applyingBatchPhotoBackfill || !batchPhotoBackfillPreview?.wouldUpdate}
+                                className="h-10 bg-emerald-600 text-sm text-white hover:bg-emerald-700 disabled:opacity-45"
+                            >
+                                {applyingBatchPhotoBackfill ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                )}
+                                Apply previewed batch
+                            </Button>
+                        </div>
+                    </div>
+
+                    {batchPhotoBackfillPreview && (
+                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                                <SummaryTile label="Candidates" value={batchPhotoBackfillPreview.candidates ?? 0} />
+                                <SummaryTile label="Processed" value={batchPhotoBackfillPreview.processed ?? 0} />
+                                <SummaryTile label="Would update" value={batchPhotoBackfillPreview.wouldUpdate ?? 0} tone="good" />
+                                <SummaryTile label="Skipped" value={batchPhotoBackfillPreview.skipped ?? 0} tone="warn" />
+                                <SummaryTile label="Failed" value={batchPhotoBackfillPreview.failed ?? 0} tone={batchPhotoBackfillPreview.failed ? "danger" : undefined} />
+                            </div>
+                            {batchPhotoBackfillPreview.results?.length ? (
+                                <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                                    {batchPhotoBackfillPreview.results.slice(0, 6).map((result) => (
+                                        <div key={result.id} className="rounded-md border border-white/10 bg-white/[0.045] p-2">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <p className="line-clamp-1 font-semibold text-white">{result.name}</p>
+                                                <span className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+                                                    {result.status.replace("_", " ")}
+                                                </span>
+                                            </div>
+                                            {result.placeName && <p className="mt-1 line-clamp-1">Matched: {result.placeName}</p>}
+                                            {result.photoCount !== undefined && (
+                                                <p>{result.photoCount} photo candidate{result.photoCount === 1 ? "" : "s"}</p>
+                                            )}
+                                            {result.reason && <p>Reason: {result.reason}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </div>
+                    )}
                 </div>
             )}
 
