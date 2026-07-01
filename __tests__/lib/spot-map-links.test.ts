@@ -78,7 +78,7 @@ describe("spot map links", () => {
         expect(url.searchParams.has("destination_place_id")).toBe(false);
     });
 
-    it("uses Kakao search for Korean locations", () => {
+    it("uses Kakao route targets for Korean locations with a saved pin", () => {
         const url = buildSpotDirectionsUrl({
             name: "Gwangjang Market",
             address: "88 Changgyeonggung-ro, Jongno-gu, Seoul, Korea",
@@ -88,11 +88,11 @@ describe("spot map links", () => {
 
         expect(isKoreanLocation("Jongno-gu, Seoul, Korea")).toBe(true);
         expect(url).toBe(
-            "https://map.kakao.com/link/search/Gwangjang%20Market%2C%2088%20Changgyeonggung-ro%2C%20Jongno-gu%2C%20Seoul%2C%20Korea"
+            "https://map.kakao.com/link/to/Gwangjang%20Market,37.5701,126.9996"
         );
     });
 
-    it("uses Kakao search for Korean area-level locations with a saved pin", () => {
+    it("uses Kakao route targets for Korean area-level locations with a saved pin", () => {
         const url = buildSpotDirectionsUrl({
             name: "Gwangjang Market",
             address: "Jongno-gu, Seoul, Korea",
@@ -101,7 +101,7 @@ describe("spot map links", () => {
         });
 
         expect(url).toBe(
-            "https://map.kakao.com/link/search/Gwangjang%20Market%2C%20Jongno-gu%2C%20Seoul%2C%20Korea"
+            "https://map.kakao.com/link/to/Gwangjang%20Market,37.5701,126.9996"
         );
     });
 

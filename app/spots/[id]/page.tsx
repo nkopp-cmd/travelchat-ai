@@ -69,6 +69,10 @@ function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof get
             : "Maps opens a name and area search because this source record does not have an exact address yet.";
     }
 
+    if (isKorea && locationConfidence.usableCoordinates) {
+        return "Kakao opens the stored map pin as the route target, with the spot name as the destination label.";
+    }
+
     return isKorea
         ? "Kakao searches the spot name and stored address first, so the imported pin is only supporting context."
         : "Maps searches the spot name and stored address first, so the imported pin is only supporting context.";

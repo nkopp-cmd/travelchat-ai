@@ -48,19 +48,23 @@ function getCoordinateDestination(input: SpotDirectionsInput): string {
     return hasUsableCoordinates(input.lat, input.lng) ? `${input.lat},${input.lng}` : "";
 }
 
+function getKakaoDestinationLabel(input: SpotDirectionsInput): string {
+    return input.name.trim() || input.address.trim() || "Localley spot";
+}
+
 export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     const exactQuery = getSpotDirectionsSearchText(input);
     const coordinateDestination = getCoordinateDestination(input);
     const destinationText = exactQuery || input.address.trim() || input.name.trim();
 
     if (isKoreanLocation(input.address)) {
-        if (!destinationText && coordinateDestination) {
+        if (coordinateDestination) {
             return `https://map.kakao.com/link/to/${encodeURIComponent(
-                input.name || input.address || "Localley spot"
+                getKakaoDestinationLabel(input)
             )},${coordinateDestination}`;
         }
 
-        return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText || coordinateDestination)}`;
+        return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
     }
 
     const destination = destinationText || coordinateDestination;
