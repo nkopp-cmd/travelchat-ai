@@ -115,6 +115,10 @@ describe("parseChatItineraryPreview", () => {
     expect(
       cleanChatItineraryDescription("Go early.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")
     ).toBe("Go early. Order the seasonal tea.");
+
+    expect(
+      cleanChatItineraryDescription("Start with coffee.\nWhere - Cafe Onion Anguk, Jongno-gu, Seoul\n\u{1F4CD} Seoul Forest, Seoul")
+    ).toBe("Start with coffee.");
   });
 
   it("parses plain day headings without requiring markdown decoration", () => {
@@ -127,6 +131,42 @@ Day 1: Food Streets
 
     expect(result.days[0].day).toBe("Day 1: Food Streets");
     expect(result.days[0].activities[0].address).toBe("Yongkang Beef Noodle, Da'an District, Taipei");
+  });
+
+  it("parses dash day headings and map-pin address labels", () => {
+    const result = parseChatItineraryPreview(`# Taipei Hidden Gems
+
+### Day 1 - Tea & Alleys
+- **Wistaria Tea House (Hidden Gem)**: Order oolong in the old Japanese-era residence.
+  \u{1F4CD} Wistaria Tea House, Da'an District, Taipei
+
+Before you go
+- Book tea service on weekends.
+`);
+
+    expect(result.days).toHaveLength(1);
+    expect(result.days[0].day).toBe("Day 1 - Tea & Alleys");
+    expect(result.days[0].activities[0]).toMatchObject({
+      title: "Wistaria Tea House",
+      address: "Wistaria Tea House, Da'an District, Taipei",
+    });
+    expect(result.tips).toEqual(["Book tea service on weekends."]);
+  });
+
+  it("keeps getting-there and where rows out of saved day activities", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1 \u2014 Cafes**
+- **Cafe Onion Anguk (Local Favorite)**: Start with coffee and pastries in the hanok courtyard.
+  Where - Cafe Onion Anguk, Jongno-gu, Seoul
+- Getting there: Walk from Anguk Station exit 3.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Cafe Onion Anguk",
+    ]);
+    expect(result.days[0].activities[0].address).toBe("Cafe Onion Anguk, Jongno-gu, Seoul");
+    expect(result.tips).toEqual(["Getting there: Walk from Anguk Station exit 3."]);
   });
 
   it("classifies chat tips for saved itinerary insights", () => {

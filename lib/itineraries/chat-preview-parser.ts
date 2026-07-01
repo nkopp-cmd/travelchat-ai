@@ -25,8 +25,13 @@ function stripMarkdownDecorators(value: string): string {
   return value.replace(/^[#*]+\s*|\*+$/g, "").trim();
 }
 
+const DAY_HEADING_PATTERN = /^(?:[#*]+\s*)?Day\s+\d+(?:\s*[:\-\u2013\u2014]\s*.+)?\**$/iu;
+const ADDRESS_LINE_PATTERN =
+  /^(?:[-*]\s*)?(?:\u{1F4CD}\s*)?(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*(.+)$/iu;
+const PIN_ADDRESS_LINE_PATTERN = /^(?:[-*]\s*)?\u{1F4CD}\s*(.+)$/u;
+
 function isTipsHeading(line: string): boolean {
-  return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|getting\s+around|transport\s+tips|transit\s+tips)\s*\**$/i.test(line.trim());
+  return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|practical\s+notes|route\s+notes|map\s+notes|booking\s+notes|notes|getting\s+around|getting\s+there|transport|transport\s+tips|transit|transit\s+tips)\s*\**$/i.test(line.trim());
 }
 
 function getActivityType(title: string): ParsedChatActivity["type"] {
@@ -45,7 +50,7 @@ function cleanActivityTitle(title: string): string {
 }
 
 const LABELED_TIP_FRAGMENT_PATTERN =
-  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|transport|transportation|transit)\s*:\s*([^.\n]+(?:[.!?]|$)?)/gi;
+  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|getting there|transport|transportation|transit)\s*:\s*([^.\n]+(?:[.!?]|$)?)/gi;
 
 function splitChatDescriptionTips(description: string): { description: string; tips: string[] } {
   const tips: string[] = [];
@@ -90,8 +95,12 @@ function parseActivityLine(trimmedLine: string): { title: string; description: s
 }
 
 function extractAddress(line: string): string | null {
-  const match = line.trim().match(/^(?:[-*]\s*)?(?:Address|Location)\s*:\s*(.+)$/i);
-  return match?.[1]?.trim() || null;
+  const trimmedLine = stripMarkdownDecorators(line.trim());
+  const labeledMatch = trimmedLine.match(ADDRESS_LINE_PATTERN);
+  if (labeledMatch?.[1]) return labeledMatch[1].trim();
+
+  const pinMatch = trimmedLine.match(PIN_ADDRESS_LINE_PATTERN);
+  return pinMatch?.[1]?.trim() || null;
 }
 
 function pushActivityOrTip(
@@ -154,7 +163,11 @@ export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
 export function cleanChatItineraryDescription(text: string): string {
   if (!text) return "";
   return text
-    .replace(/(?:^|\n)\s*(?:[-*]\s*)?(?:Address|Location)\s*:\s*.+?(?=\n|$)/gi, "\n")
+    .replace(
+      /(?:^|\n)\s*(?:[-*]\s*)?(?:\u{1F4CD}\s*)?(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*.+?(?=\n|$)/giu,
+      "\n"
+    )
+    .replace(/(?:^|\n)\s*(?:[-*]\s*)?\u{1F4CD}\s*.+?(?=\n|$)/gu, "\n")
     .replace(/\n+/g, " ")
     .trim();
 }
@@ -207,7 +220,7 @@ export function parseChatItineraryPreview(content: string): ParsedChatItinerary 
       return;
     }
 
-    if (/^(?:[#*]+\s*)?Day \d+:/i.test(trimmed)) {
+    if (DAY_HEADING_PATTERN.test(trimmed)) {
       if (currentDay) days.push(currentDay);
       inTipsSection = false;
       currentDay = {

@@ -57,6 +57,13 @@ describe("sanitizeGeneratedDailyPlans", () => {
         description: "Go before lunch to avoid queues.",
       })
     ).toBe(true);
+
+    expect(
+      isTipLikeActivity({
+        name: "Getting there",
+        description: "Walk from Anguk Station exit 3.",
+      })
+    ).toBe(true);
   });
 
   it("moves imperative practical note rows into insights", () => {

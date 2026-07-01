@@ -18,7 +18,7 @@ interface ItineraryPreviewProps {
 }
 
 function getDayTheme(dayTitle: string): string {
-    const match = dayTitle.match(/^Day\s+\d+\s*:\s*(.+)$/i);
+    const match = dayTitle.match(/^Day\s+\d+\s*[:\-\u2013\u2014]\s*(.+)$/iu);
     return match?.[1]?.trim() || dayTitle;
 }
 
@@ -46,7 +46,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 theme: getDayTheme(day.day),
                 activities: day.activities.map((act, actIndex) => {
                     let extractedAddress = "";
-                    const addressLineMatch = act.description.match(/Address:\s*(.+?)(?:\n|$)/i);
+                    const addressLineMatch = act.description.match(/(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*(.+?)(?:\n|$)/iu);
                     if (addressLineMatch) {
                         extractedAddress = addressLineMatch[1].trim();
                     } else {
