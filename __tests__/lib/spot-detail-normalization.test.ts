@@ -48,7 +48,8 @@ describe("spot detail normalization", () => {
         expect(getSpotDirectionsButtonLabel("exact", true)).toBe("Open exact spot in Kakao");
         expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Route to saved pin in Kakao");
         expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Route to saved pin");
-        expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search name in Kakao");
+        expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search area in Kakao");
+        expect(getSpotDirectionsButtonLabel("area", false)).toBe("Search area in Maps");
     });
 
     it("describes real image evidence without calling fallbacks spot photos", () => {

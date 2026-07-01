@@ -130,5 +130,5 @@ export function getSpotDirectionsButtonLabel(
         return isKorea ? "Route to saved pin in Kakao" : "Route to saved pin";
     }
 
-    return isKorea ? "Search name in Kakao" : "Search name in Maps";
+    return isKorea ? "Search area in Kakao" : "Search area in Maps";
 }

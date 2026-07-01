@@ -395,6 +395,10 @@ function GetDirectionsButton({
   });
   const isKorea = isKoreanLocation(spot.location.address);
   const locationConfidence = getLocationConfidence(spot);
+  const directionToneClass =
+    locationConfidence.tone === "area"
+      ? "bg-amber-600 shadow-amber-500/20 hover:bg-amber-700"
+      : "bg-violet-600 shadow-violet-500/20 hover:bg-violet-700";
 
   return (
     <Link
@@ -405,7 +409,7 @@ function GetDirectionsButton({
       aria-label={`Open directions to ${spot.name}`}
     >
       <Button
-        className={`w-full bg-violet-600 shadow-lg shadow-violet-500/20 hover:bg-violet-700 ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
+        className={`w-full shadow-lg ${directionToneClass} ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
         size="lg"
       >
         <Navigation className={compact ? "mr-2 h-4 w-4" : "mr-2 h-5 w-5"} />
