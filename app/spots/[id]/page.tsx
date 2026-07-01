@@ -80,9 +80,15 @@ function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof get
             : "Maps opens a name and area search because this source record does not have an exact address or usable coordinate pin yet.";
     }
 
+    if (locationConfidence.tone === "pinned") {
+        return isKorea
+            ? "Kakao opens a name and area search so an imported area pin does not override the place context."
+            : "Maps opens a name and area search so an imported area pin does not override the place context.";
+    }
+
     return isKorea
-        ? "Kakao uses the spot name and stored address before the imported coordinate pin."
-        : "Maps uses the spot name and stored address before the imported coordinate pin.";
+        ? "Kakao searches the spot name and stored address first."
+        : "Maps searches the spot name and stored address first.";
 }
 
 function getLocationPlanningCopy(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
@@ -109,8 +115,8 @@ function getLocationPlanningCopy(spot: NonNullable<Awaited<ReturnType<typeof get
     if (confidence.tone === "pinned") {
         return {
             heading: "Plan this pinned area",
-            description: "This is area-level source data with a saved map pin. Confirm the map context before you go.",
-            routeTitle: "Route to saved area pin",
+            description: "This is area-level source data with a saved map pin. Directions search by name and area so the pin does not override the place context.",
+            routeTitle: "Search by name and area",
             locationHeading: "Pinned area",
         };
     }
