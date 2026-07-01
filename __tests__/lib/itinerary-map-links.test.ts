@@ -3,6 +3,7 @@ import {
   buildActivityMapUrl,
   buildDayRouteUrl,
   getActivitySearchText,
+  getDayRouteAddressSummary,
   getPreferredActivityMapAddress,
   hasExactActivityAddress,
 } from "@/lib/itineraries/map-links";
@@ -81,6 +82,50 @@ describe("itinerary map links", () => {
     ).toBe(
       "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
     );
+  });
+
+  it("summarizes day route address quality for exact, mixed, and search-first routes", () => {
+    expect(
+      getDayRouteAddressSummary([
+        {
+          name: "LADRIO",
+          address: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+        },
+        { name: "Ota Market", address: "2-2 Tokai, Ota-ku, Tokyo" },
+      ]),
+    ).toEqual({
+      mode: "exact",
+      mappableStopCount: 2,
+      exactStopCount: 2,
+      searchFirstStopCount: 0,
+    });
+
+    expect(
+      getDayRouteAddressSummary([
+        {
+          name: "LADRIO",
+          address: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+        },
+        { name: "Book alley", address: "Jinbocho, Tokyo" },
+        { name: "Coffee stop" },
+      ]),
+    ).toEqual({
+      mode: "mixed",
+      mappableStopCount: 3,
+      exactStopCount: 1,
+      searchFirstStopCount: 2,
+    });
+
+    expect(
+      getDayRouteAddressSummary([
+        { name: "Ikseon teahouse", address: "Ikseon-dong, Jongno-gu, Seoul" },
+      ]),
+    ).toEqual({
+      mode: "search_first",
+      mappableStopCount: 1,
+      exactStopCount: 0,
+      searchFirstStopCount: 1,
+    });
   });
 
   it("uses name plus address for day route waypoints", () => {

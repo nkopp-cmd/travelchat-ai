@@ -1,10 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
-import { buildDayRouteUrl } from "@/lib/itineraries/map-links";
+import {
+  buildDayRouteUrl,
+  getDayRouteAddressSummary,
+  type DayRouteAddressSummary,
+} from "@/lib/itineraries/map-links";
 import { isKoreanCity } from "@/hooks/use-map-provider";
 import type { SubscriptionTier } from "@/lib/subscription";
-import { Clock, Navigation, Route } from "lucide-react";
+import { Clock, MapPinned, Navigation, Route } from "lucide-react";
 
 export interface DayRouteActivity {
   name: string;
@@ -57,6 +61,47 @@ function getDayTimingSummary(activities: DayRouteActivity[]): string | null {
   return `${timedStops[0]} to ${timedStops[timedStops.length - 1]}`;
 }
 
+function getRouteConfidenceCopy(
+  summary: DayRouteAddressSummary,
+  isKakaoRoute: boolean,
+): {
+  label: string;
+  helper: string;
+  className: string;
+} {
+  if (summary.mode === "exact") {
+    return {
+      label: "Exact route",
+      helper: isKakaoRoute
+        ? "Stops have exact addresses. Kakao opens search from the first stop."
+        : "All route stops include exact addresses.",
+      className: "border-emerald-300/25 bg-emerald-300/12 text-emerald-50",
+    };
+  }
+
+  if (summary.mode === "mixed") {
+    return {
+      label: "Review route",
+      helper: `${summary.searchFirstStopCount} of ${summary.mappableStopCount} stops need map confirmation.`,
+      className: "border-amber-300/30 bg-amber-300/14 text-amber-50",
+    };
+  }
+
+  if (summary.mode === "search_first") {
+    return {
+      label: "Search-first route",
+      helper: "Stops rely on names or area-level addresses. Confirm pins before routing.",
+      className: "border-sky-300/30 bg-sky-300/14 text-sky-50",
+    };
+  }
+
+  return {
+    label: "No route yet",
+    helper: "Add named stops or addresses to build a map route.",
+    className: "border-white/12 bg-white/8 text-white/70",
+  };
+}
+
 export function DayRouteSection({
   dayPlan,
   dayIndex,
@@ -66,6 +111,9 @@ export function DayRouteSection({
   const activities = dayPlan.activities || [];
   const timingSummary = getDayTimingSummary(activities);
   const routeUrl = buildDayRouteUrl(activities, city);
+  const isKakaoRoute = isKoreanCity(city);
+  const routeAddressSummary = getDayRouteAddressSummary(activities);
+  const routeConfidence = getRouteConfidenceCopy(routeAddressSummary, isKakaoRoute);
 
   return (
     <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0f091b]/82 shadow-xl shadow-violet-950/12 backdrop-blur-xl">
@@ -102,6 +150,18 @@ export function DayRouteSection({
                 </p>
               )}
             </div>
+            <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-white/10 bg-black/12 px-3 py-2 text-xs text-violet-50/72 sm:flex-row sm:items-center">
+              <span
+                className={[
+                  "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 font-semibold",
+                  routeConfidence.className,
+                ].join(" ")}
+              >
+                <MapPinned className="h-3.5 w-3.5" />
+                {routeConfidence.label}
+              </span>
+              <span className="min-w-0 leading-relaxed">{routeConfidence.helper}</span>
+            </div>
           </div>
           {routeUrl && (
             <a
@@ -116,7 +176,7 @@ export function DayRouteSection({
                 className="h-9 w-full rounded-xl border-0 bg-violet-500/18 text-white hover:bg-violet-500/28 min-[420px]:w-auto"
               >
                 <Navigation className="h-4 w-4" />
-                {isKoreanCity(city) ? "Kakao route" : "View route"}
+                {isKakaoRoute ? "Kakao search" : "View route"}
               </Button>
             </a>
           )}

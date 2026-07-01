@@ -7,6 +7,15 @@ export interface MapLinkActivity {
   address?: string;
 }
 
+export type DayRouteAddressMode = "empty" | "exact" | "mixed" | "search_first";
+
+export interface DayRouteAddressSummary {
+  mode: DayRouteAddressMode;
+  mappableStopCount: number;
+  exactStopCount: number;
+  searchFirstStopCount: number;
+}
+
 function cleanPart(value: string | undefined): string {
   return value?.trim() || "";
 }
@@ -36,6 +45,50 @@ export function getActivitySearchText(activity: MapLinkActivity, city: string): 
 export function hasExactActivityAddress(address: string | undefined): boolean {
   const cleanedAddress = cleanPart(address);
   return Boolean(cleanedAddress) && !isAreaLevelAddress(cleanedAddress);
+}
+
+export function getDayRouteAddressSummary(
+  activities: MapLinkActivity[],
+): DayRouteAddressSummary {
+  const mappableActivities = activities.filter((activity) => activity.address || activity.name);
+  const exactStopCount = mappableActivities.filter((activity) =>
+    hasExactActivityAddress(activity.address),
+  ).length;
+  const searchFirstStopCount = mappableActivities.length - exactStopCount;
+
+  if (mappableActivities.length === 0) {
+    return {
+      mode: "empty",
+      mappableStopCount: 0,
+      exactStopCount: 0,
+      searchFirstStopCount: 0,
+    };
+  }
+
+  if (exactStopCount === mappableActivities.length) {
+    return {
+      mode: "exact",
+      mappableStopCount: mappableActivities.length,
+      exactStopCount,
+      searchFirstStopCount,
+    };
+  }
+
+  if (exactStopCount > 0) {
+    return {
+      mode: "mixed",
+      mappableStopCount: mappableActivities.length,
+      exactStopCount,
+      searchFirstStopCount,
+    };
+  }
+
+  return {
+    mode: "search_first",
+    mappableStopCount: mappableActivities.length,
+    exactStopCount,
+    searchFirstStopCount,
+  };
 }
 
 export function getPreferredActivityMapAddress(
