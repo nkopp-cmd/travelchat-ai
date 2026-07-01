@@ -1,6 +1,10 @@
 import { LocalleyScale } from "@/types";
 import type { SpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { isKoreanLocation } from "@/lib/spots/map-links";
+import {
+    getGooglePlaceIdFromSpotPhotos,
+    getSpotPlacePhotoIdentityStatus,
+} from "@/lib/place-images";
 
 interface SpotPhotoEvidenceInput {
     hasRealPhoto: boolean;
@@ -12,6 +16,11 @@ interface SpotCoordinateEvidenceInput {
     address: string;
     tone: SpotLocationConfidence["tone"];
     usableCoordinates: boolean;
+}
+
+interface TrustedSpotGooglePlaceIdInput {
+    photos: string[] | null | undefined;
+    storedGooglePlaceId?: string | null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -131,4 +140,18 @@ export function getSpotDirectionsButtonLabel(
     }
 
     return isKorea ? "Search name in Kakao" : "Search area in Maps";
+}
+
+export function getTrustedSpotGooglePlaceId(
+    input: TrustedSpotGooglePlaceIdInput
+): string | null {
+    const storedGooglePlaceId = input.storedGooglePlaceId?.trim() || null;
+    const identity = getSpotPlacePhotoIdentityStatus(
+        input.photos,
+        storedGooglePlaceId,
+    );
+
+    if (identity.hasIdentityMismatch) return null;
+
+    return storedGooglePlaceId || getGooglePlaceIdFromSpotPhotos(input.photos);
 }

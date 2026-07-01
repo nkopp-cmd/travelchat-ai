@@ -6,6 +6,7 @@ import {
     getSpotDirectionsButtonLabel,
     getSpotPhotoEvidenceHelper,
     getSpotPhotoEvidenceLabel,
+    getTrustedSpotGooglePlaceId,
     normalizeLocalleyScore,
     normalizeLocalPercentage,
     normalizeSpotTips,
@@ -105,5 +106,27 @@ describe("spot detail normalization", () => {
                 usableCoordinates: false,
             })
         ).toBe("Imported coordinate");
+    });
+
+    it("only trusts a stored Google Place ID when place-photo identity does not conflict", () => {
+        expect(
+            getTrustedSpotGooglePlaceId({
+                photos: ["/api/places/photo?name=places%2FChIJ-photo-place%2Fphotos%2Fabc&w=1200"],
+                storedGooglePlaceId: "ChIJ-photo-place",
+            })
+        ).toBe("ChIJ-photo-place");
+
+        expect(
+            getTrustedSpotGooglePlaceId({
+                photos: ["/api/places/photo?name=places%2FChIJ-photo-place%2Fphotos%2Fabc&w=1200"],
+                storedGooglePlaceId: "ChIJ-stored-other",
+            })
+        ).toBeNull();
+
+        expect(
+            getTrustedSpotGooglePlaceId({
+                photos: ["/api/places/photo?name=places%2FChIJ-photo-place%2Fphotos%2Fabc&w=1200"],
+            })
+        ).toBe("ChIJ-photo-place");
     });
 });

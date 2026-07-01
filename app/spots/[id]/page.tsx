@@ -28,7 +28,6 @@ import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import {
   addFallbackToPlacePhotoUrl,
-  getGooglePlaceIdFromSpotPhotos,
   summarizeSpotPhotos,
 } from "@/lib/place-images";
 import {
@@ -53,6 +52,7 @@ import {
   getSpotDirectionsButtonLabel,
   getSpotPhotoEvidenceHelper,
   getSpotPhotoEvidenceLabel,
+  getTrustedSpotGooglePlaceId,
   normalizeLocalleyScore,
   normalizeLocalPercentage,
   normalizeSpotTips,
@@ -571,8 +571,10 @@ async function getSpot(id: string) {
           : count,
       0,
     ),
-    googlePlaceId:
-      spot.google_place_id || getGooglePlaceIdFromSpotPhotos(normalizedPhotos),
+    googlePlaceId: getTrustedSpotGooglePlaceId({
+      photos: normalizedPhotos,
+      storedGooglePlaceId: spot.google_place_id,
+    }),
     tips: normalizeSpotTips(spot.tips),
     verified: Boolean(spot.verified),
     trending: spot.trending_score > 0.8,

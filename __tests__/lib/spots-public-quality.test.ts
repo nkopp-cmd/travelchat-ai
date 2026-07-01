@@ -90,6 +90,21 @@ describe("public spot quality", () => {
         ).toBe(true);
     });
 
+    it("hides records whose stored place id conflicts with the proxied place photo", () => {
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Wrong Place Photo",
+                address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                location: {
+                    type: "Point",
+                    coordinates: [139.7569, 35.6901],
+                },
+                photos: ["/api/places/photo?name=places%2FChIJ-photo-place%2Fphotos%2Fabc&w=1200"],
+                google_place_id: "ChIJ-stored-other",
+            })
+        ).toBe("mismatched_place_photo_identity");
+    });
+
     it("hides records with area-level addresses when address data is available", () => {
         expect(
             getPublicSpotQualityIssue({
