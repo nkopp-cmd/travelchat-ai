@@ -21,7 +21,11 @@ import {
 import { BookingDealsPopover } from "./booking-deals-popover";
 import { usePlacePhoto } from "@/hooks/use-place-photo";
 import { CityImageAvatar } from "@/components/ui/city-image";
-import { buildActivityMapUrl } from "@/lib/itineraries/map-links";
+import {
+  buildActivityMapUrl,
+  getPreferredActivityMapAddress,
+  hasExactActivityAddress,
+} from "@/lib/itineraries/map-links";
 import { isKoreanCity } from "@/hooks/use-map-provider";
 
 interface ItineraryActivity {
@@ -94,12 +98,13 @@ export function ItineraryActivityCard({
     : null;
   const showDeals = hasFeature(userTier, "bookingDeals");
   const storedActivityImage = activity.image || activity.thumbnail;
+  const hasExactStoredAddress = hasExactActivityAddress(activity.address);
 
   // Fetch Google Places details when the card needs a real image or address.
   const placeData = usePlacePhoto(activity.name, city, {
     existingImage: storedActivityImage,
     userTier,
-    includeDetails: !activity.address,
+    includeDetails: !hasExactStoredAddress,
   });
 
   const imageCandidates = [storedActivityImage, placeData.photoUrl].filter(
@@ -136,9 +141,12 @@ export function ItineraryActivityCard({
   const hotelLinks = getHotelBookingLinks({ city });
 
   const matchedAddress = placeData.formattedAddress || "";
+  const preferredMapAddress = getPreferredActivityMapAddress(
+    activity,
+    matchedAddress,
+  );
   const displayAddress =
-    activity.address ||
-    matchedAddress ||
+    preferredMapAddress ||
     `Search by "${activity.name}" in ${city}`;
   const placeIdMapUrl =
     !isKoreanCity(city) && placeData.placeId
@@ -149,10 +157,9 @@ export function ItineraryActivityCard({
   const exactMapUrl =
     placeIdMapUrl ||
     buildActivityMapUrl(
-      { ...activity, address: activity.address || matchedAddress || undefined },
+      { ...activity, address: preferredMapAddress || undefined },
       city,
     );
-  const hasExactAddress = Boolean(activity.address?.trim());
   const hasMatchedPlace = Boolean(placeData.placeId || matchedAddress);
 
   return (
@@ -245,12 +252,12 @@ export function ItineraryActivityCard({
                       {activity.category}
                     </Badge>
                   )}
-                  {(hasExactAddress || hasMatchedPlace) && (
+                  {(hasExactStoredAddress || hasMatchedPlace) && (
                     <Badge
                       variant="outline"
                       className="h-5 rounded-full border-emerald-300/20 bg-emerald-400/10 px-1.5 text-[10px] text-emerald-100 sm:px-2"
                     >
-                      {hasExactAddress ? "Exact" : "Matched"}
+                      {hasExactStoredAddress ? "Exact" : "Matched"}
                     </Badge>
                   )}
                 </div>
@@ -259,7 +266,7 @@ export function ItineraryActivityCard({
                     <MapPin
                       className={cn(
                         "mt-0.5 h-3.5 w-3.5 flex-shrink-0",
-                        hasExactAddress || hasMatchedPlace
+                        hasExactStoredAddress || hasMatchedPlace
                           ? "text-emerald-300"
                           : "text-violet-300",
                       )}
@@ -336,7 +343,7 @@ export function ItineraryActivityCard({
                   aria-label={`Open map location for ${activity.name}`}
                 >
                   <Navigation className="h-3.5 w-3.5" />
-                  {hasExactAddress || hasMatchedPlace ? "Directions" : "Search map"}
+                  {hasExactStoredAddress || hasMatchedPlace ? "Directions" : "Search map"}
                   <ExternalLink className="h-3 w-3" />
                 </Button>
               )}

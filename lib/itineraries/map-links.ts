@@ -1,4 +1,5 @@
 import { isKoreanCity } from "@/hooks/use-map-provider";
+import { isAreaLevelAddress } from "@/lib/spots/location-confidence";
 
 export interface MapLinkActivity {
   name: string;
@@ -30,6 +31,22 @@ export function getActivitySearchText(activity: MapLinkActivity, city: string): 
     address,
     shouldAppendCity ? cityName : "",
   ]).join(", ");
+}
+
+export function hasExactActivityAddress(address: string | undefined): boolean {
+  const cleanedAddress = cleanPart(address);
+  return Boolean(cleanedAddress) && !isAreaLevelAddress(cleanedAddress);
+}
+
+export function getPreferredActivityMapAddress(
+  activity: MapLinkActivity,
+  matchedAddress?: string | null,
+): string {
+  const storedAddress = cleanPart(activity.address);
+  const placeAddress = cleanPart(matchedAddress || undefined);
+
+  if (hasExactActivityAddress(storedAddress)) return storedAddress;
+  return placeAddress || storedAddress;
 }
 
 export function buildActivityMapUrl(activity: MapLinkActivity, city: string): string | null {

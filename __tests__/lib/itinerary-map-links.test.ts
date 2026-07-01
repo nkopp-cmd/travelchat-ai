@@ -3,6 +3,8 @@ import {
   buildActivityMapUrl,
   buildDayRouteUrl,
   getActivitySearchText,
+  getPreferredActivityMapAddress,
+  hasExactActivityAddress,
 } from "@/lib/itineraries/map-links";
 
 describe("itinerary map links", () => {
@@ -43,6 +45,42 @@ describe("itinerary map links", () => {
 
     expect(url).toContain("https://www.google.com/maps/search/");
     expect(decodeURIComponent(url || "")).toContain("query=LADRIO, Tokyo");
+  });
+
+  it("classifies exact and area-level activity addresses for map routing", () => {
+    expect(
+      hasExactActivityAddress(
+        "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+      ),
+    ).toBe(true);
+    expect(hasExactActivityAddress("Kanda Jinbocho, Tokyo")).toBe(false);
+    expect(hasExactActivityAddress("")).toBe(false);
+  });
+
+  it("prefers matched place addresses over area-level stored addresses", () => {
+    expect(
+      getPreferredActivityMapAddress(
+        {
+          name: "LADRIO",
+          address: "Kanda Jinbocho, Tokyo",
+        },
+        "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+      ),
+    ).toBe(
+      "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+    );
+
+    expect(
+      getPreferredActivityMapAddress(
+        {
+          name: "LADRIO",
+          address: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+        },
+        "Kanda Jinbocho, Tokyo",
+      ),
+    ).toBe(
+      "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+    );
   });
 
   it("uses name plus address for day route waypoints", () => {
