@@ -28,6 +28,7 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
 6. Each activity should be a distinct location - don't split one location into multiple activities
 7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities and do NOT belong inside day objects. Put them in the top-level "insights" array only.
+8. Never attach tip fields to activities. Do NOT add activity fields like "tips", "notes", "whatToOrder", "gettingAround", "bookingNote", "routeNote", or "localTip".
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps

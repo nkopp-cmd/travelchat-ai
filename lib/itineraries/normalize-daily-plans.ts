@@ -72,6 +72,36 @@ const MAPPABLE_CONTEXT_FIELDS = [
   "longitude",
   "localleyScore",
 ] as const;
+const ACTIVITY_NOTE_FIELD_LABELS: Record<string, string> = {
+  advice: "Advice",
+  beforeYouGo: "Before you go",
+  bookingNote: "Booking note",
+  foodNote: "Food note",
+  gettingAround: "Getting around",
+  gettingThere: "Getting there",
+  insight: "Insight",
+  insights: "Insight",
+  localInsight: "Local insight",
+  localNote: "Local note",
+  localTip: "Local tip",
+  localTips: "Local tip",
+  mapNote: "Map note",
+  moneyNote: "Money note",
+  note: "Note",
+  notes: "Note",
+  practicalNote: "Practical note",
+  reminder: "Reminder",
+  routeNote: "Route note",
+  tip: "Tip",
+  tips: "Tip",
+  transit: "Transit",
+  transport: "Transport",
+  transportation: "Transportation",
+  transportTip: "Transport tip",
+  transportTips: "Transport tip",
+  travelTip: "Travel tip",
+  whatToOrder: "What to order",
+};
 
 export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const name = getStringValue(activity.name);
@@ -181,6 +211,66 @@ function splitDescriptionTips(activity: ItineraryActivityLike): {
       ...activity,
       description: keptLines.join("\n").trim(),
     },
+    localTips,
+    transportTips,
+  };
+}
+
+function flattenActivityNoteValue(value: unknown): string[] {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => flattenActivityNoteValue(entry));
+  }
+
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const text = getStringValue(record.text);
+    if (text) return [text];
+
+    return Object.values(record).flatMap((entry) =>
+      flattenActivityNoteValue(entry),
+    );
+  }
+
+  return [];
+}
+
+function extractActivityScopedTips(activity: ItineraryActivityLike): {
+  activity: ItineraryActivityLike;
+  localTips: string[];
+  transportTips: string[];
+} {
+  const record = activity as Record<string, unknown>;
+  const localTips: string[] = [];
+  const transportTips: string[] = [];
+  let cleanedActivity: Record<string, unknown> | null = null;
+
+  for (const [field, label] of Object.entries(ACTIVITY_NOTE_FIELD_LABELS)) {
+    if (!(field in record)) continue;
+
+    const tips = flattenActivityNoteValue(record[field]);
+    if (tips.length > 0) {
+      const formattedTips = tips.map((tip) =>
+        tip.startsWith(`${label}:`) ? tip : `${label}: ${tip}`,
+      );
+
+      if (TRANSPORT_PATTERN.test(`${field} ${label} ${tips.join(" ")}`)) {
+        transportTips.push(...formattedTips);
+      } else {
+        localTips.push(...formattedTips);
+      }
+    }
+
+    cleanedActivity ||= { ...record };
+    delete cleanedActivity[field];
+  }
+
+  return {
+    activity: (cleanedActivity || activity) as ItineraryActivityLike,
     localTips,
     transportTips,
   };
@@ -299,12 +389,15 @@ export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(
         const split = splitDescriptionTips(activity);
         localTips.push(...split.localTips);
         transportTips.push(...split.transportTips);
+        const scopedTips = extractActivityScopedTips(split.activity);
+        localTips.push(...scopedTips.localTips);
+        transportTips.push(...scopedTips.transportTips);
 
         if (
-          getStringValue(split.activity.description) ||
-          getStringValue(split.activity.name)
+          getStringValue(scopedTips.activity.description) ||
+          getStringValue(scopedTips.activity.name)
         ) {
-          keptActivities.push(split.activity);
+          keptActivities.push(scopedTips.activity);
         }
 
         return keptActivities;

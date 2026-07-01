@@ -94,6 +94,7 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 5. Each day MUST have 3-5 activities - NEVER return a day with 0 activities
 6. Each activity should be a distinct location - don't split one location into multiple activities
 7. Tips, reminders, transit guidance, and advice must be returned in top-level "insights", never as activities or day fields.
+8. Never attach tip fields to activities. Do NOT add activity fields like "tips", "notes", "whatToOrder", "gettingAround", "bookingNote", "routeNote", or "localTip".
 
 The JSON structure must be:
 {

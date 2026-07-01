@@ -305,6 +305,85 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ]);
   });
 
+  it("moves activity-scoped note fields into insights and strips them from stops", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Ikseon Teahouse",
+            description: "Order seasonal tea in the hanok courtyard.",
+            category: "Cafe",
+            address: "Ikseon-dong, Jongno-gu, Seoul",
+            tips: ["Bring cash for smaller shops."],
+            whatToOrder: "Seasonal omija tea.",
+            gettingAround: "Walk from Jongno 3-ga exit 4.",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0]).toMatchObject({
+      name: "Ikseon Teahouse",
+      description: "Order seasonal tea in the hanok courtyard.",
+      address: "Ikseon-dong, Jongno-gu, Seoul",
+    });
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty("tips");
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty(
+      "whatToOrder",
+    );
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty(
+      "gettingAround",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Tip: Bring cash for smaller shops. What to order: Seasonal omija tea.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Getting around: Walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
+  it("handles nested activity note objects without keeping them in day payloads", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Bupyeong Kkangtong Market",
+            description: "Eat through named stalls after dark.",
+            category: "Market",
+            bookingNote: { text: "No reservation needed, but go early." },
+            routeNote: {
+              start: "Start at Jagalchi Station.",
+              end: "Exit through BIFF Square.",
+            },
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty(
+      "bookingNote",
+    );
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty("routeNote");
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Booking note: No reservation needed, but go early.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Route note: Start at Jagalchi Station. Route note: Exit through BIFF Square.",
+      }),
+    ]);
+  });
+
   it("supports structured itinerary payloads with top-level insights", () => {
     const payload = buildItineraryPlanPayload(
       [

@@ -54,6 +54,7 @@ Important rules:
 - Include 3-5 activities per day
 - All activities must have complete details
 - Tips, transit notes, what-to-order notes, reminders, and advice must be in top-level insights, never as activities or day fields
+- Never attach tip fields to activities. Do NOT add activity fields like "tips", "notes", "whatToOrder", "gettingAround", "bookingNote", "routeNote", or "localTip"
 `;
 
 /**
