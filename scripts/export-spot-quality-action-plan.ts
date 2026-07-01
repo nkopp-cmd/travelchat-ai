@@ -21,9 +21,11 @@ import {
 import {
     buildSpotQualityOperatorChecklist,
     buildSpotQualitySchemaStatus,
+    getSpotImageReviewGuidance,
     getSpotQualityOperatorStatus,
     getSpotQualityPriority,
     getSpotQualityRecommendedAction,
+    type SpotImageReviewGuidance,
     type SpotQualityOperatorStatus,
 } from "../lib/admin/spot-quality-action-plan";
 import { buildSpotQualityItemResearchLinks } from "../lib/admin/spot-quality-research";
@@ -46,6 +48,9 @@ interface ActionPlanItem extends SpotQualityItem {
     priority: number;
     recommendedAction: string;
     schemaBlockingAction: string | null;
+    imageReviewGuidance: SpotImageReviewGuidance;
+    imageReviewLane: string;
+    imageReviewAction: string;
     operatorStatus: SpotQualityOperatorStatus;
     operatorChecklist: string[];
     primaryPhotoUrl: string | null;
@@ -143,6 +148,7 @@ function toActionPlanItem(
 ): ActionPlanItem {
     const researchLinks = buildSpotQualityItemResearchLinks(item);
     const operatorStatus = getSpotQualityOperatorStatus(item);
+    const imageReviewGuidance = getSpotImageReviewGuidance(item);
 
     return {
         ...item,
@@ -151,6 +157,9 @@ function toActionPlanItem(
         schemaBlockingAction: hasGooglePlaceIdColumn
             ? null
             : "apply_google_place_id_migration_before_place_id_writes",
+        imageReviewGuidance,
+        imageReviewLane: imageReviewGuidance.lane,
+        imageReviewAction: imageReviewGuidance.action,
         operatorStatus,
         operatorChecklist: buildSpotQualityOperatorChecklist(item),
         primaryPhotoUrl: item.photos[0] || null,
@@ -191,6 +200,9 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "issues",
         "recommendedAction",
         "schemaBlockingAction",
+        "imageReviewLane",
+        "imageReviewAction",
+        "imageReviewReason",
         "realImageStatus",
         "locationStatus",
         "directionsStatus",
@@ -227,6 +239,9 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.issues.join("|"),
         item.recommendedAction,
         item.schemaBlockingAction || "",
+        item.imageReviewLane,
+        item.imageReviewAction,
+        item.imageReviewGuidance.reason,
         item.operatorStatus.realImage,
         item.operatorStatus.location,
         item.operatorStatus.directions,

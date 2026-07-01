@@ -10,6 +10,19 @@ export interface SpotQualityOperatorStatus {
     publicCard: "ready" | "hidden_until_enriched";
 }
 
+export type SpotImageReviewLane =
+    | "ready"
+    | "exact_place_photo_backfill"
+    | "area_image_or_exact_place_split"
+    | "event_or_closed_place_review"
+    | "photo_identity_review";
+
+export interface SpotImageReviewGuidance {
+    lane: SpotImageReviewLane;
+    action: string;
+    reason: string;
+}
+
 export interface SpotQualitySchemaStatus {
     hasGooglePlaceIdColumn: boolean;
     migrationRequired: boolean;
@@ -40,6 +53,51 @@ function scoreIssue(issue: SpotQualityIssue): number {
         default:
             return 10;
     }
+}
+
+const BROAD_AREA_PATTERN = /\b(alley|circle|countryside|district|dong|farms?|hills?|local scene|market street|new town|old town|residential|road|row|scene|street|townhouses?|various areas)\b/i;
+const EVENT_OR_STALE_PATTERN = /\b(april|christmas|exhibition|festival|in the making|pop-up|tour)\b/i;
+
+export function getSpotImageReviewGuidance(item: SpotQualityItem): SpotImageReviewGuidance {
+    if (item.placePhotoIdentity.hasIdentityMismatch) {
+        return {
+            lane: "photo_identity_review",
+            action: "reconcile_place_id_and_place_photo_before_public_use",
+            reason: "The stored Google Place ID and current place-photo source disagree.",
+        };
+    }
+
+    if (item.photoSummary.hasRealPhoto) {
+        return {
+            lane: "ready",
+            action: "no_image_action_needed",
+            reason: "The spot already has a production-safe real image.",
+        };
+    }
+
+    const searchableText = [item.name, item.address, item.category || ""].join(" ");
+
+    if (EVENT_OR_STALE_PATTERN.test(searchableText)) {
+        return {
+            lane: "event_or_closed_place_review",
+            action: "confirm_event_is_current_or_replace_with_permanent_spot",
+            reason: "The spot looks like a dated event, pop-up, tour, or temporary exhibition.",
+        };
+    }
+
+    if (item.issues.includes("broad_place_name") || BROAD_AREA_PATTERN.test(searchableText)) {
+        return {
+            lane: "area_image_or_exact_place_split",
+            action: "choose_reviewed_area_image_or_split_into_exact_venues",
+            reason: "The record reads like a neighborhood, street, or broad area rather than one exact Google Place.",
+        };
+    }
+
+    return {
+        lane: "exact_place_photo_backfill",
+        action: "find_exact_google_place_and_add_proxied_place_photos",
+        reason: "The spot appears specific enough for exact Google Place photo backfill.",
+    };
 }
 
 export function getSpotQualityPriority(item: SpotQualityItem): number {
@@ -96,9 +154,18 @@ export function getSpotQualityOperatorStatus(item: SpotQualityItem): SpotQuality
 
 export function buildSpotQualityOperatorChecklist(item: SpotQualityItem): string[] {
     const steps: string[] = [];
+    const imageGuidance = getSpotImageReviewGuidance(item);
 
     if (item.issues.includes("missing_name") || item.issues.includes("broad_place_name")) {
         steps.push("Replace broad or missing name with the exact traveler-searchable place name.");
+    }
+
+    if (imageGuidance.lane === "event_or_closed_place_review") {
+        steps.push("Confirm the event, tour, or pop-up is still current; replace stale records with a permanent spot.");
+    }
+
+    if (imageGuidance.lane === "area_image_or_exact_place_split") {
+        steps.push("Decide whether this should stay as an area card with a reviewed area image or split into exact venues.");
     }
 
     if (item.issues.includes("missing_real_photo") || item.issues.includes("inexact_location")) {

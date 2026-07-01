@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
     buildSpotQualityOperatorChecklist,
+    getSpotImageReviewGuidance,
     buildSpotQualitySchemaStatus,
     getSpotQualityOperatorStatus,
     getSpotQualityPriority,
@@ -137,6 +138,42 @@ describe("spot quality action plan", () => {
         expect(getSpotQualityOperatorStatus(untrustedRemotePhoto)).toMatchObject({
             realImage: "needs_real_image",
             publicCard: "hidden_until_enriched",
+        });
+    });
+
+    it("classifies missing-image work into safe operator lanes", () => {
+        const exactVenue = toSpotQualityItem(
+            createRow({
+                name: { en: "Cafe Ladrio" },
+                photos: [],
+            }),
+            true
+        );
+        const broadArea = toSpotQualityItem(
+            createRow({
+                name: { en: "Okusawa Residential" },
+                address: { en: "Okusawa, Setagaya-ku, Tokyo" },
+                photos: [],
+            }),
+            true
+        );
+        const temporaryEvent = toSpotQualityItem(
+            createRow({
+                name: { en: "Wiggle Christmas Pop-up" },
+                address: { en: "Wiggle Christmas Pop-up, Singapore" },
+                photos: [],
+            }),
+            true
+        );
+
+        expect(getSpotImageReviewGuidance(exactVenue)).toMatchObject({
+            lane: "exact_place_photo_backfill",
+        });
+        expect(getSpotImageReviewGuidance(broadArea)).toMatchObject({
+            lane: "area_image_or_exact_place_split",
+        });
+        expect(getSpotImageReviewGuidance(temporaryEvent)).toMatchObject({
+            lane: "event_or_closed_place_review",
         });
     });
 });
