@@ -109,6 +109,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
             <TemplateCard
               key={template.id}
               template={template}
+              actionHref={getTemplateUrl(template.id)}
               isSelected={selectedTemplate.id === template.id}
               onSelect={() => setSelectedId(template.id)}
             />
