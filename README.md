@@ -34,13 +34,13 @@ AI-powered travel itinerary platform that helps travelers discover authentic hid
 
 ## Tech Stack
 
-- **Framework**: Next.js 16.0.3 (App Router)
+- **Framework**: Next.js 16.0.10 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Clerk
-- **AI**: GLM 5.2 primary with OpenAI fallback
+- **AI**: GLM 5.2 primary; Anthropic fallback for chat and OpenAI fallback for itinerary generation
 - **Monitoring**: Sentry
 - **Deployment**: Vercel
 
@@ -53,7 +53,8 @@ AI-powered travel itinerary platform that helps travelers discover authentic hid
 - Supabase account
 - Clerk account
 - GLM/Z.AI API key
-- OpenAI API key for fallback
+- Anthropic API key for chat fallback
+- OpenAI API key for itinerary fallback
 
 ### Installation
 
@@ -89,11 +90,9 @@ GLM_MODEL=glm-5.2 # Optional, defaults to glm-5.2
 # Optional, defaults to Z.AI's OpenAI-compatible endpoint. Blank values are ignored.
 # GLM_BASE_URL=https://api.z.ai/api/paas/v4/
 
-# Chat fallback
-ANTHROPIC_API_KEY=your_anthropic_api_key
-
-# Itinerary generation fallback
-OPENAI_API_KEY=your_openai_api_key
+# Fallback AI providers
+ANTHROPIC_API_KEY=your_anthropic_api_key # Chat fallback
+OPENAI_API_KEY=your_openai_api_key # Itinerary fallback
 
 # Viator (Optional)
 VIATOR_API_KEY=your_viator_api_key

@@ -1,5 +1,7 @@
 # Multi-LLM Orchestration System - Sprint Plan
 
+> Historical plan: Localley's current runtime is GLM-first. Chat uses GLM with Anthropic fallback, while itinerary generation uses GLM with OpenAI fallback and optional Gemini/Claude validation in the orchestrated paths. Use `docs/glm-5-2-setup.md` and the `lib/llm` implementation as the current source of truth.
+
 ## Executive Summary
 
 This document outlines the implementation plan for a multi-LLM architecture that uses:

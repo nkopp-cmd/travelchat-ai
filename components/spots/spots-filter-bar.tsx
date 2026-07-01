@@ -78,7 +78,7 @@ const QUICK_FILTERS = [
 ];
 
 const FILTER_TRIGGER_CLASS =
-    "h-9 w-full min-w-0 justify-start gap-1 overflow-hidden border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:h-10 sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
+    "relative z-10 h-9 w-full min-w-0 justify-start gap-1 overflow-hidden border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:h-10 sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
 
 interface SpotsFilterBarProps {
     filterOptions: FilterOptions;
@@ -214,7 +214,7 @@ export function SpotsFilterBar({
                 })}
             </div>
 
-            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_2.75rem] gap-2 md:hidden">
+            <div className="flex min-w-0 items-center gap-2 md:hidden">
                 <Button
                     type="button"
                     variant="ghost"
@@ -253,13 +253,13 @@ export function SpotsFilterBar({
             <div
                 id="spots-advanced-filters"
                 className={cn(
-                    "grid min-w-0 grid-cols-1 gap-2 md:grid md:grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-[repeat(4,minmax(0,1fr))] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_auto] xl:items-center",
+                    "grid min-w-0 grid-cols-1 gap-2 min-[460px]:grid-cols-2 md:grid md:grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-[repeat(4,minmax(0,1fr))] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_auto] xl:items-center",
                     !showMobileFilters && "hidden md:grid"
                 )}
                 role="group"
                 aria-label="Filter options"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-violet-50/65 md:col-span-2 lg:col-span-4 xl:hidden">
+                <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-violet-50/65 min-[460px]:col-span-2 md:col-span-2 lg:col-span-4 xl:hidden">
                     <Filter className="h-4 w-4" aria-hidden="true" />
                     More filters
                 </div>

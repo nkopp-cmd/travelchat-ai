@@ -2,7 +2,8 @@
  * Z.AI GLM provider.
  *
  * Uses Z.AI's OpenAI-compatible chat completions API so the app can make
- * GLM the low-cost primary generator while keeping OpenAI as a fallback.
+ * GLM the low-cost primary generator while existing route-specific fallback
+ * providers stay available.
  */
 
 import { OpenAI } from 'openai';
