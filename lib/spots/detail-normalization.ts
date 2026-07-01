@@ -18,6 +18,13 @@ interface SpotCoordinateEvidenceInput {
     usableCoordinates: boolean;
 }
 
+interface SpotNavigationModeInput {
+    tone: SpotLocationConfidence["tone"];
+    isKorea: boolean;
+    hasMatchedGooglePlace: boolean;
+    usableCoordinates: boolean;
+}
+
 interface TrustedSpotGooglePlaceIdInput {
     photos: string[] | null | undefined;
     storedGooglePlaceId?: string | null;
@@ -40,6 +47,13 @@ export interface SpotVisitPlan {
     bestUse: string;
     routePairing: string;
     evidence: string;
+}
+
+export interface SpotNavigationMode {
+    status: "exact_place_id" | "exact_address_search" | "search_first_pin" | "search_first_area";
+    label: string;
+    targetLabel: string;
+    helper: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -139,11 +153,49 @@ export function getSpotPhotoEvidenceHelper(input: SpotPhotoEvidenceInput): strin
 export function getSpotCoordinateEvidenceLabel(
     input: SpotCoordinateEvidenceInput
 ): string {
-    if (!input.usableCoordinates) return "Imported coordinate";
+    if (!input.usableCoordinates) return "No verified coordinate";
     if (isKoreanLocation(input.address)) return "Saved Kakao route pin";
     if (input.tone === "exact") return "Exact map coordinate";
     if (input.tone === "pinned") return "Stored map pin";
     return "Approximate imported pin";
+}
+
+export function getSpotNavigationMode(input: SpotNavigationModeInput): SpotNavigationMode {
+    if (!input.isKorea && input.hasMatchedGooglePlace) {
+        return {
+            status: "exact_place_id",
+            label: "Exact Place ID",
+            targetLabel: "Map target",
+            helper: "Directions use a matched Google Place ID, so Maps can route to the specific destination instead of a broad imported pin.",
+        };
+    }
+
+    if (input.tone === "exact") {
+        return {
+            status: "exact_address_search",
+            label: input.isKorea ? "Exact Kakao search" : "Exact Maps search",
+            targetLabel: "Map target",
+            helper: input.isKorea
+                ? "Kakao searches the exact spot name and address so the selected place stays tied to the real record."
+                : "Maps searches the exact spot name and address first so the selected place stays tied to the real record.",
+        };
+    }
+
+    if (input.usableCoordinates) {
+        return {
+            status: "search_first_pin",
+            label: input.isKorea ? "Pinned Kakao search" : "Pinned Maps search",
+            targetLabel: "Search target",
+            helper: "This record has a saved coordinate, but the address is still area-level. Search opens first so the user can confirm the exact local result before routing.",
+        };
+    }
+
+    return {
+        status: "search_first_area",
+        label: input.isKorea ? "Area Kakao search" : "Area Maps search",
+        targetLabel: "Search target",
+        helper: "This record still needs exact address and coordinate enrichment. Search opens first so the user can choose the correct place before routing.",
+    };
 }
 
 export function getSpotDirectionsButtonLabel(

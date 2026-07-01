@@ -4,6 +4,7 @@ import {
     getSpotBestTime,
     getSpotCoordinateEvidenceLabel,
     getSpotDirectionsButtonLabel,
+    getSpotNavigationMode,
     getSpotPhotoEvidenceHelper,
     getSpotPhotoEvidenceLabel,
     getTrustedSpotGooglePlaceId,
@@ -108,7 +109,61 @@ describe("spot detail normalization", () => {
                 tone: "area",
                 usableCoordinates: false,
             })
-        ).toBe("Imported coordinate");
+        ).toBe("No verified coordinate");
+    });
+
+    it("describes navigation modes for exact and search-first direction targets", () => {
+        expect(
+            getSpotNavigationMode({
+                tone: "area",
+                isKorea: false,
+                hasMatchedGooglePlace: true,
+                usableCoordinates: true,
+            })
+        ).toMatchObject({
+            status: "exact_place_id",
+            label: "Exact Place ID",
+            targetLabel: "Map target",
+        });
+
+        expect(
+            getSpotNavigationMode({
+                tone: "exact",
+                isKorea: true,
+                hasMatchedGooglePlace: false,
+                usableCoordinates: true,
+            })
+        ).toMatchObject({
+            status: "exact_address_search",
+            label: "Exact Kakao search",
+            targetLabel: "Map target",
+        });
+
+        expect(
+            getSpotNavigationMode({
+                tone: "pinned",
+                isKorea: false,
+                hasMatchedGooglePlace: false,
+                usableCoordinates: true,
+            })
+        ).toMatchObject({
+            status: "search_first_pin",
+            label: "Pinned Maps search",
+            targetLabel: "Search target",
+        });
+
+        expect(
+            getSpotNavigationMode({
+                tone: "area",
+                isKorea: true,
+                hasMatchedGooglePlace: false,
+                usableCoordinates: false,
+            })
+        ).toMatchObject({
+            status: "search_first_area",
+            label: "Area Kakao search",
+            targetLabel: "Search target",
+        });
     });
 
     it("only trusts a stored Google Place ID when place-photo identity does not conflict", () => {

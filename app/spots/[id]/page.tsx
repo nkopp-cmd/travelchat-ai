@@ -55,6 +55,7 @@ import {
   getSpotBestTime,
   getSpotCoordinateEvidenceLabel,
   getSpotDirectionsButtonLabel,
+  getSpotNavigationMode,
   getSpotPhotoEvidenceHelper,
   getSpotPhotoEvidenceLabel,
   getSpotVisitPlan,
@@ -329,20 +330,6 @@ function getSpotPrimaryUse(category: string): { value: string; helper: string } 
   };
 }
 
-function getDirectionsTargetLabel(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-): string {
-  const confidence = getLocationConfidence(spot);
-  const isKorea = isKoreanLocation(spot.location.address);
-
-  if (isKorea && confidence.tone === "exact") return "Exact Kakao search";
-  if (isKorea && confidence.tone !== "exact") return "Area Kakao search";
-  if (!isKorea && spot.googlePlaceId) {
-    return "Matched Google place";
-  }
-  return confidence.tone === "area" ? "Area Maps search" : "Exact Maps search";
-}
-
 function getDirectionsTargetValue(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
   fallbackQuery: string,
@@ -527,10 +514,15 @@ function NavigationTargetPanel({
   const hasMatchedGooglePlace =
     Boolean(spot.googlePlaceId) &&
     !isKoreanLocation(spot.location.address);
-  const targetLabel =
-    hasMatchedGooglePlace || locationConfidence.tone === "exact"
-      ? "Map target"
-      : "Search target";
+  const navigationMode = getSpotNavigationMode({
+    tone: locationConfidence.tone,
+    isKorea: isKoreanLocation(spot.location.address),
+    hasMatchedGooglePlace,
+    usableCoordinates: locationConfidence.usableCoordinates,
+  });
+  const isSearchFirst =
+    navigationMode.status === "search_first_pin" ||
+    navigationMode.status === "search_first_area";
 
   return (
     <div
@@ -540,12 +532,12 @@ function NavigationTargetPanel({
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
-          {targetLabel}
+          {navigationMode.targetLabel}
         </span>
         <span
           className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
         >
-          {getDirectionsTargetLabel(spot)}
+          {navigationMode.label}
         </span>
       </div>
       <p className="break-words text-sm font-semibold leading-6 text-white">
@@ -554,16 +546,19 @@ function NavigationTargetPanel({
       <p className="mt-2 break-words text-xs leading-5 text-violet-50/60">
         Address on record: {spot.location.address}
       </p>
-      {locationConfidence.tone !== "exact" && !hasMatchedGooglePlace && (
+      {isSearchFirst && (
         <p className="mt-2 rounded-md border border-amber-200/20 bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">
-          Exact address enrichment is still needed. The button opens search
-          first so the user can confirm the correct local result before routing.
+          {navigationMode.helper}
         </p>
       )}
       {hasMatchedGooglePlace && (
         <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
-          Directions include the matched Google Place ID when Google Maps
-          supports it.
+          {navigationMode.helper}
+        </p>
+      )}
+      {!isSearchFirst && !hasMatchedGooglePlace && (
+        <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+          {navigationMode.helper}
         </p>
       )}
       {lat && lng && (
