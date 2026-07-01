@@ -103,7 +103,9 @@ function getDirectionsHelperText(
   }
 
   if (!isKorea && locationConfidence.tone === "exact") {
-    return "Maps searches the exact spot name and address first instead of relying on imported coordinates alone.";
+    return locationConfidence.usableCoordinates
+      ? "Maps routes to the saved exact coordinate, with the spot name and address kept visible for context."
+      : "Maps searches the exact spot name and address because no verified coordinate is stored yet.";
   }
 
   if (locationConfidence.tone === "area") {
@@ -144,8 +146,10 @@ function getLocationPlanningCopy(
     return {
       heading: "Plan this exact stop",
       description:
-        "The stored address is specific enough for maps to search directly.",
-      routeTitle: "Navigate by name and address",
+        "The stored address and map evidence are specific enough for direct planning.",
+      routeTitle: confidence.usableCoordinates
+        ? "Navigate to exact coordinate"
+        : "Navigate by name and address",
       locationHeading: "Exact location",
     };
   }

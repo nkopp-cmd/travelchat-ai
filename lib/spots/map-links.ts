@@ -75,7 +75,15 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     return `https://www.google.com/maps/dir/?${params.toString()}`;
   }
 
-  if (destinationText && (hasAreaLevelAddress || !input.googlePlaceId)) {
+  if (!hasAreaLevelAddress && coordinateDestination) {
+    const params = new URLSearchParams({
+      api: "1",
+      destination: coordinateDestination,
+    });
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
+  }
+
+  if (destinationText) {
     const params = new URLSearchParams({ api: "1", query: destinationText });
     return `https://www.google.com/maps/search/?${params.toString()}`;
   }

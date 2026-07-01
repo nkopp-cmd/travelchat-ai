@@ -15,7 +15,7 @@ describe("spot map links", () => {
     ).toBe("LADRIO, 1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo");
   });
 
-  it("searches exact name and address before routing when no trusted place match exists", () => {
+  it("routes to exact coordinates when no trusted place match exists", () => {
     const url = new URL(
       buildSpotDirectionsUrl({
         name: "LADRIO",
@@ -25,12 +25,25 @@ describe("spot map links", () => {
       }),
     );
 
+    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/dir/");
+    expect(url.searchParams.get("api")).toBe("1");
+    expect(url.searchParams.get("destination")).toBe("35.6901,139.7569");
+    expect(url.searchParams.has("destination_place_id")).toBe(false);
+  });
+
+  it("searches exact name and address when no coordinate or trusted place match exists", () => {
+    const url = new URL(
+      buildSpotDirectionsUrl({
+        name: "LADRIO",
+        address: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo",
+      }),
+    );
+
     expect(url.origin + url.pathname).toBe("https://www.google.com/maps/search/");
     expect(url.searchParams.get("api")).toBe("1");
     expect(url.searchParams.get("query")).toBe(
       "LADRIO, 1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo",
     );
-    expect(url.searchParams.has("destination")).toBe(false);
   });
 
   it("uses Google directions with a Place ID when a trusted exact match is available", () => {

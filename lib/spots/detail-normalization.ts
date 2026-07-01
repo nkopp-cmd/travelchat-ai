@@ -50,7 +50,7 @@ export interface SpotVisitPlan {
 }
 
 export interface SpotNavigationMode {
-    status: "exact_place_id" | "exact_address_search" | "search_first_pin" | "search_first_area";
+    status: "exact_place_id" | "exact_coordinate_directions" | "exact_address_search" | "search_first_pin" | "search_first_area";
     label: string;
     targetLabel: string;
     helper: string;
@@ -171,6 +171,15 @@ export function getSpotNavigationMode(input: SpotNavigationModeInput): SpotNavig
     }
 
     if (input.tone === "exact") {
+        if (!input.isKorea && input.usableCoordinates) {
+            return {
+                status: "exact_coordinate_directions",
+                label: "Exact coordinate",
+                targetLabel: "Route target",
+                helper: "Directions use the saved exact coordinate, with the spot name and address shown as context on the page.",
+            };
+        }
+
         return {
             status: "exact_address_search",
             label: input.isKorea ? "Exact Kakao search" : "Exact Maps search",
@@ -207,7 +216,7 @@ export function getSpotDirectionsButtonLabel(
 
     if (tone === "exact") {
         if (isKorea) return "Search exact spot in Kakao";
-        return "Search exact spot in Maps";
+        return "Get exact directions";
     }
 
     if (tone === "pinned") {
