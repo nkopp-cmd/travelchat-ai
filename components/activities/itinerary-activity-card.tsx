@@ -82,6 +82,39 @@ function formatActivityType(type: string) {
     .join(" ");
 }
 
+function getMapConfidenceCopy({
+  hasExactStoredAddress,
+  hasMatchedPlace,
+}: {
+  hasExactStoredAddress: boolean;
+  hasMatchedPlace: boolean;
+}) {
+  if (hasExactStoredAddress) {
+    return {
+      label: "Exact address",
+      className: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
+      helper: "Directions use the stored exact address.",
+      buttonLabel: "Directions",
+    };
+  }
+
+  if (hasMatchedPlace) {
+    return {
+      label: "Matched place",
+      className: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
+      helper: "Directions use matched place data for this stop.",
+      buttonLabel: "Directions",
+    };
+  }
+
+  return {
+    label: "Search first",
+    className: "border-amber-300/25 bg-amber-400/10 text-amber-100",
+    helper: "Address is area-level. Confirm the map result before routing.",
+    buttonLabel: "Search map",
+  };
+}
+
 export function ItineraryActivityCard({
   activity,
   city,
@@ -161,6 +194,10 @@ export function ItineraryActivityCard({
       city,
     );
   const hasMatchedPlace = Boolean(placeData.placeId || matchedAddress);
+  const mapConfidence = getMapConfidenceCopy({
+    hasExactStoredAddress,
+    hasMatchedPlace,
+  });
 
   return (
     <div
@@ -252,14 +289,15 @@ export function ItineraryActivityCard({
                       {activity.category}
                     </Badge>
                   )}
-                  {(hasExactStoredAddress || hasMatchedPlace) && (
-                    <Badge
-                      variant="outline"
-                      className="h-5 rounded-full border-emerald-300/20 bg-emerald-400/10 px-1.5 text-[10px] text-emerald-100 sm:px-2"
-                    >
-                      {hasExactStoredAddress ? "Exact" : "Matched"}
-                    </Badge>
-                  )}
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "h-5 rounded-full px-1.5 text-[10px] sm:px-2",
+                      mapConfidence.className,
+                    )}
+                  >
+                    {mapConfidence.label}
+                  </Badge>
                 </div>
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <div className="flex min-w-0 items-start gap-1 text-xs text-muted-foreground sm:text-sm">
@@ -288,6 +326,9 @@ export function ItineraryActivityCard({
                     </span>
                   )}
                 </div>
+                <p className="text-[11px] leading-4 text-violet-50/45 sm:text-xs">
+                  {mapConfidence.helper}
+                </p>
               </div>
               <div className="flex flex-wrap gap-1.5 text-xs">
                 {activity.type && (
@@ -343,7 +384,7 @@ export function ItineraryActivityCard({
                   aria-label={`Open map location for ${activity.name}`}
                 >
                   <Navigation className="h-3.5 w-3.5" />
-                  {hasExactStoredAddress || hasMatchedPlace ? "Directions" : "Search map"}
+                  {mapConfidence.buttonLabel}
                   <ExternalLink className="h-3 w-3" />
                 </Button>
               )}

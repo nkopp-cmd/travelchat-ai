@@ -53,7 +53,40 @@ describe("ItineraryActivityCard", () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByText("Kanda Jinbocho, Tokyo")).toBeNull();
-    expect(screen.getByText("Matched")).toBeTruthy();
+    expect(screen.getByText("Matched place")).toBeTruthy();
+    expect(screen.getByText("Directions use matched place data for this stop.")).toBeTruthy();
     expect(screen.getByText("Directions")).toBeTruthy();
+  });
+
+  it("marks area-level stops as search-first when no matched place is available", () => {
+    placePhotoMock.result = {
+      photoUrl: null,
+      rating: null,
+      totalRatings: null,
+      phone: null,
+      placeId: null,
+      formattedAddress: null,
+      lat: null,
+      lng: null,
+      isLoading: false,
+    };
+
+    render(
+      <ItineraryActivityCard
+        activity={{
+          name: "Ikseon teahouse",
+          address: "Ikseon-dong, Jongno-gu, Seoul",
+          description: "Order seasonal tea.",
+        }}
+        city="Seoul"
+        userTier="pro"
+      />,
+    );
+
+    expect(screen.getByText("Search first")).toBeTruthy();
+    expect(
+      screen.getByText("Address is area-level. Confirm the map result before routing."),
+    ).toBeTruthy();
+    expect(screen.getByText("Search map")).toBeTruthy();
   });
 });
