@@ -217,6 +217,38 @@ function TrendingChip({
   );
 }
 
+function CategoryTrendRow({
+  category,
+  trending,
+  compact = false,
+}: {
+  category: string;
+  trending?: boolean;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid min-w-0 items-center gap-1",
+        trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+      )}
+    >
+      <span
+        className={cn(
+          "min-w-0 truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium text-violet-100",
+          compact
+            ? "px-1.5 py-0.5 text-xs min-[390px]:px-2"
+            : "px-1.5 py-0.5 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
+        )}
+        title={category}
+      >
+        {category}
+      </span>
+      {trending && <TrendingChip className="justify-self-end" showLabel />}
+    </div>
+  );
+}
+
 export function SpotCard({
   spot,
   compact = false,
@@ -340,14 +372,15 @@ export function SpotCard({
           <p className="mt-1 line-clamp-1 text-xs leading-5 text-violet-50/60 sm:mt-1.5 sm:line-clamp-2 sm:text-sm">
             {spot.description}
           </p>
-          <div className="mt-auto border-t border-white/10 pt-1.5 text-xs text-violet-50/60 sm:pt-2">
-            <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-1">
-              <span className="max-w-[5.25rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-1.5 py-0.5 font-medium text-violet-100 min-[390px]:max-w-[6.75rem] sm:max-w-none sm:px-2">
-                {spot.category}
-              </span>
-              {spot.trending && <TrendingChip className="h-5" showLabel />}
+          <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5 text-xs text-violet-50/60 sm:pt-2">
+            <div className="mb-1.5 min-w-0">
+              <CategoryTrendRow
+                category={spot.category}
+                trending={spot.trending}
+                compact
+              />
             </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-1">
+            <div className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 min-[640px]:grid-cols-[auto_auto_auto]">
               <SpotScoreChip score={spot.localleyScore} />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
@@ -368,7 +401,7 @@ export function SpotCard({
   return (
     <Card
       className={cn(
-        "group relative flex min-h-[5.25rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
+        "group relative flex min-h-[5.25rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
         "bg-[#100b1c]/92 text-white backdrop-blur-xl",
         "border border-violet-200/15",
         "transition-all duration-300 ease-out",
@@ -385,7 +418,7 @@ export function SpotCard({
       >
         <span className="sr-only">Open {spot.name}</span>
       </Link>
-      <div className="relative w-[4.25rem] shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-20 min-[420px]:w-24 sm:aspect-[2/1] sm:w-full">
+      <div className="relative w-[4.25rem] shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-20 min-[420px]:w-24 md:aspect-[2/1] md:w-full">
         {!showGradientFallback && !imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
             <div
@@ -402,28 +435,28 @@ export function SpotCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
         {(!hasRealPhoto || usingAreaImage) && (
-          <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 sm:bottom-2.5 sm:left-2.5 sm:max-w-[calc(100%-5.5rem)] sm:px-2.5 sm:py-1 sm:text-[11px]" />
+          <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
 
-        <div className="absolute right-1.5 top-1.5 z-10 hidden sm:right-2.5 sm:top-2.5 sm:block">
-          <div className="relative z-20 flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 sm:opacity-0 sm:group-hover:opacity-100">
+        <div className="absolute right-1.5 top-1.5 z-10 hidden md:right-2.5 md:top-2.5 md:block">
+          <div className="relative z-20 flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
             <SaveSpotButton
               spotId={spot.id}
-              className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white sm:h-8 sm:w-8"
+              className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-8 md:w-8"
             />
           </div>
         </div>
       </div>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-3">
-        <div className="mb-1.5 flex min-w-0 items-start justify-between gap-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-1">
-            <span className="inline-flex max-w-[5.25rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-1.5 py-0.5 text-[10px] font-medium text-violet-100 min-[390px]:max-w-[7rem] sm:max-w-full sm:rounded-full sm:px-2.5 sm:text-[11px]">
-              {spot.category}
-            </span>
-            {spot.trending && <TrendingChip showLabel />}
+        <div className="mb-1.5 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+          <div className="min-w-0">
+            <CategoryTrendRow
+              category={spot.category}
+              trending={spot.trending}
+            />
           </div>
-          <div className="relative z-20 shrink-0 sm:hidden">
+          <div className="relative z-20 shrink-0 md:hidden">
             <SaveSpotButton
               spotId={spot.id}
               className="h-7 w-7 bg-white/10 p-0 text-white hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
@@ -441,7 +474,7 @@ export function SpotCard({
         </p>
 
         <div className="mt-auto border-t border-white/10 pt-1.5">
-          <div className="flex min-w-0 flex-wrap items-center gap-1">
+          <div className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 min-[640px]:grid-cols-[auto_auto_auto]">
             <SpotScoreChip score={spot.localleyScore} />
             <LocalCrowdChip
               percentage={spot.localPercentage}
