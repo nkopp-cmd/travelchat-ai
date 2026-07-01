@@ -145,6 +145,8 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                 className="rounded-full h-10 w-10 bg-white/10 hover:bg-white/20 text-white border-none backdrop-blur-sm"
                 onClick={handleShare}
                 disabled={isSharing}
+                aria-label={`Share ${spotName}`}
+                aria-busy={isSharing}
             >
                 {isSharing ? (
                     <Check className="h-4 w-4" />
@@ -161,6 +163,9 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                     }`}
                 onClick={handleLike}
                 disabled={isSaving || isLoading || !isLoaded}
+                aria-label={isLiked ? `Remove ${spotName} from saved spots` : `Save ${spotName}`}
+                aria-pressed={isLiked}
+                aria-busy={isSaving || isLoading}
             >
                 {isSaving || isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

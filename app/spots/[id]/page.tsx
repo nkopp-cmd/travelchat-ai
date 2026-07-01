@@ -203,6 +203,20 @@ function getScoreNarrative(score: LocalleyScale): string {
     return "A useful stop with a mixed crowd and clear practical value for a nearby route.";
 }
 
+function getPhotoEvidenceLabel(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
+    if (spot.realPhotoCount <= 0) return "Image fallback";
+    return spot.realPhotoCount === 1 ? "1 real photo source" : `${spot.realPhotoCount} real photo sources`;
+}
+
+function getDirectionsTargetLabel(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string {
+    const confidence = getLocationConfidence(spot);
+    const isKorea = isKoreanLocation(spot.location.address);
+
+    if (isKorea && confidence.usableCoordinates) return "Directions target";
+    if (!isKorea && spot.googlePlaceId) return "Matched place";
+    return confidence.tone === "area" ? "Maps will search" : "Directions search";
+}
+
 function getPrimaryArea(address: string, city: string): string {
     const parts = address
         .split(",")
@@ -224,7 +238,13 @@ function getPrimaryArea(address: string, city: string): string {
 }
 
 // Get Directions button component
-function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<typeof getSpot>>> }) {
+function GetDirectionsButton({
+    spot,
+    compact = false,
+}: {
+    spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>;
+    compact?: boolean;
+}) {
     const directionsUrl = buildSpotDirectionsUrl({
         name: spot.name,
         address: spot.location.address,
@@ -241,9 +261,13 @@ function GetDirectionsButton({ spot }: { spot: NonNullable<Awaited<ReturnType<ty
             target="_blank"
             rel="noopener noreferrer"
             className="w-full"
+            aria-label={`Open directions to ${spot.name}`}
         >
-            <Button className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 rounded-xl" size="lg">
-                <Navigation className="mr-2 h-5 w-5" />
+            <Button
+                className={`w-full bg-violet-600 shadow-lg shadow-violet-500/20 hover:bg-violet-700 ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
+                size="lg"
+            >
+                <Navigation className={compact ? "mr-2 h-4 w-4" : "mr-2 h-5 w-5"} />
                 {getSpotDirectionsButtonLabel(locationConfidence.tone, isKorea)}
             </Button>
         </Link>
@@ -482,7 +506,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     Back to spots
                 </Link>
 
-            <div className="relative aspect-[4/3] min-h-[300px] w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">
+            <div className="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">
                 <SpotPhotoImage
                     src={getDisplaySpotImage(heroImage, fallbackImage)}
                     fallbackSrc={fallbackImage}
@@ -493,55 +517,85 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     sizes="(max-width: 768px) 100vw, 1024px"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
+                <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
+                    <SpotInteractions spotId={spot.id} spotName={spot.name} />
+                </div>
 
                 <div className="absolute inset-x-0 bottom-0 w-full p-4 sm:p-6 md:p-8">
-                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-                        <div className="min-w-0">
-                            <div className="mb-3 flex flex-wrap items-center gap-2">
-                                <Badge className="border-white/10 bg-white/10 text-white shadow-none hover:bg-white/10">
-                                    {spot.category}
-                                </Badge>
-                                {spot.verified && (
-                                    <Badge variant="outline" className="border-emerald-300/40 bg-emerald-400/10 text-emerald-200 backdrop-blur-sm">Verified</Badge>
-                                )}
-                                <Badge
-                                    variant="outline"
-                                    className={spot.hasRealPhoto
-                                        ? "border-violet-200/30 bg-violet-400/10 text-violet-100 backdrop-blur-sm"
+                    <div className="max-w-3xl">
+                        <div className="flex flex-wrap items-center gap-2 sm:mb-3">
+                            <Badge className="border-white/10 bg-white/10 text-white shadow-none hover:bg-white/10">
+                                {spot.category}
+                            </Badge>
+                            {spot.verified && (
+                                <Badge variant="outline" className="border-emerald-300/40 bg-emerald-400/10 text-emerald-200 backdrop-blur-sm">Verified</Badge>
+                            )}
+                            <Badge
+                                variant="outline"
+                                className={spot.hasRealPhoto
+                                    ? "border-violet-200/30 bg-violet-400/10 text-violet-100 backdrop-blur-sm"
+                                    : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                                }
+                            >
+                                <ImageIcon className="mr-1 h-3.5 w-3.5" />
+                                {getPhotoEvidenceLabel(spot)}
+                            </Badge>
+                            <Badge
+                                variant="outline"
+                                className={locationConfidence.tone === "exact"
+                                    ? "border-emerald-200/35 bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
+                                    : locationConfidence.tone === "pinned"
+                                        ? "border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
                                         : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
-                                    }
-                                >
-                                    <ImageIcon className="mr-1 h-3.5 w-3.5" />
-                                    {spot.hasRealPhoto ? `${spot.realPhotoCount} spot photo${spot.realPhotoCount === 1 ? "" : "s"}` : "Area image"}
-                                </Badge>
-                                <Badge
-                                    variant="outline"
-                                    className={locationConfidence.tone === "exact"
-                                        ? "border-emerald-200/35 bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
-                                        : locationConfidence.tone === "pinned"
-                                            ? "border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
-                                            : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
-                                    }
-                                >
-                                    {locationConfidence.tone === "area" ? (
-                                        <AlertTriangle className="mr-1 h-3.5 w-3.5" />
-                                    ) : (
-                                        <MapPin className="mr-1 h-3.5 w-3.5" />
-                                    )}
-                                    {locationConfidence.label}
-                                </Badge>
-                            </div>
-                            <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl">{spot.name}</h1>
-                            <div className="mt-3 flex items-start gap-2 text-sm leading-6 text-violet-50/75">
-                                <MapPin className="mt-1 h-4 w-4 shrink-0" />
-                                <span>{spot.location.address}</span>
-                            </div>
+                                }
+                            >
+                                {locationConfidence.tone === "area" ? (
+                                    <AlertTriangle className="mr-1 h-3.5 w-3.5" />
+                                ) : (
+                                    <MapPin className="mr-1 h-3.5 w-3.5" />
+                                )}
+                                {locationConfidence.label}
+                            </Badge>
                         </div>
-
-                        <SpotInteractions spotId={spot.id} spotName={spot.name} />
+                        <h1 className="hidden text-4xl font-bold leading-tight text-white sm:block">{spot.name}</h1>
+                        <div className="mt-3 hidden items-start gap-2 text-sm leading-6 text-violet-50/75 sm:flex">
+                            <MapPin className="mt-1 h-4 w-4 shrink-0" />
+                            <span>{spot.location.address}</span>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <section className={`${LIQUID_CARD} space-y-2 p-3 sm:hidden`} aria-label="Spot summary">
+                <h1 className="text-2xl font-bold leading-tight text-white">{spot.name}</h1>
+                <div className="flex items-start gap-2 text-sm leading-6 text-violet-50/70">
+                    <MapPin className="mt-1 h-4 w-4 shrink-0 text-violet-300" />
+                    <span>{spot.location.address}</span>
+                </div>
+            </section>
+
+            <section className={`${LIQUID_CARD} space-y-3 p-3 lg:hidden`} aria-label="Spot planning actions">
+                <GetDirectionsButton spot={spot} compact />
+                <p className="text-xs leading-5 text-violet-50/60">
+                    {getDirectionsHelperText(spot)}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2.5">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
+                            <MapPin className="h-3.5 w-3.5 text-violet-300" />
+                            {locationConfidence.label}
+                        </span>
+                        <span className="mt-1 block truncate text-xs text-violet-50/50">{primaryArea}</span>
+                    </div>
+                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2.5">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
+                            <Clock className="h-3.5 w-3.5 text-indigo-300" />
+                            Best time
+                        </span>
+                        <span className="mt-1 block truncate text-xs text-violet-50/50">{spot.bestTime}</span>
+                    </div>
+                </div>
+            </section>
 
             {galleryImages.length > 0 && (
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -726,7 +780,9 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             </p>
                         </div>
 
-                        <GetDirectionsButton spot={spot} />
+                        <div className="hidden lg:block">
+                            <GetDirectionsButton spot={spot} />
+                        </div>
 
                         <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.055]">
                             <div className="relative h-36 border-b border-white/10 bg-[#171128]">
@@ -754,7 +810,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             </h3>
                             <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
                             <p className="mt-2 text-xs font-medium text-violet-200/80">
-                                Exact map query: {exactMapQuery || `${spot.name}, ${city}`}
+                                {getDirectionsTargetLabel(spot)}: {exactMapQuery || `${spot.name}, ${city}`}
                             </p>
                             <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
                                 {locationConfidence.description} {getDirectionsHelperText(spot)}
