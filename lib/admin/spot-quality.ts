@@ -39,6 +39,7 @@ export interface SpotQualityItem {
     category: string | null;
     photos: string[];
     photoSummary: ReturnType<typeof summarizeSpotPhotos>;
+    photoReadiness: SpotPhotoReadiness;
     lat: number | null;
     lng: number | null;
     googlePlaceId: string | null;
@@ -47,6 +48,15 @@ export interface SpotQualityItem {
     issues: SpotQualityIssue[];
     publicReady: boolean;
     createdAt: string | null;
+}
+
+export interface SpotPhotoReadiness {
+    status: "ready" | "place_ready" | "manual_review" | "backfill_ready";
+    label: string;
+    description: string;
+    tone: "good" | "warn" | "danger";
+    realPhotoCount: number;
+    canAutoBackfill: boolean;
 }
 
 export interface SpotQualityQueueSummary {
@@ -189,6 +199,61 @@ export function buildSpotQualityPatchPayload(
     return payload;
 }
 
+export function getSpotPhotoReadiness(
+    photoSummary: ReturnType<typeof summarizeSpotPhotos>,
+    googlePlaceId: string | null,
+    hasGooglePlaceIdColumn: boolean
+): SpotPhotoReadiness {
+    const realPhotoCount =
+        photoSummary.kinds.proxy +
+        photoSummary.kinds.remote_https +
+        photoSummary.kinds.local_asset;
+
+    if (photoSummary.kinds.proxy > 0 && (!hasGooglePlaceIdColumn || googlePlaceId)) {
+        return {
+            status: "ready",
+            label: "Real place image ready",
+            description: "This spot has proxied place photos and durable place identity.",
+            tone: "good",
+            realPhotoCount,
+            canAutoBackfill: false,
+        };
+    }
+
+    if (photoSummary.hasRealPhoto) {
+        return {
+            status: hasGooglePlaceIdColumn && !googlePlaceId ? "place_ready" : "ready",
+            label: hasGooglePlaceIdColumn && !googlePlaceId ? "Image ready, Place ID missing" : "Real image ready",
+            description: hasGooglePlaceIdColumn && !googlePlaceId
+                ? "The image can ship, but the durable Google Place ID should still be saved."
+                : "This spot has a non-placeholder image that can ship.",
+            tone: hasGooglePlaceIdColumn && !googlePlaceId ? "warn" : "good",
+            realPhotoCount,
+            canAutoBackfill: hasGooglePlaceIdColumn && !googlePlaceId,
+        };
+    }
+
+    if (photoSummary.kinds.unsplash > 0 || photoSummary.kinds.invalid > 0 || photoSummary.kinds.direct_google > 0) {
+        return {
+            status: "manual_review",
+            label: "Photo needs review",
+            description: "This spot has image data, but it is not stored in a production-safe Localley format yet.",
+            tone: "warn",
+            realPhotoCount,
+            canAutoBackfill: true,
+        };
+    }
+
+    return {
+        status: "backfill_ready",
+        label: "Needs real spot image",
+        description: "No real spot photo is stored yet. Run a Google Places dry run before updating live data.",
+        tone: "danger",
+        realPhotoCount,
+        canAutoBackfill: true,
+    };
+}
+
 export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: boolean): SpotQualityItem {
     const name = getText(row.name);
     const address = getText(row.address);
@@ -200,6 +265,11 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
     const lng = coordinates?.lng ?? null;
     const locationConfidence = getSpotLocationConfidence({ address, lat, lng });
     const googlePlaceId = row.google_place_id || null;
+    const photoReadiness = getSpotPhotoReadiness(
+        photoSummary,
+        googlePlaceId,
+        hasGooglePlaceIdColumn
+    );
     const publicQualityIssue = getPublicSpotQualityIssue({
         name: row.name,
         address: row.address,
@@ -228,6 +298,7 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
         category: row.category,
         photos,
         photoSummary,
+        photoReadiness,
         lat,
         lng,
         googlePlaceId,

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
     buildSpotQualityPatchPayload,
+    getSpotPhotoReadiness,
     summarizeSpotQualityItems,
     toSpotQualityItem,
     type SpotQualityRow,
 } from "@/lib/admin/spot-quality";
+import { summarizeSpotPhotos } from "@/lib/place-images";
 
 function createRow(overrides: Partial<SpotQualityRow> = {}): SpotQualityRow {
     return {
@@ -43,6 +45,34 @@ describe("admin spot quality", () => {
 
         expect(item.issues).toEqual(["missing_place_id"]);
         expect(item.publicReady).toBe(false);
+        expect(item.photoReadiness.status).toBe("place_ready");
+        expect(item.photoReadiness.canAutoBackfill).toBe(true);
+    });
+
+    it("summarizes photo readiness for safe operator backfill decisions", () => {
+        expect(
+            getSpotPhotoReadiness(
+                summarizeSpotPhotos(["/api/places/photo?name=places/abc/photos/photo_1&w=1200"]),
+                "abc",
+                true
+            )
+        ).toMatchObject({
+            status: "ready",
+            tone: "good",
+            canAutoBackfill: false,
+        });
+
+        expect(
+            getSpotPhotoReadiness(
+                summarizeSpotPhotos(["/images/placeholders/default.svg"]),
+                null,
+                true
+            )
+        ).toMatchObject({
+            status: "backfill_ready",
+            tone: "danger",
+            canAutoBackfill: true,
+        });
     });
 
     it("builds a safe patch payload for address, coordinates, photos, and place ID", () => {

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
     AlertTriangle,
+    Camera,
     CheckCircle2,
     Copy,
     ExternalLink,
@@ -17,6 +18,7 @@ import {
     Save,
     Search,
     ShieldCheck,
+    Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,6 +53,25 @@ interface EditState {
     lng: string;
     photos: string;
     googlePlaceId: string;
+}
+
+interface PhotoBackfillPreviewResult {
+    success?: boolean;
+    dryRun?: boolean;
+    processed?: number;
+    wouldUpdate?: number;
+    skipped?: number;
+    failed?: number;
+    results?: Array<{
+        id: string;
+        name: string;
+        status: "updated" | "would_update" | "skipped" | "failed";
+        reason?: string;
+        placeName?: string | null;
+        placeId?: string | null;
+        photoCount?: number;
+        updatedFields?: string[];
+    }>;
 }
 
 function getPrimaryPhoto(item: SpotQualityItem): string | null {
@@ -127,6 +148,8 @@ export function SpotQualityWorkbench() {
     const [city, setCity] = useState("");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [previewingPhotoBackfill, setPreviewingPhotoBackfill] = useState(false);
+    const [photoBackfillPreview, setPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
     const [editState, setEditState] = useState<EditState | null>(null);
@@ -178,10 +201,50 @@ export function SpotQualityWorkbench() {
     useEffect(() => {
         if (selectedItem) {
             setEditState(createEditState(selectedItem));
+            setPhotoBackfillPreview(null);
         } else {
             setEditState(null);
         }
     }, [selectedItem]);
+
+    const previewSelectedPhotoBackfill = async () => {
+        if (!selectedItem) return;
+
+        setPreviewingPhotoBackfill(true);
+        setError(null);
+        setNotice(null);
+        setPhotoBackfillPreview(null);
+
+        try {
+            const response = await fetch("/api/admin/spots/backfill-photos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    spotId: selectedItem.id,
+                    limit: 1,
+                    maxProcessed: 1,
+                    dryRun: true,
+                }),
+            });
+            const data = (await response.json()) as PhotoBackfillPreviewResult & { error?: string; details?: string };
+            if (!response.ok) {
+                throw new Error(data.details || data.error || "Failed to preview photo backfill");
+            }
+            setPhotoBackfillPreview(data);
+            const firstResult = data.results?.[0];
+            if (firstResult?.status === "would_update") {
+                setNotice(`Photo dry run found ${firstResult.photoCount || 0} image candidate${firstResult.photoCount === 1 ? "" : "s"}.`);
+            } else if (firstResult?.status === "skipped") {
+                setNotice(`Photo dry run skipped: ${firstResult.reason || "no update candidate"}.`);
+            } else {
+                setNotice("Photo dry run completed.");
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to preview photo backfill");
+        } finally {
+            setPreviewingPhotoBackfill(false);
+        }
+    };
 
     const saveSelected = async () => {
         if (!selectedItem || !editState) return;
@@ -379,6 +442,71 @@ export function SpotQualityWorkbench() {
                                 </div>
 
                                 <IssueBadges issues={selectedItem.issues} />
+
+                                <div className={cn(
+                                    "rounded-lg border p-3",
+                                    selectedItem.photoReadiness.tone === "good"
+                                        ? "border-emerald-300/20 bg-emerald-400/10"
+                                        : selectedItem.photoReadiness.tone === "warn"
+                                            ? "border-amber-300/20 bg-amber-400/10"
+                                            : "border-rose-300/20 bg-rose-400/10"
+                                )}>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                                <Camera className="h-4 w-4 text-violet-200" />
+                                                {selectedItem.photoReadiness.label}
+                                            </div>
+                                            <p className="mt-1 text-xs leading-5 text-violet-50/65">
+                                                {selectedItem.photoReadiness.description}
+                                            </p>
+                                            <p className="mt-1 text-xs text-violet-50/45">
+                                                {selectedItem.photoReadiness.realPhotoCount} real / {selectedItem.photoSummary.total} stored photo{selectedItem.photoSummary.total === 1 ? "" : "s"}
+                                            </p>
+                                        </div>
+                                        <Badge className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] text-[10px] text-violet-100">
+                                            {selectedItem.photoSummary.primaryKind}
+                                        </Badge>
+                                    </div>
+
+                                    {selectedItem.photoReadiness.canAutoBackfill && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={previewSelectedPhotoBackfill}
+                                            disabled={previewingPhotoBackfill}
+                                            className="mt-3 h-9 w-full border-white/10 bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
+                                        >
+                                            {previewingPhotoBackfill ? (
+                                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="mr-2 h-3.5 w-3.5" />
+                                            )}
+                                            Preview photo backfill
+                                        </Button>
+                                    )}
+
+                                    {photoBackfillPreview?.results?.[0] && (
+                                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                            <p className="font-semibold text-white">
+                                                {photoBackfillPreview.results[0].status.replace("_", " ")}
+                                            </p>
+                                            {photoBackfillPreview.results[0].placeName && (
+                                                <p>Matched: {photoBackfillPreview.results[0].placeName}</p>
+                                            )}
+                                            {photoBackfillPreview.results[0].photoCount !== undefined && (
+                                                <p>{photoBackfillPreview.results[0].photoCount} photo candidate{photoBackfillPreview.results[0].photoCount === 1 ? "" : "s"}</p>
+                                            )}
+                                            {photoBackfillPreview.results[0].updatedFields?.length ? (
+                                                <p>Would update: {photoBackfillPreview.results[0].updatedFields.join(", ")}</p>
+                                            ) : null}
+                                            {photoBackfillPreview.results[0].reason && (
+                                                <p>Reason: {photoBackfillPreview.results[0].reason}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
 
                                 {selectedResearch && (
                                     <div className="rounded-lg border border-violet-200/15 bg-white/[0.045] p-3">

@@ -23,6 +23,7 @@ interface BackfillRequestBody {
     limit?: number;
     maxProcessed?: number;
     city?: string;
+    spotId?: string;
     dryRun?: boolean;
 }
 
@@ -112,6 +113,45 @@ async function fetchBackfillCandidates(
     return { candidates: candidates.slice(0, maxProcessed), scanned, hasGooglePlaceIdColumn };
 }
 
+async function fetchSingleBackfillCandidate(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    spotId: string
+): Promise<{ candidates: SpotPhotoBackfillRow[]; scanned: number; hasGooglePlaceIdColumn: boolean }> {
+    let hasGooglePlaceIdColumn = true;
+    let result = await supabase
+        .from("spots")
+        .select("id, name, address, photos, category, google_place_id")
+        .eq("id", spotId)
+        .single();
+
+    if (result.error && /google_place_id/i.test(result.error.message)) {
+        hasGooglePlaceIdColumn = false;
+        result = await supabase
+            .from("spots")
+            .select("id, name, address, photos, category")
+            .eq("id", spotId)
+            .single();
+    }
+
+    if (result.error || !result.data) {
+        throw new Error(result.error?.message || "Spot not found");
+    }
+
+    const row = result.data as unknown as SpotPhotoBackfillRow;
+    const needsBackfill =
+        needsSpotPhotoBackfill(row.photos) ||
+        (
+            hasGooglePlaceIdColumn &&
+            needsSpotPlaceIdentityBackfill(row.photos, row.google_place_id)
+        );
+
+    return {
+        candidates: needsBackfill ? [row] : [],
+        scanned: 1,
+        hasGooglePlaceIdColumn,
+    };
+}
+
 export async function POST(req: NextRequest) {
     const { response } = await requireAdmin(
         "/api/admin/spots/backfill-photos",
@@ -138,6 +178,7 @@ export async function POST(req: NextRequest) {
     const maxProcessed = getMaxProcessed(body.maxProcessed, limit);
     const dryRun = body.dryRun !== false;
     const city = body.city?.trim();
+    const spotId = body.spotId?.trim();
     const supabase = createSupabaseAdmin();
 
     let backfillRows: {
@@ -146,7 +187,9 @@ export async function POST(req: NextRequest) {
         hasGooglePlaceIdColumn: boolean;
     };
     try {
-        backfillRows = await fetchBackfillCandidates(supabase, city, maxProcessed);
+        backfillRows = spotId
+            ? await fetchSingleBackfillCandidate(supabase, spotId)
+            : await fetchBackfillCandidates(supabase, city, maxProcessed);
     } catch (error) {
         return NextResponse.json(
             {
@@ -290,6 +333,7 @@ export async function POST(req: NextRequest) {
         limit,
         maxProcessed,
         city: city || null,
+        spotId: spotId || null,
         hasGooglePlaceIdColumn: backfillRows.hasGooglePlaceIdColumn,
         scanned: backfillRows.scanned,
         candidates: candidates.length,
