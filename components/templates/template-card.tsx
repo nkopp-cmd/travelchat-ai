@@ -15,6 +15,7 @@ interface TemplateCardProps {
   template: ItineraryTemplate;
   href?: string;
   actionHref?: string;
+  primaryHref?: string;
   isSelected?: boolean;
   onSelect?: () => void;
 }
@@ -170,7 +171,7 @@ function TemplateCardContent({
   );
 }
 
-export function TemplateCard({ template, href, actionHref, isSelected, onSelect }: TemplateCardProps) {
+export function TemplateCard({ template, href, actionHref, primaryHref, isSelected, onSelect }: TemplateCardProps) {
   const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background";
   const content = <TemplateCardContent template={template} isSelected={isSelected} />;
 
@@ -191,15 +192,27 @@ export function TemplateCard({ template, href, actionHref, isSelected, onSelect 
 
   if (onSelect) {
     return (
-      <button
-        type="button"
-        onClick={onSelect}
-        className={cn(className, "w-full")}
-        aria-pressed={isSelected}
-        aria-label={`Select ${template.name} template`}
-      >
-        {content}
-      </button>
+      <div className="relative h-full">
+        <button
+          type="button"
+          onClick={onSelect}
+          className={cn(className, "w-full")}
+          aria-pressed={isSelected}
+          aria-label={`Select ${template.name} template`}
+        >
+          {content}
+        </button>
+        {isSelected && primaryHref && (
+          <Link
+            href={primaryHref}
+            className="absolute bottom-1.5 right-1.5 z-20 inline-flex h-7 items-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-2 text-[11px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c]"
+            aria-label={`Use ${template.name} template`}
+          >
+            Use
+            <ArrowRight className="h-3 w-3" aria-hidden="true" />
+          </Link>
+        )}
+      </div>
     );
   }
 
