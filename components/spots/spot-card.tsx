@@ -244,7 +244,9 @@ function CategoryTrendRow({
       >
         {category}
       </span>
-      {trending && <TrendingChip className="justify-self-end" showLabel />}
+      {trending && (
+        <TrendingChip className="justify-self-end" showLabel={!compact} />
+      )}
     </div>
   );
 }
@@ -322,6 +324,7 @@ export function SpotCard({
     // Premium compact horizontal card for list view
     return (
       <Card
+        data-spot-card="list"
         className={cn(
           "group relative flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
           "bg-[#100b1c]/92 text-white backdrop-blur-xl",
@@ -380,7 +383,10 @@ export function SpotCard({
                 compact
               />
             </div>
-            <div className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 min-[640px]:grid-cols-[auto_auto_auto]">
+            <div
+              data-spot-card-meta
+              className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 overflow-hidden min-[640px]:grid-cols-[auto_auto_auto]"
+            >
               <SpotScoreChip score={spot.localleyScore} />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
@@ -400,6 +406,7 @@ export function SpotCard({
   // Premium grid card with glassmorphism and micro-animations
   return (
     <Card
+      data-spot-card="grid"
       className={cn(
         "group relative flex min-h-[5.25rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
         "bg-[#100b1c]/92 text-white backdrop-blur-xl",
@@ -438,7 +445,7 @@ export function SpotCard({
           <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
 
-        <div className="absolute left-1.5 top-1.5 z-10 max-w-[calc(100%-3rem)] md:hidden">
+        <div className="absolute left-1.5 top-1.5 z-10 max-w-[calc(100%-3rem)] overflow-hidden md:hidden">
           <CategoryTrendRow
             category={spot.category}
             trending={spot.trending}
@@ -484,7 +491,10 @@ export function SpotCard({
         </p>
 
         <div className="mt-auto border-t border-white/10 pt-1.5">
-          <div className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 min-[640px]:grid-cols-[auto_auto_auto]">
+          <div
+            data-spot-card-meta
+            className="grid min-w-0 grid-cols-[auto_auto] items-center justify-start gap-1 overflow-hidden min-[640px]:grid-cols-[auto_auto_auto]"
+          >
             <SpotScoreChip score={spot.localleyScore} />
             <LocalCrowdChip
               percentage={spot.localPercentage}
