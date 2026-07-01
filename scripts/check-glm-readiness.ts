@@ -49,10 +49,9 @@ async function main() {
     glmApiKeySource: readiness.glm.env.apiKeySource,
     anthropicFallbackConfigured: readiness.anthropicFallback.configured,
     anthropicFallbackModel: readiness.anthropicFallback.model,
-    readyForGlmPrimary:
-      readiness.primary === "glm" &&
-      readiness.glm.configured &&
-      (!readiness.glm.healthChecked || readiness.glm.healthy === true),
+    readyForGlmPrimary: readiness.readyForGlmPrimary,
+    readyForProductionChat: readiness.readyForProductionChat,
+    issues: readiness.issues,
   };
 
   if (args.json) {
@@ -79,6 +78,10 @@ async function main() {
       }`,
       `Anthropic fallback model: ${summary.anthropicFallbackModel}`,
       `Ready for GLM primary: ${summary.readyForGlmPrimary ? "yes" : "no"}`,
+      `Ready for production chat: ${
+        summary.readyForProductionChat ? "yes" : "no"
+      }`,
+      `Issues: ${summary.issues.length ? summary.issues.join(", ") : "none"}`,
     ].join("\n")
   );
 }

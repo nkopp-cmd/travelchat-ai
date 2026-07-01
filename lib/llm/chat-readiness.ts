@@ -6,6 +6,13 @@ import type { BaseLLMProvider } from "./providers/base";
 export interface ChatProviderReadiness {
   primary: "glm";
   fallback: "anthropic";
+  readyForGlmPrimary: boolean;
+  readyForProductionChat: boolean;
+  issues: Array<
+    | "glm_api_key_missing"
+    | "glm_health_failed"
+    | "anthropic_fallback_missing"
+  >;
   glm: {
     configured: boolean;
     healthChecked: boolean;
@@ -40,9 +47,25 @@ export async function getChatProviderReadiness({
     glmHealthy = await glm.healthCheck();
   }
 
+  const anthropicFallbackConfigured = Boolean(getTrimmedEnv("ANTHROPIC_API_KEY"));
+  const readyForGlmPrimary =
+    glmConfigured && (!runGlmHealthCheck || glmHealthy === true);
+  const issues: ChatProviderReadiness["issues"] = [];
+
+  if (!glmConfigured) issues.push("glm_api_key_missing");
+  if (runGlmHealthCheck && glmConfigured && glmHealthy !== true) {
+    issues.push("glm_health_failed");
+  }
+  if (!anthropicFallbackConfigured) {
+    issues.push("anthropic_fallback_missing");
+  }
+
   return {
     primary: "glm",
     fallback: "anthropic",
+    readyForGlmPrimary,
+    readyForProductionChat: readyForGlmPrimary && anthropicFallbackConfigured,
+    issues,
     glm: {
       configured: glmConfigured,
       healthChecked: runGlmHealthCheck,
@@ -56,7 +79,7 @@ export async function getChatProviderReadiness({
       },
     },
     anthropicFallback: {
-      configured: Boolean(getTrimmedEnv("ANTHROPIC_API_KEY")),
+      configured: anthropicFallbackConfigured,
       model: getAnthropicChatModel(),
     },
   };

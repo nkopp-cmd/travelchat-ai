@@ -39,6 +39,9 @@ describe("chat provider readiness", () => {
     expect(readiness).toMatchObject({
       primary: "glm",
       fallback: "anthropic",
+      readyForGlmPrimary: true,
+      readyForProductionChat: true,
+      issues: [],
       glm: {
         configured: true,
         healthChecked: false,
@@ -74,6 +77,7 @@ describe("chat provider readiness", () => {
 
     expect(readiness.glm.healthChecked).toBe(true);
     expect(readiness.glm.healthy).toBe(true);
+    expect(readiness.readyForGlmPrimary).toBe(true);
     expect(glmProvider.healthCheck).toHaveBeenCalledOnce();
   });
 
@@ -100,7 +104,33 @@ describe("chat provider readiness", () => {
         apiKeySource: null,
       },
     });
+    expect(readiness).toMatchObject({
+      readyForGlmPrimary: false,
+      readyForProductionChat: false,
+      issues: ["glm_api_key_missing", "anthropic_fallback_missing"],
+    });
     expect(glmProvider.healthCheck).not.toHaveBeenCalled();
+  });
+
+  it("reports a failed GLM health check as not ready for primary use", async () => {
+    clearEnv();
+    process.env.GLM_API_KEY = "glm-live";
+    process.env.ANTHROPIC_API_KEY = "anthropic-live";
+    const glmProvider = {
+      isAvailable: vi.fn(() => true),
+      healthCheck: vi.fn(async () => false),
+    };
+
+    const readiness = await getChatProviderReadiness({
+      runGlmHealthCheck: true,
+      glmProvider,
+    });
+
+    expect(readiness).toMatchObject({
+      readyForGlmPrimary: false,
+      readyForProductionChat: false,
+      issues: ["glm_health_failed"],
+    });
   });
 
   it("reports the ZAI alias and fallback model precedence", async () => {
@@ -130,5 +160,6 @@ describe("chat provider readiness", () => {
       configured: true,
       model: "claude-fallback",
     });
+    expect(readiness.readyForProductionChat).toBe(true);
   });
 });

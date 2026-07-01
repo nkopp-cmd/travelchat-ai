@@ -72,6 +72,8 @@ This should report:
 - `GLM configured: yes`
 - `GLM key source: GLM_API_KEY`
 - `Ready for GLM primary: yes`
+- `Ready for production chat: yes`
+- `Issues: none`
 
 Add `-- --health` only when you want to spend one lightweight provider call to verify the remote GLM endpoint:
 
@@ -95,13 +97,17 @@ For machine-readable checks, add `-- --json`:
 npm run llm:readiness -- --json
 ```
 
-If `GLM configured` is `no` or `readyForGlmPrimary` is `false`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
+If `GLM configured` is `no`, `readyForGlmPrimary` is `false`, or `issues` includes `glm_api_key_missing`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
+
+If `issues` includes `anthropic_fallback_missing`, add `ANTHROPIC_API_KEY` before launch so the existing fallback remains available when GLM fails or is temporarily unavailable.
+
+If `issues` includes `glm_health_failed`, the key is present but the provider call failed. Confirm the Z.AI account, model access, and `GLM_BASE_URL`, then rerun `npm run llm:readiness -- --health`.
 
 ## Verify the runtime provider
 
 Admin users can verify runtime routing without exposing secrets:
 
-- `GET /api/admin/llm-metrics` reports `chatProviderReadiness`, including whether GLM is configured as the primary chat provider and whether Anthropic fallback is configured.
+- `GET /api/admin/llm-metrics` reports `chatProviderReadiness`, including `readyForGlmPrimary`, `readyForProductionChat`, `issues`, whether GLM is configured as the primary chat provider, and whether Anthropic fallback is configured.
 - `GET /api/admin/llm-metrics?health=glm` runs a lightweight GLM health check and returns `chatProviderReadiness.glm.healthy`.
 
 The health-check query intentionally runs only when `health=glm` is present so normal metrics reads do not spend model tokens.

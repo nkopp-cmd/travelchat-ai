@@ -5,6 +5,9 @@ const mocks = vi.hoisted(() => ({
   getChatProviderReadiness: vi.fn(async ({ runGlmHealthCheck = false } = {}) => ({
     primary: "glm",
     fallback: "anthropic",
+    readyForGlmPrimary: true,
+    readyForProductionChat: true,
+    issues: [],
     glm: {
       configured: true,
       healthChecked: runGlmHealthCheck,
@@ -71,6 +74,9 @@ describe("admin LLM metrics readiness", () => {
     expect(body.chatProviderReadiness).toMatchObject({
       primary: "glm",
       fallback: "anthropic",
+      readyForGlmPrimary: true,
+      readyForProductionChat: true,
+      issues: [],
       glm: {
         configured: true,
         healthChecked: false,
