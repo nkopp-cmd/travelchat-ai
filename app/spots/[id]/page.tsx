@@ -390,6 +390,46 @@ function DetailSignal({
   );
 }
 
+function SpotFact({
+  icon: Icon,
+  label,
+  value,
+  helper,
+  tone = "violet",
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  helper: string;
+  tone?: "violet" | "emerald" | "sky" | "amber";
+}) {
+  const toneClasses = {
+    violet: "border-violet-200/20 bg-violet-400/10 text-violet-100",
+    emerald: "border-emerald-200/20 bg-emerald-400/10 text-emerald-100",
+    sky: "border-sky-200/20 bg-sky-400/10 text-sky-100",
+    amber: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+  }[tone];
+
+  return (
+    <div className="min-w-0 rounded-lg border border-white/10 bg-white/[0.055] p-2.5 sm:p-3">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8 ${toneClasses}`}
+        >
+          <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+        </span>
+        <span className="truncate">{label}</span>
+      </div>
+      <p className="mt-2 truncate text-sm font-bold leading-tight text-white sm:text-base">
+        {value}
+      </p>
+      <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-violet-50/55 sm:text-xs sm:leading-5">
+        {helper}
+      </p>
+    </div>
+  );
+}
+
 // Get Directions button component
 function GetDirectionsButton({
   spot,
@@ -704,7 +744,7 @@ export default async function SpotPage({
         ]}
       />
 
-      <div className="mx-auto max-w-5xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-8">
+      <div className="mx-auto max-w-6xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-8">
         <Link
           href="/spots"
           className="inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
@@ -824,6 +864,39 @@ export default async function SpotPage({
               </span>
             </div>
           </div>
+        </section>
+
+        <section
+          className={`${LIQUID_CARD} grid grid-cols-2 gap-2 p-3 sm:p-4 lg:grid-cols-4`}
+          aria-label="Spot intelligence"
+        >
+          <SpotFact
+            icon={Sparkles}
+            label="Local signal"
+            value={`${spot.localleyScore}/6 score`}
+            helper={scoreNarrative}
+          />
+          <SpotFact
+            icon={Users}
+            label="Crowd mix"
+            value={`${spot.localPercentage}% local`}
+            helper="A stronger local percentage means this spot is less tourist-default."
+            tone="emerald"
+          />
+          <SpotFact
+            icon={Clock}
+            label="Best window"
+            value={spot.bestTime}
+            helper="Use this timing when placing the stop inside an actual day route."
+            tone="sky"
+          />
+          <SpotFact
+            icon={Route}
+            label="Map confidence"
+            value={locationConfidence.label}
+            helper={getDirectionsHelperText(spot)}
+            tone={locationSignalTone}
+          />
         </section>
 
         {galleryImages.length > 0 && (
