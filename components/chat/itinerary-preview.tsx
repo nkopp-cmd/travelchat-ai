@@ -145,13 +145,13 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
         <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/[0.15] shadow-[0_0_20px_rgba(139,92,246,0.15)] backdrop-blur-md dark:border-white/10 dark:bg-white/[0.08]">
             {/* Header */}
             <div className="px-5 pt-5 pb-4">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             <Sparkles className="h-4 w-4 text-violet-500 flex-shrink-0" />
-                            <h3 className="text-lg font-bold text-foreground truncate">{title}</h3>
+                            <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-foreground sm:truncate">{title}</h3>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                             <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
                             <span>{city}</span>
                             <span className="text-border">|</span>
@@ -164,8 +164,8 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         disabled={isSaved || isSaving}
                         size="sm"
                         className={isSaved
-                            ? "bg-green-600 hover:bg-green-700 shadow-md"
-                            : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20"
+                            ? "w-full bg-green-600 shadow-md hover:bg-green-700 sm:w-auto"
+                            : "w-full bg-gradient-to-r from-violet-600 to-indigo-600 shadow-md shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700 sm:w-auto"
                         }
                     >
                         {isSaved ? (
@@ -194,7 +194,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         insights={insights}
                         title="Trip notes"
                         compact
-                        className="border-white/15 bg-white/55 shadow-none dark:bg-white/[0.04]"
+                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
                     />
                 </div>
             )}
@@ -204,8 +204,8 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 {days.map((day, dayIndex) => (
                     <div key={dayIndex} className="overflow-hidden rounded-xl border border-black/5 bg-white/70 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                         {/* Day Header - Gradient */}
-                        <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 sm:px-4">
-                            <h4 className="min-w-0 flex-1 truncate text-sm font-semibold text-white" title={day.day}>
+                        <div className="flex flex-col gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                            <h4 className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
                                 {day.day}
                             </h4>
                             <span className="shrink-0 whitespace-nowrap rounded-full bg-white/20 px-2 py-0.5 text-xs text-white">
@@ -226,8 +226,8 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                             <TypeIcon className="h-3.5 w-3.5" aria-hidden="true" />
                                         </span>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <h5 className="font-semibold text-sm leading-snug text-foreground">
+                                            <div className="flex min-w-0 flex-wrap items-center gap-2">
+                                                <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-foreground">
                                                     {activity.title}
                                                 </h5>
                                                 {badge && (

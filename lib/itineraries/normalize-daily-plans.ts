@@ -47,6 +47,7 @@ const TIP_NAME_PATTERNS = [
 const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|reminder|reminders|getting around|transport|transportation)$/i;
 const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|kakao|maps?)\b/i;
 const GENERIC_ACTIVITY_NAME_PATTERN = /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
+const LABELED_TIP_LINE_PATTERN = /^(?:[-*]\s*)?(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|transport|transportation|transit)\s*:\s*(.+)$/i;
 
 export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const name = getStringValue(activity.name);
@@ -75,6 +76,50 @@ function getTipText(activity: ItineraryActivityLike): string {
   }
 
   return description || name || "";
+}
+
+function splitDescriptionTips(activity: ItineraryActivityLike): {
+  activity: ItineraryActivityLike;
+  localTips: string[];
+  transportTips: string[];
+} {
+  const description = getStringValue(activity.description);
+  if (!description) return { activity, localTips: [], transportTips: [] };
+
+  const localTips: string[] = [];
+  const transportTips: string[] = [];
+  const keptLines: string[] = [];
+
+  description.split(/\n+/).forEach((rawLine) => {
+    const line = rawLine.trim();
+    if (!line) return;
+
+    const labeledTip = line.match(LABELED_TIP_LINE_PATTERN);
+    if (!labeledTip) {
+      keptLines.push(rawLine);
+      return;
+    }
+
+    const tipText = `${labeledTip[1]}: ${labeledTip[2].trim()}`;
+    if (TRANSPORT_PATTERN.test(`${labeledTip[1]} ${labeledTip[2]}`)) {
+      transportTips.push(tipText);
+    } else {
+      localTips.push(tipText);
+    }
+  });
+
+  if (localTips.length === 0 && transportTips.length === 0) {
+    return { activity, localTips, transportTips };
+  }
+
+  return {
+    activity: {
+      ...activity,
+      description: keptLines.join("\n").trim(),
+    },
+    localTips,
+    transportTips,
+  };
 }
 
 function appendTip(existing: unknown, tips: string[]): string | undefined {
@@ -146,11 +191,21 @@ export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(dail
   return dailyPlans.map((dayPlan) => {
     const localTips: string[] = [];
     const transportTips: string[] = [];
-    const activities = (dayPlan.activities || []).filter((activity) => {
-      if (!isTipLikeActivity(activity)) return true;
+    const activities = (dayPlan.activities || []).reduce<ItineraryActivityLike[]>((keptActivities, activity) => {
+      if (!isTipLikeActivity(activity)) {
+        const split = splitDescriptionTips(activity);
+        localTips.push(...split.localTips);
+        transportTips.push(...split.transportTips);
+
+        if (getStringValue(split.activity.description) || getStringValue(split.activity.name)) {
+          keptActivities.push(split.activity);
+        }
+
+        return keptActivities;
+      }
 
       const tipText = getTipText(activity);
-      if (!tipText) return false;
+      if (!tipText) return keptActivities;
 
       if (isTransportTip(activity)) {
         transportTips.push(tipText);
@@ -158,8 +213,8 @@ export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(dail
         localTips.push(tipText);
       }
 
-      return false;
-    });
+      return keptActivities;
+    }, []);
 
     return {
       ...dayPlan,
