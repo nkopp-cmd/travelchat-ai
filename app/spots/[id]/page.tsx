@@ -46,7 +46,10 @@ import {
 } from "@/lib/spots/public-quality";
 import {
   getSpotBestTime,
+  getSpotCoordinateEvidenceLabel,
   getSpotDirectionsButtonLabel,
+  getSpotPhotoEvidenceHelper,
+  getSpotPhotoEvidenceLabel,
   normalizeLocalleyScore,
   normalizeLocalPercentage,
   normalizeSpotTips,
@@ -259,15 +262,6 @@ function getScoreNarrative(score: LocalleyScale): string {
   if (score >= LocalleyScale.LOCAL_FAVORITE)
     return "A dependable neighborhood favorite with enough local signal to be worth a detour.";
   return "A useful stop with a mixed crowd and clear practical value for a nearby route.";
-}
-
-function getPhotoEvidenceLabel(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-): string {
-  if (spot.realPhotoCount <= 0) return "Image fallback";
-  return spot.realPhotoCount === 1
-    ? "1 real photo source"
-    : `${spot.realPhotoCount} real photo sources`;
 }
 
 function getDirectionsTargetLabel(
@@ -727,7 +721,7 @@ export default async function SpotPage({
                   }
                 >
                   <ImageIcon className="mr-1 h-3.5 w-3.5" />
-                  {getPhotoEvidenceLabel(spot)}
+                  {getSpotPhotoEvidenceLabel(spot)}
                 </Badge>
                 <Badge
                   variant="outline"
@@ -884,12 +878,8 @@ export default async function SpotPage({
                     <DetailSignal
                       icon={Camera}
                       label="Photo proof"
-                      value={getPhotoEvidenceLabel(spot)}
-                      helper={
-                        spot.hasRealPhoto
-                          ? "Shown with spot-level imagery when available."
-                          : "Needs a real spot photo backfill before it is fully production-ready."
-                      }
+                      value={getSpotPhotoEvidenceLabel(spot)}
+                      helper={getSpotPhotoEvidenceHelper(spot)}
                       tone={spot.hasRealPhoto ? "violet" : "amber"}
                     />
                   </div>
@@ -1077,7 +1067,12 @@ export default async function SpotPage({
                   {formatCoordinate(spot.location.lat) &&
                     formatCoordinate(spot.location.lng) && (
                       <p className="mt-2 text-xs text-violet-50/45">
-                        Approximate imported pin:{" "}
+                        {getSpotCoordinateEvidenceLabel({
+                          address: spot.location.address,
+                          tone: locationConfidence.tone,
+                          usableCoordinates: locationConfidence.usableCoordinates,
+                        })}
+                        :{" "}
                         {formatCoordinate(spot.location.lat)},{" "}
                         {formatCoordinate(spot.location.lng)}
                       </p>

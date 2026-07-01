@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { LocalleyScale } from "@/types";
 import {
     getSpotBestTime,
+    getSpotCoordinateEvidenceLabel,
     getSpotDirectionsButtonLabel,
+    getSpotPhotoEvidenceHelper,
+    getSpotPhotoEvidenceLabel,
     normalizeLocalleyScore,
     normalizeLocalPercentage,
     normalizeSpotTips,
@@ -46,5 +49,60 @@ describe("spot detail normalization", () => {
         expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Route to saved pin in Kakao");
         expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Route to saved pin");
         expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search name in Kakao");
+    });
+
+    it("describes real image evidence without calling fallbacks spot photos", () => {
+        expect(
+            getSpotPhotoEvidenceLabel({
+                hasRealPhoto: true,
+                realPhotoCount: 2,
+                googlePlaceId: "ChIJ123",
+            })
+        ).toBe("2 place photo sources");
+        expect(
+            getSpotPhotoEvidenceHelper({
+                hasRealPhoto: true,
+                realPhotoCount: 1,
+                googlePlaceId: null,
+            })
+        ).toBe("Uses stored real imagery rather than a category placeholder.");
+        expect(
+            getSpotPhotoEvidenceLabel({
+                hasRealPhoto: false,
+                realPhotoCount: 0,
+                googlePlaceId: null,
+            })
+        ).toBe("Image fallback");
+        expect(
+            getSpotPhotoEvidenceHelper({
+                hasRealPhoto: false,
+                realPhotoCount: 0,
+                googlePlaceId: null,
+            })
+        ).toBe("Showing a city fallback until a verified spot photo is backfilled.");
+    });
+
+    it("labels Korean coordinates as saved Kakao route pins", () => {
+        expect(
+            getSpotCoordinateEvidenceLabel({
+                address: "Seoul, South Korea",
+                tone: "pinned",
+                usableCoordinates: true,
+            })
+        ).toBe("Saved Kakao route pin");
+        expect(
+            getSpotCoordinateEvidenceLabel({
+                address: "123 Main Street, New York, USA",
+                tone: "exact",
+                usableCoordinates: true,
+            })
+        ).toBe("Exact map coordinate");
+        expect(
+            getSpotCoordinateEvidenceLabel({
+                address: "Creative district",
+                tone: "area",
+                usableCoordinates: false,
+            })
+        ).toBe("Imported coordinate");
     });
 });

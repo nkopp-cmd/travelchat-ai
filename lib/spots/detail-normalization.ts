@@ -1,5 +1,18 @@
 import { LocalleyScale } from "@/types";
 import type { SpotLocationConfidence } from "@/lib/spots/location-confidence";
+import { isKoreanLocation } from "@/lib/spots/map-links";
+
+interface SpotPhotoEvidenceInput {
+    hasRealPhoto: boolean;
+    realPhotoCount: number;
+    googlePlaceId?: string | null;
+}
+
+interface SpotCoordinateEvidenceInput {
+    address: string;
+    tone: SpotLocationConfidence["tone"];
+    usableCoordinates: boolean;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -72,6 +85,37 @@ export function normalizeLocalPercentage(value: unknown): number {
     if (!Number.isFinite(percentage)) return 50;
 
     return Math.min(100, Math.max(0, Math.round(percentage)));
+}
+
+export function getSpotPhotoEvidenceLabel(input: SpotPhotoEvidenceInput): string {
+    if (!input.hasRealPhoto || input.realPhotoCount <= 0) return "Image fallback";
+
+    const sourceLabel = input.googlePlaceId ? "place photo" : "real photo";
+    return input.realPhotoCount === 1
+        ? `1 ${sourceLabel} source`
+        : `${input.realPhotoCount} ${sourceLabel} sources`;
+}
+
+export function getSpotPhotoEvidenceHelper(input: SpotPhotoEvidenceInput): string {
+    if (input.hasRealPhoto && input.googlePlaceId) {
+        return "Uses place-matched imagery for this spot rather than a category placeholder.";
+    }
+
+    if (input.hasRealPhoto) {
+        return "Uses stored real imagery rather than a category placeholder.";
+    }
+
+    return "Showing a city fallback until a verified spot photo is backfilled.";
+}
+
+export function getSpotCoordinateEvidenceLabel(
+    input: SpotCoordinateEvidenceInput
+): string {
+    if (!input.usableCoordinates) return "Imported coordinate";
+    if (isKoreanLocation(input.address)) return "Saved Kakao route pin";
+    if (input.tone === "exact") return "Exact map coordinate";
+    if (input.tone === "pinned") return "Stored map pin";
+    return "Approximate imported pin";
 }
 
 export function getSpotDirectionsButtonLabel(
