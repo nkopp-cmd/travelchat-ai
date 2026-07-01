@@ -45,6 +45,7 @@ export type BestGooglePlaceMatchResult = BestGooglePlacePhotoResult;
 export type SpotPhotoKind =
     | "proxy"
     | "remote_https"
+    | "remote_untrusted"
     | "local_asset"
     | "direct_google"
     | "unsplash"
@@ -126,6 +127,10 @@ const COMMERCIAL_NAME_WORDS = new Set([
     "store",
 ]);
 const BROAD_SPOT_QUALIFIER_WORDS = new Set(["district", "office", "residential"]);
+
+function isTrustedRemoteSpotPhotoHost(host: string): boolean {
+    return host === "localley.io" || host.endsWith(".localley.io");
+}
 
 export function getGooglePlacesApiKey(): string | null {
     return (
@@ -284,7 +289,11 @@ export function classifySpotPhoto(photo: string | null | undefined): SpotPhotoKi
             return "direct_google";
         }
         if (isRelativeAsset) return "local_asset";
-        if (url.protocol === "https:") return "remote_https";
+        if (url.protocol === "https:") {
+            return isTrustedRemoteSpotPhotoHost(host)
+                ? "remote_https"
+                : "remote_untrusted";
+        }
 
         return "invalid";
     } catch {
@@ -300,6 +309,7 @@ export function summarizeSpotPhotos(photos: string[] | null | undefined): SpotPh
     const kinds: Record<SpotPhotoKind, number> = {
         proxy: 0,
         remote_https: 0,
+        remote_untrusted: 0,
         local_asset: 0,
         direct_google: 0,
         unsplash: 0,

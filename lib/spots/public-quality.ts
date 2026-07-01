@@ -35,7 +35,7 @@ export const PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS = [
     "%Multiple%",
 ] as const;
 
-export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v7";
+export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v8";
 
 const PUBLIC_BROAD_SPOT_NAME_PATTERN =
     /\b(?:residential(?:\s+area)?|(?:office|working)\s+district|station\s+area|local\s+scene|industrial\s+area|walking\s+route|day\s+trip|bar\s+crawl|market\s+crawl|various|multiple)\b|\blocal$|\bindustrial$/i;

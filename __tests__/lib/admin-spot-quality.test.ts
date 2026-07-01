@@ -40,7 +40,7 @@ describe("admin spot quality", () => {
             createRow({
                 address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
                 location: "POINT(139.7580000 35.6950000)",
-                photos: ["https://example.com/ladrio.jpg"],
+                photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
             }),
             true
         );
@@ -210,7 +210,7 @@ describe("admin spot quality", () => {
                     id: "spot_2",
                     address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
                     location: "POINT(139.7580000 35.6950000)",
-                    photos: ["https://example.com/ladrio.jpg"],
+                    photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
                     google_place_id: "ChIJ-test-place",
                 }),
                 true
@@ -235,7 +235,7 @@ describe("admin spot quality", () => {
                     id: "spot_2",
                     address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
                     location: "POINT(139.7580000 35.6950000)",
-                    photos: ["https://example.com/ladrio.jpg"],
+                    photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
                     google_place_id: "ChIJ-test-place",
                     created_at: "2026-06-02T00:00:00.000Z",
                 }),
@@ -247,7 +247,7 @@ describe("admin spot quality", () => {
                     name: { en: "Cafe Ladrio" },
                     address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
                     location: "POINT(139.7580000 35.6950000)",
-                    photos: ["https://example.com/ladrio.jpg"],
+                    photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
                     google_place_id: "ChIJ-ready-place",
                     created_at: "2026-06-03T00:00:00.000Z",
                 }),

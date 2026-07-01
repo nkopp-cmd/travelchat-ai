@@ -15,7 +15,7 @@ function createRow(overrides: Partial<SpotQualityRow> = {}): SpotQualityRow {
         name: { en: "Cafe Ladrio" },
         address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
         description: { en: "Quiet kissaten with a real address." },
-        photos: ["https://example.com/ladrio.jpg"],
+        photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
         category: "Cafe",
         location: "POINT(139.7580000 35.6950000)",
         google_place_id: null,

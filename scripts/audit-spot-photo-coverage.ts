@@ -140,6 +140,7 @@ function createKindCounts(): Record<SpotPhotoKind, number> {
     return {
         proxy: 0,
         remote_https: 0,
+        remote_untrusted: 0,
         local_asset: 0,
         direct_google: 0,
         unsplash: 0,

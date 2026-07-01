@@ -26,11 +26,12 @@ describe("spot photo classification", () => {
         expect(needsSpotPhotoBackfill([photo])).toBe(false);
     });
 
-    it("rejects placeholder, unsplash, direct google, empty, and invalid photos", () => {
+    it("rejects placeholder, unsplash, direct google, untrusted remote, empty, and invalid photos", () => {
         const photos = [
             "/images/placeholder-spot.jpg",
             "https://images.unsplash.com/photo-123",
             "https://places.googleapis.com/v1/places/abc/photos/def/media",
+            "https://example.com/spot.jpg",
             "",
             "not a url",
         ];
@@ -39,21 +40,23 @@ describe("spot photo classification", () => {
             "placeholder",
             "unsplash",
             "direct_google",
+            "remote_untrusted",
             "empty",
             "invalid",
         ]);
         expect(needsSpotPhotoBackfill(photos)).toBe(true);
     });
 
-    it("summarizes mixed photo arrays and only requires one real image", () => {
+    it("summarizes mixed photo arrays and only trusts owned remote images", () => {
         const summary = summarizeSpotPhotos([
             "/images/placeholder-spot.jpg",
             "/images/spots/seoul-market.jpg",
             "https://cdn.localley.io/spots/seoul-market.jpg",
+            "https://example.com/scraped-market.jpg",
         ]);
 
         expect(summary).toMatchObject({
-            total: 3,
+            total: 4,
             hasAnyPhoto: true,
             hasRealPhoto: true,
             hasGooglePlacePhoto: false,
@@ -63,6 +66,7 @@ describe("spot photo classification", () => {
         });
         expect(summary.kinds.local_asset).toBe(1);
         expect(summary.kinds.remote_https).toBe(1);
+        expect(summary.kinds.remote_untrusted).toBe(1);
     });
 
     it("converts stored direct Google photo URLs to Localley proxy URLs", () => {

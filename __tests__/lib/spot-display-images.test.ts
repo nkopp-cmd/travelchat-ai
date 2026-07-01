@@ -16,6 +16,9 @@ describe("spot display images", () => {
     expect(isRealDisplaySpotPhoto("https://images.unsplash.com/photo-1")).toBe(
       false,
     );
+    expect(isRealDisplaySpotPhoto("https://example.com/scraped-photo.jpg")).toBe(
+      false,
+    );
     expect(isRealDisplaySpotPhoto(placePhoto)).toBe(true);
   });
 

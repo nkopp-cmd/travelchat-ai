@@ -62,9 +62,18 @@ describe("public spot quality", () => {
         expect(
             shouldShowPublicSpot({
                 name: "Saphan Mai Market",
-                photos: ["https://example.com/saphan-mai.jpg"],
+                photos: ["https://cdn.localley.io/spots/saphan-mai.jpg"],
             })
         ).toBe(true);
+    });
+
+    it("does not treat arbitrary remote image URLs as real spot photos", () => {
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Scraped Image Cafe",
+                photos: ["https://example.com/cafe.jpg"],
+            })
+        ).toBe("missing_real_photo");
     });
 
     it("hides placeholder and invalid image references from public spot surfaces", () => {
@@ -131,7 +140,7 @@ describe("public spot quality", () => {
                     type: "Point",
                     coordinates: [135.7788, 35.0037],
                 },
-                photos: ["https://example.com/gion-corner.jpg"],
+                photos: ["https://cdn.localley.io/spots/gion-corner.jpg"],
             })
         ).toBe("inexact_location");
 
@@ -143,7 +152,7 @@ describe("public spot quality", () => {
                     type: "Point",
                     coordinates: [121.565, 25.033],
                 },
-                photos: ["https://example.com/taipei-tea-house.jpg"],
+                photos: ["https://cdn.localley.io/spots/taipei-tea-house.jpg"],
             })
         ).toBe(true);
     });
