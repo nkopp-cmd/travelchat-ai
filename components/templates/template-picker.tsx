@@ -101,7 +101,6 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
             <TemplateCard
               key={template.id}
               template={template}
-              actionHref={getTemplateUrl(template.id)}
               isSelected={selectedTemplate.id === template.id}
               onSelect={() => setSelectedId(template.id)}
             />
@@ -112,6 +111,28 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
       <aside className="hidden rounded-2xl border border-white/10 bg-[#12091f]/86 p-4 shadow-2xl shadow-violet-950/20 backdrop-blur-xl lg:sticky lg:top-20 lg:block">
         <TemplateSummary template={selectedTemplate} />
       </aside>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#090511]/94 px-3 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-16px_34px_rgba(0,0,0,0.34)] backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex max-w-2xl items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold text-white">
+              {selectedTemplate.name}
+            </p>
+            <p className="truncate text-[11px] text-violet-100/55">
+              {selectedTemplate.days} days / {paceLabels[selectedTemplate.pace]}
+            </p>
+          </div>
+          <Button
+            asChild
+            className="h-10 shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-3 text-sm shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
+          >
+            <Link href={getTemplateUrl(selectedTemplate.id)}>
+              <Sparkles className="mr-1.5 h-4 w-4" />
+              Use template
+            </Link>
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }

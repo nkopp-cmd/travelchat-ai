@@ -4,9 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { ArrowRight, MapPin, Check, RefreshCw } from "lucide-react";
+import { MapPin, Check, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 
 interface CityOption {
   slug: string;
@@ -25,7 +24,7 @@ interface CitiesResponse {
 }
 
 export function StepDestination() {
-  const { data, setData, setCanProceed, nextStep } = useWizard();
+  const { data, setData, setCanProceed } = useWizard();
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +84,7 @@ export function StepDestination() {
       </div>
 
       {data.city && (
-        <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
               <Check className="h-4 w-4" aria-hidden="true" />
@@ -99,15 +98,6 @@ export function StepDestination() {
               </p>
             </div>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            onClick={nextStep}
-            className="h-9 shrink-0 rounded-lg bg-violet-600 px-3 text-xs font-semibold shadow-lg shadow-violet-500/20 hover:bg-violet-500"
-          >
-            {templateMode ? "Tune" : "Next"}
-            <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
-          </Button>
         </div>
       )}
 

@@ -85,7 +85,7 @@ function WizardContent({
     isLastStep
       ? "Generate Itinerary"
       : canGenerateFromTemplate
-        ? "Generate route"
+        ? "Next"
         : currentStep === 0 && templateApplied && !data.city
           ? "Pick a city"
           : "Next";
@@ -174,19 +174,21 @@ function WizardContent({
               <Button
                 type="button"
                 variant="outline"
-                onClick={nextStep}
-                className="h-10 shrink-0 border-white/20 px-3 text-white hover:bg-white/10 sm:h-11"
+                onClick={handleGenerateNow}
+                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:h-11 sm:px-3 sm:text-sm"
               >
-                Tune
+                <Sparkles className="mr-1.5 h-4 w-4" />
+                <span className="sm:hidden">Generate</span>
+                <span className="hidden sm:inline">Generate now</span>
               </Button>
             )}
             <Button
-              onClick={canGenerateFromTemplate ? handleGenerateNow : handleNext}
+              onClick={handleNext}
               disabled={!canProceed}
               className={cn(
                 "h-10 flex-1 sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
-                compactTemplateFooter && "max-w-[10.5rem] shrink-0 px-3",
+                compactTemplateFooter && "max-w-[8rem] shrink-0 px-3",
                 "bg-gradient-to-r from-violet-600 to-indigo-600",
                 "hover:from-violet-500 hover:to-indigo-500",
                 "shadow-lg shadow-violet-500/30",

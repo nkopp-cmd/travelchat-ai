@@ -7,17 +7,18 @@ Localley spot quality depends on two separate data gates:
 
 ## Current Production Finding
 
-Production readiness packet from July 1, 2026:
+Production readiness packet from July 1, 2026, rerun from Vercel production env:
 
 - Total spots: 3,287
 - Public-ready spots: 1,436
 - Needs work: 1,851
-- Real photo coverage: 97.3% (3,197/3,287)
-- Missing real images: 90
+- Real photo coverage: 97.3% (3,198/3,287)
+- Missing real images: 89
 - Exact address coverage: 43.9% (1,444/3,287)
 - Inexact or area-level addresses: 1,843
 - Weak directions with missing or zero coordinates: 150
-- Missing place identity according to current audit: 90
+- Missing place identity according to the photo audit: 89
+- `actionPlan.schema.migrationRequired`: true, meaning `spots.google_place_id` is still not selectable by the app service role
 
 The main blocker is no longer the photo layer. It is exactness: too many records are still neighborhood, district, event, route, or collection-level entries. Those can look good in cards, but they cannot power trustworthy directions until each card represents an exact mappable destination or is intentionally rewritten as a collection/template item.
 
@@ -63,7 +64,7 @@ tmp_env=$(mktemp)
 out_dir=$(mktemp -d)
 vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
 set -a; source "$tmp_env"; set +a
-npx tsx scripts/audit-spot-photo-coverage.ts --out="$out_dir/photo.json"
+npm run spots:photos:audit -- --out="$out_dir/photo.json"
 npx tsx scripts/audit-spot-location-quality.ts --out="$out_dir/location.json"
 rm -f "$tmp_env"
 ```
@@ -119,21 +120,21 @@ cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
 tmp_env=$(mktemp)
 vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
 set -a; source "$tmp_env"; set +a
-npx tsx scripts/review-spot-photo-backfill.ts --limit=20 --max-candidates=120 --out=reports/spot-photo-backfill-review.json
+npm run spots:photos:review -- --limit=20 --max-candidates=120 --out=reports/spot-photo-backfill-review.json
 rm -f "$tmp_env"
 ```
 
 When a QA report, user screenshot, or admin review identifies one exact record, target it directly instead of scanning the whole table:
 
 ```bash
-npx tsx scripts/review-spot-photo-backfill.ts --spot-id=<spot_uuid> --limit=1 --out=reports/spot-photo-backfill-spot.json
+npm run spots:photos:review -- --spot-id=<spot_uuid> --limit=1 --out=reports/spot-photo-backfill-spot.json
 ```
 
 Only apply once the dry-run returns high-confidence `would_update` rows:
 
 ```bash
-npx tsx scripts/review-spot-photo-backfill.ts --apply --limit=20 --max-candidates=120 --out=reports/spot-photo-backfill-apply.json
-npx tsx scripts/review-spot-photo-backfill.ts --apply --spot-id=<spot_uuid> --limit=1 --out=reports/spot-photo-backfill-spot-apply.json
+npm run spots:photos:apply -- --limit=20 --max-candidates=120 --out=reports/spot-photo-backfill-apply.json
+npm run spots:photos:apply -- --spot-id=<spot_uuid> --limit=1 --out=reports/spot-photo-backfill-spot-apply.json
 ```
 
 ## Latest Backfill Read
