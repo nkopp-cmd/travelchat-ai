@@ -48,7 +48,11 @@ const TIP_NAME_PATTERNS = [
 const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|notes|advice|insight|insights|reminder|reminders|heads up|getting around|getting there|transport|transportation|transit)$/i;
 const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|getting there|kakao|maps?)\b/i;
 const GENERIC_ACTIVITY_NAME_PATTERN = /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
-const LABELED_TIP_LINE_PATTERN = /^(?:[-*]|\d+[.)])?\s*(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*[:\-\u2013\u2014]\s*(.+)$/i;
+const TIP_LABEL_SOURCE = "tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit";
+const INLINE_LABELED_TIP_PATTERN = new RegExp(
+  `(^|[.!?]\\s+)(?:[-*]|\\d+[.)])?\\s*(${TIP_LABEL_SOURCE})\\s*[:\\-\\u2013\\u2014]\\s*([^.!?\\n]+(?:[.!?]|$)?)`,
+  "gi"
+);
 const PRACTICAL_NOTE_NAME_PATTERN =
   /^(bring|pack|wear|use|take|book|reserve|check|avoid|ask|go|arrive|get|download|carry|keep|remember|try to)\b/i;
 const MAPPABLE_CONTEXT_FIELDS = ["address", "location", "lat", "lng", "latitude", "longitude", "localleyScore"] as const;
@@ -117,18 +121,26 @@ function splitDescriptionTips(activity: ItineraryActivityLike): {
     const line = rawLine.trim();
     if (!line) return;
 
-    const labeledTip = line.match(LABELED_TIP_LINE_PATTERN);
-    if (!labeledTip) {
-      keptLines.push(rawLine);
-      return;
+    let cleanedLine = line;
+    let previousLine = "";
+
+    while (cleanedLine !== previousLine) {
+      previousLine = cleanedLine;
+      cleanedLine = cleanedLine.replace(INLINE_LABELED_TIP_PATTERN, (_match, leading: string, label: string, text: string) => {
+        const tipText = `${label}: ${text.trim()}`;
+        if (TRANSPORT_PATTERN.test(`${label} ${text}`)) {
+          transportTips.push(tipText);
+        } else {
+          localTips.push(tipText);
+        }
+
+        return leading.trimEnd();
+      });
     }
 
-    const tipText = `${labeledTip[1]}: ${labeledTip[2].trim()}`;
-    if (TRANSPORT_PATTERN.test(`${labeledTip[1]} ${labeledTip[2]}`)) {
-      transportTips.push(tipText);
-    } else {
-      localTips.push(tipText);
-    }
+    cleanedLine = cleanedLine.trim();
+
+    if (cleanedLine) keptLines.push(cleanedLine);
   });
 
   if (localTips.length === 0 && transportTips.length === 0) {

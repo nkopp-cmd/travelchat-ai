@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, DollarSign, ExternalLink, Star, Navigation } from "lucide-react";
@@ -66,6 +67,10 @@ export function ItineraryActivityCard({
     userTier = "free",
     isLast = false,
 }: ItineraryActivityCardProps) {
+    const [failedImageState, setFailedImageState] = useState<{
+        key: string;
+        sources: Set<string>;
+    }>({ key: "", sources: new Set() });
     const scoreBadge = activity.localleyScore ? getScoreBadge(activity.localleyScore) : null;
     const canShowFullAddress = canSeeFullAddress(userTier);
     const showDeals = hasFeature(userTier, "bookingDeals");
@@ -76,10 +81,21 @@ export function ItineraryActivityCard({
         userTier,
     });
 
-    // Use activity image first, then Google Places photo for paid users
-    const displayImage = activity.image || placeData.photoUrl;
+    const imageCandidates = [activity.image, placeData.photoUrl].filter((src): src is string => Boolean(src));
+    const imageKey = imageCandidates.join("|");
+    const failedImages = failedImageState.key === imageKey ? failedImageState.sources : new Set<string>();
+    const displayImage = imageCandidates.find((src) => !failedImages.has(src)) || null;
+    const isStoredActivityImage = Boolean(activity.image && displayImage === activity.image);
     const displayRating = placeData.rating;
     const displayTotalRatings = placeData.totalRatings;
+
+    const handleImageError = (src: string) => {
+        setFailedImageState((current) => {
+            const next = new Set(current.key === imageKey ? current.sources : []);
+            next.add(src);
+            return { key: imageKey, sources: next };
+        });
+    };
 
     // Get booking links
     const bookingLinks = getActivityBookingLinks({
@@ -114,14 +130,15 @@ export function ItineraryActivityCard({
                     <div className="flex-shrink-0">
                         <div className="relative h-[72px] w-[72px] overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
                             {displayImage ? (
-                                activity.image ? (
+                                isStoredActivityImage ? (
                                     <Image
-                                        src={activity.image}
+                                        src={displayImage}
                                         alt={activity.name}
                                         fill
                                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                                         sizes="(max-width: 640px) 80px, 112px"
                                         quality={90}
+                                        onError={() => handleImageError(displayImage)}
                                     />
                                 ) : (
                                     /* eslint-disable-next-line @next/next/no-img-element */
@@ -130,6 +147,7 @@ export function ItineraryActivityCard({
                                         alt={activity.name}
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         loading="lazy"
+                                        onError={() => handleImageError(displayImage)}
                                     />
                                 )
                             ) : (
