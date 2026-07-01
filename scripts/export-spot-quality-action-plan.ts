@@ -15,10 +15,14 @@ import * as path from "path";
 import {
     summarizeSpotQualityItems,
     toSpotQualityItem,
-    type SpotQualityIssue,
     type SpotQualityItem,
     type SpotQualityRow,
 } from "../lib/admin/spot-quality";
+import {
+    buildSpotQualitySchemaStatus,
+    getSpotQualityPriority,
+    getSpotQualityRecommendedAction,
+} from "../lib/admin/spot-quality-action-plan";
 import { buildSpotQualityItemResearchLinks } from "../lib/admin/spot-quality-research";
 
 const PAGE_SIZE = 1000;
@@ -38,6 +42,7 @@ interface Args {
 interface ActionPlanItem extends SpotQualityItem {
     priority: number;
     recommendedAction: string;
+    schemaBlockingAction: string | null;
     researchQuery: string;
     researchFocus: string;
     mapsResearchUrl: string;
@@ -122,47 +127,6 @@ async function fetchRows(
     return { rows, hasGooglePlaceIdColumn };
 }
 
-function scoreIssue(issue: SpotQualityIssue): number {
-    switch (issue) {
-        case "missing_real_photo":
-            return 100;
-        case "inexact_location":
-            return 90;
-        case "mismatched_place_photo_identity":
-            return 85;
-        case "missing_place_id":
-            return 70;
-        case "broad_place_name":
-            return 60;
-        case "missing_name":
-            return 60;
-        default:
-            return 10;
-    }
-}
-
-function getPriority(item: SpotQualityItem): number {
-    const issueScore = item.issues.reduce((sum, issue) => sum + scoreIssue(issue), 0);
-    const realPhotoBoost = item.photoSummary.hasRealPhoto ? 0 : 20;
-    const locationBoost = item.locationConfidence.usableCoordinates ? 0 : 15;
-    return issueScore + realPhotoBoost + locationBoost;
-}
-
-function getRecommendedAction(item: SpotQualityItem, hasGooglePlaceIdColumn: boolean): string {
-    if (item.issues.includes("missing_real_photo") && item.issues.includes("inexact_location")) {
-        return "manual_exact_place_research_with_photo_and_coordinates";
-    }
-    if (item.issues.includes("missing_real_photo")) return "add_reviewed_real_spot_photo";
-    if (item.issues.includes("inexact_location")) return "add_exact_address_and_coordinates";
-    if (item.issues.includes("mismatched_place_photo_identity")) return "reconcile_place_id_and_place_photo";
-    if (item.issues.includes("missing_place_id")) return "save_google_place_id";
-    if (item.issues.includes("broad_place_name") || item.issues.includes("missing_name")) {
-        return "rename_or_remove_broad_spot";
-    }
-    if (!hasGooglePlaceIdColumn) return "apply_google_place_id_migration_before_identity_backfill";
-    return "review";
-}
-
 function toActionPlanItem(
     item: SpotQualityItem,
     hasGooglePlaceIdColumn: boolean,
@@ -172,8 +136,11 @@ function toActionPlanItem(
 
     return {
         ...item,
-        priority: getPriority(item),
-        recommendedAction: getRecommendedAction(item, hasGooglePlaceIdColumn),
+        priority: getSpotQualityPriority(item),
+        recommendedAction: getSpotQualityRecommendedAction(item),
+        schemaBlockingAction: hasGooglePlaceIdColumn
+            ? null
+            : "apply_google_place_id_migration_before_place_id_writes",
         researchQuery: researchLinks.query,
         researchFocus: researchLinks.recommendedFocus,
         mapsResearchUrl: researchLinks.mapsUrl,
@@ -207,6 +174,7 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "address",
         "issues",
         "recommendedAction",
+        "schemaBlockingAction",
         "researchFocus",
         "researchQuery",
         "mapsResearchUrl",
@@ -233,6 +201,7 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.address,
         item.issues.join("|"),
         item.recommendedAction,
+        item.schemaBlockingAction || "",
         item.researchFocus,
         item.researchQuery,
         item.mapsResearchUrl,
@@ -265,6 +234,7 @@ async function main() {
     const generatedAt = new Date().toISOString();
     const { rows, hasGooglePlaceIdColumn } = await fetchRows(supabase, args.city);
     const items = rows.map((row) => toSpotQualityItem(row, hasGooglePlaceIdColumn));
+    const schema = buildSpotQualitySchemaStatus(hasGooglePlaceIdColumn);
     const actionItems = items
         .filter((item) => !item.publicReady)
         .map((item) => toActionPlanItem(item, hasGooglePlaceIdColumn, baseUrl))
@@ -280,13 +250,7 @@ async function main() {
             city: args.city || null,
             limit: args.limit,
         },
-        schema: {
-            hasGooglePlaceIdColumn,
-            migrationRequired: !hasGooglePlaceIdColumn,
-            migrationPath: hasGooglePlaceIdColumn
-                ? null
-                : "supabase/migrations/006_spots_google_place_id.sql",
-        },
+        schema,
         summary: summarizeSpotQualityItems(items),
         actionItemCount: actionItems.length,
         actionItems,
@@ -311,6 +275,9 @@ async function main() {
             `Public ready: ${report.summary.publicReady}`,
             `Needs work: ${report.summary.needsWork}`,
             `Action items exported: ${actionItems.length}`,
+            schema.migrationRequired
+                ? `Blocking schema action: ${schema.blockingAction} (${schema.migrationPath})`
+                : "Blocking schema action: none",
             `Missing images: ${report.summary.missingRealPhoto}`,
             `Inexact locations: ${report.summary.inexactLocation}`,
             `Missing Place IDs: ${report.summary.missingPlaceId}`,

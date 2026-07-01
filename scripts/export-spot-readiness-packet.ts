@@ -15,6 +15,7 @@ import { spawnSync } from "child_process";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
+import { SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH } from "../lib/admin/spot-quality-action-plan";
 
 const DEFAULT_LIMIT = 250;
 const DEFAULT_SAMPLE_LIMIT = 80;
@@ -144,6 +145,45 @@ function readJsonSummary(filePath: string): unknown {
     }
 }
 
+function getNestedString(value: unknown, pathParts: string[]): string | null {
+    let current = value;
+    for (const part of pathParts) {
+        if (!current || typeof current !== "object" || !(part in current)) return null;
+        current = (current as Record<string, unknown>)[part];
+    }
+
+    return typeof current === "string" && current.trim() ? current : null;
+}
+
+function getNestedBoolean(value: unknown, pathParts: string[]): boolean {
+    let current = value;
+    for (const part of pathParts) {
+        if (!current || typeof current !== "object" || !(part in current)) return false;
+        current = (current as Record<string, unknown>)[part];
+    }
+
+    return current === true;
+}
+
+function buildNextSteps(actionPlanSummary: unknown): string[] {
+    const migrationRequired = getNestedBoolean(actionPlanSummary, ["schema", "migrationRequired"]);
+    const applyMigrationCommand = getNestedString(actionPlanSummary, ["schema", "commands", "applyMigration"]);
+    const verifyColumnCommand = getNestedString(actionPlanSummary, ["schema", "commands", "verifyColumn"]);
+    const rerunReadinessCommand = getNestedString(actionPlanSummary, ["schema", "commands", "rerunReadiness"]);
+
+    return [
+        migrationRequired
+            ? `Apply ${SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH} before place-ID writes: ${applyMigrationCommand || `npx supabase db query --linked --file ${SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH}`}`
+            : "Google Place ID schema is selectable; continue with reviewed image, address, and place-ID enrichment.",
+        migrationRequired && verifyColumnCommand
+            ? `Verify the schema is selectable: ${verifyColumnCommand}`
+            : "Review action-plan.csv from highest priority downward in /admin/spots/quality.",
+        "Run scripts/review-spot-photo-backfill.ts in dry-run mode for high-confidence missing-photo candidates.",
+        "Run scripts/review-spot-location-backfill.ts in dry-run mode for weak direction records.",
+        `Re-run this readiness packet${rerunReadinessCommand ? ` (${rerunReadinessCommand})` : ""} and confirm missingRealPhoto, inexactLocation, missingPlaceId, and mismatchedPlacePhotoIdentity counts decrease.`,
+    ];
+}
+
 async function main() {
     const args = parseArgs(process.argv.slice(2));
     if (args.help) {
@@ -197,6 +237,10 @@ async function main() {
         )
     );
 
+    const photoCoverageSummary = readJsonSummary(photoPath);
+    const locationQualitySummary = readJsonSummary(locationPath);
+    const actionPlanSummary = readJsonSummary(actionPlanPath);
+
     const manifest = {
         generatedAt: new Date().toISOString(),
         filters: {
@@ -214,17 +258,11 @@ async function main() {
             actionPlanCsv: actionPlanCsvPath,
         },
         summaries: {
-            photoCoverage: readJsonSummary(photoPath),
-            locationQuality: readJsonSummary(locationPath),
-            actionPlan: readJsonSummary(actionPlanPath),
+            photoCoverage: photoCoverageSummary,
+            locationQuality: locationQualitySummary,
+            actionPlan: actionPlanSummary,
         },
-        nextSteps: [
-            "Apply supabase/migrations/006_spots_google_place_id.sql if actionPlan.schema.migrationRequired is true.",
-            "Review action-plan.csv from highest priority downward in /admin/spots/quality.",
-            "Run scripts/review-spot-photo-backfill.ts in dry-run mode for high-confidence missing-photo candidates.",
-            "Run scripts/review-spot-location-backfill.ts in dry-run mode for weak direction records.",
-            "Re-run this readiness packet and confirm missingRealPhoto, inexactLocation, missingPlaceId, and mismatchedPlacePhotoIdentity counts decrease.",
-        ],
+        nextSteps: buildNextSteps(actionPlanSummary),
     };
 
     const manifestPath = path.join(outDir, "manifest.json");

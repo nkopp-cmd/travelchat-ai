@@ -30,6 +30,26 @@ export SUPABASE_ACCESS_TOKEN="your_supabase_access_token"
 npx supabase db query --linked --file supabase/migrations/006_spots_google_place_id.sql
 ```
 
+After the migration command succeeds, verify that the app service role can select the column and that the packet no longer reports a schema blocker:
+
+```bash
+cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
+tmp_env=$(mktemp)
+vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
+set -a; source "$tmp_env"; set +a
+npm run spots:quality:action-plan -- --limit=1 --json
+npm run spots:readiness -- --limit=250 --sample-limit=80
+rm -f "$tmp_env"
+```
+
+The expected action-plan signal after the schema is fixed is:
+
+- `schema.hasGooglePlaceIdColumn: true`
+- `schema.migrationRequired: false`
+- `schema.blockingAction: null`
+
+If `schema.migrationRequired` remains `true`, do not run place-ID apply/backfill commands yet. Supabase's 2026 Data API exposure changes mean schema and selectability can fail separately from RLS or row access, so treat this as a production schema/access issue first.
+
 If the project is not linked for the Supabase CLI yet:
 
 ```bash
@@ -55,6 +75,7 @@ rm -f "$tmp_env"
 This writes `reports/spot-readiness-<timestamp>/manifest.json`, `photo-coverage.json`, `location-quality.json`, `action-plan.json`, and `action-plan.csv`.
 Add `--verbose` when you want to see the child audit output while the packet runs. The default mode stays quiet and prints the packet path plus final status.
 The action-plan JSON and CSV include a research query, Google Maps search link, traveler-facing directions preview link, image search link, Place ID guide link, public spot link, and admin deep link for each prioritized record.
+When the Place ID migration is still missing, `manifest.json` now includes the exact migration command in `nextSteps`, and each CSV row includes `schemaBlockingAction` so operator cleanup does not confuse spot-level image/address work with the global schema blocker.
 
 Pull production env into a temporary file and run the audits without printing secrets:
 
