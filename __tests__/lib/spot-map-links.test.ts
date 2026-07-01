@@ -96,7 +96,7 @@ describe("spot map links", () => {
     );
   });
 
-  it("uses Kakao route targets for Korean area-level locations with a saved pin", () => {
+  it("uses Kakao search for Korean area-level locations even when a saved pin exists", () => {
     const url = buildSpotDirectionsUrl({
       name: "Gwangjang Market",
       address: "Jongno-gu, Seoul, Korea",
@@ -105,7 +105,7 @@ describe("spot map links", () => {
     });
 
     expect(url).toBe(
-      "https://map.kakao.com/link/to/Gwangjang%20Market,37.5701,126.9996",
+      "https://map.kakao.com/link/search/Gwangjang%20Market%2C%20Jongno-gu%2C%20Seoul%2C%20Korea",
     );
   });
 

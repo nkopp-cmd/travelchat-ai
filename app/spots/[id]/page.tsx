@@ -105,8 +105,16 @@ function getDirectionsHelperText(
       : "Maps opens a name and area search because this source record does not have an exact address yet.";
   }
 
-  if (isKorea && locationConfidence.usableCoordinates) {
-    return "Kakao opens the stored map pin as the route target, with the spot name as the destination label.";
+  if (isKorea && locationConfidence.tone === "pinned") {
+    return "Kakao opens a name and area search because the saved pin still needs exact address confirmation.";
+  }
+
+  if (
+    isKorea &&
+    locationConfidence.tone === "exact" &&
+    locationConfidence.usableCoordinates
+  ) {
+    return "Kakao opens the stored map pin only after the address is specific enough for exact routing.";
   }
 
   return isKorea
@@ -141,10 +149,10 @@ function getLocationPlanningCopy(
 
   if (confidence.tone === "pinned") {
     return {
-      heading: "Plan this pinned area",
+      heading: "Confirm this pinned area",
       description:
-        "This is area-level source data with a saved map pin. Directions route to the saved coordinate, with the spot name as context.",
-      routeTitle: "Route to saved pin",
+        "This is area-level source data with a saved map pin. Maps search the name and area first until exact address enrichment confirms the route target.",
+      routeTitle: "Search before routing",
       locationHeading: "Pinned area",
     };
   }
@@ -284,7 +292,10 @@ function getDirectionsTargetLabel(
   const confidence = getLocationConfidence(spot);
   const isKorea = isKoreanLocation(spot.location.address);
 
-  if (isKorea && confidence.usableCoordinates) return "Directions target";
+  if (isKorea && confidence.tone === "exact" && confidence.usableCoordinates) {
+    return "Directions target";
+  }
+  if (isKorea && confidence.tone !== "exact") return "Kakao will search";
   if (!isKorea && spot.googlePlaceId) return "Matched place";
   return confidence.tone === "area" ? "Maps will search" : "Directions search";
 }
@@ -299,6 +310,7 @@ function getDirectionsTargetValue(
 
   if (
     isKoreanLocation(spot.location.address) &&
+    confidence.tone === "exact" &&
     confidence.usableCoordinates &&
     lat &&
     lng
