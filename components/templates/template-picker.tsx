@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight,
   Clock,
   Compass,
   SlidersHorizontal,
@@ -61,13 +60,6 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
   );
 
   if (!selectedTemplate) return null;
-  const selectedSampleCity = getTemplateSampleCity(selectedTemplate);
-  const selectedImageUrl = getTemplateImageUrl(selectedTemplate, {
-    width: 320,
-    height: 220,
-    quality: 90,
-  });
-
   const handlePaceFilterChange = (pace: PaceFilter) => {
     setPaceFilter(pace);
 
@@ -120,43 +112,6 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
       <aside className="hidden rounded-2xl border border-white/10 bg-[#12091f]/86 p-4 shadow-2xl shadow-violet-950/20 backdrop-blur-xl lg:sticky lg:top-20 lg:block">
         <TemplateSummary template={selectedTemplate} />
       </aside>
-
-      <div className="pointer-events-none fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 lg:hidden">
-        <div className="pointer-events-auto mx-auto flex max-w-xl items-center gap-2 rounded-xl border border-violet-300/20 bg-[#10081c]/95 p-2 shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
-          <div className="relative h-11 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/20">
-            <Image
-              src={selectedImageUrl}
-              alt={`${selectedSampleCity} inspiration`}
-              fill
-              sizes="48px"
-              className="object-cover"
-            />
-          </div>
-          <div className="flex min-w-0 flex-1 items-center gap-2 pl-1">
-            <span className="shrink-0 text-lg leading-none">
-              {selectedTemplate.emoji}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold leading-tight text-white">
-                {selectedTemplate.name}
-              </p>
-              <p className="mt-0.5 truncate text-[11px] leading-tight text-violet-100/70">
-                {selectedTemplate.days}d / {paceLabels[selectedTemplate.pace]} /{" "}
-                {selectedTemplate.activitiesPerDay}/day
-              </p>
-            </div>
-          </div>
-          <Button
-            asChild
-            className="h-11 shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-3 text-sm shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
-          >
-            <Link href={getTemplateUrl(selectedTemplate.id)}>
-              Use
-              <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </div>
     </section>
   );
 }

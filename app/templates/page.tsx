@@ -34,7 +34,7 @@ export default function TemplatesPage() {
 
   return (
     <AppBackground ambient className="min-h-screen">
-      <div className="container mx-auto max-w-6xl px-3 pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))] pt-2 sm:px-4 sm:py-4 md:pb-8">
+      <div className="container mx-auto max-w-6xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] pt-2 sm:px-4 sm:py-4 md:pb-8">
         {/* Back Button */}
         <Link
           href="/dashboard"
