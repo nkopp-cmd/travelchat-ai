@@ -3,6 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/audit-spot-photo-coverage.ts
+ *   npx tsx scripts/audit-spot-photo-coverage.ts --env-file=/tmp/localley.env
  *   npx tsx scripts/audit-spot-photo-coverage.ts --city=Seoul
  *   npx tsx scripts/audit-spot-photo-coverage.ts --out=reports/spot-photo-coverage.json --json
  */
@@ -20,14 +21,13 @@ import {
     summarizeSpotPhotos,
 } from "../lib/place-images";
 
-dotenv.config({ path: ".env.local" });
-
 const PAGE_SIZE = 1000;
 const DEFAULT_OUT_PATH = "reports/spot-photo-coverage.json";
 const DEFAULT_SAMPLE_LIMIT = 50;
 
 interface SpotPhotoAuditArgs {
     city?: string;
+    envFile: string;
     json: boolean;
     outPath: string;
     sampleLimit: number;
@@ -80,6 +80,7 @@ function parseArgs(argv: string[]): SpotPhotoAuditArgs {
 
     return {
         city: getValue("--city"),
+        envFile: getValue("--env-file") || ".env.local",
         json: argv.includes("--json"),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
         sampleLimit: parsePositiveInt(getValue("--sample-limit"), DEFAULT_SAMPLE_LIMIT),
@@ -225,6 +226,7 @@ async function fetchAllSpots(
 
 async function main() {
     const args = parseArgs(process.argv.slice(2));
+    dotenv.config({ path: args.envFile, quiet: true });
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
     const generatedAt = new Date().toISOString();
