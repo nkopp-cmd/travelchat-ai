@@ -164,6 +164,7 @@ function getBackfillReason(summary: ReturnType<typeof summarizeSpotPhotos>): str
     if (summary.total === 0 || !summary.hasAnyPhoto) return "no_photos";
     if (summary.kinds.placeholder > 0) return "placeholder_only_or_primary";
     if (summary.kinds.unsplash > 0) return "unsplash_fallback";
+    if (summary.kinds.remote_untrusted > 0) return "untrusted_remote_photo";
     if (summary.kinds.direct_google > 0) return "direct_google_url";
     if (summary.kinds.invalid > 0 || summary.kinds.empty > 0) return "invalid_or_empty_photo";
     return "no_real_photo_source";

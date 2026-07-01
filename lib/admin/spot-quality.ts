@@ -259,7 +259,12 @@ export function getSpotPhotoReadiness(
         };
     }
 
-    if (photoSummary.kinds.unsplash > 0 || photoSummary.kinds.invalid > 0 || photoSummary.kinds.direct_google > 0) {
+    if (
+        photoSummary.kinds.unsplash > 0 ||
+        photoSummary.kinds.remote_untrusted > 0 ||
+        photoSummary.kinds.invalid > 0 ||
+        photoSummary.kinds.direct_google > 0
+    ) {
         return {
             status: "manual_review",
             label: "Photo needs review",

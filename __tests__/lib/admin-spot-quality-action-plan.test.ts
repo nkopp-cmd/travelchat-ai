@@ -118,4 +118,25 @@ describe("spot quality action plan", () => {
             "Make the stored Google Place ID and proxied place-photo source refer to the same place."
         );
     });
+
+    it("keeps untrusted remote photos in the manual review lane", () => {
+        const untrustedRemotePhoto = toSpotQualityItem(
+            createRow({
+                photos: ["https://images.example.com/spots/ladrio.jpg"],
+                google_place_id: null,
+            }),
+            true
+        );
+
+        expect(untrustedRemotePhoto.photoSummary.kinds.remote_untrusted).toBe(1);
+        expect(untrustedRemotePhoto.photoReadiness).toMatchObject({
+            status: "manual_review",
+            label: "Photo needs review",
+            canAutoBackfill: true,
+        });
+        expect(getSpotQualityOperatorStatus(untrustedRemotePhoto)).toMatchObject({
+            realImage: "needs_real_image",
+            publicCard: "hidden_until_enriched",
+        });
+    });
 });
