@@ -206,7 +206,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                 >
                     <span className="sr-only">Open {spot.name}</span>
                 </Link>
-                    <div className="relative aspect-[4/3] w-24 flex-shrink-0 overflow-hidden bg-violet-950/60 min-[430px]:w-28 sm:w-32 md:w-36">
+                    <div className="relative aspect-[4/3] w-20 flex-shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-24 min-[430px]:w-28 sm:w-32 md:w-36">
                         {!showGradientFallback && !imageLoaded && (
                             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
                         )}
@@ -220,7 +220,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         )}
                     </div>
 
-                    <div className="relative flex min-w-0 flex-1 flex-col p-2.5 sm:p-3">
+                    <div className="relative flex min-w-0 flex-1 flex-col p-2 sm:p-3">
                         <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
                                 <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
@@ -235,12 +235,12 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                                 <SaveSpotButton spotId={spot.id} size="sm" className="h-7 w-7 bg-white/10 p-0 hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5" />
                             </div>
                         </div>
-                        <p className="mt-1.5 line-clamp-1 text-xs leading-5 text-violet-50/60 sm:line-clamp-2 sm:text-sm">
+                        <p className="mt-1 line-clamp-1 text-xs leading-5 text-violet-50/60 sm:mt-1.5 sm:line-clamp-2 sm:text-sm">
                             {spot.description}
                         </p>
                         <div className="mt-auto border-t border-white/10 pt-2 text-xs text-violet-50/60">
                             <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-1">
-                                <span className="max-w-[7rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-1.5 py-0.5 font-medium text-violet-100 sm:max-w-none sm:px-2">
+                                <span className="max-w-[5.75rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-1.5 py-0.5 font-medium text-violet-100 min-[390px]:max-w-[7rem] sm:max-w-none sm:px-2">
                                     {spot.category}
                                 </span>
                                 {spot.trending && (
@@ -264,7 +264,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     // Premium grid card with glassmorphism and micro-animations
     return (
         <Card className={cn(
-            "group relative flex min-h-[104px] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
+            "group relative flex min-h-24 flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
             "bg-[#100b1c]/92 text-white backdrop-blur-xl",
             "border border-violet-200/15",
             "transition-all duration-300 ease-out",
@@ -280,7 +280,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
             >
                 <span className="sr-only">Open {spot.name}</span>
             </Link>
-                <div className="relative w-24 shrink-0 overflow-hidden bg-violet-950/60 min-[420px]:w-28 sm:aspect-[2/1] sm:w-full">
+                <div className="relative w-20 shrink-0 overflow-hidden bg-violet-950/60 min-[380px]:w-24 min-[420px]:w-28 sm:aspect-[2/1] sm:w-full">
                     {!showGradientFallback && !imageLoaded && (
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
@@ -305,19 +305,25 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         </div>
                     </div>
                     {spot.trending && (
-                        <div className="absolute left-1.5 top-1.5 z-10 rounded-full border border-rose-200/25 bg-rose-500/85 p-1 text-white shadow-lg shadow-black/15 backdrop-blur sm:left-2.5 sm:top-2.5">
+                        <div className="absolute left-1.5 top-1.5 z-10 hidden rounded-full border border-rose-200/25 bg-rose-500/85 p-1 text-white shadow-lg shadow-black/15 backdrop-blur sm:left-2.5 sm:top-2.5 sm:block">
                             <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
                             <span className="sr-only">Trending</span>
                         </div>
                     )}
                 </div>
 
-                <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2.5 sm:p-3">
+                <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2 sm:p-3">
                     <div className="mb-1.5 flex min-w-0 items-start justify-between gap-2">
                         <div className="flex min-w-0 flex-wrap items-center gap-1">
-                            <span className="inline-flex max-w-[7.5rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-1.5 py-0.5 text-[10px] font-medium text-violet-100 sm:max-w-full sm:rounded-full sm:px-2.5 sm:text-[11px]">
+                            <span className="inline-flex max-w-[5.75rem] truncate rounded-md border border-violet-200/20 bg-violet-400/10 px-1.5 py-0.5 text-[10px] font-medium text-violet-100 min-[390px]:max-w-[7.5rem] sm:max-w-full sm:rounded-full sm:px-2.5 sm:text-[11px]">
                                 {spot.category}
                             </span>
+                            {spot.trending && (
+                                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-rose-200/25 bg-rose-400/10 text-rose-100 sm:hidden" title="Trending">
+                                    <TrendingUp className="h-3 w-3" aria-hidden="true" />
+                                    <span className="sr-only">Trending</span>
+                                </span>
+                            )}
                         </div>
                         <div className="relative z-20 shrink-0 sm:hidden">
                             <SaveSpotButton spotId={spot.id} className="h-7 w-7 bg-white/10 p-0 text-white hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5" />

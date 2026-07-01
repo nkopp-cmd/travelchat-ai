@@ -78,7 +78,7 @@ const QUICK_FILTERS = [
 ];
 
 const FILTER_TRIGGER_CLASS =
-    "h-10 w-full min-w-0 justify-start gap-1 overflow-hidden border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
+    "h-9 w-full min-w-0 justify-start gap-1 overflow-hidden border-white/10 bg-white/[0.055] px-2 text-xs text-white sm:h-10 sm:px-3 sm:text-sm [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
 
 interface SpotsFilterBarProps {
     filterOptions: FilterOptions;
@@ -160,7 +160,7 @@ export function SpotsFilterBar({
         label.replace("Highest Score", "Top score").replace("Most Local", "Most local");
 
     return (
-        <div className="mb-4 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-3 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
+        <div className="mb-4 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-2.5 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
             {/* Search Bar */}
             <div className="relative flex-1">
                 <Search
@@ -171,7 +171,7 @@ export function SpotsFilterBar({
                     placeholder="Search spots, neighborhoods, or cuisines..."
                     value={searchValue}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="h-11 min-w-0 border-white/10 bg-white/[0.06] pl-10 pr-10 text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400"
+                    className="h-10 min-w-0 border-white/10 bg-white/[0.06] pl-10 pr-10 text-sm text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400 sm:h-11 sm:text-base"
                     aria-label="Search spots"
                 />
                 {isPending && (
@@ -184,7 +184,7 @@ export function SpotsFilterBar({
 
             {/* Quick Filter Chips */}
             <div
-                className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1.5 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0"
+                className="-mx-2.5 flex gap-1.5 overflow-x-auto px-2.5 pb-1.5 scrollbar-hide sm:mx-0 sm:flex-wrap sm:gap-2 sm:px-0 sm:pb-0"
                 role="group"
                 aria-label="Quick filters"
             >
@@ -200,7 +200,7 @@ export function SpotsFilterBar({
                             key={filter.id}
                             onClick={() => handleQuickFilter(filter.id)}
                             className={cn(
-                                "flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-medium transition-all",
+                                "flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium transition-all sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-sm",
                                 isActive
                                     ? "border-violet-300/50 bg-violet-500 text-white shadow-md shadow-violet-500/20"
                                     : "border-white/10 bg-white/[0.055] text-violet-50/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white"
@@ -214,13 +214,13 @@ export function SpotsFilterBar({
                 })}
             </div>
 
-            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-2 md:hidden">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_2.75rem] gap-2 md:hidden">
                 <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowMobileFilters((value) => !value)}
-                    className="h-11 min-w-0 flex-1 justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] px-3 text-violet-50/80 hover:bg-white/10 hover:text-white"
+                    className="h-10 min-w-0 flex-1 justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] px-3 text-violet-50/80 hover:bg-white/10 hover:text-white"
                     aria-expanded={showMobileFilters}
                     aria-controls="spots-advanced-filters"
                 >
@@ -241,7 +241,7 @@ export function SpotsFilterBar({
                         type="button"
                         variant="ghost"
                         onClick={onClearFilters}
-                        className="h-11 w-11 shrink-0 rounded-lg border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
+                        className="h-10 w-11 shrink-0 rounded-lg border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
                     >
                         <X className="h-4 w-4" aria-hidden="true" />
                         <span className="sr-only">Clear filters</span>
@@ -253,7 +253,7 @@ export function SpotsFilterBar({
             <div
                 id="spots-advanced-filters"
                 className={cn(
-                    "grid min-w-0 grid-cols-1 gap-2 md:grid md:grid-cols-2 lg:grid-cols-[minmax(10rem,1.15fr)_minmax(8rem,0.95fr)_minmax(8rem,0.8fr)_minmax(8rem,0.8fr)] xl:grid-cols-[minmax(11rem,1.1fr)_minmax(9rem,1fr)_minmax(8.5rem,0.85fr)_minmax(8.5rem,0.85fr)_auto] xl:items-center",
+                    "grid min-w-0 grid-cols-1 gap-2 md:grid md:grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-[repeat(4,minmax(0,1fr))] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_auto] xl:items-center",
                     !showMobileFilters && "hidden md:grid"
                 )}
                 role="group"
