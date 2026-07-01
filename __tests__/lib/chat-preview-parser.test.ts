@@ -237,6 +237,29 @@ Booking note: No reservations needed, but go before peak dinner.
     ]);
   });
 
+  it("keeps practical section labels outside generated day activities", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Cafes**
+- **Cafe Onion Anguk (Local Favorite)**: Start with coffee in the hanok courtyard.
+  Address: Cafe Onion Anguk, Jongno-gu, Seoul
+- Opening hours: Go before 10 AM for the calmest tables.
+- Reservation: Book weekend tea service before the trip.
+- Language phrase: Say annyeonghaseyo when entering small shops.
+- Transit pass: Use T-money and walk from Anguk Station exit 3.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Cafe Onion Anguk",
+    ]);
+    expect(result.tips).toEqual([
+      "Opening hours: Go before 10 AM for the calmest tables.",
+      "Reservation: Book weekend tea service before the trip.",
+      "Language phrase: Say annyeonghaseyo when entering small shops.",
+      "Transit pass: Use T-money and walk from Anguk Station exit 3.",
+    ]);
+  });
+
   it("drops day sections that only contain notes after filtering", () => {
     const result = parseChatItineraryPreview(`# Seoul Hidden Gems
 

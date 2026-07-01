@@ -61,6 +61,8 @@ const INLINE_LABELED_TIP_PATTERN = new RegExp(
 );
 const PRACTICAL_NOTE_NAME_PATTERN =
   /^(bring|pack|wear|use|take|book|reserve|check|avoid|ask|go|arrive|get|download|carry|keep|remember|try to)\b/i;
+const PRACTICAL_SECTION_NAME_PATTERN =
+  /^(opening\s+hours?|hours?|reservation|reservations|booking|tickets?|entry|admission|cost|price|prices|budget|cash|payment|weather|rain|packing|what\s+to\s+wear|language(?:\s+phrase)?|phrases?|safety|etiquette|wifi|sim|translation|transit\s+pass|transport\s+pass|metro\s+card|accessibility|restrooms?|toilets?)$/i;
 const MAPPABLE_CONTEXT_FIELDS = [
   "address",
   "location",
@@ -82,6 +84,7 @@ export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
     TIP_VALUE_PATTERN.test(category) ||
     TIP_VALUE_PATTERN.test(type) ||
     GENERIC_ACTIVITY_NAME_PATTERN.test(name) ||
+    PRACTICAL_SECTION_NAME_PATTERN.test(name) ||
     PRACTICAL_NOTE_NAME_PATTERN.test(name)
   ) {
     return true;

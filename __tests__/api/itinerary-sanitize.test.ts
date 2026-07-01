@@ -85,6 +85,51 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ).toBe(true);
   });
 
+  it("moves practical section rows into insights instead of day activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Cafe Onion Anguk",
+            description: "Start with coffee in the hanok courtyard.",
+            category: "Cafe",
+          },
+          {
+            name: "Opening hours",
+            description: "Go before 10 AM for the calmest tables.",
+          },
+          {
+            name: "Reservation",
+            description: "Book weekend tea service before the trip.",
+          },
+          {
+            name: "Language phrase",
+            description: "Say annyeonghaseyo when entering small shops.",
+          },
+          {
+            name: "Transit pass",
+            description: "Use T-money and walk from Anguk Station exit 3.",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities.map((activity) => activity.name)).toEqual([
+      "Cafe Onion Anguk",
+    ]);
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Opening hours: Go before 10 AM for the calmest tables. Reservation: Book weekend tea service before the trip. Language phrase: Say annyeonghaseyo when entering small shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Transit pass: Use T-money and walk from Anguk Station exit 3.",
+      }),
+    ]);
+  });
+
   it("treats generic meal or time-slot rows as tips but keeps named meal places", () => {
     expect(
       isTipLikeActivity({
