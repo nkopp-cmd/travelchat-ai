@@ -25,6 +25,16 @@ function createAnthropicReply(text: string) {
   };
 }
 
+function createAnthropicContentReply(
+  content: Array<{ type: string; text?: string }>
+) {
+  return {
+    messages: {
+      create: vi.fn(async () => ({ content })),
+    },
+  };
+}
+
 describe("chat provider fallback", () => {
   it("builds a clean transcript for GLM without system messages", () => {
     expect(buildChatTranscript(baseMessages)).toBe(
@@ -141,6 +151,52 @@ describe("chat provider fallback", () => {
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(anthropic.messages.create).toHaveBeenCalledOnce();
+  });
+
+  it("joins all Anthropic text blocks when fallback handles chat", async () => {
+    const glm = {
+      isAvailable: vi.fn(() => false),
+      generateText: vi.fn(),
+    };
+    const anthropic = createAnthropicContentReply([
+      { type: "tool_use" },
+      { type: "text", text: "First fallback paragraph." },
+      { type: "text", text: "Second fallback paragraph." },
+    ]);
+
+    const result = await generateChatReplyWithFallback(
+      {
+        systemPrompt: "You are Alley",
+        messages: baseMessages,
+      },
+      { glm, anthropic }
+    );
+
+    expect(result.content).toBe(
+      "First fallback paragraph.\n\nSecond fallback paragraph."
+    );
+    expect(result.provider).toBe("anthropic");
+  });
+
+  it("throws when the Anthropic fallback returns no usable text", async () => {
+    const glm = {
+      isAvailable: vi.fn(() => false),
+      generateText: vi.fn(),
+    };
+    const anthropic = createAnthropicContentReply([
+      { type: "tool_use" },
+      { type: "text", text: "   " },
+    ]);
+
+    await expect(
+      generateChatReplyWithFallback(
+        {
+          systemPrompt: "You are Alley",
+          messages: baseMessages,
+        },
+        { glm, anthropic }
+      )
+    ).rejects.toThrow("Anthropic returned an empty chat response");
   });
 
   it("falls back to Anthropic when GLM returns an empty response", async () => {

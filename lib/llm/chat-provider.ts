@@ -72,6 +72,17 @@ function getAnthropicClient(): AnthropicChatClient {
   return new Anthropic({ apiKey });
 }
 
+function getAnthropicText(response: {
+  content: Array<{ type: string; text?: string }>;
+}): string {
+  return response.content
+    .filter((block) => block.type === "text" && block.text)
+    .map((block) => block.text?.trim())
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
+
 export async function generateChatReplyWithFallback(
   input: {
     systemPrompt: string;
@@ -142,7 +153,10 @@ export async function generateChatReplyWithFallback(
     messages: anthropicMessages,
   });
 
-  const reply = response.content[0]?.type === "text" ? response.content[0].text || "" : "";
+  const reply = getAnthropicText(response);
+  if (!reply) {
+    throw new Error("Anthropic returned an empty chat response");
+  }
 
   return {
     content: reply,
