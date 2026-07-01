@@ -151,9 +151,11 @@ export function getSpotDirectionsButtonLabel(
     isKorea: boolean,
     hasMatchedGooglePlace = false
 ): string {
+    if (!isKorea && hasMatchedGooglePlace) return "Get exact directions";
+
     if (tone === "exact") {
         if (isKorea) return "Search exact spot in Kakao";
-        return hasMatchedGooglePlace ? "Get exact directions" : "Search exact spot in Maps";
+        return "Search exact spot in Maps";
     }
 
     if (tone === "pinned") {

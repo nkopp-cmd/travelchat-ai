@@ -66,6 +66,15 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
   }
 
+  if (input.googlePlaceId && destinationText) {
+    const params = new URLSearchParams({
+      api: "1",
+      destination: destinationText,
+      destination_place_id: input.googlePlaceId,
+    });
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
+  }
+
   if (destinationText && (hasAreaLevelAddress || !input.googlePlaceId)) {
     const params = new URLSearchParams({ api: "1", query: destinationText });
     return `https://www.google.com/maps/search/?${params.toString()}`;
@@ -74,9 +83,5 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
   const destination = destinationText || coordinateDestination;
 
   const params = new URLSearchParams({ api: "1", destination });
-  if (input.googlePlaceId) {
-    params.set("destination_place_id", input.googlePlaceId);
-  }
-
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }

@@ -51,6 +51,7 @@ describe("spot detail normalization", () => {
         expect(getSpotDirectionsButtonLabel("exact", false, true)).toBe("Get exact directions");
         expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Search area in Kakao");
         expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Search name in Maps");
+        expect(getSpotDirectionsButtonLabel("pinned", false, true)).toBe("Get exact directions");
         expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search name in Kakao");
         expect(getSpotDirectionsButtonLabel("area", false)).toBe("Search area in Maps");
     });

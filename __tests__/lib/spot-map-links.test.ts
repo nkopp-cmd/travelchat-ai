@@ -87,22 +87,24 @@ describe("spot map links", () => {
     expect(url.searchParams.has("destination_place_id")).toBe(false);
   });
 
-  it("does not attach Google Place IDs to broad area searches", () => {
+  it("uses trusted Google Place IDs even when stored address text is area-level", () => {
     const url = new URL(
       buildSpotDirectionsUrl({
-        name: "Saphan Mai Local Scene",
+        name: "Saphan Mai Market",
         address: "Saphan Mai, Bangkok",
         lat: 13.9101,
         lng: 100.6149,
-        googlePlaceId: "ChIJ-broad-record",
+        googlePlaceId: "ChIJ-trusted-market",
       }),
     );
 
-    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/search/");
-    expect(url.searchParams.get("query")).toBe(
-      "Saphan Mai Local Scene, Saphan Mai, Bangkok",
+    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/dir/");
+    expect(url.searchParams.get("destination")).toBe(
+      "Saphan Mai Market, Saphan Mai, Bangkok",
     );
-    expect(url.searchParams.has("destination_place_id")).toBe(false);
+    expect(url.searchParams.get("destination_place_id")).toBe(
+      "ChIJ-trusted-market",
+    );
   });
 
   it("uses Kakao search for Korean street-address records with a saved pin", () => {

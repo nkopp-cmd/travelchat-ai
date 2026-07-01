@@ -97,7 +97,7 @@ function getDirectionsHelperText(
   const isKorea = isKoreanLocation(spot.location.address);
   const locationConfidence = getLocationConfidence(spot);
 
-  if (!isKorea && spot.googlePlaceId && locationConfidence.tone === "exact") {
+  if (!isKorea && spot.googlePlaceId) {
     return "Maps opens with the matched Google Place ID from the spot photo source for a more precise destination.";
   }
 
@@ -129,7 +129,7 @@ function getLocationPlanningCopy(
 ) {
   const confidence = getLocationConfidence(spot);
 
-  if (spot.googlePlaceId && confidence.tone === "exact") {
+  if (spot.googlePlaceId && !isKoreanLocation(spot.location.address)) {
     return {
       heading: "Plan this exact stop",
       description:
@@ -337,7 +337,7 @@ function getDirectionsTargetLabel(
 
   if (isKorea && confidence.tone === "exact") return "Exact Kakao search";
   if (isKorea && confidence.tone !== "exact") return "Area Kakao search";
-  if (!isKorea && spot.googlePlaceId && confidence.tone === "exact") {
+  if (!isKorea && spot.googlePlaceId) {
     return "Matched Google place";
   }
   return confidence.tone === "area" ? "Area Maps search" : "Exact Maps search";
@@ -478,8 +478,7 @@ function GetDirectionsButton({
   const locationConfidence = getLocationConfidence(spot);
   const hasMatchedGooglePlace =
     Boolean(spot.googlePlaceId) &&
-    !isKorea &&
-    locationConfidence.tone === "exact";
+    !isKorea;
   const directionToneClass =
     locationConfidence.tone === "area"
       ? "bg-amber-600 shadow-amber-500/20 hover:bg-amber-700"
@@ -527,10 +526,11 @@ function NavigationTargetPanel({
   const lng = formatCoordinate(spot.location.lng);
   const hasMatchedGooglePlace =
     Boolean(spot.googlePlaceId) &&
-    !isKoreanLocation(spot.location.address) &&
-    locationConfidence.tone === "exact";
+    !isKoreanLocation(spot.location.address);
   const targetLabel =
-    locationConfidence.tone === "exact" ? "Map search sent" : "Search target";
+    hasMatchedGooglePlace || locationConfidence.tone === "exact"
+      ? "Map target"
+      : "Search target";
 
   return (
     <div
@@ -554,7 +554,7 @@ function NavigationTargetPanel({
       <p className="mt-2 break-words text-xs leading-5 text-violet-50/60">
         Address on record: {spot.location.address}
       </p>
-      {locationConfidence.tone !== "exact" && (
+      {locationConfidence.tone !== "exact" && !hasMatchedGooglePlace && (
         <p className="mt-2 rounded-md border border-amber-200/20 bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">
           Exact address enrichment is still needed. The button opens search
           first so the user can confirm the correct local result before routing.
