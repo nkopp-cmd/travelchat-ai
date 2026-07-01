@@ -253,6 +253,18 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 </div>
             </div>
 
+            {insights.length > 0 && (
+                <div className="border-b border-white/10 px-3 py-3 sm:px-5 sm:py-4">
+                    <ItineraryInsightsPanel
+                        insights={insights}
+                        title="Trip notes"
+                        description="Tips, transit, and booking notes stay outside the day schedule."
+                        compact
+                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
+                    />
+                </div>
+            )}
+
             {/* Days */}
             <div className="space-y-3 px-3 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
                 <div className="flex items-center justify-between gap-3 px-1">
@@ -340,18 +352,6 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 ))}
 
             </div>
-
-            {insights.length > 0 && (
-                <div className="border-t border-white/10 px-3 py-3 sm:px-5 sm:py-4">
-                    <ItineraryInsightsPanel
-                        insights={insights}
-                        title="Trip notes"
-                        description="Local context, transit, and booking notes for the full route."
-                        compact
-                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
-                    />
-                </div>
-            )}
         </div>
     );
 }

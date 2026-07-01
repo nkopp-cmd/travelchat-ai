@@ -22,7 +22,7 @@ vi.mock("@/components/ui/city-image", () => ({
 }));
 
 describe("ItineraryPreview", () => {
-  it("renders trip notes after the day schedule when chat output contains tips", () => {
+  it("renders trip notes before the day schedule when chat output contains tips", () => {
     const { container } = render(
       <ItineraryPreview
         content={`# Tokyo Hidden Gems
@@ -45,7 +45,8 @@ describe("ItineraryPreview", () => {
 
     const renderedText = container.textContent || "";
     expect(renderedText.indexOf("Route by day")).toBeGreaterThan(-1);
-    expect(renderedText.indexOf("Trip notes")).toBeGreaterThan(
+    expect(renderedText.indexOf("Trip notes")).toBeGreaterThan(-1);
+    expect(renderedText.indexOf("Trip notes")).toBeLessThan(
       renderedText.indexOf("Route by day")
     );
   });
