@@ -45,10 +45,10 @@ describe("spot detail normalization", () => {
     });
 
     it("labels pinned directions as search-first until the address is exact", () => {
-        expect(getSpotDirectionsButtonLabel("exact", true)).toBe("Open exact spot in Kakao");
-        expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Search pinned area in Kakao");
-        expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Search pinned area");
-        expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search area in Kakao");
+        expect(getSpotDirectionsButtonLabel("exact", true)).toBe("Search exact spot in Kakao");
+        expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Search area in Kakao");
+        expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Search name in Maps");
+        expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search name in Kakao");
         expect(getSpotDirectionsButtonLabel("area", false)).toBe("Search area in Maps");
     });
 

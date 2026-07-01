@@ -109,12 +109,8 @@ function getDirectionsHelperText(
     return "Kakao opens a name and area search because the saved pin still needs exact address confirmation.";
   }
 
-  if (
-    isKorea &&
-    locationConfidence.tone === "exact" &&
-    locationConfidence.usableCoordinates
-  ) {
-    return "Kakao opens the stored map pin only after the address is specific enough for exact routing.";
+  if (isKorea && locationConfidence.tone === "exact") {
+    return "Kakao searches the exact spot name and address so imported coordinates do not override the place context.";
   }
 
   return isKorea

@@ -123,12 +123,12 @@ export function getSpotDirectionsButtonLabel(
     isKorea: boolean
 ): string {
     if (tone === "exact") {
-        return isKorea ? "Open exact spot in Kakao" : "Get exact directions";
+        return isKorea ? "Search exact spot in Kakao" : "Get exact directions";
     }
 
     if (tone === "pinned") {
-        return isKorea ? "Search pinned area in Kakao" : "Search pinned area";
+        return isKorea ? "Search area in Kakao" : "Search name in Maps";
     }
 
-    return isKorea ? "Search area in Kakao" : "Search area in Maps";
+    return isKorea ? "Search name in Kakao" : "Search area in Maps";
 }

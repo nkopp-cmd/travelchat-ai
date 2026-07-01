@@ -55,10 +55,6 @@ function getCoordinateDestination(input: SpotDirectionsInput): string {
     : "";
 }
 
-function getKakaoDestinationLabel(input: SpotDirectionsInput): string {
-  return input.name.trim() || input.address.trim() || "Localley spot";
-}
-
 export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
   const exactQuery = getSpotDirectionsSearchText(input);
   const coordinateDestination = getCoordinateDestination(input);
@@ -67,12 +63,6 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
   const hasAreaLevelAddress = isAreaLevelAddress(input.address);
 
   if (isKoreanLocation(input.address)) {
-    if (coordinateDestination && !hasAreaLevelAddress) {
-      return `https://map.kakao.com/link/to/${encodeURIComponent(
-        getKakaoDestinationLabel(input),
-      )},${coordinateDestination}`;
-    }
-
     return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
   }
 
