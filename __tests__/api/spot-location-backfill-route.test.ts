@@ -44,10 +44,16 @@ vi.mock("@/lib/place-images", async (importOriginal) => {
   };
 });
 
-function createSupabaseMock() {
+function createSupabaseMock(batchRows: Array<Record<string, unknown>> = []) {
   const readQuery = {
     select: vi.fn(() => readQuery),
     eq: vi.fn(() => readQuery),
+    ilike: vi.fn(() => readQuery),
+    order: vi.fn(() => readQuery),
+    range: vi.fn(async () => ({
+      data: batchRows,
+      error: null,
+    })),
     single: vi.fn(async () => ({
       data: {
         id: "spot_test",
@@ -208,5 +214,54 @@ describe("/api/admin/spots/backfill-location", () => {
         google_place_id: "ChIJ-location-only",
       },
     ]);
+  });
+
+  it("dry-runs a capped batch of exact place matches before updating", async () => {
+    mocks.createSupabaseAdmin.mockReturnValueOnce(createSupabaseMock([
+      {
+        id: "spot_batch_1",
+        name: { en: "LADRIO" },
+        address: { en: "Kanda Jinbocho, Tokyo" },
+        photos: [],
+        category: "Cafe",
+        location: "POINT(0 0)",
+        google_place_id: null,
+      },
+    ]));
+    const { POST } = await import("@/app/api/admin/spots/backfill-location/route");
+
+    const response = await POST(createRequest({
+      city: "Tokyo",
+      limit: 1,
+      maxProcessed: 5,
+      dryRun: true,
+      includePhotos: true,
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      success: true,
+      dryRun: true,
+      includePhotos: true,
+      limit: 1,
+      maxProcessed: 5,
+      city: "Tokyo",
+      scanned: 1,
+      candidates: 1,
+      processed: 1,
+      wouldUpdate: 1,
+      updated: 0,
+      results: [
+        {
+          id: "spot_batch_1",
+          status: "would_update",
+          formattedAddress: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+          updatedFields: ["address", "location", "google_place_id", "photos"],
+        },
+      ],
+    });
+    expect(mocks.updatePayloads).toEqual([]);
+    expect(mocks.revalidateTag).not.toHaveBeenCalled();
   });
 });

@@ -88,6 +88,15 @@ interface LocationBackfillPreviewResult {
     success?: boolean;
     dryRun?: boolean;
     includePhotos?: boolean;
+    limit?: number;
+    maxProcessed?: number;
+    city?: string | null;
+    candidates?: number;
+    processed?: number;
+    updated?: number;
+    wouldUpdate?: number;
+    skipped?: number;
+    failed?: number;
     result?: {
         id: string;
         name: string;
@@ -102,6 +111,20 @@ interface LocationBackfillPreviewResult {
         photoCount?: number;
         updatedFields?: string[];
     };
+    results?: Array<{
+        id: string;
+        name: string;
+        status: "updated" | "would_update" | "skipped" | "failed";
+        reason?: string;
+        placeName?: string | null;
+        placeId?: string | null;
+        formattedAddress?: string | null;
+        lat?: number | null;
+        lng?: number | null;
+        query?: string | null;
+        photoCount?: number;
+        updatedFields?: string[];
+    }>;
 }
 
 function getPrimaryPhoto(item: SpotQualityItem): string | null {
@@ -198,9 +221,12 @@ export function SpotQualityWorkbench() {
     const [applyingBatchPhotoBackfill, setApplyingBatchPhotoBackfill] = useState(false);
     const [previewingLocationBackfill, setPreviewingLocationBackfill] = useState(false);
     const [applyingLocationBackfill, setApplyingLocationBackfill] = useState(false);
+    const [previewingBatchLocationBackfill, setPreviewingBatchLocationBackfill] = useState(false);
+    const [applyingBatchLocationBackfill, setApplyingBatchLocationBackfill] = useState(false);
     const [photoBackfillPreview, setPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
     const [batchPhotoBackfillPreview, setBatchPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
     const [locationBackfillPreview, setLocationBackfillPreview] = useState<LocationBackfillPreviewResult | null>(null);
+    const [batchLocationBackfillPreview, setBatchLocationBackfillPreview] = useState<LocationBackfillPreviewResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
     const [editState, setEditState] = useState<EditState | null>(null);
@@ -356,6 +382,53 @@ export function SpotQualityWorkbench() {
 
     const previewBatchPhotoBackfill = () => runBatchPhotoBackfill(true);
     const applyBatchPhotoBackfill = () => runBatchPhotoBackfill(false);
+
+    const runBatchLocationBackfill = async (dryRun: boolean) => {
+        if (dryRun) {
+            setPreviewingBatchLocationBackfill(true);
+            setBatchLocationBackfillPreview(null);
+        } else {
+            setApplyingBatchLocationBackfill(true);
+        }
+        setError(null);
+        setNotice(null);
+
+        try {
+            const response = await fetch("/api/admin/spots/backfill-location", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    city: city.trim() || undefined,
+                    limit: 8,
+                    maxProcessed: 80,
+                    dryRun,
+                    includePhotos: true,
+                }),
+            });
+            const data = (await response.json()) as LocationBackfillPreviewResult & { error?: string; details?: string };
+            if (!response.ok) {
+                throw new Error(data.details || data.error || "Failed to run exact-location batch");
+            }
+
+            setBatchLocationBackfillPreview(data);
+            if (!dryRun && data.updated) {
+                setNotice(`Applied ${data.updated} exact-location update${data.updated === 1 ? "" : "s"}.`);
+                await loadQueue();
+            } else if (dryRun && data.wouldUpdate) {
+                setNotice(`Dry run found ${data.wouldUpdate} exact-location update${data.wouldUpdate === 1 ? "" : "s"}.`);
+            } else {
+                setNotice(dryRun ? "Exact-location batch dry run completed." : "Exact-location batch completed.");
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to run exact-location batch");
+        } finally {
+            setPreviewingBatchLocationBackfill(false);
+            setApplyingBatchLocationBackfill(false);
+        }
+    };
+
+    const previewBatchLocationBackfill = () => runBatchLocationBackfill(true);
+    const applyBatchLocationBackfill = () => runBatchLocationBackfill(false);
 
     const runSelectedLocationBackfill = async (dryRun: boolean) => {
         if (!selectedItem) return;
@@ -601,6 +674,86 @@ export function SpotQualityWorkbench() {
                                             {result.placeName && <p className="mt-1 line-clamp-1">Matched: {result.placeName}</p>}
                                             {result.photoCount !== undefined && (
                                                 <p>{result.photoCount} photo candidate{result.photoCount === 1 ? "" : "s"}</p>
+                                            )}
+                                            {result.reason && <p>Reason: {result.reason}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {queue && (
+                <div className="mb-4 rounded-lg border border-sky-200/15 bg-[#0b1220]/88 p-3 shadow-lg shadow-sky-950/20 backdrop-blur-xl sm:p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                <MapPin className="h-4 w-4 text-sky-200" />
+                                Exact-location batch
+                            </div>
+                            <p className="mt-1 max-w-3xl text-xs leading-5 text-violet-50/60">
+                                Dry-run high-confidence Google Places matches that can upgrade address, pin, Place ID, and eligible place photos together.
+                            </p>
+                            <p className="mt-1 text-xs text-violet-50/45">
+                                Scope: {city.trim() ? city.trim() : "all cities"} / 8 updates max / 80 spots scanned.
+                            </p>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[22rem]">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={previewBatchLocationBackfill}
+                                disabled={previewingBatchLocationBackfill}
+                                className="h-10 border-white/10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
+                            >
+                                {previewingBatchLocationBackfill ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                )}
+                                Preview 8 places
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={applyBatchLocationBackfill}
+                                disabled={applyingBatchLocationBackfill || !batchLocationBackfillPreview?.wouldUpdate}
+                                className="h-10 bg-emerald-600 text-sm text-white hover:bg-emerald-700 disabled:opacity-45"
+                            >
+                                {applyingBatchLocationBackfill ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                )}
+                                Apply previewed places
+                            </Button>
+                        </div>
+                    </div>
+
+                    {batchLocationBackfillPreview && (
+                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                                <SummaryTile label="Candidates" value={batchLocationBackfillPreview.candidates ?? 0} />
+                                <SummaryTile label="Processed" value={batchLocationBackfillPreview.processed ?? 0} />
+                                <SummaryTile label="Would update" value={batchLocationBackfillPreview.wouldUpdate ?? 0} tone="good" />
+                                <SummaryTile label="Skipped" value={batchLocationBackfillPreview.skipped ?? 0} tone="warn" />
+                                <SummaryTile label="Failed" value={batchLocationBackfillPreview.failed ?? 0} tone={batchLocationBackfillPreview.failed ? "danger" : undefined} />
+                            </div>
+                            {batchLocationBackfillPreview.results?.length ? (
+                                <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                                    {batchLocationBackfillPreview.results.slice(0, 6).map((result) => (
+                                        <div key={result.id} className="rounded-md border border-white/10 bg-white/[0.045] p-2">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <p className="line-clamp-1 font-semibold text-white">{result.name}</p>
+                                                <span className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+                                                    {result.status.replace("_", " ")}
+                                                </span>
+                                            </div>
+                                            {result.placeName && <p className="mt-1 line-clamp-1">Matched: {result.placeName}</p>}
+                                            {result.formattedAddress && <p className="line-clamp-1">Address: {result.formattedAddress}</p>}
+                                            {typeof result.lat === "number" && typeof result.lng === "number" && (
+                                                <p>Pin: {result.lat.toFixed(7)}, {result.lng.toFixed(7)}</p>
                                             )}
                                             {result.reason && <p>Reason: {result.reason}</p>}
                                         </div>
