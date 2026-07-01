@@ -7,49 +7,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  GLMProvider,
   getMetricsCollector,
   getOrchestrator,
   estimateOrchestrationCost,
 } from '@/lib/llm';
 import { requireAdmin } from '@/lib/admin-auth';
-import { getTrimmedEnv, readGLMProviderConfig } from '@/lib/llm/env';
-
-async function getChatProviderReadiness(runGlmHealthCheck: boolean) {
-  const glm = new GLMProvider();
-  const glmConfig = readGLMProviderConfig();
-  const glmConfigured = glm.isAvailable();
-  let glmHealthy: boolean | null = null;
-
-  if (runGlmHealthCheck && glmConfigured) {
-    glmHealthy = await glm.healthCheck();
-  }
-
-  return {
-    primary: 'glm',
-    fallback: 'anthropic',
-    glm: {
-      configured: glmConfigured,
-      healthChecked: runGlmHealthCheck,
-      healthy: glmHealthy,
-      model: glmConfig.model,
-      baseUrl: glmConfig.baseURL,
-      env: {
-        hasGlmApiKey: Boolean(getTrimmedEnv('GLM_API_KEY')),
-        hasZaiApiKey: Boolean(getTrimmedEnv('ZAI_API_KEY')),
-        apiKeySource: glmConfig.apiKeySource,
-      },
-    },
-    anthropicFallback: {
-      configured: Boolean(getTrimmedEnv('ANTHROPIC_API_KEY')),
-      model:
-        getTrimmedEnv('CLAUDE_MODEL') ||
-        getTrimmedEnv('ANTHROPIC_MODEL') ||
-        getTrimmedEnv('CHAT_MODEL') ||
-        'claude-sonnet-4-20250514',
-    },
-  };
-}
+import { getChatProviderReadiness } from '@/lib/llm/chat-readiness';
 
 export async function GET(req: NextRequest) {
   try {
@@ -71,7 +34,7 @@ export async function GET(req: NextRequest) {
       pro: estimateOrchestrationCost('pro'),
       premium: estimateOrchestrationCost('premium'),
     };
-    const chatProviderReadiness = await getChatProviderReadiness(runGlmHealthCheck);
+    const chatProviderReadiness = await getChatProviderReadiness({ runGlmHealthCheck });
 
     return NextResponse.json({
       success: true,
