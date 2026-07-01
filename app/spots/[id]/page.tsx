@@ -405,43 +405,77 @@ function DetailSignal({
   );
 }
 
-function SpotFact({
-  icon: Icon,
-  label,
-  value,
-  helper,
-  tone = "violet",
+function PlanningSnapshot({
+  primaryUse,
+  bestTime,
+  localPercentage,
+  routeTitle,
+  routeHelper,
+  photoLabel,
+  photoHelper,
+  locationTone,
+  hasRealPhoto,
 }: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  helper: string;
-  tone?: "violet" | "emerald" | "sky" | "amber";
+  primaryUse: { value: string; helper: string };
+  bestTime: string;
+  localPercentage: number;
+  routeTitle: string;
+  routeHelper: string;
+  photoLabel: string;
+  photoHelper: string;
+  locationTone: ReturnType<typeof getLocationConfidence>["tone"];
+  hasRealPhoto: boolean;
 }) {
-  const toneClasses = {
-    violet: "border-violet-200/20 bg-violet-400/10 text-violet-100",
-    emerald: "border-emerald-200/20 bg-emerald-400/10 text-emerald-100",
-    sky: "border-sky-200/20 bg-sky-400/10 text-sky-100",
-    amber: "border-amber-200/25 bg-amber-400/10 text-amber-100",
-  }[tone];
+  const routeTone =
+    locationTone === "exact" ? "emerald" : locationTone === "pinned" ? "sky" : "amber";
 
   return (
-    <div className="min-w-0 rounded-lg border border-white/10 bg-white/[0.055] p-2.5 sm:p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-violet-50/45">
-        <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8 ${toneClasses}`}
-        >
-          <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
-        </span>
-        <span className="truncate">{label}</span>
+    <section className={`${LIQUID_CARD} overflow-hidden`} aria-label="Plan-ready snapshot">
+      <div className="border-b border-white/10 bg-white/[0.035] p-3 sm:p-4">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">
+              Plan-ready snapshot
+            </p>
+            <h2 className="text-lg font-bold leading-tight text-white sm:text-2xl">
+              What this spot is good for
+            </h2>
+          </div>
+          <span className="w-fit rounded-full border border-violet-200/20 bg-violet-400/10 px-2.5 py-1 text-[11px] font-semibold text-violet-100">
+            {localPercentage}% local signal
+          </span>
+        </div>
       </div>
-      <p className="mt-2 truncate text-sm font-bold leading-tight text-white sm:text-base">
-        {value}
-      </p>
-      <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-violet-50/55 sm:text-xs sm:leading-5">
-        {helper}
-      </p>
-    </div>
+      <div className="grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4">
+        <DetailSignal
+          icon={Compass}
+          label="Use it as"
+          value={primaryUse.value}
+          helper={primaryUse.helper}
+        />
+        <DetailSignal
+          icon={Clock}
+          label="Best window"
+          value={bestTime}
+          helper="Put this stop where the timing makes the route feel natural."
+          tone="sky"
+        />
+        <DetailSignal
+          icon={Route}
+          label="Map behavior"
+          value={routeTitle}
+          helper={routeHelper}
+          tone={routeTone}
+        />
+        <DetailSignal
+          icon={Camera}
+          label="Image proof"
+          value={photoLabel}
+          helper={photoHelper}
+          tone={hasRealPhoto ? "violet" : "amber"}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -1041,38 +1075,17 @@ export default async function SpotPage({
           </div>
         </section>
 
-        <section
-          className={`${LIQUID_CARD} grid grid-cols-2 gap-2 p-3 sm:p-4 lg:grid-cols-4`}
-          aria-label="Spot intelligence"
-        >
-          <SpotFact
-            icon={Sparkles}
-            label="Local signal"
-            value={`${spot.localleyScore}/6 score`}
-            helper={scoreNarrative}
-          />
-          <SpotFact
-            icon={Users}
-            label="Crowd mix"
-            value={`${spot.localPercentage}% local`}
-            helper="A stronger local percentage means this spot is less tourist-default."
-            tone="emerald"
-          />
-          <SpotFact
-            icon={Clock}
-            label="Best window"
-            value={spot.bestTime}
-            helper="Use this timing when placing the stop inside an actual day route."
-            tone="sky"
-          />
-          <SpotFact
-            icon={Route}
-            label="Map confidence"
-            value={locationConfidence.label}
-            helper={getDirectionsHelperText(spot)}
-            tone={locationSignalTone}
-          />
-        </section>
+        <PlanningSnapshot
+          primaryUse={spotPrimaryUse}
+          bestTime={spot.bestTime}
+          localPercentage={spot.localPercentage}
+          routeTitle={locationPlanningCopy.routeTitle}
+          routeHelper={getDirectionsHelperText(spot)}
+          photoLabel={getSpotPhotoEvidenceLabel(spot)}
+          photoHelper={getSpotPhotoEvidenceHelper(spot)}
+          locationTone={locationConfidence.tone}
+          hasRealPhoto={spot.hasRealPhoto}
+        />
 
         <RecordConfidencePanel confidence={recordConfidence} />
 
