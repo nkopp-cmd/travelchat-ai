@@ -76,7 +76,10 @@ export interface SpotQualityQueue {
     generatedAt: string;
     hasGooglePlaceIdColumn: boolean;
     city: string | null;
+    issue: SpotQualityIssue | "all";
     limit: number;
+    filteredSummary: SpotQualityQueueSummary;
+    visibleSummary: SpotQualityQueueSummary;
     summary: SpotQualityQueueSummary;
     items: SpotQualityItem[];
 }
@@ -332,6 +335,44 @@ export function summarizeSpotQualityItems(items: SpotQualityItem[]): SpotQuality
     };
 }
 
+export function buildSpotQualityQueueFromItems({
+    items,
+    hasGooglePlaceIdColumn,
+    city,
+    issue,
+    limit,
+    generatedAt = new Date().toISOString(),
+}: {
+    items: SpotQualityItem[];
+    hasGooglePlaceIdColumn: boolean;
+    city: string | null;
+    issue: SpotQualityIssue | "all";
+    limit: number;
+    generatedAt?: string;
+}): SpotQualityQueue {
+    const selectedIssue = issue === "all" ? null : issue;
+    const matchingItems = items
+        .filter((item) => !item.publicReady)
+        .filter((item) => !selectedIssue || item.issues.includes(selectedIssue))
+        .sort((left, right) => {
+            if (left.issues.length !== right.issues.length) return right.issues.length - left.issues.length;
+            return (right.createdAt || "").localeCompare(left.createdAt || "");
+        });
+    const visibleItems = matchingItems.slice(0, limit);
+
+    return {
+        generatedAt,
+        hasGooglePlaceIdColumn,
+        city,
+        issue,
+        limit,
+        summary: summarizeSpotQualityItems(items),
+        filteredSummary: summarizeSpotQualityItems(matchingItems),
+        visibleSummary: summarizeSpotQualityItems(visibleItems),
+        items: visibleItems,
+    };
+}
+
 async function fetchSpotQualityRows(
     supabase: SupabaseClient,
     city: string | null
@@ -383,21 +424,13 @@ export async function getSpotQualityQueue(
     const limit = Math.min(MAX_LIMIT, Math.max(1, options.limit || DEFAULT_LIMIT));
     const { rows, hasGooglePlaceIdColumn } = await fetchSpotQualityRows(supabase, city);
     const allItems = rows.map((row) => toSpotQualityItem(row, hasGooglePlaceIdColumn));
-    const issue = options.issue && options.issue !== "all" ? options.issue : null;
-    const needsWork = allItems
-        .filter((item) => !item.publicReady)
-        .filter((item) => !issue || item.issues.includes(issue))
-        .sort((left, right) => {
-            if (left.issues.length !== right.issues.length) return right.issues.length - left.issues.length;
-            return (right.createdAt || "").localeCompare(left.createdAt || "");
-        });
+    const issue = options.issue && options.issue !== "all" ? options.issue : "all";
 
-    return {
-        generatedAt: new Date().toISOString(),
+    return buildSpotQualityQueueFromItems({
+        items: allItems,
         hasGooglePlaceIdColumn,
         city,
+        issue,
         limit,
-        summary: summarizeSpotQualityItems(allItems),
-        items: needsWork.slice(0, limit),
-    };
+    });
 }

@@ -404,6 +404,11 @@ export function SpotQualityWorkbench() {
         }
     };
 
+    const issueLabel = ISSUE_OPTIONS.find((option) => option.value === (queue?.issue || issue))?.label || "All issues";
+    const visibleCount = queue?.items.length || 0;
+    const filteredCount = queue?.filteredSummary.total || 0;
+    const datasetCount = queue?.summary.total || 0;
+
     return (
         <div className="mx-auto max-w-7xl px-3 py-4 text-white sm:px-5 lg:px-6">
             <div className="mb-4 flex flex-col gap-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/88 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl lg:flex-row lg:items-end lg:justify-between">
@@ -448,17 +453,28 @@ export function SpotQualityWorkbench() {
             </div>
 
             {queue && (
-                <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-                    <SummaryTile label="Needs work" value={queue.summary.needsWork} tone="warn" />
-                    <SummaryTile label="Public ready" value={queue.summary.publicReady} tone="good" />
-                    <SummaryTile label="Images" value={queue.summary.missingRealPhoto} />
-                    <SummaryTile label="Locations" value={queue.summary.inexactLocation} />
-                    <SummaryTile
-                        label="Place IDs"
-                        value={queue.hasGooglePlaceIdColumn ? queue.summary.missingPlaceId : "Blocked"}
-                        tone={queue.hasGooglePlaceIdColumn ? undefined : "danger"}
-                    />
-                    <SummaryTile label="Names" value={queue.summary.broadPlaceName + queue.summary.missingName} />
+                <div className="mb-4 space-y-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                        <SummaryTile label="Needs work" value={queue.summary.needsWork} tone="warn" />
+                        <SummaryTile label="Public ready" value={queue.summary.publicReady} tone="good" />
+                        <SummaryTile label="Images" value={queue.summary.missingRealPhoto} />
+                        <SummaryTile label="Locations" value={queue.summary.inexactLocation} />
+                        <SummaryTile
+                            label="Place IDs"
+                            value={queue.hasGooglePlaceIdColumn ? queue.summary.missingPlaceId : "Blocked"}
+                            tone={queue.hasGooglePlaceIdColumn ? undefined : "danger"}
+                        />
+                        <SummaryTile label="Names" value={queue.summary.broadPlaceName + queue.summary.missingName} />
+                    </div>
+                    <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-3 py-2 text-xs text-violet-50/60 sm:flex-row sm:items-center sm:justify-between">
+                        <span>
+                            Showing {visibleCount.toLocaleString()} of {filteredCount.toLocaleString()} {issueLabel.toLowerCase()} spots.
+                        </span>
+                        <span>
+                            Dataset: {datasetCount.toLocaleString()} total spot{datasetCount === 1 ? "" : "s"}
+                            {queue.city ? ` in ${queue.city}` : ""}.
+                        </span>
+                    </div>
                 </div>
             )}
 

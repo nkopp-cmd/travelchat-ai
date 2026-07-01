@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    buildSpotQualityQueueFromItems,
     buildSpotQualityPatchPayload,
     getSpotPhotoReadiness,
     summarizeSpotQualityItems,
@@ -154,5 +155,59 @@ describe("admin spot quality", () => {
             missingRealPhoto: 1,
             inexactLocation: 1,
         });
+    });
+
+    it("keeps full, filtered, and visible queue summaries separate", () => {
+        const items = [
+            toSpotQualityItem(createRow({ id: "spot_1", created_at: "2026-06-01T00:00:00.000Z" }), true),
+            toSpotQualityItem(
+                createRow({
+                    id: "spot_2",
+                    address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                    location: "POINT(139.7580000 35.6950000)",
+                    photos: ["https://example.com/ladrio.jpg"],
+                    google_place_id: "ChIJ-test-place",
+                    created_at: "2026-06-02T00:00:00.000Z",
+                }),
+                true
+            ),
+            toSpotQualityItem(
+                createRow({
+                    id: "spot_3",
+                    name: { en: "Cafe Ladrio" },
+                    address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                    location: "POINT(139.7580000 35.6950000)",
+                    photos: ["https://example.com/ladrio.jpg"],
+                    google_place_id: "ChIJ-ready-place",
+                    created_at: "2026-06-03T00:00:00.000Z",
+                }),
+                true
+            ),
+        ];
+
+        const queue = buildSpotQualityQueueFromItems({
+            items,
+            hasGooglePlaceIdColumn: true,
+            city: "Tokyo",
+            issue: "missing_real_photo",
+            limit: 1,
+            generatedAt: "2026-07-01T00:00:00.000Z",
+        });
+
+        expect(queue.summary).toMatchObject({
+            total: 3,
+            publicReady: 2,
+            needsWork: 1,
+            missingRealPhoto: 1,
+        });
+        expect(queue.filteredSummary).toMatchObject({
+            total: 1,
+            missingRealPhoto: 1,
+        });
+        expect(queue.visibleSummary).toMatchObject({
+            total: 1,
+            missingRealPhoto: 1,
+        });
+        expect(queue.items.map((item) => item.id)).toEqual(["spot_1"]);
     });
 });
