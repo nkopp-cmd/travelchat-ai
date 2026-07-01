@@ -628,24 +628,6 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                         <p className="text-base leading-7 text-violet-50/70 sm:text-lg">
                             {spot.description}
                         </p>
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                <span className="block text-xs text-violet-50/45">Category</span>
-                                <span className="mt-1 block truncate text-sm font-semibold text-white">{spot.category}</span>
-                            </div>
-                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                <span className="block text-xs text-violet-50/45">Localley</span>
-                                <span className="mt-1 block text-sm font-semibold text-violet-100">{spot.localleyScore}/6</span>
-                            </div>
-                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                <span className="block text-xs text-violet-50/45">Crowd</span>
-                                <span className="mt-1 block text-sm font-semibold text-emerald-100">{spot.localPercentage}% local</span>
-                            </div>
-                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                <span className="block text-xs text-violet-50/45">Best time</span>
-                                <span className="mt-1 block truncate text-sm font-semibold text-white">{spot.bestTime}</span>
-                            </div>
-                        </div>
                     </div>
 
                     <div className={`${LIQUID_CARD} overflow-hidden`}>
@@ -664,7 +646,12 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                                        <Sparkles className="mb-2 h-4 w-4 text-violet-300" />
+                                        <span className="block text-xl font-bold text-white">{spot.localleyScore}/6</span>
+                                        <span className="text-xs text-violet-50/55">Localley score</span>
+                                    </div>
                                     <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                                         <Users className="mb-2 h-4 w-4 text-emerald-300" />
                                         <span className="block text-xl font-bold text-white">{spot.localPercentage}%</span>
@@ -678,7 +665,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                     <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                                         <Camera className="mb-2 h-4 w-4 text-violet-300" />
                                         <span className="block text-xl font-bold text-white">{spot.realPhotoCount}</span>
-                                        <span className="text-xs text-violet-50/55">real spot photo{spot.realPhotoCount === 1 ? "" : "s"}</span>
+                                        <span className="text-xs text-violet-50/55">real photo source{spot.realPhotoCount === 1 ? "" : "s"}</span>
                                     </div>
                                 </div>
                             </div>
@@ -715,46 +702,26 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                         </div>
                     </div>
 
-                    <div className={`${LIQUID_CARD} space-y-5 p-4 sm:p-6`}>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                            <Users className="h-5 w-5 text-violet-300" />
-                            Localley Insights
-                        </h3>
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4">
-                                <span className="mb-1 block text-sm text-violet-50/55">Crowd Mix</span>
-                                <div className="flex items-end gap-2">
-                                    <span className="text-2xl font-bold text-violet-200">{spot.localPercentage}%</span>
-                                    <span className="mb-1 text-sm font-medium text-violet-50/75">Locals</span>
-                                </div>
-                                <div className="mt-2 h-1.5 w-full rounded-full bg-white/10">
-                                    <div className="h-1.5 rounded-full bg-violet-400" style={{ width: `${spot.localPercentage}%` }} />
-                                </div>
-                            </div>
-                            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4">
-                                <span className="mb-1 block text-sm text-violet-50/55">Best Time</span>
-                                <div className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5 text-indigo-300" />
-                                    <span className="font-medium">{spot.bestTime}</span>
-                                </div>
+                    {spot.tips.length > 0 && (
+                        <div className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
+                            <div>
+                                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
+                                    <Users className="h-5 w-5 text-violet-300" />
+                                    Insider tips
+                                </h3>
+                                <ul className="space-y-3">
+                                    {spot.tips.map((tip: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-3 text-sm text-violet-50/75">
+                                            <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-violet-400/15 text-xs font-bold text-violet-200">
+                                                {i + 1}
+                                            </div>
+                                            {tip}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </div>
-                        {spot.tips.length > 0 && (
-                        <div>
-                            <span className="mb-3 block text-sm font-medium uppercase tracking-wider text-violet-50/55">Insider Tips</span>
-                            <ul className="space-y-3">
-                                {spot.tips.map((tip: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-3 text-sm text-violet-50/75">
-                                        <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-violet-400/15 text-xs font-bold text-violet-200">
-                                            {i + 1}
-                                        </div>
-                                        {tip}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        )}
-                    </div>
+                    )}
 
                     {/* Viator Activities Section */}
                     <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />
