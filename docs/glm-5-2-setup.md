@@ -38,7 +38,7 @@ Localley trims these values before use. A variable that exists but contains only
 4. Repeat for Preview and Development if those environments should use GLM.
 5. Redeploy the latest `main` deployment.
 6. Test `/chat` and create one itinerary.
-7. Check API JSON responses for `provider: "glm"` and `fallbackUsed: false` on chat responses, or server logs for GLM-first itinerary generation.
+7. Check API JSON responses for `provider: "glm"` and `fallbackUsed: false` on chat and itinerary responses.
 
 Use the standard Z.AI OpenAI-compatible endpoint for Localley chat/completions. Do not use the coding-plan endpoint for the app runtime unless the provider implementation is changed deliberately.
 
@@ -110,5 +110,6 @@ Admin users can verify runtime routing without exposing secrets:
 - `GET /api/admin/llm-metrics` reports `chatProviderReadiness`, including `readyForGlmPrimary`, `readyForProductionChat`, `issues`, whether GLM is configured as the primary chat provider, and whether Anthropic fallback is configured.
 - `GET /api/admin/llm-metrics?health=glm` runs a lightweight GLM health check and returns `chatProviderReadiness.glm.healthy`.
 - `POST /api/chat` returns `provider` and `fallbackUsed`. A healthy GLM-primary response should return `provider: "glm"` and `fallbackUsed: false`; `provider: "anthropic"` with `fallbackUsed: true` means GLM was attempted but failed and Anthropic handled the message.
+- `POST /api/itineraries/generate` returns `meta.provider` and `meta.fallbackUsed`. A healthy GLM-primary response should return `meta.provider: "glm"` and `meta.fallbackUsed: false`; `meta.provider: "openai"` with `meta.fallbackUsed: true` means GLM was attempted but failed or returned invalid JSON, and OpenAI handled the itinerary.
 
 The health-check query intentionally runs only when `health=glm` is present so normal metrics reads do not spend model tokens.

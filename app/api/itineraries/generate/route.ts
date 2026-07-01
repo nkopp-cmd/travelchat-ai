@@ -10,7 +10,6 @@ import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
-import { GLMProvider } from '@/lib/llm';
 import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
@@ -20,6 +19,7 @@ import {
   buildItineraryPlanPayload,
   normalizeDailyPlansForDisplay,
 } from '@/lib/itineraries/normalize-daily-plans';
+import { generateItineraryTextWithFallback } from './provider-fallback';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -277,30 +277,20 @@ ${templatePrompt ? `\nIMPORTANT: Follow this template style:\n${templatePrompt}`
 Make it exciting, authentic, and full of hidden gems!
     `;
 
-    let rawContent = "";
-    let aiProvider = "openai";
-    const glm = new GLMProvider();
-
-    if (glm.isAvailable()) {
-      try {
-        const response = await glm.generateText({
-          systemPrompt: SYSTEM_PROMPT,
-          userPrompt,
-          responseFormat: "json",
-          temperature: 0.8,
-          maxTokens: 3000,
-        });
-        rawContent = response.content;
-        aiProvider = "glm";
-      } catch (glmError) {
-        console.error("[generate] GLM primary failed; falling back to OpenAI:", glmError);
+    const aiResponse = await generateItineraryTextWithFallback(
+      {
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt,
+        temperature: 0.8,
+        maxTokens: 3000,
+      },
+      {
+        generateWithOpenAI,
       }
-    }
-
-    if (!rawContent) {
-      rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
-      aiProvider = "openai";
-    }
+    );
+    let rawContent = aiResponse.rawContent;
+    let aiProvider = aiResponse.provider;
+    let fallbackUsed = aiResponse.fallbackUsed;
 
     // Parse and validate the response
     let itineraryData;
@@ -311,6 +301,7 @@ Make it exciting, authentic, and full of hidden gems!
         console.error("Failed to parse GLM response; retrying with OpenAI:", parseError, rawContent);
         rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
         aiProvider = "openai";
+        fallbackUsed = true;
         itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
       } else {
         console.error("Failed to parse OpenAI response:", rawContent);
@@ -437,6 +428,7 @@ Make it exciting, authentic, and full of hidden gems!
       },
       meta: {
         provider: aiProvider,
+        fallbackUsed,
       },
       // For anonymous users, prompt them to sign up to save
       ...(isAnonymous && {
