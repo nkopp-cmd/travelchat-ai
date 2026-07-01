@@ -133,7 +133,7 @@ function WizardContent({
         {steps[currentStep]}
       </div>
 
-      <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-30 shrink-0 border-t border-white/10 bg-black/92 p-2 pb-2 shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 md:bottom-0 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+      <div className="sticky bottom-0 z-30 shrink-0 border-t border-white/10 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
           {templateApplied && !compactTemplateFooter && (
             <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">

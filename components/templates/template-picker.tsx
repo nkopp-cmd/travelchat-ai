@@ -109,7 +109,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
         <TemplateSummary template={selectedTemplate} />
       </aside>
 
-      <div className="pointer-events-none fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] z-40 lg:hidden">
+      <div className="pointer-events-none fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 lg:hidden">
         <div className="pointer-events-auto mx-auto flex max-w-xl items-center gap-2 rounded-xl border border-violet-300/20 bg-[#10081c]/95 p-2 shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
           <div className="flex min-w-0 flex-1 items-center gap-2 pl-1">
             <span className="shrink-0 text-lg leading-none">
