@@ -65,6 +65,7 @@ function WizardContent({
 
   const isLastStep = currentStep === totalSteps - 1;
   const templateApplied = Boolean(data.templateName);
+  const compactTemplateFooter = templateApplied && currentStep === 0;
   const primaryActionLabel =
     isLastStep ? "Generate Itinerary" : currentStep === 0 && templateApplied && !data.city ? "Pick a city" : "Next";
 
@@ -118,7 +119,7 @@ function WizardContent({
 
       <div className="sticky bottom-0 z-30 shrink-0 border-t border-white/10 bg-black/92 p-2 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
-          {templateApplied && (
+          {templateApplied && !compactTemplateFooter && (
             <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
               <span className="min-w-0 truncate">{data.templateName}</span>
               <span className="shrink-0 text-violet-200">
@@ -126,7 +127,15 @@ function WizardContent({
               </span>
             </div>
           )}
-          <div className="flex gap-2.5 sm:gap-3">
+          <div className={cn("flex gap-2.5 sm:gap-3", compactTemplateFooter && "items-center")}>
+            {compactTemplateFooter && (
+              <div className="min-w-0 flex-1 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:px-3 sm:text-xs">
+                <span className="block truncate">{data.templateName}</span>
+                <span className="block text-violet-200/80">
+                  Step {currentStep + 1}/{totalSteps}
+                </span>
+              </div>
+            )}
             {currentStep > 0 && (
               <Button
                 variant="outline"
@@ -142,7 +151,8 @@ function WizardContent({
               disabled={!canProceed}
               className={cn(
                 "h-10 flex-1 sm:h-11",
-                currentStep === 0 && "w-full",
+                currentStep === 0 && !compactTemplateFooter && "w-full",
+                compactTemplateFooter && "max-w-[9rem] shrink-0 px-3",
                 "bg-gradient-to-r from-violet-600 to-indigo-600",
                 "hover:from-violet-500 hover:to-indigo-500",
                 "shadow-lg shadow-violet-500/30",
