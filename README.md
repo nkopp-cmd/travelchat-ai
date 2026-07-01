@@ -89,7 +89,10 @@ GLM_MODEL=glm-5.2 # Optional, defaults to glm-5.2
 # Optional, defaults to Z.AI's OpenAI-compatible endpoint. Blank values are ignored.
 # GLM_BASE_URL=https://api.z.ai/api/paas/v4/
 
-# OpenAI fallback
+# Chat fallback
+ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# Itinerary generation fallback
 OPENAI_API_KEY=your_openai_api_key
 
 # Viator (Optional)

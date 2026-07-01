@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { chatSchema, validateBody } from "@/lib/validations";
@@ -12,29 +11,8 @@ import {
     shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
 import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
-import { GLMProvider } from "@/lib/llm";
+import { generateChatReplyWithFallback } from "@/lib/llm/chat-provider";
 import type { MultiLanguageField } from "@/types";
-
-const CLAUDE_MODEL =
-    process.env.CLAUDE_MODEL ||
-    process.env.ANTHROPIC_MODEL ||
-    process.env.CHAT_MODEL ||
-    "claude-sonnet-4-20250514";
-
-function buildChatTranscript(messages: Array<{ role: string; content: string }>) {
-    return messages
-        .filter(m => m.role === "user" || m.role === "assistant")
-        .map(m => `${m.role === "assistant" ? "Alley" : "User"}: ${m.content}`)
-        .join("\n\n");
-}
-
-const getAnthropicClient = () => {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-        throw new Error('Anthropic API key is not configured');
-    }
-    return new Anthropic({ apiKey });
-};
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -283,44 +261,14 @@ export async function POST(req: NextRequest) {
 
         const systemPrompt = buildSystemPrompt(detectedCity, spotsContext);
 
-        const glm = new GLMProvider();
-        if (glm.isAvailable()) {
-            try {
-                const response = await glm.generateText({
-                    systemPrompt,
-                    userPrompt: buildChatTranscript(messages),
-                    maxTokens: 2048,
-                    temperature: 0.7,
-                });
-
-                return NextResponse.json({
-                    message: response.content,
-                    provider: "glm",
-                });
-            } catch (glmError) {
-                console.error("[CHAT] GLM primary failed; falling back to Anthropic:", glmError);
-            }
-        }
-
-        // Convert messages to Anthropic format (filter out system messages)
-        const anthropicMessages = messages
-            .filter(m => m.role === "user" || m.role === "assistant")
-            .map(m => ({
-                role: m.role as "user" | "assistant",
-                content: m.content,
-            }));
-
-        const client = getAnthropicClient();
-        const response = await client.messages.create({
-            model: CLAUDE_MODEL,
-            max_tokens: 2048,
-            system: systemPrompt,
-            messages: anthropicMessages,
+        const reply = await generateChatReplyWithFallback({
+            systemPrompt,
+            messages,
+            maxTokens: 2048,
+            temperature: 0.7,
         });
 
-        const reply = response.content[0].type === "text" ? response.content[0].text : "";
-
-        return NextResponse.json({ message: reply, provider: "anthropic" });
+        return NextResponse.json({ message: reply.content, provider: reply.provider });
     } catch (error) {
         return handleApiError(error, "[CHAT_ERROR]");
     }
