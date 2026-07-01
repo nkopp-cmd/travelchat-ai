@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-import { getTrimmedEnv } from "./env";
+import { getTrimmedEnv, readGLMProviderConfig } from "./env";
 import { GLMProvider } from "./providers/glm";
 import type { TextGenerationProvider } from "./providers/base";
 
@@ -25,7 +25,10 @@ interface AnthropicChatClient {
 export interface ChatProviderResult {
   content: string;
   provider: ChatProviderName;
+  model: string;
   fallbackUsed: boolean;
+  primaryProvider: "glm";
+  primaryModel: string;
 }
 
 interface ChatProviderDependencies {
@@ -72,6 +75,7 @@ export async function generateChatReplyWithFallback(
   dependencies: ChatProviderDependencies = {}
 ): Promise<ChatProviderResult> {
   const glm = dependencies.glm ?? new GLMProvider();
+  const primaryModel = readGLMProviderConfig().model;
   const maxTokens = input.maxTokens ?? 2048;
   const temperature = input.temperature ?? 0.7;
   let glmWasAttempted = false;
@@ -95,7 +99,10 @@ export async function generateChatReplyWithFallback(
       return {
         content,
         provider: "glm",
+        model: primaryModel,
         fallbackUsed: false,
+        primaryProvider: "glm",
+        primaryModel,
       };
     } catch (glmError) {
       (dependencies.logger ?? console).error(
@@ -113,8 +120,9 @@ export async function generateChatReplyWithFallback(
     }));
 
   const client = dependencies.anthropic ?? getAnthropicClient();
+  const fallbackModel = dependencies.anthropicModel ?? getAnthropicChatModel();
   const response = await client.messages.create({
-    model: dependencies.anthropicModel ?? getAnthropicChatModel(),
+    model: fallbackModel,
     max_tokens: maxTokens,
     system: input.systemPrompt,
     messages: anthropicMessages,
@@ -125,6 +133,9 @@ export async function generateChatReplyWithFallback(
   return {
     content: reply,
     provider: "anthropic",
+    model: fallbackModel,
     fallbackUsed: glmWasAttempted,
+    primaryProvider: "glm",
+    primaryModel,
   };
 }

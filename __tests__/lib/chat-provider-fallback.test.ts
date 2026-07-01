@@ -13,6 +13,7 @@ const baseMessages: ChatMessage[] = [
   { role: "assistant", content: "What vibe?" },
   { role: "user", content: "Local food" },
 ];
+const primaryModel = process.env.GLM_MODEL?.trim() || "glm-5.2";
 
 function createAnthropicReply(text: string) {
   return {
@@ -54,7 +55,10 @@ describe("chat provider fallback", () => {
     expect(result).toEqual({
       content: "GLM reply",
       provider: "glm",
+      model: primaryModel,
       fallbackUsed: false,
+      primaryProvider: "glm",
+      primaryModel,
     });
     expect(glm.generateText).toHaveBeenCalledWith({
       systemPrompt: "You are Alley",
@@ -85,7 +89,10 @@ describe("chat provider fallback", () => {
     expect(result).toEqual({
       content: "Claude fallback",
       provider: "anthropic",
+      model: "claude-test",
       fallbackUsed: false,
+      primaryProvider: "glm",
+      primaryModel,
     });
     expect(glm.generateText).not.toHaveBeenCalled();
     expect(anthropic.messages.create).toHaveBeenCalledWith({
@@ -121,7 +128,10 @@ describe("chat provider fallback", () => {
     expect(result).toEqual({
       content: "Claude after GLM failure",
       provider: "anthropic",
+      model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      primaryProvider: "glm",
+      primaryModel,
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(anthropic.messages.create).toHaveBeenCalledOnce();
@@ -151,7 +161,10 @@ describe("chat provider fallback", () => {
     expect(result).toEqual({
       content: "Claude after empty GLM",
       provider: "anthropic",
+      model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      primaryProvider: "glm",
+      primaryModel,
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(anthropic.messages.create).toHaveBeenCalledOnce();

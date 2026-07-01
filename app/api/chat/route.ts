@@ -272,7 +272,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             message: reply.content,
             provider: reply.provider,
+            model: reply.model,
             fallbackUsed: reply.fallbackUsed,
+            primaryProvider: reply.primaryProvider,
+            primaryModel: reply.primaryModel,
         });
     } catch (error) {
         return handleApiError(error, "[CHAT_ERROR]");

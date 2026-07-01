@@ -60,7 +60,10 @@ describe("/api/chat provider routing", () => {
     mocks.generateChatReplyWithFallback.mockResolvedValueOnce({
       content: "GLM route reply",
       provider: "glm",
+      model: "glm-5.2",
       fallbackUsed: false,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
     });
     const { POST } = await import("@/app/api/chat/route");
 
@@ -71,7 +74,10 @@ describe("/api/chat provider routing", () => {
     expect(body).toEqual({
       message: "GLM route reply",
       provider: "glm",
+      model: "glm-5.2",
       fallbackUsed: false,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
     });
     expect(mocks.generateChatReplyWithFallback).toHaveBeenCalledWith({
       systemPrompt: expect.stringContaining("ASK FOR CITY FIRST"),
@@ -90,7 +96,10 @@ describe("/api/chat provider routing", () => {
     mocks.generateChatReplyWithFallback.mockResolvedValueOnce({
       content: "Anthropic unavailable fallback",
       provider: "anthropic",
+      model: "claude-sonnet-4-20250514",
       fallbackUsed: false,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
     });
     const { POST } = await import("@/app/api/chat/route");
 
@@ -101,7 +110,10 @@ describe("/api/chat provider routing", () => {
     expect(body).toEqual({
       message: "Anthropic unavailable fallback",
       provider: "anthropic",
+      model: "claude-sonnet-4-20250514",
       fallbackUsed: false,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
     });
   });
 
@@ -109,7 +121,10 @@ describe("/api/chat provider routing", () => {
     mocks.generateChatReplyWithFallback.mockResolvedValueOnce({
       content: "Anthropic error fallback",
       provider: "anthropic",
+      model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
     });
     const { POST } = await import("@/app/api/chat/route");
 
@@ -120,7 +135,10 @@ describe("/api/chat provider routing", () => {
     expect(body).toEqual({
       message: "Anthropic error fallback",
       provider: "anthropic",
+      model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
     });
   });
 });

@@ -245,8 +245,22 @@ class ApiClient {
   async sendChatMessage(
     messages: Array<{ role: string; content: string }>,
     city?: string
-  ): Promise<ApiResult<{ message: string }>> {
-    return this.request<{ message: string }>("/api/chat", {
+  ): Promise<ApiResult<{
+    message: string;
+    provider: "glm" | "anthropic";
+    model: string;
+    fallbackUsed: boolean;
+    primaryProvider: "glm";
+    primaryModel: string;
+  }>> {
+    return this.request<{
+      message: string;
+      provider: "glm" | "anthropic";
+      model: string;
+      fallbackUsed: boolean;
+      primaryProvider: "glm";
+      primaryModel: string;
+    }>("/api/chat", {
       method: "POST",
       body: JSON.stringify({ messages, ...(city && { city }) }),
     });
