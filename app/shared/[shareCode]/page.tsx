@@ -265,7 +265,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
 
                     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
                         {/* Itinerary-level Tips */}
-                        <aside className="order-1 lg:order-2 lg:sticky lg:top-24">
+                        <aside className="order-2 lg:order-2 lg:sticky lg:top-24">
                             <ItineraryInsightsPanel
                                 insights={itineraryInsights}
                                 title="Trip notes"
@@ -275,7 +275,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                         </aside>
 
                         {/* Daily Plans */}
-                        <div className="order-2 space-y-4 sm:space-y-5 lg:order-1">
+                        <div className="order-1 space-y-4 sm:space-y-5 lg:order-1">
                             <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">

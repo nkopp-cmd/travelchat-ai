@@ -32,6 +32,10 @@ function WizardContent({
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const stepScrollRef = useRef<HTMLDivElement | null>(null);
+  const isLastStep = currentStep === totalSteps - 1;
+  const templateApplied = Boolean(data.templateName);
+  const compactTemplateFooter = templateApplied && currentStep === 0;
+  const canGenerateFromTemplate = compactTemplateFooter && Boolean(data.city);
 
   // Progress message animation
   useEffect(() => {
@@ -56,7 +60,7 @@ function WizardContent({
   }, [currentStep]);
 
   const handleNext = async () => {
-    if (currentStep === totalSteps - 1) {
+    if (isLastStep || canGenerateFromTemplate) {
       setIsGenerating(true);
       try {
         await onGenerate(data);
@@ -68,24 +72,15 @@ function WizardContent({
     }
   };
 
-  const handleGenerateNow = async () => {
-    setIsGenerating(true);
-    try {
-      await onGenerate(data);
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleCustomizeTemplate = () => {
+    nextStep();
   };
 
-  const isLastStep = currentStep === totalSteps - 1;
-  const templateApplied = Boolean(data.templateName);
-  const compactTemplateFooter = templateApplied && currentStep === 0;
-  const canGenerateFromTemplate = compactTemplateFooter && Boolean(data.city);
   const primaryActionLabel =
     isLastStep
       ? "Generate Itinerary"
       : canGenerateFromTemplate
-        ? "Next"
+        ? "Generate"
         : currentStep === 0 && templateApplied && !data.city
           ? "Pick a city"
           : "Next";
@@ -174,12 +169,12 @@ function WizardContent({
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleGenerateNow}
+                onClick={handleCustomizeTemplate}
                 className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:h-11 sm:px-3 sm:text-sm"
               >
-                <Sparkles className="mr-1.5 h-4 w-4" />
-                <span className="sm:hidden">Generate</span>
-                <span className="hidden sm:inline">Generate now</span>
+                <ArrowRight className="mr-1.5 h-4 w-4" />
+                <span className="sm:hidden">Tune</span>
+                <span className="hidden sm:inline">Customize</span>
               </Button>
             )}
             <Button
@@ -189,13 +184,14 @@ function WizardContent({
                 "h-10 flex-1 sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
                 compactTemplateFooter && "max-w-[8rem] shrink-0 px-3",
+                canGenerateFromTemplate && "max-w-[9rem]",
                 "bg-gradient-to-r from-violet-600 to-indigo-600",
                 "hover:from-violet-500 hover:to-indigo-500",
                 "shadow-lg shadow-violet-500/30",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              {isLastStep ? (
+              {isLastStep || canGenerateFromTemplate ? (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
                   {primaryActionLabel}

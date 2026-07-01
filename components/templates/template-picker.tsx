@@ -78,26 +78,6 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
   return (
     <section className="grid gap-3 pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))] lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:pb-0">
       <div className="min-w-0 space-y-2.5">
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-[#12091f]/86 p-2 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl lg:hidden">
-          <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-white">
-              {selectedTemplate.name}
-            </p>
-            <p className="truncate text-[11px] text-violet-100/55">
-              {selectedTemplate.days} days / {paceLabels[selectedTemplate.pace]}
-            </p>
-          </div>
-          <Button
-            asChild
-            className="h-9 shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-2.5 text-xs shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
-          >
-            <Link href={getTemplateUrl(selectedTemplate.id)}>
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-              Use
-            </Link>
-          </Button>
-        </div>
-
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0">
           {(Object.keys(paceLabels) as PaceFilter[]).map((pace) => (
             <button
@@ -116,7 +96,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 min-[340px]:grid-cols-3 sm:gap-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-3 sm:gap-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleTemplates.map((template) => (
             <TemplateCard
               key={template.id}

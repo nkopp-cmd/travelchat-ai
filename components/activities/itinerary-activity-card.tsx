@@ -91,27 +91,27 @@ function getMapConfidenceCopy({
 }) {
   if (hasExactStoredAddress) {
     return {
-      label: "Exact address",
+      label: "Exact pin",
       className: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
-      helper: "Directions use the stored exact address.",
-      buttonLabel: "Directions",
+      helper: "Directions open the saved street address.",
+      buttonLabel: "Open pin",
     };
   }
 
   if (hasMatchedPlace) {
     return {
-      label: "Matched place",
+      label: "Verified pin",
       className: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
-      helper: "Directions use matched place data for this stop.",
-      buttonLabel: "Directions",
+      helper: "Matched with place data for a more exact map result.",
+      buttonLabel: "Open pin",
     };
   }
 
   return {
-    label: "Search first",
+    label: "Confirm pin",
     className: "border-amber-300/25 bg-amber-400/10 text-amber-100",
-    helper: "Address is area-level. Confirm the map result before routing.",
-    buttonLabel: "Search map",
+    helper: "Only an area or name is available. Choose the correct map result before routing.",
+    buttonLabel: "Confirm map",
   };
 }
 
@@ -214,10 +214,10 @@ export function ItineraryActivityCard({
       </div>
 
       <div className="group overflow-hidden rounded-lg border border-white/10 bg-[#130b22]/78 shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075] sm:rounded-xl">
-        <div className="flex gap-2.5 p-2.5 sm:gap-4 sm:p-3">
+        <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
-            <div className="relative h-[76px] w-[76px] overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
+            <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-violet-950/20 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28 sm:rounded-xl">
               {displayImage ? (
                 isStoredActivityImage ? (
                   <Image
@@ -225,7 +225,7 @@ export function ItineraryActivityCard({
                     alt={activity.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 76px, 112px"
+                    sizes="(max-width: 419px) 64px, (max-width: 640px) 76px, 112px"
                     quality={90}
                     onError={() => handleImageError(displayImage)}
                   />
@@ -243,7 +243,7 @@ export function ItineraryActivityCard({
                 <CityImageAvatar
                   city={city}
                   className="h-full w-full rounded-none"
-                  sizes="(max-width: 640px) 76px, 112px"
+                  sizes="(max-width: 419px) 64px, (max-width: 640px) 76px, 112px"
                   imageWidth={360}
                   quality={90}
                 />
@@ -299,7 +299,7 @@ export function ItineraryActivityCard({
                     {mapConfidence.label}
                   </Badge>
                 </div>
-                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <div className="grid min-w-0 gap-1">
                   <div className="flex min-w-0 items-start gap-1 text-xs text-muted-foreground sm:text-sm">
                     <MapPin
                       className={cn(
@@ -313,9 +313,8 @@ export function ItineraryActivityCard({
                       {displayAddress}
                     </span>
                   </div>
-                  {/* Google Places rating */}
                   {displayRating && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/15 bg-amber-400/10 px-1.5 py-0.5 text-xs font-medium text-amber-100/85">
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full border border-amber-300/15 bg-amber-400/10 px-1.5 py-0.5 text-xs font-medium text-amber-100/85">
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                       {displayRating.toFixed(1)}
                       {displayTotalRatings && (
@@ -326,7 +325,7 @@ export function ItineraryActivityCard({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] leading-4 text-violet-50/45 sm:text-xs">
+                <p className="text-[11px] leading-4 text-violet-50/48 sm:text-xs">
                   {mapConfidence.helper}
                 </p>
               </div>
@@ -344,7 +343,7 @@ export function ItineraryActivityCard({
 
             {/* Activity Description */}
             {activity.description && (
-              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground sm:line-clamp-3">
+              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground min-[420px]:text-sm sm:line-clamp-3">
                 {activity.description}
               </p>
             )}
@@ -377,7 +376,7 @@ export function ItineraryActivityCard({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 rounded-full border-violet-400/20 bg-violet-400/10 px-2.5 text-xs text-violet-100 hover:bg-violet-400/15 sm:px-3"
+                  className="h-8 gap-1.5 rounded-lg border-violet-400/20 bg-violet-400/10 px-2.5 text-xs text-violet-100 hover:bg-violet-400/15 sm:rounded-full sm:px-3"
                   onClick={() =>
                     window.open(exactMapUrl, "_blank", "noopener,noreferrer")
                   }

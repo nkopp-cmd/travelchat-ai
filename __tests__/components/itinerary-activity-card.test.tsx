@@ -53,9 +53,11 @@ describe("ItineraryActivityCard", () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByText("Kanda Jinbocho, Tokyo")).toBeNull();
-    expect(screen.getByText("Matched place")).toBeTruthy();
-    expect(screen.getByText("Directions use matched place data for this stop.")).toBeTruthy();
-    expect(screen.getByText("Directions")).toBeTruthy();
+    expect(screen.getByText("Verified pin")).toBeTruthy();
+    expect(
+      screen.getByText("Matched with place data for a more exact map result."),
+    ).toBeTruthy();
+    expect(screen.getByText("Open pin")).toBeTruthy();
   });
 
   it("marks area-level stops as search-first when no matched place is available", () => {
@@ -83,10 +85,12 @@ describe("ItineraryActivityCard", () => {
       />,
     );
 
-    expect(screen.getByText("Search first")).toBeTruthy();
+    expect(screen.getByText("Confirm pin")).toBeTruthy();
     expect(
-      screen.getByText("Address is area-level. Confirm the map result before routing."),
+      screen.getByText(
+        "Only an area or name is available. Choose the correct map result before routing.",
+      ),
     ).toBeTruthy();
-    expect(screen.getByText("Search map")).toBeTruthy();
+    expect(screen.getByText("Confirm map")).toBeTruthy();
   });
 });
