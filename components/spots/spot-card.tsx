@@ -217,20 +217,17 @@ function CategoryTrendRow({
   category,
   trending,
   compact = false,
-  hideTrendOnMobile = false,
   className,
 }: {
   category: string;
   trending?: boolean;
   compact?: boolean;
-  hideTrendOnMobile?: boolean;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "grid min-w-0 max-w-full items-center gap-1 overflow-hidden",
-        trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+        "flex min-w-0 max-w-full items-center gap-1 overflow-hidden",
         className,
       )}
     >
@@ -248,9 +245,8 @@ function CategoryTrendRow({
       {trending && (
         <TrendingChip
           className={cn(
-            "justify-self-end",
+            "shrink-0",
             compact ? "h-5 w-6 px-0.5" : "max-w-[4.5rem]",
-            hideTrendOnMobile && "hidden md:inline-flex",
           )}
           showLabel={!compact}
         />
@@ -395,16 +391,16 @@ export function SpotCard({
             </div>
             <div
               data-spot-card-meta
-              className="grid min-w-0 grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-1 overflow-hidden min-[640px]:flex"
+              className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden"
             >
               <SpotScoreChip score={spot.localleyScore} className="max-w-full" />
+              <LocationConfidenceChip
+                spot={spot}
+                className="max-w-full"
+              />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
                 className="hidden min-[460px]:inline-flex"
-              />
-              <LocationConfidenceChip
-                spot={spot}
-                className="hidden min-[640px]:inline-flex sm:inline-flex"
               />
             </div>
           </div>
@@ -496,28 +492,28 @@ export function SpotCard({
         <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden md:flex md:flex-wrap md:overflow-visible"
+            className="grid min-w-0 grid-cols-1 gap-1 overflow-hidden md:flex md:flex-wrap md:items-center md:overflow-visible"
           >
             <CategoryTrendRow
               category={spot.category}
               trending={spot.trending}
               compact
-              hideTrendOnMobile
-              className="min-w-0 flex-1 md:hidden"
+              className="min-w-0 md:hidden"
             />
-            <SpotScoreChip
-              score={spot.localleyScore}
-              showLabel
-              className="justify-self-end md:justify-self-auto"
-            />
-            <LocalCrowdChip
-              percentage={spot.localPercentage}
-              className="hidden md:inline-flex"
-            />
-            <LocationConfidenceChip
-              spot={spot}
-              className="hidden lg:inline-flex"
-            />
+            <div className="flex min-w-0 flex-wrap items-center gap-1 md:contents">
+              <SpotScoreChip
+                score={spot.localleyScore}
+                showLabel
+              />
+              <LocationConfidenceChip
+                spot={spot}
+                className="max-w-full"
+              />
+              <LocalCrowdChip
+                percentage={spot.localPercentage}
+                className="hidden md:inline-flex"
+              />
+            </div>
           </div>
         </div>
       </div>
