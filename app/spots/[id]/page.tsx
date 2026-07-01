@@ -4,6 +4,7 @@ import { LocalleyScaleIndicator } from "@/components/spots/localley-scale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, ImageIcon, MapPin, Clock, Users, Navigation, ArrowLeft, Camera, Compass, Route, ShieldCheck, Sparkles } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
@@ -235,6 +236,46 @@ function getPrimaryArea(address: string, city: string): string {
     );
 
     return namedArea || city;
+}
+
+function getLocationToneClasses(tone: ReturnType<typeof getLocationConfidence>["tone"]) {
+    if (tone === "exact") return "border-emerald-200/20 bg-emerald-400/10 text-emerald-100";
+    if (tone === "pinned") return "border-sky-200/20 bg-sky-400/10 text-sky-100";
+    return "border-amber-200/25 bg-amber-400/10 text-amber-100";
+}
+
+function DetailSignal({
+    icon: Icon,
+    label,
+    value,
+    helper,
+    tone = "violet",
+}: {
+    icon: LucideIcon;
+    label: string;
+    value: string;
+    helper?: string;
+    tone?: "violet" | "emerald" | "sky" | "amber";
+}) {
+    const toneClasses = {
+        violet: "border-violet-200/15 bg-violet-400/10 text-violet-100",
+        emerald: "border-emerald-200/15 bg-emerald-400/10 text-emerald-100",
+        sky: "border-sky-200/15 bg-sky-400/10 text-sky-100",
+        amber: "border-amber-200/20 bg-amber-400/10 text-amber-100",
+    }[tone];
+
+    return (
+        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${toneClasses}`}>
+                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+                {label}
+            </div>
+            <p className="text-sm font-semibold leading-snug text-white">{value}</p>
+            {helper && <p className="mt-1 text-xs leading-5 text-violet-50/55">{helper}</p>}
+        </div>
+    );
 }
 
 // Get Directions button component
@@ -472,6 +513,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     const primaryArea = getPrimaryArea(spot.location.address, city);
     const scoreNarrative = getScoreNarrative(spot.localleyScore);
     const locationPlanningCopy = getLocationPlanningCopy(spot);
+    const locationSignalTone = locationConfidence.tone === "exact" ? "emerald" : locationConfidence.tone === "pinned" ? "sky" : "amber";
     const relatedSpots = await getRelatedSpots(spot, city);
     const exactMapQuery = getSpotDirectionsSearchText({
         name: spot.name,
@@ -642,34 +684,41 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                         Why locals go
                                     </div>
                                     <h2 className="text-2xl font-bold leading-tight text-white">
-                                        A verified stop in {primaryArea}
+                                        {spot.verified ? "A verified stop" : "A local-first stop"} in {primaryArea}
                                     </h2>
                                     <p className="mt-2 text-sm leading-6 text-violet-50/65">
                                         {scoreNarrative}
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                        <Sparkles className="mb-2 h-4 w-4 text-violet-300" />
-                                        <span className="block text-xl font-bold text-white">{spot.localleyScore}/6</span>
-                                        <span className="text-xs text-violet-50/55">Localley score</span>
-                                    </div>
-                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                        <Users className="mb-2 h-4 w-4 text-emerald-300" />
-                                        <span className="block text-xl font-bold text-white">{spot.localPercentage}%</span>
-                                        <span className="text-xs text-violet-50/55">local crowd signal</span>
-                                    </div>
-                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                        <Clock className="mb-2 h-4 w-4 text-indigo-300" />
-                                        <span className="block truncate text-sm font-semibold text-white">{spot.bestTime}</span>
-                                        <span className="text-xs text-violet-50/55">best time to visit</span>
-                                    </div>
-                                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
-                                        <Camera className="mb-2 h-4 w-4 text-violet-300" />
-                                        <span className="block text-xl font-bold text-white">{spot.realPhotoCount}</span>
-                                        <span className="text-xs text-violet-50/55">real photo source{spot.realPhotoCount === 1 ? "" : "s"}</span>
-                                    </div>
+                                <div className="grid gap-2 sm:grid-cols-2">
+                                    <DetailSignal
+                                        icon={Sparkles}
+                                        label="Localley score"
+                                        value={`${spot.localleyScore}/6`}
+                                        helper="Higher means stronger local signal and lower tourist-default energy."
+                                    />
+                                    <DetailSignal
+                                        icon={Users}
+                                        label="Crowd signal"
+                                        value={`${spot.localPercentage}% local`}
+                                        helper="Estimated from Localley scoring inputs and curation signals."
+                                        tone="emerald"
+                                    />
+                                    <DetailSignal
+                                        icon={Clock}
+                                        label="Best window"
+                                        value={spot.bestTime}
+                                        helper="Use this to anchor the stop inside a realistic day route."
+                                        tone="sky"
+                                    />
+                                    <DetailSignal
+                                        icon={Camera}
+                                        label="Photo proof"
+                                        value={getPhotoEvidenceLabel(spot)}
+                                        helper={spot.hasRealPhoto ? "Shown with spot-level imagery when available." : "Needs a real spot photo backfill before it is fully production-ready."}
+                                        tone={spot.hasRealPhoto ? "violet" : "amber"}
+                                    />
                                 </div>
                             </div>
 
@@ -691,6 +740,9 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                         <div>
                                             <p className="text-sm font-medium text-white">{locationPlanningCopy.routeTitle}</p>
                                             <p className="mt-1 text-xs leading-5 text-violet-50/60">{spot.name}, {spot.location.address}</p>
+                                            <p className={`mt-2 inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}>
+                                                {locationConfidence.label}
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3 rounded-lg border border-white/10 bg-black/10 p-3">
@@ -710,15 +762,15 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             <div>
                                 <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
                                     <Users className="h-5 w-5 text-violet-300" />
-                                    Insider tips
+                                    Before you go
                                 </h3>
-                                <ul className="space-y-3">
+                                <ul className="grid gap-2 sm:grid-cols-2">
                                     {spot.tips.map((tip: string, i: number) => (
-                                        <li key={i} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-3 text-sm text-violet-50/75">
+                                        <li key={i} className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-3 text-sm leading-6 text-violet-50/75">
                                             <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-violet-400/15 text-xs font-bold text-violet-200">
                                                 {i + 1}
                                             </div>
-                                            {tip}
+                                            <span>{tip}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -782,6 +834,24 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             <p className="mt-2 text-xs font-medium text-violet-200/80">
                                 {getDirectionsTargetLabel(spot)}: {exactMapQuery || `${spot.name}, ${city}`}
                             </p>
+                            <div className="mt-3 grid gap-2">
+                                <DetailSignal
+                                    icon={MapPin}
+                                    label="Area"
+                                    value={primaryArea}
+                                    helper={`Shown inside ${city} context.`}
+                                    tone={locationSignalTone}
+                                />
+                                <DetailSignal
+                                    icon={Route}
+                                    label="Route precision"
+                                    value={locationConfidence.label}
+                                    helper={spot.googlePlaceId && !isKoreanLocation(spot.location.address)
+                                        ? "Uses a Google Place match where supported."
+                                        : locationConfidence.description}
+                                    tone={locationSignalTone}
+                                />
+                            </div>
                             <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
                                 {locationConfidence.description} {getDirectionsHelperText(spot)}
                             </p>
