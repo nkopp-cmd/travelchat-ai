@@ -53,10 +53,12 @@ function NewItineraryContent() {
   // Build initial data from template if provided
   let initialData: Partial<WizardData> = {};
   let initialStep = 0;
+  let templateApplied = false;
 
   if (templateId) {
     const template = getTemplateById(templateId);
     if (template) {
+      templateApplied = true;
       // Map template focus to interests
       const mappedInterests: string[] = [];
       template.focus.forEach(focus => {
@@ -87,8 +89,12 @@ function NewItineraryContent() {
   // Pre-select city from URL param (e.g. from mobile dashboard city cards)
   if (cityParam) {
     initialData.city = cityParam;
-    // Auto-advance past destination step when city is pre-selected
-    initialStep = 1;
+    // Dashboard city shortcuts should continue to trip details. Template
+    // shortcuts stay on the compact city step so users can generate in one tap
+    // or quickly change the suggested city.
+    if (!templateApplied) {
+      initialStep = 1;
+    }
   }
 
   if (daysParam) {

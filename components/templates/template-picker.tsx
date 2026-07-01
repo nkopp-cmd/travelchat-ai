@@ -38,8 +38,13 @@ const paceDescriptions: Record<ItineraryTemplate["pace"], string> = {
   active: "Fuller days for high-energy trips.",
 };
 
-function getTemplateUrl(templateId: string) {
-  return `/itineraries/new?template=${encodeURIComponent(templateId)}`;
+export function getTemplateUrl(template: ItineraryTemplate) {
+  const params = new URLSearchParams({
+    template: template.id,
+    city: getTemplateSampleCity(template),
+  });
+
+  return `/itineraries/new?${params.toString()}`;
 }
 
 export function TemplatePicker({ templates }: TemplatePickerProps) {
@@ -76,7 +81,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
   };
 
   return (
-    <section className="grid gap-3 pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))] lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:pb-0">
+    <section className="grid gap-3 pb-2 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:pb-0">
       <div className="min-w-0 space-y-2.5">
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0">
           {(Object.keys(paceLabels) as PaceFilter[]).map((pace) => (
@@ -102,7 +107,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
               key={template.id}
               template={template}
               isSelected={selectedTemplate.id === template.id}
-              primaryHref={getTemplateUrl(template.id)}
+              primaryHref={getTemplateUrl(template)}
               onSelect={() => setSelectedId(template.id)}
             />
           ))}
@@ -120,14 +125,14 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
               {selectedTemplate.name}
             </p>
             <p className="truncate text-[11px] text-violet-100/55">
-              {selectedTemplate.days} days / {paceLabels[selectedTemplate.pace]}
+              {selectedTemplate.days} days / {paceLabels[selectedTemplate.pace]} / {getTemplateSampleCity(selectedTemplate)}
             </p>
           </div>
           <Button
             asChild
             className="h-10 shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-3 text-sm shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
           >
-            <Link href={getTemplateUrl(selectedTemplate.id)}>
+            <Link href={getTemplateUrl(selectedTemplate)}>
               <Sparkles className="mr-1.5 h-4 w-4" />
               Use template
             </Link>
@@ -191,9 +196,9 @@ function TemplateSummary({ template }: { template: ItineraryTemplate }) {
         asChild
         className="h-10 w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
       >
-        <Link href={getTemplateUrl(template.id)}>
+        <Link href={getTemplateUrl(template)}>
           <Sparkles className="mr-2 h-4 w-4" />
-          Use this template
+          Start in {sampleCity}
         </Link>
       </Button>
 

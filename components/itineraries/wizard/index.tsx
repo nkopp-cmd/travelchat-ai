@@ -118,12 +118,14 @@ function WizardContent({
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <WizardProgress />
 
-      {templateApplied && (
+      {templateApplied && !compactTemplateFooter && (
         <div className="mx-3 mt-1.5 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
             <span className="min-w-0 truncate">
-              {data.templateName} applied. Pick a city and we will keep the template settings.
+              {data.city
+                ? `${data.templateName} is ready for ${data.city}. Generate now or change the city.`
+                : `${data.templateName} applied. Pick a city and we will keep the template settings.`}
             </span>
           </div>
         </div>
@@ -170,11 +172,10 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleCustomizeTemplate}
-                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:h-11 sm:px-3 sm:text-sm"
+                className="hidden h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
               >
                 <ArrowRight className="mr-1.5 h-4 w-4" />
-                <span className="sm:hidden">Tune</span>
-                <span className="hidden sm:inline">Customize</span>
+                Customize
               </Button>
             )}
             <Button
@@ -183,8 +184,8 @@ function WizardContent({
               className={cn(
                 "h-10 flex-1 sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
-                compactTemplateFooter && "max-w-[8rem] shrink-0 px-3",
-                canGenerateFromTemplate && "max-w-[9rem]",
+                compactTemplateFooter && "min-w-[8.5rem] shrink-0 px-3",
+                canGenerateFromTemplate && "min-w-[9.25rem] sm:max-w-[9.75rem]",
                 "bg-gradient-to-r from-violet-600 to-indigo-600",
                 "hover:from-violet-500 hover:to-indigo-500",
                 "shadow-lg shadow-violet-500/30",
