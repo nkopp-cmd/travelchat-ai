@@ -181,6 +181,13 @@ function toActionPlanItem(
     };
 }
 
+function normalizeBaseUrl(value: string | undefined): string {
+    return (value || "https://www.localley.io")
+        .replace(/\\[rn]/g, "")
+        .trim()
+        .replace(/\/$/, "");
+}
+
 function csvEscape(value: unknown): string {
     const text = value == null ? "" : String(value);
     if (!/[",\n\r]/.test(text)) return text;
@@ -249,7 +256,7 @@ async function main() {
     const args = parseArgs(process.argv.slice(2));
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.localley.io").replace(/\/$/, "");
+    const baseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_APP_URL);
     const generatedAt = new Date().toISOString();
     const { rows, hasGooglePlaceIdColumn } = await fetchRows(supabase, args.city);
     const items = rows.map((row) => toSpotQualityItem(row, hasGooglePlaceIdColumn));

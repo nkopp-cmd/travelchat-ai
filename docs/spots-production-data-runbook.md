@@ -7,9 +7,21 @@ Localley spot quality depends on two separate data gates:
 
 ## Current Production Finding
 
-The production `spots` table is missing the `google_place_id` column. Until that migration is applied, Localley cannot store durable Google Place IDs even when photo URLs contain enough place provenance for the UI to infer one.
+Production readiness packet from July 1, 2026:
 
-Apply the existing migration before running the next place-ID backfill:
+- Total spots: 3,287
+- Public-ready spots: 1,436
+- Needs work: 1,851
+- Real photo coverage: 97.3% (3,197/3,287)
+- Missing real images: 90
+- Exact address coverage: 43.9% (1,444/3,287)
+- Inexact or area-level addresses: 1,843
+- Weak directions with missing or zero coordinates: 150
+- Missing place identity according to current audit: 90
+
+The main blocker is no longer the photo layer. It is exactness: too many records are still neighborhood, district, event, route, or collection-level entries. Those can look good in cards, but they cannot power trustworthy directions until each card represents an exact mappable destination or is intentionally rewritten as a collection/template item.
+
+The readiness report still marks the Google Place ID schema as missing when the service role query cannot select `google_place_id`. If a fresh packet reports `actionPlan.schema.migrationRequired: true`, apply the existing migration before running place-ID writes:
 
 ```bash
 cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
@@ -84,6 +96,22 @@ Recommended manual loop:
 3. Filter by `Place ID` after the migration is applied, then save durable Google Place IDs.
 4. Re-run the photo and location audits and confirm the public-ready count increases.
 
+For exact location matching, use the admin batch preview first. It uses the strict Google Places matcher and will skip broad or ambiguous rows rather than guessing.
+
+```bash
+# In the browser, open:
+https://www.localley.io/admin/spots/quality
+```
+
+Use the `Exact-location batch` panel:
+
+1. Run `Preview 8 places`.
+2. Review each matched name, address, pin, and skip reason.
+3. Apply only the previewed places when every accepted match is an exact destination.
+4. Re-run the readiness packet and confirm `exactAddress`, `weakDirections`, and `publicReady` moved in the right direction.
+
+Do not use automatic backfill for records like `Residential`, `Local Scene`, `Office District`, `Various locations`, broad food/bar scenes, route walks, or seasonal pop-ups unless the row is first rewritten into one exact destination.
+
 Review strict Google Places backfill candidates before applying:
 
 ```bash
@@ -103,13 +131,15 @@ npx tsx scripts/review-spot-photo-backfill.ts --apply --limit=20 --max-candidate
 
 ## Latest Backfill Read
 
-A production dry-run on July 1, 2026 found zero safe automatic photo updates and zero safe automatic location updates:
+Earlier production dry-runs on July 1, 2026 found zero safe automatic photo updates and zero safe automatic location updates with the older script path:
 
 - Photo dry-run: 90 candidates, 0 `would_update`, 90 skipped. The rejected matches were mostly unrelated businesses, broad neighborhoods, lodging, or partial-name matches.
 - Location dry-run with `--exact-only --trusted-provider-only`: 4 candidates, 0 `would_update`, 4 skipped because results fell back to city centers or unsupported cities.
 
 Do not apply batch backfills when the dry-run looks like this. Work through `action-plan.csv` and `/admin/spots/quality` instead, using the research links to find the exact place, exact address, coordinates, and reviewed real images.
 Location backfill reports include `manualReview.mapsSearchUrl` and `manualReview.recommendedAction` for skipped rows. Treat `geocode_city_center_fallback` as a manual-only case, because the geocoder found the city center instead of the actual place.
+
+The newer admin `Exact-location batch` tool may find safe strict Google Places matches that the older coordinate-only script skipped. Treat it as a preview queue, not a blind bulk update. Its accepted rows should include a matched Google place name, formatted address, latitude/longitude, and optional photos before applying.
 
 After adding Yilan to the city registry, one exact-address production row was safe to update:
 
