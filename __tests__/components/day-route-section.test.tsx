@@ -32,6 +32,8 @@ describe("DayRouteSection", () => {
 
     expect(screen.getByText("Exact route")).toBeTruthy();
     expect(screen.getByText("All route stops include exact addresses.")).toBeTruthy();
+    expect(screen.getByText("2 exact pins")).toBeTruthy();
+    expect(screen.getByLabelText("Route order preview")).toBeTruthy();
     expect(screen.getByRole("link", { name: /view route/i })).toBeTruthy();
   });
 
@@ -58,6 +60,8 @@ describe("DayRouteSection", () => {
 
     expect(screen.getByText("Review route")).toBeTruthy();
     expect(screen.getByText("2 of 3 stops need map confirmation.")).toBeTruthy();
+    expect(screen.getByText("1 exact pin")).toBeTruthy();
+    expect(screen.getByText("2 to confirm")).toBeTruthy();
   });
 
   it("labels Korean map actions as search when Kakao opens the first stop", () => {
@@ -83,5 +87,22 @@ describe("DayRouteSection", () => {
       screen.getByText("Stops rely on names or area-level addresses. Confirm pins before routing."),
     ).toBeTruthy();
     expect(screen.getByRole("link", { name: /kakao search/i })).toBeTruthy();
+  });
+
+  it("shows an empty state instead of a blank day body", () => {
+    render(
+      <DayRouteSection
+        dayIndex={0}
+        city="Tokyo"
+        userTier="pro"
+        dayPlan={{
+          day: 1,
+          activities: [],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("No route yet")).toBeTruthy();
+    expect(screen.getByText("No stops are scheduled for this day yet.")).toBeTruthy();
   });
 });

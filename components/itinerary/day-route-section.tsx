@@ -61,6 +61,10 @@ function getDayTimingSummary(activities: DayRouteActivity[]): string | null {
   return `${timedStops[0]} to ${timedStops[timedStops.length - 1]}`;
 }
 
+function getStopPreview(activities: DayRouteActivity[]): DayRouteActivity[] {
+  return activities.filter((activity) => getStopName(activity)).slice(0, 4);
+}
+
 function getRouteConfidenceCopy(
   summary: DayRouteAddressSummary,
   isKakaoRoute: boolean,
@@ -114,6 +118,8 @@ export function DayRouteSection({
   const isKakaoRoute = isKoreanCity(city);
   const routeAddressSummary = getDayRouteAddressSummary(activities);
   const routeConfidence = getRouteConfidenceCopy(routeAddressSummary, isKakaoRoute);
+  const stopPreview = getStopPreview(activities);
+  const hiddenStopCount = Math.max(activities.length - stopPreview.length, 0);
 
   return (
     <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0f091b]/82 shadow-xl shadow-violet-950/12 backdrop-blur-xl">
@@ -162,6 +168,18 @@ export function DayRouteSection({
               </span>
               <span className="min-w-0 leading-relaxed">{routeConfidence.helper}</span>
             </div>
+            {routeAddressSummary.mappableStopCount > 0 && (
+              <div className="flex flex-wrap gap-1.5 text-[11px] font-semibold text-violet-50/72">
+                <span className="rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2 py-1 text-emerald-100">
+                  {routeAddressSummary.exactStopCount} exact pin{routeAddressSummary.exactStopCount === 1 ? "" : "s"}
+                </span>
+                {routeAddressSummary.searchFirstStopCount > 0 && (
+                  <span className="rounded-full border border-amber-300/24 bg-amber-400/10 px-2 py-1 text-amber-100">
+                    {routeAddressSummary.searchFirstStopCount} to confirm
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           {routeUrl && (
             <a
@@ -184,18 +202,51 @@ export function DayRouteSection({
       </div>
 
       <div className="px-3 py-3 sm:px-4 sm:py-4">
-        <div className="space-y-1.5 sm:space-y-2">
-          {activities.map((activity, activityIndex) => (
-            <ItineraryActivityCard
-              key={`${activity.name}-${activityIndex}`}
-              activity={activity}
-              city={city}
-              userTier={userTier}
-              isLast={activityIndex === activities.length - 1}
-              position={activityIndex + 1}
-            />
-          ))}
-        </div>
+        {activities.length > 0 ? (
+          <div className="space-y-3">
+            {stopPreview.length > 1 && (
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5" aria-label="Route order preview">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-violet-100/58">
+                  Route order
+                </p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {stopPreview.map((activity, index) => (
+                    <span
+                      key={`${activity.name}-${index}`}
+                      className="inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full border border-violet-200/16 bg-violet-300/10 px-2 py-1 text-xs font-medium text-violet-50/78"
+                    >
+                      <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-400/22 text-[10px] font-bold text-violet-100">
+                        {index + 1}
+                      </span>
+                      <span className="truncate">{getStopName(activity)}</span>
+                    </span>
+                  ))}
+                  {hiddenStopCount > 0 && (
+                    <span className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-1 text-xs font-medium text-violet-50/58">
+                      +{hiddenStopCount} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="space-y-1.5 sm:space-y-2">
+              {activities.map((activity, activityIndex) => (
+                <ItineraryActivityCard
+                  key={`${activity.name}-${activityIndex}`}
+                  activity={activity}
+                  city={city}
+                  userTier={userTier}
+                  isLast={activityIndex === activities.length - 1}
+                  position={activityIndex + 1}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-white/12 bg-white/[0.035] p-4 text-sm text-violet-50/62">
+            No stops are scheduled for this day yet.
+          </div>
+        )}
       </div>
     </section>
   );
