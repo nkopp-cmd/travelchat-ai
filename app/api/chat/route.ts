@@ -68,7 +68,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         // Build query — get top spots for this city, prioritizing high localley scores
         let query = supabase
             .from("spots")
-            .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos")
+            .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos, location, google_place_id")
             .ilike("address->>en", `%${cityConfig.name}%`);
 
         query = applyPublicSpotVisibilityFilters(query)
@@ -97,7 +97,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         if (matchedCategories.length > 0) {
             query = supabase
                 .from("spots")
-                .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos")
+                .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos, location, google_place_id")
                 .ilike("address->>en", `%${cityConfig.name}%`)
                 .in("category", matchedCategories);
 

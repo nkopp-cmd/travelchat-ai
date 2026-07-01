@@ -540,6 +540,7 @@ async function getSpot(id: string) {
       address: spot.address,
       location: spot.location,
       photos: spot.photos,
+      google_place_id: spot.google_place_id,
     })
   ) {
     return null;
@@ -591,7 +592,7 @@ async function getRelatedSpots(
   let relatedQuery = supabase
     .from("spots")
     .select(
-      "id, name, address, category, location, localley_score, local_percentage, photos",
+      "id, name, address, category, location, localley_score, local_percentage, photos, google_place_id",
     )
     .ilike("address->>en", `%${city}%`)
     .neq("id", currentSpot.id)
@@ -615,6 +616,7 @@ async function getRelatedSpots(
         address: spot.address,
         location: spot.location,
         photos: spot.photos,
+        google_place_id: spot.google_place_id,
       }),
     )
     .slice(0, limit)

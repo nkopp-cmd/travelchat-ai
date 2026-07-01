@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { applyPublicSpotVisibilityFilters } from '@/lib/spots/public-quality';
+import {
+  applyPublicSpotVisibilityFilters,
+  shouldShowPublicSpot,
+} from '@/lib/spots/public-quality';
 
 // Force dynamic generation to ensure env vars are available at runtime
 export const dynamic = 'force-dynamic';
@@ -89,7 +92,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all spots
   let spotsQuery = supabase
     .from('spots')
-    .select('id, created_at')
+    .select('id, name, address, location, photos, google_place_id, created_at')
     .order('created_at', { ascending: false });
 
   spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
@@ -97,12 +100,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data: spots } = await spotsQuery;
 
-  const spotRoutes: MetadataRoute.Sitemap = (spots || []).map((spot) => ({
-    url: `${baseUrl}/spots/${spot.id}`,
-    lastModified: new Date(spot.created_at),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
+  const spotRoutes: MetadataRoute.Sitemap = (spots || [])
+    .filter((spot) => shouldShowPublicSpot(spot))
+    .map((spot) => ({
+      url: `${baseUrl}/spots/${spot.id}`,
+      lastModified: new Date(spot.created_at),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }));
 
   return [...staticRoutes, ...itineraryRoutes, ...spotRoutes];
 }
