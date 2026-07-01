@@ -2,15 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Bookmark, Calendar, Check, Gem, MapPin, Sparkles, Star } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
+import { CityImageAvatar } from "@/components/ui/city-image";
+import { usePlacePhoto } from "@/hooks/use-place-photo";
 import {
     cleanChatItineraryDescription,
     getChatTipKind,
     parseChatItineraryPreview,
 } from "@/lib/itineraries/chat-preview-parser";
 import type { ItineraryInsight } from "@/lib/itineraries/normalize-daily-plans";
+import type { ParsedChatActivity } from "@/lib/itineraries/chat-preview-parser";
 
 interface ItineraryPreviewProps {
     content: string;
@@ -20,6 +24,57 @@ interface ItineraryPreviewProps {
 function getDayTheme(dayTitle: string): string {
     const match = dayTitle.match(/^Day\s+\d+\s*[:\-\u2013\u2014]\s*(.+)$/iu);
     return match?.[1]?.trim() || dayTitle;
+}
+
+function ChatPreviewActivityImage({
+    activity,
+    city,
+    icon: Icon,
+}: {
+    activity: ParsedChatActivity;
+    city: string;
+    icon: LucideIcon;
+}) {
+    const [failedImage, setFailedImage] = useState<string | null>(null);
+    const placeData = usePlacePhoto(activity.title, city, {
+        enabled: Boolean(activity.title && city && city !== "Unknown City"),
+    });
+    const photoUrl =
+        placeData.photoUrl && placeData.photoUrl !== failedImage
+            ? placeData.photoUrl
+            : null;
+
+    return (
+        <span className="relative mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-violet-300/20 bg-violet-950/40 shadow-lg shadow-violet-950/10 sm:h-14 sm:w-14">
+            {photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                    src={photoUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    onError={() => setFailedImage(photoUrl)}
+                />
+            ) : (
+                <CityImageAvatar
+                    city={city}
+                    className="h-full w-full rounded-none"
+                    imageClassName="saturate-110"
+                    imageWidth={320}
+                    quality={90}
+                    sizes="56px"
+                />
+            )}
+            <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-md border border-white/15 bg-black/60 text-violet-100 backdrop-blur">
+                <Icon className="h-3 w-3" aria-hidden="true" />
+            </span>
+            {placeData.isLoading && (
+                <span className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white" />
+                </span>
+            )}
+        </span>
+    );
 }
 
 export function ItineraryPreview({ content, conversationId }: ItineraryPreviewProps) {
@@ -146,17 +201,27 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
             {/* Header */}
             <div className="border-b border-white/10 px-4 pb-4 pt-4 sm:px-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 flex-shrink-0 text-violet-300" />
-                            <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-white sm:text-xl">{title}</h3>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-violet-50/60">
-                            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
-                            <span>{city}</span>
-                            <span className="text-white/20">|</span>
-                            <Calendar className="h-3.5 w-3.5 flex-shrink-0 text-indigo-300" />
-                            <span>{days.length} {days.length === 1 ? 'day' : 'days'}</span>
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
+                        <CityImageAvatar
+                            city={city}
+                            className="h-12 w-12 rounded-xl border border-violet-300/20 shadow-lg shadow-violet-950/15"
+                            imageClassName="saturate-110"
+                            imageWidth={360}
+                            quality={90}
+                            sizes="48px"
+                        />
+                        <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center gap-2">
+                                <Sparkles className="h-4 w-4 flex-shrink-0 text-violet-300" />
+                                <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-white sm:text-xl">{title}</h3>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-violet-50/60">
+                                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
+                                <span>{city}</span>
+                                <span className="text-white/20">|</span>
+                                <Calendar className="h-3.5 w-3.5 flex-shrink-0 text-indigo-300" />
+                                <span>{days.length} {days.length === 1 ? 'day' : 'days'}</span>
+                            </div>
                         </div>
                     </div>
                     <Button
@@ -227,9 +292,11 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
 
                                 return (
                                     <div key={actIndex} className="flex items-start gap-3 px-3 py-3 sm:px-4">
-                                        <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-400/10 text-violet-200">
-                                            <TypeIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                                        </span>
+                                        <ChatPreviewActivityImage
+                                            activity={activity}
+                                            city={city}
+                                            icon={TypeIcon}
+                                        />
                                         <div className="min-w-0 flex-1">
                                             <div className="flex min-w-0 flex-wrap items-center gap-2">
                                                 <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white">
