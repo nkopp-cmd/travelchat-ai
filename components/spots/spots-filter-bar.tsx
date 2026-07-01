@@ -112,7 +112,10 @@ export function SpotsFilterBar({
   const [searchValue, setSearchValue] = useState(currentFilters.search || "");
   const [showMobileFilters, setShowMobileFilters] = useState(
     Boolean(
-      currentFilters.city || currentFilters.category || currentFilters.score,
+      currentFilters.city ||
+        currentFilters.category ||
+        currentFilters.score ||
+        currentFilters.sortBy !== "score",
     ),
   );
 
@@ -160,7 +163,8 @@ export function SpotsFilterBar({
     currentFilters.city ||
     currentFilters.category ||
     currentFilters.score ||
-    currentFilters.search;
+    currentFilters.search ||
+    currentFilters.sortBy !== "score";
 
   const advancedFilterCount = [
     currentFilters.city,
@@ -180,6 +184,9 @@ export function SpotsFilterBar({
     label
       .replace("Highest Score", "Top score")
       .replace("Most Local", "Most local");
+  const activeSortLabel =
+    SORT_OPTIONS.find((option) => option.value === currentFilters.sortBy)
+      ?.label || currentFilters.sortBy;
 
   return (
     <div className="mb-4 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-2.5 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
@@ -465,6 +472,21 @@ export function SpotsFilterBar({
               <button
                 onClick={() => onFilterChange("score", null)}
                 aria-label="Remove score filter"
+                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+          {currentFilters.sortBy !== "score" && (
+            <Badge variant="secondary" className="max-w-full gap-1">
+              <Filter className="h-3 w-3" aria-hidden="true" />
+              <span className="max-w-[11rem] truncate">
+                Sort: {getSortOptionLabel(activeSortLabel)}
+              </span>
+              <button
+                onClick={() => onFilterChange("sortBy", "score")}
+                aria-label="Reset sort filter"
                 className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
               >
                 <X className="h-3 w-3" />
