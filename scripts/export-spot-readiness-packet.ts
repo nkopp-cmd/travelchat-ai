@@ -6,6 +6,7 @@
  *
  * Usage:
  *   npx tsx scripts/export-spot-readiness-packet.ts
+ *   npx tsx scripts/export-spot-readiness-packet.ts --env-file=/tmp/localley.env
  *   npx tsx scripts/export-spot-readiness-packet.ts --city=Tokyo --limit=120
  *   npx tsx scripts/export-spot-readiness-packet.ts --out-dir=reports/spot-readiness/manual
  */
@@ -15,13 +16,12 @@ import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
 
-dotenv.config({ path: ".env.local", quiet: true });
-
 const DEFAULT_LIMIT = 250;
 const DEFAULT_SAMPLE_LIMIT = 80;
 
 interface Args {
     city?: string;
+    envFile: string;
     limit: number;
     sampleLimit: number;
     outDir: string;
@@ -58,6 +58,7 @@ function parseArgs(argv: string[]): Args {
     return {
         help: argv.includes("--help") || argv.includes("-h"),
         city: getArgValue(argv, "--city"),
+        envFile: getArgValue(argv, "--env-file") || ".env.local",
         limit: parsePositiveInt(getArgValue(argv, "--limit"), DEFAULT_LIMIT),
         sampleLimit: parsePositiveInt(getArgValue(argv, "--sample-limit"), DEFAULT_SAMPLE_LIMIT),
         outDir,
@@ -70,10 +71,12 @@ function printHelp() {
 
 Usage:
   npm run spots:readiness
+  npm run spots:readiness -- --env-file=/tmp/localley-production.env
   npm run spots:readiness -- --city=Tokyo --limit=120
   npm run spots:readiness -- --out-dir=reports/spot-readiness/manual
 
 Options:
+  --env-file=<path>     Load credentials from this env file. Default: .env.local.
   --city=<name>          Restrict audits to spots whose English address contains the city.
   --limit=<n>            Number of prioritized action-plan rows to export. Default: ${DEFAULT_LIMIT}.
   --sample-limit=<n>     Number of audit sample rows to include. Default: ${DEFAULT_SAMPLE_LIMIT}.
@@ -148,6 +151,7 @@ async function main() {
         return;
     }
 
+    dotenv.config({ path: args.envFile, quiet: true });
     assertSupabaseCredentials();
 
     const outDir = path.resolve(args.outDir);

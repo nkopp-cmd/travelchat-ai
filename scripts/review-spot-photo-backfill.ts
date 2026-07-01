@@ -3,6 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/review-spot-photo-backfill.ts --limit=20
+ *   npx tsx scripts/review-spot-photo-backfill.ts --env-file=/tmp/localley.env --limit=20
  *   npx tsx scripts/review-spot-photo-backfill.ts --city=Bangkok --limit=10
  *   npx tsx scripts/review-spot-photo-backfill.ts --upgrade-to-place-photos --limit=10
  *   npx tsx scripts/review-spot-photo-backfill.ts --apply --limit=10
@@ -21,8 +22,6 @@ import {
     SpotPhotoBackfillRow,
 } from "../lib/place-images";
 
-dotenv.config({ path: ".env.local" });
-
 const PAGE_SIZE = 1000;
 const DEFAULT_LIMIT = 20;
 const DEFAULT_MAX_CANDIDATES = 250;
@@ -32,6 +31,7 @@ const DEFAULT_OUT_PATH = "reports/spot-photo-backfill-review.json";
 interface Args {
     apply: boolean;
     city?: string;
+    envFile: string;
     limit: number;
     maxCandidates: number;
     outPath: string;
@@ -87,6 +87,7 @@ function parseArgs(argv: string[]): Args {
     return {
         apply: argv.includes("--apply"),
         city: getValue("--city"),
+        envFile: getValue("--env-file") || ".env.local",
         limit: parsePositiveInt(getValue("--limit"), DEFAULT_LIMIT),
         maxCandidates: parsePositiveInt(getValue("--max-candidates"), DEFAULT_MAX_CANDIDATES),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
@@ -180,6 +181,7 @@ function toQuality(
 
 async function main() {
     const args = parseArgs(process.argv.slice(2));
+    dotenv.config({ path: args.envFile, quiet: true });
     const { url, key } = getSupabaseCredentials();
     const apiKey = getGooglePlacesApiKey();
 

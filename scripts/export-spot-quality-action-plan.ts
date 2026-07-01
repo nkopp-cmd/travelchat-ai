@@ -3,6 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/export-spot-quality-action-plan.ts
+ *   npx tsx scripts/export-spot-quality-action-plan.ts --env-file=/tmp/localley.env
  *   npx tsx scripts/export-spot-quality-action-plan.ts --city=Tokyo --limit=120
  *   npx tsx scripts/export-spot-quality-action-plan.ts --out=reports/spot-quality-action-plan.json --csv=reports/spot-quality-action-plan.csv
  */
@@ -20,8 +21,6 @@ import {
 } from "../lib/admin/spot-quality";
 import { buildSpotQualityItemResearchLinks } from "../lib/admin/spot-quality-research";
 
-dotenv.config({ path: ".env.local", quiet: true });
-
 const PAGE_SIZE = 1000;
 const DEFAULT_LIMIT = 250;
 const DEFAULT_OUT_PATH = "reports/spot-quality-action-plan.json";
@@ -29,6 +28,7 @@ const DEFAULT_CSV_PATH = "reports/spot-quality-action-plan.csv";
 
 interface Args {
     city?: string;
+    envFile: string;
     limit: number;
     outPath: string;
     csvPath: string;
@@ -62,6 +62,7 @@ function parseArgs(argv: string[]): Args {
 
     return {
         city: getValue("--city"),
+        envFile: getValue("--env-file") || ".env.local",
         limit: parsePositiveInt(getValue("--limit"), DEFAULT_LIMIT),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
         csvPath: getValue("--csv") || DEFAULT_CSV_PATH,
@@ -254,6 +255,7 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
 
 async function main() {
     const args = parseArgs(process.argv.slice(2));
+    dotenv.config({ path: args.envFile, quiet: true });
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
     const baseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_APP_URL);
