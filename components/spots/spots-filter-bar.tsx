@@ -243,13 +243,13 @@ export function SpotsFilterBar({
         })}
       </div>
 
-      <div className="flex min-w-0 items-center gap-2 md:hidden">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:hidden">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => setShowMobileFilters((value) => !value)}
-          className="h-9 max-w-full shrink-0 justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
+          className="h-9 min-w-0 max-w-full justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
           aria-expanded={showMobileFilters}
           aria-controls="spots-advanced-filters"
         >

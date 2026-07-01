@@ -84,14 +84,16 @@ function getScoreTone(score: number) {
 function SpotScoreChip({
   score,
   className,
+  showLabel = false,
 }: {
   score: number;
   className?: string;
+  showLabel?: boolean;
 }) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 min-w-0 max-w-[4.75rem] shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] font-semibold leading-none min-[400px]:max-w-full sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
+        "inline-flex h-6 min-w-0 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         getScoreTone(score),
         className,
       )}
@@ -99,7 +101,7 @@ function SpotScoreChip({
     >
       <Sparkles className="h-3 w-3" aria-hidden="true" />
       <span className="truncate">{score}/6</span>
-      <span className="hidden min-[560px]:inline">Localley</span>
+      {showLabel && <span className="hidden sm:inline">Localley</span>}
     </span>
   );
 }
@@ -225,7 +227,7 @@ function CategoryTrendRow({
   return (
     <div
       className={cn(
-        "grid min-w-0 items-center gap-1",
+        "grid min-w-0 items-center gap-1 overflow-hidden",
         trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
         className,
       )}
@@ -390,7 +392,7 @@ export function SpotCard({
             </div>
             <div
               data-spot-card-meta
-              className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden"
+              className="grid min-w-0 grid-cols-[auto_auto_1fr] items-center gap-1 overflow-hidden"
             >
               <SpotScoreChip score={spot.localleyScore} />
               <LocalCrowdChip
@@ -488,25 +490,25 @@ export function SpotCard({
           <span className="truncate">{spot.location.address}</span>
         </p>
 
-        <div className="mt-auto border-t border-white/10 pt-1.5">
+        <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="flex min-w-0 flex-wrap items-center gap-1"
+            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 md:flex md:flex-wrap"
           >
             <CategoryTrendRow
               category={spot.category}
               trending={spot.trending}
               compact
-              className="max-w-[7.5rem] flex-1 md:hidden"
+              className="md:hidden"
             />
-            <SpotScoreChip score={spot.localleyScore} />
+            <SpotScoreChip score={spot.localleyScore} showLabel />
             <LocalCrowdChip
               percentage={spot.localPercentage}
-              className="hidden min-[430px]:inline-flex"
+              className="hidden md:inline-flex"
             />
             <LocationConfidenceChip
               spot={spot}
-              className="hidden min-[640px]:inline-flex sm:inline-flex"
+              className="hidden lg:inline-flex"
             />
           </div>
         </div>
