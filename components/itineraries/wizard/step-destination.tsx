@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { MapPin, Check, RefreshCw } from "lucide-react";
+import { ArrowRight, MapPin, Check, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 interface CityOption {
   slug: string;
@@ -24,7 +25,7 @@ interface CitiesResponse {
 }
 
 export function StepDestination() {
-  const { data, setData, setCanProceed } = useWizard();
+  const { data, setData, setCanProceed, nextStep } = useWizard();
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,14 +69,14 @@ export function StepDestination() {
   }
 
   return (
-    <div className="flex min-h-full flex-col px-3 py-3 pb-40 sm:px-4 sm:py-5 sm:pb-28">
+    <div className="flex min-h-full flex-col px-3 py-3 pb-32 sm:px-4 sm:py-5 sm:pb-24">
       {/* Header */}
-      <div className={cn("text-center", templateMode ? "mb-2 sm:mb-3" : "mb-3 sm:mb-5")}>
+      <div className={cn("text-center", templateMode ? "mb-2 sm:mb-3" : "mb-3 sm:mb-4")}>
         <div className={cn(
           "mb-2 inline-flex items-center justify-center rounded-full bg-violet-600/20 sm:mb-3",
-          templateMode ? "h-9 w-9 sm:h-11 sm:w-11" : "h-10 w-10 sm:h-14 sm:w-14"
+          templateMode ? "h-9 w-9 sm:h-11 sm:w-11" : "h-10 w-10 sm:h-12 sm:w-12"
         )}>
-          <MapPin className="h-5 w-5 text-violet-400 sm:h-7 sm:w-7" />
+          <MapPin className="h-5 w-5 text-violet-400 sm:h-6 sm:w-6" />
         </div>
         <h2 className="mb-1 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
         <p className="text-sm text-gray-400 sm:text-base">
@@ -83,11 +84,38 @@ export function StepDestination() {
         </p>
       </div>
 
+      {data.city && (
+        <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
+              <Check className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight text-white">
+                {data.city} selected
+              </p>
+              <p className="truncate text-[11px] leading-tight text-violet-100/65">
+                {templateMode ? "Template settings are ready." : "Continue to trip length."}
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            onClick={nextStep}
+            className="h-9 shrink-0 rounded-lg bg-violet-600 px-3 text-xs font-semibold shadow-lg shadow-violet-500/20 hover:bg-violet-500"
+          >
+            {templateMode ? "Tune" : "Next"}
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+          </Button>
+        </div>
+      )}
+
       {/* Unified City Grid */}
       {cities.length > 0 && (
         <div className={cn(
-          "grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 md:gap-3",
-          templateMode && "gap-1.5 md:gap-2 lg:grid-cols-4"
+          "grid grid-cols-2 gap-1.5 min-[390px]:grid-cols-3 sm:grid-cols-4 md:gap-2 lg:grid-cols-5",
+          templateMode && "min-[360px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
         )}>
           {cities.map((city) => (
             <CityCard
@@ -148,7 +176,7 @@ function CityCard({
       onClick={onSelect}
       className={cn(
         "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
-        compact ? "aspect-[2.55/1] sm:aspect-[2.35/1]" : "aspect-[1.7/1] sm:aspect-[3/2]",
+        compact ? "aspect-[2.9/1] sm:aspect-[2.6/1]" : "aspect-[2.18/1] sm:aspect-[2.35/1]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
         isSelected && "ring-2 ring-violet-500"
       )}
@@ -209,14 +237,21 @@ function CityCard({
 
       {/* City info */}
       <div className={cn("absolute bottom-0 left-0 right-0", compact ? "p-1.5 sm:p-2" : "p-2 sm:p-3")}>
-        <div className="mb-0.5 flex items-center gap-1.5">
+        <div className="mb-0.5 flex min-w-0 items-center gap-1.5">
           <span className={cn("leading-none", compact ? "text-sm sm:text-base" : "text-base sm:text-lg")}>{city.emoji}</span>
-          <span className={cn("font-bold leading-tight text-white", compact ? "text-xs sm:text-sm" : "text-sm")}>{city.name}</span>
+          <span className={cn("min-w-0 truncate font-bold leading-tight text-white", compact ? "text-xs sm:text-sm" : "text-sm")}>{city.name}</span>
         </div>
         {city.vibe && !compact && (
           <p className="line-clamp-1 text-[10px] leading-tight text-gray-300 sm:text-[11px]">{city.vibe}</p>
         )}
-        <p className={cn("mt-0.5 text-gray-300/85", compact ? "text-[9px]" : "text-[10px] text-gray-400")}>{city.spotCount} spots</p>
+        <div className="mt-0.5 flex items-center justify-between gap-1">
+          <p className={cn("min-w-0 truncate text-gray-300/85", compact ? "text-[9px]" : "text-[10px] text-gray-400")}>{city.spotCount} spots</p>
+          {isSelected && (
+            <span className="shrink-0 rounded-full bg-violet-600/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+              Ready
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );
@@ -230,9 +265,9 @@ function LoadingSkeleton() {
         <Skeleton className="h-8 w-32 mx-auto mb-2" />
         <Skeleton className="h-4 w-48 mx-auto" />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {[1, 2, 3, 4, 5, 6].map(i => (
-          <Skeleton key={i} className="aspect-[3/2] rounded-xl" />
+      <div className="grid grid-cols-2 gap-1.5 min-[390px]:grid-cols-3 sm:grid-cols-4 md:gap-2 lg:grid-cols-5">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+          <Skeleton key={i} className="aspect-[2.18/1] rounded-xl" />
         ))}
       </div>
     </div>
