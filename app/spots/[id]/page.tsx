@@ -277,6 +277,58 @@ function getScoreNarrative(score: LocalleyScale): string {
   return "A useful stop with a mixed crowd and clear practical value for a nearby route.";
 }
 
+function getSpotPrimaryUse(category: string): { value: string; helper: string } {
+  const normalized = category.toLowerCase();
+
+  if (normalized.includes("cafe")) {
+    return {
+      value: "Slow reset",
+      helper: "Use it as a coffee stop, work break, or soft landing between denser walking pockets.",
+    };
+  }
+
+  if (
+    normalized.includes("food") ||
+    normalized.includes("restaurant") ||
+    normalized.includes("market")
+  ) {
+    return {
+      value: "Meal anchor",
+      helper: "Build the route around eating here, then keep nearby stops light and walkable.",
+    };
+  }
+
+  if (normalized.includes("night") || normalized.includes("bar")) {
+    return {
+      value: "Evening anchor",
+      helper: "Save it for later in the day when the local crowd signal matters most.",
+    };
+  }
+
+  if (normalized.includes("shopping") || normalized.includes("store")) {
+    return {
+      value: "Browse pocket",
+      helper: "Treat it as a wander-and-discover stop rather than a rushed errand.",
+    };
+  }
+
+  if (
+    normalized.includes("outdoor") ||
+    normalized.includes("park") ||
+    normalized.includes("beach")
+  ) {
+    return {
+      value: "Breathing room",
+      helper: "Give it enough time in the route so the stop does not feel squeezed.",
+    };
+  }
+
+  return {
+    value: "Route anchor",
+    helper: "Use it as a flexible local stop around nearby food, coffee, markets, or evening plans.",
+  };
+}
+
 function getDirectionsTargetLabel(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
 ): string {
@@ -477,6 +529,8 @@ function NavigationTargetPanel({
     Boolean(spot.googlePlaceId) &&
     !isKoreanLocation(spot.location.address) &&
     locationConfidence.tone === "exact";
+  const targetLabel =
+    locationConfidence.tone === "exact" ? "Map search sent" : "Search target";
 
   return (
     <div
@@ -486,7 +540,7 @@ function NavigationTargetPanel({
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
-          Navigation target
+          {targetLabel}
         </span>
         <span
           className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
@@ -500,6 +554,12 @@ function NavigationTargetPanel({
       <p className="mt-2 break-words text-xs leading-5 text-violet-50/60">
         Address on record: {spot.location.address}
       </p>
+      {locationConfidence.tone !== "exact" && (
+        <p className="mt-2 rounded-md border border-amber-200/20 bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">
+          Exact address enrichment is still needed. The button opens search
+          first so the user can confirm the correct local result before routing.
+        </p>
+      )}
       {hasMatchedGooglePlace && (
         <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
           Directions include the matched Google Place ID when Google Maps
@@ -747,6 +807,7 @@ export default async function SpotPage({
   const primaryArea = getPrimaryArea(spot.location.address, city);
   const scoreNarrative = getScoreNarrative(spot.localleyScore);
   const locationPlanningCopy = getLocationPlanningCopy(spot);
+  const spotPrimaryUse = getSpotPrimaryUse(spot.category);
   const locationSignalTone =
     locationConfidence.tone === "exact"
       ? "emerald"
@@ -993,6 +1054,52 @@ export default async function SpotPage({
                 {spot.description}
               </p>
             </div>
+
+            <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
+                    Quick read
+                  </p>
+                  <h2 className="text-2xl font-bold leading-tight text-white">
+                    Know before you route it
+                  </h2>
+                </div>
+                <span className="w-fit rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-1 text-[11px] font-semibold text-violet-100">
+                  {primaryArea}
+                </span>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <DetailSignal
+                  icon={Compass}
+                  label="Best for"
+                  value={spotPrimaryUse.value}
+                  helper={spotPrimaryUse.helper}
+                />
+                <DetailSignal
+                  icon={Users}
+                  label="Local texture"
+                  value={`${spot.localPercentage}% local`}
+                  helper={visitPlan.localReason}
+                  tone="emerald"
+                />
+                <DetailSignal
+                  icon={Route}
+                  label="Route precision"
+                  value={locationPlanningCopy.routeTitle}
+                  helper={getDirectionsHelperText(spot)}
+                  tone={locationSignalTone}
+                />
+                <DetailSignal
+                  icon={Camera}
+                  label="Visual proof"
+                  value={getSpotPhotoEvidenceLabel(spot)}
+                  helper={getSpotPhotoEvidenceHelper(spot)}
+                  tone={spot.hasRealPhoto ? "violet" : "amber"}
+                />
+              </div>
+            </section>
 
             <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
