@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+    addFallbackToPlacePhotoUrl,
     classifySpotPhoto,
     findBestGooglePlacePhotos,
     getGooglePlaceIdFromPhotoUrl,
@@ -93,6 +94,30 @@ describe("spot photo classification", () => {
         ).toEqual([
             "/api/places/photo?w=1200&v=2&name=places%2Fabc%2Fphotos%2Fdef",
         ]);
+    });
+
+    it("adds a safe render-time fallback to proxied place photo URLs", () => {
+        expect(
+            addFallbackToPlacePhotoUrl(
+                "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef",
+                "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1600&q=90"
+            )
+        ).toBe(
+            "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef&fallback=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1538485399081-7191377e8241%3Fw%3D1600%26q%3D90"
+        );
+
+        expect(
+            addFallbackToPlacePhotoUrl(
+                "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef&fallback=https%3A%2F%2Fimages.unsplash.com%2Fold",
+                "https://images.unsplash.com/photo-1538485399081-7191377e8241"
+            )
+        ).toBe(
+            "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef&fallback=https%3A%2F%2Fimages.unsplash.com%2Fold"
+        );
+
+        expect(addFallbackToPlacePhotoUrl("https://cdn.example.com/spot.jpg", "https://images.unsplash.com/photo")).toBe(
+            "https://cdn.example.com/spot.jpg"
+        );
     });
 
     it("extracts Google Place IDs from proxied and direct Places photo URLs", () => {

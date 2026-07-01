@@ -139,6 +139,22 @@ export function buildPlacePhotoProxyUrl(photoName: string, width = 1200): string
     return `${GOOGLE_PHOTO_PROXY_PATH}?${params.toString()}`;
 }
 
+export function addFallbackToPlacePhotoUrl(photo: string, fallbackPhoto: string | null | undefined): string {
+    if (!fallbackPhoto || !photo.startsWith(GOOGLE_PHOTO_PROXY_PATH)) return photo;
+
+    try {
+        const url = new URL(photo, "https://www.localley.io");
+        if (url.pathname !== GOOGLE_PHOTO_PROXY_PATH) return photo;
+        if (!url.searchParams.has("fallback")) {
+            url.searchParams.set("fallback", fallbackPhoto);
+        }
+
+        return `${url.pathname}?${url.searchParams.toString()}`;
+    } catch {
+        return photo;
+    }
+}
+
 export function getProxiedGooglePhotoUrl(photo: string, width = 1200): string | null {
     try {
         const url = new URL(photo, "https://www.localley.io");

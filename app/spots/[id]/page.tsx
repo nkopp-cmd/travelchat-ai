@@ -13,7 +13,7 @@ import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
-import { getGooglePlaceIdFromSpotPhotos, summarizeSpotPhotos } from "@/lib/place-images";
+import { addFallbackToPlacePhotoUrl, getGooglePlaceIdFromSpotPhotos, summarizeSpotPhotos } from "@/lib/place-images";
 import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
@@ -149,6 +149,10 @@ function getSpotFallbackImage(spot: NonNullable<Awaited<ReturnType<typeof getSpo
 function getSpotGalleryImages(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
     const photos = (spot.photos as string[]).filter((photo: string) => !isPlaceholderImage(photo));
     return photos.length > 1 ? photos.slice(1, 4) : [];
+}
+
+function getDisplaySpotImage(src: string, fallbackImage: string) {
+    return addFallbackToPlacePhotoUrl(src, fallbackImage);
 }
 
 function getLocationConfidence(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
@@ -362,7 +366,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
 
             <div className="relative aspect-[4/3] min-h-[300px] w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">
                 <SpotPhotoImage
-                    src={heroImage}
+                    src={getDisplaySpotImage(heroImage, fallbackImage)}
                     fallbackSrc={fallbackImage}
                     alt={spot.name}
                     className="object-cover"
@@ -426,7 +430,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     {galleryImages.map((photo, index) => (
                         <div key={photo} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40">
                             <SpotPhotoImage
-                                src={photo}
+                                src={getDisplaySpotImage(photo, fallbackImage)}
                                 fallbackSrc={fallbackImage}
                                 alt={`${spot.name} photo ${index + 2}`}
                                 className="object-cover"

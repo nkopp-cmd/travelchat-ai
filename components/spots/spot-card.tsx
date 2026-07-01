@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { getCityGradient, getCityImageUrl } from "@/lib/city-images";
 import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
+import { addFallbackToPlacePhotoUrl } from "@/lib/place-images";
 
 const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
@@ -45,21 +46,6 @@ function getInitialImage(spot: Spot) {
 function getCityFallbackImage(spot: Spot) {
     const city = inferSpotCity(spot);
     return city ? getCityImageUrl(city, { width: 1200, height: 900, quality: 90 }) : null;
-}
-
-function withPlacePhotoFallback(src: string, fallbackSrc: string | null) {
-    if (!fallbackSrc || !src.startsWith("/api/places/photo")) return src;
-
-    try {
-        const url = new URL(src, "https://www.localley.io");
-        if (!url.searchParams.has("fallback")) {
-            url.searchParams.set("fallback", fallbackSrc);
-        }
-
-        return `${url.pathname}?${url.searchParams.toString()}`;
-    } catch {
-        return src;
-    }
 }
 
 function hasRealSpotPhoto(spot: Spot) {
@@ -141,7 +127,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     const inferredCity = inferSpotCity(spot);
     const cityFallbackImage = getCityFallbackImage(spot);
     const [imageSrc, setImageSrc] = useState(
-        withPlacePhotoFallback(initialImage.src, cityFallbackImage)
+        addFallbackToPlacePhotoUrl(initialImage.src, cityFallbackImage)
     );
     const fallbackLabel = inferredCity ? `${inferredCity} area` : spot.category;
     const fallbackGradient = getCityGradient(fallbackLabel);
