@@ -5,6 +5,11 @@ import { GLMProvider } from "./providers/glm";
 import type { TextGenerationProvider } from "./providers/base";
 
 export type ChatProviderName = "glm" | "anthropic";
+export type ChatFallbackReason =
+  | "glm_unavailable"
+  | "glm_error"
+  | "glm_empty_response"
+  | null;
 
 export interface ChatMessage {
   role: string;
@@ -27,8 +32,10 @@ export interface ChatProviderResult {
   provider: ChatProviderName;
   model: string;
   fallbackUsed: boolean;
+  fallbackReason: ChatFallbackReason;
   primaryProvider: "glm";
   primaryModel: string;
+  primaryConfigured: boolean;
 }
 
 interface ChatProviderDependencies {
@@ -79,6 +86,7 @@ export async function generateChatReplyWithFallback(
   const maxTokens = input.maxTokens ?? 2048;
   const temperature = input.temperature ?? 0.7;
   let glmWasAttempted = false;
+  let fallbackReason: ChatFallbackReason = null;
 
   if (glm.isAvailable()) {
     glmWasAttempted = true;
@@ -93,6 +101,7 @@ export async function generateChatReplyWithFallback(
       const content = response.content.trim();
 
       if (!content) {
+        fallbackReason = "glm_empty_response";
         throw new Error("GLM returned an empty chat response");
       }
 
@@ -101,15 +110,20 @@ export async function generateChatReplyWithFallback(
         provider: "glm",
         model: primaryModel,
         fallbackUsed: false,
+        fallbackReason: null,
         primaryProvider: "glm",
         primaryModel,
+        primaryConfigured: true,
       };
     } catch (glmError) {
+      fallbackReason = fallbackReason || "glm_error";
       (dependencies.logger ?? console).error(
         "[CHAT] GLM primary failed; falling back to Anthropic:",
         glmError
       );
     }
+  } else {
+    fallbackReason = "glm_unavailable";
   }
 
   const anthropicMessages = input.messages
@@ -135,7 +149,9 @@ export async function generateChatReplyWithFallback(
     provider: "anthropic",
     model: fallbackModel,
     fallbackUsed: glmWasAttempted,
+    fallbackReason,
     primaryProvider: "glm",
     primaryModel,
+    primaryConfigured: glmWasAttempted,
   };
 }

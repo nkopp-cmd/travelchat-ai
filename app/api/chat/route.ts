@@ -274,8 +274,10 @@ export async function POST(req: NextRequest) {
             provider: reply.provider,
             model: reply.model,
             fallbackUsed: reply.fallbackUsed,
+            fallbackReason: reply.fallbackReason,
             primaryProvider: reply.primaryProvider,
             primaryModel: reply.primaryModel,
+            primaryConfigured: reply.primaryConfigured,
         });
     } catch (error) {
         return handleApiError(error, "[CHAT_ERROR]");

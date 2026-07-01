@@ -57,8 +57,10 @@ describe("chat provider fallback", () => {
       provider: "glm",
       model: primaryModel,
       fallbackUsed: false,
+      fallbackReason: null,
       primaryProvider: "glm",
       primaryModel,
+      primaryConfigured: true,
     });
     expect(glm.generateText).toHaveBeenCalledWith({
       systemPrompt: "You are Alley",
@@ -91,8 +93,10 @@ describe("chat provider fallback", () => {
       provider: "anthropic",
       model: "claude-test",
       fallbackUsed: false,
+      fallbackReason: "glm_unavailable",
       primaryProvider: "glm",
       primaryModel,
+      primaryConfigured: false,
     });
     expect(glm.generateText).not.toHaveBeenCalled();
     expect(anthropic.messages.create).toHaveBeenCalledWith({
@@ -130,8 +134,10 @@ describe("chat provider fallback", () => {
       provider: "anthropic",
       model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      fallbackReason: "glm_error",
       primaryProvider: "glm",
       primaryModel,
+      primaryConfigured: true,
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(anthropic.messages.create).toHaveBeenCalledOnce();
@@ -163,8 +169,10 @@ describe("chat provider fallback", () => {
       provider: "anthropic",
       model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      fallbackReason: "glm_empty_response",
       primaryProvider: "glm",
       primaryModel,
+      primaryConfigured: true,
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(anthropic.messages.create).toHaveBeenCalledOnce();

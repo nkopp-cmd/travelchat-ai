@@ -62,8 +62,10 @@ describe("/api/chat provider routing", () => {
       provider: "glm",
       model: "glm-5.2",
       fallbackUsed: false,
+      fallbackReason: null,
       primaryProvider: "glm",
       primaryModel: "glm-5.2",
+      primaryConfigured: true,
     });
     const { POST } = await import("@/app/api/chat/route");
 
@@ -76,8 +78,10 @@ describe("/api/chat provider routing", () => {
       provider: "glm",
       model: "glm-5.2",
       fallbackUsed: false,
+      fallbackReason: null,
       primaryProvider: "glm",
       primaryModel: "glm-5.2",
+      primaryConfigured: true,
     });
     expect(mocks.generateChatReplyWithFallback).toHaveBeenCalledWith({
       systemPrompt: expect.stringContaining("ASK FOR CITY FIRST"),
@@ -98,8 +102,10 @@ describe("/api/chat provider routing", () => {
       provider: "anthropic",
       model: "claude-sonnet-4-20250514",
       fallbackUsed: false,
+      fallbackReason: "glm_unavailable",
       primaryProvider: "glm",
       primaryModel: "glm-5.2",
+      primaryConfigured: false,
     });
     const { POST } = await import("@/app/api/chat/route");
 
@@ -112,8 +118,10 @@ describe("/api/chat provider routing", () => {
       provider: "anthropic",
       model: "claude-sonnet-4-20250514",
       fallbackUsed: false,
+      fallbackReason: "glm_unavailable",
       primaryProvider: "glm",
       primaryModel: "glm-5.2",
+      primaryConfigured: false,
     });
   });
 
@@ -123,8 +131,10 @@ describe("/api/chat provider routing", () => {
       provider: "anthropic",
       model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      fallbackReason: "glm_error",
       primaryProvider: "glm",
       primaryModel: "glm-5.2",
+      primaryConfigured: true,
     });
     const { POST } = await import("@/app/api/chat/route");
 
@@ -137,8 +147,10 @@ describe("/api/chat provider routing", () => {
       provider: "anthropic",
       model: "claude-sonnet-4-20250514",
       fallbackUsed: true,
+      fallbackReason: "glm_error",
       primaryProvider: "glm",
       primaryModel: "glm-5.2",
+      primaryConfigured: true,
     });
   });
 });
