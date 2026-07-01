@@ -1,7 +1,4 @@
-import {
-    getSpotLocationConfidence,
-    hasUsableCoordinates,
-} from "@/lib/spots/location-confidence";
+import { hasUsableCoordinates } from "@/lib/spots/location-confidence";
 
 export interface SpotDirectionsInput {
     name: string;
@@ -47,31 +44,26 @@ export function getSpotDirectionsSearchText(input: SpotDirectionsInput): string 
         .join(", ");
 }
 
+function getCoordinateDestination(input: SpotDirectionsInput): string {
+    return hasUsableCoordinates(input.lat, input.lng) ? `${input.lat},${input.lng}` : "";
+}
+
 export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     const exactQuery = getSpotDirectionsSearchText(input);
-    const usableCoordinates = hasUsableCoordinates(input.lat, input.lng);
-    const coordinateDestination = usableCoordinates ? `${input.lat},${input.lng}` : "";
-    const confidence = getSpotLocationConfidence({
-        address: input.address,
-        lat: input.lat,
-        lng: input.lng,
-    });
+    const coordinateDestination = getCoordinateDestination(input);
+    const destinationText = exactQuery || input.address.trim() || input.name.trim();
 
     if (isKoreanLocation(input.address)) {
-        if (!confidence.exactAddress && coordinateDestination) {
+        if (!destinationText && coordinateDestination) {
             return `https://map.kakao.com/link/to/${encodeURIComponent(
                 input.name || input.address || "Localley spot"
             )},${coordinateDestination}`;
         }
 
-        return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || input.address)}`;
+        return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText || coordinateDestination)}`;
     }
 
-    const destination =
-        (!input.googlePlaceId && !confidence.exactAddress && coordinateDestination) ||
-        exactQuery ||
-        coordinateDestination ||
-        input.address;
+    const destination = destinationText || coordinateDestination;
 
     const params = new URLSearchParams({ api: "1", destination });
     if (input.googlePlaceId) {

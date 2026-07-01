@@ -49,7 +49,7 @@ describe("spot map links", () => {
         expect(url.searchParams.get("destination_place_id")).toBe("ChIJ-test-place");
     });
 
-    it("routes to saved coordinates when the stored address is area-level", () => {
+    it("searches by name and area before using imported coordinates", () => {
         const url = new URL(
             buildSpotDirectionsUrl({
                 name: "Saphan Mai Market",
@@ -59,7 +59,7 @@ describe("spot map links", () => {
             })
         );
 
-        expect(url.searchParams.get("destination")).toBe("13.9101,100.6149");
+        expect(url.searchParams.get("destination")).toBe("Saphan Mai Market, Saphan Mai, Bangkok");
     });
 
     it("searches by name and area when non-Korean area-level records have no usable pin", () => {
@@ -92,7 +92,7 @@ describe("spot map links", () => {
         );
     });
 
-    it("uses Kakao coordinate routing for Korean area-level locations with a saved pin", () => {
+    it("uses Kakao search for Korean area-level locations with a saved pin", () => {
         const url = buildSpotDirectionsUrl({
             name: "Gwangjang Market",
             address: "Jongno-gu, Seoul, Korea",
@@ -100,7 +100,9 @@ describe("spot map links", () => {
             lng: 126.9996,
         });
 
-        expect(url).toBe("https://map.kakao.com/link/to/Gwangjang%20Market,37.5701,126.9996");
+        expect(url).toBe(
+            "https://map.kakao.com/link/search/Gwangjang%20Market%2C%20Jongno-gu%2C%20Seoul%2C%20Korea"
+        );
     });
 
     it("uses Kakao search for Korean area-level records without a usable pin", () => {
@@ -114,5 +116,18 @@ describe("spot map links", () => {
         expect(url).toBe(
             "https://map.kakao.com/link/search/Haengdang%20Market%20Alley%2C%20Haengdang-dong%2C%20Seongdong-gu%2C%20Seoul%2C%20Korea"
         );
+    });
+
+    it("falls back to coordinates only when no searchable text exists", () => {
+        const url = new URL(
+            buildSpotDirectionsUrl({
+                name: "",
+                address: "",
+                lat: 13.9101,
+                lng: 100.6149,
+            })
+        );
+
+        expect(url.searchParams.get("destination")).toBe("13.9101,100.6149");
     });
 });
