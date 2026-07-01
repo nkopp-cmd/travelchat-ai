@@ -1,13 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Download,
   ArrowLeft,
   MessageSquare,
   Edit2,
-  Navigation,
-  Clock,
-  Route,
 } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
@@ -17,7 +13,7 @@ import { EmailDialog } from "@/components/itineraries/email-dialog";
 import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
-import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
+import { DayRouteSection } from "@/components/itinerary/day-route-section";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
 import { HeroSection } from "@/components/itinerary/hero-section";
 import { auth } from "@clerk/nextjs/server";
@@ -25,8 +21,6 @@ import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
-import { isKoreanCity } from "@/hooks/use-map-provider";
-import { buildDayRouteUrl } from "@/lib/itineraries/map-links";
 import {
   normalizeDailyPlansForDisplay,
   parseDailyPlans,
@@ -52,31 +46,7 @@ interface DayPlan {
   day: number;
   theme?: string;
   activities: ItineraryActivity[];
-  localTip?: string;
-  transportTips?: string;
   highlights?: string[];
-}
-
-function getStopName(activity: ItineraryActivity | undefined): string {
-  return activity?.name?.trim() || "Planned stop";
-}
-
-function getDayRouteSummary(activities: ItineraryActivity[]): string {
-  if (activities.length === 0) return "Add stops to build a route.";
-  if (activities.length === 1) return getStopName(activities[0]);
-
-  return `${getStopName(activities[0])} to ${getStopName(activities[activities.length - 1])}`;
-}
-
-function getDayTimingSummary(activities: ItineraryActivity[]): string | null {
-  const timedStops = activities
-    .map((activity) => activity.time?.trim())
-    .filter((time): time is string => Boolean(time));
-
-  if (timedStops.length === 0) return null;
-  if (timedStops.length === 1) return `Starts ${timedStops[0]}`;
-
-  return `${timedStops[0]} to ${timedStops[timedStops.length - 1]}`;
 }
 
 /**
@@ -219,16 +189,6 @@ export default async function ItineraryViewPage({
   const parsedDailyPlans = parseDailyPlans(itinerary.activities);
   const { dailyPlans: dailyPlansForDisplay, insights: itineraryInsights } =
     normalizeDailyPlansForDisplay<DayPlan>(parsedDailyPlans);
-
-  // Pre-compute exact route URLs from activity names, addresses, and city context.
-  const dayRouteUrls: Record<number, string> = {};
-  if (dailyPlansForDisplay.length > 0) {
-    dailyPlansForDisplay.forEach((dayPlan: DayPlan, dayIndex: number) => {
-      const activities = dayPlan.activities || [];
-      const url = buildDayRouteUrl(activities, displayCity);
-      dayRouteUrls[dayIndex] = url;
-    });
-  }
 
   // Prepare JSON-LD structured data
   const jsonLd = {
@@ -373,99 +333,15 @@ export default async function ItineraryViewPage({
                 {dailyPlansForDisplay.length === 1 ? "route day" : "route days"}
               </p>
             </div>
-            {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => {
-              const activities = dayPlan.activities || [];
-              const timingSummary = getDayTimingSummary(activities);
-
-              return (
-                <section
-                  key={dayIndex}
-                  className="overflow-hidden rounded-xl border border-white/10 bg-[#0f091b]/82 shadow-xl shadow-violet-950/12 backdrop-blur-xl"
-                >
-                  {/* Day Header */}
-                  <div className="border-b border-white/10 bg-gradient-to-r from-violet-500/24 via-purple-500/14 to-indigo-500/18 px-3.5 py-3 text-white sm:px-5 sm:py-4">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0 space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-violet-200/25 bg-violet-300/18 px-2.5 py-1 text-xs font-bold uppercase text-violet-50">
-                            Day {dayPlan.day || dayIndex + 1}
-                          </span>
-                          <Badge
-                            variant="secondary"
-                            className="w-fit border border-white/10 bg-white/12 text-white hover:bg-white/18"
-                          >
-                            {activities.length}{" "}
-                            {activities.length === 1 ? "stop" : "stops"}
-                          </Badge>
-                        </div>
-                        {dayPlan.theme && (
-                          <h2 className="mt-2 text-lg font-bold leading-tight sm:text-2xl">
-                            {dayPlan.theme}
-                          </h2>
-                        )}
-                        <div className="grid gap-1.5 text-sm text-violet-50/74 sm:grid-cols-2 lg:grid-cols-1">
-                          <p className="flex min-w-0 items-start gap-2">
-                            <Route className="mt-0.5 h-4 w-4 shrink-0 text-violet-200" />
-                            <span className="min-w-0 break-words">
-                              {getDayRouteSummary(activities)}
-                            </span>
-                          </p>
-                          {timingSummary && (
-                            <p className="flex min-w-0 items-center gap-2">
-                              <Clock className="h-4 w-4 shrink-0 text-indigo-200" />
-                              <span className="min-w-0 break-words">
-                                {timingSummary}
-                              </span>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2 lg:justify-end">
-                        {dayRouteUrls[dayIndex] && (
-                          <a
-                            href={dayRouteUrls[dayIndex]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full min-[420px]:w-auto"
-                          >
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="h-9 w-full rounded-xl border-0 bg-white/18 text-white hover:bg-white/28 min-[420px]:w-auto"
-                            >
-                              <Navigation className="h-4 w-4" />
-                              {isKoreanCity(displayCity)
-                                ? "Kakao route"
-                                : "View route"}
-                            </Button>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="px-3 py-3 sm:px-4 sm:py-4">
-                    <div className="space-y-1.5 sm:space-y-2">
-                      {activities.map(
-                        (
-                          activity: ItineraryActivity,
-                          activityIndex: number,
-                        ) => (
-                          <ItineraryActivityCard
-                            key={activityIndex}
-                            activity={activity}
-                            city={displayCity}
-                            userTier={userTier}
-                            isLast={activityIndex === activities.length - 1}
-                            position={activityIndex + 1}
-                          />
-                        ),
-                      )}
-                    </div>
-                  </div>
-                </section>
-              );
-            })}
+            {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => (
+              <DayRouteSection
+                key={dayIndex}
+                dayPlan={dayPlan}
+                dayIndex={dayIndex}
+                city={displayCity}
+                userTier={userTier}
+              />
+            ))}
 
             {/* Fallback if no activities */}
             {dailyPlansForDisplay.length === 0 && (

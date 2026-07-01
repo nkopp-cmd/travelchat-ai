@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Sparkles, Home, Instagram } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
@@ -10,8 +9,8 @@ import { SharedActions } from "./shared-actions";
 import { ItineraryJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { AppBackground } from "@/components/layout/app-background";
 import { HeroSection } from "@/components/itinerary/hero-section";
-import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
+import { DayRouteSection } from "@/components/itinerary/day-route-section";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -89,8 +88,6 @@ interface DayPlan {
     day: number;
     theme?: string;
     activities: ItineraryActivity[];
-    localTip?: string;
-    transportTips?: string;
 }
 
 // Fetch shared itinerary by share code
@@ -292,54 +289,15 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                                     {dailyPlans.length} {dailyPlans.length === 1 ? "day" : "days"} with tips kept separate.
                                 </p>
                             </div>
-                            {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
-                                const activities = dayPlan.activities || [];
-
-                                return (
-                                    <section
-                                        key={dayIndex}
-                                        className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.045] shadow-xl shadow-violet-950/12 backdrop-blur-xl"
-                                    >
-                                        <div className="border-b border-white/10 bg-gradient-to-r from-violet-500/24 via-purple-500/16 to-indigo-500/20 px-3.5 py-3 text-white sm:px-5 sm:py-4">
-                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                                <div className="min-w-0">
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        <span className="rounded-full border border-violet-200/25 bg-violet-300/18 px-2.5 py-1 text-xs font-bold uppercase text-violet-50">
-                                                            Day {dayPlan.day || dayIndex + 1}
-                                                        </span>
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="w-fit border border-white/10 bg-white/12 text-white hover:bg-white/18"
-                                                        >
-                                                            {activities.length} {activities.length === 1 ? "stop" : "stops"}
-                                                        </Badge>
-                                                    </div>
-                                                    {dayPlan.theme && (
-                                                        <h2 className="mt-2 text-lg font-bold leading-tight sm:text-2xl">
-                                                            {dayPlan.theme}
-                                                        </h2>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="px-3 py-3 sm:px-4 sm:py-4">
-                                            <div className="space-y-2">
-                                                {activities.map((activity: ItineraryActivity, activityIndex: number) => (
-                                                    <ItineraryActivityCard
-                                                        key={activityIndex}
-                                                        activity={activity}
-                                                        city={itinerary.city}
-                                                        userTier="pro"
-                                                        isLast={activityIndex === activities.length - 1}
-                                                        position={activityIndex + 1}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
-                            })}
+                            {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => (
+                                <DayRouteSection
+                                    key={dayIndex}
+                                    dayPlan={dayPlan}
+                                    dayIndex={dayIndex}
+                                    city={itinerary.city}
+                                    userTier="pro"
+                                />
+                            ))}
                         </div>
                     </div>
 

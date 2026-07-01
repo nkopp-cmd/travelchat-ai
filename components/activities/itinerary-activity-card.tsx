@@ -115,11 +115,6 @@ export function ItineraryActivityCard({
   const isStoredActivityImage = Boolean(
     storedActivityImage && displayImage === storedActivityImage,
   );
-  const imageSourceLabel = displayImage
-    ? isStoredActivityImage
-      ? "Trip image"
-      : "Place photo"
-    : "City image";
   const displayRating = placeData.rating;
   const displayTotalRatings = placeData.totalRatings;
 
@@ -214,16 +209,6 @@ export function ItineraryActivityCard({
                   <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
-              <span
-                className={cn(
-                  "absolute left-1.5 top-1.5 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-lg shadow-black/20 backdrop-blur sm:text-[10px]",
-                  displayImage
-                    ? "border-white/15 bg-black/55"
-                    : "border-violet-200/20 bg-violet-500/45",
-                )}
-              >
-                {imageSourceLabel}
-              </span>
               {activity.time && (
                 <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
                   {activity.time}
