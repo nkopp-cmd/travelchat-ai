@@ -1,6 +1,7 @@
 import type { MultiLanguageField } from "@/types";
 import {
     getSpotPlacePhotoIdentityStatus,
+    normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
@@ -71,13 +72,14 @@ export function getPublicSpotQualityIssue(
     if (!name) return "missing_name";
     if (PUBLIC_BROAD_SPOT_NAME_PATTERN.test(name)) return "broad_place_name";
     if ("photos" in spot) {
-        const photoSummary = summarizeSpotPhotos(spot.photos);
+        const photos = normalizeStoredSpotPhotoUrls(spot.photos);
+        const photoSummary = summarizeSpotPhotos(photos);
         if (!photoSummary.hasRealPhoto) {
             return "missing_real_photo";
         }
 
         const placeIdentity = getSpotPlacePhotoIdentityStatus(
-            spot.photos,
+            photos,
             spot.google_place_id || spot.googlePlaceId || null,
         );
         if (placeIdentity.hasIdentityMismatch) {

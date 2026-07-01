@@ -4,6 +4,7 @@ import {
     getLocalizedFieldValue,
     getSpotPlacePhotoIdentityStatus,
     needsSpotPlaceIdentityBackfill,
+    normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
 import { parseSpotCoordinates } from "@/lib/spots/coordinates";
@@ -141,7 +142,9 @@ function normalizePhotos(photos: string[] | undefined): string[] | undefined {
         throw new Error("Use 6 or fewer spot photos.");
     }
 
-    const invalid = cleaned.find((photo) => {
+    const normalized = normalizeStoredSpotPhotoUrls(cleaned);
+
+    const invalid = normalized.find((photo) => {
         if (photo.startsWith("/api/places/photo?")) return false;
         if (photo.startsWith("/images/") && !photo.toLowerCase().includes("placeholder")) return false;
         try {
@@ -156,7 +159,7 @@ function normalizePhotos(photos: string[] | undefined): string[] | undefined {
         throw new Error(`Invalid photo URL: ${invalid}`);
     }
 
-    return Array.from(new Set(cleaned));
+    return Array.from(new Set(normalized));
 }
 
 function formatPoint(lng: number, lat: number): string {
@@ -282,9 +285,10 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
     const address = getText(row.address);
     const description = getText(row.description);
     const photos = row.photos || [];
-    const photoSummary = summarizeSpotPhotos(photos);
+    const normalizedPhotos = normalizeStoredSpotPhotoUrls(photos);
+    const photoSummary = summarizeSpotPhotos(normalizedPhotos);
     const googlePlaceId = row.google_place_id || null;
-    const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(photos, googlePlaceId);
+    const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(normalizedPhotos, googlePlaceId);
     const coordinates = parseSpotCoordinates(row.location);
     const lat = coordinates?.lat ?? null;
     const lng = coordinates?.lng ?? null;
@@ -298,7 +302,7 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
         name: row.name,
         address: row.address,
         location: row.location,
-        photos: row.photos,
+        photos: normalizedPhotos,
         google_place_id: row.google_place_id,
     });
     const issues: SpotQualityIssue[] = [];
@@ -313,7 +317,7 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
     if (
         hasGooglePlaceIdColumn &&
         photoSummary.hasRealPhoto &&
-        needsSpotPlaceIdentityBackfill(row.photos, googlePlaceId)
+        needsSpotPlaceIdentityBackfill(normalizedPhotos, googlePlaceId)
     ) {
         issues.push("missing_place_id");
     }
@@ -338,7 +342,7 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
             name: row.name,
             address: row.address,
             location: row.location,
-            photos: row.photos,
+            photos: normalizedPhotos,
             google_place_id: row.google_place_id,
         }) && (!hasGooglePlaceIdColumn || !issues.includes("missing_place_id")),
         createdAt: row.created_at || null,

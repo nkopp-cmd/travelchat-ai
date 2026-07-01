@@ -90,6 +90,23 @@ describe("public spot quality", () => {
         ).toBe(true);
     });
 
+    it("treats normalizable Google Places media URLs as real public images", () => {
+        expect(
+            shouldShowPublicSpot({
+                name: "Ikseon Tea Room",
+                address: { en: "17 Supyo-ro 28-gil, Jongno-gu, Seoul" },
+                location: {
+                    type: "Point",
+                    coordinates: [126.9908, 37.5744],
+                },
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJabc123/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+                google_place_id: "ChIJabc123",
+            })
+        ).toBe(true);
+    });
+
     it("hides records whose stored place id conflicts with the proxied place photo", () => {
         expect(
             getPublicSpotQualityIssue({

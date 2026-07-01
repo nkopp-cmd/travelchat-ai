@@ -73,6 +73,34 @@ describe("admin spot quality", () => {
         });
     });
 
+    it("normalizes direct Google Places media before admin readiness checks", () => {
+        const item = toSpotQualityItem(
+            createRow({
+                address: { en: "17 Supyo-ro 28-gil, Jongno-gu, Seoul" },
+                location: "POINT(126.9908000 37.5744000)",
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJabc123/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+                google_place_id: "ChIJabc123",
+            }),
+            true
+        );
+
+        expect(item.publicReady).toBe(true);
+        expect(item.issues).toEqual([]);
+        expect(item.photoSummary).toMatchObject({
+            hasRealPhoto: true,
+            hasGooglePlacePhoto: true,
+            googlePlacePhotoIds: ["ChIJabc123"],
+        });
+        expect(item.photoReadiness).toMatchObject({
+            status: "ready",
+            tone: "good",
+            canAutoBackfill: false,
+        });
+        expect(item.placePhotoIdentity.ready).toBe(true);
+    });
+
     it("flags mismatched proxied place photos for manual review", () => {
         const item = toSpotQualityItem(
             createRow({
@@ -141,8 +169,26 @@ describe("admin spot quality", () => {
         expect(payload).toEqual({
             address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
             location: "POINT(139.7580000 35.6950000)",
-            photos: ["/api/places/photo?name=places/ChIJ-test-place/photos/photo_1&w=1200"],
+            photos: ["/api/places/photo?w=1200&v=2&name=places%2FChIJ-test-place%2Fphotos%2Fphoto_1"],
             google_place_id: "ChIJ-test-place",
+        });
+    });
+
+    it("stores direct Google Places media updates as Localley proxy URLs", () => {
+        const payload = buildSpotQualityPatchPayload(
+            createRow(),
+            {
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJabc123/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+            },
+            true
+        );
+
+        expect(payload).toEqual({
+            photos: [
+                "/api/places/photo?w=1200&v=2&name=places%2FChIJabc123%2Fphotos%2Fphoto456",
+            ],
         });
     });
 
