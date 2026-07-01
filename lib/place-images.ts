@@ -57,6 +57,15 @@ export interface SpotPhotoSummary {
     primaryKind: SpotPhotoKind | "none";
 }
 
+export interface SpotPhotoBackfillNeeds {
+    needsPhotoBackfill: boolean;
+    needsPlaceIdBackfill: boolean;
+    needsPlacePhotoUpgrade: boolean;
+    hasIdentityMismatch: boolean;
+    shouldBackfill: boolean;
+    placePhotoIdentity: ReturnType<typeof getSpotPlacePhotoIdentityStatus>;
+}
+
 const GOOGLE_PHOTO_PROXY_PATH = "/api/places/photo";
 const GOOGLE_PHOTO_PROXY_VERSION = "2";
 export const DEFAULT_SPOT_PHOTO_FALLBACK = "/images/placeholders/default.svg";
@@ -371,6 +380,31 @@ export function needsSpotPhotoOrPlaceBackfill(
         needsSpotPhotoBackfill(photos) ||
         needsSpotPlaceIdentityBackfill(photos, googlePlaceId)
     );
+}
+
+export function getSpotPhotoBackfillNeeds(
+    photos: string[] | null | undefined,
+    googlePlaceId?: string | null,
+    options: { upgradeToPlacePhotos?: boolean } = {}
+): SpotPhotoBackfillNeeds {
+    const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(photos, googlePlaceId);
+    const needsPhotoBackfill = needsSpotPhotoBackfill(photos);
+    const needsPlaceIdBackfill = !placePhotoIdentity.hasStoredPlaceId;
+    const needsPlacePhotoUpgrade = !placePhotoIdentity.ready;
+    const hasIdentityMismatch = placePhotoIdentity.hasIdentityMismatch;
+
+    return {
+        needsPhotoBackfill,
+        needsPlaceIdBackfill,
+        needsPlacePhotoUpgrade,
+        hasIdentityMismatch,
+        shouldBackfill:
+            needsPhotoBackfill ||
+            needsPlaceIdBackfill ||
+            hasIdentityMismatch ||
+            Boolean(options.upgradeToPlacePhotos && needsPlacePhotoUpgrade),
+        placePhotoIdentity,
+    };
 }
 
 function comparableWords(value: string): Set<string> {

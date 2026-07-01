@@ -7,6 +7,7 @@ import {
     getGooglePlaceIdFromSpotPhotos,
     getGooglePlaceIdsFromSpotPhotos,
     getSpotPlacePhotoIdentityStatus,
+    getSpotPhotoBackfillNeeds,
     getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
     hasStoredGooglePlaceIdentity,
@@ -200,6 +201,51 @@ describe("spot photo classification", () => {
 
         expect(hasStoredGooglePlaceIdentity([proxiedPlacePhoto], null)).toBe(true);
         expect(needsSpotPlaceIdentityBackfill([proxiedPlacePhoto], null)).toBe(false);
+    });
+
+    it("does not upgrade generic real photos to place photos unless requested", () => {
+        const remotePhoto = "https://cdn.localley.io/spots/seoul-market.jpg";
+
+        expect(getSpotPhotoBackfillNeeds([remotePhoto], "ChIJstored")).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: false,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: false,
+            shouldBackfill: false,
+        });
+
+        expect(
+            getSpotPhotoBackfillNeeds([remotePhoto], "ChIJstored", {
+                upgradeToPlacePhotos: true,
+            })
+        ).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: false,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: false,
+            shouldBackfill: true,
+        });
+    });
+
+    it("queues mismatched place photos and missing explicit place IDs safely", () => {
+        const matchingPhoto = "/api/places/photo?w=1200&name=places%2FChIJmatch%2Fphotos%2Fphoto456";
+        const otherPhoto = "/api/places/photo?w=1200&name=places%2FChIJother%2Fphotos%2Fphoto456";
+
+        expect(getSpotPhotoBackfillNeeds([otherPhoto], "ChIJmatch")).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: false,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: true,
+            shouldBackfill: true,
+        });
+
+        expect(getSpotPhotoBackfillNeeds([matchingPhoto], null)).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: true,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: false,
+            shouldBackfill: true,
+        });
     });
 });
 
