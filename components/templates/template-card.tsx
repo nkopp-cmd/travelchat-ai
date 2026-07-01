@@ -8,6 +8,9 @@ import { cn } from "@/lib/utils";
 
 interface TemplateCardProps {
   template: ItineraryTemplate;
+  href?: string;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 // Template-specific gradient backgrounds for visual variety
@@ -56,7 +59,13 @@ const paceAccents = {
   },
 };
 
-export function TemplateCard({ template }: TemplateCardProps) {
+function TemplateCardContent({
+  template,
+  isSelected = false,
+}: {
+  template: ItineraryTemplate;
+  isSelected?: boolean;
+}) {
   const paceConfig = {
     relaxed: { icon: "🌊", label: "Relaxed", shortLabel: "Relax" },
     moderate: { icon: "🚶", label: "Moderate", shortLabel: "Medium" },
@@ -68,11 +77,6 @@ export function TemplateCard({ template }: TemplateCardProps) {
   const gradient = getTemplateGradient(template);
 
   return (
-    <Link
-      href={`/itineraries/new?template=${template.id}`}
-      className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background"
-      aria-label={`Use ${template.name} template`}
-    >
       <Card className={cn(
         "group relative flex min-h-[58px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[68px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
@@ -81,7 +85,8 @@ export function TemplateCard({ template }: TemplateCardProps) {
         "hover:shadow-lg hover:shadow-violet-500/10",
         accent.glow,
         "hover:border-violet-400/50 dark:hover:border-violet-500/40",
-        "hover:-translate-y-0.5"
+        "hover:-translate-y-0.5",
+        isSelected && "border-violet-400/70 bg-violet-500/10 shadow-lg shadow-violet-500/15 ring-2 ring-violet-400/50"
       )}>
         {/* Animated gradient background */}
         <div className={cn(
@@ -129,12 +134,46 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
         </div>
 
+        {isSelected && (
+          <div className="absolute right-1.5 top-1.5 rounded-full border border-violet-200/40 bg-violet-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-lg shadow-violet-950/20 sm:right-2 sm:top-2">
+            Set
+          </div>
+        )}
+
         {/* Corner accent */}
         <div className={cn(
           "absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
           "bg-gradient-to-bl from-violet-500/10 to-transparent"
         )} />
       </Card>
+  );
+}
+
+export function TemplateCard({ template, href, isSelected, onSelect }: TemplateCardProps) {
+  const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background";
+  const content = <TemplateCardContent template={template} isSelected={isSelected} />;
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(className, "w-full")}
+        aria-pressed={isSelected}
+        aria-label={`Select ${template.name} template`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href={href || `/itineraries/new?template=${template.id}`}
+      className={className}
+      aria-label={`Use ${template.name} template`}
+    >
+      {content}
     </Link>
   );
 }

@@ -1,5 +1,5 @@
 import { templates } from "@/lib/templates";
-import { TemplateCard } from "@/components/templates/template-card";
+import { TemplatePicker } from "@/components/templates/template-picker";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, ArrowLeft } from "lucide-react";
@@ -34,7 +34,7 @@ export default function TemplatesPage() {
 
   return (
     <AppBackground ambient className="min-h-screen">
-      <div className="container mx-auto max-w-6xl px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] pt-2 sm:px-4 sm:py-4 md:pb-8">
+      <div className="container mx-auto max-w-6xl px-3 pb-[calc(10rem+env(safe-area-inset-bottom,0px))] pt-2 sm:px-4 sm:py-4 md:pb-8">
         {/* Back Button */}
         <Link
           href="/dashboard"
@@ -86,16 +86,10 @@ export default function TemplatesPage() {
           </Badge>
         </div>
 
-        <section>
-          <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-3 sm:gap-2 lg:grid-cols-4 2xl:grid-cols-5">
-            {templates.map((template) => (
-              <TemplateCard key={template.id} template={template} />
-            ))}
-          </div>
-        </section>
+        <TemplatePicker templates={templates} />
 
         {/* Custom Option CTA */}
-        <div className="mt-3 border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4">
+        <div className="mt-3 border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4 lg:max-w-[calc(100%-22rem)]">
           <h3 className="mb-1.5 text-base font-bold sm:text-lg">
             Don&apos;t see what you&apos;re looking for?
           </h3>
