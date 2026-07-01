@@ -31,7 +31,10 @@ import {
   getGooglePlaceIdFromSpotPhotos,
   summarizeSpotPhotos,
 } from "@/lib/place-images";
-import { inferSpotContextCity } from "@/lib/spots/city-context";
+import {
+  inferSpotContextCity,
+  inferSpotContextCitySlug,
+} from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import {
@@ -186,6 +189,17 @@ function inferSpotCity(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
 ): string | null {
   return inferSpotContextCity({
+    name: spot.name,
+    address: spot.location.address,
+    lat: spot.location.lat,
+    lng: spot.location.lng,
+  });
+}
+
+function inferSpotCitySlug(
+  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
+): string | null {
+  return inferSpotContextCitySlug({
     name: spot.name,
     address: spot.location.address,
     lat: spot.location.lat,
@@ -632,6 +646,7 @@ export default async function SpotPage({
 
   // Use city-level context for related activities; the first address segment is often a district.
   const city = getSpotContextCity(spot);
+  const citySlug = inferSpotCitySlug(spot);
   const heroImage = getSpotHeroImage(spot);
   const fallbackImage = getSpotFallbackImage(spot);
   const galleryImages = getSpotGalleryImages(spot);
@@ -1094,12 +1109,14 @@ export default async function SpotPage({
                   Build the same pocket into a route
                 </h2>
               </div>
-              <Link
-                href={`/spots?city=${encodeURIComponent(city)}`}
-                className="text-sm font-semibold text-violet-200 transition-colors hover:text-white"
-              >
-                More in {city}
-              </Link>
+              {citySlug ? (
+                <Link
+                  href={`/spots?city=${encodeURIComponent(citySlug)}`}
+                  className="text-sm font-semibold text-violet-200 transition-colors hover:text-white"
+                >
+                  More in {city}
+                </Link>
+              ) : null}
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               {relatedSpots.map((related) => (

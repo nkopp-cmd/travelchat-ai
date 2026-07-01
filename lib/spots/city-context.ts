@@ -1,3 +1,5 @@
+import { getCityByName } from "@/lib/cities";
+
 export interface SpotCityContextInput {
     name: string;
     address: string;
@@ -55,4 +57,11 @@ export function inferSpotContextCity(input: SpotCityContextInput): string | null
     );
 
     return coordMatch?.city ?? null;
+}
+
+export function inferSpotContextCitySlug(input: SpotCityContextInput): string | null {
+    const cityName = inferSpotContextCity(input);
+    if (!cityName) return null;
+
+    return getCityByName(cityName)?.slug ?? null;
 }

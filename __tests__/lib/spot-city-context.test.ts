@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { inferSpotContextCity } from "@/lib/spots/city-context";
+import {
+    inferSpotContextCity,
+    inferSpotContextCitySlug,
+} from "@/lib/spots/city-context";
 
 describe("spot city context", () => {
     it("infers a city from explicit city names in spot text", () => {
@@ -52,6 +55,29 @@ describe("spot city context", () => {
                 address: "Somewhere",
                 lat: 0,
                 lng: 0,
+            })
+        ).toBeNull();
+    });
+
+    it("returns registry slugs for inferred cities used in links", () => {
+        expect(
+            inferSpotContextCitySlug({
+                name: "Hidden Seoul bar",
+                address: "Euljiro, Seoul, South Korea",
+            })
+        ).toBe("seoul");
+
+        expect(
+            inferSpotContextCitySlug({
+                name: "Harbor food walk",
+                address: "Miaokou night market",
+            })
+        ).toBe("keelung");
+
+        expect(
+            inferSpotContextCitySlug({
+                name: "Unknown place",
+                address: "Somewhere",
             })
         ).toBeNull();
     });
