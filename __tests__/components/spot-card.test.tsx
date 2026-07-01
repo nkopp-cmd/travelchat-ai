@@ -53,4 +53,12 @@ describe("SpotCard", () => {
 
     expect(screen.getAllByText(/Area/).length).toBeGreaterThan(0);
   });
+
+  it("keeps trending metadata readable on compact mobile cards", () => {
+    render(<SpotCard spot={baseSpot} compact />);
+
+    expect(screen.getByText("Trending")).toBeTruthy();
+    expect(screen.getByText("5/6")).toBeTruthy();
+    expect(screen.getByText("Verified")).toBeTruthy();
+  });
 });

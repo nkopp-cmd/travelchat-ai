@@ -208,7 +208,7 @@ function TrendingChip({
     >
       <TrendingUp className="h-3 w-3 shrink-0" aria-hidden="true" />
       {showLabel && <span className="truncate">Hot</span>}
-      <span className="sr-only">Trending</span>
+      <span className={showLabel ? "sr-only" : "truncate"}>Trending</span>
     </span>
   );
 }
@@ -246,7 +246,7 @@ function CategoryTrendRow({
         <TrendingChip
           className={cn(
             "shrink-0",
-            compact ? "h-5 w-6 px-0.5" : "max-w-[4.5rem]",
+            compact ? "h-5 max-w-[4.75rem] px-1.5" : "max-w-[4.5rem]",
           )}
           showLabel={!compact}
         />
@@ -391,12 +391,15 @@ export function SpotCard({
             </div>
             <div
               data-spot-card-meta
-              className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden"
+              className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden"
             >
-              <SpotScoreChip score={spot.localleyScore} className="max-w-full" />
               <LocationConfidenceChip
                 spot={spot}
                 className="max-w-full"
+              />
+              <SpotScoreChip
+                score={spot.localleyScore}
+                className="max-w-full justify-self-end"
               />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
@@ -500,14 +503,15 @@ export function SpotCard({
               compact
               className="min-w-0 md:hidden"
             />
-            <div className="flex min-w-0 flex-wrap items-center gap-1 md:contents">
-              <SpotScoreChip
-                score={spot.localleyScore}
-                showLabel
-              />
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 md:contents">
               <LocationConfidenceChip
                 spot={spot}
                 className="max-w-full"
+              />
+              <SpotScoreChip
+                score={spot.localleyScore}
+                showLabel
+                className="justify-self-end"
               />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
