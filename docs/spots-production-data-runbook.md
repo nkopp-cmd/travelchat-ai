@@ -123,10 +123,17 @@ npx tsx scripts/review-spot-photo-backfill.ts --limit=20 --max-candidates=120 --
 rm -f "$tmp_env"
 ```
 
+When a QA report, user screenshot, or admin review identifies one exact record, target it directly instead of scanning the whole table:
+
+```bash
+npx tsx scripts/review-spot-photo-backfill.ts --spot-id=<spot_uuid> --limit=1 --out=reports/spot-photo-backfill-spot.json
+```
+
 Only apply once the dry-run returns high-confidence `would_update` rows:
 
 ```bash
 npx tsx scripts/review-spot-photo-backfill.ts --apply --limit=20 --max-candidates=120 --out=reports/spot-photo-backfill-apply.json
+npx tsx scripts/review-spot-photo-backfill.ts --apply --spot-id=<spot_uuid> --limit=1 --out=reports/spot-photo-backfill-spot-apply.json
 ```
 
 ## Latest Backfill Read

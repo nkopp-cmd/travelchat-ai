@@ -5,6 +5,7 @@
  *   npx tsx scripts/review-spot-photo-backfill.ts --limit=20
  *   npx tsx scripts/review-spot-photo-backfill.ts --env-file=/tmp/localley.env --limit=20
  *   npx tsx scripts/review-spot-photo-backfill.ts --city=Bangkok --limit=10
+ *   npx tsx scripts/review-spot-photo-backfill.ts --spot-id=<uuid> --limit=1
  *   npx tsx scripts/review-spot-photo-backfill.ts --upgrade-to-place-photos --limit=10
  *   npx tsx scripts/review-spot-photo-backfill.ts --apply --limit=10
  */
@@ -35,6 +36,7 @@ interface Args {
     limit: number;
     maxCandidates: number;
     outPath: string;
+    spotId?: string;
     timeoutMs: number;
     upgradeToPlacePhotos: boolean;
 }
@@ -91,6 +93,7 @@ function parseArgs(argv: string[]): Args {
         limit: parsePositiveInt(getValue("--limit"), DEFAULT_LIMIT),
         maxCandidates: parsePositiveInt(getValue("--max-candidates"), DEFAULT_MAX_CANDIDATES),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
+        spotId: getValue("--spot-id"),
         timeoutMs: parsePositiveInt(getValue("--timeout-ms"), DEFAULT_TIMEOUT_MS),
         upgradeToPlacePhotos: argv.includes("--upgrade-to-place-photos"),
     };
@@ -168,6 +171,47 @@ async function fetchCandidates(
     return { candidates: candidates.slice(0, maxCandidates), scanned, hasGooglePlaceIdColumn };
 }
 
+async function fetchSpotById(
+    supabase: SupabaseClient,
+    spotId: string
+): Promise<{ candidates: SpotPhotoBackfillRow[]; scanned: number; hasGooglePlaceIdColumn: boolean }> {
+    let hasGooglePlaceIdColumn = true;
+    let row: SpotPhotoBackfillRow | null = null;
+    let fetchError: { message: string } | null = null;
+    const primary = await supabase
+        .from("spots")
+        .select("id, name, address, photos, category, google_place_id")
+        .eq("id", spotId)
+        .maybeSingle();
+    row = primary.data as unknown as SpotPhotoBackfillRow | null;
+    fetchError = primary.error;
+
+    if (fetchError && /google_place_id/i.test(fetchError.message)) {
+        hasGooglePlaceIdColumn = false;
+        const retry = await supabase
+            .from("spots")
+            .select("id, name, address, photos, category")
+            .eq("id", spotId)
+            .maybeSingle();
+        row = retry.data as unknown as SpotPhotoBackfillRow | null;
+        fetchError = retry.error;
+    }
+
+    if (fetchError) {
+        throw new Error(`Failed to fetch spot ${spotId}: ${fetchError.message}`);
+    }
+
+    if (!row) {
+        throw new Error(`Spot not found: ${spotId}`);
+    }
+
+    return {
+        candidates: [row],
+        scanned: 1,
+        hasGooglePlaceIdColumn,
+    };
+}
+
 function toQuality(
     quality: ReviewResult["quality"] | undefined | null
 ): ReviewResult["quality"] {
@@ -191,12 +235,14 @@ async function main() {
 
     const supabase = createClient(url, key);
     const startedAt = new Date().toISOString();
-    const { candidates, scanned, hasGooglePlaceIdColumn } = await fetchCandidates(
-        supabase,
-        args.city,
-        args.maxCandidates,
-        args.upgradeToPlacePhotos
-    );
+    const { candidates, scanned, hasGooglePlaceIdColumn } = args.spotId
+        ? await fetchSpotById(supabase, args.spotId)
+        : await fetchCandidates(
+            supabase,
+            args.city,
+            args.maxCandidates,
+            args.upgradeToPlacePhotos
+        );
     const results: ReviewResult[] = [];
     let successfulCandidates = 0;
 
@@ -221,12 +267,26 @@ async function main() {
             needsPlacePhotoUpgrade,
             hasIdentityMismatch: backfillNeeds.hasIdentityMismatch,
         };
+        const shouldProcess =
+            needsPhotoBackfill ||
+            needsPlaceIdBackfill ||
+            backfillNeeds.hasIdentityMismatch ||
+            (args.upgradeToPlacePhotos && needsPlacePhotoUpgrade);
 
         if (!name || !address) {
             results.push({
                 ...base,
                 status: "skipped",
                 reason: "missing_name_or_address",
+            });
+            continue;
+        }
+
+        if (!shouldProcess) {
+            results.push({
+                ...base,
+                status: "skipped",
+                reason: "no_backfill_needed",
             });
             continue;
         }
@@ -370,6 +430,7 @@ async function main() {
         finishedAt: new Date().toISOString(),
         dryRun: !args.apply,
         city: args.city || null,
+        spotId: args.spotId || null,
         upgradeToPlacePhotos: args.upgradeToPlacePhotos,
         hasGooglePlaceIdColumn,
         limit: args.limit,
