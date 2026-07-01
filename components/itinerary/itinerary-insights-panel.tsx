@@ -47,6 +47,9 @@ export function ItineraryInsightsPanel({
 }: ItineraryInsightsPanelProps) {
   if (insights.length === 0) return null;
 
+  const localCount = insights.filter((insight) => insight.kind === "local").length;
+  const transportCount = insights.filter((insight) => insight.kind === "transport").length;
+
   return (
     <section
       className={cn(
@@ -77,6 +80,27 @@ export function ItineraryInsightsPanel({
           {insights.length} {insights.length === 1 ? "tip" : "tips"}
         </Badge>
       </div>
+
+      {!compact && (localCount > 0 || transportCount > 0) && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {localCount > 0 && (
+            <Badge
+              variant="secondary"
+              className="h-6 rounded-full border border-amber-300/20 bg-amber-400/10 px-2 text-[10px] text-amber-100"
+            >
+              {localCount} local
+            </Badge>
+          )}
+          {transportCount > 0 && (
+            <Badge
+              variant="secondary"
+              className="h-6 rounded-full border border-sky-300/20 bg-sky-400/10 px-2 text-[10px] text-sky-100"
+            >
+              {transportCount} transport
+            </Badge>
+          )}
+        </div>
+      )}
 
       <div className={cn("grid grid-cols-1", compact ? "gap-2" : "gap-2 md:grid-cols-2 lg:grid-cols-1")}>
         {insights.map((insight) => {
