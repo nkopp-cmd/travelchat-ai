@@ -17,6 +17,7 @@ export type SpotQualityIssue =
     | "missing_real_photo"
     | "inexact_location"
     | "missing_place_id"
+    | "mismatched_place_photo_identity"
     | "broad_place_name"
     | "missing_name";
 
@@ -68,6 +69,7 @@ export interface SpotQualityQueueSummary {
     missingRealPhoto: number;
     inexactLocation: number;
     missingPlaceId: number;
+    mismatchedPlacePhotoIdentity: number;
     broadPlaceName: number;
     missingName: number;
 }
@@ -213,6 +215,22 @@ export function getSpotPhotoReadiness(
         photoSummary.kinds.proxy +
         photoSummary.kinds.remote_https +
         photoSummary.kinds.local_asset;
+    const hasPlacePhotoIdentityMismatch = Boolean(
+        googlePlaceId &&
+        photoSummary.googlePlacePhotoIds.length > 0 &&
+        !photoSummary.googlePlacePhotoIds.includes(googlePlaceId)
+    );
+
+    if (hasPlacePhotoIdentityMismatch) {
+        return {
+            status: "manual_review",
+            label: "Place photo mismatch",
+            description: "The stored Google Place ID does not match the proxied place photo source. Reconcile this before trusting directions.",
+            tone: "danger",
+            realPhotoCount,
+            canAutoBackfill: true,
+        };
+    }
 
     if (photoSummary.kinds.proxy > 0 && (!hasGooglePlaceIdColumn || googlePlaceId)) {
         return {
@@ -281,11 +299,15 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
         address: row.address,
         location: row.location,
         photos: row.photos,
+        google_place_id: row.google_place_id,
     });
     const issues: SpotQualityIssue[] = [];
 
     if (!name) issues.push("missing_name");
     if (publicQualityIssue === "broad_place_name") issues.push("broad_place_name");
+    if (publicQualityIssue === "mismatched_place_photo_identity") {
+        issues.push("mismatched_place_photo_identity");
+    }
     if (!photoSummary.hasRealPhoto) issues.push("missing_real_photo");
     if (!locationConfidence.exactAddress) issues.push("inexact_location");
     if (
@@ -317,6 +339,7 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
             address: row.address,
             location: row.location,
             photos: row.photos,
+            google_place_id: row.google_place_id,
         }) && (!hasGooglePlaceIdColumn || !issues.includes("missing_place_id")),
         createdAt: row.created_at || null,
     };
@@ -330,6 +353,7 @@ export function summarizeSpotQualityItems(items: SpotQualityItem[]): SpotQuality
         missingRealPhoto: items.filter((item) => item.issues.includes("missing_real_photo")).length,
         inexactLocation: items.filter((item) => item.issues.includes("inexact_location")).length,
         missingPlaceId: items.filter((item) => item.issues.includes("missing_place_id")).length,
+        mismatchedPlacePhotoIdentity: items.filter((item) => item.issues.includes("mismatched_place_photo_identity")).length,
         broadPlaceName: items.filter((item) => item.issues.includes("broad_place_name")).length,
         missingName: items.filter((item) => item.issues.includes("missing_name")).length,
     };

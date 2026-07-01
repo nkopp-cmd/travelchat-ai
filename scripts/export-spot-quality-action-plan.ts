@@ -128,6 +128,8 @@ function scoreIssue(issue: SpotQualityIssue): number {
             return 100;
         case "inexact_location":
             return 90;
+        case "mismatched_place_photo_identity":
+            return 85;
         case "missing_place_id":
             return 70;
         case "broad_place_name":
@@ -152,6 +154,7 @@ function getRecommendedAction(item: SpotQualityItem, hasGooglePlaceIdColumn: boo
     }
     if (item.issues.includes("missing_real_photo")) return "add_reviewed_real_spot_photo";
     if (item.issues.includes("inexact_location")) return "add_exact_address_and_coordinates";
+    if (item.issues.includes("mismatched_place_photo_identity")) return "reconcile_place_id_and_place_photo";
     if (item.issues.includes("missing_place_id")) return "save_google_place_id";
     if (item.issues.includes("broad_place_name") || item.issues.includes("missing_name")) {
         return "rename_or_remove_broad_spot";
@@ -311,6 +314,7 @@ async function main() {
             `Missing images: ${report.summary.missingRealPhoto}`,
             `Inexact locations: ${report.summary.inexactLocation}`,
             `Missing Place IDs: ${report.summary.missingPlaceId}`,
+            `Place photo mismatches: ${report.summary.mismatchedPlacePhotoIdentity}`,
         ].join("\n")
     );
 }

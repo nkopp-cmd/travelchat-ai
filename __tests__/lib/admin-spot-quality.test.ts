@@ -73,6 +73,29 @@ describe("admin spot quality", () => {
         });
     });
 
+    it("flags mismatched proxied place photos for manual review", () => {
+        const item = toSpotQualityItem(
+            createRow({
+                address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                location: "POINT(139.7580000 35.6950000)",
+                photos: ["/api/places/photo?name=places/ChIJ-photo-place/photos/photo_1&w=1200"],
+                google_place_id: "ChIJ-stored-other",
+            }),
+            true
+        );
+
+        expect(item.publicReady).toBe(false);
+        expect(item.publicQualityIssue).toBe("mismatched_place_photo_identity");
+        expect(item.issues).toEqual(["mismatched_place_photo_identity"]);
+        expect(item.photoReadiness).toMatchObject({
+            status: "manual_review",
+            label: "Place photo mismatch",
+            tone: "danger",
+            canAutoBackfill: true,
+        });
+        expect(item.placePhotoIdentity.hasIdentityMismatch).toBe(true);
+    });
+
     it("summarizes photo readiness for safe operator backfill decisions", () => {
         expect(
             getSpotPhotoReadiness(
@@ -154,6 +177,7 @@ describe("admin spot quality", () => {
             needsWork: 1,
             missingRealPhoto: 1,
             inexactLocation: 1,
+            mismatchedPlacePhotoIdentity: 0,
         });
     });
 

@@ -15,6 +15,7 @@ const VALID_ISSUES = new Set<SpotQualityIssue | "all">([
     "missing_real_photo",
     "inexact_location",
     "missing_place_id",
+    "mismatched_place_photo_identity",
     "broad_place_name",
     "missing_name",
 ]);

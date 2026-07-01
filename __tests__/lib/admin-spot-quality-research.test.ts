@@ -56,6 +56,7 @@ describe("admin spot quality research helpers", () => {
             "exact business/place"
         );
         expect(getSpotResearchFocus(["missing_place_id"])).toContain("Supabase column migration");
+        expect(getSpotResearchFocus(["mismatched_place_photo_identity"])).toContain("Reconcile");
         expect(getSpotResearchFocus([])).toContain("Confirm");
     });
 });

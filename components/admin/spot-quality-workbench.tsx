@@ -37,6 +37,7 @@ const ISSUE_OPTIONS: Array<{ value: IssueFilter; label: string }> = [
     { value: "missing_real_photo", label: "Images" },
     { value: "inexact_location", label: "Location" },
     { value: "missing_place_id", label: "Place ID" },
+    { value: "mismatched_place_photo_identity", label: "Place mismatch" },
     { value: "broad_place_name", label: "Name" },
 ];
 
@@ -44,6 +45,7 @@ const ISSUE_LABELS: Record<SpotQualityIssue, string> = {
     missing_real_photo: "Needs real image",
     inexact_location: "Needs exact address",
     missing_place_id: "Needs Place ID",
+    mismatched_place_photo_identity: "Place mismatch",
     broad_place_name: "Broad name",
     missing_name: "Missing name",
 };
@@ -205,6 +207,8 @@ function IssueBadges({ issues }: { issues: SpotQualityIssue[] }) {
                             ? "border-rose-200/25 bg-rose-400/10 text-rose-100"
                             : issue === "inexact_location"
                                 ? "border-amber-200/25 bg-amber-400/10 text-amber-100"
+                                : issue === "mismatched_place_photo_identity"
+                                    ? "border-fuchsia-200/25 bg-fuchsia-400/10 text-fuchsia-100"
                                 : "border-violet-200/25 bg-violet-400/10 text-violet-100"
                     )}
                 >
@@ -604,7 +608,7 @@ export function SpotQualityWorkbench() {
 
             {queue && (
                 <div className="mb-4 space-y-2">
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
                         <SummaryTile label="Needs work" value={queue.summary.needsWork} tone="warn" />
                         <SummaryTile label="Public ready" value={queue.summary.publicReady} tone="good" />
                         <SummaryTile label="Images" value={queue.summary.missingRealPhoto} />
@@ -614,6 +618,7 @@ export function SpotQualityWorkbench() {
                             value={queue.hasGooglePlaceIdColumn ? queue.summary.missingPlaceId : "Blocked"}
                             tone={queue.hasGooglePlaceIdColumn ? undefined : "danger"}
                         />
+                        <SummaryTile label="Mismatches" value={queue.summary.mismatchedPlacePhotoIdentity} tone={queue.summary.mismatchedPlacePhotoIdentity ? "danger" : undefined} />
                         <SummaryTile label="Names" value={queue.summary.broadPlaceName + queue.summary.missingName} />
                     </div>
                     <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-3 py-2 text-xs text-violet-50/60 sm:flex-row sm:items-center sm:justify-between">
@@ -1098,7 +1103,7 @@ export function SpotQualityWorkbench() {
                                     </div>
                                 )}
 
-                                {selectedItem.issues.some((itemIssue) => itemIssue === "inexact_location" || itemIssue === "missing_place_id" || itemIssue === "missing_real_photo") && (
+                                {selectedItem.issues.some((itemIssue) => itemIssue === "inexact_location" || itemIssue === "missing_place_id" || itemIssue === "missing_real_photo" || itemIssue === "mismatched_place_photo_identity") && (
                                     <div className="rounded-lg border border-sky-200/15 bg-sky-400/10 p-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">

@@ -223,7 +223,7 @@ async function main() {
             "Review action-plan.csv from highest priority downward in /admin/spots/quality.",
             "Run scripts/review-spot-photo-backfill.ts in dry-run mode for high-confidence missing-photo candidates.",
             "Run scripts/review-spot-location-backfill.ts in dry-run mode for weak direction records.",
-            "Re-run this readiness packet and confirm missingRealPhoto, inexactLocation, and missingPlaceId counts decrease.",
+            "Re-run this readiness packet and confirm missingRealPhoto, inexactLocation, missingPlaceId, and mismatchedPlacePhotoIdentity counts decrease.",
         ],
     };
 

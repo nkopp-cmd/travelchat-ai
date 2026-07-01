@@ -59,6 +59,10 @@ export function getSpotResearchFocus(issues: SpotQualityIssue[]): string {
         return "Add the durable Google Place ID after the Supabase column migration is live.";
     }
 
+    if (issues.includes("mismatched_place_photo_identity")) {
+        return "Reconcile the stored Google Place ID with the proxied place photo source before trusting directions.";
+    }
+
     if (issues.includes("broad_place_name") || issues.includes("missing_name")) {
         return "Replace the broad label with the actual place name travelers can search.";
     }
