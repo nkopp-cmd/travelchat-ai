@@ -76,7 +76,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
   };
 
   return (
-    <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
+    <section className="grid gap-3 pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))] lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:pb-0">
       <div className="min-w-0 space-y-2.5">
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0">
           {(Object.keys(paceLabels) as PaceFilter[]).map((pace) => (
@@ -113,7 +113,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
         <TemplateSummary template={selectedTemplate} />
       </aside>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#090511]/94 px-3 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-16px_34px_rgba(0,0,0,0.34)] backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] z-40 border-t border-white/10 bg-[#090511]/94 px-3 py-2 shadow-[0_-16px_34px_rgba(0,0,0,0.34)] backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex max-w-2xl items-center gap-2">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-semibold text-white">
