@@ -224,7 +224,7 @@ export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
     return "transport";
   }
 
-  if (/\b(local|insider|cash|order|avoid|before you go|go early|queue|reservation|language|phrase)\b/i.test(tip)) {
+  if (/\b(local|insider|cash|bills?|small bills?|order|avoid|before you go|go early|queue|reservation|language|phrase)\b/i.test(tip)) {
     return "local";
   }
 

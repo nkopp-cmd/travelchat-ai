@@ -21,6 +21,27 @@ interface ItineraryPreviewProps {
     conversationId?: string;
 }
 
+export function buildChatPreviewInsights(tips: string[]): ItineraryInsight[] {
+    const seen = new Set<string>();
+
+    return tips.reduce<ItineraryInsight[]>((items, rawTip) => {
+        const tip = rawTip.trim();
+        const key = tip.toLowerCase().replace(/\s+/g, " ");
+        if (!tip || seen.has(key)) return items;
+
+        seen.add(key);
+        const kind = getChatTipKind(tip);
+        items.push({
+            id: `chat-tip-${items.length + 1}`,
+            label: kind === "transport" ? "Getting around" : kind === "local" ? "Local tip" : "Trip insight",
+            text: tip,
+            kind,
+        });
+
+        return items;
+    }, []);
+}
+
 function getDayTheme(dayTitle: string): string {
     const match = dayTitle.match(/^Day\s+\d+\s*[:\-\u2013\u2014]\s*(.+)$/iu);
     return match?.[1]?.trim() || dayTitle;
@@ -83,15 +104,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
     const { toast } = useToast();
 
     const { title, city, days, tips } = parseChatItineraryPreview(content);
-    const insights: ItineraryInsight[] = tips.map((tip, index) => {
-        const kind = getChatTipKind(tip);
-        return {
-            id: `chat-tip-${index + 1}`,
-            label: kind === "transport" ? "Getting around" : kind === "local" ? "Local tip" : "Trip insight",
-            text: tip,
-            kind,
-        };
-    });
+    const insights = buildChatPreviewInsights(tips);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -116,12 +129,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         }
                     }
 
+                    const cleanedDescription = cleanChatItineraryDescription(act.description);
+
                     return {
                         time: `${9 + actIndex * 2}:00 AM`,
                         type: actIndex < 2 ? "morning" : actIndex < 4 ? "afternoon" : "evening",
                         name: act.title,
                         address: act.address || extractedAddress || `${act.title}, ${city}`,
-                        description: act.description,
+                        description: cleanedDescription || act.title,
                         category: "attraction",
                         localleyScore: act.type === 'hidden-gem' ? 6 : act.type === 'local-favorite' ? 5 : 4,
                         duration: "1-2 hours",
@@ -269,78 +284,85 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                     </span>
                 </div>
 
-                {days.map((day, dayIndex) => (
-                    <div key={dayIndex} className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
-                        {/* Day Header - Gradient */}
-                        <div className="flex flex-col gap-2 border-b border-white/10 bg-violet-500/16 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-                            <div className="flex min-w-0 items-start gap-2">
-                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/20 bg-violet-500/25 text-xs font-bold text-violet-100">
-                                    {dayIndex + 1}
+                <div className="space-y-3" data-testid="chat-day-schedule">
+                    {days.map((day, dayIndex) => (
+                        <div key={dayIndex} className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
+                            {/* Day Header - Gradient */}
+                            <div className="flex flex-col gap-2 border-b border-white/10 bg-violet-500/16 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                                <div className="flex min-w-0 items-start gap-2">
+                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/20 bg-violet-500/25 text-xs font-bold text-violet-100">
+                                        {dayIndex + 1}
+                                    </span>
+                                    <h4 className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
+                                        {day.day}
+                                    </h4>
+                                </div>
+                                <span className="w-fit shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
+                                    {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
                                 </span>
-                                <h4 className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
-                                    {day.day}
-                                </h4>
                             </div>
-                            <span className="w-fit shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
-                                {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
-                            </span>
-                        </div>
 
-                        {/* Activities */}
-                        <div className="space-y-2 p-2 sm:p-3">
-                            {day.activities.map((activity, actIndex) => {
-                                const badge = getTypeBadge(activity.type);
-                                const desc = cleanChatItineraryDescription(activity.description);
-                                const TypeIcon = getTypeIcon(activity.type);
+                            {/* Activities */}
+                            <div className="space-y-2 p-2 sm:p-3">
+                                {day.activities.map((activity, actIndex) => {
+                                    const badge = getTypeBadge(activity.type);
+                                    const desc = cleanChatItineraryDescription(activity.description);
+                                    const TypeIcon = getTypeIcon(activity.type);
 
-                                return (
-                                    <div key={actIndex} className="relative rounded-lg border border-white/10 bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 sm:p-3">
-                                        <div
-                                            className="absolute bottom-3 left-[21px] top-12 w-px bg-violet-300/20 sm:left-[25px]"
-                                            aria-hidden="true"
-                                        />
-                                        <div className="relative flex items-start gap-2.5 sm:gap-3">
-                                            <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/25 bg-violet-500/25 text-[11px] font-bold text-violet-50 shadow-lg shadow-violet-950/20 sm:h-8 sm:w-8">
-                                                {actIndex + 1}
-                                            </span>
-                                            <ChatPreviewActivityImage
-                                                activity={activity}
-                                                city={city}
-                                                icon={TypeIcon}
+                                    return (
+                                        <div key={actIndex} className="relative rounded-lg border border-white/10 bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 sm:p-3">
+                                            <div
+                                                className="absolute bottom-3 left-[21px] top-12 w-px bg-violet-300/20 sm:left-[25px]"
+                                                aria-hidden="true"
                                             />
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                                                    <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
-                                                        {activity.title}
-                                                    </h5>
-                                                    {badge && (
-                                                        <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}>
-                                                            {badge.label}
-                                                        </span>
+                                            <div className="relative flex items-start gap-2.5 sm:gap-3">
+                                                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/25 bg-violet-500/25 text-[11px] font-bold text-violet-50 shadow-lg shadow-violet-950/20 sm:h-8 sm:w-8">
+                                                    {actIndex + 1}
+                                                </span>
+                                                <ChatPreviewActivityImage
+                                                    activity={activity}
+                                                    city={city}
+                                                    icon={TypeIcon}
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                                                        <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
+                                                            {activity.title}
+                                                        </h5>
+                                                        {badge && (
+                                                            <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}>
+                                                                {badge.label}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {activity.address && (
+                                                        <div className="mt-1.5 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/58">
+                                                            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
+                                                            <span className="line-clamp-2 min-w-0 break-words">{activity.address}</span>
+                                                        </div>
+                                                    )}
+                                                    {desc && (
+                                                        <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-violet-50/64 sm:text-[13px]">
+                                                            {desc}
+                                                        </p>
                                                     )}
                                                 </div>
-                                                {activity.address && (
-                                                    <div className="mt-1.5 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/58">
-                                                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
-                                                        <span className="line-clamp-2 min-w-0 break-words">{activity.address}</span>
-                                                    </div>
-                                                )}
-                                                {desc && (
-                                                    <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-violet-50/64 sm:text-[13px]">
-                                                        {desc}
-                                                    </p>
-                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
 
                 {insights.length > 0 && (
-                    <div className="pt-1">
+                    <div className="pt-1" data-testid="chat-trip-notes">
+                        <div className="mb-2 flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-wide text-violet-200/70">
+                            <span className="h-px flex-1 bg-violet-300/16" aria-hidden="true" />
+                            Outside the day schedule
+                            <span className="h-px flex-1 bg-violet-300/16" aria-hidden="true" />
+                        </div>
                         <ItineraryInsightsPanel
                             insights={insights}
                             title="Trip notes"
