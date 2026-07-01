@@ -129,6 +129,22 @@ function LocationConfidenceChip({ spot, className }: { spot: Spot; className?: s
     );
 }
 
+function AreaImageChip({ className }: { className?: string }) {
+    return (
+        <span
+            className={cn(
+                "inline-flex max-w-[calc(100%-0.5rem)] items-center gap-0.5 rounded-md border border-violet-100/20 bg-black/60 px-1 py-0.5 text-[9px] font-medium leading-none text-violet-50/85 shadow-lg shadow-black/15 backdrop-blur min-[360px]:gap-1 min-[360px]:rounded-full min-[360px]:px-1.5 min-[360px]:text-[10px]",
+                className
+            )}
+            title="Area image shown until a real spot photo is available"
+        >
+            <ImageIcon className="h-2.5 w-2.5 flex-shrink-0 min-[360px]:h-3 min-[360px]:w-3" aria-hidden="true" />
+            <span className="truncate min-[430px]:hidden">Area</span>
+            <span className="hidden truncate min-[430px]:inline">Area image</span>
+        </span>
+    );
+}
+
 export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
     const initialImage = getInitialImage(spot);
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -213,10 +229,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         {renderImage("(max-width: 640px) 112px, 160px")}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
                         {(!hasRealPhoto || usingAreaImage) && (
-                            <span className="absolute bottom-2 left-2 hidden items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2 py-0.5 text-[10px] font-medium text-violet-50/80 backdrop-blur min-[430px]:inline-flex">
-                                <ImageIcon className="h-3 w-3" />
-                                Area image
-                            </span>
+                            <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10" />
                         )}
                     </div>
 
@@ -293,10 +306,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
                     {(!hasRealPhoto || usingAreaImage) && (
-                        <span className="absolute bottom-1.5 left-1.5 z-10 hidden max-w-[calc(100%-0.75rem)] items-center gap-1 rounded-full border border-violet-100/20 bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-50/80 shadow-lg shadow-black/15 backdrop-blur min-[420px]:inline-flex sm:bottom-2.5 sm:left-2.5 sm:max-w-[calc(100%-5.5rem)] sm:px-2.5 sm:py-1 sm:text-[11px]">
-                            <ImageIcon className="h-3 w-3 flex-shrink-0" />
-                            Area
-                        </span>
+                        <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 sm:bottom-2.5 sm:left-2.5 sm:max-w-[calc(100%-5.5rem)] sm:px-2.5 sm:py-1 sm:text-[11px]" />
                     )}
 
                     <div className="absolute right-1.5 top-1.5 z-10 hidden sm:right-2.5 sm:top-2.5 sm:block">
