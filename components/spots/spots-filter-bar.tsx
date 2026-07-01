@@ -205,18 +205,13 @@ export function SpotsFilterBar({
                 })}
             </div>
 
-            <div
-                className={cn(
-                    "grid items-center gap-2 md:hidden",
-                    hasActiveFilters ? "grid-cols-[minmax(0,1fr)_2.75rem]" : "grid-cols-1"
-                )}
-            >
+            <div className="flex min-w-0 items-center gap-2 md:hidden">
                 <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowMobileFilters((value) => !value)}
-                    className="h-11 min-w-0 justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] px-3 text-violet-50/80 hover:bg-white/10 hover:text-white"
+                    className="h-11 min-w-0 flex-1 justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] px-3 text-violet-50/80 hover:bg-white/10 hover:text-white"
                     aria-expanded={showMobileFilters}
                     aria-controls="spots-advanced-filters"
                 >
@@ -235,7 +230,7 @@ export function SpotsFilterBar({
                         type="button"
                         variant="ghost"
                         onClick={onClearFilters}
-                        className="h-11 w-11 rounded-lg border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
+                        className="h-11 w-11 shrink-0 rounded-lg border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
                     >
                         <X className="h-4 w-4" aria-hidden="true" />
                         <span className="sr-only">Clear filters</span>
@@ -247,7 +242,7 @@ export function SpotsFilterBar({
             <div
                 id="spots-advanced-filters"
                 className={cn(
-                    "grid grid-cols-1 gap-2 md:grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center",
+                    "grid min-w-0 grid-cols-1 gap-2 md:grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[repeat(4,minmax(0,1fr))_auto] xl:items-center",
                     !showMobileFilters && "hidden md:grid"
                 )}
                 role="group"
@@ -357,7 +352,7 @@ export function SpotsFilterBar({
 
             {/* Active Filters Display */}
             {hasActiveFilters && (
-                <div className="flex flex-wrap gap-2" role="list" aria-label="Active filters">
+                <div className="flex min-w-0 flex-wrap gap-2 overflow-hidden" role="list" aria-label="Active filters">
                     {currentFilters.search && (
                         <Badge variant="secondary" className="max-w-full gap-1">
                             <span className="max-w-[15rem] truncate sm:max-w-[22rem]">

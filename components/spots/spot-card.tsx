@@ -8,10 +8,11 @@ import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
 import { ImageIcon, MapPin, Navigation, Sparkles, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getCityGradient, getCityImageUrl } from "@/lib/city-images";
+import { getCityGradient } from "@/lib/city-images";
 import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { addFallbackToPlacePhotoUrl } from "@/lib/place-images";
+import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
 
 const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
@@ -45,7 +46,17 @@ function getInitialImage(spot: Spot) {
 
 function getCityFallbackImage(spot: Spot) {
     const city = inferSpotCity(spot);
-    return city ? getCityImageUrl(city, { width: 1200, height: 900, quality: 90 }) : null;
+    if (!city) return null;
+
+    return getSpotFallbackImageUrl({
+        name: spot.name,
+        category: spot.category,
+        city,
+        address: spot.location.address,
+        width: 1200,
+        height: 900,
+        quality: 90,
+    });
 }
 
 function hasRealSpotPhoto(spot: Spot) {
@@ -195,14 +206,14 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                 >
                     <span className="sr-only">Open {spot.name}</span>
                 </Link>
-                    <div className="relative aspect-[4/3] w-24 flex-shrink-0 overflow-hidden bg-violet-950/60 min-[430px]:w-28 sm:w-36">
+                    <div className="relative aspect-[4/3] w-24 flex-shrink-0 overflow-hidden bg-violet-950/60 min-[430px]:w-28 sm:w-32 md:w-36">
                         {!showGradientFallback && !imageLoaded && (
                             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
                         )}
                         {renderImage("(max-width: 640px) 112px, 160px")}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
                         {(!hasRealPhoto || usingAreaImage) && (
-                            <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2 py-0.5 text-[10px] font-medium text-violet-50/80 backdrop-blur">
+                            <span className="absolute bottom-2 left-2 hidden items-center gap-1 rounded-full border border-violet-100/20 bg-black/55 px-2 py-0.5 text-[10px] font-medium text-violet-50/80 backdrop-blur min-[430px]:inline-flex">
                                 <ImageIcon className="h-3 w-3" />
                                 Area image
                             </span>
@@ -233,16 +244,16 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                                     {spot.category}
                                 </span>
                                 {spot.trending && (
-                                    <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100 sm:text-[11px]" title="Trending">
+                                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-rose-200/25 bg-rose-400/10 text-rose-100" title="Trending">
                                         <TrendingUp className="h-3 w-3" />
-                                        Hot
+                                        <span className="sr-only">Trending</span>
                                     </span>
                                 )}
                             </div>
                             <div className="flex min-w-0 flex-wrap items-center gap-1">
                                 <SpotScoreChip score={spot.localleyScore} />
-                                <LocalCrowdChip percentage={spot.localPercentage} />
-                                <LocationConfidenceChip spot={spot} className="hidden min-[430px]:inline-flex" />
+                                <LocalCrowdChip percentage={spot.localPercentage} className="hidden min-[360px]:inline-flex" />
+                                <LocationConfidenceChip spot={spot} className="hidden min-[520px]:inline-flex sm:inline-flex" />
                             </div>
                         </div>
                     </div>
@@ -253,7 +264,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
     // Premium grid card with glassmorphism and micro-animations
     return (
         <Card className={cn(
-            "group relative flex min-h-[112px] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
+            "group relative flex min-h-[104px] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 sm:min-h-0 sm:flex-col",
             "bg-[#100b1c]/92 text-white backdrop-blur-xl",
             "border border-violet-200/15",
             "transition-all duration-300 ease-out",
@@ -282,7 +293,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
                     {(!hasRealPhoto || usingAreaImage) && (
-                        <span className="absolute bottom-1.5 left-1.5 z-10 inline-flex max-w-[calc(100%-0.75rem)] items-center gap-1 rounded-full border border-violet-100/20 bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-50/80 shadow-lg shadow-black/15 backdrop-blur sm:bottom-2.5 sm:left-2.5 sm:max-w-[calc(100%-5.5rem)] sm:px-2.5 sm:py-1 sm:text-[11px]">
+                        <span className="absolute bottom-1.5 left-1.5 z-10 hidden max-w-[calc(100%-0.75rem)] items-center gap-1 rounded-full border border-violet-100/20 bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-50/80 shadow-lg shadow-black/15 backdrop-blur min-[420px]:inline-flex sm:bottom-2.5 sm:left-2.5 sm:max-w-[calc(100%-5.5rem)] sm:px-2.5 sm:py-1 sm:text-[11px]">
                             <ImageIcon className="h-3 w-3 flex-shrink-0" />
                             Area
                         </span>
@@ -317,7 +328,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                         {spot.name}
                     </h3>
 
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-violet-50/55">
+                    <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-violet-50/55">
                         <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
                         <span className="truncate">{spot.location.address}</span>
                     </p>
@@ -325,8 +336,8 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
                     <div className="mt-auto border-t border-white/10 pt-1.5">
                         <div className="flex min-w-0 flex-wrap items-center gap-1">
                             <SpotScoreChip score={spot.localleyScore} />
-                            <LocalCrowdChip percentage={spot.localPercentage} />
-                            <LocationConfidenceChip spot={spot} className="hidden min-[430px]:inline-flex sm:inline-flex" />
+                            <LocalCrowdChip percentage={spot.localPercentage} className="hidden min-[360px]:inline-flex" />
+                            <LocationConfidenceChip spot={spot} className="hidden min-[520px]:inline-flex sm:inline-flex" />
                         </div>
                     </div>
                 </div>

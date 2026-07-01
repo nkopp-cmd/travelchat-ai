@@ -11,13 +11,13 @@ import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
 import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
-import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { addFallbackToPlacePhotoUrl, getGooglePlaceIdFromSpotPhotos, summarizeSpotPhotos } from "@/lib/place-images";
 import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import { buildSpotDirectionsUrl, isKoreanLocation } from "@/lib/spots/map-links";
+import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import {
     getSpotBestTime,
@@ -134,16 +134,32 @@ function getSpotHeroImage(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>
     if (realPhoto) return realPhoto;
 
     const city = inferSpotCity(spot);
-    return city
-        ? getCityImageUrl(city, { width: 1600, height: 900, quality: 90 }) ?? "/placeholder-spot.svg"
-        : "/placeholder-spot.svg";
+    if (!city) return "/placeholder-spot.svg";
+
+    return getSpotFallbackImageUrl({
+        name: spot.name,
+        category: spot.category,
+        city,
+        address: spot.location.address,
+        width: 1600,
+        height: 900,
+        quality: 90,
+    });
 }
 
 function getSpotFallbackImage(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
     const city = inferSpotCity(spot);
-    return city
-        ? getCityImageUrl(city, { width: 1600, height: 900, quality: 90 }) ?? "/placeholder-spot.svg"
-        : "/placeholder-spot.svg";
+    if (!city) return "/placeholder-spot.svg";
+
+    return getSpotFallbackImageUrl({
+        name: spot.name,
+        category: spot.category,
+        city,
+        address: spot.location.address,
+        width: 1600,
+        height: 900,
+        quality: 90,
+    });
 }
 
 function getSpotGalleryImages(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
