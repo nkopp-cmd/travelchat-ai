@@ -36,7 +36,7 @@ describe("spot map links", () => {
     const url = new URL(
       buildSpotDirectionsUrl({
         name: "Popiah Cart",
-        address: "Jalan Hang Lekir, Kuala Lumpur, Malaysia",
+        address: "12 Jalan Hang Lekir, Kuala Lumpur, Malaysia",
         lat: 3.1447,
         lng: 101.6977,
         googlePlaceId: "ChIJ-test-place",
@@ -44,14 +44,14 @@ describe("spot map links", () => {
     );
 
     expect(url.searchParams.get("destination")).toBe(
-      "Popiah Cart, Jalan Hang Lekir, Kuala Lumpur, Malaysia",
+      "Popiah Cart, 12 Jalan Hang Lekir, Kuala Lumpur, Malaysia",
     );
     expect(url.searchParams.get("destination_place_id")).toBe(
       "ChIJ-test-place",
     );
   });
 
-  it("searches by name and area before using imported coordinates", () => {
+  it("opens Google Maps search for area-level records instead of routing to imported coordinates", () => {
     const url = new URL(
       buildSpotDirectionsUrl({
         name: "Saphan Mai Market",
@@ -61,9 +61,12 @@ describe("spot map links", () => {
       }),
     );
 
-    expect(url.searchParams.get("destination")).toBe(
+    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/search/");
+    expect(url.searchParams.get("api")).toBe("1");
+    expect(url.searchParams.get("query")).toBe(
       "Saphan Mai Market, Saphan Mai, Bangkok",
     );
+    expect(url.searchParams.has("destination")).toBe(false);
   });
 
   it("searches by name and area when non-Korean area-level records have no usable pin", () => {
@@ -76,8 +79,27 @@ describe("spot map links", () => {
       }),
     );
 
-    expect(url.searchParams.get("destination")).toBe(
+    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/search/");
+    expect(url.searchParams.get("query")).toBe(
       "Westin Tokyo Garden, Westin Tokyo, Meguro-ku, Tokyo",
+    );
+    expect(url.searchParams.has("destination_place_id")).toBe(false);
+  });
+
+  it("does not attach Google Place IDs to broad area searches", () => {
+    const url = new URL(
+      buildSpotDirectionsUrl({
+        name: "Saphan Mai Local Scene",
+        address: "Saphan Mai, Bangkok",
+        lat: 13.9101,
+        lng: 100.6149,
+        googlePlaceId: "ChIJ-broad-record",
+      }),
+    );
+
+    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/search/");
+    expect(url.searchParams.get("query")).toBe(
+      "Saphan Mai Local Scene, Saphan Mai, Bangkok",
     );
     expect(url.searchParams.has("destination_place_id")).toBe(false);
   });

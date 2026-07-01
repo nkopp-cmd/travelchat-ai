@@ -44,10 +44,10 @@ describe("spot detail normalization", () => {
         expect(normalizeLocalPercentage(-10)).toBe(0);
     });
 
-    it("labels Korean pinned directions as routing to the saved pin", () => {
+    it("labels pinned directions as search-first until the address is exact", () => {
         expect(getSpotDirectionsButtonLabel("exact", true)).toBe("Open exact spot in Kakao");
-        expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Route to saved pin in Kakao");
-        expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Route to saved pin");
+        expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Search pinned area in Kakao");
+        expect(getSpotDirectionsButtonLabel("pinned", false)).toBe("Search pinned area");
         expect(getSpotDirectionsButtonLabel("area", true)).toBe("Search area in Kakao");
         expect(getSpotDirectionsButtonLabel("area", false)).toBe("Search area in Maps");
     });

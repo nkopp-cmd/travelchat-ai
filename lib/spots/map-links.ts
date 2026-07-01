@@ -64,15 +64,21 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
   const coordinateDestination = getCoordinateDestination(input);
   const destinationText =
     exactQuery || input.address.trim() || input.name.trim();
+  const hasAreaLevelAddress = isAreaLevelAddress(input.address);
 
   if (isKoreanLocation(input.address)) {
-    if (coordinateDestination && !isAreaLevelAddress(input.address)) {
+    if (coordinateDestination && !hasAreaLevelAddress) {
       return `https://map.kakao.com/link/to/${encodeURIComponent(
         getKakaoDestinationLabel(input),
       )},${coordinateDestination}`;
     }
 
     return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
+  }
+
+  if (destinationText && hasAreaLevelAddress) {
+    const params = new URLSearchParams({ api: "1", query: destinationText });
+    return `https://www.google.com/maps/search/?${params.toString()}`;
   }
 
   const destination = destinationText || coordinateDestination;

@@ -91,7 +91,7 @@ function getDirectionsHelperText(
   const isKorea = isKoreanLocation(spot.location.address);
   const locationConfidence = getLocationConfidence(spot);
 
-  if (!isKorea && spot.googlePlaceId) {
+  if (!isKorea && spot.googlePlaceId && locationConfidence.tone === "exact") {
     return "Maps opens with the matched Google Place ID from the spot photo source for a more precise destination.";
   }
 
@@ -296,7 +296,9 @@ function getDirectionsTargetLabel(
     return "Directions target";
   }
   if (isKorea && confidence.tone !== "exact") return "Kakao will search";
-  if (!isKorea && spot.googlePlaceId) return "Matched place";
+  if (!isKorea && spot.googlePlaceId && confidence.tone === "exact") {
+    return "Matched place";
+  }
   return confidence.tone === "area" ? "Maps will search" : "Directions search";
 }
 
@@ -1150,7 +1152,8 @@ export default async function SpotPage({
                       value={locationConfidence.label}
                       helper={
                         spot.googlePlaceId &&
-                        !isKoreanLocation(spot.location.address)
+                        !isKoreanLocation(spot.location.address) &&
+                        locationConfidence.tone === "exact"
                           ? "Uses a Google Place match where supported."
                           : locationConfidence.description
                       }
@@ -1162,7 +1165,8 @@ export default async function SpotPage({
                     {getDirectionsHelperText(spot)}
                   </p>
                   {spot.googlePlaceId &&
-                    !isKoreanLocation(spot.location.address) && (
+                    !isKoreanLocation(spot.location.address) &&
+                    locationConfidence.tone === "exact" && (
                       <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
                         Google place match available. Directions include the
                         matched place ID, not only a text search.

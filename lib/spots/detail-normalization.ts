@@ -127,7 +127,7 @@ export function getSpotDirectionsButtonLabel(
     }
 
     if (tone === "pinned") {
-        return isKorea ? "Route to saved pin in Kakao" : "Route to saved pin";
+        return isKorea ? "Search pinned area in Kakao" : "Search pinned area";
     }
 
     return isKorea ? "Search area in Kakao" : "Search area in Maps";
