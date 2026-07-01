@@ -93,7 +93,7 @@ function SpotScoreChip({
   return (
     <span
       className={cn(
-        "inline-flex h-6 min-w-0 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
+        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         getScoreTone(score),
         className,
       )}
@@ -116,7 +116,7 @@ function LocalCrowdChip({
   return (
     <span
       className={cn(
-        "inline-flex h-6 min-w-0 shrink-0 items-center gap-1 rounded-md border border-emerald-200/15 bg-emerald-400/10 px-1.5 text-[10px] font-semibold leading-none text-emerald-100 sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
+        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border border-emerald-200/15 bg-emerald-400/10 px-1.5 text-[10px] font-semibold leading-none text-emerald-100 sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         className,
       )}
       title={`${percentage}% local crowd signal`}
@@ -144,7 +144,7 @@ function LocationConfidenceChip({
   return (
     <span
       className={cn(
-        "inline-flex h-6 min-w-0 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
+        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         hasPlaceMatch || confidence.tone === "exact"
           ? "border-sky-200/20 bg-sky-400/10 text-sky-100"
           : confidence.tone === "pinned"
@@ -201,7 +201,7 @@ function TrendingChip({
   return (
     <span
       className={cn(
-        "inline-flex h-5 min-w-0 shrink-0 items-center justify-center gap-1 rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
+        "inline-flex h-5 min-w-0 max-w-full shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
         className,
       )}
       title="Trending"
@@ -227,7 +227,7 @@ function CategoryTrendRow({
   return (
     <div
       className={cn(
-        "grid min-w-0 items-center gap-1 overflow-hidden",
+        "grid min-w-0 max-w-full items-center gap-1 overflow-hidden",
         trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
         className,
       )}
@@ -392,9 +392,9 @@ export function SpotCard({
             </div>
             <div
               data-spot-card-meta
-              className="grid min-w-0 grid-cols-[auto_auto_1fr] items-center gap-1 overflow-hidden"
+              className="grid min-w-0 grid-cols-[minmax(0,max-content)_minmax(0,max-content)_1fr] items-center gap-1 overflow-hidden"
             >
-              <SpotScoreChip score={spot.localleyScore} />
+              <SpotScoreChip score={spot.localleyScore} className="max-w-full" />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
                 className="hidden min-[430px]:inline-flex"
@@ -493,7 +493,7 @@ export function SpotCard({
         <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 md:flex md:flex-wrap"
+            className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(3.75rem,auto)] items-center gap-1 overflow-hidden md:flex md:flex-wrap md:overflow-visible"
           >
             <CategoryTrendRow
               category={spot.category}
@@ -501,7 +501,7 @@ export function SpotCard({
               compact
               className="md:hidden"
             />
-            <SpotScoreChip score={spot.localleyScore} showLabel />
+            <SpotScoreChip score={spot.localleyScore} showLabel className="justify-self-end md:justify-self-auto" />
             <LocalCrowdChip
               percentage={spot.localPercentage}
               className="hidden md:inline-flex"
