@@ -25,6 +25,13 @@ interface SpotNavigationModeInput {
     usableCoordinates: boolean;
 }
 
+interface SpotNavigationTargetInput {
+    status: SpotNavigationMode["status"];
+    fallbackQuery: string;
+    lat?: number | null;
+    lng?: number | null;
+}
+
 interface TrustedSpotGooglePlaceIdInput {
     photos: string[] | null | undefined;
     storedGooglePlaceId?: string | null;
@@ -226,6 +233,20 @@ export function getSpotNavigationMode(input: SpotNavigationModeInput): SpotNavig
         targetLabel: "Search target",
         helper: "This record still needs exact address and coordinate enrichment. Search opens first so the user can choose the correct place before routing.",
     };
+}
+
+export function getSpotNavigationTargetValue(input: SpotNavigationTargetInput): string {
+    if (
+        input.status === "exact_coordinate_directions" &&
+        typeof input.lat === "number" &&
+        typeof input.lng === "number" &&
+        Number.isFinite(input.lat) &&
+        Number.isFinite(input.lng)
+    ) {
+        return `${input.lat.toFixed(5)}, ${input.lng.toFixed(5)}`;
+    }
+
+    return input.fallbackQuery;
 }
 
 export function getSpotDirectionsButtonLabel(

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { getPublicVisibleSpotRows } from "@/lib/spots/queries";
+import {
+  getPublicVisibleSpotRows,
+  getScoreThresholdCount,
+} from "@/lib/spots/queries";
 import type { RawSpot } from "@/lib/spots/transform";
 
 function makeSpot(overrides: Partial<RawSpot> = {}): RawSpot {
@@ -56,5 +59,19 @@ describe("public visible spot rows", () => {
     ]);
 
     expect(rows.map((row) => row.id)).toEqual(["spot_visible"]);
+  });
+
+  it("counts score filters as thresholds to match 5+ and 4+ labels", () => {
+    const rows = [
+      makeSpot({ id: "score_6", localley_score: 6 }),
+      makeSpot({ id: "score_5", localley_score: 5 }),
+      makeSpot({ id: "score_4", localley_score: 4 }),
+      makeSpot({ id: "score_3", localley_score: 3 }),
+    ];
+
+    expect(getScoreThresholdCount(rows, 6)).toBe(1);
+    expect(getScoreThresholdCount(rows, 5)).toBe(2);
+    expect(getScoreThresholdCount(rows, 4)).toBe(3);
+    expect(getScoreThresholdCount(rows, 3)).toBe(4);
   });
 });

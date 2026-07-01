@@ -5,6 +5,7 @@ import {
     getSpotCoordinateEvidenceLabel,
     getSpotDirectionsButtonLabel,
     getSpotNavigationMode,
+    getSpotNavigationTargetValue,
     getSpotPhotoEvidenceHelper,
     getSpotPhotoEvidenceLabel,
     getSpotRecordConfidence,
@@ -165,6 +166,26 @@ describe("spot detail normalization", () => {
             label: "Area Kakao search",
             targetLabel: "Search target",
         });
+    });
+
+    it("shows coordinate route targets only when directions actually route to coordinates", () => {
+        expect(
+            getSpotNavigationTargetValue({
+                status: "exact_coordinate_directions",
+                fallbackQuery: "LADRIO, 1-chome-3-3 Kanda Jinbocho, Tokyo",
+                lat: 35.695123,
+                lng: 139.758456,
+            })
+        ).toBe("35.69512, 139.75846");
+
+        expect(
+            getSpotNavigationTargetValue({
+                status: "search_first_pin",
+                fallbackQuery: "Gion Coffee, Gion, Kyoto",
+                lat: 35.0037,
+                lng: 135.7788,
+            })
+        ).toBe("Gion Coffee, Gion, Kyoto");
     });
 
     it("only trusts a stored Google Place ID when place-photo identity does not conflict", () => {

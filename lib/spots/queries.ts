@@ -134,9 +134,10 @@ function applySpotSqlFilters(
     query = query.eq("category", filters.category);
   }
 
-  // Score filter
+  // Score filter. The UI labels these as "5+", "4+", etc., so keep the
+  // backend behavior threshold-based instead of exact-bucket filtering.
   if (filters.score) {
-    query = query.eq("localley_score", filters.score);
+    query = query.gte("localley_score", filters.score);
   }
 
   // Text search - search across name, description, and address
@@ -264,6 +265,13 @@ export function getPublicVisibleSpotRows(rows: RawSpot[]): RawSpot[] {
   });
 }
 
+export function getScoreThresholdCount(
+  rows: RawSpot[],
+  minimumScore: number,
+): number {
+  return rows.filter((spot) => (spot.localley_score || 3) >= minimumScore).length;
+}
+
 function getPublicTransformedSpots(rows: RawSpot[]): SpotsResponse["spots"] {
   return getPublicVisibleSpotRows(rows).map((spot) => transformSpot(spot));
 }
@@ -386,13 +394,6 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
     categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
   });
 
-  // Calculate score distribution
-  const scoreCounts: Record<number, number> = {};
-  publicSpots.forEach((spot) => {
-    const score = spot.localley_score || 3;
-    scoreCounts[score] = (scoreCounts[score] || 0) + 1;
-  });
-
   return {
     cities: cities.filter((c) => c.count > 0),
     categories: Object.entries(categoryCounts)
@@ -401,7 +402,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
     scores: [6, 5, 4, 3].map((value) => ({
       value,
       label: SCORE_LABELS[value] || "Unknown",
-      count: scoreCounts[value] || 0,
+      count: getScoreThresholdCount(publicSpots, value),
     })),
   };
 }

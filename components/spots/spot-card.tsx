@@ -161,12 +161,12 @@ function LocationConfidenceChip({
       <Navigation className="h-3 w-3" aria-hidden="true" />
       <span className="truncate">
         {hasPlaceMatch
-          ? "Place"
+          ? "Verified"
           : confidence.tone === "exact"
             ? "Exact"
             : confidence.tone === "pinned"
-              ? "Pinned"
-              : "Area"}
+              ? "Check pin"
+              : "Area only"}
       </span>
     </span>
   );
@@ -186,7 +186,7 @@ function AreaImageChip({ className }: { className?: string }) {
         aria-hidden="true"
       />
       <span className="truncate min-[430px]:hidden">Area</span>
-      <span className="hidden truncate min-[430px]:inline">Area image</span>
+      <span className="hidden truncate min-[430px]:inline">Area photo</span>
     </span>
   );
 }
@@ -250,7 +250,7 @@ function CategoryTrendRow({
           className={cn(
             "justify-self-end",
             compact ? "h-5 w-6 px-0.5" : "max-w-[4.5rem]",
-            hideTrendOnMobile && "hidden min-[420px]:inline-flex",
+            hideTrendOnMobile && "hidden md:inline-flex",
           )}
           showLabel={!compact}
         />
@@ -393,9 +393,9 @@ export function SpotCard({
                 compact
               />
             </div>
-          <div
+            <div
               data-spot-card-meta
-              className="flex min-w-0 items-center gap-1 overflow-hidden"
+              className="grid min-w-0 grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-1 overflow-hidden min-[640px]:flex"
             >
               <SpotScoreChip score={spot.localleyScore} className="max-w-full" />
               <LocalCrowdChip
@@ -471,7 +471,7 @@ export function SpotCard({
           </div>
         </div>
 
-        <div className="mb-1 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 md:mb-0 md:block">
+        <div className="mb-1 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-1.5 md:mb-0 md:block">
           <Link
             href={`/spots/${spot.id}`}
             className="block min-w-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
@@ -496,7 +496,7 @@ export function SpotCard({
         <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden md:overflow-visible"
+            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden md:flex md:flex-wrap md:overflow-visible"
           >
             <CategoryTrendRow
               category={spot.category}
@@ -505,7 +505,11 @@ export function SpotCard({
               hideTrendOnMobile
               className="min-w-0 flex-1 md:hidden"
             />
-            <SpotScoreChip score={spot.localleyScore} showLabel className="ml-auto md:ml-0" />
+            <SpotScoreChip
+              score={spot.localleyScore}
+              showLabel
+              className="justify-self-end md:justify-self-auto"
+            />
             <LocalCrowdChip
               percentage={spot.localPercentage}
               className="hidden md:inline-flex"

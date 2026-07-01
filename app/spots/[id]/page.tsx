@@ -56,6 +56,7 @@ import {
   getSpotCoordinateEvidenceLabel,
   getSpotDirectionsButtonLabel,
   getSpotNavigationMode,
+  getSpotNavigationTargetValue,
   getSpotPhotoEvidenceHelper,
   getSpotPhotoEvidenceLabel,
   getSpotRecordConfidence,
@@ -335,13 +336,6 @@ function getSpotPrimaryUse(category: string): { value: string; helper: string } 
   };
 }
 
-function getDirectionsTargetValue(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-  fallbackQuery: string,
-): string {
-  return fallbackQuery;
-}
-
 function getPrimaryArea(address: string, city: string): string {
   const parts = address
     .split(",")
@@ -566,10 +560,7 @@ function NavigationTargetPanel({
 }) {
   const locationConfidence = getLocationConfidence(spot);
   const city = getSpotContextCity(spot);
-  const targetValue = getDirectionsTargetValue(
-    spot,
-    fallbackQuery || `${spot.name}, ${city}`,
-  );
+  const fallbackTarget = fallbackQuery || `${spot.name}, ${city}`;
   const lat = formatCoordinate(spot.location.lat);
   const lng = formatCoordinate(spot.location.lng);
   const hasMatchedGooglePlace =
@@ -584,6 +575,12 @@ function NavigationTargetPanel({
   const isSearchFirst =
     navigationMode.status === "search_first_pin" ||
     navigationMode.status === "search_first_area";
+  const targetValue = getSpotNavigationTargetValue({
+    status: navigationMode.status,
+    fallbackQuery: fallbackTarget,
+    lat: spot.location.lat,
+    lng: spot.location.lng,
+  });
 
   return (
     <div
@@ -935,6 +932,7 @@ export default async function SpotPage({
             quality={90}
             sizes="(max-width: 768px) 100vw, 1024px"
             fallbackBadgeLabel="Image fallback"
+            showFallbackBadgeInitially={!spot.hasRealPhoto || heroImage === fallbackImage}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
@@ -1476,6 +1474,9 @@ export default async function SpotPage({
                       quality={90}
                       sizes="(max-width: 768px) 100vw, 320px"
                       fallbackBadgeLabel="Fallback"
+                      showFallbackBadgeInitially={
+                        !related.hasRealPhoto || related.photo === related.fallbackImage
+                      }
                       fallbackBadgeClassName="absolute bottom-2 left-2 z-10 rounded-full border border-amber-200/30 bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-amber-100 shadow-lg shadow-black/15 backdrop-blur"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />

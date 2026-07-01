@@ -13,6 +13,7 @@ interface SpotPhotoImageProps {
     priority?: boolean;
     fallbackBadgeLabel?: string;
     fallbackBadgeClassName?: string;
+    showFallbackBadgeInitially?: boolean;
 }
 
 export function SpotPhotoImage({
@@ -25,9 +26,10 @@ export function SpotPhotoImage({
     priority = false,
     fallbackBadgeLabel,
     fallbackBadgeClassName,
+    showFallbackBadgeInitially = false,
 }: SpotPhotoImageProps) {
     const [imageSrc, setImageSrc] = useState(src);
-    const [didFallback, setDidFallback] = useState(false);
+    const [didFallback, setDidFallback] = useState(showFallbackBadgeInitially);
     const isShowingFallback = Boolean(fallbackBadgeLabel) && (didFallback || imageSrc === fallbackSrc);
 
     return (
