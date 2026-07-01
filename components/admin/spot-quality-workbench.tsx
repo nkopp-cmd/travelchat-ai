@@ -69,6 +69,7 @@ interface PhotoBackfillPreviewResult {
         reason?: string;
         placeName?: string | null;
         placeId?: string | null;
+        query?: string | null;
         photoCount?: number;
         updatedFields?: string[];
     }>;
@@ -149,6 +150,7 @@ export function SpotQualityWorkbench() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [previewingPhotoBackfill, setPreviewingPhotoBackfill] = useState(false);
+    const [applyingPhotoBackfill, setApplyingPhotoBackfill] = useState(false);
     const [photoBackfillPreview, setPhotoBackfillPreview] = useState<PhotoBackfillPreviewResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
@@ -207,13 +209,17 @@ export function SpotQualityWorkbench() {
         }
     }, [selectedItem]);
 
-    const previewSelectedPhotoBackfill = async () => {
+    const runSelectedPhotoBackfill = async (dryRun: boolean) => {
         if (!selectedItem) return;
 
-        setPreviewingPhotoBackfill(true);
+        if (dryRun) {
+            setPreviewingPhotoBackfill(true);
+        } else {
+            setApplyingPhotoBackfill(true);
+        }
         setError(null);
         setNotice(null);
-        setPhotoBackfillPreview(null);
+        if (dryRun) setPhotoBackfillPreview(null);
 
         try {
             const response = await fetch("/api/admin/spots/backfill-photos", {
@@ -223,7 +229,8 @@ export function SpotQualityWorkbench() {
                     spotId: selectedItem.id,
                     limit: 1,
                     maxProcessed: 1,
-                    dryRun: true,
+                    dryRun,
+                    upgradeToPlacePhotos: true,
                 }),
             });
             const data = (await response.json()) as PhotoBackfillPreviewResult & { error?: string; details?: string };
@@ -232,19 +239,26 @@ export function SpotQualityWorkbench() {
             }
             setPhotoBackfillPreview(data);
             const firstResult = data.results?.[0];
-            if (firstResult?.status === "would_update") {
+            if (!dryRun && firstResult?.status === "updated") {
+                setNotice(`Applied place-photo backfill with ${firstResult.photoCount || 0} image candidate${firstResult.photoCount === 1 ? "" : "s"}.`);
+                await loadQueue();
+            } else if (firstResult?.status === "would_update") {
                 setNotice(`Photo dry run found ${firstResult.photoCount || 0} image candidate${firstResult.photoCount === 1 ? "" : "s"}.`);
             } else if (firstResult?.status === "skipped") {
                 setNotice(`Photo dry run skipped: ${firstResult.reason || "no update candidate"}.`);
             } else {
-                setNotice("Photo dry run completed.");
+                setNotice(dryRun ? "Photo dry run completed." : "Photo backfill completed.");
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to preview photo backfill");
+            setError(err instanceof Error ? err.message : "Failed to run photo backfill");
         } finally {
             setPreviewingPhotoBackfill(false);
+            setApplyingPhotoBackfill(false);
         }
     };
+
+    const previewSelectedPhotoBackfill = () => runSelectedPhotoBackfill(true);
+    const applySelectedPhotoBackfill = () => runSelectedPhotoBackfill(false);
 
     const saveSelected = async () => {
         if (!selectedItem || !editState) return;
@@ -511,6 +525,12 @@ export function SpotQualityWorkbench() {
                                             {photoBackfillPreview.results[0].placeName && (
                                                 <p>Matched: {photoBackfillPreview.results[0].placeName}</p>
                                             )}
+                                            {photoBackfillPreview.results[0].placeId && (
+                                                <p>Place ID: {photoBackfillPreview.results[0].placeId}</p>
+                                            )}
+                                            {photoBackfillPreview.results[0].query && (
+                                                <p>Query: {photoBackfillPreview.results[0].query}</p>
+                                            )}
                                             {photoBackfillPreview.results[0].photoCount !== undefined && (
                                                 <p>{photoBackfillPreview.results[0].photoCount} photo candidate{photoBackfillPreview.results[0].photoCount === 1 ? "" : "s"}</p>
                                             )}
@@ -519,6 +539,22 @@ export function SpotQualityWorkbench() {
                                             ) : null}
                                             {photoBackfillPreview.results[0].reason && (
                                                 <p>Reason: {photoBackfillPreview.results[0].reason}</p>
+                                            )}
+                                            {photoBackfillPreview.results[0].status === "would_update" && (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    onClick={applySelectedPhotoBackfill}
+                                                    disabled={applyingPhotoBackfill}
+                                                    className="mt-2 h-8 w-full bg-emerald-600 text-xs text-white hover:bg-emerald-700"
+                                                >
+                                                    {applyingPhotoBackfill ? (
+                                                        <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                                    ) : (
+                                                        <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
+                                                    )}
+                                                    Apply place photos
+                                                </Button>
                                             )}
                                         </div>
                                     )}
