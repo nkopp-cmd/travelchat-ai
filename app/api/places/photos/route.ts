@@ -83,12 +83,18 @@ export async function GET(req: NextRequest) {
             totalRatings: number | null;
             phone: string | null;
             placeId: string | null;
+            formattedAddress: string | null;
+            lat: number | null;
+            lng: number | null;
         } = {
             photoUrl: null,
             rating: place.rating || null,
             totalRatings: place.user_ratings_total || null,
             phone: null,
             placeId: place.place_id || null,
+            formattedAddress: place.formatted_address || null,
+            lat: typeof place.geometry?.location?.lat === 'number' ? place.geometry.location.lat : null,
+            lng: typeof place.geometry?.location?.lng === 'number' ? place.geometry.location.lng : null,
         };
 
         // Get photo URL through the Localley proxy so no Google API key is exposed.

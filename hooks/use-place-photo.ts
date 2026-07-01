@@ -8,6 +8,10 @@ interface PlacePhotoResult {
     rating: number | null;
     totalRatings: number | null;
     phone: string | null;
+    placeId: string | null;
+    formattedAddress: string | null;
+    lat: number | null;
+    lng: number | null;
     isLoading: boolean;
 }
 
@@ -16,6 +20,10 @@ const EMPTY_RESULT: PlacePhotoResult = {
     rating: null,
     totalRatings: null,
     phone: null,
+    placeId: null,
+    formattedAddress: null,
+    lat: null,
+    lng: null,
     isLoading: false,
 };
 
@@ -34,11 +42,12 @@ export function usePlacePhoto(
         existingImage?: string;
         userTier?: SubscriptionTier;
         enabled?: boolean;
+        includeDetails?: boolean;
     } = {}
 ): PlacePhotoResult {
-    const { existingImage, enabled = true } = options;
+    const { existingImage, enabled = true, includeDetails = false } = options;
 
-    const shouldFetch = enabled && !existingImage && !!activityName;
+    const shouldFetch = enabled && (!!includeDetails || !existingImage) && !!activityName;
     const cacheKey = `${activityName}:${city}`;
 
     // Check cache synchronously on render
@@ -62,6 +71,10 @@ export function usePlacePhoto(
                     rating: data?.rating || null,
                     totalRatings: data?.totalRatings || null,
                     phone: data?.phone || null,
+                    placeId: data?.placeId || null,
+                    formattedAddress: data?.formattedAddress || null,
+                    lat: typeof data?.lat === "number" ? data.lat : null,
+                    lng: typeof data?.lng === "number" ? data.lng : null,
                     isLoading: false,
                 };
                 photoCache.set(cacheKey, newResult);

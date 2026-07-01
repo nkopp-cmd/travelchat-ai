@@ -22,6 +22,7 @@ import { BookingDealsPopover } from "./booking-deals-popover";
 import { usePlacePhoto } from "@/hooks/use-place-photo";
 import { CityImageAvatar } from "@/components/ui/city-image";
 import { buildActivityMapUrl } from "@/lib/itineraries/map-links";
+import { isKoreanCity } from "@/hooks/use-map-provider";
 
 interface ItineraryActivity {
   name: string;
@@ -94,10 +95,11 @@ export function ItineraryActivityCard({
   const showDeals = hasFeature(userTier, "bookingDeals");
   const storedActivityImage = activity.image || activity.thumbnail;
 
-  // Fetch Google Places photo + rating when no existing image is saved.
+  // Fetch Google Places details when the card needs a real image or address.
   const placeData = usePlacePhoto(activity.name, city, {
     existingImage: storedActivityImage,
     userTier,
+    includeDetails: !activity.address,
   });
 
   const imageCandidates = [storedActivityImage, placeData.photoUrl].filter(
@@ -138,15 +140,31 @@ export function ItineraryActivityCard({
 
   const hotelLinks = getHotelBookingLinks({ city });
 
-  const displayAddress = activity.address || `${city} area`;
-  const exactMapUrl = buildActivityMapUrl(activity, city);
+  const matchedAddress = placeData.formattedAddress || "";
+  const displayAddress =
+    activity.address ||
+    matchedAddress ||
+    `Search by "${activity.name}" in ${city}`;
+  const placeIdMapUrl =
+    !isKoreanCity(city) && placeData.placeId
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          [activity.name, matchedAddress || city].filter(Boolean).join(", "),
+        )}&query_place_id=${encodeURIComponent(placeData.placeId)}`
+      : null;
+  const exactMapUrl =
+    placeIdMapUrl ||
+    buildActivityMapUrl(
+      { ...activity, address: activity.address || matchedAddress || undefined },
+      city,
+    );
   const hasExactAddress = Boolean(activity.address?.trim());
+  const hasMatchedPlace = Boolean(placeData.placeId || matchedAddress);
 
   return (
     <div
       className={cn(
         "relative border-l border-violet-300/20 pl-3 sm:pl-5",
-        !isLast && "pb-2.5 sm:pb-4",
+        !isLast && "pb-3 sm:pb-4",
       )}
     >
       {/* Timeline Dot */}
@@ -156,11 +174,11 @@ export function ItineraryActivityCard({
         </div>
       </div>
 
-      <div className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075] sm:rounded-xl">
-        <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
+      <div className="group overflow-hidden rounded-lg border border-white/10 bg-[#130b22]/78 shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075] sm:rounded-xl">
+        <div className="flex gap-2.5 p-2.5 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
-            <div className="relative h-[72px] w-[72px] overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
+            <div className="relative h-[76px] w-[76px] overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
               {displayImage ? (
                 isStoredActivityImage ? (
                   <Image
@@ -168,7 +186,7 @@ export function ItineraryActivityCard({
                     alt={activity.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 72px, 112px"
+                    sizes="(max-width: 640px) 76px, 112px"
                     quality={90}
                     onError={() => handleImageError(displayImage)}
                   />
@@ -186,7 +204,7 @@ export function ItineraryActivityCard({
                 <CityImageAvatar
                   city={city}
                   className="h-full w-full rounded-none"
-                  sizes="(max-width: 640px) 72px, 112px"
+                  sizes="(max-width: 640px) 76px, 112px"
                   imageWidth={360}
                   quality={90}
                 />
@@ -242,18 +260,25 @@ export function ItineraryActivityCard({
                       {activity.category}
                     </Badge>
                   )}
-                  {hasExactAddress && (
+                  {(hasExactAddress || hasMatchedPlace) && (
                     <Badge
                       variant="outline"
                       className="h-5 rounded-full border-emerald-300/20 bg-emerald-400/10 px-1.5 text-[10px] text-emerald-100 sm:px-2"
                     >
-                      Exact
+                      {hasExactAddress ? "Exact" : "Matched"}
                     </Badge>
                   )}
                 </div>
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <div className="flex min-w-0 items-start gap-1 text-xs text-muted-foreground sm:text-sm">
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
+                    <MapPin
+                      className={cn(
+                        "mt-0.5 h-3.5 w-3.5 flex-shrink-0",
+                        hasExactAddress || hasMatchedPlace
+                          ? "text-emerald-300"
+                          : "text-violet-300",
+                      )}
+                    />
                     <span className="line-clamp-2 min-w-0 break-words">
                       {displayAddress}
                     </span>
@@ -326,7 +351,7 @@ export function ItineraryActivityCard({
                   aria-label={`Open map location for ${activity.name}`}
                 >
                   <Navigation className="h-3.5 w-3.5" />
-                  {hasExactAddress ? "Map" : "Search"}
+                  {hasExactAddress || hasMatchedPlace ? "Directions" : "Search map"}
                   <ExternalLink className="h-3 w-3" />
                 </Button>
               )}
