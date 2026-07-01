@@ -117,7 +117,7 @@ The JSON structure must be:
           "time": "09:00 AM",
           "duration": "2 hours",
           "description": "Why it's special + what to order/see/do - no standalone tips",
-          "address": "Full address with district/neighborhood",
+          "address": "Exact street address with district and city when confidently known; include lane/section/building details when useful for routing. If only an area is known, use the most specific official place + area + city instead of inventing details.",
           "category": "restaurant/cafe/bar/market/temple/park/museum/shopping/attraction/neighborhood",
           "cost": "€15-25",
           "type": "morning/afternoon/evening",
@@ -138,7 +138,7 @@ Guidelines:
 4. Maintain the local, authentic vibe
 5. Ensure activities are realistic and well-timed
 6. Keep the Localley score (local authenticity) high
-7. Provide specific addresses and practical details
+7. Provide exact, routable addresses and practical details
 8. Every day MUST have at least 3 activities - never return empty days
 `;
 
@@ -193,14 +193,14 @@ ${revisionRequest}
 IMPORTANT: Please revise this itinerary according to the user's request.
 - You MUST return the COMPLETE itinerary with ALL days (existing + any new ones)
 - Do NOT return just the new or modified parts - return EVERYTHING
-- Each day MUST have 3-5 real activities with specific names and addresses
+- Each day MUST have 3-5 real activities with specific names and exact, routable addresses when known
 - If adding a new day, include Day 1, Day 2, etc. up to the new day
 
 Make sure to:
 1. Apply the requested changes
 2. Keep activities that still work from the original
 3. Maintain realistic timing and flow
-4. Provide specific addresses for every activity
+4. Provide exact, routable addresses for every activity when confidently known
 5. Keep the Localley score high (focus on hidden gems)
 6. Return valid JSON in the exact format specified
 `;

@@ -59,7 +59,7 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps
-- Authentic experiences with specific spot names and addresses
+- Authentic experiences with specific spot names and exact, routable addresses
 - Why each place is special to locals
 - Practical local notes separated into itinerary-level insights
 
@@ -88,7 +88,7 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
           "time": "string (e.g., '09:00 AM')",
           "type": "morning" | "afternoon" | "evening",
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
-          "address": "string (place name + district + city, e.g. 'Yongkang Beef Noodle, Da'an District, Taipei' — short and geocode-friendly, NO street numbers or lane details)",
+          "address": "string (exact street address with district and city when confidently known; include street numbers, lane/section details, postal code, or official mall/floor context when useful for routing. If only an area is known, use the most specific official place + area + city instead of inventing details.)",
           "description": "string (why it's special + what to order/see/do - no standalone tips)",
           "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",
           "localleyScore": number (1-6),
@@ -111,7 +111,7 @@ EXAMPLE of a GOOD activity:
   "time": "12:00 PM",
   "type": "afternoon",
   "name": "Yongkang Beef Noodle",
-  "address": "Yongkang Beef Noodle, Da'an District, Taipei",
+  "address": "No. 17, Lane 31, Section 2, Jinshan South Road, Da'an District, Taipei",
   "description": "This legendary shop has been serving Taiwan's best beef noodle soup since 1963. Order the half-spicy braised beef noodles - the broth is simmered for 48 hours. Go around 11:30 AM to beat the lunch rush. Baby-friendly with high chairs available.",
   "category": "restaurant",
   "localleyScore": 5,
