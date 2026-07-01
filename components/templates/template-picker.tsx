@@ -163,10 +163,10 @@ function TemplateSummary({ template }: { template: ItineraryTemplate }) {
       </div>
 
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-violet-300/20 bg-violet-500/15 text-2xl shadow-lg shadow-violet-950/20">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-violet-300/20 bg-violet-500/15 text-2xl shadow-lg shadow-violet-950/20">
           {template.emoji}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="mb-1 flex flex-wrap gap-1.5">
             <Badge className="rounded-full border border-violet-300/20 bg-violet-500/15 text-[10px] text-violet-100">
               Selected
@@ -186,6 +186,16 @@ function TemplateSummary({ template }: { template: ItineraryTemplate }) {
           </p>
         </div>
       </div>
+
+      <Button
+        asChild
+        className="h-10 w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
+      >
+        <Link href={getTemplateUrl(template.id)}>
+          <Sparkles className="mr-2 h-4 w-4" />
+          Use this template
+        </Link>
+      </Button>
 
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-xl border border-white/10 bg-white/[0.055] p-2.5">
@@ -226,15 +236,6 @@ function TemplateSummary({ template }: { template: ItineraryTemplate }) {
         ))}
       </div>
 
-      <Button
-        asChild
-        className="h-11 w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
-      >
-        <Link href={getTemplateUrl(template.id)}>
-          <Sparkles className="mr-2 h-4 w-4" />
-          Use this template
-        </Link>
-      </Button>
     </div>
   );
 }
