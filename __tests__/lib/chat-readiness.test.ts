@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getChatProviderReadiness,
+  getChatProviderReadinessActions,
   getChatProviderReadinessFailure,
 } from "@/lib/llm/chat-readiness";
 
@@ -233,5 +234,31 @@ describe("chat provider readiness", () => {
         issues: [],
       }),
     ).toBeNull();
+  });
+
+  it("returns operator actions for missing GLM and fallback setup", () => {
+    expect(
+      getChatProviderReadinessActions({
+        issues: [
+          "glm_api_key_missing",
+          "anthropic_fallback_missing",
+          "openai_itinerary_fallback_missing",
+        ],
+      }),
+    ).toEqual([
+      "Add GLM_API_KEY in Vercel and local env; keep GLM_MODEL=glm-5.2 and GLM_BASE_URL=https://api.z.ai/api/paas/v4/.",
+      "Keep ANTHROPIC_API_KEY configured so chat can fall back when GLM is unavailable or returns an empty response.",
+      "Keep OPENAI_API_KEY configured so itinerary generation has a paid OpenAI fallback behind the GLM primary path.",
+    ]);
+  });
+
+  it("returns a health-check action when GLM configuration fails live validation", () => {
+    expect(
+      getChatProviderReadinessActions({
+        issues: ["glm_health_failed"],
+      }),
+    ).toEqual([
+      "Verify the GLM key, model, and base URL with npm run llm:readiness -- --health --strict before promoting GLM traffic.",
+    ]);
   });
 });

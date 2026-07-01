@@ -10,6 +10,7 @@
 
 import * as dotenv from "dotenv";
 import {
+  getChatProviderReadinessActions,
   getChatProviderReadiness,
   getChatProviderReadinessFailure,
 } from "../lib/llm/chat-readiness";
@@ -62,6 +63,7 @@ async function main() {
     readyForProductionItinerary: readiness.readyForProductionItinerary,
     readyForProductionAI: readiness.readyForProductionAI,
     issues: readiness.issues,
+    actionItems: getChatProviderReadinessActions(readiness),
   };
 
   if (args.json) {
@@ -109,6 +111,9 @@ async function main() {
         summary.readyForProductionAI ? "yes" : "no"
       }`,
       `Issues: ${summary.issues.length ? summary.issues.join(", ") : "none"}`,
+      summary.actionItems.length
+        ? `Next actions:\n${summary.actionItems.map((item) => `- ${item}`).join("\n")}`
+        : "Next actions: none",
     ].join("\n")
   );
 

@@ -3,6 +3,12 @@ import { getTrimmedEnv, readGLMProviderConfig } from "./env";
 import { GLMProvider } from "./providers/glm";
 import type { BaseLLMProvider } from "./providers/base";
 
+export type ChatProviderReadinessIssue =
+  | "glm_api_key_missing"
+  | "glm_health_failed"
+  | "anthropic_fallback_missing"
+  | "openai_itinerary_fallback_missing";
+
 export interface ChatProviderReadiness {
   primary: "glm";
   fallback: "anthropic";
@@ -10,12 +16,7 @@ export interface ChatProviderReadiness {
   readyForProductionChat: boolean;
   readyForProductionItinerary: boolean;
   readyForProductionAI: boolean;
-  issues: Array<
-    | "glm_api_key_missing"
-    | "glm_health_failed"
-    | "anthropic_fallback_missing"
-    | "openai_itinerary_fallback_missing"
-  >;
+  issues: ChatProviderReadinessIssue[];
   glm: {
     configured: boolean;
     healthChecked: boolean;
@@ -49,6 +50,39 @@ export function getChatProviderReadinessFailure(
     : "unknown_readiness_gap";
 
   return `Production AI readiness failed: ${issueList}`;
+}
+
+export function getChatProviderReadinessActions(
+  readiness: Pick<ChatProviderReadiness, "issues">,
+): string[] {
+  const actions: string[] = [];
+
+  for (const issue of readiness.issues) {
+    switch (issue) {
+      case "glm_api_key_missing":
+        actions.push(
+          "Add GLM_API_KEY in Vercel and local env; keep GLM_MODEL=glm-5.2 and GLM_BASE_URL=https://api.z.ai/api/paas/v4/.",
+        );
+        break;
+      case "glm_health_failed":
+        actions.push(
+          "Verify the GLM key, model, and base URL with npm run llm:readiness -- --health --strict before promoting GLM traffic.",
+        );
+        break;
+      case "anthropic_fallback_missing":
+        actions.push(
+          "Keep ANTHROPIC_API_KEY configured so chat can fall back when GLM is unavailable or returns an empty response.",
+        );
+        break;
+      case "openai_itinerary_fallback_missing":
+        actions.push(
+          "Keep OPENAI_API_KEY configured so itinerary generation has a paid OpenAI fallback behind the GLM primary path.",
+        );
+        break;
+    }
+  }
+
+  return actions;
 }
 
 export async function getChatProviderReadiness({
