@@ -23,6 +23,25 @@ interface TrustedSpotGooglePlaceIdInput {
     storedGooglePlaceId?: string | null;
 }
 
+export interface SpotVisitPlanInput {
+    category: string;
+    city: string;
+    primaryArea: string;
+    localleyScore: LocalleyScale;
+    localPercentage: number;
+    bestTime: string;
+    locationTone: SpotLocationConfidence["tone"];
+    hasRealPhoto: boolean;
+    realPhotoCount: number;
+}
+
+export interface SpotVisitPlan {
+    localReason: string;
+    bestUse: string;
+    routePairing: string;
+    evidence: string;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -154,4 +173,113 @@ export function getTrustedSpotGooglePlaceId(
     if (identity.hasIdentityMismatch) return null;
 
     return storedGooglePlaceId || getGooglePlaceIdFromSpotPhotos(input.photos);
+}
+
+function getCategoryVisitUse(category: string): string {
+    const normalized = category.toLowerCase();
+
+    if (normalized.includes("cafe")) {
+        return "Use it as a slow first stop or reset between denser walking pockets.";
+    }
+
+    if (
+        normalized.includes("food") ||
+        normalized.includes("restaurant") ||
+        normalized.includes("market")
+    ) {
+        return "Anchor a meal here, then keep the route light before and after it.";
+    }
+
+    if (normalized.includes("night") || normalized.includes("bar")) {
+        return "Save it for the evening when the local crowd signal matters most.";
+    }
+
+    if (normalized.includes("shopping") || normalized.includes("store")) {
+        return "Treat it as a browse-and-wander stop instead of a rushed errand.";
+    }
+
+    if (
+        normalized.includes("outdoor") ||
+        normalized.includes("park") ||
+        normalized.includes("beach")
+    ) {
+        return "Give it breathing room in the route so the stop does not feel squeezed.";
+    }
+
+    return "Use it as a flexible local anchor around nearby food, coffee, or evening stops.";
+}
+
+function getRoutePairing(category: string, primaryArea: string, city: string): string {
+    const normalized = category.toLowerCase();
+    const area = primaryArea || city;
+
+    if (normalized.includes("cafe")) {
+        return `Pair it with a walk through ${area} and one nearby meal stop.`;
+    }
+
+    if (
+        normalized.includes("food") ||
+        normalized.includes("restaurant") ||
+        normalized.includes("market")
+    ) {
+        return `Build a compact food route around ${area}, then add one quiet recovery stop.`;
+    }
+
+    if (normalized.includes("night") || normalized.includes("bar")) {
+        return `Start nearby before sunset, then let ${area} carry the evening route.`;
+    }
+
+    if (normalized.includes("shopping") || normalized.includes("store")) {
+        return `Use ${area} as a browsing pocket and keep the next stop walkable.`;
+    }
+
+    if (
+        normalized.includes("outdoor") ||
+        normalized.includes("park") ||
+        normalized.includes("beach")
+    ) {
+        return `Keep the route around ${area} simple and weather-aware.`;
+    }
+
+    return `Build nearby time around ${area} before jumping across ${city}.`;
+}
+
+function getLocalReason(input: SpotVisitPlanInput): string {
+    if (input.localleyScore >= LocalleyScale.LEGENDARY_ALLEY) {
+        return `${input.localPercentage}% local signal makes this one of the strongest Localley stops in ${input.primaryArea}.`;
+    }
+
+    if (input.localleyScore >= LocalleyScale.HIDDEN_GEM) {
+        return `${input.localPercentage}% local signal means it is worth planning around, not just saving as a maybe.`;
+    }
+
+    if (input.localleyScore >= LocalleyScale.LOCAL_FAVORITE) {
+        return `${input.localPercentage}% local signal makes it a useful neighborhood anchor.`;
+    }
+
+    return `${input.localPercentage}% local signal gives it enough context for a nearby route.`;
+}
+
+function getEvidenceSummary(input: SpotVisitPlanInput): string {
+    const photoLabel = input.hasRealPhoto
+        ? `${input.realPhotoCount} real photo${input.realPhotoCount === 1 ? "" : "s"}`
+        : "area fallback imagery";
+
+    const locationLabel =
+        input.locationTone === "exact"
+            ? "exact address"
+            : input.locationTone === "pinned"
+                ? "pinned area"
+                : "area-level address";
+
+    return `${photoLabel} plus ${locationLabel} context.`;
+}
+
+export function getSpotVisitPlan(input: SpotVisitPlanInput): SpotVisitPlan {
+    return {
+        localReason: getLocalReason(input),
+        bestUse: `${getCategoryVisitUse(input.category)} Best window: ${input.bestTime}.`,
+        routePairing: getRoutePairing(input.category, input.primaryArea, input.city),
+        evidence: getEvidenceSummary(input),
+    };
 }

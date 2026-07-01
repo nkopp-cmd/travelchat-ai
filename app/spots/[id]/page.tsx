@@ -52,6 +52,7 @@ import {
   getSpotDirectionsButtonLabel,
   getSpotPhotoEvidenceHelper,
   getSpotPhotoEvidenceLabel,
+  getSpotVisitPlan,
   getTrustedSpotGooglePlaceId,
   normalizeLocalleyScore,
   normalizeLocalPercentage,
@@ -771,6 +772,17 @@ export default async function SpotPage({
     name: spot.name,
     address: spot.location.address,
   });
+  const visitPlan = getSpotVisitPlan({
+    category: spot.category,
+    city,
+    primaryArea,
+    localleyScore: spot.localleyScore,
+    localPercentage: spot.localPercentage,
+    bestTime: spot.bestTime,
+    locationTone: locationConfidence.tone,
+    hasRealPhoto: spot.hasRealPhoto,
+    realPhotoCount: spot.realPhotoCount,
+  });
 
   return (
     <>
@@ -995,6 +1007,54 @@ export default async function SpotPage({
                 {spot.description}
               </p>
             </div>
+
+            <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
+                    Visit plan
+                  </p>
+                  <h2 className="text-2xl font-bold leading-tight text-white">
+                    How to use {spot.name}
+                  </h2>
+                </div>
+                <span
+                  className={`w-fit rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
+                >
+                  {locationConfidence.label}
+                </span>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <DetailSignal
+                  icon={Sparkles}
+                  label="Why it matters"
+                  value="Local route anchor"
+                  helper={visitPlan.localReason}
+                />
+                <DetailSignal
+                  icon={Clock}
+                  label="Best use"
+                  value={spot.bestTime}
+                  helper={visitPlan.bestUse}
+                  tone="sky"
+                />
+                <DetailSignal
+                  icon={Route}
+                  label="Pair nearby"
+                  value={primaryArea}
+                  helper={visitPlan.routePairing}
+                  tone="emerald"
+                />
+                <DetailSignal
+                  icon={Camera}
+                  label="Evidence"
+                  value={getSpotPhotoEvidenceLabel(spot)}
+                  helper={visitPlan.evidence}
+                  tone={spot.hasRealPhoto ? "violet" : "amber"}
+                />
+              </div>
+            </section>
 
             <div className={`${LIQUID_CARD} overflow-hidden`}>
               <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
