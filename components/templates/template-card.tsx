@@ -1,8 +1,13 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { ItineraryTemplate } from "@/lib/templates";
+import {
+  getTemplateImageUrl,
+  getTemplateSampleCity,
+  ItineraryTemplate,
+} from "@/lib/templates";
 import { ArrowRight, Clock } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -76,10 +81,16 @@ function TemplateCardContent({
   const pace = paceConfig[template.pace];
   const accent = paceAccents[template.pace];
   const gradient = getTemplateGradient(template);
+  const sampleCity = getTemplateSampleCity(template);
+  const imageUrl = getTemplateImageUrl(template, {
+    width: 240,
+    height: 180,
+    quality: 88,
+  });
 
   return (
       <Card className={cn(
-        "group relative flex min-h-[58px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[68px]",
+        "group relative flex min-h-[72px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[82px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -98,12 +109,17 @@ function TemplateCardContent({
         {/* Main Content */}
         <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2">
           {/* Header */}
-          <div className="flex items-start gap-1.5 sm:gap-2">
-            <div className="relative">
-              <div className="text-sm leading-none transition-transform duration-300 group-hover:scale-105 sm:text-base">
-                {template.emoji}
-              </div>
-              <div aria-hidden="true" className="absolute inset-0 text-sm leading-none opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-base">
+          <div className="flex items-start gap-2 sm:gap-2.5">
+            <div className="relative h-11 w-12 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-12 sm:w-14">
+              <Image
+                src={imageUrl}
+                alt={`${sampleCity} inspiration for ${template.name}`}
+                fill
+                sizes="56px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+              <div className="absolute bottom-0.5 right-0.5 rounded-full bg-black/55 px-1 text-[10px] leading-4 shadow-sm backdrop-blur-sm sm:text-[11px]">
                 {template.emoji}
               </div>
             </div>
@@ -111,6 +127,9 @@ function TemplateCardContent({
               <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
                 {template.name}
               </h3>
+              <p className="mt-0.5 truncate text-[9px] font-medium leading-none text-violet-200/70 sm:text-[10px]">
+                Inspired by {sampleCity}
+              </p>
               <p className="mt-0.5 hidden text-[10px] leading-snug text-muted-foreground/80 xl:line-clamp-1 xl:block">
                 {template.description}
               </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -12,7 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TemplateCard } from "@/components/templates/template-card";
-import type { ItineraryTemplate } from "@/lib/templates";
+import {
+  getTemplateImageUrl,
+  getTemplateSampleCity,
+  type ItineraryTemplate,
+} from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
 interface TemplatePickerProps {
@@ -56,6 +61,12 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
   );
 
   if (!selectedTemplate) return null;
+  const selectedSampleCity = getTemplateSampleCity(selectedTemplate);
+  const selectedImageUrl = getTemplateImageUrl(selectedTemplate, {
+    width: 320,
+    height: 220,
+    quality: 90,
+  });
 
   const handlePaceFilterChange = (pace: PaceFilter) => {
     setPaceFilter(pace);
@@ -111,6 +122,15 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
 
       <div className="pointer-events-none fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 lg:hidden">
         <div className="pointer-events-auto mx-auto flex max-w-xl items-center gap-2 rounded-xl border border-violet-300/20 bg-[#10081c]/95 p-2 shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
+          <div className="relative h-11 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/20">
+            <Image
+              src={selectedImageUrl}
+              alt={`${selectedSampleCity} inspiration`}
+              fill
+              sizes="48px"
+              className="object-cover"
+            />
+          </div>
           <div className="flex min-w-0 flex-1 items-center gap-2 pl-1">
             <span className="shrink-0 text-lg leading-none">
               {selectedTemplate.emoji}
@@ -141,8 +161,29 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
 }
 
 function TemplateSummary({ template }: { template: ItineraryTemplate }) {
+  const sampleCity = getTemplateSampleCity(template);
+  const imageUrl = getTemplateImageUrl(template, {
+    width: 720,
+    height: 420,
+    quality: 90,
+  });
+
   return (
     <div className="space-y-4">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-lg shadow-violet-950/20">
+        <Image
+          src={imageUrl}
+          alt={`${sampleCity} inspiration for ${template.name}`}
+          fill
+          sizes="336px"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/12 to-transparent" />
+        <div className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
+          Inspired by {sampleCity}
+        </div>
+      </div>
+
       <div className="flex items-start gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-violet-300/20 bg-violet-500/15 text-2xl shadow-lg shadow-violet-950/20">
           {template.emoji}
