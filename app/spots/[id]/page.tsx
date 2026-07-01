@@ -515,6 +515,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     priority
                     quality={90}
                     sizes="(max-width: 768px) 100vw, 1024px"
+                    fallbackBadgeLabel="Image fallback"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
                 <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
@@ -608,6 +609,8 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                 className="object-cover"
                                 quality={90}
                                 sizes="(max-width: 768px) 33vw, 320px"
+                                fallbackBadgeLabel="Fallback"
+                                fallbackBadgeClassName="absolute bottom-1.5 left-1.5 z-10 rounded-full border border-amber-200/30 bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-amber-100 shadow-lg shadow-black/15 backdrop-blur"
                             />
                         </div>
                     ))}
@@ -828,6 +831,8 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                                         quality={90}
                                         sizes="(max-width: 768px) 100vw, 320px"
+                                        fallbackBadgeLabel="Fallback"
+                                        fallbackBadgeClassName="absolute bottom-2 left-2 z-10 rounded-full border border-amber-200/30 bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-amber-100 shadow-lg shadow-black/15 backdrop-blur"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
                                     <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/45 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur">

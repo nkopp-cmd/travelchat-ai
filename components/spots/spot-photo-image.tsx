@@ -11,6 +11,8 @@ interface SpotPhotoImageProps {
     sizes: string;
     quality?: number;
     priority?: boolean;
+    fallbackBadgeLabel?: string;
+    fallbackBadgeClassName?: string;
 }
 
 export function SpotPhotoImage({
@@ -21,25 +23,40 @@ export function SpotPhotoImage({
     sizes,
     quality = 90,
     priority = false,
+    fallbackBadgeLabel,
+    fallbackBadgeClassName,
 }: SpotPhotoImageProps) {
     const [imageSrc, setImageSrc] = useState(src);
     const [didFallback, setDidFallback] = useState(false);
+    const isShowingFallback = Boolean(fallbackBadgeLabel) && (didFallback || imageSrc === fallbackSrc);
 
     return (
-        <Image
-            src={imageSrc}
-            alt={alt}
-            fill
-            className={className}
-            priority={priority}
-            quality={quality}
-            sizes={sizes}
-            onError={() => {
-                if (!didFallback && imageSrc !== fallbackSrc) {
-                    setImageSrc(fallbackSrc);
-                    setDidFallback(true);
-                }
-            }}
-        />
+        <>
+            <Image
+                src={imageSrc}
+                alt={alt}
+                fill
+                className={className}
+                priority={priority}
+                quality={quality}
+                sizes={sizes}
+                onError={() => {
+                    if (!didFallback && imageSrc !== fallbackSrc) {
+                        setImageSrc(fallbackSrc);
+                        setDidFallback(true);
+                    }
+                }}
+            />
+            {isShowingFallback && (
+                <span
+                    className={
+                        fallbackBadgeClassName ||
+                        "absolute bottom-2 left-2 z-10 rounded-full border border-amber-200/30 bg-black/60 px-2 py-1 text-[11px] font-semibold text-amber-100 shadow-lg shadow-black/15 backdrop-blur"
+                    }
+                >
+                    {fallbackBadgeLabel}
+                </span>
+            )}
+        </>
     );
 }
