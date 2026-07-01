@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import {
     buildSpotPhotoUrls,
-    findBestGooglePlacePhotos,
+    findBestGooglePlaceMatch,
     getGooglePlacesApiKey,
     getLocalizedFieldValue,
     getSpotPhotoBackfillNeeds,
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const match = await findBestGooglePlacePhotos(name, address, spot.category, apiKey, {
+        const match = await findBestGooglePlaceMatch(name, address, spot.category, apiKey, {
             timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS,
         });
         const place = match.place;

@@ -5,7 +5,7 @@ const mocks = vi.hoisted(() => ({
   requireAdmin: vi.fn(async () => ({ response: null, userId: "admin_test" })),
   createSupabaseAdmin: vi.fn(),
   revalidateTag: vi.fn(),
-  findBestGooglePlacePhotos: vi.fn(),
+  findBestGooglePlaceMatch: vi.fn(),
   getGooglePlacesApiKey: vi.fn(() => "google-key"),
   buildSpotPhotoUrls: vi.fn(() => [
     "/api/places/photo?name=places/ChIJ-test/photos/photo_1&w=1200",
@@ -38,7 +38,7 @@ vi.mock("@/lib/place-images", async (importOriginal) => {
   return {
     ...actual,
     buildSpotPhotoUrls: mocks.buildSpotPhotoUrls,
-    findBestGooglePlacePhotos: mocks.findBestGooglePlacePhotos,
+    findBestGooglePlaceMatch: mocks.findBestGooglePlaceMatch,
     getGooglePlacesApiKey: mocks.getGooglePlacesApiKey,
     getSpotPhotoBackfillNeeds: mocks.getSpotPhotoBackfillNeeds,
   };
@@ -97,7 +97,7 @@ describe("/api/admin/spots/backfill-location", () => {
     vi.clearAllMocks();
     mocks.updatePayloads.length = 0;
     mocks.createSupabaseAdmin.mockReturnValue(createSupabaseMock());
-    mocks.findBestGooglePlacePhotos.mockResolvedValue({
+    mocks.findBestGooglePlaceMatch.mockResolvedValue({
       place: {
         placeId: "ChIJ-test",
         displayName: "LADRIO",
@@ -164,5 +164,49 @@ describe("/api/admin/spots/backfill-location", () => {
       },
     ]);
     expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
+  });
+
+  it("applies exact address and location when the matched place has no photos", async () => {
+    mocks.findBestGooglePlaceMatch.mockResolvedValueOnce({
+      place: {
+        placeId: "ChIJ-location-only",
+        displayName: "LADRIO",
+        formattedAddress: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+        location: {
+          latitude: 35.695,
+          longitude: 139.758,
+        },
+        types: ["cafe"],
+        photos: [],
+      },
+      quality: {
+        acceptable: true,
+        reason: "accepted",
+        nameScore: 1,
+        addressScore: 0.8,
+      },
+      query: "LADRIO, Kanda Jinbocho, Tokyo",
+    });
+    mocks.buildSpotPhotoUrls.mockReturnValueOnce([]);
+    const { POST } = await import("@/app/api/admin/spots/backfill-location/route");
+
+    const response = await POST(createRequest({ spotId: "spot_test", dryRun: false, includePhotos: true }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.result).toMatchObject({
+      status: "updated",
+      photoCount: 0,
+      updatedFields: ["address", "location", "google_place_id"],
+    });
+    expect(mocks.updatePayloads).toEqual([
+      {
+        address: {
+          en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan",
+        },
+        location: "POINT(139.7580000 35.6950000)",
+        google_place_id: "ChIJ-location-only",
+      },
+    ]);
   });
 });

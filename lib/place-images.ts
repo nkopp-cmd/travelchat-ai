@@ -40,6 +40,8 @@ export interface BestGooglePlacePhotoResult {
     rejectedQuality?: ReturnType<typeof getPlacePhotoMatchQuality> | null;
 }
 
+export type BestGooglePlaceMatchResult = BestGooglePlacePhotoResult;
+
 export type SpotPhotoKind =
     | "proxy"
     | "remote_https"
@@ -749,6 +751,40 @@ export async function findBestGooglePlacePhotos(
         for (const place of places) {
             if (place.photos.length === 0) continue;
 
+            const quality = getPlacePhotoMatchQuality(name, address, category, place);
+            if (quality.acceptable) {
+                return { place, quality, query };
+            }
+
+            rejectedPlace = place;
+            rejectedQuality = quality;
+        }
+    }
+
+    return {
+        place: null,
+        quality: null,
+        query: null,
+        rejectedPlace,
+        rejectedQuality,
+    };
+}
+
+export async function findBestGooglePlaceMatch(
+    name: string,
+    address: string,
+    category: string | null | undefined,
+    apiKey: string,
+    options: FindGooglePlacePhotosOptions = {}
+): Promise<BestGooglePlaceMatchResult> {
+    let rejectedPlace: PlacePhotoSearchResult | null = null;
+    let rejectedQuality: ReturnType<typeof getPlacePhotoMatchQuality> | null = null;
+
+    for (const query of buildPlacePhotoSearchQueries(name, address)) {
+        const places = await findGooglePlacePhotoCandidatesByQuery(query, apiKey, options);
+        if (places.length === 0) continue;
+
+        for (const place of places) {
             const quality = getPlacePhotoMatchQuality(name, address, category, place);
             if (quality.acceptable) {
                 return { place, quality, query };
