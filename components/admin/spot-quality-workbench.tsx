@@ -28,6 +28,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { SpotQualityIssue, SpotQualityItem, SpotQualityQueue } from "@/lib/admin/spot-quality";
+import {
+    buildSpotQualityOperatorChecklist,
+    getSpotImageReviewGuidance,
+    getSpotQualityOperatorStatus,
+    getSpotQualityRecommendedAction,
+} from "@/lib/admin/spot-quality-action-plan";
 import { buildSpotQualityItemResearchLinks } from "@/lib/admin/spot-quality-research";
 
 type IssueFilter = SpotQualityIssue | "all";
@@ -52,6 +58,39 @@ const ISSUE_LABELS: Record<SpotQualityIssue, string> = {
 
 const PLACE_ID_MIGRATION_COMMAND =
     'npx supabase db query --linked --file supabase/migrations/006_spots_google_place_id.sql';
+
+const ACTION_LABELS: Record<string, string> = {
+    add_reviewed_real_spot_photo: "Add reviewed real image",
+    add_exact_address_and_coordinates: "Add exact address and pin",
+    manual_exact_place_research_with_photo_and_coordinates: "Research exact place",
+    reconcile_place_id_and_place_photo: "Reconcile Place ID and image",
+    save_google_place_id: "Save Google Place ID",
+    rename_or_remove_broad_spot: "Fix broad spot name",
+    review: "Review public card",
+};
+
+const IMAGE_LANE_LABELS: Record<ReturnType<typeof getSpotImageReviewGuidance>["lane"], string> = {
+    ready: "Image ready",
+    exact_place_photo_backfill: "Exact place photo",
+    area_image_or_exact_place_split: "Area or split",
+    event_or_closed_place_review: "Event review",
+    photo_identity_review: "Identity review",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+    ready: "Ready",
+    needs_real_image: "Needs real image",
+    needs_image_review: "Needs image review",
+    needs_place_photo_match: "Photo ID mismatch",
+    exact: "Exact",
+    pinned_needs_address_review: "Pin needs address",
+    needs_exact_address_and_pin: "Needs exact address",
+    trusted_place_id: "Trusted Place ID",
+    place_id_needs_location_review: "Place ID needs location",
+    search_first: "Search first",
+    blocked_by_place_photo_mismatch: "Blocked by photo mismatch",
+    hidden_until_enriched: "Hidden until enriched",
+};
 
 interface EditState {
     address: string;
@@ -219,6 +258,40 @@ function IssueBadges({ issues }: { issues: SpotQualityIssue[] }) {
     );
 }
 
+function ActionLabel({ action }: { action: string }) {
+    return ACTION_LABELS[action] || action.replaceAll("_", " ");
+}
+
+function OperatorStatusPill({
+    label,
+    status,
+}: {
+    label: string;
+    status: string;
+}) {
+    const good = status === "ready" || status === "exact" || status === "trusted_place_id";
+    const danger =
+        status === "needs_real_image" ||
+        status === "needs_exact_address_and_pin" ||
+        status === "needs_place_photo_match" ||
+        status === "blocked_by_place_photo_mismatch" ||
+        status === "hidden_until_enriched";
+
+    return (
+        <div className={cn(
+            "rounded-md border px-2 py-1",
+            good
+                ? "border-emerald-300/20 bg-emerald-400/10"
+                : danger
+                    ? "border-rose-300/20 bg-rose-400/10"
+                    : "border-amber-300/20 bg-amber-400/10"
+        )}>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-50/45">{label}</p>
+            <p className="mt-0.5 text-xs font-semibold text-white">{STATUS_LABELS[status] || status}</p>
+        </div>
+    );
+}
+
 export function SpotQualityWorkbench() {
     const searchParams = useSearchParams();
     const [queue, setQueue] = useState<SpotQualityQueue | null>(null);
@@ -250,6 +323,22 @@ export function SpotQualityWorkbench() {
     const requestedSpotId = searchParams.get("spot");
     const selectedResearch = useMemo(
         () => selectedItem ? buildSpotQualityItemResearchLinks(selectedItem) : null,
+        [selectedItem]
+    );
+    const selectedOperatorStatus = useMemo(
+        () => selectedItem ? getSpotQualityOperatorStatus(selectedItem) : null,
+        [selectedItem]
+    );
+    const selectedImageGuidance = useMemo(
+        () => selectedItem ? getSpotImageReviewGuidance(selectedItem) : null,
+        [selectedItem]
+    );
+    const selectedChecklist = useMemo(
+        () => selectedItem ? buildSpotQualityOperatorChecklist(selectedItem) : [],
+        [selectedItem]
+    );
+    const selectedRecommendedAction = useMemo(
+        () => selectedItem ? getSpotQualityRecommendedAction(selectedItem) : "review",
         [selectedItem]
     );
 
@@ -630,6 +719,28 @@ export function SpotQualityWorkbench() {
                             {queue.city ? ` in ${queue.city}` : ""}.
                         </span>
                     </div>
+                    <div className="grid gap-2 rounded-lg border border-violet-200/15 bg-violet-500/[0.07] p-3 text-xs text-violet-50/70 sm:grid-cols-3">
+                        <div>
+                            <p className="font-semibold text-white">Next data gate</p>
+                            <p className="mt-1 leading-5">
+                                {queue.hasGooglePlaceIdColumn
+                                    ? "Place ID storage is ready. Keep photo, address, and map evidence aligned."
+                                    : "Apply the Place ID migration before durable directions and image identity writes."}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="font-semibold text-white">Image backlog</p>
+                            <p className="mt-1 leading-5">
+                                {queue.summary.missingRealPhoto.toLocaleString()} spot{queue.summary.missingRealPhoto === 1 ? "" : "s"} still need reviewed real imagery.
+                            </p>
+                        </div>
+                        <div>
+                            <p className="font-semibold text-white">Location backlog</p>
+                            <p className="mt-1 leading-5">
+                                {queue.summary.inexactLocation.toLocaleString()} spot{queue.summary.inexactLocation === 1 ? "" : "s"} still need exact addresses or trusted pins.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -908,6 +1019,46 @@ export function SpotQualityWorkbench() {
                                 </div>
 
                                 <IssueBadges issues={selectedItem.issues} />
+
+                                {selectedOperatorStatus && selectedImageGuidance && (
+                                    <div className="rounded-lg border border-violet-200/15 bg-violet-400/10 p-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-50/45">
+                                                    Operator next action
+                                                </p>
+                                                <h3 className="mt-1 text-sm font-semibold text-white">
+                                                    <ActionLabel action={selectedRecommendedAction} />
+                                                </h3>
+                                                <p className="mt-1 text-xs leading-5 text-violet-50/65">
+                                                    {selectedImageGuidance.reason}
+                                                </p>
+                                            </div>
+                                            <Badge className="shrink-0 rounded-md border border-violet-200/20 bg-violet-300/10 text-[10px] text-violet-100">
+                                                {IMAGE_LANE_LABELS[selectedImageGuidance.lane]}
+                                            </Badge>
+                                        </div>
+
+                                        <div className="mt-3 grid grid-cols-2 gap-2">
+                                            <OperatorStatusPill label="Image" status={selectedOperatorStatus.realImage} />
+                                            <OperatorStatusPill label="Location" status={selectedOperatorStatus.location} />
+                                            <OperatorStatusPill label="Directions" status={selectedOperatorStatus.directions} />
+                                            <OperatorStatusPill label="Public card" status={selectedOperatorStatus.publicCard} />
+                                        </div>
+
+                                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-2">
+                                            <p className="text-xs font-semibold text-white">Checklist</p>
+                                            <ol className="mt-2 space-y-1.5 text-xs leading-5 text-violet-50/70">
+                                                {selectedChecklist.map((step) => (
+                                                    <li key={step} className="flex gap-2">
+                                                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-violet-200/70" />
+                                                        <span>{step}</span>
+                                                    </li>
+                                                ))}
+                                            </ol>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className={cn(
                                     "rounded-lg border p-3",
