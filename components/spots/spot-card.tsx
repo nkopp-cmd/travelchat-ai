@@ -438,6 +438,14 @@ export function SpotCard({
           <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
 
+        <div className="absolute left-1.5 top-1.5 z-10 max-w-[calc(100%-3rem)] md:hidden">
+          <CategoryTrendRow
+            category={spot.category}
+            trending={spot.trending}
+            compact
+          />
+        </div>
+
         <div className="absolute right-1.5 top-1.5 z-10 hidden md:right-2.5 md:top-2.5 md:block">
           <div className="relative z-20 flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
             <SaveSpotButton
@@ -449,13 +457,19 @@ export function SpotCard({
       </div>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-3">
-        <div className="mb-1.5 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+        <div className="mb-1.5 hidden min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 md:grid">
           <div className="min-w-0">
             <CategoryTrendRow
               category={spot.category}
               trending={spot.trending}
             />
           </div>
+        </div>
+
+        <div className="mb-1 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 md:mb-0 md:block">
+          <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
+            {spot.name}
+          </h3>
           <div className="relative z-20 shrink-0 md:hidden">
             <SaveSpotButton
               spotId={spot.id}
@@ -463,10 +477,6 @@ export function SpotCard({
             />
           </div>
         </div>
-
-        <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 min-[390px]:line-clamp-2 sm:line-clamp-1 sm:text-base">
-          {spot.name}
-        </h3>
 
         <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-violet-50/55">
           <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
