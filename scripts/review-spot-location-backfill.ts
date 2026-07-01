@@ -3,6 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/review-spot-location-backfill.ts --limit=20
+ *   npx tsx scripts/review-spot-location-backfill.ts --env-file=/tmp/localley.env --limit=20
  *   npx tsx scripts/review-spot-location-backfill.ts --city=Tokyo --limit=10
  *   npx tsx scripts/review-spot-location-backfill.ts --exact-only --limit=20
  *   npx tsx scripts/review-spot-location-backfill.ts --exact-only --trusted-provider-only --limit=20
@@ -42,6 +43,7 @@ type ReviewStatus = "updated" | "would_update" | "skipped" | "failed";
 interface Args {
     apply: boolean;
     city?: string;
+    envFile: string;
     exactOnly: boolean;
     trustedProviderOnly: boolean;
     limit: number;
@@ -111,6 +113,7 @@ function parseArgs(argv: string[]): Args {
     return {
         apply: argv.includes("--apply"),
         city: getValue("--city"),
+        envFile: getValue("--env-file") || ".env.local",
         exactOnly: argv.includes("--exact-only"),
         trustedProviderOnly: argv.includes("--trusted-provider-only"),
         limit: parsePositiveInt(getValue("--limit"), DEFAULT_LIMIT),
@@ -289,6 +292,7 @@ function baseResult(candidate: CandidateSpot, status: ReviewStatus): ReviewResul
 
 async function main() {
     const args = parseArgs(process.argv.slice(2));
+    dotenv.config({ path: args.envFile, quiet: true });
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
     const startedAt = new Date().toISOString();
@@ -429,6 +433,7 @@ async function main() {
         finishedAt: new Date().toISOString(),
         dryRun: !args.apply,
         city: args.city || null,
+        envFile: args.envFile,
         exactOnly: args.exactOnly,
         trustedProviderOnly: args.trustedProviderOnly,
         limit: args.limit,
