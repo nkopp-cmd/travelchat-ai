@@ -59,26 +59,43 @@ Only the first command is required. Repeat the same commands for `preview` and `
 
 ## Verify the deployed env
 
+Verify the current local env without printing the secret:
+
+```bash
+cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
+npm run llm:readiness
+```
+
+This should report:
+
+- `Primary chat provider: glm`
+- `GLM configured: yes`
+- `GLM key source: GLM_API_KEY`
+- `Ready for GLM primary: yes`
+
+Add `-- --health` only when you want to spend one lightweight provider call to verify the remote GLM endpoint:
+
+```bash
+npm run llm:readiness -- --health
+```
+
 Pull the production env and verify the GLM key is non-empty without printing the secret:
 
 ```bash
 cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
 tmp_env=$(mktemp)
 vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
-node - <<'NODE' "$tmp_env"
-const fs = require("fs");
-const dotenv = require("dotenv");
-const parsed = dotenv.parse(fs.readFileSync(process.argv[2], "utf8"));
-console.log({
-  hasGlmKey: Boolean(parsed.GLM_API_KEY || parsed.ZAI_API_KEY),
-  glmModel: parsed.GLM_MODEL || "glm-5.2",
-  glmBaseUrl: parsed.GLM_BASE_URL || parsed.ZAI_BASE_URL || "https://api.z.ai/api/paas/v4/",
-});
-NODE
+npm run llm:readiness -- --env-file="$tmp_env"
 rm -f "$tmp_env"
 ```
 
-If `hasGlmKey` is `false`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
+For machine-readable checks, add `-- --json`:
+
+```bash
+npm run llm:readiness -- --json
+```
+
+If `GLM configured` is `no` or `readyForGlmPrimary` is `false`, run `vercel env rm GLM_API_KEY production --scope nkopp-cmds-projects` and then add the real key again with `vercel env add GLM_API_KEY production --scope nkopp-cmds-projects`.
 
 ## Verify the runtime provider
 
