@@ -111,6 +111,27 @@ describe("parseChatItineraryPreview", () => {
     expect(result.tips).toEqual(["Tip: Bring cash for smaller shops."]);
   });
 
+  it("pulls unlabeled practical sentences out of activity descriptions", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Cafes**
+
+- **Ikseon Teahouse (Hidden Gem)**: Order seasonal tea in the hanok courtyard. Bring cash for smaller shops. Use the metro and walk from Jongno 3-ga exit 4. The courtyard seats are best for photos.
+  Address: Ikseon-dong, Jongno-gu, Seoul
+`);
+
+    expect(result.days[0].activities[0]).toMatchObject({
+      title: "Ikseon Teahouse",
+      description:
+        "Order seasonal tea in the hanok courtyard. The courtyard seats are best for photos.",
+      address: "Ikseon-dong, Jongno-gu, Seoul",
+    });
+    expect(result.tips).toEqual([
+      "Bring cash for smaller shops.",
+      "Use the metro and walk from Jongno 3-ga exit 4.",
+    ]);
+  });
+
   it("removes address and location lines from the preview description", () => {
     expect(
       cleanChatItineraryDescription("Go early.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")

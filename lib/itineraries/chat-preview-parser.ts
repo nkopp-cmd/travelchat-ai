@@ -53,9 +53,40 @@ function cleanActivityTitle(title: string): string {
 const LABELED_TIP_FRAGMENT_PATTERN =
   /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*[:\-\u2013\u2014]\s*([^.\n]+(?:[.!?]|$)?)/gi;
 
+function looksLikeUnlabeledPracticalTip(value: string): boolean {
+  const text = value.replace(/^[-*]\s*/, "").trim();
+  if (!text || text.length > 180) return false;
+
+  if (/^(bring|pack|wear|use|book|reserve|check|avoid|ask|arrive|get|download|carry|keep|remember|try to)\b/i.test(text)) {
+    return true;
+  }
+
+  if (/^go\s+(early|before|after|around|when)\b/i.test(text)) return true;
+
+  if (/^take\b/i.test(text)) {
+    return /\b(subway|metro|bus|train|taxi|ride|route|exit|line|tram|ferry)\b/i.test(text);
+  }
+
+  if (/^(cash|cards?|tickets?|reservations?|queues?|lines?|weather|rain|metro|subway|bus|train|taxi|rideshare|wifi|sim)\b/i.test(text)) {
+    return true;
+  }
+
+  return (
+    /[.!?]$/.test(text) &&
+    /\b(cash only|small bills|book ahead|reserve ahead|reservation|avoid peak|queue|line|umbrella|rain|closed|opening hours?)\b/i.test(text)
+  );
+}
+
+function splitSentencesForTipExtraction(value: string): string[] {
+  return value
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+}
+
 function splitChatDescriptionTips(description: string): { description: string; tips: string[] } {
   const tips: string[] = [];
-  const cleanedDescription = description
+  const labeledCleanedDescription = description
     .replace(LABELED_TIP_FRAGMENT_PATTERN, (_match, label: string, text: string) => {
       const tip = `${label}: ${text.trim()}`.trim();
       if (tip) tips.push(tip);
@@ -63,8 +94,22 @@ function splitChatDescriptionTips(description: string): { description: string; t
     })
     .replace(/\s{2,}/g, " ")
     .trim();
+  const keptSegments: string[] = [];
 
-  return { description: cleanedDescription, tips };
+  for (const rawLine of labeledCleanedDescription.split(/\n+/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    for (const sentence of splitSentencesForTipExtraction(line)) {
+      if (looksLikeUnlabeledPracticalTip(sentence)) {
+        tips.push(sentence);
+      } else {
+        keptSegments.push(sentence);
+      }
+    }
+  }
+
+  return { description: keptSegments.join(" ").trim(), tips };
 }
 
 function parseActivityLine(trimmedLine: string): { title: string; description: string } | null {
