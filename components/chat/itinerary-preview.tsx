@@ -253,17 +253,6 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 </div>
             </div>
 
-            {insights.length > 0 && (
-                <div className="px-4 pb-3 sm:px-5">
-                    <ItineraryInsightsPanel
-                        insights={insights}
-                        title="Trip notes"
-                        compact
-                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
-                    />
-                </div>
-            )}
-
             {/* Days */}
             <div className="space-y-3 px-3 pb-4 sm:px-5 sm:pb-5">
                 {days.map((day, dayIndex) => (
@@ -284,41 +273,50 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         </div>
 
                         {/* Activities */}
-                        <div className="divide-y divide-white/10">
+                        <div className="space-y-2 p-2 sm:p-3">
                             {day.activities.map((activity, actIndex) => {
                                 const badge = getTypeBadge(activity.type);
                                 const desc = cleanChatItineraryDescription(activity.description);
                                 const TypeIcon = getTypeIcon(activity.type);
 
                                 return (
-                                    <div key={actIndex} className="flex items-start gap-3 px-3 py-3 sm:px-4">
-                                        <ChatPreviewActivityImage
-                                            activity={activity}
-                                            city={city}
-                                            icon={TypeIcon}
+                                    <div key={actIndex} className="relative rounded-lg border border-white/10 bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 sm:p-3">
+                                        <div
+                                            className="absolute bottom-3 left-[21px] top-12 w-px bg-violet-300/20 sm:left-[25px]"
+                                            aria-hidden="true"
                                         />
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                                <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white">
-                                                    {activity.title}
-                                                </h5>
-                                                {badge && (
-                                                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${badge.className}`}>
-                                                        {badge.label}
-                                                    </span>
+                                        <div className="relative flex items-start gap-2.5 sm:gap-3">
+                                            <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/25 bg-violet-500/25 text-[11px] font-bold text-violet-50 shadow-lg shadow-violet-950/20 sm:h-8 sm:w-8">
+                                                {actIndex + 1}
+                                            </span>
+                                            <ChatPreviewActivityImage
+                                                activity={activity}
+                                                city={city}
+                                                icon={TypeIcon}
+                                            />
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                                                    <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
+                                                        {activity.title}
+                                                    </h5>
+                                                    {badge && (
+                                                        <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}>
+                                                            {badge.label}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {activity.address && (
+                                                    <div className="mt-1.5 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/58">
+                                                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
+                                                        <span className="line-clamp-2 min-w-0 break-words">{activity.address}</span>
+                                                    </div>
+                                                )}
+                                                {desc && (
+                                                    <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-violet-50/64 sm:text-[13px]">
+                                                        {desc}
+                                                    </p>
                                                 )}
                                             </div>
-                                            {activity.address && (
-                                                <div className="mt-1 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/55">
-                                                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
-                                                    <span className="line-clamp-1 min-w-0 break-words">{activity.address}</span>
-                                                </div>
-                                            )}
-                                            {desc && (
-                                                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-violet-50/60">
-                                                    {desc}
-                                                </p>
-                                            )}
                                         </div>
                                     </div>
                                 );
@@ -326,6 +324,15 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         </div>
                     </div>
                 ))}
+
+                {insights.length > 0 && (
+                    <ItineraryInsightsPanel
+                        insights={insights}
+                        title="Trip notes"
+                        compact
+                        className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
+                    />
+                )}
             </div>
         </div>
     );

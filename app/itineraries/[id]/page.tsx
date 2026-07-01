@@ -328,7 +328,7 @@ export default async function ItineraryViewPage({
             <ItineraryInsightsPanel
               insights={itineraryInsights}
               title="Trip notes"
-              description="Tips and transport context stay outside the day schedule, so each day remains a clean route."
+              description="Useful local context, transport notes, and practical details for the whole trip."
               className="border-violet-300/15 bg-violet-950/[0.18]"
             />
           </aside>
@@ -346,7 +346,7 @@ export default async function ItineraryViewPage({
               </div>
               <p className="text-sm text-muted-foreground">
                 {dailyPlansForDisplay.length}{" "}
-                {dailyPlansForDisplay.length === 1 ? "day" : "days"} with tips kept separate.
+                {dailyPlansForDisplay.length === 1 ? "route day" : "route days"}
               </p>
             </div>
             {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => {
