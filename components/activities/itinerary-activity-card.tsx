@@ -13,11 +13,7 @@ import {
   Navigation,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  SubscriptionTier,
-  canSeeFullAddress,
-  hasFeature,
-} from "@/lib/subscription";
+import { SubscriptionTier, hasFeature } from "@/lib/subscription";
 import {
   getActivityBookingLinks,
   getHotelBookingLinks,
@@ -39,6 +35,7 @@ interface ItineraryActivity {
   category?: string;
   localleyScore?: number;
   image?: string;
+  thumbnail?: string;
 }
 
 interface ItineraryActivityCardProps {
@@ -80,17 +77,6 @@ function formatActivityType(type: string) {
     .join(" ");
 }
 
-function compactAddress(address: string, city: string): string {
-  const parts = address
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length >= 3) return `${parts.at(-2)}, ${parts.at(-1)}`;
-  if (parts.length >= 2) return `${parts.at(-2)}, ${city}`;
-  return `${city} area`;
-}
-
 export function ItineraryActivityCard({
   activity,
   city,
@@ -105,16 +91,16 @@ export function ItineraryActivityCard({
   const scoreBadge = activity.localleyScore
     ? getScoreBadge(activity.localleyScore)
     : null;
-  const canShowFullAddress = canSeeFullAddress(userTier);
   const showDeals = hasFeature(userTier, "bookingDeals");
+  const storedActivityImage = activity.image || activity.thumbnail;
 
-  // Fetch Google Places photo + rating for paid users when no existing image
+  // Fetch Google Places photo + rating when no existing image is saved.
   const placeData = usePlacePhoto(activity.name, city, {
-    existingImage: activity.image,
+    existingImage: storedActivityImage,
     userTier,
   });
 
-  const imageCandidates = [activity.image, placeData.photoUrl].filter(
+  const imageCandidates = [storedActivityImage, placeData.photoUrl].filter(
     (src): src is string => Boolean(src),
   );
   const imageKey = imageCandidates.join("|");
@@ -125,8 +111,13 @@ export function ItineraryActivityCard({
   const displayImage =
     imageCandidates.find((src) => !failedImages.has(src)) || null;
   const isStoredActivityImage = Boolean(
-    activity.image && displayImage === activity.image,
+    storedActivityImage && displayImage === storedActivityImage,
   );
+  const imageSourceLabel = displayImage
+    ? isStoredActivityImage
+      ? "Trip image"
+      : "Place photo"
+    : "City image";
   const displayRating = placeData.rating;
   const displayTotalRatings = placeData.totalRatings;
 
@@ -147,17 +138,9 @@ export function ItineraryActivityCard({
 
   const hotelLinks = getHotelBookingLinks({ city });
 
-  const displayAddress = canShowFullAddress
-    ? activity.address
-    : activity.address
-      ? compactAddress(activity.address, city)
-      : `${city} Area`;
-  const mapActivity = canShowFullAddress
-    ? activity
-    : { name: activity.name, nameKo: activity.nameKo };
-  const exactMapUrl = buildActivityMapUrl(mapActivity, city);
-  const hasExactAddress =
-    canShowFullAddress && Boolean(activity.address?.trim());
+  const displayAddress = activity.address || `${city} area`;
+  const exactMapUrl = buildActivityMapUrl(activity, city);
+  const hasExactAddress = Boolean(activity.address?.trim());
 
   return (
     <div
@@ -213,6 +196,16 @@ export function ItineraryActivityCard({
                   <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
+              <span
+                className={cn(
+                  "absolute left-1.5 top-1.5 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-lg shadow-black/20 backdrop-blur sm:text-[10px]",
+                  displayImage
+                    ? "border-white/15 bg-black/55"
+                    : "border-violet-200/20 bg-violet-500/45",
+                )}
+              >
+                {imageSourceLabel}
+              </span>
               {activity.time && (
                 <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
                   {activity.time}
@@ -336,11 +329,6 @@ export function ItineraryActivityCard({
                   {hasExactAddress ? "Map" : "Search"}
                   <ExternalLink className="h-3 w-3" />
                 </Button>
-              )}
-              {!canShowFullAddress && activity.address && (
-                <span className="inline-flex h-8 items-center rounded-full border border-violet-400/15 bg-violet-400/10 px-3 text-xs font-medium text-violet-100/80">
-                  Full address on paid plans
-                </span>
               )}
             </div>
           </div>

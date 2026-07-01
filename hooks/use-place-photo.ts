@@ -24,7 +24,8 @@ const photoCache = new Map<string, PlacePhotoResult>();
 
 /**
  * Hook to fetch place photo + metadata from Google Places API.
- * Only fetches for Pro/Premium users when activity.image is missing.
+ * Fetches when an activity has no stored image so itinerary stops can still
+ * show the real place when Google has a confident match.
  */
 export function usePlacePhoto(
     activityName: string,
@@ -35,9 +36,9 @@ export function usePlacePhoto(
         enabled?: boolean;
     } = {}
 ): PlacePhotoResult {
-    const { existingImage, userTier = "free", enabled = true } = options;
+    const { existingImage, enabled = true } = options;
 
-    const shouldFetch = enabled && !existingImage && (userTier === "pro" || userTier === "premium") && !!activityName;
+    const shouldFetch = enabled && !existingImage && !!activityName;
     const cacheKey = `${activityName}:${city}`;
 
     // Check cache synchronously on render
