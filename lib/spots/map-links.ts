@@ -1,7 +1,4 @@
-import {
-    getSpotLocationConfidence,
-    hasUsableCoordinates,
-} from "@/lib/spots/location-confidence";
+import { hasUsableCoordinates } from "@/lib/spots/location-confidence";
 
 export interface SpotDirectionsInput {
     name: string;
@@ -51,24 +48,12 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     const exactQuery = getSpotDirectionsSearchText(input);
     const usableCoordinates = hasUsableCoordinates(input.lat, input.lng);
     const coordinateDestination = usableCoordinates ? `${input.lat},${input.lng}` : "";
-    const confidence = getSpotLocationConfidence({
-        address: input.address,
-        lat: input.lat,
-        lng: input.lng,
-    });
 
     if (isKoreanLocation(input.address)) {
-        if (!confidence.exactAddress && coordinateDestination) {
-            return `https://map.kakao.com/link/to/${encodeURIComponent(
-                input.name || input.address || "Localley spot"
-            )},${coordinateDestination}`;
-        }
-
         return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || input.address)}`;
     }
 
     const destination =
-        (!input.googlePlaceId && !confidence.exactAddress && coordinateDestination) ||
         exactQuery ||
         coordinateDestination ||
         input.address;
