@@ -108,10 +108,8 @@ export function getLocalizedText(field: MultiLanguageField): string {
 export function transformSpot(spot: RawSpot): Spot {
     const { lat, lng } = getSpotCoordinateValues(spot.location);
 
-    // Build photos array, ensuring at least one image
-    // Priority: real photos > category placeholder
-    const photoSummary = summarizeSpotPhotos(spot.photos);
     const photos = normalizeSpotPhotos(spot.photos, spot.category);
+    const photoSummary = summarizeSpotPhotos(photos);
 
     return {
         id: spot.id,
