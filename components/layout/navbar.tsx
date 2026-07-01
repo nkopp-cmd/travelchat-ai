@@ -218,20 +218,29 @@ export function Navbar() {
                         </>
                     ) : (
                         <div className="flex items-center gap-2">
-                            <Link href="/sign-in">
-                                <Button variant="ghost" size="sm" className={cn(
+                            <Button
+                                asChild
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
                                     "hover:bg-white/10",
                                     isLanding ? "text-white hover:text-white" : ""
-                                )}>
+                                )}
+                            >
+                                <Link href="/sign-in">
                                     Sign In
-                                </Button>
-                            </Link>
+                                </Link>
+                            </Button>
                             {/* Hide Get Started on mobile - use bottom nav instead */}
-                            <Link href="/sign-up" className="hidden sm:block">
-                                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 rounded-full px-6 shadow-lg shadow-violet-500/20">
+                            <Button
+                                asChild
+                                size="sm"
+                                className="hidden rounded-full bg-violet-600 px-6 shadow-lg shadow-violet-500/20 hover:bg-violet-700 sm:inline-flex"
+                            >
+                                <Link href="/sign-up">
                                     Get Started
-                                </Button>
-                            </Link>
+                                </Link>
+                            </Button>
                         </div>
                     )}
                 </div>

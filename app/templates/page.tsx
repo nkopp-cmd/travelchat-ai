@@ -96,11 +96,14 @@ export default function TemplatesPage() {
           <p className="mb-2.5 text-sm text-muted-foreground">
             Create a fully custom itinerary from scratch with Alley AI
           </p>
-          <Link href="/dashboard">
-            <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700">
+          <Button
+            asChild
+            className="bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700"
+          >
+            <Link href="/dashboard">
               Create Custom Itinerary
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </AppBackground>

@@ -68,7 +68,7 @@ export function StepDestination() {
   }
 
   return (
-    <div className="flex min-h-full flex-col px-3 py-3 pb-24 sm:px-4 sm:py-5">
+    <div className="flex min-h-full flex-col px-3 py-3 pb-40 sm:px-4 sm:py-5 sm:pb-28">
       {/* Header */}
       <div className={cn("text-center", templateMode ? "mb-2 sm:mb-3" : "mb-3 sm:mb-5")}>
         <div className={cn(
