@@ -24,6 +24,16 @@ import {
 const SPOTS_QUERY_PAGE_SIZE = 1000;
 export const DEFAULT_SPOTS_QUERY_TIMEOUT_MS = 8000;
 
+function getSpotTextFieldValue(
+  field: RawSpot["name"] | RawSpot["address"],
+): string {
+  if (typeof field === "object" && field !== null) {
+    return field.en || Object.values(field)[0] || "";
+  }
+
+  return field || "";
+}
+
 function getSpotsQueryTimeoutMs(): number {
   const configuredTimeout = Number(process.env.SPOTS_QUERY_TIMEOUT_MS);
   return Number.isFinite(configuredTimeout) && configuredTimeout > 0
@@ -241,19 +251,21 @@ async function fetchPublicCandidateRows(): Promise<{
   return { rows, error: null };
 }
 
-function getPublicTransformedSpots(rows: RawSpot[]): SpotsResponse["spots"] {
-  const allSpots = rows
-    .filter((spot) => shouldShowPublicSpot(spot))
-    .map((spot) => transformSpot(spot));
-
-  // Safety net: deduplicate by (name + address) in case DB has dupes.
+export function getPublicVisibleSpotRows(rows: RawSpot[]): RawSpot[] {
   const seen = new Map<string, boolean>();
-  return allSpots.filter((spot) => {
-    const key = `${spot.name.toLowerCase().trim()}|${spot.location.address.toLowerCase().trim()}`;
+  return rows.filter((spot) => {
+    if (!shouldShowPublicSpot(spot)) return false;
+
+    // Safety net: deduplicate by (name + address) in case DB has dupes.
+    const key = `${getSpotTextFieldValue(spot.name).toLowerCase().trim()}|${getSpotTextFieldValue(spot.address).toLowerCase().trim()}`;
     if (seen.has(key)) return false;
     seen.set(key, true);
     return true;
   });
+}
+
+function getPublicTransformedSpots(rows: RawSpot[]): SpotsResponse["spots"] {
+  return getPublicVisibleSpotRows(rows).map((spot) => transformSpot(spot));
 }
 
 /**
@@ -350,14 +362,11 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
     };
   }
 
-  const publicSpots = rows.filter((spot) => shouldShowPublicSpot(spot));
+  const publicSpots = getPublicVisibleSpotRows(rows);
 
   const cities = ENABLED_CITIES.map((city) => {
     const count = publicSpots.filter((spot) => {
-      const address =
-        typeof spot.address === "object" && spot.address !== null
-          ? spot.address.en || Object.values(spot.address)[0] || ""
-          : spot.address || "";
+      const address = getSpotTextFieldValue(spot.address);
 
       return address.toLowerCase().includes(city.name.toLowerCase());
     }).length;
@@ -423,5 +432,5 @@ export async function getTotalSpotCount(): Promise<number> {
     return 0;
   }
 
-  return rows.filter((spot) => shouldShowPublicSpot(spot)).length;
+  return getPublicVisibleSpotRows(rows).length;
 }
