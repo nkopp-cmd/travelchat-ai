@@ -47,6 +47,9 @@ const ISSUE_LABELS: Record<SpotQualityIssue, string> = {
     missing_name: "Missing name",
 };
 
+const PLACE_ID_MIGRATION_COMMAND =
+    'npx supabase db query --linked --file supabase/migrations/006_spots_google_place_id.sql';
+
 interface EditState {
     address: string;
     lat: string;
@@ -105,15 +108,29 @@ function parseCoordinate(value: string): number | undefined {
     return Number.isFinite(parsed) ? parsed : Number.NaN;
 }
 
-function SummaryTile({ label, value, tone }: { label: string; value: number; tone?: "good" | "warn" }) {
+function SummaryTile({
+    label,
+    value,
+    tone,
+}: {
+    label: string;
+    value: number | string;
+    tone?: "good" | "warn" | "danger";
+}) {
     return (
         <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
             <p className="text-xs font-medium text-violet-50/55">{label}</p>
             <p className={cn(
                 "mt-1 text-2xl font-semibold",
-                tone === "good" ? "text-emerald-200" : tone === "warn" ? "text-amber-200" : "text-white"
+                tone === "good"
+                    ? "text-emerald-200"
+                    : tone === "warn"
+                        ? "text-amber-200"
+                        : tone === "danger"
+                            ? "text-rose-200"
+                            : "text-white"
             )}>
-                {value.toLocaleString()}
+                {typeof value === "number" ? value.toLocaleString() : value}
             </p>
         </div>
     );
@@ -361,8 +378,38 @@ export function SpotQualityWorkbench() {
                     <SummaryTile label="Public ready" value={queue.summary.publicReady} tone="good" />
                     <SummaryTile label="Images" value={queue.summary.missingRealPhoto} />
                     <SummaryTile label="Locations" value={queue.summary.inexactLocation} />
-                    <SummaryTile label="Place IDs" value={queue.summary.missingPlaceId} />
+                    <SummaryTile
+                        label="Place IDs"
+                        value={queue.hasGooglePlaceIdColumn ? queue.summary.missingPlaceId : "Blocked"}
+                        tone={queue.hasGooglePlaceIdColumn ? undefined : "danger"}
+                    />
                     <SummaryTile label="Names" value={queue.summary.broadPlaceName + queue.summary.missingName} />
+                </div>
+            )}
+
+            {queue?.hasGooglePlaceIdColumn === false && (
+                <div className="mb-4 rounded-lg border border-amber-300/25 bg-amber-500/10 p-3 text-sm text-amber-50">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 font-semibold">
+                                <AlertTriangle className="h-4 w-4 shrink-0" />
+                                Place ID storage is blocked by a missing database column
+                            </div>
+                            <p className="mt-1 leading-6 text-amber-50/75">
+                                Apply `supabase/migrations/006_spots_google_place_id.sql` before saving durable Google Place IDs for exact directions and photo provenance.
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => copyText(PLACE_ID_MIGRATION_COMMAND, "migration command")}
+                            className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                        >
+                            <Copy className="mr-2 h-3.5 w-3.5" />
+                            Copy command
+                        </Button>
+                    </div>
                 </div>
             )}
 
