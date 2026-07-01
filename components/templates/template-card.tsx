@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 interface TemplateCardProps {
   template: ItineraryTemplate;
   href?: string;
+  actionHref?: string;
   isSelected?: boolean;
   onSelect?: () => void;
 }
@@ -136,7 +137,7 @@ function TemplateCardContent({
 
         {isSelected && (
           <div className="absolute right-1.5 top-1.5 rounded-full border border-violet-200/40 bg-violet-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-lg shadow-violet-950/20 sm:right-2 sm:top-2">
-            Set
+            Use
           </div>
         )}
 
@@ -149,9 +150,21 @@ function TemplateCardContent({
   );
 }
 
-export function TemplateCard({ template, href, isSelected, onSelect }: TemplateCardProps) {
+export function TemplateCard({ template, href, actionHref, isSelected, onSelect }: TemplateCardProps) {
   const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background";
   const content = <TemplateCardContent template={template} isSelected={isSelected} />;
+
+  if (isSelected && actionHref) {
+    return (
+      <Link
+        href={actionHref}
+        className={className}
+        aria-label={`Use ${template.name} template`}
+      >
+        {content}
+      </Link>
+    );
+  }
 
   if (onSelect) {
     return (
