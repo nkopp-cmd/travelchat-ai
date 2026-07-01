@@ -415,7 +415,7 @@ export function SpotCard({
     <Card
       data-spot-card="grid"
       className={cn(
-        "group relative flex min-h-[4.9rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
+        "group relative flex min-h-[4.5rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
         "bg-[#100b1c]/92 text-white backdrop-blur-xl",
         "border border-violet-200/15",
         "transition-all duration-300 ease-out",
@@ -428,7 +428,7 @@ export function SpotCard({
       <Link
         href={`/spots/${spot.id}`}
         aria-label={`Open ${spot.name}`}
-        className="relative w-[4.5rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-20 min-[460px]:w-24 md:aspect-[2/1] md:w-full"
+        className="relative w-[4rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[390px]:w-[4.75rem] min-[520px]:w-24 md:aspect-[2/1] md:w-full"
       >
         {!showGradientFallback && !imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
@@ -458,7 +458,7 @@ export function SpotCard({
         </div>
       </div>
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-2.5">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[420px]:p-2 sm:p-2.5">
         <div className="mb-1.5 hidden min-w-0 md:block">
           <div className="min-w-0">
             <CategoryTrendRow
@@ -493,15 +493,15 @@ export function SpotCard({
         <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(3.75rem,auto)] items-center gap-1 overflow-hidden md:flex md:flex-wrap md:overflow-visible"
+            className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden md:overflow-visible"
           >
             <CategoryTrendRow
               category={spot.category}
               trending={spot.trending}
               compact
-              className="md:hidden"
+              className="max-w-[calc(100%-4.4rem)] flex-1 md:hidden"
             />
-            <SpotScoreChip score={spot.localleyScore} showLabel className="justify-self-end md:justify-self-auto" />
+            <SpotScoreChip score={spot.localleyScore} showLabel className="ml-auto md:ml-0" />
             <LocalCrowdChip
               percentage={spot.localPercentage}
               className="hidden md:inline-flex"

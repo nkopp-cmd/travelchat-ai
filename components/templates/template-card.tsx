@@ -90,7 +90,7 @@ function TemplateCardContent({
 
   return (
       <Card className={cn(
-        "group relative flex min-h-[60px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[72px]",
+        "group relative flex min-h-[54px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[66px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -109,13 +109,13 @@ function TemplateCardContent({
         {/* Main Content */}
         <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2">
           {/* Header */}
-          <div className="flex items-start gap-1.5 sm:gap-2.5">
-            <div className="relative h-9 w-10 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-11 sm:w-12">
+          <div className="flex items-start gap-1.5 sm:gap-2">
+            <div className="relative h-8 w-9 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-10 sm:w-11">
               <Image
                 src={imageUrl}
                 alt={`${sampleCity} inspiration for ${template.name}`}
                 fill
-                sizes="56px"
+                sizes="48px"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
@@ -124,7 +124,7 @@ function TemplateCardContent({
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
+              <h3 className="line-clamp-2 text-[10px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
                 {template.name}
               </h3>
               <p className="mt-0.5 hidden truncate text-[9px] font-medium leading-none text-violet-200/70 min-[380px]:block sm:text-[10px]">
@@ -163,7 +163,7 @@ function TemplateCardContent({
 
         {/* Corner accent */}
         <div className={cn(
-          "absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          "absolute right-0 top-0 h-14 w-14 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
           "bg-gradient-to-bl from-violet-500/10 to-transparent"
         )} />
       </Card>

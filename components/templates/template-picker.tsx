@@ -96,12 +96,11 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-3 sm:gap-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-1.5 min-[340px]:grid-cols-3 sm:gap-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleTemplates.map((template) => (
             <TemplateCard
               key={template.id}
               template={template}
-              actionHref={getTemplateUrl(template.id)}
               isSelected={selectedTemplate.id === template.id}
               onSelect={() => setSelectedId(template.id)}
             />
