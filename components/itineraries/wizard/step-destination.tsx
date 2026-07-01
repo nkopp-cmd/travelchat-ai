@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
 import { MapPin, Check, RefreshCw } from "lucide-react";
@@ -153,13 +154,22 @@ function CityCard({
       )}
     >
       {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-        style={{
-          backgroundImage: city.heroImage ? `url(${city.heroImage})` : undefined,
-          backgroundColor: "#374151"
-        }}
-      />
+      <div className="absolute inset-0 bg-[#374151]">
+        {city.heroImage && (
+          <Image
+            src={city.heroImage}
+            alt={`${city.name} city view`}
+            fill
+            sizes={
+              compact
+                ? "(max-width: 479px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                : "(max-width: 479px) 50vw, (max-width: 768px) 33vw, 320px"
+            }
+            quality={90}
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
+      </div>
 
       {/* Gradient overlay */}
       <div
