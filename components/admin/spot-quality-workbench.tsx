@@ -6,8 +6,10 @@ import Link from "next/link";
 import {
     AlertTriangle,
     CheckCircle2,
+    Copy,
     ExternalLink,
     ImageIcon,
+    Images,
     Loader2,
     MapPin,
     RefreshCw,
@@ -22,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { SpotQualityIssue, SpotQualityItem, SpotQualityQueue } from "@/lib/admin/spot-quality";
+import { buildSpotQualityItemResearchLinks } from "@/lib/admin/spot-quality-research";
 
 type IssueFilter = SpotQualityIssue | "all";
 
@@ -130,6 +133,10 @@ export function SpotQualityWorkbench() {
         () => queue?.items.find((item) => item.id === selectedId) || queue?.items[0] || null,
         [queue, selectedId]
     );
+    const selectedResearch = useMemo(
+        () => selectedItem ? buildSpotQualityItemResearchLinks(selectedItem) : null,
+        [selectedItem]
+    );
 
     const loadQueue = useCallback(async () => {
         setLoading(true);
@@ -210,6 +217,15 @@ export function SpotQualityWorkbench() {
             setError(err instanceof Error ? err.message : "Failed to save spot quality update");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const copyText = async (value: string, label: string) => {
+        try {
+            await navigator.clipboard.writeText(value);
+            setNotice(`Copied ${label}`);
+        } catch {
+            setError(`Could not copy ${label}.`);
         }
     };
 
@@ -357,6 +373,88 @@ export function SpotQualityWorkbench() {
                                 </div>
 
                                 <IssueBadges issues={selectedItem.issues} />
+
+                                {selectedResearch && (
+                                    <div className="rounded-lg border border-violet-200/15 bg-white/[0.045] p-3">
+                                        <div className="mb-3 flex items-start justify-between gap-3">
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-white">Research assist</h3>
+                                                <p className="mt-1 text-xs leading-5 text-violet-50/55">
+                                                    {selectedResearch.recommendedFocus}
+                                                </p>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 shrink-0 text-violet-100 hover:bg-white/10 hover:text-white"
+                                                onClick={() => copyText(selectedResearch.query, "research query")}
+                                            >
+                                                <Copy className="h-4 w-4" />
+                                                <span className="sr-only">Copy research query</span>
+                                            </Button>
+                                        </div>
+
+                                        <div className="rounded-md border border-white/10 bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                            {selectedResearch.query}
+                                        </div>
+
+                                        <div className="mt-3 grid grid-cols-2 gap-2">
+                                            <Link
+                                                href={selectedResearch.mapsUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                            >
+                                                <MapPin className="h-3.5 w-3.5" />
+                                                Maps
+                                            </Link>
+                                            <Link
+                                                href={selectedResearch.imageSearchUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                            >
+                                                <Images className="h-3.5 w-3.5" />
+                                                Images
+                                            </Link>
+                                        </div>
+
+                                        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-9 border-white/10 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white"
+                                                onClick={() => copyText(selectedResearch.query, "research query")}
+                                            >
+                                                <Copy className="mr-2 h-3.5 w-3.5" />
+                                                Copy query
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                disabled={!selectedResearch.coordinateText}
+                                                className="h-9 border-white/10 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white disabled:opacity-45"
+                                                onClick={() => selectedResearch.coordinateText && copyText(selectedResearch.coordinateText, "coordinates")}
+                                            >
+                                                <Copy className="mr-2 h-3.5 w-3.5" />
+                                                Copy coords
+                                            </Button>
+                                        </div>
+
+                                        <Link
+                                            href={selectedResearch.placeIdSearchUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-2 inline-flex items-center text-xs font-medium text-violet-200/85 underline-offset-4 hover:text-white hover:underline"
+                                        >
+                                            Place ID lookup guide
+                                            <ExternalLink className="ml-1 h-3 w-3" />
+                                        </Link>
+                                    </div>
+                                )}
 
                                 <label className="block space-y-1.5 text-sm">
                                     <span className="font-medium text-violet-50/75">Address</span>
