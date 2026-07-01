@@ -37,12 +37,15 @@ describe("admin spot quality research helpers", () => {
             category: "Cafe",
             lat: 35.695,
             lng: 139.758,
+            googlePlaceId: "ChIJ-ladrio",
             issues: ["missing_place_id"],
         });
 
         expect(links.query).toBe("Ladrio 1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo Cafe");
         expect(links.mapsUrl).toContain("https://www.google.com/maps/search/");
         expect(links.mapsUrl).toContain("Ladrio%201-chome-3-3");
+        expect(links.directionsUrl).toContain("https://www.google.com/maps/dir/");
+        expect(links.directionsUrl).toContain("destination_place_id=ChIJ-ladrio");
         expect(links.imageSearchUrl).toContain("tbm=isch");
         expect(links.placeIdSearchUrl).toContain("place-id");
         expect(links.coordinateText).toBe("35.6950000, 139.7580000");

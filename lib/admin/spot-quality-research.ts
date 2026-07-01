@@ -1,4 +1,5 @@
 import type { SpotQualityItem, SpotQualityIssue } from "@/lib/admin/spot-quality";
+import { buildSpotDirectionsUrl } from "@/lib/spots/map-links";
 
 export interface SpotResearchInput {
     name: string;
@@ -6,12 +7,14 @@ export interface SpotResearchInput {
     category: string | null;
     lat: number | null;
     lng: number | null;
+    googlePlaceId?: string | null;
     issues: SpotQualityIssue[];
 }
 
 export interface SpotResearchLinks {
     query: string;
     mapsUrl: string;
+    directionsUrl: string;
     imageSearchUrl: string;
     placeIdSearchUrl: string;
     coordinateText: string | null;
@@ -70,6 +73,13 @@ export function buildSpotResearchLinks(input: SpotResearchInput): SpotResearchLi
     return {
         query,
         mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`,
+        directionsUrl: buildSpotDirectionsUrl({
+            name: cleanPart(input.name),
+            address: cleanPart(input.address),
+            lat: input.lat ?? undefined,
+            lng: input.lng ?? undefined,
+            googlePlaceId: cleanPart(input.googlePlaceId),
+        }),
         imageSearchUrl: `https://www.google.com/search?tbm=isch&q=${encodedQuery}`,
         placeIdSearchUrl: `https://developers.google.com/maps/documentation/places/web-service/place-id#find-id`,
         coordinateText: getCoordinateText(input.lat, input.lng),
@@ -84,6 +94,7 @@ export function buildSpotQualityItemResearchLinks(item: SpotQualityItem): SpotRe
         category: item.category,
         lat: item.lat,
         lng: item.lng,
+        googlePlaceId: item.googlePlaceId,
         issues: item.issues,
     });
 }

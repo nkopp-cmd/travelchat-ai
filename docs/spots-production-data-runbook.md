@@ -41,7 +41,7 @@ rm -f "$tmp_env"
 
 This writes `reports/spot-readiness-<timestamp>/manifest.json`, `photo-coverage.json`, `location-quality.json`, `action-plan.json`, and `action-plan.csv`.
 Add `--verbose` when you want to see the child audit output while the packet runs. The default mode stays quiet and prints the packet path plus final status.
-The action-plan JSON and CSV include a research query, Google Maps search link, image search link, Place ID guide link, public spot link, and admin deep link for each prioritized record.
+The action-plan JSON and CSV include a research query, Google Maps search link, traveler-facing directions preview link, image search link, Place ID guide link, public spot link, and admin deep link for each prioritized record.
 
 Pull production env into a temporary file and run the audits without printing secrets:
 

@@ -14,6 +14,7 @@ import {
     Images,
     Loader2,
     MapPin,
+    Navigation,
     RefreshCw,
     Save,
     Search,
@@ -632,7 +633,7 @@ export function SpotQualityWorkbench() {
                                             {selectedResearch.query}
                                         </div>
 
-                                        <div className="mt-3 grid grid-cols-2 gap-2">
+                                        <div className="mt-3 grid grid-cols-3 gap-2">
                                             <Link
                                                 href={selectedResearch.mapsUrl}
                                                 target="_blank"
@@ -641,6 +642,15 @@ export function SpotQualityWorkbench() {
                                             >
                                                 <MapPin className="h-3.5 w-3.5" />
                                                 Maps
+                                            </Link>
+                                            <Link
+                                                href={selectedResearch.directionsUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-2 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                            >
+                                                <Navigation className="h-3.5 w-3.5" />
+                                                Route
                                             </Link>
                                             <Link
                                                 href={selectedResearch.imageSearchUrl}

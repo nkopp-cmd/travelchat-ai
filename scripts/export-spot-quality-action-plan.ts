@@ -41,6 +41,7 @@ interface ActionPlanItem extends SpotQualityItem {
     researchQuery: string;
     researchFocus: string;
     mapsResearchUrl: string;
+    directionsResearchUrl: string;
     imageResearchUrl: string;
     placeIdGuideUrl: string;
     adminUrl: string;
@@ -172,6 +173,7 @@ function toActionPlanItem(
         researchQuery: researchLinks.query,
         researchFocus: researchLinks.recommendedFocus,
         mapsResearchUrl: researchLinks.mapsUrl,
+        directionsResearchUrl: researchLinks.directionsUrl,
         imageResearchUrl: researchLinks.imageSearchUrl,
         placeIdGuideUrl: researchLinks.placeIdSearchUrl,
         adminUrl: `${baseUrl}/admin/spots/quality?spot=${encodeURIComponent(item.id)}`,
@@ -197,6 +199,7 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "researchFocus",
         "researchQuery",
         "mapsResearchUrl",
+        "directionsResearchUrl",
         "imageResearchUrl",
         "placeIdGuideUrl",
         "hasGooglePlaceIdColumn",
@@ -222,6 +225,7 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.researchFocus,
         item.researchQuery,
         item.mapsResearchUrl,
+        item.directionsResearchUrl,
         item.imageResearchUrl,
         item.placeIdGuideUrl,
         hasGooglePlaceIdColumn,
