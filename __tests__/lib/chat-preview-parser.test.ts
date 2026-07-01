@@ -192,6 +192,32 @@ Getting around: Use Nippombashi Station exit 10.
     ]);
   });
 
+  it("keeps numbered practical rows outside day activities", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+### Day 1: Cafes
+1. **Cafe Onion Anguk (Local Favorite)**: Start with coffee in the hanok courtyard.
+   Address: Cafe Onion Anguk, Jongno-gu, Seoul
+2. Getting around - Walk from Anguk Station exit 3.
+3. Tip - Bring cash for the smaller nearby shops.
+
+### Local Tips:
+1. Book tea service on weekends.
+2. What to order - seasonal tea before noon.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Cafe Onion Anguk",
+    ]);
+    expect(result.days[0].activities[0].address).toBe("Cafe Onion Anguk, Jongno-gu, Seoul");
+    expect(result.tips).toEqual([
+      "Getting around: Walk from Anguk Station exit 3.",
+      "Tip: Bring cash for the smaller nearby shops.",
+      "Book tea service on weekends.",
+      "What to order: seasonal tea before noon.",
+    ]);
+  });
+
   it("moves standalone practical label rows into tips even without bullets", () => {
     const result = parseChatItineraryPreview(`# Busan Hidden Gems
 

@@ -163,6 +163,37 @@ describe("sanitizeGeneratedDailyPlans", () => {
     ]);
   });
 
+  it("extracts numbered and dash-labeled tip lines from real activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Cafe Onion Anguk",
+            description:
+              "Start with coffee in the hanok courtyard.\n1. Tip - Bring cash for nearby shops.\n2. Getting around - Walk from Anguk Station exit 3.",
+            category: "Cafe",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Start with coffee in the hanok courtyard."
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Tip: Bring cash for nearby shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Getting around: Walk from Anguk Station exit 3.",
+      }),
+    ]);
+  });
+
   it("extracts food, booking, and route notes from real activities", () => {
     const result = normalizeDailyPlansForDisplay([
       {

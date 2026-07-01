@@ -27,11 +27,12 @@ function stripMarkdownDecorators(value: string): string {
 
 const DAY_HEADING_PATTERN = /^(?:[#*]+\s*)?Day\s+\d+(?:\s*[:\-\u2013\u2014]\s*.+)?\**$/iu;
 const ADDRESS_LINE_PATTERN =
-  /^(?:[-*]\s*)?(?:\u{1F4CD}\s*)?(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*(.+)$/iu;
-const PIN_ADDRESS_LINE_PATTERN = /^(?:[-*]\s*)?\u{1F4CD}\s*(.+)$/u;
+  /^(?:[-*]|\d+[.)])?\s*(?:\u{1F4CD}\s*)?(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*(.+)$/iu;
+const PIN_ADDRESS_LINE_PATTERN = /^(?:[-*]|\d+[.)])?\s*\u{1F4CD}\s*(.+)$/u;
+const LIST_MARKER_PATTERN = /^(?:[-*]|\d+[.)])\s+/;
 
 function isTipsHeading(line: string): boolean {
-  return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|practical\s+notes|route\s+notes|map\s+notes|booking\s+notes|food\s+notes|money\s+notes|notes|what\s+to\s+order|before\s+you\s+go|getting\s+around|getting\s+there|transport|transport\s+tips|transit|transit\s+tips)\s*\**$/i.test(line.trim());
+  return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|practical\s+notes|route\s+notes|map\s+notes|booking\s+notes|food\s+notes|money\s+notes|notes|what\s+to\s+order|before\s+you\s+go|getting\s+around|getting\s+there|transport|transport\s+tips|transit|transit\s+tips)\s*:?\s*\**$/i.test(line.trim());
 }
 
 function getActivityType(title: string): ParsedChatActivity["type"] {
@@ -50,7 +51,7 @@ function cleanActivityTitle(title: string): string {
 }
 
 const LABELED_TIP_FRAGMENT_PATTERN =
-  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*:\s*([^.\n]+(?:[.!?]|$)?)/gi;
+  /(?:^|\s+)(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*[:\-\u2013\u2014]\s*([^.\n]+(?:[.!?]|$)?)/gi;
 
 function splitChatDescriptionTips(description: string): { description: string; tips: string[] } {
   const tips: string[] = [];
@@ -67,7 +68,7 @@ function splitChatDescriptionTips(description: string): { description: string; t
 }
 
 function parseActivityLine(trimmedLine: string): { title: string; description: string } | null {
-  const boldMatch = trimmedLine.match(/^[-*]\s*\*+(.+?)\*+:\s*(.+)$/);
+  const boldMatch = trimmedLine.match(/^(?:[-*]|\d+[.)])\s*\*+(.+?)\*+:\s*(.+)$/);
   if (boldMatch) {
     return {
       title: boldMatch[1].trim(),
@@ -75,7 +76,7 @@ function parseActivityLine(trimmedLine: string): { title: string; description: s
     };
   }
 
-  const colonMatch = trimmedLine.match(/^[-*]\s+(.+?):\s*(.+)$/);
+  const colonMatch = trimmedLine.match(/^(?:[-*]|\d+[.)])\s+(.+?)\s*[:\-\u2013\u2014]\s*(.+)$/);
   if (colonMatch) {
     return {
       title: colonMatch[1].trim(),
@@ -83,10 +84,10 @@ function parseActivityLine(trimmedLine: string): { title: string; description: s
     };
   }
 
-  const plainMatch = trimmedLine.match(/^[-*]\s+(.+)$/);
+  const plainMatch = trimmedLine.match(LIST_MARKER_PATTERN);
   if (plainMatch) {
     return {
-      title: plainMatch[1].trim(),
+      title: trimmedLine.replace(LIST_MARKER_PATTERN, "").trim(),
       description: "",
     };
   }
@@ -150,15 +151,20 @@ function parseIndentedTip(note: string): string | null {
 
 function parseTipsSectionLine(line: string): string | null {
   const tip = line
-    .replace(/^[-*]\s*/, "")
+    .replace(LIST_MARKER_PATTERN, "")
     .replace(/^\*+|\*+$/g, "")
     .trim();
+
+  const labeledTip = tip.match(/^(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit)\s*[\-\u2013\u2014]\s*(.+)$/i);
+  if (labeledTip?.[1] && labeledTip[2]) {
+    return `${labeledTip[1]}: ${labeledTip[2].trim()}`;
+  }
 
   return tip || null;
 }
 
 function parseStandaloneTipLine(line: string): string | null {
-  const withoutBullet = line.replace(/^[-*]\s*/, "").trim();
+  const withoutBullet = line.replace(LIST_MARKER_PATTERN, "").trim();
   const parsed = parseActivityLine(`- ${withoutBullet}`);
   if (!parsed) return null;
 
@@ -263,7 +269,7 @@ export function parseChatItineraryPreview(content: string): ParsedChatItinerary 
       return;
     }
 
-    if (!inTipsSection && currentDay && /^[-*]\s+/.test(trimmed)) {
+    if (!inTipsSection && currentDay && LIST_MARKER_PATTERN.test(trimmed)) {
       const parsed = parseActivityLine(trimmed);
       if (parsed) {
         pushActivityOrTip(currentDay, tips, parsed.title, parsed.description);
