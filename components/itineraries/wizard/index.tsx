@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ function WizardContent({
   const { currentStep, totalSteps, data, canProceed, nextStep, prevStep } = useWizard();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
+  const stepScrollRef = useRef<HTMLDivElement | null>(null);
 
   // Progress message animation
   useEffect(() => {
@@ -49,6 +50,10 @@ function WizardContent({
 
     return () => clearInterval(interval);
   }, [isGenerating]);
+
+  useEffect(() => {
+    stepScrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [currentStep]);
 
   const handleNext = async () => {
     if (currentStep === totalSteps - 1) {
@@ -129,7 +134,10 @@ function WizardContent({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-32">
+      <div
+        ref={stepScrollRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-32"
+      >
         {steps[currentStep]}
       </div>
 
