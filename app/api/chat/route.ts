@@ -269,7 +269,11 @@ export async function POST(req: NextRequest) {
             temperature: 0.7,
         });
 
-        return NextResponse.json({ message: reply.content, provider: reply.provider });
+        return NextResponse.json({
+            message: reply.content,
+            provider: reply.provider,
+            fallbackUsed: reply.fallbackUsed,
+        });
     } catch (error) {
         return handleApiError(error, "[CHAT_ERROR]");
     }

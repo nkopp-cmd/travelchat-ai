@@ -71,6 +71,7 @@ describe("/api/chat provider routing", () => {
     expect(body).toEqual({
       message: "GLM route reply",
       provider: "glm",
+      fallbackUsed: false,
     });
     expect(mocks.generateChatReplyWithFallback).toHaveBeenCalledWith({
       systemPrompt: expect.stringContaining("ASK FOR CITY FIRST"),
@@ -100,6 +101,7 @@ describe("/api/chat provider routing", () => {
     expect(body).toEqual({
       message: "Anthropic unavailable fallback",
       provider: "anthropic",
+      fallbackUsed: false,
     });
   });
 
@@ -118,6 +120,7 @@ describe("/api/chat provider routing", () => {
     expect(body).toEqual({
       message: "Anthropic error fallback",
       provider: "anthropic",
+      fallbackUsed: true,
     });
   });
 });
