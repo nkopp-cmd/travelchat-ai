@@ -45,6 +45,21 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
 
   if (!selectedTemplate) return null;
 
+  const handlePaceFilterChange = (pace: PaceFilter) => {
+    setPaceFilter(pace);
+
+    const nextVisibleTemplates = templates.filter(
+      (template) => pace === "all" || template.pace === pace
+    );
+    const selectedStillVisible = nextVisibleTemplates.some(
+      (template) => template.id === selectedId
+    );
+
+    if (!selectedStillVisible && nextVisibleTemplates[0]) {
+      setSelectedId(nextVisibleTemplates[0].id);
+    }
+  };
+
   return (
     <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
       <div className="min-w-0 space-y-2.5">
@@ -53,7 +68,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
             <button
               key={pace}
               type="button"
-              onClick={() => setPaceFilter(pace)}
+              onClick={() => handlePaceFilterChange(pace)}
               className={cn(
                 "h-8 shrink-0 rounded-full border px-3 text-xs font-semibold transition",
                 paceFilter === pace
@@ -71,7 +86,6 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
             <TemplateCard
               key={template.id}
               template={template}
-              actionHref={getTemplateUrl(template.id)}
               isSelected={selectedTemplate.id === template.id}
               onSelect={() => setSelectedId(template.id)}
             />
@@ -83,7 +97,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
         <TemplateSummary template={selectedTemplate} />
       </aside>
 
-      <div className="fixed inset-x-3 bottom-[calc(4.6rem+env(safe-area-inset-bottom,0px))] z-40 flex items-center gap-2 rounded-2xl border border-violet-300/20 bg-[#10081c]/95 p-2 shadow-2xl shadow-violet-950/40 backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-3 bottom-[calc(4.6rem+env(safe-area-inset-bottom,0px))] z-40 flex items-center gap-2 rounded-xl border border-violet-300/20 bg-[#10081c]/95 p-2 shadow-2xl shadow-violet-950/40 backdrop-blur-xl lg:hidden">
         <div className="flex min-w-0 flex-1 items-center gap-2 pl-1">
           <span className="shrink-0 text-lg leading-none">{selectedTemplate.emoji}</span>
           <div className="min-w-0">
@@ -93,7 +107,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
             </p>
           </div>
         </div>
-        <Button asChild className="h-11 shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3 text-sm shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500">
+        <Button asChild className="h-11 shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-3 text-sm shadow-lg shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500">
           <Link href={getTemplateUrl(selectedTemplate.id)}>
             Use
             <ArrowRight className="ml-1.5 h-4 w-4" />
