@@ -14,6 +14,7 @@ import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { getCityImageUrl } from "@/lib/city-images";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { getGooglePlaceIdFromSpotPhotos, summarizeSpotPhotos } from "@/lib/place-images";
+import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import { buildSpotDirectionsUrl, isKoreanLocation } from "@/lib/spots/map-links";
@@ -28,35 +29,6 @@ import {
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
-const SPOT_CITY_COORDS: Array<{ city: string; lat: [number, number]; lng: [number, number] }> = [
-    { city: "Seoul", lat: [37.35, 37.75], lng: [126.75, 127.25] },
-    { city: "Tokyo", lat: [35.45, 35.9], lng: [139.45, 140] },
-    { city: "Bangkok", lat: [13.45, 14.1], lng: [100.25, 100.9] },
-    { city: "Singapore", lat: [1.15, 1.5], lng: [103.55, 104.1] },
-    { city: "Osaka", lat: [34.5, 34.85], lng: [135.25, 135.75] },
-    { city: "Kyoto", lat: [34.85, 35.2], lng: [135.55, 136] },
-    { city: "Busan", lat: [35, 35.35], lng: [128.85, 129.35] },
-    { city: "Jeju", lat: [33.1, 33.65], lng: [126.05, 126.95] },
-    { city: "Hong Kong", lat: [22.1, 22.6], lng: [113.75, 114.45] },
-    { city: "Taipei", lat: [24.85, 25.25], lng: [121.25, 121.8] },
-    { city: "Keelung", lat: [25, 25.25], lng: [121.6, 121.9] },
-    { city: "Yilan", lat: [24.5, 24.95], lng: [121.55, 121.95] },
-    { city: "Hanoi", lat: [20.8, 21.25], lng: [105.65, 106.15] },
-    { city: "Ho Chi Minh", lat: [10.6, 11], lng: [106.45, 106.95] },
-    { city: "Kuala Lumpur", lat: [2.95, 3.35], lng: [101.5, 101.85] },
-    { city: "Bali", lat: [-8.9, -8.05], lng: [114.85, 115.65] },
-];
-
-const SPOT_LOCATION_KEYWORDS: Array<{ city: string; terms: string[] }> = [
-    { city: "Kuala Lumpur", terms: ["jalan hang lekir", "petaling street", "bukit bintang", "chow kit"] },
-    { city: "Bangkok", terms: ["don muang", "taopoon", "ari", "thonglor", "sukhumvit"] },
-    { city: "Busan", terms: ["ilgwang", "haeundae", "gwangalli", "seomyeon"] },
-    { city: "Kyoto", terms: ["gion", "arashiyama", "temple courtyard", "shrine"] },
-    { city: "Keelung", terms: ["beining road", "badouzi", "miaokou", "heping island"] },
-    { city: "Yilan", terms: ["wubin road", "wujie", "luodong", "jiaoxi", "dongshan"] },
-    { city: "Seoul", terms: ["euljiro", "hongdae", "mullae", "haengdang", "hongje", "daebang", "hyehwa"] },
-    { city: "Tokyo", terms: ["shinjuku", "kita city", "harmonica yokocho", "shimokitazawa", "koenji"] },
-];
 
 // Helper to parse multi-language fields
 function getName(field: string | Record<string, string> | null | undefined): string {
@@ -148,22 +120,12 @@ function isPlaceholderImage(src: string | undefined) {
 }
 
 function inferSpotCity(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>): string | null {
-    const haystack = `${spot.name} ${spot.location.address}`.toLowerCase();
-    const textMatch = SPOT_CITY_COORDS.find(({ city }) => haystack.includes(city.toLowerCase()));
-    if (textMatch) return textMatch.city;
-
-    const keywordMatch = SPOT_LOCATION_KEYWORDS.find(({ terms }) =>
-        terms.some((term) => haystack.includes(term))
-    );
-    if (keywordMatch) return keywordMatch.city;
-
-    const { lat, lng } = spot.location;
-    const coordMatch = SPOT_CITY_COORDS.find(
-        ({ lat: latRange, lng: lngRange }) =>
-            lat >= latRange[0] && lat <= latRange[1] && lng >= lngRange[0] && lng <= lngRange[1]
-    );
-
-    return coordMatch?.city ?? null;
+    return inferSpotContextCity({
+        name: spot.name,
+        address: spot.location.address,
+        lat: spot.location.lat,
+        lng: spot.location.lng,
+    });
 }
 
 function getSpotHeroImage(spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>) {
