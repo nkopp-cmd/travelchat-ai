@@ -148,10 +148,12 @@ export function getSpotCoordinateEvidenceLabel(
 
 export function getSpotDirectionsButtonLabel(
     tone: SpotLocationConfidence["tone"],
-    isKorea: boolean
+    isKorea: boolean,
+    hasMatchedGooglePlace = false
 ): string {
     if (tone === "exact") {
-        return isKorea ? "Search exact spot in Kakao" : "Get exact directions";
+        if (isKorea) return "Search exact spot in Kakao";
+        return hasMatchedGooglePlace ? "Get exact directions" : "Search exact spot in Maps";
     }
 
     if (tone === "pinned") {

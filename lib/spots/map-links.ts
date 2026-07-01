@@ -66,7 +66,7 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
   }
 
-  if (destinationText && hasAreaLevelAddress) {
+  if (destinationText && (hasAreaLevelAddress || !input.googlePlaceId)) {
     const params = new URLSearchParams({ api: "1", query: destinationText });
     return `https://www.google.com/maps/search/?${params.toString()}`;
   }

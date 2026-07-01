@@ -283,12 +283,12 @@ function getDirectionsTargetLabel(
   const confidence = getLocationConfidence(spot);
   const isKorea = isKoreanLocation(spot.location.address);
 
-  if (isKorea && confidence.tone === "exact") return "Kakao will search";
-  if (isKorea && confidence.tone !== "exact") return "Kakao will search";
+  if (isKorea && confidence.tone === "exact") return "Exact Kakao search";
+  if (isKorea && confidence.tone !== "exact") return "Area Kakao search";
   if (!isKorea && spot.googlePlaceId && confidence.tone === "exact") {
-    return "Matched place";
+    return "Matched Google place";
   }
-  return confidence.tone === "area" ? "Maps will search" : "Directions search";
+  return confidence.tone === "area" ? "Area Maps search" : "Exact Maps search";
 }
 
 function getDirectionsTargetValue(
@@ -424,6 +424,10 @@ function GetDirectionsButton({
   });
   const isKorea = isKoreanLocation(spot.location.address);
   const locationConfidence = getLocationConfidence(spot);
+  const hasMatchedGooglePlace =
+    Boolean(spot.googlePlaceId) &&
+    !isKorea &&
+    locationConfidence.tone === "exact";
   const directionToneClass =
     locationConfidence.tone === "area"
       ? "bg-amber-600 shadow-amber-500/20 hover:bg-amber-700"
@@ -442,7 +446,11 @@ function GetDirectionsButton({
         aria-label={`Open directions to ${spot.name}`}
       >
         <Navigation className={compact ? "mr-2 h-4 w-4" : "mr-2 h-5 w-5"} />
-        {getSpotDirectionsButtonLabel(locationConfidence.tone, isKorea)}
+        {getSpotDirectionsButtonLabel(
+          locationConfidence.tone,
+          isKorea,
+          hasMatchedGooglePlace,
+        )}
       </Link>
     </Button>
   );

@@ -15,7 +15,7 @@ describe("spot map links", () => {
     ).toBe("LADRIO, 1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo");
   });
 
-  it("uses exact name and address for Google directions before coordinates", () => {
+  it("searches exact name and address before routing when no trusted place match exists", () => {
     const url = new URL(
       buildSpotDirectionsUrl({
         name: "LADRIO",
@@ -25,14 +25,15 @@ describe("spot map links", () => {
       }),
     );
 
-    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/dir/");
+    expect(url.origin + url.pathname).toBe("https://www.google.com/maps/search/");
     expect(url.searchParams.get("api")).toBe("1");
-    expect(url.searchParams.get("destination")).toBe(
+    expect(url.searchParams.get("query")).toBe(
       "LADRIO, 1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo",
     );
+    expect(url.searchParams.has("destination")).toBe(false);
   });
 
-  it("includes a Google Place ID when available", () => {
+  it("uses Google directions with a Place ID when a trusted exact match is available", () => {
     const url = new URL(
       buildSpotDirectionsUrl({
         name: "Popiah Cart",
