@@ -18,8 +18,9 @@ import {
     type SpotQualityItem,
     type SpotQualityRow,
 } from "../lib/admin/spot-quality";
+import { buildSpotQualityItemResearchLinks } from "../lib/admin/spot-quality-research";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env.local", quiet: true });
 
 const PAGE_SIZE = 1000;
 const DEFAULT_LIMIT = 250;
@@ -37,6 +38,11 @@ interface Args {
 interface ActionPlanItem extends SpotQualityItem {
     priority: number;
     recommendedAction: string;
+    researchQuery: string;
+    researchFocus: string;
+    mapsResearchUrl: string;
+    imageResearchUrl: string;
+    placeIdGuideUrl: string;
     adminUrl: string;
     publicUrl: string;
 }
@@ -157,10 +163,17 @@ function toActionPlanItem(
     hasGooglePlaceIdColumn: boolean,
     baseUrl: string
 ): ActionPlanItem {
+    const researchLinks = buildSpotQualityItemResearchLinks(item);
+
     return {
         ...item,
         priority: getPriority(item),
         recommendedAction: getRecommendedAction(item, hasGooglePlaceIdColumn),
+        researchQuery: researchLinks.query,
+        researchFocus: researchLinks.recommendedFocus,
+        mapsResearchUrl: researchLinks.mapsUrl,
+        imageResearchUrl: researchLinks.imageSearchUrl,
+        placeIdGuideUrl: researchLinks.placeIdSearchUrl,
         adminUrl: `${baseUrl}/admin/spots/quality?spot=${encodeURIComponent(item.id)}`,
         publicUrl: `${baseUrl}/spots/${encodeURIComponent(item.id)}`,
     };
@@ -181,6 +194,11 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "address",
         "issues",
         "recommendedAction",
+        "researchFocus",
+        "researchQuery",
+        "mapsResearchUrl",
+        "imageResearchUrl",
+        "placeIdGuideUrl",
         "hasGooglePlaceIdColumn",
         "googlePlaceId",
         "photoCount",
@@ -201,6 +219,11 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.address,
         item.issues.join("|"),
         item.recommendedAction,
+        item.researchFocus,
+        item.researchQuery,
+        item.mapsResearchUrl,
+        item.imageResearchUrl,
+        item.placeIdGuideUrl,
         hasGooglePlaceIdColumn,
         item.googlePlaceId || "",
         item.photoSummary.total,

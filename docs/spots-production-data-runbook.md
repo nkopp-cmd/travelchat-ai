@@ -41,6 +41,7 @@ rm -f "$tmp_env"
 
 This writes `reports/spot-readiness-<timestamp>/manifest.json`, `photo-coverage.json`, `location-quality.json`, `action-plan.json`, and `action-plan.csv`.
 Add `--verbose` when you want to see the child audit output while the packet runs. The default mode stays quiet and prints the packet path plus final status.
+The action-plan JSON and CSV include a research query, Google Maps search link, image search link, Place ID guide link, public spot link, and admin deep link for each prioritized record.
 
 Pull production env into a temporary file and run the audits without printing secrets:
 
@@ -99,6 +100,15 @@ Only apply once the dry-run returns high-confidence `would_update` rows:
 ```bash
 npx tsx scripts/review-spot-photo-backfill.ts --apply --limit=20 --max-candidates=120 --out=reports/spot-photo-backfill-apply.json
 ```
+
+## Latest Backfill Read
+
+A production dry-run on July 1, 2026 found zero safe automatic photo updates and zero safe automatic location updates:
+
+- Photo dry-run: 90 candidates, 0 `would_update`, 90 skipped. The rejected matches were mostly unrelated businesses, broad neighborhoods, lodging, or partial-name matches.
+- Location dry-run with `--exact-only --trusted-provider-only`: 4 candidates, 0 `would_update`, 4 skipped because results fell back to city centers or unsupported cities.
+
+Do not apply batch backfills when the dry-run looks like this. Work through `action-plan.csv` and `/admin/spots/quality` instead, using the research links to find the exact place, exact address, coordinates, and reviewed real images.
 
 ## Interpretation
 

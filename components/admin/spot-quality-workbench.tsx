@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
     AlertTriangle,
     CheckCircle2,
@@ -119,6 +120,7 @@ function IssueBadges({ issues }: { issues: SpotQualityIssue[] }) {
 }
 
 export function SpotQualityWorkbench() {
+    const searchParams = useSearchParams();
     const [queue, setQueue] = useState<SpotQualityQueue | null>(null);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [issue, setIssue] = useState<IssueFilter>("all");
@@ -133,6 +135,7 @@ export function SpotQualityWorkbench() {
         () => queue?.items.find((item) => item.id === selectedId) || queue?.items[0] || null,
         [queue, selectedId]
     );
+    const requestedSpotId = searchParams.get("spot");
     const selectedResearch = useMemo(
         () => selectedItem ? buildSpotQualityItemResearchLinks(selectedItem) : null,
         [selectedItem]
@@ -156,6 +159,9 @@ export function SpotQualityWorkbench() {
             setQueue(data);
             setSelectedId((current) => {
                 if (current && data.items.some((item: SpotQualityItem) => item.id === current)) return current;
+                if (requestedSpotId && data.items.some((item: SpotQualityItem) => item.id === requestedSpotId)) {
+                    return requestedSpotId;
+                }
                 return data.items[0]?.id || null;
             });
         } catch (err) {
@@ -163,7 +169,7 @@ export function SpotQualityWorkbench() {
         } finally {
             setLoading(false);
         }
-    }, [city, issue]);
+    }, [city, issue, requestedSpotId]);
 
     useEffect(() => {
         loadQueue();
