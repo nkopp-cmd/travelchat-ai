@@ -288,9 +288,7 @@ function getDirectionsTargetLabel(
   const confidence = getLocationConfidence(spot);
   const isKorea = isKoreanLocation(spot.location.address);
 
-  if (isKorea && confidence.tone === "exact" && confidence.usableCoordinates) {
-    return "Directions target";
-  }
+  if (isKorea && confidence.tone === "exact") return "Kakao will search";
   if (isKorea && confidence.tone !== "exact") return "Kakao will search";
   if (!isKorea && spot.googlePlaceId && confidence.tone === "exact") {
     return "Matched place";
@@ -302,20 +300,6 @@ function getDirectionsTargetValue(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
   fallbackQuery: string,
 ): string {
-  const confidence = getLocationConfidence(spot);
-  const lat = formatCoordinate(spot.location.lat);
-  const lng = formatCoordinate(spot.location.lng);
-
-  if (
-    isKoreanLocation(spot.location.address) &&
-    confidence.tone === "exact" &&
-    confidence.usableCoordinates &&
-    lat &&
-    lng
-  ) {
-    return `${spot.name} (${lat}, ${lng})`;
-  }
-
   return fallbackQuery;
 }
 
@@ -451,21 +435,21 @@ function GetDirectionsButton({
       : "bg-violet-600 shadow-violet-500/20 hover:bg-violet-700";
 
   return (
-    <Link
-      href={directionsUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-full"
-      aria-label={`Open directions to ${spot.name}`}
+    <Button
+      asChild
+      className={`w-full shadow-lg ${directionToneClass} ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
+      size="lg"
     >
-      <Button
-        className={`w-full shadow-lg ${directionToneClass} ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
-        size="lg"
+      <Link
+        href={directionsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open directions to ${spot.name}`}
       >
         <Navigation className={compact ? "mr-2 h-4 w-4" : "mr-2 h-5 w-5"} />
         {getSpotDirectionsButtonLabel(locationConfidence.tone, isKorea)}
-      </Button>
-    </Link>
+      </Link>
+    </Button>
   );
 }
 
