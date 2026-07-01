@@ -22,8 +22,11 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Maps JavaScript API | Active |
 | `NEXT_PUBLIC_KAKAO_MAPS_APP_KEY` | Kakao Maps for Korea | Active |
 | `NEXT_PUBLIC_KAKAO_REST_API_KEY` | Kakao REST API for Korea | Active |
-| `ANTHROPIC_API_KEY` | Claude AI for itinerary generation | Active |
-| `OPENAI_API_KEY` | OpenAI fallback | Active |
+| `GLM_API_KEY` | GLM 5.2 primary chat and itinerary generation | Required for GLM-first runtime |
+| `GLM_MODEL` | GLM model override, defaults to `glm-5.2` | Optional |
+| `GLM_BASE_URL` | Z.AI OpenAI-compatible endpoint, defaults to `https://api.z.ai/api/paas/v4/` | Optional |
+| `ANTHROPIC_API_KEY` | Claude fallback for chat and validation | Active |
+| `OPENAI_API_KEY` | OpenAI itinerary fallback | Active |
 | `GEMINI_API_KEY` | Google Gemini for image generation | Active |
 | `FAL_KEY` | FAL AI for FLUX image generation (story backgrounds) | Active |
 | `ARK_API_KEY` | Bytedance ARK API for Seedream 4.5 image generation | Active |

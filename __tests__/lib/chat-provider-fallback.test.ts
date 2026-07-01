@@ -127,6 +127,36 @@ describe("chat provider fallback", () => {
     expect(anthropic.messages.create).toHaveBeenCalledOnce();
   });
 
+  it("falls back to Anthropic when GLM returns an empty response", async () => {
+    const glm = {
+      isAvailable: vi.fn(() => true),
+      generateText: vi.fn(async () => ({
+        content: "   ",
+        usage: { inputTokens: 1, outputTokens: 0, totalTokens: 1 },
+        latencyMs: 10,
+        provider: "glm" as const,
+      })),
+    };
+    const anthropic = createAnthropicReply("Claude after empty GLM");
+    const logger = { error: vi.fn() };
+
+    const result = await generateChatReplyWithFallback(
+      {
+        systemPrompt: "You are Alley",
+        messages: baseMessages,
+      },
+      { glm, anthropic, logger }
+    );
+
+    expect(result).toEqual({
+      content: "Claude after empty GLM",
+      provider: "anthropic",
+      fallbackUsed: true,
+    });
+    expect(logger.error).toHaveBeenCalledOnce();
+    expect(anthropic.messages.create).toHaveBeenCalledOnce();
+  });
+
   it("uses the current chat fallback model env precedence", () => {
     process.env.CLAUDE_MODEL = " claude-primary ";
     process.env.ANTHROPIC_MODEL = "claude-secondary";

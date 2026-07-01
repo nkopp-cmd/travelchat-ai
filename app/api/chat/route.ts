@@ -181,6 +181,7 @@ When ranking spots, use the Localley Scale:
 
 When recommending places:
 - Include the neighborhood/district
+- Use exact names and exact addresses from the curated database whenever they are available
 - Include best times to visit when you know them
 - Suggest what to order/try
 - Include a local tip or useful phrase in the local language
@@ -209,8 +210,8 @@ You MUST respond in this EXACT markdown format with NO conversational intro:
 IMPORTANT for itineraries:
 - Start with markdown title: # [City] Hidden Gems
 - Use ONLY real, verified place names
-- ALWAYS include "Address: [Place name, District, City]" on a new line after each description — critical for mapping
-- Address format: SHORT and geocode-friendly: "Place Name, District, City" (NO street numbers)
+- ALWAYS include "Address: [Exact address]" on a new line after each description — critical for mapping
+- Address format: use the exact address from the curated spots database when available. If the exact street address is not known, use a search-friendly fallback like "Place Name, District, City" and do not invent street numbers.
 - Mark special spots as (Hidden Gem), (Local Favorite), or (Mixed)
 - Put tips, transit advice, what-to-order notes, and practical reminders ONLY under **Local Tips**. Never create a day activity named "Tip", "Getting around", "What to order", "Breakfast", "Lunch", or "Dinner".
 - NO conversational intro like "Absolutely!" or "Here you go!"

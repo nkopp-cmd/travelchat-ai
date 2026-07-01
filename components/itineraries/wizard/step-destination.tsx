@@ -180,22 +180,18 @@ function CityCard({
       />
 
       {/* Status badge */}
-      {city.status === "recommended" && (
+      {!compact && city.status === "recommended" && (
         <div className={cn(
           "absolute rounded-full bg-violet-600/90 font-semibold text-white backdrop-blur-sm",
-          compact
-            ? "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px]"
-            : "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
+          "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
         )}>
           Popular
         </div>
       )}
-      {city.status === "beta" && (
+      {!compact && city.status === "beta" && (
         <div className={cn(
           "absolute rounded-full border border-white/10 bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
-          compact
-            ? "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px]"
-            : "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
+          "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
         )}>
           Beta
         </div>

@@ -86,9 +86,14 @@ export async function generateChatReplyWithFallback(
         maxTokens,
         temperature,
       });
+      const content = response.content.trim();
+
+      if (!content) {
+        throw new Error("GLM returned an empty chat response");
+      }
 
       return {
-        content: response.content,
+        content,
         provider: "glm",
         fallbackUsed: false,
       };

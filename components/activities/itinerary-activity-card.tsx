@@ -162,22 +162,22 @@ export function ItineraryActivityCard({
   return (
     <div
       className={cn(
-        "relative border-l border-violet-300/20 pl-4 sm:pl-5",
-        !isLast && "pb-3 sm:pb-4",
+        "relative border-l border-violet-300/20 pl-3 sm:pl-5",
+        !isLast && "pb-2.5 sm:pb-4",
       )}
     >
       {/* Timeline Dot */}
-      <div className="absolute -left-3 top-4 sm:top-5">
-        <div className="grid h-6 w-6 place-items-center rounded-full border-2 border-[#12091f] bg-violet-400 text-[10px] font-bold text-violet-950 shadow-lg shadow-violet-500/35">
+      <div className="absolute -left-2.5 top-3.5 sm:-left-3 sm:top-5">
+        <div className="grid h-5 w-5 place-items-center rounded-full border-2 border-[#12091f] bg-violet-400 text-[9px] font-bold text-violet-950 shadow-lg shadow-violet-500/35 sm:h-6 sm:w-6 sm:text-[10px]">
           {position ?? ""}
         </div>
       </div>
 
-      <div className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075]">
-        <div className="flex gap-2.5 p-2.5 sm:gap-4 sm:p-3">
+      <div className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075] sm:rounded-xl">
+        <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
-            <div className="relative h-20 w-20 overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
+            <div className="relative h-[72px] w-[72px] overflow-hidden rounded-lg bg-violet-950/20 sm:h-24 sm:w-28 sm:rounded-xl">
               {displayImage ? (
                 isStoredActivityImage ? (
                   <Image
@@ -185,7 +185,7 @@ export function ItineraryActivityCard({
                     alt={activity.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 80px, 112px"
+                    sizes="(max-width: 640px) 72px, 112px"
                     quality={90}
                     onError={() => handleImageError(displayImage)}
                   />
@@ -203,7 +203,7 @@ export function ItineraryActivityCard({
                 <CityImageAvatar
                   city={city}
                   className="h-full w-full rounded-none"
-                  sizes="112px"
+                  sizes="(max-width: 640px) 72px, 112px"
                   imageWidth={360}
                   quality={90}
                 />
@@ -221,7 +221,7 @@ export function ItineraryActivityCard({
             </div>
           </div>
 
-          <div className="min-w-0 flex-1 space-y-2">
+          <div className="min-w-0 flex-1 space-y-1.5 sm:space-y-2">
             {/* Activity Header */}
             <div className="flex flex-col gap-2">
               <div className="min-w-0 space-y-1.5">
@@ -230,11 +230,11 @@ export function ItineraryActivityCard({
                     {activity.name}
                   </h3>
                 </div>
-                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                <div className="flex min-w-0 flex-wrap items-center gap-1">
                   {scoreBadge && (
                     <Badge
                       className={cn(
-                        "h-5 rounded-full border px-2 text-[10px] font-semibold",
+                        "h-5 rounded-full border px-1.5 text-[10px] font-semibold sm:px-2",
                         scoreBadge.className,
                       )}
                     >
@@ -244,7 +244,7 @@ export function ItineraryActivityCard({
                   {activity.category && (
                     <Badge
                       variant="secondary"
-                      className="h-5 rounded-full border border-white/10 bg-white/[0.06] px-2 text-[10px] text-violet-100"
+                      className="hidden h-5 rounded-full border border-white/10 bg-white/[0.06] px-2 text-[10px] text-violet-100 min-[420px]:inline-flex"
                     >
                       {activity.category}
                     </Badge>
@@ -252,9 +252,9 @@ export function ItineraryActivityCard({
                   {hasExactAddress && (
                     <Badge
                       variant="outline"
-                      className="h-5 rounded-full border-emerald-300/20 bg-emerald-400/10 px-2 text-[10px] text-emerald-100"
+                      className="h-5 rounded-full border-emerald-300/20 bg-emerald-400/10 px-1.5 text-[10px] text-emerald-100 sm:px-2"
                     >
-                      Exact address
+                      Exact
                     </Badge>
                   )}
                 </div>
@@ -299,7 +299,7 @@ export function ItineraryActivityCard({
             )}
 
             {/* Activity Details */}
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-sm">
+            <div className="flex flex-wrap gap-x-2.5 gap-y-1 text-xs sm:gap-x-3 sm:text-sm">
               {activity.duration && (
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" />
@@ -315,7 +315,7 @@ export function ItineraryActivityCard({
             </div>
 
             {/* Booking & Maps */}
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex flex-wrap gap-1.5 pt-0.5 sm:gap-2 sm:pt-1">
               <BookingDealsPopover
                 activityLinks={bookingLinks.slice(0, 2)}
                 hotelLinks={hotelLinks.slice(0, 1)}
@@ -326,14 +326,14 @@ export function ItineraryActivityCard({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 rounded-full border-violet-400/20 bg-violet-400/10 px-3 text-xs text-violet-100 hover:bg-violet-400/15"
+                  className="h-8 gap-1.5 rounded-full border-violet-400/20 bg-violet-400/10 px-2.5 text-xs text-violet-100 hover:bg-violet-400/15 sm:px-3"
                   onClick={() =>
                     window.open(exactMapUrl, "_blank", "noopener,noreferrer")
                   }
                   aria-label={`Open map location for ${activity.name}`}
                 >
                   <Navigation className="h-3.5 w-3.5" />
-                  {hasExactAddress ? "Exact map" : "Search map"}
+                  {hasExactAddress ? "Map" : "Search"}
                   <ExternalLink className="h-3 w-3" />
                 </Button>
               )}
