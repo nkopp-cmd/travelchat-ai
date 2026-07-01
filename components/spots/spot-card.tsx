@@ -205,7 +205,7 @@ function TrendingChip({
   return (
     <span
       className={cn(
-        "inline-flex h-5 min-w-0 max-w-[4.25rem] shrink-0 items-center justify-center gap-1 rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
+        "inline-flex h-5 min-w-0 shrink-0 items-center justify-center gap-1 rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
         className,
       )}
       title="Trending"
@@ -228,21 +228,30 @@ function CategoryTrendRow({
 }) {
   return (
     <div
-      className="flex min-w-0 flex-wrap items-center gap-1"
+      className={cn(
+        "grid min-w-0 items-center gap-1",
+        trending ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+      )}
     >
       <span
         className={cn(
-          "min-w-0 max-w-full truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium text-violet-100",
+          "min-w-0 max-w-full truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium leading-none text-violet-100",
           compact
-            ? "px-1.5 py-0.5 text-[10px] min-[390px]:px-2 min-[390px]:text-xs"
-            : "px-1.5 py-0.5 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
+            ? "px-1.5 py-1 text-[10px] min-[390px]:px-2 min-[390px]:text-xs"
+            : "px-1.5 py-1 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
         )}
         title={category}
       >
         {category}
       </span>
       {trending && (
-        <TrendingChip className="justify-self-end" showLabel={!compact} />
+        <TrendingChip
+          className={cn(
+            "justify-self-end",
+            compact ? "w-7 px-1" : "max-w-[4.5rem]",
+          )}
+          showLabel={!compact}
+        />
       )}
     </div>
   );
@@ -335,7 +344,7 @@ export function SpotCard({
         <Link
           href={`/spots/${spot.id}`}
           aria-label={`Open ${spot.name}`}
-          className="relative aspect-[4/3] w-[4.25rem] flex-shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-20 min-[430px]:w-24 sm:w-32 md:w-36"
+          className="relative aspect-[4/3] w-[4rem] flex-shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-20 min-[430px]:w-24 sm:w-32 md:w-36"
         >
           {!showGradientFallback && !imageLoaded && (
             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
@@ -347,7 +356,7 @@ export function SpotCard({
           )}
         </Link>
 
-        <div className="relative flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-3">
+        <div className="relative flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-2.5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <Link
@@ -407,7 +416,7 @@ export function SpotCard({
     <Card
       data-spot-card="grid"
       className={cn(
-        "group relative flex min-h-[5.25rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
+        "group relative flex min-h-[4.9rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
         "bg-[#100b1c]/92 text-white backdrop-blur-xl",
         "border border-violet-200/15",
         "transition-all duration-300 ease-out",
@@ -420,7 +429,7 @@ export function SpotCard({
       <Link
         href={`/spots/${spot.id}`}
         aria-label={`Open ${spot.name}`}
-        className="relative w-[5rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-24 min-[460px]:w-28 md:aspect-[2/1] md:w-full"
+        className="relative w-[4.5rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[380px]:w-20 min-[460px]:w-24 md:aspect-[2/1] md:w-full"
       >
         {!showGradientFallback && !imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
@@ -450,7 +459,7 @@ export function SpotCard({
         </div>
       </div>
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-3">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col p-1.5 min-[380px]:p-2 sm:p-2.5">
         <div className="mb-1 min-w-0 md:hidden">
           <CategoryTrendRow
             category={spot.category}
@@ -458,7 +467,7 @@ export function SpotCard({
             compact
           />
         </div>
-        <div className="mb-1.5 hidden min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 md:grid">
+        <div className="mb-1.5 hidden min-w-0 md:block">
           <div className="min-w-0">
             <CategoryTrendRow
               category={spot.category}
@@ -472,7 +481,7 @@ export function SpotCard({
             href={`/spots/${spot.id}`}
             className="block min-w-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
           >
-            <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
+            <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-[15px]">
               {spot.name}
             </h3>
           </Link>
@@ -484,7 +493,7 @@ export function SpotCard({
           </div>
         </div>
 
-        <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-violet-50/55">
+        <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-violet-50/55 md:mt-1">
           <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
           <span className="truncate">{spot.location.address}</span>
         </p>

@@ -205,7 +205,7 @@ export function SpotsExplorer({
                         {viewMode === "grid" ? (
                             <div
                                 className={cn(
-                                    "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4",
+                                    "grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5",
                                     "transition-opacity duration-200",
                                     isPending && "opacity-60"
                                 )}
