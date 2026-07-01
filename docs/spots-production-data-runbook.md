@@ -28,6 +28,20 @@ npx supabase db query --linked --file supabase/migrations/006_spots_google_place
 
 ## Audit Commands
 
+For a single timestamped operator packet, run the combined read-only audit:
+
+```bash
+cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
+tmp_env=$(mktemp)
+vercel env pull "$tmp_env" --environment=production --scope nkopp-cmds-projects --yes >/dev/null
+set -a; source "$tmp_env"; set +a
+npm run spots:readiness -- --limit=250 --sample-limit=80
+rm -f "$tmp_env"
+```
+
+This writes `reports/spot-readiness-<timestamp>/manifest.json`, `photo-coverage.json`, `location-quality.json`, `action-plan.json`, and `action-plan.csv`.
+Add `--verbose` when you want to see the child audit output while the packet runs. The default mode stays quiet and prints the packet path plus final status.
+
 Pull production env into a temporary file and run the audits without printing secrets:
 
 ```bash

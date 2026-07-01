@@ -12,6 +12,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "spots:quality:action-plan": "npx tsx scripts/export-spot-quality-action-plan.ts",
+    "spots:readiness": "npx tsx scripts/export-spot-readiness-packet.ts",
     "seed:spots": "ts-node --project tsconfig.json scripts/seed-spots.ts",
     "seed:more": "ts-node --project tsconfig.json scripts/seed-additional-spots.ts"
   },
