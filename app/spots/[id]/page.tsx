@@ -69,7 +69,7 @@ function getDirectionsHelperText(spot: NonNullable<Awaited<ReturnType<typeof get
             : "Maps opens a name and area search because this source record does not have an exact address yet.";
     }
 
-    if (isKorea && locationConfidence.usableCoordinates) {
+    if (isKorea && locationConfidence.tone === "pinned") {
         return "Kakao opens the stored map pin as the route target, with the spot name as the destination label.";
     }
 

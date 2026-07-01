@@ -1,4 +1,4 @@
-import { hasUsableCoordinates } from "@/lib/spots/location-confidence";
+import { hasUsableCoordinates, isAreaLevelAddress } from "@/lib/spots/location-confidence";
 
 export interface SpotDirectionsInput {
     name: string;
@@ -58,7 +58,7 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
     const destinationText = exactQuery || input.address.trim() || input.name.trim();
 
     if (isKoreanLocation(input.address)) {
-        if (coordinateDestination) {
+        if (coordinateDestination && isAreaLevelAddress(input.address)) {
             return `https://map.kakao.com/link/to/${encodeURIComponent(
                 getKakaoDestinationLabel(input)
             )},${coordinateDestination}`;
