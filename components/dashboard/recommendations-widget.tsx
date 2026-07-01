@@ -10,21 +10,70 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { CityImageAvatar } from '@/components/ui/city-image';
+import { addFallbackToPlacePhotoUrl } from '@/lib/place-images';
+import { inferSpotContextCity } from '@/lib/spots/city-context';
+import { getFirstRealDisplaySpotPhoto } from '@/lib/spots/display-images';
+import { getSpotFallbackImageUrl } from '@/lib/spots/spot-fallback-images';
 
 interface RecommendedSpot {
   id: string;
   name: string;
   description: string;
+  address: string;
   category: string;
   localley_score: number;
   photos: string[];
-  location: { address?: string | { en?: string } } | null;
+  lat: number;
+  lng: number;
+  hasRealPhoto: boolean;
   recommendationScore: number;
   reason: string;
 }
 
 interface RecommendationsWidgetProps {
   compact?: boolean;
+}
+
+function getAddressFallbackCity(address: string): string {
+  const parts = address
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return parts.at(-2) || parts.at(-1) || '';
+}
+
+export function getRecommendationSpotCity(
+  spot: Pick<RecommendedSpot, 'name' | 'address' | 'lat' | 'lng'>
+): string {
+  return (
+    inferSpotContextCity({
+      name: spot.name,
+      address: spot.address,
+      lat: spot.lat,
+      lng: spot.lng,
+    }) || getAddressFallbackCity(spot.address)
+  );
+}
+
+export function getRecommendationSpotImage(
+  spot: Pick<RecommendedSpot, 'name' | 'address' | 'category' | 'photos' | 'lat' | 'lng'>,
+  options: { width: number; height: number; quality: number }
+): { src: string; isFallback: boolean } {
+  const city = getRecommendationSpotCity(spot);
+  const fallback = getSpotFallbackImageUrl({
+    name: spot.name,
+    category: spot.category,
+    city,
+    address: spot.address,
+    ...options,
+  });
+  const realPhoto = getFirstRealDisplaySpotPhoto(spot.photos);
+
+  return {
+    src: addFallbackToPlacePhotoUrl(realPhoto || fallback, fallback),
+    isFallback: !realPhoto,
+  };
 }
 
 export function RecommendationsWidget({ compact = false }: RecommendationsWidgetProps) {
@@ -70,19 +119,6 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
     if (score >= 5) return { label: 'Hidden Gem', color: 'bg-violet-500 text-white' };
     if (score >= 4) return { label: 'Local Favorite', color: 'bg-indigo-500 text-white' };
     return { label: 'Popular', color: 'bg-blue-500 text-white' };
-  };
-
-  // Extract city from location
-  const getCity = (location: RecommendedSpot["location"]): string => {
-    try {
-      if (!location) return '';
-      const address = typeof location.address === 'string'
-        ? location.address
-        : location.address?.en || '';
-      return address.split(',')[0]?.trim() || '';
-    } catch {
-      return '';
-    }
   };
 
   if (loading) {
@@ -135,7 +171,12 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {recommendations.slice(0, 6).map((spot) => {
             const badge = getScoreBadge(spot.localley_score);
-            const city = getCity(spot.location);
+            const city = getRecommendationSpotCity(spot);
+            const image = getRecommendationSpotImage(spot, {
+              width: 640,
+              height: 360,
+              quality: 90,
+            });
 
             return (
               <Link
@@ -145,18 +186,18 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
               >
                 {/* Image */}
                 <div className="relative aspect-video overflow-hidden bg-white/10">
-                  {spot.photos && spot.photos.length > 0 ? (
-                    <Image
-                      src={spot.photos[0]}
-                      alt={spot.name}
-                      fill
-                      sizes="192px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-600/20 to-indigo-600/20">
-                      <MapPin className="h-8 w-8 text-violet-200" />
-                    </div>
+                  <Image
+                    src={image.src}
+                    alt={spot.name}
+                    fill
+                    sizes="192px"
+                    quality={90}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {image.isFallback && (
+                    <span className="absolute bottom-1.5 left-1.5 rounded-full border border-amber-200/30 bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-amber-100 backdrop-blur">
+                      Area image
+                    </span>
                   )}
                   {/* Score badge */}
                   <div className="absolute top-1.5 right-1.5">
@@ -181,6 +222,9 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
                       </>
                     )}
                   </div>
+                  <p className="mt-1 line-clamp-1 text-[11px] text-violet-50/45">
+                    {spot.address}
+                  </p>
                 </div>
               </Link>
             );
@@ -216,7 +260,12 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {recommendations.map((spot) => {
             const badge = getScoreBadge(spot.localley_score);
-            const city = getCity(spot.location);
+            const city = getRecommendationSpotCity(spot);
+            const image = getRecommendationSpotImage(spot, {
+              width: 900,
+              height: 506,
+              quality: 90,
+            });
 
             return (
               <Link
@@ -226,18 +275,18 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
               >
                 {/* Image */}
                 <div className="relative aspect-video overflow-hidden bg-white/10">
-                  {spot.photos && spot.photos.length > 0 ? (
-                    <Image
-                      src={spot.photos[0]}
-                      alt={spot.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-600/20 to-indigo-600/20">
-                      <MapPin className="h-12 w-12 text-violet-200" />
-                    </div>
+                  <Image
+                    src={image.src}
+                    alt={spot.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    quality={90}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {image.isFallback && (
+                    <span className="absolute bottom-2 left-2 rounded-full border border-amber-200/30 bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-amber-100 backdrop-blur">
+                      Area image
+                    </span>
                   )}
 
                   {/* Score badge */}
@@ -265,6 +314,10 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
                       </>
                     )}
                     <span>{spot.category}</span>
+                  </div>
+                  <div className="flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/52">
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
+                    <span className="line-clamp-1 min-w-0 break-words">{spot.address}</span>
                   </div>
 
                   {/* Recommendation reason */}
