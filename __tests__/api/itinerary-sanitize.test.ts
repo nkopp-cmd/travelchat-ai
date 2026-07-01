@@ -38,9 +38,13 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result[0].activities).toHaveLength(1);
     expect(result[0].activities[0].name).toBe("Breakfast at Mangwon Market");
     expect(result[0].localTip).toContain("Bring cash.");
-    expect(result[0].localTip).toContain("Before you go: Most stalls close early on Sundays.");
+    expect(result[0].localTip).toContain(
+      "Before you go: Most stalls close early on Sundays.",
+    );
     expect(result[0].transportTips).toContain("Use the metro.");
-    expect(result[0].transportTips).toContain("Use exit 2 and walk five minutes.");
+    expect(result[0].transportTips).toContain(
+      "Use exit 2 and walk five minutes.",
+    );
   });
 
   it("recognizes reminder and insight rows as tips", () => {
@@ -48,21 +52,21 @@ describe("sanitizeGeneratedDailyPlans", () => {
       isTipLikeActivity({
         name: "Reminder",
         description: "Reserve popular restaurants before the trip.",
-      })
+      }),
     ).toBe(true);
 
     expect(
       isTipLikeActivity({
         name: "Local insight for the day",
         description: "Go before lunch to avoid queues.",
-      })
+      }),
     ).toBe(true);
 
     expect(
       isTipLikeActivity({
         name: "Getting there",
         description: "Walk from Anguk Station exit 3.",
-      })
+      }),
     ).toBe(true);
   });
 
@@ -70,14 +74,14 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(
       isTipLikeActivity({
         name: "Bring cash for smaller vendors.",
-      })
+      }),
     ).toBe(true);
 
     expect(
       isTipLikeActivity({
         name: "Reserve popular restaurants before the trip",
         description: "Weekend dinner slots book out fast.",
-      })
+      }),
     ).toBe(true);
   });
 
@@ -86,7 +90,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
       isTipLikeActivity({
         name: "Lunch",
         description: "Try a market stall near the museum.",
-      })
+      }),
     ).toBe(true);
 
     expect(
@@ -94,7 +98,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
         name: "Breakfast at Mangwon Market",
         description: "Start with local dumplings.",
         category: "Food",
-      })
+      }),
     ).toBe(false);
   });
 
@@ -149,7 +153,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
 
     expect(result.dailyPlans[0].activities).toHaveLength(1);
     expect(result.dailyPlans[0].activities[0].description).toBe(
-      "Order seasonal tea before the afternoon rush."
+      "Order seasonal tea before the afternoon rush.",
     );
     expect(result.insights).toEqual([
       expect.objectContaining({
@@ -180,7 +184,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
 
     expect(result.dailyPlans[0].activities).toHaveLength(1);
     expect(result.dailyPlans[0].activities[0].description).toBe(
-      "Order seasonal tea before the afternoon rush."
+      "Order seasonal tea before the afternoon rush.",
     );
     expect(result.insights).toEqual([
       expect.objectContaining({
@@ -211,7 +215,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
 
     expect(result.dailyPlans[0].activities).toHaveLength(1);
     expect(result.dailyPlans[0].activities[0].description).toBe(
-      "Start with coffee in the hanok courtyard."
+      "Start with coffee in the hanok courtyard.",
     );
     expect(result.insights).toEqual([
       expect.objectContaining({
@@ -242,7 +246,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
 
     expect(result.dailyPlans[0].activities).toHaveLength(1);
     expect(result.dailyPlans[0].activities[0].description).toBe(
-      "Eat through named stalls after dark."
+      "Eat through named stalls after dark.",
     );
     expect(result.insights).toEqual([
       expect.objectContaining({
@@ -278,7 +282,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
           text: "Bring small bills for market stalls.",
           kind: "local",
         },
-      ]
+      ],
     );
 
     const result = normalizeDailyPlansForDisplay(payload);
@@ -288,6 +292,45 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result.insights.map((insight) => insight.text)).toEqual([
       "Bring small bills for market stalls.",
       "Go before lunch.",
+    ]);
+  });
+
+  it("dedupes repeated tips when legacy fields and top-level insights overlap", () => {
+    const result = normalizeDailyPlansForDisplay(
+      [
+        {
+          day: 1,
+          localTip: "Bring small bills for market stalls.",
+          transportTips: "Use exit 4.",
+          activities: [
+            {
+              name: "Gwangjang Market",
+              description: "Try bindaetteok at a named stall.",
+              category: "market",
+            },
+          ],
+        },
+      ],
+      [
+        {
+          id: "trip-cash",
+          label: "Cash tip",
+          text: "Bring small bills for market stalls.",
+          kind: "local",
+        },
+        {
+          id: "trip-route",
+          label: "Route note",
+          text: "Use exit 4.",
+          kind: "transport",
+        },
+      ],
+    );
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.insights.map((insight) => insight.text)).toEqual([
+      "Bring small bills for market stalls.",
+      "Use exit 4.",
     ]);
   });
 
@@ -312,10 +355,13 @@ describe("sanitizeGeneratedDailyPlans", () => {
           ],
         },
       ],
-      [{ label: "Booking note", text: "Reserve dinner.", kind: "local" }]
+      [{ label: "Booking note", text: "Reserve dinner.", kind: "local" }],
     );
 
-    const payload = buildItineraryPlanPayload(normalized.dailyPlans, normalized.insights);
+    const payload = buildItineraryPlanPayload(
+      normalized.dailyPlans,
+      normalized.insights,
+    );
 
     expect(normalized.dailyPlans[0].activities).toHaveLength(1);
     expect(normalized.dailyPlans[0]).not.toHaveProperty("localTip");
