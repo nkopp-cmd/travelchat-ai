@@ -16,9 +16,9 @@ import { addFallbackToPlacePhotoUrl, getGooglePlaceIdFromSpotPhotos, summarizeSp
 import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
-import { buildSpotDirectionsUrl, isKoreanLocation } from "@/lib/spots/map-links";
+import { buildSpotDirectionsUrl, getSpotDirectionsSearchText, isKoreanLocation } from "@/lib/spots/map-links";
 import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
-import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
+import { applyPublicSpotVisibilityFilters, shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import {
     getSpotBestTime,
     getSpotDirectionsButtonLabel,
@@ -29,6 +29,19 @@ import {
 import type { Metadata } from "next";
 
 const LIQUID_CARD = "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
+
+interface RelatedSpot {
+    id: string;
+    name: string;
+    address: string;
+    category: string;
+    localleyScore: LocalleyScale;
+    localPercentage: number;
+    photo: string;
+    fallbackImage: string;
+    hasRealPhoto: boolean;
+    realPhotoCount: number;
+}
 
 // Helper to parse multi-language fields
 function getName(field: string | Record<string, string> | null | undefined): string {
@@ -192,7 +205,18 @@ function getPrimaryArea(address: string, city: string): string {
         .map((part) => part.trim())
         .filter(Boolean);
 
-    return parts.length > 1 ? parts[0] : city;
+    const district = parts.find((part) =>
+        /\b(gu|ku|dong|machi|cho|ward|district|neighborhood|neighbourhood|bukit|soi|road|street|lane)\b/i.test(part) ||
+        /[가-힣]+(구|동|로|길)$/.test(part)
+    );
+
+    if (district && !/^\d/.test(district)) return district;
+
+    const namedArea = parts.find((part) =>
+        part.toLowerCase() !== city.toLowerCase() && !/^\d/.test(part)
+    );
+
+    return namedArea || city;
 }
 
 // Get Directions button component
@@ -270,6 +294,75 @@ async function getSpot(id: string) {
         verified: Boolean(spot.verified),
         trending: spot.trending_score > 0.8,
     };
+}
+
+async function getRelatedSpots(
+    currentSpot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
+    city: string,
+    limit = 3
+): Promise<RelatedSpot[]> {
+    const supabase = createSupabaseAdmin();
+
+    let relatedQuery = supabase
+        .from("spots")
+        .select("id, name, address, category, location, localley_score, local_percentage, photos")
+        .ilike("address->>en", `%${city}%`)
+        .neq("id", currentSpot.id)
+        .order("localley_score", { ascending: false })
+        .order("local_percentage", { ascending: false })
+        .limit(limit * 2);
+
+    relatedQuery = relatedQuery.gte("localley_score", Math.max(3, currentSpot.localleyScore - 1));
+    relatedQuery = applyPublicSpotVisibilityFilters(relatedQuery);
+
+    const { data, error } = await relatedQuery;
+    if (error || !data) return [];
+
+    return data
+        .filter((spot) => shouldShowPublicSpot({ name: spot.name, address: spot.address, location: spot.location, photos: spot.photos }))
+        .slice(0, limit)
+        .map((spot) => {
+            const name = getName(spot.name);
+            const address = getName(spot.address);
+            const category = spot.category || "Local spot";
+            const normalizedPhotos = normalizeSpotPhotos(spot.photos, category, 900);
+            const photoSummary = summarizeSpotPhotos(normalizedPhotos);
+            const cityContext = inferSpotContextCity({
+                name,
+                address,
+                lat: 0,
+                lng: 0,
+            }) || city;
+            const fallbackImage = getSpotFallbackImageUrl({
+                name,
+                category,
+                city: cityContext,
+                address,
+                width: 900,
+                height: 675,
+                quality: 90,
+            });
+            const realPhoto = normalizedPhotos.find((photo) => !isPlaceholderImage(photo));
+
+            return {
+                id: spot.id,
+                name,
+                address,
+                category,
+                localleyScore: normalizeLocalleyScore(spot.localley_score),
+                localPercentage: normalizeLocalPercentage(spot.local_percentage),
+                photo: addFallbackToPlacePhotoUrl(realPhoto || fallbackImage, fallbackImage),
+                fallbackImage,
+                hasRealPhoto: photoSummary.hasRealPhoto,
+                realPhotoCount: Object.entries(photoSummary.kinds).reduce(
+                    (count, [kind, value]) =>
+                        kind === "proxy" || kind === "remote_https" || kind === "local_asset"
+                            ? count + value
+                            : count,
+                    0
+                ),
+            };
+        });
 }
 
 // Get score label for metadata
@@ -351,6 +444,11 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
     const primaryArea = getPrimaryArea(spot.location.address, city);
     const scoreNarrative = getScoreNarrative(spot.localleyScore);
     const locationPlanningCopy = getLocationPlanningCopy(spot);
+    const relatedSpots = await getRelatedSpots(spot, city);
+    const exactMapQuery = getSpotDirectionsSearchText({
+        name: spot.name,
+        address: spot.location.address,
+    });
 
     return (
         <>
@@ -652,7 +750,7 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                             </h3>
                             <p className="text-sm leading-6 text-violet-50/70">{spot.location.address}</p>
                             <p className="mt-2 text-xs font-medium text-violet-200/80">
-                                Search context: {spot.name}, {city}
+                                Exact map query: {exactMapQuery || `${spot.name}, ${city}`}
                             </p>
                             <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
                                 {locationConfidence.description} {getDirectionsHelperText(spot)}
@@ -672,6 +770,72 @@ export default async function SpotPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
             </div>
+
+            {relatedSpots.length > 0 && (
+                <section className={`${LIQUID_CARD} p-4 sm:p-6`}>
+                    <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
+                                Nearby picks
+                            </p>
+                            <h2 className="text-2xl font-bold leading-tight text-white">
+                                Build the same pocket into a route
+                            </h2>
+                        </div>
+                        <Link href={`/spots?city=${encodeURIComponent(city)}`} className="text-sm font-semibold text-violet-200 transition-colors hover:text-white">
+                            More in {city}
+                        </Link>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        {relatedSpots.map((related) => (
+                            <Link
+                                key={related.id}
+                                href={`/spots/${related.id}`}
+                                className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/35 hover:bg-white/[0.075]"
+                            >
+                                <div className="relative aspect-[4/3] overflow-hidden bg-violet-950/50">
+                                    <SpotPhotoImage
+                                        src={related.photo}
+                                        fallbackSrc={related.fallbackImage}
+                                        alt={related.name}
+                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                        quality={90}
+                                        sizes="(max-width: 768px) 100vw, 320px"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                                    <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/45 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                                        {related.category}
+                                    </span>
+                                    <span className="absolute bottom-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
+                                        {related.localleyScore}/6
+                                    </span>
+                                </div>
+                                <div className="space-y-2 p-3">
+                                    <div>
+                                        <h3 className="line-clamp-1 font-semibold text-white group-hover:text-violet-100">
+                                            {related.name}
+                                        </h3>
+                                        <p className="mt-1 line-clamp-1 text-xs text-violet-50/55">
+                                            {related.address}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5 text-[11px] font-medium">
+                                        <span className="rounded-md border border-emerald-200/20 bg-emerald-400/10 px-2 py-1 text-emerald-100">
+                                            {related.localPercentage}% local
+                                        </span>
+                                        <span className={related.hasRealPhoto
+                                            ? "rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-1 text-violet-100"
+                                            : "rounded-md border border-amber-200/25 bg-amber-400/10 px-2 py-1 text-amber-100"
+                                        }>
+                                            {related.hasRealPhoto ? `${related.realPhotoCount} photo${related.realPhotoCount === 1 ? "" : "s"}` : "Area image"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
         </>
     );
