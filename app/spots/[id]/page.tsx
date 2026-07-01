@@ -473,6 +473,70 @@ function GetDirectionsButton({
   );
 }
 
+function NavigationTargetPanel({
+  spot,
+  fallbackQuery,
+  compact = false,
+}: {
+  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>;
+  fallbackQuery: string;
+  compact?: boolean;
+}) {
+  const locationConfidence = getLocationConfidence(spot);
+  const city = getSpotContextCity(spot);
+  const targetValue = getDirectionsTargetValue(
+    spot,
+    fallbackQuery || `${spot.name}, ${city}`,
+  );
+  const lat = formatCoordinate(spot.location.lat);
+  const lng = formatCoordinate(spot.location.lng);
+  const hasMatchedGooglePlace =
+    Boolean(spot.googlePlaceId) &&
+    !isKoreanLocation(spot.location.address) &&
+    locationConfidence.tone === "exact";
+
+  return (
+    <div
+      className={`rounded-lg border border-white/10 bg-white/[0.055] ${
+        compact ? "p-3" : "p-4"
+      }`}
+    >
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+          Navigation target
+        </span>
+        <span
+          className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
+        >
+          {getDirectionsTargetLabel(spot)}
+        </span>
+      </div>
+      <p className="break-words text-sm font-semibold leading-6 text-white">
+        {targetValue}
+      </p>
+      <p className="mt-2 break-words text-xs leading-5 text-violet-50/60">
+        Address on record: {spot.location.address}
+      </p>
+      {hasMatchedGooglePlace && (
+        <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+          Directions include the matched Google Place ID when Google Maps
+          supports it.
+        </p>
+      )}
+      {lat && lng && (
+        <p className="mt-2 text-xs text-violet-50/45">
+          {getSpotCoordinateEvidenceLabel({
+            address: spot.location.address,
+            tone: locationConfidence.tone,
+            usableCoordinates: locationConfidence.usableCoordinates,
+          })}
+          : {lat}, {lng}
+        </p>
+      )}
+    </div>
+  );
+}
+
 // Fetch spot data from Supabase
 async function getSpot(id: string) {
   const supabase = createSupabaseAdmin();
@@ -843,6 +907,11 @@ export default async function SpotPage({
           aria-label="Spot planning actions"
         >
           <GetDirectionsButton spot={spot} compact />
+          <NavigationTargetPanel
+            spot={spot}
+            fallbackQuery={exactMapQuery}
+            compact
+          />
           <p className="text-xs leading-5 text-violet-50/60">
             {getDirectionsHelperText(spot)}
           </p>
@@ -1131,13 +1200,12 @@ export default async function SpotPage({
                   <p className="text-sm leading-6 text-violet-50/70">
                     {spot.location.address}
                   </p>
-                  <p className="mt-2 text-xs font-medium text-violet-200/80">
-                    {getDirectionsTargetLabel(spot)}:{" "}
-                    {getDirectionsTargetValue(
-                      spot,
-                      exactMapQuery || `${spot.name}, ${city}`,
-                    )}
-                  </p>
+                  <div className="mt-3">
+                    <NavigationTargetPanel
+                      spot={spot}
+                      fallbackQuery={exactMapQuery}
+                    />
+                  </div>
                   <div className="mt-3 grid gap-2">
                     <DetailSignal
                       icon={MapPin}
@@ -1164,27 +1232,6 @@ export default async function SpotPage({
                     {locationConfidence.description}{" "}
                     {getDirectionsHelperText(spot)}
                   </p>
-                  {spot.googlePlaceId &&
-                    !isKoreanLocation(spot.location.address) &&
-                    locationConfidence.tone === "exact" && (
-                      <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
-                        Google place match available. Directions include the
-                        matched place ID, not only a text search.
-                      </p>
-                    )}
-                  {formatCoordinate(spot.location.lat) &&
-                    formatCoordinate(spot.location.lng) && (
-                      <p className="mt-2 text-xs text-violet-50/45">
-                        {getSpotCoordinateEvidenceLabel({
-                          address: spot.location.address,
-                          tone: locationConfidence.tone,
-                          usableCoordinates: locationConfidence.usableCoordinates,
-                        })}
-                        :{" "}
-                        {formatCoordinate(spot.location.lat)},{" "}
-                        {formatCoordinate(spot.location.lng)}
-                      </p>
-                    )}
                 </div>
               </div>
             </div>
