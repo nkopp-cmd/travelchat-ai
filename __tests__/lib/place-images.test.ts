@@ -501,4 +501,22 @@ describe("getPlacePhotoMatchQuality", () => {
             reason: "accepted",
         });
     });
+
+    it("accepts non-latin tourist attraction names with a useful address anchor", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Otsuka Rose Street",
+            "Otsuka, Toshima-ku, Tokyo",
+            "Outdoor",
+            {
+                displayName: "大塚バラロード",
+                formattedAddress: "Minamiotsuka, Toshima City, Tokyo, Japan",
+                types: ["tourist_attraction", "point_of_interest"],
+            }
+        );
+
+        expect(quality).toMatchObject({
+            acceptable: true,
+            reason: "accepted_non_latin_address_anchor",
+        });
+    });
 });

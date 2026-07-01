@@ -217,11 +217,13 @@ function CategoryTrendRow({
   category,
   trending,
   compact = false,
+  hideTrendOnMobile = false,
   className,
 }: {
   category: string;
   trending?: boolean;
   compact?: boolean;
+  hideTrendOnMobile?: boolean;
   className?: string;
 }) {
   return (
@@ -248,6 +250,7 @@ function CategoryTrendRow({
           className={cn(
             "justify-self-end",
             compact ? "h-5 w-6 px-0.5" : "max-w-[4.5rem]",
+            hideTrendOnMobile && "hidden min-[420px]:inline-flex",
           )}
           showLabel={!compact}
         />
@@ -390,14 +393,14 @@ export function SpotCard({
                 compact
               />
             </div>
-            <div
+          <div
               data-spot-card-meta
-              className="grid min-w-0 grid-cols-[minmax(0,max-content)_minmax(0,max-content)_1fr] items-center gap-1 overflow-hidden"
+              className="flex min-w-0 items-center gap-1 overflow-hidden"
             >
               <SpotScoreChip score={spot.localleyScore} className="max-w-full" />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
-                className="hidden min-[430px]:inline-flex"
+                className="hidden min-[460px]:inline-flex"
               />
               <LocationConfidenceChip
                 spot={spot}
@@ -499,7 +502,8 @@ export function SpotCard({
               category={spot.category}
               trending={spot.trending}
               compact
-              className="max-w-[calc(100%-4.4rem)] flex-1 md:hidden"
+              hideTrendOnMobile
+              className="min-w-0 flex-1 md:hidden"
             />
             <SpotScoreChip score={spot.localleyScore} showLabel className="ml-auto md:ml-0" />
             <LocalCrowdChip

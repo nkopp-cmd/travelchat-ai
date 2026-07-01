@@ -602,6 +602,15 @@ export function getPlacePhotoMatchQuality(
         return { acceptable: true, reason: "accepted", nameScore, addressScore };
     }
 
+    if (
+        !weakSingleWordNameMatch &&
+        hasNonLatinPlaceName &&
+        addressScore >= 0.33 &&
+        placeTypes.has("tourist_attraction")
+    ) {
+        return { acceptable: true, reason: "accepted_non_latin_address_anchor", nameScore, addressScore };
+    }
+
     if (nameScore < 0.67 && addressScore < 0.75) {
         return {
             acceptable: false,

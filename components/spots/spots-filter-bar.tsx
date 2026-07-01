@@ -243,13 +243,13 @@ export function SpotsFilterBar({
         })}
       </div>
 
-      <div className="flex min-w-0 items-center gap-2 md:hidden">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:hidden">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => setShowMobileFilters((value) => !value)}
-          className="h-9 min-w-0 flex-1 justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
+          className="h-9 min-w-0 justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
           aria-expanded={showMobileFilters}
           aria-controls="spots-advanced-filters"
         >
@@ -282,13 +282,13 @@ export function SpotsFilterBar({
       <div
         id="spots-advanced-filters"
         className={cn(
-          "grid min-w-0 grid-cols-1 gap-2 md:grid md:grid-cols-2 md:items-center lg:grid-cols-4",
+          "grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 md:grid md:items-center xl:grid-cols-4",
           !showMobileFilters && "hidden md:grid",
         )}
         role="group"
         aria-label="Filter options"
       >
-        <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-violet-50/65 md:col-span-2 lg:col-span-4 xl:hidden">
+        <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 xl:hidden">
           <Filter className="h-4 w-4" aria-hidden="true" />
           More filters
         </div>
@@ -403,7 +403,7 @@ export function SpotsFilterBar({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="hidden h-10 w-full shrink-0 rounded-lg border border-white/10 bg-white/[0.035] text-violet-50/65 hover:bg-white/10 hover:text-white md:col-span-2 md:inline-flex lg:col-span-4"
+            className="hidden h-10 w-full shrink-0 rounded-lg border border-white/10 bg-white/[0.035] text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 md:inline-flex xl:col-span-4"
           >
             <X className="mr-1 h-4 w-4" aria-hidden="true" />
             Clear
