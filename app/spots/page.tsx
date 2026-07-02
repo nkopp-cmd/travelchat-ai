@@ -24,6 +24,9 @@ export const metadata: Metadata = {
 // Enable dynamic rendering for URL-based filtering
 export const dynamic = "force-dynamic";
 
+const socialSpotSubmissionsEnabled =
+    process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
+
 interface SpotsPageProps {
     searchParams: Promise<SpotsFilterParams>;
 }
@@ -145,15 +148,17 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-sm leading-6 text-violet-50/65 md:text-base">
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
-                            <Button
-                                asChild
-                                className="mt-4 h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
-                            >
-                                <Link href="/spots/submit">
-                                    <Plus className="h-4 w-4" />
-                                    Submit social spot
-                                </Link>
-                            </Button>
+                            {socialSpotSubmissionsEnabled && (
+                                <Button
+                                    asChild
+                                    className="mt-4 h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
+                                >
+                                    <Link href="/spots/submit">
+                                        <Plus className="h-4 w-4" />
+                                        Submit social spot
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                     </div>
 

@@ -178,12 +178,29 @@ function createRequest(body: Record<string, unknown>) {
 describe("/api/spots/social-submissions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED = "true";
     mocks.contributorRows.length = 0;
     mocks.submissionRows.length = 0;
     mocks.spotRows.length = 0;
     mocks.ledgerRows.length = 0;
     mocks.createSupabaseAdmin.mockReturnValue(createSupabaseMock());
     mocks.rateLimitStrict.mockResolvedValue(null);
+  });
+
+  it("stays disabled until the feature flag is enabled", async () => {
+    process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED = "false";
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/reel/ABC123",
+      email: "spotter@example.com",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(body.error.code).toBe("social_submissions_disabled");
+    expect(mocks.rateLimitStrict).not.toHaveBeenCalled();
+    expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
   });
 
   it("rejects unsupported social URLs", async () => {

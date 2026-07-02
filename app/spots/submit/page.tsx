@@ -53,7 +53,45 @@ const statusLabel: Record<NonNullable<SubmissionResponse["submission"]>["status"
   research_pending: "Research queued",
 };
 
-export default function SubmitSpotPage() {
+const socialSpotSubmissionsEnabled =
+  process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
+
+function SocialSubmissionsUnavailable() {
+  return (
+    <AppBackground>
+      <div className="mx-auto max-w-3xl space-y-5 pb-8">
+        <Link
+          href="/spots"
+          className="inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to spots
+        </Link>
+
+        <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+            <Sparkles className="h-4 w-4" />
+            Coming soon
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+            Social spot submissions are not open yet
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-violet-50/65 md:text-base">
+            The contribution flow is being prepared. Browse the current Localley spots while submissions are closed.
+          </p>
+          <Button
+            asChild
+            className="mt-5 h-11 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
+          >
+            <Link href="/spots">Open spots</Link>
+          </Button>
+        </section>
+      </div>
+    </AppBackground>
+  );
+}
+
+function SubmitSpotForm() {
   const [url, setUrl] = useState("");
   const [email, setEmail] = useState("");
   const [contributorName, setContributorName] = useState("");
@@ -301,4 +339,12 @@ export default function SubmitSpotPage() {
       </div>
     </AppBackground>
   );
+}
+
+export default function SubmitSpotPage() {
+  if (!socialSpotSubmissionsEnabled) {
+    return <SocialSubmissionsUnavailable />;
+  }
+
+  return <SubmitSpotForm />;
 }

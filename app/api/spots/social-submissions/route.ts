@@ -22,6 +22,10 @@ import { validateBody } from "@/lib/validations";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+function isSocialSpotSubmissionsEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
+}
+
 function formatPoint(lng: number, lat: number): string {
   return `POINT(${lng.toFixed(7)} ${lat.toFixed(7)})`;
 }
@@ -138,6 +142,18 @@ async function createSpotFromResearch({
 
 export async function POST(req: NextRequest) {
   try {
+    if (!isSocialSpotSubmissionsEnabled()) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "social_submissions_disabled",
+            message: "Social spot submissions are not enabled yet.",
+          },
+        },
+        { status: 404 },
+      );
+    }
+
     const limited = await rateLimiters.strict(req);
     if (limited) return limited;
 

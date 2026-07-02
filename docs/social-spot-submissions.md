@@ -2,6 +2,10 @@
 
 Localley now supports TikTok and Instagram spot submissions from `/spots/submit`.
 
+The UI and API are dark-launched by default. Set
+`NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED=true` only after the database
+migration has been applied in the target environment.
+
 ## Flow
 
 1. The contributor pastes a TikTok or Instagram post/reel link and enters an email.
@@ -22,6 +26,13 @@ Tables:
 - `contribution_token_ledger`: idempotent token movements per submission.
 
 New tables use explicit service-role grants and RLS policies. Public clients do not write directly to Supabase.
+
+## Deployment Order
+
+1. Apply `supabase/migrations/007_social_spot_submissions.sql`.
+2. Set `NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED=true` in Vercel.
+3. Redeploy the app so the spots CTA and `/spots/submit` page become active.
+4. Submit one known Instagram or TikTok URL and confirm the API returns either `spot_created`, `spot_reused`, `needs_review`, or `research_pending`.
 
 ## Loop Checks
 
