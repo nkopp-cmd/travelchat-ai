@@ -49,9 +49,9 @@ describe("TemplateCard", () => {
     const inlineAction = screen.getByTestId("template-card-inline-action");
 
     expect(content.className).not.toContain("pb-8");
-    expect(content.className).toContain("pr-10");
     expect(content.className).toContain("sm:pb-9");
-    expect(inlineAction.className).toContain("inline-flex");
+    expect(inlineAction.className).toContain("hidden");
+    expect(inlineAction.className).toContain("sm:inline-flex");
     expect(inlineAction.className).toContain("sm:bottom-1.5");
   });
 });

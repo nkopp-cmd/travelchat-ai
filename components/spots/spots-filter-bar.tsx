@@ -244,7 +244,12 @@ export function SpotsFilterBar({
       </div>
 
       <div
-        className="grid min-w-0 grid-cols-[minmax(0,1fr)_2.25rem] items-center gap-2 md:hidden"
+        className={cn(
+          "grid min-w-0 items-center gap-2 md:hidden",
+          hasActiveFilters
+            ? "grid-cols-[minmax(0,1fr)_2.25rem]"
+            : "grid-cols-1",
+        )}
         data-testid="spots-mobile-filter-row"
       >
         <Button

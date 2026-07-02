@@ -194,9 +194,11 @@ function AreaImageChip({ className }: { className?: string }) {
 function TrendingChip({
   className,
   showLabel = false,
+  iconOnly = false,
 }: {
   className?: string;
   showLabel?: boolean;
+  iconOnly?: boolean;
 }) {
   return (
     <span
@@ -207,11 +209,13 @@ function TrendingChip({
       title="Trending"
     >
       <TrendingUp className="h-3 w-3 shrink-0" aria-hidden="true" />
-      {showLabel ? (
+      {showLabel && !iconOnly ? (
         <span className="truncate">Trending</span>
       ) : (
         <>
-          <span className="hidden truncate min-[430px]:inline">Hot</span>
+          {!iconOnly && (
+            <span className="hidden truncate min-[430px]:inline">Hot</span>
+          )}
           <span className="sr-only">Trending</span>
         </>
       )}
@@ -223,11 +227,13 @@ function CategoryTrendRow({
   category,
   trending,
   compact = false,
+  hideTrendText = false,
   className,
 }: {
   category: string;
   trending?: boolean;
   compact?: boolean;
+  hideTrendText?: boolean;
   className?: string;
 }) {
   return (
@@ -254,7 +260,8 @@ function CategoryTrendRow({
             "shrink-0",
             compact ? "h-5 max-w-[3.2rem] px-1.5 min-[430px]:max-w-[4.75rem]" : "max-w-[4.5rem]",
           )}
-          showLabel={!compact}
+          showLabel={!compact && !hideTrendText}
+          iconOnly={hideTrendText}
         />
       )}
     </div>
@@ -404,7 +411,7 @@ export function SpotCard({
           <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5 text-xs text-violet-50/60 sm:pt-2">
             <div
               data-spot-card-meta
-              className="flex min-w-0 flex-wrap items-center gap-1 overflow-visible"
+              className="grid min-w-0 grid-cols-1 gap-1 overflow-hidden min-[430px]:grid-cols-[minmax(0,1fr)_auto] sm:flex sm:flex-wrap sm:items-center sm:overflow-visible"
             >
               <CategoryTrendRow
                 category={spot.category}
@@ -412,18 +419,20 @@ export function SpotCard({
                 compact
                 className="max-w-full"
               />
-              <LocationConfidenceChip
-                spot={spot}
-                className="max-w-[7.25rem]"
-              />
-              <SpotScoreChip
-                score={spot.localleyScore}
-                className="max-w-[3.75rem]"
-              />
-              <LocalCrowdChip
-                percentage={spot.localPercentage}
-                className="hidden min-[520px]:inline-flex"
-              />
+              <div className="flex min-w-0 items-center gap-1 min-[430px]:justify-end sm:contents">
+                <LocationConfidenceChip
+                  spot={spot}
+                  className="max-w-[7.25rem]"
+                />
+                <SpotScoreChip
+                  score={spot.localleyScore}
+                  className="max-w-[3.75rem]"
+                />
+                <LocalCrowdChip
+                  percentage={spot.localPercentage}
+                  className="hidden min-[520px]:inline-flex"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -524,6 +533,7 @@ export function SpotCard({
               category={spot.category}
               trending={spot.trending}
               compact
+              hideTrendText
               className="min-w-0 md:hidden"
             />
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 md:contents">
