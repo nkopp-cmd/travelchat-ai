@@ -107,6 +107,7 @@ export const metadata: Metadata = {
 
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { MainContentShell } from "@/components/layout/main-content-shell";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/providers";
 import { SkipLink } from "@/components/accessibility/skip-link";
@@ -149,9 +150,9 @@ export default function RootLayout({
           <SkipLink />
           <Providers>
             <ConditionalNavbar />
-            <main id="main-content" className="flex-1 min-h-0 pb-16 md:pb-0 overflow-y-auto" tabIndex={-1}>
+            <MainContentShell>
               {children}
-            </main>
+            </MainContentShell>
             <MobileBottomNav />
             <Toaster />
           </Providers>
