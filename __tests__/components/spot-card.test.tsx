@@ -38,7 +38,7 @@ describe("SpotCard", () => {
     expect(screen.queryByText("Place")).toBeNull();
   });
 
-  it("keeps area fallback imagery honest", () => {
+  it("does not disguise missing real imagery as a city or area photo", () => {
     render(
       <SpotCard
         spot={{
@@ -51,7 +51,8 @@ describe("SpotCard", () => {
       />,
     );
 
-    expect(screen.getAllByText(/Area/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Photo needed/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Area photo/)).toBeNull();
   });
 
   it("keeps trending metadata readable on compact mobile cards", () => {

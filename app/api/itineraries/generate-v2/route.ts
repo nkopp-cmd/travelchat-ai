@@ -28,6 +28,7 @@ import {
   buildItineraryPlanPayload,
   normalizeDailyPlansForDisplay,
 } from '@/lib/itineraries/normalize-daily-plans';
+import { buildItineraryProviderMeta } from '@/lib/llm/itinerary-provider-meta';
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,9 +57,6 @@ export async function POST(req: NextRequest) {
     }
 
     const params = validation.data;
-
-    // Check if multi-LLM is enabled for this tier
-    const useMultiLLM = featureFlags.isEnabledForTier(tier as UserTier);
 
     // Get the orchestrator
     const orchestrator = getOrchestrator();
@@ -138,28 +136,14 @@ export async function POST(req: NextRequest) {
     // Award XP for creating itinerary (fire and forget)
     awardXP(req).catch(console.error);
 
-    // Build response with metadata
     const response: Record<string, unknown> = {
       success: true,
       itinerary: {
         id: savedItinerary?.id,
         ...itineraryData,
       },
+      meta: buildItineraryProviderMeta(result),
     };
-
-    // Include orchestration metadata for Pro/Premium tiers
-    if (useMultiLLM && (tier === 'pro' || tier === 'premium')) {
-      response.meta = {
-        qualityScore: result.qualityScore,
-        validationReport: result.validationReport,
-        fallbackUsed: result.fallbackUsed,
-        metrics: {
-          totalLatencyMs: result.metrics.totalLatencyMs,
-          providersUsed: result.metrics.providersUsed,
-          cacheHits: result.metrics.cacheHits,
-        },
-      };
-    }
 
     return NextResponse.json(response);
   } catch (error) {
