@@ -47,6 +47,17 @@ function getDayTheme(dayTitle: string): string {
     return match?.[1]?.trim() || dayTitle;
 }
 
+function getDayRouteSummary(activities: ParsedChatActivity[]): string {
+    const names = activities
+        .map((activity) => activity.title.trim())
+        .filter(Boolean);
+
+    if (names.length === 0) return "No stops yet";
+    if (names.length === 1) return names[0];
+
+    return `${names[0]} to ${names[names.length - 1]}`;
+}
+
 function ChatPreviewActivityImage({
     activity,
     city,
@@ -288,18 +299,28 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                     {days.map((day, dayIndex) => (
                         <div key={dayIndex} className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
                             {/* Day Header - Gradient */}
-                            <div className="flex flex-col gap-2 border-b border-white/10 bg-violet-500/16 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                            <div className="grid gap-2 border-b border-white/10 bg-violet-500/16 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
                                 <div className="flex min-w-0 items-start gap-2">
                                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/20 bg-violet-500/25 text-xs font-bold text-violet-100">
                                         {dayIndex + 1}
                                     </span>
-                                    <h4 className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
-                                        {day.day}
-                                    </h4>
+                                    <div className="min-w-0 flex-1">
+                                        <h4 className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
+                                            {day.day}
+                                        </h4>
+                                        <p className="mt-0.5 line-clamp-1 text-xs leading-relaxed text-violet-50/58">
+                                            {getDayRouteSummary(day.activities)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <span className="w-fit shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
-                                    {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
-                                </span>
+                                <div className="flex flex-wrap items-center gap-1.5 pl-9 sm:justify-end sm:pl-0">
+                                    <span className="rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-violet-50/75">
+                                        Route order
+                                    </span>
+                                    <span className="w-fit shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
+                                        {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Activities */}
@@ -310,7 +331,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                     const TypeIcon = getTypeIcon(activity.type);
 
                                     return (
-                                        <div key={actIndex} className="relative rounded-lg border border-white/10 bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 sm:p-3">
+                                        <div key={actIndex} className="relative rounded-lg border border-white/10 bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 transition-colors hover:border-violet-300/24 hover:bg-white/[0.06] sm:p-3">
                                             <div
                                                 className="absolute bottom-3 left-[21px] top-12 w-px bg-violet-300/20 sm:left-[25px]"
                                                 aria-hidden="true"

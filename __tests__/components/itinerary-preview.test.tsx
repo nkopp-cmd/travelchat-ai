@@ -34,6 +34,8 @@ describe("ItineraryPreview", () => {
 
 - **Tsukiji Outer Market (Local Favorite)**: Snack through named stalls in the morning.
   Address: Tsukiji Outer Market, Chuo City, Tokyo
+- **Yanaka Ginza (Hidden Gem)**: Walk the old shopping street before late afternoon.
+  Address: Yanaka Ginza, Taito City, Tokyo
 - **Getting around**: Use the subway and walk the last few blocks.
 
 **Local Tips**
@@ -43,6 +45,8 @@ describe("ItineraryPreview", () => {
     );
 
     expect(screen.getByText("Route by day")).toBeTruthy();
+    expect(screen.getByText("Route order")).toBeTruthy();
+    expect(screen.getByText("Tsukiji Outer Market to Yanaka Ginza")).toBeTruthy();
     expect(screen.getByText("Trip notes")).toBeTruthy();
     expect(screen.getByText("Getting around")).toBeTruthy();
     expect(screen.getByText("Outside the day schedule")).toBeTruthy();
@@ -51,6 +55,7 @@ describe("ItineraryPreview", () => {
     const tripNotes = screen.getByTestId("chat-trip-notes");
 
     expect(daySchedule.textContent).toContain("Tsukiji Outer Market");
+    expect(daySchedule.textContent).toContain("Yanaka Ginza");
     expect(daySchedule.textContent).not.toContain("Bring small bills.");
     expect(daySchedule.textContent).not.toContain("Use the subway and walk the last few blocks.");
     expect(tripNotes.textContent).toContain("Bring small bills.");
