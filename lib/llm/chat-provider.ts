@@ -96,10 +96,11 @@ export async function generateChatReplyWithFallback(
   const primaryModel = readGLMProviderConfig().model;
   const maxTokens = input.maxTokens ?? 2048;
   const temperature = input.temperature ?? 0.7;
+  const primaryConfigured = glm.isAvailable();
   let glmWasAttempted = false;
   let fallbackReason: ChatFallbackReason = null;
 
-  if (glm.isAvailable()) {
+  if (primaryConfigured) {
     glmWasAttempted = true;
 
     try {
@@ -124,7 +125,7 @@ export async function generateChatReplyWithFallback(
         fallbackReason: null,
         primaryProvider: "glm",
         primaryModel,
-        primaryConfigured: true,
+        primaryConfigured,
       };
     } catch (glmError) {
       fallbackReason = fallbackReason || "glm_error";
@@ -166,6 +167,6 @@ export async function generateChatReplyWithFallback(
     fallbackReason,
     primaryProvider: "glm",
     primaryModel,
-    primaryConfigured: glmWasAttempted,
+    primaryConfigured,
   };
 }
