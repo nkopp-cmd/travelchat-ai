@@ -111,7 +111,7 @@ function TemplateCardContent({
         <div
           className={cn(
             "relative z-10 flex flex-1 flex-col p-1.5 sm:p-2",
-            isSelected && "sm:pb-9",
+            isSelected && "pr-10 sm:pr-2 sm:pb-9",
           )}
           data-testid="template-card-content"
         >
@@ -211,11 +211,12 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
         {isSelected && primaryHref && (
           <Link
             href={primaryHref}
-            className="absolute inset-x-1.5 bottom-1.5 z-20 hidden h-7 items-center justify-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-2 text-[11px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inline-flex sm:h-8 sm:text-xs"
+            className="absolute right-1.5 top-1.5 z-20 inline-flex h-6 items-center justify-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-1.5 text-[10px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:h-8 sm:px-2 sm:text-xs"
             aria-label={`Use ${template.name} template`}
             data-testid="template-card-inline-action"
           >
-            Use this
+            <span className="sm:hidden">Use</span>
+            <span className="hidden sm:inline">Use this</span>
             <ArrowRight className="h-3 w-3" aria-hidden="true" />
           </Link>
         )}
