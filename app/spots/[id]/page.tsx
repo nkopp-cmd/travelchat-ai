@@ -16,6 +16,7 @@ import {
   Route,
   ShieldCheck,
   Sparkles,
+  UserRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -721,6 +722,14 @@ async function getSpot(id: string) {
     return null;
   }
 
+  const { data: communitySubmission } = await supabase
+    .from("social_spot_submissions")
+    .select("contributor_credit, platform, status, created_at, research_summary")
+    .eq("spot_id", id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
   const { lat, lng } = getSpotCoordinateValues(spot.location);
   const address = getName(spot.address);
 
@@ -763,6 +772,14 @@ async function getSpot(id: string) {
     tips: normalizeSpotTips(spot.tips),
     verified: Boolean(spot.verified),
     trending: spot.trending_score > 0.8,
+    communitySubmission: communitySubmission
+      ? {
+          contributorCredit: communitySubmission.contributor_credit as string,
+          platform: communitySubmission.platform as string,
+          status: communitySubmission.status as string,
+          researchSummary: communitySubmission.research_summary as string | null,
+        }
+      : null,
   };
 }
 
@@ -1084,6 +1101,15 @@ export default async function SpotPage({
                     Verified
                   </Badge>
                 )}
+                {spot.communitySubmission && (
+                  <Badge
+                    variant="outline"
+                    className="border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
+                  >
+                    <UserRound className="mr-1 h-3.5 w-3.5" />
+                    Submitted by {spot.communitySubmission.contributorCredit}
+                  </Badge>
+                )}
                 <Badge
                   variant="outline"
                   className={
@@ -1185,6 +1211,29 @@ export default async function SpotPage({
         />
 
         <RecordConfidencePanel confidence={recordConfidence} />
+
+        {spot.communitySubmission && (
+          <section className={`${LIQUID_CARD} p-4 sm:p-5`} aria-label="Community credit">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-sky-200/20 bg-sky-400/10 text-sky-100">
+                <UserRound className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-sky-200/80">
+                  Community credit
+                </p>
+                <h2 className="mt-1 text-xl font-bold leading-tight text-white">
+                  Submitted by {spot.communitySubmission.contributorCredit}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-violet-50/65">
+                  Found from {spot.communitySubmission.platform}.{" "}
+                  {spot.communitySubmission.researchSummary ||
+                    "Localley research converted the shared link into this spot record."}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         {galleryImages.length > 0 && (
           <div className="grid grid-cols-3 gap-2 sm:gap-3">

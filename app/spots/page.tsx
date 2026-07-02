@@ -1,11 +1,13 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
-import { MapPin } from "lucide-react";
+import { MapPin, Plus } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 import { CityImageAvatar } from "@/components/ui/city-image";
+import { Button } from "@/components/ui/button";
 import {
     fetchFilteredSpots,
     fetchFilterOptions,
@@ -143,6 +145,15 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-sm leading-6 text-violet-50/65 md:text-base">
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
+                            <Button
+                                asChild
+                                className="mt-4 h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
+                            >
+                                <Link href="/spots/submit">
+                                    <Plus className="h-4 w-4" />
+                                    Submit social spot
+                                </Link>
+                            </Button>
                         </div>
                     </div>
 
