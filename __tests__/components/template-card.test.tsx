@@ -34,4 +34,23 @@ describe("TemplateCard", () => {
       "/itineraries/new?template=local-authentic",
     );
   });
+
+  it("keeps selected mobile cards compact when the sticky picker CTA is present", () => {
+    render(
+      <TemplateCard
+        template={template}
+        isSelected
+        primaryHref="/itineraries/new?template=local-authentic"
+        onSelect={() => undefined}
+      />,
+    );
+
+    const content = screen.getByTestId("template-card-content");
+    const inlineAction = screen.getByTestId("template-card-inline-action");
+
+    expect(content.className).not.toContain("pb-8");
+    expect(content.className).toContain("sm:pb-9");
+    expect(inlineAction.className).toContain("hidden");
+    expect(inlineAction.className).toContain("sm:inline-flex");
+  });
 });

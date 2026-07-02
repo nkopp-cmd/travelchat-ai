@@ -31,6 +31,18 @@ export function getTemplateGenerateLabel(city: string): string {
   return city ? `Generate for ${city}` : "Generate";
 }
 
+export function getTemplateFooterLayoutClass(compactTemplateFooter: boolean): string {
+  return compactTemplateFooter
+    ? "grid gap-2 sm:flex sm:items-center sm:gap-3"
+    : "flex gap-2.5 sm:gap-3";
+}
+
+export function getTemplateFooterControlsClass(compactTemplateFooter: boolean): string {
+  return compactTemplateFooter
+    ? "grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-2 sm:contents"
+    : "contents";
+}
+
 function WizardContent({
   onGenerate,
 }: {
@@ -165,15 +177,16 @@ function WizardContent({
               </span>
             </div>
           )}
-          <div className={cn("flex gap-2.5 sm:gap-3", compactTemplateFooter && "items-center")}>
+          <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>
             {compactTemplateFooter && (
-              <div className="min-w-0 flex-1 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:px-3 sm:text-xs">
+              <div className="min-w-0 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:flex-1 sm:px-3 sm:text-xs">
                 <span className="block truncate">{data.templateName}</span>
                 <span className="block truncate text-violet-200/80">
                   {data.city ? getTemplateFooterCityLabel(data.city) : `Step ${currentStep + 1}/${totalSteps}`}
                 </span>
               </div>
             )}
+            <div className={getTemplateFooterControlsClass(compactTemplateFooter)}>
             {currentStep > 0 && (
               <Button
                 variant="outline"
@@ -195,25 +208,14 @@ function WizardContent({
                 Customize
               </Button>
             )}
-            {compactTemplateFooter && data.city && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleChangeTemplateCity}
-                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
-              >
-                <MapPin className="mr-1 h-3.5 w-3.5" />
-                Change
-              </Button>
-            )}
             <Button
               onClick={handleNext}
               disabled={!canProceed}
               className={cn(
-                "h-10 flex-1 sm:h-11",
+                "h-10 min-w-0 flex-1 sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
-                compactTemplateFooter && "min-w-[8.5rem] shrink-0 px-3",
-                canGenerateFromTemplate && "min-w-[9.25rem] sm:max-w-[9.75rem]",
+                compactTemplateFooter && "w-full px-3 sm:w-auto sm:min-w-[8.5rem] sm:shrink-0",
+                canGenerateFromTemplate && "sm:min-w-[9.25rem] sm:max-w-[9.75rem]",
                 "bg-gradient-to-r from-violet-600 to-indigo-600",
                 "hover:from-violet-500 hover:to-indigo-500",
                 "shadow-lg shadow-violet-500/30",
@@ -232,6 +234,18 @@ function WizardContent({
                 </>
               )}
             </Button>
+            {compactTemplateFooter && data.city && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleChangeTemplateCity}
+                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
+              >
+                <MapPin className="mr-1 h-3.5 w-3.5" />
+                Change
+              </Button>
+            )}
+            </div>
           </div>
         </div>
       </div>

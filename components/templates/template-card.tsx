@@ -108,10 +108,13 @@ function TemplateCardContent({
         )} />
 
         {/* Main Content */}
-        <div className={cn(
-          "relative z-10 flex flex-1 flex-col p-1.5 sm:p-2",
-          isSelected && "pb-8 sm:pb-9",
-        )}>
+        <div
+          className={cn(
+            "relative z-10 flex flex-1 flex-col p-1.5 sm:p-2",
+            isSelected && "sm:pb-9",
+          )}
+          data-testid="template-card-content"
+        >
           {/* Header */}
           <div className="flex items-start gap-1.5 sm:gap-2">
             <div className="relative h-8 w-9 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-10 sm:w-11">
@@ -208,8 +211,9 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
         {isSelected && primaryHref && (
           <Link
             href={primaryHref}
-            className="absolute inset-x-1.5 bottom-1.5 z-20 inline-flex h-7 items-center justify-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-2 text-[11px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:h-8 sm:text-xs"
+            className="absolute inset-x-1.5 bottom-1.5 z-20 hidden h-7 items-center justify-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-2 text-[11px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inline-flex sm:h-8 sm:text-xs"
             aria-label={`Use ${template.name} template`}
+            data-testid="template-card-inline-action"
           >
             Use this
             <ArrowRight className="h-3 w-3" aria-hidden="true" />
