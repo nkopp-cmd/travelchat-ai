@@ -21,10 +21,7 @@ import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
-import {
-  normalizeDailyPlansForDisplay,
-  parseDailyPlans,
-} from "@/lib/itineraries/normalize-daily-plans";
+import { buildItineraryDisplayPayload } from "@/lib/itineraries/display-payload";
 import type { Metadata } from "next";
 
 // Type definitions for itinerary data
@@ -185,10 +182,8 @@ export default async function ItineraryViewPage({
   // Resolve city name (handles "Unknown City" from chat-saved itineraries)
   const displayCity = resolveCity(itinerary);
 
-  // Parse activities if they're stored as JSON
-  const parsedDailyPlans = parseDailyPlans(itinerary.activities);
   const { dailyPlans: dailyPlansForDisplay, insights: itineraryInsights } =
-    normalizeDailyPlansForDisplay<DayPlan>(parsedDailyPlans);
+    buildItineraryDisplayPayload<DayPlan>(itinerary.activities);
 
   // Prepare JSON-LD structured data
   const jsonLd = {
@@ -308,7 +303,10 @@ export default async function ItineraryViewPage({
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_312px] lg:items-start">
           {/* Itinerary-level Tips */}
-          <aside className="order-2 lg:order-2 lg:sticky lg:top-24">
+          <aside
+            className="order-2 lg:order-2 lg:sticky lg:top-24"
+            data-testid="itinerary-trip-notes"
+          >
             <ItineraryInsightsPanel
               insights={itineraryInsights}
               title="Trip notes"
@@ -318,7 +316,10 @@ export default async function ItineraryViewPage({
           </aside>
 
           {/* Daily Plans */}
-          <div className="order-1 space-y-4 sm:space-y-5 lg:order-1">
+          <div
+            className="order-1 space-y-4 sm:space-y-5 lg:order-1"
+            data-testid="itinerary-day-schedule"
+          >
             <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">

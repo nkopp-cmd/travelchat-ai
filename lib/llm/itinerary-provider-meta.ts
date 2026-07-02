@@ -29,9 +29,12 @@ function getPrimaryStructureProvider(
 }
 
 export function buildItineraryProviderMeta(result: OrchestrationResult) {
-  const primaryModel = readGLMProviderConfig().model;
+  const primaryConfig = readGLMProviderConfig();
+  const primaryModel = primaryConfig.model;
   const providersUsed = result.metrics.providersUsed;
   const provider = getPrimaryStructureProvider(providersUsed);
+  const primaryConfigured =
+    Boolean(primaryConfig.apiKey) || providersUsed.includes("glm");
   const fallbackReason =
     result.fallbackUsed || (provider && provider !== "glm" ? "glm_not_used" : null);
 
@@ -42,7 +45,7 @@ export function buildItineraryProviderMeta(result: OrchestrationResult) {
     fallbackReason,
     primaryProvider: "glm" as const,
     primaryModel,
-    primaryConfigured: providersUsed.includes("glm"),
+    primaryConfigured,
     qualityScore: result.qualityScore ?? null,
     validationReport: result.validationReport ?? null,
     metrics: {
