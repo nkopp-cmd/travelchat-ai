@@ -48,6 +48,11 @@ import {
   isRealDisplaySpotPhoto,
 } from "@/lib/spots/display-images";
 import {
+  compareRelatedSpotCandidates,
+  formatRelatedSpotDistance,
+  getSpotDistanceKm,
+} from "@/lib/spots/proximity";
+import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
@@ -82,6 +87,8 @@ interface RelatedSpot {
   fallbackImage: string;
   hasRealPhoto: boolean;
   realPhotoCount: number;
+  distanceKm: number | null;
+  distanceLabel: string;
 }
 
 // Helper to parse multi-language fields
@@ -756,7 +763,7 @@ async function getRelatedSpots(
     .neq("id", currentSpot.id)
     .order("localley_score", { ascending: false })
     .order("local_percentage", { ascending: false })
-    .limit(limit * 2);
+    .limit(limit * 8);
 
   relatedQuery = relatedQuery.gte(
     "localley_score",
@@ -777,11 +784,27 @@ async function getRelatedSpots(
         google_place_id: spot.google_place_id,
       }),
     )
-    .slice(0, limit)
     .map((spot) => {
       const name = getName(spot.name);
       const address = getName(spot.address);
       const category = spot.category || "Local spot";
+      const { lat, lng } = getSpotCoordinateValues(spot.location);
+      const distanceKm = getSpotDistanceKm(
+        {
+          lat: currentSpot.location.lat,
+          lng: currentSpot.location.lng,
+          category: currentSpot.category,
+          localleyScore: currentSpot.localleyScore,
+          localPercentage: currentSpot.localPercentage,
+        },
+        {
+          lat,
+          lng,
+          category,
+          localleyScore: normalizeLocalleyScore(spot.localley_score),
+          localPercentage: normalizeLocalPercentage(spot.local_percentage),
+        },
+      );
       const normalizedPhotos = normalizeSpotPhotos(spot.photos, category, 900);
       const photoSummary = summarizeSpotPhotos(normalizedPhotos);
       const cityContext =
@@ -816,8 +839,40 @@ async function getRelatedSpots(
         fallbackImage,
         hasRealPhoto: photoSummary.hasRealPhoto,
         realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
+        distanceKm,
+        distanceLabel: formatRelatedSpotDistance(distanceKm),
+        lat,
+        lng,
       };
-    });
+    })
+    .sort((a, b) =>
+      compareRelatedSpotCandidates(
+        {
+          lat: currentSpot.location.lat,
+          lng: currentSpot.location.lng,
+          category: currentSpot.category,
+          localleyScore: currentSpot.localleyScore,
+          localPercentage: currentSpot.localPercentage,
+        },
+        a,
+        b,
+      ),
+    )
+    .slice(0, limit)
+    .map((spot) => ({
+      id: spot.id,
+      name: spot.name,
+      address: spot.address,
+      category: spot.category,
+      localleyScore: spot.localleyScore,
+      localPercentage: spot.localPercentage,
+      photo: spot.photo,
+      fallbackImage: spot.fallbackImage,
+      hasRealPhoto: spot.hasRealPhoto,
+      realPhotoCount: spot.realPhotoCount,
+      distanceKm: spot.distanceKm,
+      distanceLabel: spot.distanceLabel,
+    }));
 }
 
 // Get score label for metadata
@@ -916,6 +971,9 @@ export default async function SpotPage({
         ? "sky"
         : "amber";
   const relatedSpots = await getRelatedSpots(spot, city);
+  const hasDistanceRankedRelatedSpots = relatedSpots.some(
+    (related) => related.distanceKm !== null,
+  );
   const exactMapQuery = getSpotDirectionsSearchText({
     name: spot.name,
     address: spot.location.address,
@@ -1470,10 +1528,12 @@ export default async function SpotPage({
             <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
-                  Nearby picks
+                  {hasDistanceRankedRelatedSpots ? "Closest picks" : "Same-city picks"}
                 </p>
                 <h2 className="text-2xl font-bold leading-tight text-white">
-                  Build the same pocket into a route
+                  {hasDistanceRankedRelatedSpots
+                    ? "Build nearby stops into the route"
+                    : "Build the same city into a route"}
                 </h2>
               </div>
               {citySlug ? (
@@ -1524,6 +1584,9 @@ export default async function SpotPage({
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-1.5 text-[11px] font-medium">
+                      <span className="rounded-md border border-sky-200/20 bg-sky-400/10 px-2 py-1 text-sky-100">
+                        {related.distanceLabel}
+                      </span>
                       <span className="rounded-md border border-emerald-200/20 bg-emerald-400/10 px-2 py-1 text-emerald-100">
                         {related.localPercentage}% local
                       </span>
