@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Sparkles, Home, Instagram } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
@@ -10,8 +9,8 @@ import { SharedActions } from "./shared-actions";
 import { ItineraryJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { AppBackground } from "@/components/layout/app-background";
 import { HeroSection } from "@/components/itinerary/hero-section";
-import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
+import { DayRouteSection } from "@/components/itinerary/day-route-section";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -89,8 +88,6 @@ interface DayPlan {
     day: number;
     theme?: string;
     activities: ItineraryActivity[];
-    localTip?: string;
-    transportTips?: string;
 }
 
 // Fetch shared itinerary by share code
@@ -194,25 +191,23 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                     />
 
                     {/* CTA Banner */}
-                    <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-violet-200/50">
-                        <CardContent className="p-4">
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                <div>
-                                    <h3 className="font-semibold mb-1">Love this itinerary?</h3>
-                                    <p className="text-sm text-muted-foreground">Save it, share it, or create your own with Localley</p>
+                    <section className="rounded-xl border border-violet-300/15 bg-[#10081c]/82 p-3 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="min-w-0">
+                                    <h3 className="font-semibold leading-tight">Make this trip yours</h3>
+                                    <p className="mt-1 text-sm text-muted-foreground">Save the route, share it, or build a fresh one with real local spots.</p>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
                                     <SharedActions itineraryId={itinerary.id} shareCode={shareCode} />
                                     <Link href="/sign-up">
-                                        <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                                        <Button className="h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700">
                                             <Sparkles className="mr-2 h-4 w-4" />
-                                            Create My Own
+                                            Create mine
                                         </Button>
                                     </Link>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                    </section>
 
                     {/* Story Slides Gallery */}
                     {itinerary.storySlides && Object.keys(itinerary.storySlides).length > 0 && (
@@ -268,49 +263,42 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                         </Card>
                     )}
 
-                {/* Itinerary-level Tips */}
-                <ItineraryInsightsPanel
-                    insights={itineraryInsights}
-                    className="border-violet-300/15 bg-violet-950/[0.18]"
-                />
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+                        {/* Itinerary-level Tips */}
+                        <aside className="order-2 lg:order-2 lg:sticky lg:top-24">
+                            <ItineraryInsightsPanel
+                                insights={itineraryInsights}
+                                title="Trip notes"
+                                description="Practical tips and transport context stay outside the day schedule."
+                                className="border-violet-300/15 bg-violet-950/[0.18]"
+                            />
+                        </aside>
 
-                    {/* Daily Plans */}
-                    <div className="space-y-4 sm:space-y-5">
-                        {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => {
-                            const activities = dayPlan.activities || [];
-
-                            return (
-                                <Card key={dayIndex} className="!gap-0 !py-0 overflow-hidden rounded-xl border-black/5 bg-white/70 shadow-lg shadow-violet-500/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
-                                    <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white sm:p-5">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <h2 className="text-xl font-bold sm:text-2xl">Day {dayPlan.day || dayIndex + 1}</h2>
-                                                {dayPlan.theme && (
-                                                    <p className="mt-1 line-clamp-2 text-sm text-violet-100 sm:text-base">{dayPlan.theme}</p>
-                                                )}
-                                            </div>
-                                            <Badge variant="secondary" className="shrink-0 bg-white/20 text-white hover:bg-white/30">
-                                                {activities.length} spots
-                                            </Badge>
-                                        </div>
-                                    </div>
-
-                                    <CardContent className="p-3 sm:p-4">
-                                        <div className="space-y-2">
-                                            {activities.map((activity: ItineraryActivity, activityIndex: number) => (
-                                                <ItineraryActivityCard
-                                                    key={activityIndex}
-                                                    activity={activity}
-                                                    city={itinerary.city}
-                                                    userTier="pro"
-                                                    isLast={activityIndex === activities.length - 1}
-                                                />
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
+                        {/* Daily Plans */}
+                        <div className="order-1 space-y-4 sm:space-y-5 lg:order-1">
+                            <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">
+                                        Day schedule
+                                    </p>
+                                    <h2 className="text-xl font-bold leading-tight text-white sm:text-2xl">
+                                        Route by day
+                                    </h2>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    {dailyPlans.length} {dailyPlans.length === 1 ? "route day" : "route days"}
+                                </p>
+                            </div>
+                            {dailyPlans.map((dayPlan: DayPlan, dayIndex: number) => (
+                                <DayRouteSection
+                                    key={dayIndex}
+                                    dayPlan={dayPlan}
+                                    dayIndex={dayIndex}
+                                    city={itinerary.city}
+                                    userTier="pro"
+                                />
+                            ))}
+                        </div>
                     </div>
 
                 {/* Footer CTA */}

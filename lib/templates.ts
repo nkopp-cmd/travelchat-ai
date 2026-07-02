@@ -1,3 +1,5 @@
+import { getCityImageUrl } from "@/lib/city-images";
+
 export interface ItineraryTemplate {
   id: string;
   name: string;
@@ -13,6 +15,17 @@ export interface ItineraryTemplate {
   tags: string[];
   color: string;
 }
+
+const TEMPLATE_SAMPLE_CITIES: Record<string, string> = {
+  "weekend-getaway": "Kyoto",
+  "week-adventure": "Seoul",
+  "business-leisure": "Singapore",
+  "foodie-tour": "Bangkok",
+  "cultural-deep-dive": "Kyoto",
+  "family-friendly": "Osaka",
+  "romantic-getaway": "Taipei",
+  "local-authentic": "Tokyo",
+};
 
 export const templates: ItineraryTemplate[] = [
   {
@@ -204,6 +217,30 @@ export const templates: ItineraryTemplate[] = [
 export const getTemplateById = (id: string): ItineraryTemplate | undefined => {
   return templates.find((template) => template.id === id);
 };
+
+export function getTemplateSampleCity(template: ItineraryTemplate): string {
+  return TEMPLATE_SAMPLE_CITIES[template.id] || "Tokyo";
+}
+
+export function getTemplateImageUrl(
+  template: ItineraryTemplate,
+  options: { width?: number; height?: number; quality?: number } = {}
+): string {
+  const city = getTemplateSampleCity(template);
+  return (
+    getCityImageUrl(city, {
+      width: options.width || 480,
+      height: options.height || 360,
+      quality: options.quality || 88,
+    }) ||
+    getCityImageUrl("Tokyo", {
+      width: options.width || 480,
+      height: options.height || 360,
+      quality: options.quality || 88,
+    }) ||
+    "/images/placeholders/default.svg"
+  );
+}
 
 export const getTemplatesByPace = (pace: 'relaxed' | 'moderate' | 'active'): ItineraryTemplate[] => {
   return templates.filter((template) => template.pace === pace);

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { AppBackground } from "@/components/layout/app-background";
 import { SpotQualityWorkbench } from "@/components/admin/spot-quality-workbench";
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function AdminSpotQualityPage() {
     return (
         <AppBackground ambient className="min-h-screen">
-            <SpotQualityWorkbench />
+            <Suspense fallback={null}>
+                <SpotQualityWorkbench />
+            </Suspense>
         </AppBackground>
     );
 }

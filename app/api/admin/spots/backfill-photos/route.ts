@@ -7,8 +7,7 @@ import {
     findBestGooglePlacePhotos,
     getGooglePlacesApiKey,
     getLocalizedFieldValue,
-    needsSpotPhotoBackfill,
-    needsSpotPlaceIdentityBackfill,
+    getSpotPhotoBackfillNeeds,
     SpotPhotoBackfillRow,
 } from "@/lib/place-images";
 
@@ -23,7 +22,10 @@ interface BackfillRequestBody {
     limit?: number;
     maxProcessed?: number;
     city?: string;
+    spotId?: string;
+    spotIds?: string[];
     dryRun?: boolean;
+    upgradeToPlacePhotos?: boolean;
 }
 
 interface BackfillResult {
@@ -38,6 +40,8 @@ interface BackfillResult {
     photoCount?: number;
     needsPhotoBackfill?: boolean;
     needsPlaceIdBackfill?: boolean;
+    needsPlacePhotoUpgrade?: boolean;
+    hasIdentityMismatch?: boolean;
     updatedFields?: string[];
 }
 
@@ -58,22 +62,53 @@ function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function getSpotIds(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+
+    return Array.from(
+        new Set(
+            value
+                .map((id) => typeof id === "string" ? id.trim() : "")
+                .filter(Boolean)
+        )
+    ).slice(0, MAX_LIMIT);
+}
+
+function selectSpotPhotoColumns(hasGooglePlaceIdColumn: boolean): string {
+    return hasGooglePlaceIdColumn
+        ? "id, name, address, photos, category, google_place_id"
+        : "id, name, address, photos, category";
+}
+
+function spotNeedsPhotoBackfill(
+    spot: SpotPhotoBackfillRow,
+    hasGooglePlaceIdColumn: boolean,
+    upgradeToPlacePhotos: boolean
+): boolean {
+    const needs = getSpotPhotoBackfillNeeds(spot.photos, spot.google_place_id, {
+        upgradeToPlacePhotos,
+    });
+
+    return needs.needsPhotoBackfill ||
+        needs.hasIdentityMismatch ||
+        (hasGooglePlaceIdColumn && needs.needsPlaceIdBackfill) ||
+        (upgradeToPlacePhotos && needs.needsPlacePhotoUpgrade);
+}
+
 async function fetchBackfillCandidates(
     supabase: ReturnType<typeof createSupabaseAdmin>,
     city: string | undefined,
-    maxProcessed: number
+    maxProcessed: number,
+    upgradeToPlacePhotos: boolean
 ): Promise<{ candidates: SpotPhotoBackfillRow[]; scanned: number; hasGooglePlaceIdColumn: boolean }> {
     const candidates: SpotPhotoBackfillRow[] = [];
     let scanned = 0;
     let hasGooglePlaceIdColumn = true;
 
     for (let from = 0; candidates.length < maxProcessed; from += SPOT_PAGE_SIZE) {
-        const selectColumns = hasGooglePlaceIdColumn
-            ? "id, name, address, photos, category, google_place_id"
-            : "id, name, address, photos, category";
         let query = supabase
             .from("spots")
-            .select(selectColumns as string)
+            .select(selectSpotPhotoColumns(hasGooglePlaceIdColumn))
             .order("created_at", { ascending: false })
             .range(from, from + SPOT_PAGE_SIZE - 1);
 
@@ -98,11 +133,7 @@ async function fetchBackfillCandidates(
 
         candidates.push(
             ...rows.filter((spot) =>
-                needsSpotPhotoBackfill(spot.photos) ||
-                (
-                    hasGooglePlaceIdColumn &&
-                    needsSpotPlaceIdentityBackfill(spot.photos, spot.google_place_id)
-                )
+                spotNeedsPhotoBackfill(spot, hasGooglePlaceIdColumn, upgradeToPlacePhotos)
             )
         );
 
@@ -110,6 +141,89 @@ async function fetchBackfillCandidates(
     }
 
     return { candidates: candidates.slice(0, maxProcessed), scanned, hasGooglePlaceIdColumn };
+}
+
+async function fetchBackfillCandidatesByIds(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    spotIds: string[],
+    upgradeToPlacePhotos: boolean
+): Promise<{ candidates: SpotPhotoBackfillRow[]; scanned: number; hasGooglePlaceIdColumn: boolean }> {
+    let hasGooglePlaceIdColumn = true;
+    let result = await supabase
+        .from("spots")
+        .select(selectSpotPhotoColumns(hasGooglePlaceIdColumn))
+        .in("id", spotIds);
+
+    if (result.error && /google_place_id/i.test(result.error.message)) {
+        hasGooglePlaceIdColumn = false;
+        result = await supabase
+            .from("spots")
+            .select(selectSpotPhotoColumns(hasGooglePlaceIdColumn))
+            .in("id", spotIds);
+    }
+
+    if (result.error) {
+        throw new Error(`Failed to fetch spots: ${result.error.message}`);
+    }
+
+    const rows = ((result.data || []) as unknown) as SpotPhotoBackfillRow[];
+    const rowById = new Map(rows.map((row) => [row.id, row]));
+    const orderedRows = spotIds
+        .map((id) => rowById.get(id))
+        .filter((row): row is SpotPhotoBackfillRow => Boolean(row));
+
+    return {
+        candidates: orderedRows.filter((spot) =>
+            spotNeedsPhotoBackfill(spot, hasGooglePlaceIdColumn, upgradeToPlacePhotos)
+        ),
+        scanned: rows.length,
+        hasGooglePlaceIdColumn,
+    };
+}
+
+async function fetchSingleBackfillCandidate(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    spotId: string,
+    upgradeToPlacePhotos: boolean
+): Promise<{ candidates: SpotPhotoBackfillRow[]; scanned: number; hasGooglePlaceIdColumn: boolean }> {
+    let hasGooglePlaceIdColumn = true;
+    let result = await supabase
+        .from("spots")
+        .select("id, name, address, photos, category, google_place_id")
+        .eq("id", spotId)
+        .single();
+
+    if (result.error && /google_place_id/i.test(result.error.message)) {
+        hasGooglePlaceIdColumn = false;
+        result = await supabase
+            .from("spots")
+            .select("id, name, address, photos, category")
+            .eq("id", spotId)
+            .single();
+    }
+
+    if (result.error || !result.data) {
+        throw new Error(result.error?.message || "Spot not found");
+    }
+
+    const row = result.data as unknown as SpotPhotoBackfillRow;
+    const needs = getSpotPhotoBackfillNeeds(row.photos, row.google_place_id, {
+        upgradeToPlacePhotos,
+    });
+    const needsBackfill =
+        needs.needsPhotoBackfill ||
+        needs.hasIdentityMismatch ||
+        (
+            hasGooglePlaceIdColumn &&
+            needs.needsPlaceIdBackfill
+        ) ||
+        (upgradeToPlacePhotos && needs.needsPlacePhotoUpgrade);
+
+    return {
+        candidates: needsBackfill ? [row] : [],
+        scanned: 1,
+        hasGooglePlaceIdColumn,
+    };
 }
 
 export async function POST(req: NextRequest) {
@@ -137,7 +251,10 @@ export async function POST(req: NextRequest) {
     const limit = getLimit(body.limit);
     const maxProcessed = getMaxProcessed(body.maxProcessed, limit);
     const dryRun = body.dryRun !== false;
+    const upgradeToPlacePhotos = body.upgradeToPlacePhotos === true;
     const city = body.city?.trim();
+    const spotId = body.spotId?.trim();
+    const spotIds = getSpotIds(body.spotIds);
     const supabase = createSupabaseAdmin();
 
     let backfillRows: {
@@ -146,7 +263,11 @@ export async function POST(req: NextRequest) {
         hasGooglePlaceIdColumn: boolean;
     };
     try {
-        backfillRows = await fetchBackfillCandidates(supabase, city, maxProcessed);
+        backfillRows = spotId
+            ? await fetchSingleBackfillCandidate(supabase, spotId, upgradeToPlacePhotos)
+            : spotIds.length > 0
+                ? await fetchBackfillCandidatesByIds(supabase, spotIds, upgradeToPlacePhotos)
+                : await fetchBackfillCandidates(supabase, city, maxProcessed, upgradeToPlacePhotos);
     } catch (error) {
         return NextResponse.json(
             {
@@ -167,17 +288,21 @@ export async function POST(req: NextRequest) {
 
         const name = getLocalizedFieldValue(spot.name);
         const address = getLocalizedFieldValue(spot.address);
-        const needsPhotoBackfill = needsSpotPhotoBackfill(spot.photos);
-        const needsPlaceIdBackfill = needsSpotPlaceIdentityBackfill(
-            spot.photos,
-            spot.google_place_id
-        ) && backfillRows.hasGooglePlaceIdColumn;
+        const backfillNeeds = getSpotPhotoBackfillNeeds(spot.photos, spot.google_place_id, {
+            upgradeToPlacePhotos,
+        });
+        const needsPhotoBackfill = backfillNeeds.needsPhotoBackfill;
+        const needsPlaceIdBackfill =
+            backfillNeeds.needsPlaceIdBackfill && backfillRows.hasGooglePlaceIdColumn;
+        const needsPlacePhotoUpgrade = backfillNeeds.needsPlacePhotoUpgrade;
         const baseResult = {
             id: spot.id,
             name,
             address,
             needsPhotoBackfill,
             needsPlaceIdBackfill,
+            needsPlacePhotoUpgrade,
+            hasIdentityMismatch: backfillNeeds.hasIdentityMismatch,
         };
 
         if (!name || !address) {
@@ -222,16 +347,43 @@ export async function POST(req: NextRequest) {
                 continue;
             }
 
+            const storedPlaceId = spot.google_place_id?.trim() || null;
+            const matchedPlaceId = place?.placeId || null;
+            const shouldReplacePhotos =
+                needsPhotoBackfill ||
+                backfillNeeds.hasIdentityMismatch ||
+                (upgradeToPlacePhotos && needsPlacePhotoUpgrade);
+            const shouldSavePlaceId = needsPlaceIdBackfill && backfillRows.hasGooglePlaceIdColumn;
+
+            if (
+                shouldReplacePhotos &&
+                storedPlaceId &&
+                matchedPlaceId &&
+                storedPlaceId !== matchedPlaceId
+            ) {
+                results.push({
+                    ...baseResult,
+                    status: "skipped",
+                    reason: "place_id_conflict_for_photo_upgrade",
+                    placeId: matchedPlaceId,
+                    placeName: place?.displayName || null,
+                    query: match.query,
+                    photoCount: photoUrls.length,
+                });
+                await sleep(150);
+                continue;
+            }
+
             const updatePayload: {
                 google_place_id?: string | null;
                 photos?: string[];
             } = {};
 
-            if (needsPlaceIdBackfill) {
+            if (shouldSavePlaceId) {
                 updatePayload.google_place_id = place?.placeId || null;
             }
 
-            if (needsPhotoBackfill) {
+            if (shouldReplacePhotos) {
                 updatePayload.photos = photoUrls;
             }
 
@@ -287,9 +439,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
         success: true,
         dryRun,
+        upgradeToPlacePhotos,
         limit,
         maxProcessed,
         city: city || null,
+        spotId: spotId || null,
+        spotIds: spotIds.length > 0 ? spotIds : null,
         hasGooglePlaceIdColumn: backfillRows.hasGooglePlaceIdColumn,
         scanned: backfillRows.scanned,
         candidates: candidates.length,

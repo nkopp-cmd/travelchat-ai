@@ -2,8 +2,36 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  glmIsAvailable: vi.fn(() => true),
-  glmHealthCheck: vi.fn(async () => true),
+  getChatProviderReadiness: vi.fn(async ({ runGlmHealthCheck = false } = {}) => ({
+    primary: "glm",
+    fallback: "anthropic",
+    readyForGlmPrimary: true,
+    readyForProductionChat: true,
+    readyForProductionItinerary: true,
+    readyForProductionAI: true,
+    issues: [],
+    glm: {
+      configured: true,
+      healthChecked: runGlmHealthCheck,
+      healthy: runGlmHealthCheck ? true : null,
+      model: "glm-5.2",
+      baseUrl: "https://api.z.ai/api/paas/v4/",
+      env: {
+        hasGlmApiKey: true,
+        hasZaiApiKey: false,
+        apiKeySource: "GLM_API_KEY",
+      },
+    },
+    anthropicFallback: {
+      configured: true,
+      model: "claude-sonnet-4-20250514",
+    },
+    itineraryFallback: {
+      provider: "openai",
+      configured: true,
+      model: "gpt-4o",
+    },
+  })),
 }));
 
 vi.mock("@/lib/admin-auth", () => ({
@@ -11,12 +39,6 @@ vi.mock("@/lib/admin-auth", () => ({
 }));
 
 vi.mock("@/lib/llm", () => ({
-  GLMProvider: vi.fn().mockImplementation(function GLMProviderMock() {
-    return {
-    isAvailable: mocks.glmIsAvailable,
-    healthCheck: mocks.glmHealthCheck,
-    };
-  }),
   getMetricsCollector: vi.fn(() => ({
     getMetrics: vi.fn(() => ({ requests: 0 })),
     clear: vi.fn(),
@@ -32,15 +54,21 @@ vi.mock("@/lib/llm", () => ({
   })),
 }));
 
+vi.mock("@/lib/llm/chat-readiness", () => ({
+  getChatProviderReadiness: mocks.getChatProviderReadiness,
+}));
+
 describe("admin LLM metrics readiness", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.GLM_API_KEY = "test-glm-key";
     process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
+    process.env.OPENAI_API_KEY = "test-openai-key";
     delete process.env.ZAI_API_KEY;
     delete process.env.GLM_MODEL;
     delete process.env.GLM_BASE_URL;
     delete process.env.ZAI_BASE_URL;
+    delete process.env.OPENAI_MODEL;
   });
 
   it("reports GLM primary readiness without running a health check by default", async () => {
@@ -55,6 +83,11 @@ describe("admin LLM metrics readiness", () => {
     expect(body.chatProviderReadiness).toMatchObject({
       primary: "glm",
       fallback: "anthropic",
+      readyForGlmPrimary: true,
+      readyForProductionChat: true,
+      readyForProductionItinerary: true,
+      readyForProductionAI: true,
+      issues: [],
       glm: {
         configured: true,
         healthChecked: false,
@@ -70,8 +103,14 @@ describe("admin LLM metrics readiness", () => {
       anthropicFallback: {
         configured: true,
       },
+      itineraryFallback: {
+        provider: "openai",
+        configured: true,
+      },
     });
-    expect(mocks.glmHealthCheck).not.toHaveBeenCalled();
+    expect(mocks.getChatProviderReadiness).toHaveBeenCalledWith({
+      runGlmHealthCheck: false,
+    });
   });
 
   it("runs the explicit GLM health check when requested", async () => {
@@ -88,32 +127,8 @@ describe("admin LLM metrics readiness", () => {
       healthChecked: true,
       healthy: true,
     });
-    expect(mocks.glmHealthCheck).toHaveBeenCalledTimes(1);
-  });
-
-  it("reports blank GLM keys as not configured", async () => {
-    mocks.glmIsAvailable.mockReturnValueOnce(false);
-    process.env.GLM_API_KEY = "   ";
-    process.env.ANTHROPIC_API_KEY = "  ";
-
-    const { GET } = await import("@/app/api/admin/llm-metrics/route");
-
-    const response = await GET(
-      new NextRequest("https://www.localley.io/api/admin/llm-metrics")
-    );
-    const body = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(body.chatProviderReadiness.glm).toMatchObject({
-      configured: false,
-      model: "glm-5.2",
-      baseUrl: "https://api.z.ai/api/paas/v4/",
-      env: {
-        hasGlmApiKey: false,
-        hasZaiApiKey: false,
-        apiKeySource: null,
-      },
+    expect(mocks.getChatProviderReadiness).toHaveBeenCalledWith({
+      runGlmHealthCheck: true,
     });
-    expect(body.chatProviderReadiness.anthropicFallback.configured).toBe(false);
   });
 });

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Compass, MessageCircle, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isMobileBottomNavHidden } from "@/lib/layout/mobile-chrome";
 
 // Simplified 3-tab navigation for mobile
 // Profile is accessible via top-right avatar menu
@@ -29,11 +30,7 @@ const navItems = [
 export function MobileBottomNav() {
   const pathname = usePathname();
 
-  // Don't show on landing page, auth pages, or when using wizard
-  const hiddenPaths = ["/", "/sign-in", "/sign-up", "/itineraries/new"];
-  const isHidden = hiddenPaths.some(path => pathname === path || pathname.startsWith(path + "/"));
-
-  if (isHidden) return null;
+  if (isMobileBottomNavHidden(pathname)) return null;
 
   return (
     <nav

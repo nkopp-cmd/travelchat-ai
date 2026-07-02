@@ -1,14 +1,21 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { ItineraryTemplate } from "@/lib/templates";
-import { ArrowRight, Clock } from "lucide-react";
+import {
+  getTemplateImageUrl,
+  getTemplateSampleCity,
+  ItineraryTemplate,
+} from "@/lib/templates";
+import { ArrowRight, Check, Clock } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface TemplateCardProps {
   template: ItineraryTemplate;
   href?: string;
+  actionHref?: string;
+  primaryHref?: string;
   isSelected?: boolean;
   onSelect?: () => void;
 }
@@ -75,10 +82,16 @@ function TemplateCardContent({
   const pace = paceConfig[template.pace];
   const accent = paceAccents[template.pace];
   const gradient = getTemplateGradient(template);
+  const sampleCity = getTemplateSampleCity(template);
+  const imageUrl = getTemplateImageUrl(template, {
+    width: 240,
+    height: 180,
+    quality: 88,
+  });
 
   return (
       <Card className={cn(
-        "group relative flex min-h-[58px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[68px]",
+        "group relative flex min-h-[54px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[66px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
         "border border-black/5 dark:border-white/10",
         "transition-all duration-300 ease-out",
@@ -95,21 +108,35 @@ function TemplateCardContent({
         )} />
 
         {/* Main Content */}
-        <div className="relative z-10 flex flex-1 flex-col p-1.5 sm:p-2">
+        <div
+          className={cn(
+            "relative z-10 flex flex-1 flex-col p-1.5 sm:p-2",
+            isSelected && "pr-10 sm:pr-2 sm:pb-9",
+          )}
+          data-testid="template-card-content"
+        >
           {/* Header */}
           <div className="flex items-start gap-1.5 sm:gap-2">
-            <div className="relative">
-              <div className="text-sm leading-none transition-transform duration-300 group-hover:scale-105 sm:text-base">
-                {template.emoji}
-              </div>
-              <div aria-hidden="true" className="absolute inset-0 text-sm leading-none opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25 sm:text-base">
+            <div className="relative h-8 w-9 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-10 sm:w-11">
+              <Image
+                src={imageUrl}
+                alt={`${sampleCity} inspiration for ${template.name}`}
+                fill
+                sizes="48px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+              <div className="absolute bottom-0.5 right-0.5 rounded-full bg-black/55 px-1 text-[10px] leading-4 shadow-sm backdrop-blur-sm sm:text-[11px]">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[11px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
+              <h3 className="line-clamp-2 text-[10px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
                 {template.name}
               </h3>
+              <p className="mt-0.5 hidden truncate text-[9px] font-medium leading-none text-violet-200/70 min-[380px]:block sm:text-[10px]">
+                Inspired by {sampleCity}
+              </p>
               <p className="mt-0.5 hidden text-[10px] leading-snug text-muted-foreground/80 xl:line-clamp-1 xl:block">
                 {template.description}
               </p>
@@ -117,7 +144,7 @@ function TemplateCardContent({
           </div>
 
           {/* Compact Meta Row */}
-          <div className="mt-auto flex items-center gap-1 pt-1 text-[9px] font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:text-[10px]">
+          <div className="mt-auto flex items-center gap-1 pt-0.5 text-[9px] font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:pt-1 sm:text-[10px]">
             <span className="inline-flex min-w-0 items-center gap-0.5 rounded-md border border-violet-200/40 bg-violet-100/65 px-1 py-0.5 text-violet-700 dark:border-violet-700/35 dark:bg-violet-900/30 dark:text-violet-200 sm:gap-1 sm:px-1.5 sm:py-1">
               <Clock className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" />
               <span className="whitespace-nowrap">{template.days}d</span>
@@ -135,35 +162,65 @@ function TemplateCardContent({
         </div>
 
         {isSelected && (
-          <div className="absolute right-1.5 top-1.5 rounded-full border border-violet-200/40 bg-violet-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-lg shadow-violet-950/20 sm:right-2 sm:top-2">
-            Set
+          <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-violet-100/50 bg-violet-600 text-white shadow-lg shadow-violet-950/20 sm:left-2 sm:top-2">
+            <Check className="h-3 w-3" aria-hidden="true" />
+            <span className="sr-only">Selected</span>
           </div>
         )}
 
         {/* Corner accent */}
         <div className={cn(
-          "absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          "absolute right-0 top-0 h-14 w-14 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
           "bg-gradient-to-bl from-violet-500/10 to-transparent"
         )} />
       </Card>
   );
 }
 
-export function TemplateCard({ template, href, isSelected, onSelect }: TemplateCardProps) {
+export function TemplateCard({ template, href, actionHref, primaryHref, isSelected, onSelect }: TemplateCardProps) {
   const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background";
   const content = <TemplateCardContent template={template} isSelected={isSelected} />;
 
-  if (onSelect) {
+  if (actionHref) {
     return (
-      <button
-        type="button"
+      <Link
+        href={actionHref}
+        className={className}
+        onMouseEnter={onSelect}
+        onFocus={onSelect}
         onClick={onSelect}
-        className={cn(className, "w-full")}
-        aria-pressed={isSelected}
-        aria-label={`Select ${template.name} template`}
+        aria-label={`Use ${template.name} template`}
       >
         {content}
-      </button>
+      </Link>
+    );
+  }
+
+  if (onSelect) {
+    return (
+      <div className="relative h-full">
+        <button
+          type="button"
+          onClick={onSelect}
+          className={cn(className, "w-full")}
+          aria-pressed={isSelected}
+          aria-label={`Select ${template.name} template`}
+        >
+          {content}
+        </button>
+        {isSelected && primaryHref && (
+          <Link
+            href={primaryHref}
+            className="absolute right-1.5 top-1.5 z-20 inline-flex h-6 items-center justify-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-1.5 text-[10px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:h-8 sm:px-2 sm:text-xs"
+            aria-label={`Use ${template.name} template`}
+            data-testid="template-card-inline-action"
+          >
+            <span className="sm:hidden">Use</span>
+            <span className="hidden sm:inline">Use this</span>
+            <ArrowRight className="h-3 w-3" aria-hidden="true" />
+          </Link>
+        )}
+      </div>
     );
   }
 

@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+    buildSpotQualityQueueFromItems,
     buildSpotQualityPatchPayload,
+    getSpotPhotoReadiness,
     summarizeSpotQualityItems,
     toSpotQualityItem,
     type SpotQualityRow,
 } from "@/lib/admin/spot-quality";
+import { summarizeSpotPhotos } from "@/lib/place-images";
 
 function createRow(overrides: Partial<SpotQualityRow> = {}): SpotQualityRow {
     return {
@@ -29,6 +32,7 @@ describe("admin spot quality", () => {
         expect(item.issues).toEqual(["missing_real_photo", "inexact_location"]);
         expect(item.locationConfidence.tone).toBe("area");
         expect(item.photoSummary.hasRealPhoto).toBe(false);
+        expect(item.placePhotoIdentity.ready).toBe(false);
     });
 
     it("tracks missing place identity after a spot has a real photo without a place ID", () => {
@@ -36,13 +40,114 @@ describe("admin spot quality", () => {
             createRow({
                 address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
                 location: "POINT(139.7580000 35.6950000)",
-                photos: ["https://example.com/ladrio.jpg"],
+                photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
             }),
             true
         );
 
         expect(item.issues).toEqual(["missing_place_id"]);
         expect(item.publicReady).toBe(false);
+        expect(item.photoReadiness.status).toBe("place_ready");
+        expect(item.photoReadiness.canAutoBackfill).toBe(true);
+        expect(item.placePhotoIdentity.hasGooglePlacePhoto).toBe(false);
+    });
+
+    it("marks proxied photos ready only when the stored Place ID matches", () => {
+        const item = toSpotQualityItem(
+            createRow({
+                address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                location: "POINT(139.7580000 35.6950000)",
+                photos: ["/api/places/photo?name=places/ChIJ-test-place/photos/photo_1&w=1200"],
+                google_place_id: "ChIJ-test-place",
+            }),
+            true
+        );
+
+        expect(item.photoSummary.hasGooglePlacePhoto).toBe(true);
+        expect(item.placePhotoIdentity).toMatchObject({
+            photoPlaceIds: ["ChIJ-test-place"],
+            storedPlaceId: "ChIJ-test-place",
+            hasOwnPlacePhoto: true,
+            hasIdentityMismatch: false,
+            ready: true,
+        });
+    });
+
+    it("normalizes direct Google Places media before admin readiness checks", () => {
+        const item = toSpotQualityItem(
+            createRow({
+                address: { en: "17 Supyo-ro 28-gil, Jongno-gu, Seoul" },
+                location: "POINT(126.9908000 37.5744000)",
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJabc123/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+                google_place_id: "ChIJabc123",
+            }),
+            true
+        );
+
+        expect(item.publicReady).toBe(true);
+        expect(item.issues).toEqual([]);
+        expect(item.photoSummary).toMatchObject({
+            hasRealPhoto: true,
+            hasGooglePlacePhoto: true,
+            googlePlacePhotoIds: ["ChIJabc123"],
+        });
+        expect(item.photoReadiness).toMatchObject({
+            status: "ready",
+            tone: "good",
+            canAutoBackfill: false,
+        });
+        expect(item.placePhotoIdentity.ready).toBe(true);
+    });
+
+    it("flags mismatched proxied place photos for manual review", () => {
+        const item = toSpotQualityItem(
+            createRow({
+                address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                location: "POINT(139.7580000 35.6950000)",
+                photos: ["/api/places/photo?name=places/ChIJ-photo-place/photos/photo_1&w=1200"],
+                google_place_id: "ChIJ-stored-other",
+            }),
+            true
+        );
+
+        expect(item.publicReady).toBe(false);
+        expect(item.publicQualityIssue).toBe("mismatched_place_photo_identity");
+        expect(item.issues).toEqual(["mismatched_place_photo_identity"]);
+        expect(item.photoReadiness).toMatchObject({
+            status: "manual_review",
+            label: "Place photo mismatch",
+            tone: "danger",
+            canAutoBackfill: true,
+        });
+        expect(item.placePhotoIdentity.hasIdentityMismatch).toBe(true);
+    });
+
+    it("summarizes photo readiness for safe operator backfill decisions", () => {
+        expect(
+            getSpotPhotoReadiness(
+                summarizeSpotPhotos(["/api/places/photo?name=places/abc/photos/photo_1&w=1200"]),
+                "abc",
+                true
+            )
+        ).toMatchObject({
+            status: "ready",
+            tone: "good",
+            canAutoBackfill: false,
+        });
+
+        expect(
+            getSpotPhotoReadiness(
+                summarizeSpotPhotos(["/images/placeholders/default.svg"]),
+                null,
+                true
+            )
+        ).toMatchObject({
+            status: "backfill_ready",
+            tone: "danger",
+            canAutoBackfill: true,
+        });
     });
 
     it("builds a safe patch payload for address, coordinates, photos, and place ID", () => {
@@ -64,8 +169,26 @@ describe("admin spot quality", () => {
         expect(payload).toEqual({
             address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
             location: "POINT(139.7580000 35.6950000)",
-            photos: ["/api/places/photo?name=places/ChIJ-test-place/photos/photo_1&w=1200"],
+            photos: ["/api/places/photo?w=1200&v=2&name=places%2FChIJ-test-place%2Fphotos%2Fphoto_1"],
             google_place_id: "ChIJ-test-place",
+        });
+    });
+
+    it("stores direct Google Places media updates as Localley proxy URLs", () => {
+        const payload = buildSpotQualityPatchPayload(
+            createRow(),
+            {
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJabc123/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+            },
+            true
+        );
+
+        expect(payload).toEqual({
+            photos: [
+                "/api/places/photo?w=1200&v=2&name=places%2FChIJabc123%2Fphotos%2Fphoto456",
+            ],
         });
     });
 
@@ -87,7 +210,7 @@ describe("admin spot quality", () => {
                     id: "spot_2",
                     address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
                     location: "POINT(139.7580000 35.6950000)",
-                    photos: ["https://example.com/ladrio.jpg"],
+                    photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
                     google_place_id: "ChIJ-test-place",
                 }),
                 true
@@ -100,6 +223,93 @@ describe("admin spot quality", () => {
             needsWork: 1,
             missingRealPhoto: 1,
             inexactLocation: 1,
+            mismatchedPlacePhotoIdentity: 0,
         });
+    });
+
+    it("keeps full, filtered, and visible queue summaries separate", () => {
+        const items = [
+            toSpotQualityItem(createRow({ id: "spot_1", created_at: "2026-06-01T00:00:00.000Z" }), true),
+            toSpotQualityItem(
+                createRow({
+                    id: "spot_2",
+                    address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                    location: "POINT(139.7580000 35.6950000)",
+                    photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
+                    google_place_id: "ChIJ-test-place",
+                    created_at: "2026-06-02T00:00:00.000Z",
+                }),
+                true
+            ),
+            toSpotQualityItem(
+                createRow({
+                    id: "spot_3",
+                    name: { en: "Cafe Ladrio" },
+                    address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                    location: "POINT(139.7580000 35.6950000)",
+                    photos: ["https://cdn.localley.io/spots/ladrio.jpg"],
+                    google_place_id: "ChIJ-ready-place",
+                    created_at: "2026-06-03T00:00:00.000Z",
+                }),
+                true
+            ),
+        ];
+
+        const queue = buildSpotQualityQueueFromItems({
+            items,
+            hasGooglePlaceIdColumn: true,
+            city: "Tokyo",
+            issue: "missing_real_photo",
+            limit: 1,
+            generatedAt: "2026-07-01T00:00:00.000Z",
+        });
+
+        expect(queue.summary).toMatchObject({
+            total: 3,
+            publicReady: 2,
+            needsWork: 1,
+            missingRealPhoto: 1,
+        });
+        expect(queue.filteredSummary).toMatchObject({
+            total: 1,
+            missingRealPhoto: 1,
+        });
+        expect(queue.visibleSummary).toMatchObject({
+            total: 1,
+            missingRealPhoto: 1,
+        });
+        expect(queue.schema).toMatchObject({
+            hasGooglePlaceIdColumn: true,
+            migrationRequired: false,
+            blockingAction: null,
+        });
+        expect(queue.items.map((item) => item.id)).toEqual(["spot_1"]);
+    });
+
+    it("includes schema blocker commands when Place ID storage is not selectable", () => {
+        const queue = buildSpotQualityQueueFromItems({
+            items: [toSpotQualityItem(createRow(), false)],
+            hasGooglePlaceIdColumn: false,
+            city: null,
+            issue: "all",
+            limit: 10,
+            generatedAt: "2026-07-01T00:00:00.000Z",
+        });
+
+        expect(queue.schema).toMatchObject({
+            hasGooglePlaceIdColumn: false,
+            migrationRequired: true,
+            migrationPath: "supabase/migrations/006_spots_google_place_id.sql",
+            blockingAction: "apply_google_place_id_migration_before_place_id_writes",
+        });
+        expect(queue.schema.commands.applyMigration).toContain(
+            "supabase/migrations/006_spots_google_place_id.sql"
+        );
+        expect(queue.schema.commands.applyMigrationSql).toContain(
+            "ADD COLUMN IF NOT EXISTS google_place_id TEXT"
+        );
+        expect(queue.schema.commands.verifyColumn).toContain(
+            "export-spot-quality-action-plan"
+        );
     });
 });

@@ -3,6 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/export-spot-quality-action-plan.ts
+ *   npx tsx scripts/export-spot-quality-action-plan.ts --env-file=/tmp/localley.env
  *   npx tsx scripts/export-spot-quality-action-plan.ts --city=Tokyo --limit=120
  *   npx tsx scripts/export-spot-quality-action-plan.ts --out=reports/spot-quality-action-plan.json --csv=reports/spot-quality-action-plan.csv
  */
@@ -14,12 +15,20 @@ import * as path from "path";
 import {
     summarizeSpotQualityItems,
     toSpotQualityItem,
-    type SpotQualityIssue,
     type SpotQualityItem,
     type SpotQualityRow,
 } from "../lib/admin/spot-quality";
-
-dotenv.config({ path: ".env.local" });
+import {
+    buildSpotQualityOperatorChecklist,
+    buildSpotQualitySchemaStatus,
+    getSpotImageReviewGuidance,
+    getSpotQualityOperatorStatus,
+    getSpotQualityPriority,
+    getSpotQualityRecommendedAction,
+    type SpotImageReviewGuidance,
+    type SpotQualityOperatorStatus,
+} from "../lib/admin/spot-quality-action-plan";
+import { buildSpotQualityItemResearchLinks } from "../lib/admin/spot-quality-research";
 
 const PAGE_SIZE = 1000;
 const DEFAULT_LIMIT = 250;
@@ -28,6 +37,7 @@ const DEFAULT_CSV_PATH = "reports/spot-quality-action-plan.csv";
 
 interface Args {
     city?: string;
+    envFile: string;
     limit: number;
     outPath: string;
     csvPath: string;
@@ -37,6 +47,22 @@ interface Args {
 interface ActionPlanItem extends SpotQualityItem {
     priority: number;
     recommendedAction: string;
+    schemaBlockingAction: string | null;
+    imageReviewGuidance: SpotImageReviewGuidance;
+    imageReviewLane: string;
+    imageReviewAction: string;
+    operatorStatus: SpotQualityOperatorStatus;
+    operatorChecklist: string[];
+    primaryPhotoUrl: string | null;
+    photoPlaceIds: string[];
+    locationIssues: string[];
+    coordinateText: string | null;
+    researchQuery: string;
+    researchFocus: string;
+    mapsResearchUrl: string;
+    directionsResearchUrl: string;
+    imageResearchUrl: string;
+    placeIdGuideUrl: string;
     adminUrl: string;
     publicUrl: string;
 }
@@ -55,6 +81,7 @@ function parseArgs(argv: string[]): Args {
 
     return {
         city: getValue("--city"),
+        envFile: getValue("--env-file") || ".env.local",
         limit: parsePositiveInt(getValue("--limit"), DEFAULT_LIMIT),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
         csvPath: getValue("--csv") || DEFAULT_CSV_PATH,
@@ -114,56 +141,47 @@ async function fetchRows(
     return { rows, hasGooglePlaceIdColumn };
 }
 
-function scoreIssue(issue: SpotQualityIssue): number {
-    switch (issue) {
-        case "missing_real_photo":
-            return 100;
-        case "inexact_location":
-            return 90;
-        case "missing_place_id":
-            return 70;
-        case "broad_place_name":
-            return 60;
-        case "missing_name":
-            return 60;
-        default:
-            return 10;
-    }
-}
-
-function getPriority(item: SpotQualityItem): number {
-    const issueScore = item.issues.reduce((sum, issue) => sum + scoreIssue(issue), 0);
-    const realPhotoBoost = item.photoSummary.hasRealPhoto ? 0 : 20;
-    const locationBoost = item.locationConfidence.usableCoordinates ? 0 : 15;
-    return issueScore + realPhotoBoost + locationBoost;
-}
-
-function getRecommendedAction(item: SpotQualityItem, hasGooglePlaceIdColumn: boolean): string {
-    if (item.issues.includes("missing_real_photo") && item.issues.includes("inexact_location")) {
-        return "manual_exact_place_research_with_photo_and_coordinates";
-    }
-    if (item.issues.includes("missing_real_photo")) return "add_reviewed_real_spot_photo";
-    if (item.issues.includes("inexact_location")) return "add_exact_address_and_coordinates";
-    if (item.issues.includes("missing_place_id")) return "save_google_place_id";
-    if (item.issues.includes("broad_place_name") || item.issues.includes("missing_name")) {
-        return "rename_or_remove_broad_spot";
-    }
-    if (!hasGooglePlaceIdColumn) return "apply_google_place_id_migration_before_identity_backfill";
-    return "review";
-}
-
 function toActionPlanItem(
     item: SpotQualityItem,
     hasGooglePlaceIdColumn: boolean,
     baseUrl: string
 ): ActionPlanItem {
+    const researchLinks = buildSpotQualityItemResearchLinks(item);
+    const operatorStatus = getSpotQualityOperatorStatus(item);
+    const imageReviewGuidance = getSpotImageReviewGuidance(item);
+
     return {
         ...item,
-        priority: getPriority(item),
-        recommendedAction: getRecommendedAction(item, hasGooglePlaceIdColumn),
+        priority: getSpotQualityPriority(item),
+        recommendedAction: getSpotQualityRecommendedAction(item),
+        schemaBlockingAction: hasGooglePlaceIdColumn
+            ? null
+            : "apply_google_place_id_migration_before_place_id_writes",
+        imageReviewGuidance,
+        imageReviewLane: imageReviewGuidance.lane,
+        imageReviewAction: imageReviewGuidance.action,
+        operatorStatus,
+        operatorChecklist: buildSpotQualityOperatorChecklist(item),
+        primaryPhotoUrl: item.photos[0] || null,
+        photoPlaceIds: item.photoSummary.googlePlacePhotoIds,
+        locationIssues: item.locationConfidence.reasons,
+        coordinateText: researchLinks.coordinateText,
+        researchQuery: researchLinks.query,
+        researchFocus: researchLinks.recommendedFocus,
+        mapsResearchUrl: researchLinks.mapsUrl,
+        directionsResearchUrl: researchLinks.directionsUrl,
+        imageResearchUrl: researchLinks.imageSearchUrl,
+        placeIdGuideUrl: researchLinks.placeIdSearchUrl,
         adminUrl: `${baseUrl}/admin/spots/quality?spot=${encodeURIComponent(item.id)}`,
         publicUrl: `${baseUrl}/spots/${encodeURIComponent(item.id)}`,
     };
+}
+
+function normalizeBaseUrl(value: string | undefined): string {
+    return (value || "https://www.localley.io")
+        .replace(/\\[rn]/g, "")
+        .trim()
+        .replace(/\/$/, "");
 }
 
 function csvEscape(value: unknown): string {
@@ -181,13 +199,32 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         "address",
         "issues",
         "recommendedAction",
+        "schemaBlockingAction",
+        "imageReviewLane",
+        "imageReviewAction",
+        "imageReviewReason",
+        "realImageStatus",
+        "locationStatus",
+        "directionsStatus",
+        "publicCardStatus",
+        "operatorChecklist",
+        "researchFocus",
+        "researchQuery",
+        "mapsResearchUrl",
+        "directionsResearchUrl",
+        "imageResearchUrl",
+        "placeIdGuideUrl",
         "hasGooglePlaceIdColumn",
         "googlePlaceId",
+        "photoPlaceIds",
         "photoCount",
         "primaryPhotoKind",
+        "primaryPhotoUrl",
         "lat",
         "lng",
+        "coordinateText",
         "locationConfidence",
+        "locationIssues",
         "publicReady",
         "adminUrl",
         "publicUrl",
@@ -201,13 +238,32 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
         item.address,
         item.issues.join("|"),
         item.recommendedAction,
+        item.schemaBlockingAction || "",
+        item.imageReviewLane,
+        item.imageReviewAction,
+        item.imageReviewGuidance.reason,
+        item.operatorStatus.realImage,
+        item.operatorStatus.location,
+        item.operatorStatus.directions,
+        item.operatorStatus.publicCard,
+        item.operatorChecklist.join(" | "),
+        item.researchFocus,
+        item.researchQuery,
+        item.mapsResearchUrl,
+        item.directionsResearchUrl,
+        item.imageResearchUrl,
+        item.placeIdGuideUrl,
         hasGooglePlaceIdColumn,
         item.googlePlaceId || "",
+        item.photoPlaceIds.join("|"),
         item.photoSummary.total,
         item.photoSummary.primaryKind,
+        item.primaryPhotoUrl || "",
         item.lat ?? "",
         item.lng ?? "",
+        item.coordinateText || "",
         item.locationConfidence.label,
+        item.locationIssues.join("|"),
         item.publicReady,
         item.adminUrl,
         item.publicUrl,
@@ -220,12 +276,14 @@ function toCsv(items: ActionPlanItem[], hasGooglePlaceIdColumn: boolean): string
 
 async function main() {
     const args = parseArgs(process.argv.slice(2));
+    dotenv.config({ path: args.envFile, quiet: true });
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.localley.io").replace(/\/$/, "");
+    const baseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_APP_URL);
     const generatedAt = new Date().toISOString();
     const { rows, hasGooglePlaceIdColumn } = await fetchRows(supabase, args.city);
     const items = rows.map((row) => toSpotQualityItem(row, hasGooglePlaceIdColumn));
+    const schema = buildSpotQualitySchemaStatus(hasGooglePlaceIdColumn);
     const actionItems = items
         .filter((item) => !item.publicReady)
         .map((item) => toActionPlanItem(item, hasGooglePlaceIdColumn, baseUrl))
@@ -241,13 +299,7 @@ async function main() {
             city: args.city || null,
             limit: args.limit,
         },
-        schema: {
-            hasGooglePlaceIdColumn,
-            migrationRequired: !hasGooglePlaceIdColumn,
-            migrationPath: hasGooglePlaceIdColumn
-                ? null
-                : "supabase/migrations/006_spots_google_place_id.sql",
-        },
+        schema,
         summary: summarizeSpotQualityItems(items),
         actionItemCount: actionItems.length,
         actionItems,
@@ -272,9 +324,16 @@ async function main() {
             `Public ready: ${report.summary.publicReady}`,
             `Needs work: ${report.summary.needsWork}`,
             `Action items exported: ${actionItems.length}`,
+            schema.migrationRequired
+                ? `Blocking schema action: ${schema.blockingAction} (${schema.migrationPath})`
+                : "Blocking schema action: none",
+            schema.migrationRequired
+                ? "Migration SQL included in action-plan.json at schema.commands.applyMigrationSql"
+                : "Migration SQL: not needed",
             `Missing images: ${report.summary.missingRealPhoto}`,
             `Inexact locations: ${report.summary.inexactLocation}`,
             `Missing Place IDs: ${report.summary.missingPlaceId}`,
+            `Place photo mismatches: ${report.summary.mismatchedPlacePhotoIdentity}`,
         ].join("\n")
     );
 }

@@ -62,9 +62,18 @@ describe("public spot quality", () => {
         expect(
             shouldShowPublicSpot({
                 name: "Saphan Mai Market",
-                photos: ["https://example.com/saphan-mai.jpg"],
+                photos: ["https://cdn.localley.io/spots/saphan-mai.jpg"],
             })
         ).toBe(true);
+    });
+
+    it("does not treat arbitrary remote image URLs as real spot photos", () => {
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Scraped Image Cafe",
+                photos: ["https://example.com/cafe.jpg"],
+            })
+        ).toBe("missing_real_photo");
     });
 
     it("hides placeholder and invalid image references from public spot surfaces", () => {
@@ -90,6 +99,38 @@ describe("public spot quality", () => {
         ).toBe(true);
     });
 
+    it("treats normalizable Google Places media URLs as real public images", () => {
+        expect(
+            shouldShowPublicSpot({
+                name: "Ikseon Tea Room",
+                address: { en: "17 Supyo-ro 28-gil, Jongno-gu, Seoul" },
+                location: {
+                    type: "Point",
+                    coordinates: [126.9908, 37.5744],
+                },
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJabc123/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+                google_place_id: "ChIJabc123",
+            })
+        ).toBe(true);
+    });
+
+    it("hides records whose stored place id conflicts with the proxied place photo", () => {
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Wrong Place Photo",
+                address: { en: "1-chome-3-3 Kanda Jinbocho, Chiyoda City, Tokyo 101-0051, Japan" },
+                location: {
+                    type: "Point",
+                    coordinates: [139.7569, 35.6901],
+                },
+                photos: ["/api/places/photo?name=places%2FChIJ-photo-place%2Fphotos%2Fabc&w=1200"],
+                google_place_id: "ChIJ-stored-other",
+            })
+        ).toBe("mismatched_place_photo_identity");
+    });
+
     it("hides records with area-level addresses when address data is available", () => {
         expect(
             getPublicSpotQualityIssue({
@@ -99,7 +140,7 @@ describe("public spot quality", () => {
                     type: "Point",
                     coordinates: [135.7788, 35.0037],
                 },
-                photos: ["https://example.com/gion-corner.jpg"],
+                photos: ["https://cdn.localley.io/spots/gion-corner.jpg"],
             })
         ).toBe("inexact_location");
 
@@ -111,7 +152,7 @@ describe("public spot quality", () => {
                     type: "Point",
                     coordinates: [121.565, 25.033],
                 },
-                photos: ["https://example.com/taipei-tea-house.jpg"],
+                photos: ["https://cdn.localley.io/spots/taipei-tea-house.jpg"],
             })
         ).toBe(true);
     });

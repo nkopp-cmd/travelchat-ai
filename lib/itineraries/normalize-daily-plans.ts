@@ -26,7 +26,9 @@ export interface ItineraryInsight {
   kind: "local" | "transport" | "insight";
 }
 
-export interface ItineraryPlanPayload<T extends ItineraryDayPlanLike = ItineraryDayPlanLike> {
+export interface ItineraryPlanPayload<
+  T extends ItineraryDayPlanLike = ItineraryDayPlanLike,
+> {
   dailyPlans: T[];
   insights?: ItineraryInsightLike[];
 }
@@ -36,18 +38,70 @@ const TIP_NAME_PATTERNS = [
   /\btips?\s+(for|about|before|while)\b/i,
   /\bthings?\s+to\s+know\b/i,
   /\bwhat\s+to\s+(order|know|bring|avoid)\b/i,
+  /\b(booking|map|route|food|money)\s+notes?\b/i,
   /\bhow\s+to\s+(get|go|use|book)\b/i,
   /\bbefore\s+you\s+go\b/i,
-  /\bgetting\s+around\b/i,
+  /\bgetting\s+(around|there)\b/i,
   /\btransport(ation)?\s+tips?\b/i,
   /\bheads?\s+up\b/i,
   /\b(note|advice|insight|reminder)\s*(for|about|before|while)?\b/i,
 ];
 
-const TIP_VALUE_PATTERN = /^(tip|tips|local tip|insider tip|travel tip|pro tip|note|notes|advice|insight|insights|reminder|reminders|getting around|transport|transportation)$/i;
-const TRANSPORT_PATTERN = /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|kakao|maps?)\b/i;
-const GENERIC_ACTIVITY_NAME_PATTERN = /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
-const LABELED_TIP_LINE_PATTERN = /^(?:[-*]\s*)?(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|getting around|transport|transportation|transit)\s*:\s*(.+)$/i;
+const TIP_VALUE_PATTERN =
+  /^(tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|notes|advice|insight|insights|reminder|reminders|heads up|getting around|getting there|transport|transportation|transit)$/i;
+const TRANSPORT_PATTERN =
+  /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|ride|route|getting around|getting there|kakao|maps?)\b/i;
+const GENERIC_ACTIVITY_NAME_PATTERN =
+  /^(breakfast|brunch|lunch|dinner|supper|meal|snack|coffee|coffee break|food stop|drink stop|morning|afternoon|evening|night)(\s+(break|stop|slot|activity|plan))?$/i;
+const TIP_LABEL_SOURCE =
+  "tip|tips|local tip|insider tip|travel tip|pro tip|quick tip|note|advice|insight|reminder|heads up|before you go|what to order|booking note|map note|route note|food note|money note|getting around|getting there|transport|transportation|transit";
+const INLINE_LABELED_TIP_PATTERN = new RegExp(
+  `(^|[.!?]\\s+)(?:[-*]|\\d+[.)])?\\s*(${TIP_LABEL_SOURCE})\\s*[:\\-\\u2013\\u2014]\\s*([^.!?\\n]+(?:[.!?]|$)?)`,
+  "gi",
+);
+const PRACTICAL_NOTE_NAME_PATTERN =
+  /^(bring|pack|wear|use|take|book|reserve|check|avoid|ask|go|arrive|get|download|carry|keep|remember|try to)\b/i;
+const PRACTICAL_SECTION_NAME_PATTERN =
+  /^(opening\s+hours?|hours?|reservation|reservations|booking|tickets?|entry|admission|cost|price|prices|budget|cash|payment|weather|rain|packing|what\s+to\s+wear|language(?:\s+phrase)?|phrases?|safety|etiquette|wifi|sim|translation|transit\s+pass|transport\s+pass|metro\s+card|accessibility|restrooms?|toilets?)$/i;
+const MAPPABLE_CONTEXT_FIELDS = [
+  "address",
+  "location",
+  "lat",
+  "lng",
+  "latitude",
+  "longitude",
+  "localleyScore",
+] as const;
+const ACTIVITY_NOTE_FIELD_LABELS: Record<string, string> = {
+  advice: "Advice",
+  beforeYouGo: "Before you go",
+  bookingNote: "Booking note",
+  foodNote: "Food note",
+  gettingAround: "Getting around",
+  gettingThere: "Getting there",
+  insight: "Insight",
+  insights: "Insight",
+  localInsight: "Local insight",
+  localNote: "Local note",
+  localTip: "Local tip",
+  localTips: "Local tip",
+  mapNote: "Map note",
+  moneyNote: "Money note",
+  note: "Note",
+  notes: "Note",
+  practicalNote: "Practical note",
+  reminder: "Reminder",
+  routeNote: "Route note",
+  tip: "Tip",
+  tips: "Tip",
+  transit: "Transit",
+  transport: "Transport",
+  transportation: "Transportation",
+  transportTip: "Transport tip",
+  transportTips: "Transport tip",
+  travelTip: "Travel tip",
+  whatToOrder: "What to order",
+};
 
 export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const name = getStringValue(activity.name);
@@ -59,12 +113,77 @@ export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
     TIP_VALUE_PATTERN.test(name) ||
     TIP_VALUE_PATTERN.test(category) ||
     TIP_VALUE_PATTERN.test(type) ||
-    GENERIC_ACTIVITY_NAME_PATTERN.test(name)
+    GENERIC_ACTIVITY_NAME_PATTERN.test(name) ||
+    PRACTICAL_SECTION_NAME_PATTERN.test(name) ||
+    PRACTICAL_NOTE_NAME_PATTERN.test(name)
+  ) {
+    return true;
+  }
+
+  if (
+    !getStringValue(activity.description) &&
+    !hasMappableContext(activity) &&
+    looksLikePracticalSentence(name)
   ) {
     return true;
   }
 
   return TIP_NAME_PATTERNS.some((pattern) => pattern.test(name));
+}
+
+function hasMappableContext(activity: ItineraryActivityLike): boolean {
+  const record = activity as Record<string, unknown>;
+
+  return MAPPABLE_CONTEXT_FIELDS.some((field) => {
+    const value = record[field];
+    if (typeof value === "number") return Number.isFinite(value);
+    return getStringValue(value).length > 0;
+  });
+}
+
+function looksLikePracticalSentence(value: string): boolean {
+  return (
+    /[.!?]$/.test(value) &&
+    /\b(cash|card|ticket|reservation|queue|line|rush|metro|subway|bus|train|taxi|walk|umbrella|rain|passport|wifi|sim|translation|closed|open|hours?)\b/i.test(
+      value,
+    )
+  );
+}
+
+function looksLikeUnlabeledDescriptionTip(value: string): boolean {
+  const line = value.replace(/^[-*]\s*/, "").trim();
+  if (!line || line.length > 180) return false;
+
+  if (
+    /^(bring|pack|wear|use|book|reserve|check|avoid|ask|arrive|get|download|carry|keep|remember|try to)\b/i.test(
+      line,
+    )
+  ) {
+    return true;
+  }
+
+  if (/^go\s+(early|before|after|around|when)\b/i.test(line)) return true;
+
+  if (/^take\b/i.test(line)) {
+    return /\b(subway|metro|bus|train|taxi|ride|route|exit|line|tram|ferry)\b/i.test(
+      line,
+    );
+  }
+
+  if (
+    /^(cash|cards?|tickets?|reservations?|queues?|lines?|weather|rain|metro|subway|bus|train|taxi|rideshare|wifi|sim)\b/i.test(
+      line,
+    )
+  ) {
+    return true;
+  }
+
+  return (
+    /[.!?]$/.test(line) &&
+    /\b(cash only|small bills|book ahead|reserve ahead|reservation|avoid peak|queue|line|umbrella|rain|closed|opening hours?)\b/i.test(
+      line,
+    )
+  );
 }
 
 function getTipText(activity: ItineraryActivityLike): string {
@@ -94,18 +213,38 @@ function splitDescriptionTips(activity: ItineraryActivityLike): {
     const line = rawLine.trim();
     if (!line) return;
 
-    const labeledTip = line.match(LABELED_TIP_LINE_PATTERN);
-    if (!labeledTip) {
-      keptLines.push(rawLine);
+    let cleanedLine = line;
+    let previousLine = "";
+
+    while (cleanedLine !== previousLine) {
+      previousLine = cleanedLine;
+      cleanedLine = cleanedLine.replace(
+        INLINE_LABELED_TIP_PATTERN,
+        (_match, leading: string, label: string, text: string) => {
+          const tipText = `${label}: ${text.trim()}`;
+          if (TRANSPORT_PATTERN.test(`${label} ${text}`)) {
+            transportTips.push(tipText);
+          } else {
+            localTips.push(tipText);
+          }
+
+          return leading.trimEnd();
+        },
+      );
+    }
+
+    cleanedLine = cleanedLine.trim();
+
+    if (cleanedLine && looksLikeUnlabeledDescriptionTip(cleanedLine)) {
+      if (TRANSPORT_PATTERN.test(cleanedLine)) {
+        transportTips.push(cleanedLine);
+      } else {
+        localTips.push(cleanedLine);
+      }
       return;
     }
 
-    const tipText = `${labeledTip[1]}: ${labeledTip[2].trim()}`;
-    if (TRANSPORT_PATTERN.test(`${labeledTip[1]} ${labeledTip[2]}`)) {
-      transportTips.push(tipText);
-    } else {
-      localTips.push(tipText);
-    }
+    if (cleanedLine) keptLines.push(cleanedLine);
   });
 
   if (localTips.length === 0 && transportTips.length === 0) {
@@ -122,6 +261,66 @@ function splitDescriptionTips(activity: ItineraryActivityLike): {
   };
 }
 
+function flattenActivityNoteValue(value: unknown): string[] {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => flattenActivityNoteValue(entry));
+  }
+
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const text = getStringValue(record.text);
+    if (text) return [text];
+
+    return Object.values(record).flatMap((entry) =>
+      flattenActivityNoteValue(entry),
+    );
+  }
+
+  return [];
+}
+
+function extractActivityScopedTips(activity: ItineraryActivityLike): {
+  activity: ItineraryActivityLike;
+  localTips: string[];
+  transportTips: string[];
+} {
+  const record = activity as Record<string, unknown>;
+  const localTips: string[] = [];
+  const transportTips: string[] = [];
+  let cleanedActivity: Record<string, unknown> | null = null;
+
+  for (const [field, label] of Object.entries(ACTIVITY_NOTE_FIELD_LABELS)) {
+    if (!(field in record)) continue;
+
+    const tips = flattenActivityNoteValue(record[field]);
+    if (tips.length > 0) {
+      const formattedTips = tips.map((tip) =>
+        tip.startsWith(`${label}:`) ? tip : `${label}: ${tip}`,
+      );
+
+      if (TRANSPORT_PATTERN.test(`${field} ${label} ${tips.join(" ")}`)) {
+        transportTips.push(...formattedTips);
+      } else {
+        localTips.push(...formattedTips);
+      }
+    }
+
+    cleanedActivity ||= { ...record };
+    delete cleanedActivity[field];
+  }
+
+  return {
+    activity: (cleanedActivity || activity) as ItineraryActivityLike,
+    localTips,
+    transportTips,
+  };
+}
+
 function appendTip(existing: unknown, tips: string[]): string | undefined {
   const parts = [
     typeof existing === "string" ? existing.trim() : "",
@@ -132,23 +331,50 @@ function appendTip(existing: unknown, tips: string[]): string | undefined {
 }
 
 function normalizeInsightKind(value: unknown): ItineraryInsight["kind"] {
-  if (value === "local" || value === "transport" || value === "insight") return value;
+  if (value === "local" || value === "transport" || value === "insight")
+    return value;
   return "insight";
+}
+
+function getInsightDedupeKey(
+  insight: Pick<ItineraryInsight, "text" | "kind">,
+): string {
+  return `${insight.kind}:${insight.text.toLowerCase().replace(/\s+/g, " ").trim()}`;
+}
+
+function pushUniqueInsight(
+  insights: ItineraryInsight[],
+  insight: ItineraryInsight,
+): void {
+  const key = getInsightDedupeKey(insight);
+  const alreadyExists = insights.some(
+    (existingInsight) => getInsightDedupeKey(existingInsight) === key,
+  );
+
+  if (!alreadyExists) {
+    insights.push(insight);
+  }
 }
 
 function getStringValue(value: unknown): string {
   if (typeof value === "string") return value.trim();
   if (value && typeof value === "object") {
-    const localized = Object.values(value).find((entry) => typeof entry === "string" && entry.trim());
+    const localized = Object.values(value).find(
+      (entry) => typeof entry === "string" && entry.trim(),
+    );
     return typeof localized === "string" ? localized.trim() : "";
   }
   return "";
 }
 
-export function normalizeItineraryInsights(rawInsights: unknown): ItineraryInsight[] {
+export function normalizeItineraryInsights(
+  rawInsights: unknown,
+): ItineraryInsight[] {
   if (!Array.isArray(rawInsights)) return [];
 
-  return rawInsights
+  const insights: ItineraryInsight[] = [];
+
+  rawInsights
     .map((rawInsight, index) => {
       if (typeof rawInsight === "string") {
         const text = rawInsight.trim();
@@ -169,7 +395,12 @@ export function normalizeItineraryInsights(rawInsights: unknown): ItineraryInsig
       if (!text) return null;
 
       const kind = normalizeInsightKind(insight.kind);
-      const fallbackLabel = kind === "transport" ? "Getting around" : kind === "local" ? "Local tip" : "Trip insight";
+      const fallbackLabel =
+        kind === "transport"
+          ? "Getting around"
+          : kind === "local"
+            ? "Local tip"
+            : "Trip insight";
 
       return {
         id: getStringValue(insight.id) || `trip-insight-${index + 1}`,
@@ -178,27 +409,40 @@ export function normalizeItineraryInsights(rawInsights: unknown): ItineraryInsig
         kind,
       };
     })
-    .filter((insight): insight is ItineraryInsight => Boolean(insight));
+    .filter((insight): insight is ItineraryInsight => Boolean(insight))
+    .forEach((insight) => pushUniqueInsight(insights, insight));
+
+  return insights;
 }
 
 function isTransportTip(activity: ItineraryActivityLike): boolean {
   return TRANSPORT_PATTERN.test(
-    `${getStringValue(activity.name)} ${getStringValue(activity.description)} ${getStringValue(activity.category)} ${getStringValue(activity.type)}`
+    `${getStringValue(activity.name)} ${getStringValue(activity.description)} ${getStringValue(activity.category)} ${getStringValue(activity.type)}`,
   );
 }
 
-export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(dailyPlans: T[]): T[] {
+export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(
+  dailyPlans: T[],
+): T[] {
   return dailyPlans.map((dayPlan) => {
     const localTips: string[] = [];
     const transportTips: string[] = [];
-    const activities = (dayPlan.activities || []).reduce<ItineraryActivityLike[]>((keptActivities, activity) => {
+    const activities = (dayPlan.activities || []).reduce<
+      ItineraryActivityLike[]
+    >((keptActivities, activity) => {
       if (!isTipLikeActivity(activity)) {
         const split = splitDescriptionTips(activity);
         localTips.push(...split.localTips);
         transportTips.push(...split.transportTips);
+        const scopedTips = extractActivityScopedTips(split.activity);
+        localTips.push(...scopedTips.localTips);
+        transportTips.push(...scopedTips.transportTips);
 
-        if (getStringValue(split.activity.description) || getStringValue(split.activity.name)) {
-          keptActivities.push(split.activity);
+        if (
+          getStringValue(scopedTips.activity.description) ||
+          getStringValue(scopedTips.activity.name)
+        ) {
+          keptActivities.push(scopedTips.activity);
         }
 
         return keptActivities;
@@ -227,7 +471,7 @@ export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(dail
 
 export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
   rawDailyPlans: unknown,
-  rawInsights?: unknown
+  rawInsights?: unknown,
 ): { dailyPlans: T[]; insights: ItineraryInsight[] } {
   if (
     rawDailyPlans &&
@@ -238,12 +482,15 @@ export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
     const payload = rawDailyPlans as ItineraryPlanPayload<T>;
     return normalizeDailyPlansForDisplay<T>(
       payload.dailyPlans,
-      rawInsights ?? payload.insights
+      rawInsights ?? payload.insights,
     );
   }
 
   if (!Array.isArray(rawDailyPlans)) {
-    return { dailyPlans: [], insights: normalizeItineraryInsights(rawInsights) };
+    return {
+      dailyPlans: [],
+      insights: normalizeItineraryInsights(rawInsights),
+    };
   }
 
   const sanitizedPlans = sanitizeGeneratedDailyPlans(rawDailyPlans as T[]);
@@ -253,7 +500,7 @@ export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
     const dayNumber = dayPlan.day || dayIndex + 1;
 
     if (dayPlan.localTip) {
-      insights.push({
+      pushUniqueInsight(insights, {
         id: `day-${dayNumber}-local-tip`,
         label: `Day ${dayNumber} local tip`,
         text: dayPlan.localTip,
@@ -262,7 +509,7 @@ export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
     }
 
     if (dayPlan.transportTips) {
-      insights.push({
+      pushUniqueInsight(insights, {
         id: `day-${dayNumber}-transport-tip`,
         label: `Day ${dayNumber} getting around`,
         text: dayPlan.transportTips,
@@ -282,7 +529,7 @@ export function normalizeDailyPlansForDisplay<T extends ItineraryDayPlanLike>(
 
 export function buildItineraryPlanPayload<T extends ItineraryDayPlanLike>(
   dailyPlans: T[],
-  insights: ItineraryInsightLike[] = []
+  insights: ItineraryInsightLike[] = [],
 ): T[] | ItineraryPlanPayload<T> {
   return insights.length > 0 ? { dailyPlans, insights } : dailyPlans;
 }

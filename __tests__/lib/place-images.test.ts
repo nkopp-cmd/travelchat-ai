@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+    addFallbackToPlacePhotoUrl,
     classifySpotPhoto,
     findBestGooglePlacePhotos,
     getGooglePlaceIdFromPhotoUrl,
     getGooglePlaceIdFromSpotPhotos,
+    getGooglePlaceIdsFromSpotPhotos,
+    getDisplayPlacePhotoUrl,
+    getSpotPlacePhotoIdentityStatus,
+    getSpotPhotoBackfillNeeds,
     getProxiedGooglePhotoUrl,
     getPlacePhotoMatchQuality,
     hasStoredGooglePlaceIdentity,
@@ -22,11 +27,12 @@ describe("spot photo classification", () => {
         expect(needsSpotPhotoBackfill([photo])).toBe(false);
     });
 
-    it("rejects placeholder, unsplash, direct google, empty, and invalid photos", () => {
+    it("rejects placeholder, unsplash, direct google, untrusted remote, empty, and invalid photos", () => {
         const photos = [
             "/images/placeholder-spot.jpg",
             "https://images.unsplash.com/photo-123",
             "https://places.googleapis.com/v1/places/abc/photos/def/media",
+            "https://example.com/spot.jpg",
             "",
             "not a url",
         ];
@@ -35,28 +41,33 @@ describe("spot photo classification", () => {
             "placeholder",
             "unsplash",
             "direct_google",
+            "remote_untrusted",
             "empty",
             "invalid",
         ]);
         expect(needsSpotPhotoBackfill(photos)).toBe(true);
     });
 
-    it("summarizes mixed photo arrays and only requires one real image", () => {
+    it("summarizes mixed photo arrays and only trusts owned remote images", () => {
         const summary = summarizeSpotPhotos([
             "/images/placeholder-spot.jpg",
             "/images/spots/seoul-market.jpg",
             "https://cdn.localley.io/spots/seoul-market.jpg",
+            "https://example.com/scraped-market.jpg",
         ]);
 
         expect(summary).toMatchObject({
-            total: 3,
+            total: 4,
             hasAnyPhoto: true,
             hasRealPhoto: true,
+            hasGooglePlacePhoto: false,
+            googlePlacePhotoIds: [],
             needsBackfill: false,
             primaryKind: "placeholder",
         });
         expect(summary.kinds.local_asset).toBe(1);
         expect(summary.kinds.remote_https).toBe(1);
+        expect(summary.kinds.remote_untrusted).toBe(1);
     });
 
     it("converts stored direct Google photo URLs to Localley proxy URLs", () => {
@@ -95,6 +106,52 @@ describe("spot photo classification", () => {
         ]);
     });
 
+    it("adds a safe render-time fallback to proxied place photo URLs", () => {
+        expect(
+            addFallbackToPlacePhotoUrl(
+                "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef",
+                "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1600&q=90"
+            )
+        ).toBe(
+            "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef&fallback=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1538485399081-7191377e8241%3Fw%3D1600%26q%3D90"
+        );
+
+        expect(
+            addFallbackToPlacePhotoUrl(
+                "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef&fallback=https%3A%2F%2Fimages.unsplash.com%2Fold",
+                "https://images.unsplash.com/photo-1538485399081-7191377e8241"
+            )
+        ).toBe(
+            "/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef&fallback=https%3A%2F%2Fimages.unsplash.com%2Fold"
+        );
+
+        expect(addFallbackToPlacePhotoUrl("https://cdn.example.com/spot.jpg", "https://images.unsplash.com/photo")).toBe(
+            "https://cdn.example.com/spot.jpg"
+        );
+    });
+
+    it("upgrades proxied Google photo width for large display surfaces", () => {
+        expect(
+            getDisplayPlacePhotoUrl(
+                "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
+                1600
+            )
+        ).toBe(
+            "/api/places/photo?w=1600&name=places%2Fabc%2Fphotos%2Fdef&v=2"
+        );
+
+        expect(
+            getDisplayPlacePhotoUrl(
+                "https://places.googleapis.com/v1/places/abc/photos/def/media?maxWidthPx=800&key=old",
+                1600
+            )
+        ).toBe("/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef");
+
+        expect(getDisplayPlacePhotoUrl("https://cdn.example.com/spot.jpg", 1600)).toBe(
+            "https://cdn.example.com/spot.jpg"
+        );
+    });
+
     it("extracts Google Place IDs from proxied and direct Places photo URLs", () => {
         expect(
             getGooglePlaceIdFromPhotoUrl(
@@ -114,8 +171,48 @@ describe("spot photo classification", () => {
                 "/api/places/photo?w=1200&name=places%2FChIJsecond%2Fphotos%2Fphoto456",
             ])
         ).toBe("ChIJsecond");
+        expect(
+            getGooglePlaceIdsFromSpotPhotos([
+                "/api/places/photo?w=1200&name=places%2FChIJfirst%2Fphotos%2Fphoto456",
+                "/api/places/photo?w=1200&name=places%2FChIJfirst%2Fphotos%2Fphoto789",
+                "https://places.googleapis.com/v1/places/ChIJsecond/photos/photo123/media?maxWidthPx=1200",
+            ])
+        ).toEqual(["ChIJfirst", "ChIJsecond"]);
 
         expect(getGooglePlaceIdFromPhotoUrl("/api/places/photo?ref=legacy_ref")).toBeNull();
+    });
+
+    it("reports whether Google Place photos match the stored place identity", () => {
+        const matchingPhoto = "/api/places/photo?w=1200&name=places%2FChIJmatch%2Fphotos%2Fphoto456";
+        const otherPhoto = "/api/places/photo?w=1200&name=places%2FChIJother%2Fphotos%2Fphoto456";
+
+        expect(summarizeSpotPhotos([matchingPhoto])).toMatchObject({
+            hasRealPhoto: true,
+            hasGooglePlacePhoto: true,
+            googlePlacePhotoIds: ["ChIJmatch"],
+        });
+
+        expect(getSpotPlacePhotoIdentityStatus([matchingPhoto], "ChIJmatch")).toMatchObject({
+            photoPlaceIds: ["ChIJmatch"],
+            storedPlaceId: "ChIJmatch",
+            hasGooglePlacePhoto: true,
+            hasStoredPlaceId: true,
+            hasOwnPlacePhoto: true,
+            hasIdentityMismatch: false,
+            ready: true,
+        });
+
+        expect(getSpotPlacePhotoIdentityStatus([matchingPhoto], null)).toMatchObject({
+            hasOwnPlacePhoto: true,
+            hasStoredPlaceId: false,
+            ready: false,
+        });
+
+        expect(getSpotPlacePhotoIdentityStatus([otherPhoto], "ChIJmatch")).toMatchObject({
+            hasOwnPlacePhoto: false,
+            hasIdentityMismatch: true,
+            ready: false,
+        });
     });
 
     it("tracks place identity separately from image backfill", () => {
@@ -131,6 +228,51 @@ describe("spot photo classification", () => {
 
         expect(hasStoredGooglePlaceIdentity([proxiedPlacePhoto], null)).toBe(true);
         expect(needsSpotPlaceIdentityBackfill([proxiedPlacePhoto], null)).toBe(false);
+    });
+
+    it("does not upgrade generic real photos to place photos unless requested", () => {
+        const remotePhoto = "https://cdn.localley.io/spots/seoul-market.jpg";
+
+        expect(getSpotPhotoBackfillNeeds([remotePhoto], "ChIJstored")).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: false,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: false,
+            shouldBackfill: false,
+        });
+
+        expect(
+            getSpotPhotoBackfillNeeds([remotePhoto], "ChIJstored", {
+                upgradeToPlacePhotos: true,
+            })
+        ).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: false,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: false,
+            shouldBackfill: true,
+        });
+    });
+
+    it("queues mismatched place photos and missing explicit place IDs safely", () => {
+        const matchingPhoto = "/api/places/photo?w=1200&name=places%2FChIJmatch%2Fphotos%2Fphoto456";
+        const otherPhoto = "/api/places/photo?w=1200&name=places%2FChIJother%2Fphotos%2Fphoto456";
+
+        expect(getSpotPhotoBackfillNeeds([otherPhoto], "ChIJmatch")).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: false,
+            needsPlacePhotoUpgrade: true,
+            hasIdentityMismatch: true,
+            shouldBackfill: true,
+        });
+
+        expect(getSpotPhotoBackfillNeeds([matchingPhoto], null)).toMatchObject({
+            needsPhotoBackfill: false,
+            needsPlaceIdBackfill: true,
+            needsPlacePhotoUpgrade: false,
+            hasIdentityMismatch: false,
+            shouldBackfill: true,
+        });
     });
 });
 
@@ -380,6 +522,24 @@ describe("getPlacePhotoMatchQuality", () => {
         expect(quality).toMatchObject({
             acceptable: true,
             reason: "accepted",
+        });
+    });
+
+    it("accepts non-latin tourist attraction names with a useful address anchor", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "Otsuka Rose Street",
+            "Otsuka, Toshima-ku, Tokyo",
+            "Outdoor",
+            {
+                displayName: "大塚バラロード",
+                formattedAddress: "Minamiotsuka, Toshima City, Tokyo, Japan",
+                types: ["tourist_attraction", "point_of_interest"],
+            }
+        );
+
+        expect(quality).toMatchObject({
+            acceptable: true,
+            reason: "accepted_non_latin_address_anchor",
         });
     });
 });

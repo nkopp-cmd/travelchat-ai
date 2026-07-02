@@ -12,37 +12,49 @@ interface SpotActivitiesProps {
     spotName?: string;
 }
 
-export function SpotActivities({ spotId, city, spotName }: SpotActivitiesProps) {
+export function getSpotActivitiesCopy(city: string, spotName?: string) {
+    const cityLabel = city || "this city";
+    const spotLabel = spotName || "this stop";
+
+    return {
+        heading: `Bookable activities in ${cityLabel}`,
+        loadingDescription: `Finding city-level tours that can pair with ${spotLabel}.`,
+        description: `These are city-level tours and activities around ${cityLabel}, not exact walking-distance picks from ${spotLabel}.`,
+    };
+}
+
+export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
     const [activities, setActivities] = useState<ViatorActivity[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAll, setShowAll] = useState(false);
+    const copy = getSpotActivitiesCopy(city, spotName);
 
     useEffect(() => {
+        const fetchActivities = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch('/api/viator/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        destination: city,
+                        limit: 6, // Get 6 activities
+                    }),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    setActivities(data.data.activities);
+                }
+            } catch (error) {
+                console.error('Error fetching activities:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchActivities();
     }, [city]);
-
-    const fetchActivities = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch('/api/viator/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    destination: city,
-                    limit: 6, // Get 6 activities
-                }),
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                setActivities(data.data.activities);
-            }
-        } catch (error) {
-            console.error('Error fetching activities:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Show 3 by default, all when "View All" is clicked
     const displayedActivities = showAll ? activities : activities.slice(0, 3);
@@ -53,9 +65,9 @@ export function SpotActivities({ spotId, city, spotName }: SpotActivitiesProps) 
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-2xl font-bold mb-2">Things to Do Nearby</h2>
+                            <h2 className="text-2xl font-bold mb-2">{copy.heading}</h2>
                             <p className="text-muted-foreground">
-                                Discover activities and tours near {spotName || 'this spot'}
+                                {copy.loadingDescription}
                             </p>
                         </div>
                     </div>
@@ -82,10 +94,10 @@ export function SpotActivities({ spotId, city, spotName }: SpotActivitiesProps) 
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <Sparkles className="h-5 w-5 text-violet-600" />
-                            <h2 className="text-2xl font-bold">Things to Do Nearby</h2>
+                            <h2 className="text-2xl font-bold">{copy.heading}</h2>
                         </div>
                         <p className="text-muted-foreground">
-                            Discover activities and tours near {spotName || 'this spot'}
+                            {copy.description}
                         </p>
                     </div>
 

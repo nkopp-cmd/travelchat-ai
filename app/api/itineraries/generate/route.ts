@@ -10,7 +10,6 @@ import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
-import { GLMProvider } from '@/lib/llm';
 import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
@@ -20,6 +19,7 @@ import {
   buildItineraryPlanPayload,
   normalizeDailyPlansForDisplay,
 } from '@/lib/itineraries/normalize-daily-plans';
+import { generateItineraryTextWithFallback } from './provider-fallback';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -55,10 +55,11 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 6. Each activity should be a distinct location - don't split one location into multiple activities
 7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities and do NOT belong inside day objects. Put them in the top-level "insights" array only.
 8. Never create an activity whose only purpose is a tip, route note, what-to-order note, or general advice. Every activity must be a mappable place.
+9. Never attach tip fields to activities. Do NOT add activity fields like "tips", "notes", "whatToOrder", "gettingAround", "bookingNote", "routeNote", or "localTip".
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps
-- Authentic experiences with specific spot names and addresses
+- Authentic experiences with specific spot names and exact, routable addresses
 - Why each place is special to locals
 - Practical local notes separated into itinerary-level insights
 
@@ -87,7 +88,7 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
           "time": "string (e.g., '09:00 AM')",
           "type": "morning" | "afternoon" | "evening",
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
-          "address": "string (place name + district + city, e.g. 'Yongkang Beef Noodle, Da'an District, Taipei' — short and geocode-friendly, NO street numbers or lane details)",
+          "address": "string (exact street address with district and city when confidently known; include street numbers, lane/section details, postal code, or official mall/floor context when useful for routing. If only an area is known, use the most specific official place + area + city instead of inventing details.)",
           "description": "string (why it's special + what to order/see/do - no standalone tips)",
           "category": "string (one of: restaurant, cafe, bar, market, temple, park, museum, shopping, attraction, neighborhood)",
           "localleyScore": number (1-6),
@@ -110,7 +111,7 @@ EXAMPLE of a GOOD activity:
   "time": "12:00 PM",
   "type": "afternoon",
   "name": "Yongkang Beef Noodle",
-  "address": "Yongkang Beef Noodle, Da'an District, Taipei",
+  "address": "No. 17, Lane 31, Section 2, Jinshan South Road, Da'an District, Taipei",
   "description": "This legendary shop has been serving Taiwan's best beef noodle soup since 1963. Order the half-spicy braised beef noodles - the broth is simmered for 48 hours. Go around 11:30 AM to beat the lunch rush. Baby-friendly with high chairs available.",
   "category": "restaurant",
   "localleyScore": 5,
@@ -276,30 +277,23 @@ ${templatePrompt ? `\nIMPORTANT: Follow this template style:\n${templatePrompt}`
 Make it exciting, authentic, and full of hidden gems!
     `;
 
-    let rawContent = "";
-    let aiProvider = "openai";
-    const glm = new GLMProvider();
-
-    if (glm.isAvailable()) {
-      try {
-        const response = await glm.generateText({
-          systemPrompt: SYSTEM_PROMPT,
-          userPrompt,
-          responseFormat: "json",
-          temperature: 0.8,
-          maxTokens: 3000,
-        });
-        rawContent = response.content;
-        aiProvider = "glm";
-      } catch (glmError) {
-        console.error("[generate] GLM primary failed; falling back to OpenAI:", glmError);
+    const aiResponse = await generateItineraryTextWithFallback(
+      {
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt,
+        temperature: 0.8,
+        maxTokens: 3000,
+      },
+      {
+        generateWithOpenAI,
+        openaiModel: OPENAI_MODEL,
       }
-    }
-
-    if (!rawContent) {
-      rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
-      aiProvider = "openai";
-    }
+    );
+    let rawContent = aiResponse.rawContent;
+    let aiProvider = aiResponse.provider;
+    let aiModel = aiResponse.model;
+    let fallbackUsed = aiResponse.fallbackUsed;
+    let fallbackReason = aiResponse.fallbackReason;
 
     // Parse and validate the response
     let itineraryData;
@@ -310,6 +304,9 @@ Make it exciting, authentic, and full of hidden gems!
         console.error("Failed to parse GLM response; retrying with OpenAI:", parseError, rawContent);
         rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
         aiProvider = "openai";
+        aiModel = OPENAI_MODEL;
+        fallbackUsed = true;
+        fallbackReason = "glm_invalid_json";
         itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
       } else {
         console.error("Failed to parse OpenAI response:", rawContent);
@@ -436,6 +433,12 @@ Make it exciting, authentic, and full of hidden gems!
       },
       meta: {
         provider: aiProvider,
+        model: aiModel,
+        fallbackUsed,
+        fallbackReason,
+        primaryProvider: aiResponse.primaryProvider,
+        primaryModel: aiResponse.primaryModel,
+        primaryConfigured: aiResponse.primaryConfigured,
       },
       // For anonymous users, prompt them to sign up to save
       ...(isAnonymous && {

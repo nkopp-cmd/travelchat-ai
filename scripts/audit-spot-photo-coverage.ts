@@ -3,6 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/audit-spot-photo-coverage.ts
+ *   npx tsx scripts/audit-spot-photo-coverage.ts --env-file=/tmp/localley.env
  *   npx tsx scripts/audit-spot-photo-coverage.ts --city=Seoul
  *   npx tsx scripts/audit-spot-photo-coverage.ts --out=reports/spot-photo-coverage.json --json
  */
@@ -13,13 +14,12 @@ import * as fs from "fs";
 import * as path from "path";
 import {
     getLocalizedFieldValue,
+    getSpotPlacePhotoIdentityStatus,
     needsSpotPlaceIdentityBackfill,
     SpotPhotoBackfillRow,
     SpotPhotoKind,
     summarizeSpotPhotos,
 } from "../lib/place-images";
-
-dotenv.config({ path: ".env.local" });
 
 const PAGE_SIZE = 1000;
 const DEFAULT_OUT_PATH = "reports/spot-photo-coverage.json";
@@ -27,6 +27,7 @@ const DEFAULT_SAMPLE_LIMIT = 50;
 
 interface SpotPhotoAuditArgs {
     city?: string;
+    envFile: string;
     json: boolean;
     outPath: string;
     sampleLimit: number;
@@ -42,6 +43,10 @@ interface CoverageBucket {
     needsBackfill: number;
     placeIdentitySpots: number;
     needsPlaceIdentityBackfill: number;
+    googlePlacePhotoSpots: number;
+    ownPlacePhotoSpots: number;
+    ownPlaceReadySpots: number;
+    placePhotoIdentityMismatches: number;
     anyPhotoSpots: number;
     noPhotoSpots: number;
 }
@@ -55,6 +60,7 @@ interface BackfillCandidateSample {
     reason: string;
     needsPhotoBackfill: boolean;
     needsPlaceIdBackfill: boolean;
+    placePhotoIdentity: ReturnType<typeof getSpotPlacePhotoIdentityStatus>;
     photoCount: number;
     primaryKind: SpotPhotoKind | "none";
     kinds: Record<SpotPhotoKind, number>;
@@ -74,6 +80,7 @@ function parseArgs(argv: string[]): SpotPhotoAuditArgs {
 
     return {
         city: getValue("--city"),
+        envFile: getValue("--env-file") || ".env.local",
         json: argv.includes("--json"),
         outPath: getValue("--out") || DEFAULT_OUT_PATH,
         sampleLimit: parsePositiveInt(getValue("--sample-limit"), DEFAULT_SAMPLE_LIMIT),
@@ -100,6 +107,10 @@ function createBucket(): CoverageBucket {
         needsBackfill: 0,
         placeIdentitySpots: 0,
         needsPlaceIdentityBackfill: 0,
+        googlePlacePhotoSpots: 0,
+        ownPlacePhotoSpots: 0,
+        ownPlaceReadySpots: 0,
+        placePhotoIdentityMismatches: 0,
         anyPhotoSpots: 0,
         noPhotoSpots: 0,
     };
@@ -109,7 +120,8 @@ function addToBucket(
     bucket: CoverageBucket,
     hasAnyPhoto: boolean,
     hasRealPhoto: boolean,
-    hasPlaceIdentity: boolean
+    hasPlaceIdentity: boolean,
+    placePhotoIdentity: ReturnType<typeof getSpotPlacePhotoIdentityStatus>
 ) {
     bucket.total++;
     if (hasAnyPhoto) bucket.anyPhotoSpots++;
@@ -118,12 +130,17 @@ function addToBucket(
     if (!hasRealPhoto) bucket.needsBackfill++;
     if (hasPlaceIdentity) bucket.placeIdentitySpots++;
     if (!hasPlaceIdentity) bucket.needsPlaceIdentityBackfill++;
+    if (placePhotoIdentity.hasGooglePlacePhoto) bucket.googlePlacePhotoSpots++;
+    if (placePhotoIdentity.hasOwnPlacePhoto) bucket.ownPlacePhotoSpots++;
+    if (placePhotoIdentity.ready) bucket.ownPlaceReadySpots++;
+    if (placePhotoIdentity.hasIdentityMismatch) bucket.placePhotoIdentityMismatches++;
 }
 
 function createKindCounts(): Record<SpotPhotoKind, number> {
     return {
         proxy: 0,
         remote_https: 0,
+        remote_untrusted: 0,
         local_asset: 0,
         direct_google: 0,
         unsplash: 0,
@@ -147,6 +164,7 @@ function getBackfillReason(summary: ReturnType<typeof summarizeSpotPhotos>): str
     if (summary.total === 0 || !summary.hasAnyPhoto) return "no_photos";
     if (summary.kinds.placeholder > 0) return "placeholder_only_or_primary";
     if (summary.kinds.unsplash > 0) return "unsplash_fallback";
+    if (summary.kinds.remote_untrusted > 0) return "untrusted_remote_photo";
     if (summary.kinds.direct_google > 0) return "direct_google_url";
     if (summary.kinds.invalid > 0 || summary.kinds.empty > 0) return "invalid_or_empty_photo";
     return "no_real_photo_source";
@@ -210,6 +228,7 @@ async function fetchAllSpots(
 
 async function main() {
     const args = parseArgs(process.argv.slice(2));
+    dotenv.config({ path: args.envFile, quiet: true });
     const { url, key } = getSupabaseCredentials();
     const supabase = createClient(url, key);
     const generatedAt = new Date().toISOString();
@@ -226,17 +245,21 @@ async function main() {
         const category = spot.category || "Uncategorized";
         const location = extractLocationLabel(address);
         const photoSummary = summarizeSpotPhotos(spot.photos);
+        const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(
+            spot.photos,
+            spot.google_place_id
+        );
         const needsPlaceIdBackfill = needsSpotPlaceIdentityBackfill(
             spot.photos,
             spot.google_place_id
         );
         const hasPlaceIdentity = !needsPlaceIdBackfill;
 
-        addToBucket(summary, photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity);
+        addToBucket(summary, photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity, placePhotoIdentity);
         byLocation[location] ||= createBucket();
         byCategory[category] ||= createBucket();
-        addToBucket(byLocation[location], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity);
-        addToBucket(byCategory[category], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity);
+        addToBucket(byLocation[location], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity, placePhotoIdentity);
+        addToBucket(byCategory[category], photoSummary.hasAnyPhoto, photoSummary.hasRealPhoto, hasPlaceIdentity, placePhotoIdentity);
 
         for (const [kind, count] of Object.entries(photoSummary.kinds)) {
             photoKinds[kind as SpotPhotoKind] += count;
@@ -258,6 +281,7 @@ async function main() {
                 ].filter(Boolean).join("+"),
                 needsPhotoBackfill: photoSummary.needsBackfill,
                 needsPlaceIdBackfill,
+                placePhotoIdentity,
                 photoCount: photoSummary.total,
                 primaryKind: photoSummary.primaryKind,
                 kinds: photoSummary.kinds,
@@ -279,6 +303,8 @@ async function main() {
             backfillNeededPct: percent(summary.needsBackfill, summary.total),
             placeIdentityCoveragePct: percent(summary.placeIdentitySpots, summary.total),
             placeIdentityBackfillNeededPct: percent(summary.needsPlaceIdentityBackfill, summary.total),
+            ownPlacePhotoCoveragePct: percent(summary.ownPlacePhotoSpots, summary.total),
+            ownPlaceReadyPct: percent(summary.ownPlaceReadySpots, summary.total),
         },
         photoKinds,
         byLocation: sortBucketEntries(byLocation),
@@ -300,7 +326,10 @@ async function main() {
             `Google Place ID column: ${hasGooglePlaceIdColumn ? "present" : "missing"}`,
             `Spots: ${summary.total}`,
             `Real-photo coverage: ${report.summary.realPhotoCoveragePct}% (${summary.realPhotoSpots}/${summary.total})`,
+            `Own Google Place photo coverage: ${report.summary.ownPlacePhotoCoveragePct}% (${summary.ownPlacePhotoSpots}/${summary.total})`,
+            `Own place image + stored ID ready: ${report.summary.ownPlaceReadyPct}% (${summary.ownPlaceReadySpots}/${summary.total})`,
             `Place identity coverage: ${report.summary.placeIdentityCoveragePct}% (${summary.placeIdentitySpots}/${summary.total})`,
+            `Place photo identity mismatches: ${summary.placePhotoIdentityMismatches}`,
             `Needs backfill: ${summary.needsBackfill}`,
             `Needs place identity backfill: ${summary.needsPlaceIdentityBackfill}`,
             `No photos: ${summary.noPhotoSpots}`,

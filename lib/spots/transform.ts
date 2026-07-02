@@ -11,6 +11,7 @@ import {
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import {
     getSpotBestTime,
+    getTrustedSpotGooglePlaceId,
     normalizeLocalleyScore,
     normalizeLocalPercentage,
     normalizeSpotTips,
@@ -108,10 +109,13 @@ export function getLocalizedText(field: MultiLanguageField): string {
 export function transformSpot(spot: RawSpot): Spot {
     const { lat, lng } = getSpotCoordinateValues(spot.location);
 
-    // Build photos array, ensuring at least one image
-    // Priority: real photos > category placeholder
-    const photoSummary = summarizeSpotPhotos(spot.photos);
     const photos = normalizeSpotPhotos(spot.photos, spot.category);
+    const photoSummary = summarizeSpotPhotos(photos);
+
+    const trustedGooglePlaceId = getTrustedSpotGooglePlaceId({
+        photos,
+        storedGooglePlaceId: spot.google_place_id,
+    });
 
     return {
         id: spot.id,
@@ -129,7 +133,7 @@ export function transformSpot(spot: RawSpot): Spot {
         bestTime: getSpotBestTime(spot.best_times, spot.best_time),
         photos,
         hasRealPhoto: photoSummary.hasRealPhoto,
-        googlePlaceId: spot.google_place_id || null,
+        googlePlaceId: trustedGooglePlaceId,
         tips: normalizeSpotTips(spot.tips),
         verified: spot.verified || false,
         trending: spot.trending_score > 0.7,

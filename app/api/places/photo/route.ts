@@ -8,6 +8,12 @@ interface GooglePlacePhotoLookup {
     photos?: Array<{ name?: string }>;
 }
 
+const FALLBACK_IMAGE_HOSTS = new Set([
+    "images.unsplash.com",
+    "images.pexels.com",
+    "media-cdn.tripadvisor.com",
+]);
+
 function photoFetchFailureResponse(reason: string, status = 502) {
     return new NextResponse("Place photo unavailable", {
         status,
@@ -17,6 +23,25 @@ function photoFetchFailureResponse(reason: string, status = 502) {
             "X-Localley-Photo-Fallback": reason,
         },
     });
+}
+
+function getSafeFallbackImageUrl(value: string | null, origin: string): string | null {
+    if (!value) return null;
+
+    try {
+        const url = new URL(value, origin);
+        if (url.origin === origin && url.pathname.startsWith("/images/")) {
+            return url.toString();
+        }
+
+        if (url.protocol === "https:" && FALLBACK_IMAGE_HOSTS.has(url.hostname.toLowerCase())) {
+            return url.toString();
+        }
+    } catch {
+        return null;
+    }
+
+    return null;
 }
 
 function getPlaceIdFromPhotoName(photoName: string): string | null {
@@ -51,7 +76,11 @@ async function findReplacementPhotoName(
     );
 }
 
-async function proxiedImageResponse(imageUrl: string, fallbackReason: string) {
+async function proxiedImageResponse(
+    imageUrl: string,
+    fallbackReason: string,
+    extraHeaders: Record<string, string> = {}
+) {
     const response = await fetch(imageUrl, {
         next: { revalidate: 60 * 60 * 24 * 30 },
     });
@@ -73,8 +102,25 @@ async function proxiedImageResponse(imageUrl: string, fallbackReason: string) {
             "Content-Type": contentType,
             "Cache-Control":
                 "public, max-age=2592000, s-maxage=2592000, stale-while-revalidate=86400",
+            ...extraHeaders,
         },
     });
+}
+
+async function placePhotoUnavailable(
+    reason: string,
+    fallbackImageUrl: string | null,
+    status = 502
+) {
+    if (fallbackImageUrl) {
+        const response = await proxiedImageResponse(fallbackImageUrl, `fallback_image_fetch_failed_${reason}`, {
+            "X-Localley-Photo-Fallback": reason,
+        });
+
+        if (response.ok) return response;
+    }
+
+    return photoFetchFailureResponse(reason, status);
 }
 
 export async function GET(req: NextRequest) {
@@ -83,22 +129,23 @@ export async function GET(req: NextRequest) {
     const legacyPhotoRef = searchParams.get("ref");
     const width = normalizePhotoWidth(searchParams.get("w"));
     const apiKey = getGooglePlacesApiKey();
+    const fallbackImageUrl = getSafeFallbackImageUrl(searchParams.get("fallback"), req.nextUrl.origin);
 
     if (!photoName && !legacyPhotoRef) {
         return NextResponse.json({ error: "Missing photo reference" }, { status: 400 });
     }
 
     if (!apiKey) {
-        return photoFetchFailureResponse("missing_google_places_api_key", 503);
+        return placePhotoUnavailable("missing_google_places_api_key", fallbackImageUrl, 503);
     }
 
     if (photoName && !/^places\/[^/]+\/photos\/[^/]+$/.test(photoName)) {
-        return photoFetchFailureResponse("invalid_photo_name", 400);
+        return placePhotoUnavailable("invalid_photo_name", fallbackImageUrl, 400);
     }
 
     if (legacyPhotoRef) {
         if (!/^[A-Za-z0-9_-]+$/.test(legacyPhotoRef)) {
-            return photoFetchFailureResponse("invalid_photo_reference", 400);
+            return placePhotoUnavailable("invalid_photo_reference", fallbackImageUrl, 400);
         }
 
         const legacyUrl = new URL("https://maps.googleapis.com/maps/api/place/photo");
@@ -113,10 +160,12 @@ export async function GET(req: NextRequest) {
         const location = legacyResponse.headers.get("location");
 
         if (!location) {
-            return photoFetchFailureResponse(`legacy_lookup_failed_${legacyResponse.status}`);
+            return placePhotoUnavailable(`legacy_lookup_failed_${legacyResponse.status}`, fallbackImageUrl);
         }
 
-        return proxiedImageResponse(location, "legacy_image_fetch_failed");
+        const imageResponse = await proxiedImageResponse(location, "legacy_image_fetch_failed");
+        if (imageResponse.ok) return imageResponse;
+        return placePhotoUnavailable(imageResponse.headers.get("X-Localley-Photo-Fallback") || "legacy_image_fetch_failed", fallbackImageUrl);
     }
 
     const photoUrl = new URL(`https://places.googleapis.com/v1/${photoName}/media`);
@@ -150,13 +199,15 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        return photoFetchFailureResponse(`lookup_failed_${response.status}`);
+        return placePhotoUnavailable(`lookup_failed_${response.status}`, fallbackImageUrl);
     }
 
     const data = (await response.json()) as { photoUri?: string };
     if (!data.photoUri) {
-        return photoFetchFailureResponse("photo_uri_missing");
+        return placePhotoUnavailable("photo_uri_missing", fallbackImageUrl);
     }
 
-    return proxiedImageResponse(data.photoUri, "image_fetch_failed");
+    const imageResponse = await proxiedImageResponse(data.photoUri, "image_fetch_failed");
+    if (imageResponse.ok) return imageResponse;
+    return placePhotoUnavailable(imageResponse.headers.get("X-Localley-Photo-Fallback") || "image_fetch_failed", fallbackImageUrl);
 }

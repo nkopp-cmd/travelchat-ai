@@ -23,6 +23,7 @@ import { generateItinerarySchema, validateBody } from '@/lib/validations';
 import { checkAndIncrementUsage } from '@/lib/usage-tracking';
 import { getOrchestrator, featureFlags } from '@/lib/llm';
 import type { UserTier, GeneratedItinerary } from '@/lib/llm';
+import { geocodeItineraryActivities } from '@/lib/geocoding';
 import { sanitizeGeneratedDailyPlans } from '../../generate/sanitize-itinerary';
 import {
   buildItineraryPlanPayload,
@@ -294,6 +295,16 @@ export async function POST(req: NextRequest) {
       );
       itineraryData.dailyPlans = normalized.dailyPlans as unknown as typeof itineraryData.dailyPlans;
       itineraryData.insights = normalized.insights;
+
+      try {
+        itineraryData.dailyPlans = await geocodeItineraryActivities(
+          itineraryData.dailyPlans as unknown as Parameters<typeof geocodeItineraryActivities>[0],
+          params.city
+        ) as typeof itineraryData.dailyPlans;
+      } catch (geoError) {
+        console.error('[generate-v2/stream] Geocoding failed (non-fatal):', geoError);
+      }
+
       const dailyPlansForThumbnails = itineraryData.dailyPlans as unknown as Parameters<typeof addThumbnailsToItinerary>[0];
       const dailyPlansWithImages = addThumbnailsToItinerary(
         dailyPlansForThumbnails,

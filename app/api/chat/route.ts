@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@clerk/nextjs/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { chatSchema, validateBody } from "@/lib/validations";
@@ -12,29 +11,8 @@ import {
     shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
 import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
-import { GLMProvider } from "@/lib/llm";
+import { generateChatReplyWithFallback } from "@/lib/llm/chat-provider";
 import type { MultiLanguageField } from "@/types";
-
-const CLAUDE_MODEL =
-    process.env.CLAUDE_MODEL ||
-    process.env.ANTHROPIC_MODEL ||
-    process.env.CHAT_MODEL ||
-    "claude-sonnet-4-20250514";
-
-function buildChatTranscript(messages: Array<{ role: string; content: string }>) {
-    return messages
-        .filter(m => m.role === "user" || m.role === "assistant")
-        .map(m => `${m.role === "assistant" ? "Alley" : "User"}: ${m.content}`)
-        .join("\n\n");
-}
-
-const getAnthropicClient = () => {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-        throw new Error('Anthropic API key is not configured');
-    }
-    return new Anthropic({ apiKey });
-};
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -90,7 +68,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         // Build query — get top spots for this city, prioritizing high localley scores
         let query = supabase
             .from("spots")
-            .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos")
+            .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos, location, google_place_id")
             .ilike("address->>en", `%${cityConfig.name}%`);
 
         query = applyPublicSpotVisibilityFilters(query)
@@ -119,7 +97,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         if (matchedCategories.length > 0) {
             query = supabase
                 .from("spots")
-                .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos")
+                .select("name, description, address, category, subcategories, localley_score, local_percentage, best_times, tips, photos, location, google_place_id")
                 .ilike("address->>en", `%${cityConfig.name}%`)
                 .in("category", matchedCategories);
 
@@ -203,6 +181,7 @@ When ranking spots, use the Localley Scale:
 
 When recommending places:
 - Include the neighborhood/district
+- Use exact names and exact addresses from the curated database whenever they are available
 - Include best times to visit when you know them
 - Suggest what to order/try
 - Include a local tip or useful phrase in the local language
@@ -231,8 +210,8 @@ You MUST respond in this EXACT markdown format with NO conversational intro:
 IMPORTANT for itineraries:
 - Start with markdown title: # [City] Hidden Gems
 - Use ONLY real, verified place names
-- ALWAYS include "Address: [Place name, District, City]" on a new line after each description — critical for mapping
-- Address format: SHORT and geocode-friendly: "Place Name, District, City" (NO street numbers)
+- ALWAYS include "Address: [Exact address]" on a new line after each description — critical for mapping
+- Address format: use the exact address from the curated spots database when available. If the exact street address is not known, use a search-friendly fallback like "Place Name, District, City" and do not invent street numbers.
 - Mark special spots as (Hidden Gem), (Local Favorite), or (Mixed)
 - Put tips, transit advice, what-to-order notes, and practical reminders ONLY under **Local Tips**. Never create a day activity named "Tip", "Getting around", "What to order", "Breakfast", "Lunch", or "Dinner".
 - NO conversational intro like "Absolutely!" or "Here you go!"
@@ -283,44 +262,23 @@ export async function POST(req: NextRequest) {
 
         const systemPrompt = buildSystemPrompt(detectedCity, spotsContext);
 
-        const glm = new GLMProvider();
-        if (glm.isAvailable()) {
-            try {
-                const response = await glm.generateText({
-                    systemPrompt,
-                    userPrompt: buildChatTranscript(messages),
-                    maxTokens: 2048,
-                    temperature: 0.7,
-                });
-
-                return NextResponse.json({
-                    message: response.content,
-                    provider: "glm",
-                });
-            } catch (glmError) {
-                console.error("[CHAT] GLM primary failed; falling back to Anthropic:", glmError);
-            }
-        }
-
-        // Convert messages to Anthropic format (filter out system messages)
-        const anthropicMessages = messages
-            .filter(m => m.role === "user" || m.role === "assistant")
-            .map(m => ({
-                role: m.role as "user" | "assistant",
-                content: m.content,
-            }));
-
-        const client = getAnthropicClient();
-        const response = await client.messages.create({
-            model: CLAUDE_MODEL,
-            max_tokens: 2048,
-            system: systemPrompt,
-            messages: anthropicMessages,
+        const reply = await generateChatReplyWithFallback({
+            systemPrompt,
+            messages,
+            maxTokens: 2048,
+            temperature: 0.7,
         });
 
-        const reply = response.content[0].type === "text" ? response.content[0].text : "";
-
-        return NextResponse.json({ message: reply, provider: "anthropic" });
+        return NextResponse.json({
+            message: reply.content,
+            provider: reply.provider,
+            model: reply.model,
+            fallbackUsed: reply.fallbackUsed,
+            fallbackReason: reply.fallbackReason,
+            primaryProvider: reply.primaryProvider,
+            primaryModel: reply.primaryModel,
+            primaryConfigured: reply.primaryConfigured,
+        });
     } catch (error) {
         return handleApiError(error, "[CHAT_ERROR]");
     }

@@ -5,6 +5,7 @@ import { ENABLED_CITIES, CityConfig } from "@/lib/cities";
 import {
   applyPublicSpotVisibilityFilters,
   PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+  shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
 
 // Thresholds for city status
@@ -28,17 +29,17 @@ async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
     try {
       let cityQuery = supabase
         .from("spots")
-        .select("*", { count: "exact", head: true });
+        .select("name, address, location, photos, google_place_id");
 
       cityQuery = applyPublicSpotVisibilityFilters(cityQuery);
 
-      const { count, error } = await cityQuery.ilike("address->>en", `%${city.name}%`);
+      const { data, error } = await cityQuery.ilike("address->>en", `%${city.name}%`);
 
       if (error) {
         console.error(`[api/cities] Supabase error for ${city.name}:`, error.message);
       }
 
-      const spotCount = count || 0;
+      const spotCount = (data || []).filter((spot) => shouldShowPublicSpot(spot)).length;
       const status: CityStatus = spotCount >= THRESHOLDS.recommended ? "recommended"
                    : spotCount >= THRESHOLDS.available ? "available"
                    : spotCount >= THRESHOLDS.beta ? "beta"

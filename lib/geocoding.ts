@@ -13,7 +13,7 @@
  */
 
 import { getCityBySlug, getCityByName, type CityConfig } from '@/lib/cities';
-import type { Activity, DailyPlan } from '@/lib/llm/types';
+import type { DailyPlan } from '@/lib/llm/types';
 import OpenAI from 'openai';
 
 // ============================================================================
@@ -100,8 +100,8 @@ function isResultNearCity(result: GeocodingResult, center: { lat: number; lng: n
 }
 
 /**
- * Simplify an address for better Nominatim results.
- * Strips street numbers, lane details, floor/unit numbers — keeps place name + district + city.
+ * Build a broader fallback address for providers that miss exact street-level text.
+ * The exact address is still tried first in the cascade.
  */
 export function simplifyAddress(address: string, city: string): string {
     let simplified = address;
@@ -148,6 +148,31 @@ export function simplifyAddress(address: string, city: string): string {
  */
 function resolveCityConfig(city: string): CityConfig | undefined {
     return getCityBySlug(city.toLowerCase().replace(/\s+/g, '-')) || getCityByName(city);
+}
+
+function uniqueQueryParts(parts: Array<string | null | undefined>): string[] {
+    const seen = new Set<string>();
+    return parts
+        .map((part) => part?.trim() || '')
+        .filter((part) => {
+            if (!part) return false;
+            const key = part.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+}
+
+function buildPreciseGeocodingQuery(
+    address: string,
+    city: string,
+    placeName?: string
+): string {
+    const cityName = city.trim();
+    const addressHasCity =
+        cityName && address.toLowerCase().includes(cityName.toLowerCase());
+
+    return uniqueQueryParts([placeName, address, addressHasCity ? '' : cityName]).join(', ');
 }
 
 // ============================================================================
@@ -386,6 +411,8 @@ export async function geocodeWithCascade(
 
     // Build query variants (English)
     const simplifiedAddress = simplifyAddress(address, city);
+    const preciseQuery = buildPreciseGeocodingQuery(address, city, placeName);
+    const simplifiedQuery = buildPreciseGeocodingQuery(simplifiedAddress, city, placeName);
     const nameAndCity = placeName ? `${placeName}, ${city}` : null;
 
     // Pre-translate to local language for better geocoding
@@ -396,7 +423,7 @@ export async function geocodeWithCascade(
         // Translate place name and address in parallel
         const [tName, tAddr] = await Promise.all([
             placeName ? translateForGeocoding(placeName, localLang) : Promise.resolve(null),
-            translateForGeocoding(simplifiedAddress, localLang),
+            translateForGeocoding(address, localLang),
         ]);
         translatedName = tName;
         translatedAddress = tAddr;
@@ -446,19 +473,22 @@ export async function geocodeWithCascade(
         if (isValid(result)) return result;
     }
 
-    const nominatimQuery = nameAndCity || `${simplifiedAddress}, ${city}`;
-    let result = await geocodeWithNominatim(nominatimQuery, center);
+    let result = await geocodeWithNominatim(preciseQuery, center);
     if (isValid(result)) return result;
 
-    if (nameAndCity && nominatimQuery !== nameAndCity) {
+    if (simplifiedQuery !== preciseQuery) {
+        result = await geocodeWithNominatim(simplifiedQuery, center);
+        if (isValid(result)) return result;
+    }
+
+    if (nameAndCity && nameAndCity !== preciseQuery && nameAndCity !== simplifiedQuery) {
         result = await geocodeWithNominatim(nameAndCity, center);
         if (isValid(result)) return result;
     }
 
     // 3. Google as last resort (handles both languages well natively)
     // Pass center for bounds bias to prefer results near the target city
-    const googleQuery = nameAndCity || `${address}, ${city}`;
-    result = await geocodeWithGoogle(googleQuery, center);
+    result = await geocodeWithGoogle(preciseQuery, center);
     if (isValid(result)) return result;
 
     // Try translated query with Google

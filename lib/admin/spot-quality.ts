@@ -2,7 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MultiLanguageField } from "@/types";
 import {
     getLocalizedFieldValue,
+    getSpotPlacePhotoIdentityStatus,
     needsSpotPlaceIdentityBackfill,
+    normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
 } from "@/lib/place-images";
 import { parseSpotCoordinates } from "@/lib/spots/coordinates";
@@ -11,11 +13,16 @@ import {
     shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
 import { getSpotLocationConfidence, hasUsableCoordinates } from "@/lib/spots/location-confidence";
+import {
+    buildSpotQualitySchemaStatus,
+    type SpotQualitySchemaStatus,
+} from "@/lib/admin/spot-quality-action-plan";
 
 export type SpotQualityIssue =
     | "missing_real_photo"
     | "inexact_location"
     | "missing_place_id"
+    | "mismatched_place_photo_identity"
     | "broad_place_name"
     | "missing_name";
 
@@ -39,6 +46,8 @@ export interface SpotQualityItem {
     category: string | null;
     photos: string[];
     photoSummary: ReturnType<typeof summarizeSpotPhotos>;
+    placePhotoIdentity: ReturnType<typeof getSpotPlacePhotoIdentityStatus>;
+    photoReadiness: SpotPhotoReadiness;
     lat: number | null;
     lng: number | null;
     googlePlaceId: string | null;
@@ -49,6 +58,15 @@ export interface SpotQualityItem {
     createdAt: string | null;
 }
 
+export interface SpotPhotoReadiness {
+    status: "ready" | "place_ready" | "manual_review" | "backfill_ready";
+    label: string;
+    description: string;
+    tone: "good" | "warn" | "danger";
+    realPhotoCount: number;
+    canAutoBackfill: boolean;
+}
+
 export interface SpotQualityQueueSummary {
     total: number;
     publicReady: number;
@@ -56,6 +74,7 @@ export interface SpotQualityQueueSummary {
     missingRealPhoto: number;
     inexactLocation: number;
     missingPlaceId: number;
+    mismatchedPlacePhotoIdentity: number;
     broadPlaceName: number;
     missingName: number;
 }
@@ -63,8 +82,12 @@ export interface SpotQualityQueueSummary {
 export interface SpotQualityQueue {
     generatedAt: string;
     hasGooglePlaceIdColumn: boolean;
+    schema: SpotQualitySchemaStatus;
     city: string | null;
+    issue: SpotQualityIssue | "all";
     limit: number;
+    filteredSummary: SpotQualityQueueSummary;
+    visibleSummary: SpotQualityQueueSummary;
     summary: SpotQualityQueueSummary;
     items: SpotQualityItem[];
 }
@@ -124,7 +147,9 @@ function normalizePhotos(photos: string[] | undefined): string[] | undefined {
         throw new Error("Use 6 or fewer spot photos.");
     }
 
-    const invalid = cleaned.find((photo) => {
+    const normalized = normalizeStoredSpotPhotoUrls(cleaned);
+
+    const invalid = normalized.find((photo) => {
         if (photo.startsWith("/api/places/photo?")) return false;
         if (photo.startsWith("/images/") && !photo.toLowerCase().includes("placeholder")) return false;
         try {
@@ -139,7 +164,7 @@ function normalizePhotos(photos: string[] | undefined): string[] | undefined {
         throw new Error(`Invalid photo URL: ${invalid}`);
     }
 
-    return Array.from(new Set(cleaned));
+    return Array.from(new Set(normalized));
 }
 
 function formatPoint(lng: number, lat: number): string {
@@ -189,33 +214,120 @@ export function buildSpotQualityPatchPayload(
     return payload;
 }
 
+export function getSpotPhotoReadiness(
+    photoSummary: ReturnType<typeof summarizeSpotPhotos>,
+    googlePlaceId: string | null,
+    hasGooglePlaceIdColumn: boolean
+): SpotPhotoReadiness {
+    const realPhotoCount =
+        photoSummary.kinds.proxy +
+        photoSummary.kinds.remote_https +
+        photoSummary.kinds.local_asset;
+    const hasPlacePhotoIdentityMismatch = Boolean(
+        googlePlaceId &&
+        photoSummary.googlePlacePhotoIds.length > 0 &&
+        !photoSummary.googlePlacePhotoIds.includes(googlePlaceId)
+    );
+
+    if (hasPlacePhotoIdentityMismatch) {
+        return {
+            status: "manual_review",
+            label: "Place photo mismatch",
+            description: "The stored Google Place ID does not match the proxied place photo source. Reconcile this before trusting directions.",
+            tone: "danger",
+            realPhotoCount,
+            canAutoBackfill: true,
+        };
+    }
+
+    if (photoSummary.kinds.proxy > 0 && (!hasGooglePlaceIdColumn || googlePlaceId)) {
+        return {
+            status: "ready",
+            label: "Real place image ready",
+            description: "This spot has proxied place photos and durable place identity.",
+            tone: "good",
+            realPhotoCount,
+            canAutoBackfill: false,
+        };
+    }
+
+    if (photoSummary.hasRealPhoto) {
+        return {
+            status: hasGooglePlaceIdColumn && !googlePlaceId ? "place_ready" : "ready",
+            label: hasGooglePlaceIdColumn && !googlePlaceId ? "Image ready, Place ID missing" : "Real image ready",
+            description: hasGooglePlaceIdColumn && !googlePlaceId
+                ? "The image can ship, but the durable Google Place ID should still be saved."
+                : "This spot has a non-placeholder image that can ship.",
+            tone: hasGooglePlaceIdColumn && !googlePlaceId ? "warn" : "good",
+            realPhotoCount,
+            canAutoBackfill: hasGooglePlaceIdColumn && !googlePlaceId,
+        };
+    }
+
+    if (
+        photoSummary.kinds.unsplash > 0 ||
+        photoSummary.kinds.remote_untrusted > 0 ||
+        photoSummary.kinds.invalid > 0 ||
+        photoSummary.kinds.direct_google > 0
+    ) {
+        return {
+            status: "manual_review",
+            label: "Photo needs review",
+            description: "This spot has image data, but it is not stored in a production-safe Localley format yet.",
+            tone: "warn",
+            realPhotoCount,
+            canAutoBackfill: true,
+        };
+    }
+
+    return {
+        status: "backfill_ready",
+        label: "Needs real spot image",
+        description: "No real spot photo is stored yet. Run a Google Places dry run before updating live data.",
+        tone: "danger",
+        realPhotoCount,
+        canAutoBackfill: true,
+    };
+}
+
 export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: boolean): SpotQualityItem {
     const name = getText(row.name);
     const address = getText(row.address);
     const description = getText(row.description);
     const photos = row.photos || [];
-    const photoSummary = summarizeSpotPhotos(photos);
+    const normalizedPhotos = normalizeStoredSpotPhotoUrls(photos);
+    const photoSummary = summarizeSpotPhotos(normalizedPhotos);
+    const googlePlaceId = row.google_place_id || null;
+    const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(normalizedPhotos, googlePlaceId);
     const coordinates = parseSpotCoordinates(row.location);
     const lat = coordinates?.lat ?? null;
     const lng = coordinates?.lng ?? null;
     const locationConfidence = getSpotLocationConfidence({ address, lat, lng });
-    const googlePlaceId = row.google_place_id || null;
+    const photoReadiness = getSpotPhotoReadiness(
+        photoSummary,
+        googlePlaceId,
+        hasGooglePlaceIdColumn
+    );
     const publicQualityIssue = getPublicSpotQualityIssue({
         name: row.name,
         address: row.address,
         location: row.location,
-        photos: row.photos,
+        photos: normalizedPhotos,
+        google_place_id: row.google_place_id,
     });
     const issues: SpotQualityIssue[] = [];
 
     if (!name) issues.push("missing_name");
     if (publicQualityIssue === "broad_place_name") issues.push("broad_place_name");
+    if (publicQualityIssue === "mismatched_place_photo_identity") {
+        issues.push("mismatched_place_photo_identity");
+    }
     if (!photoSummary.hasRealPhoto) issues.push("missing_real_photo");
     if (!locationConfidence.exactAddress) issues.push("inexact_location");
     if (
         hasGooglePlaceIdColumn &&
         photoSummary.hasRealPhoto &&
-        needsSpotPlaceIdentityBackfill(row.photos, googlePlaceId)
+        needsSpotPlaceIdentityBackfill(normalizedPhotos, googlePlaceId)
     ) {
         issues.push("missing_place_id");
     }
@@ -228,6 +340,8 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
         category: row.category,
         photos,
         photoSummary,
+        placePhotoIdentity,
+        photoReadiness,
         lat,
         lng,
         googlePlaceId,
@@ -238,7 +352,8 @@ export function toSpotQualityItem(row: SpotQualityRow, hasGooglePlaceIdColumn: b
             name: row.name,
             address: row.address,
             location: row.location,
-            photos: row.photos,
+            photos: normalizedPhotos,
+            google_place_id: row.google_place_id,
         }) && (!hasGooglePlaceIdColumn || !issues.includes("missing_place_id")),
         createdAt: row.created_at || null,
     };
@@ -252,8 +367,48 @@ export function summarizeSpotQualityItems(items: SpotQualityItem[]): SpotQuality
         missingRealPhoto: items.filter((item) => item.issues.includes("missing_real_photo")).length,
         inexactLocation: items.filter((item) => item.issues.includes("inexact_location")).length,
         missingPlaceId: items.filter((item) => item.issues.includes("missing_place_id")).length,
+        mismatchedPlacePhotoIdentity: items.filter((item) => item.issues.includes("mismatched_place_photo_identity")).length,
         broadPlaceName: items.filter((item) => item.issues.includes("broad_place_name")).length,
         missingName: items.filter((item) => item.issues.includes("missing_name")).length,
+    };
+}
+
+export function buildSpotQualityQueueFromItems({
+    items,
+    hasGooglePlaceIdColumn,
+    city,
+    issue,
+    limit,
+    generatedAt = new Date().toISOString(),
+}: {
+    items: SpotQualityItem[];
+    hasGooglePlaceIdColumn: boolean;
+    city: string | null;
+    issue: SpotQualityIssue | "all";
+    limit: number;
+    generatedAt?: string;
+}): SpotQualityQueue {
+    const selectedIssue = issue === "all" ? null : issue;
+    const matchingItems = items
+        .filter((item) => !item.publicReady)
+        .filter((item) => !selectedIssue || item.issues.includes(selectedIssue))
+        .sort((left, right) => {
+            if (left.issues.length !== right.issues.length) return right.issues.length - left.issues.length;
+            return (right.createdAt || "").localeCompare(left.createdAt || "");
+        });
+    const visibleItems = matchingItems.slice(0, limit);
+
+    return {
+        generatedAt,
+        hasGooglePlaceIdColumn,
+        schema: buildSpotQualitySchemaStatus(hasGooglePlaceIdColumn),
+        city,
+        issue,
+        limit,
+        summary: summarizeSpotQualityItems(items),
+        filteredSummary: summarizeSpotQualityItems(matchingItems),
+        visibleSummary: summarizeSpotQualityItems(visibleItems),
+        items: visibleItems,
     };
 }
 
@@ -308,21 +463,13 @@ export async function getSpotQualityQueue(
     const limit = Math.min(MAX_LIMIT, Math.max(1, options.limit || DEFAULT_LIMIT));
     const { rows, hasGooglePlaceIdColumn } = await fetchSpotQualityRows(supabase, city);
     const allItems = rows.map((row) => toSpotQualityItem(row, hasGooglePlaceIdColumn));
-    const issue = options.issue && options.issue !== "all" ? options.issue : null;
-    const needsWork = allItems
-        .filter((item) => !item.publicReady)
-        .filter((item) => !issue || item.issues.includes(issue))
-        .sort((left, right) => {
-            if (left.issues.length !== right.issues.length) return right.issues.length - left.issues.length;
-            return (right.createdAt || "").localeCompare(left.createdAt || "");
-        });
+    const issue = options.issue && options.issue !== "all" ? options.issue : "all";
 
-    return {
-        generatedAt: new Date().toISOString(),
+    return buildSpotQualityQueueFromItems({
+        items: allItems,
         hasGooglePlaceIdColumn,
         city,
+        issue,
         limit,
-        summary: summarizeSpotQualityItems(allItems),
-        items: needsWork.slice(0, limit),
-    };
+    });
 }

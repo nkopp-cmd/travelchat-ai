@@ -38,9 +38,13 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result[0].activities).toHaveLength(1);
     expect(result[0].activities[0].name).toBe("Breakfast at Mangwon Market");
     expect(result[0].localTip).toContain("Bring cash.");
-    expect(result[0].localTip).toContain("Before you go: Most stalls close early on Sundays.");
+    expect(result[0].localTip).toContain(
+      "Before you go: Most stalls close early on Sundays.",
+    );
     expect(result[0].transportTips).toContain("Use the metro.");
-    expect(result[0].transportTips).toContain("Use exit 2 and walk five minutes.");
+    expect(result[0].transportTips).toContain(
+      "Use exit 2 and walk five minutes.",
+    );
   });
 
   it("recognizes reminder and insight rows as tips", () => {
@@ -48,15 +52,82 @@ describe("sanitizeGeneratedDailyPlans", () => {
       isTipLikeActivity({
         name: "Reminder",
         description: "Reserve popular restaurants before the trip.",
-      })
+      }),
     ).toBe(true);
 
     expect(
       isTipLikeActivity({
         name: "Local insight for the day",
         description: "Go before lunch to avoid queues.",
-      })
+      }),
     ).toBe(true);
+
+    expect(
+      isTipLikeActivity({
+        name: "Getting there",
+        description: "Walk from Anguk Station exit 3.",
+      }),
+    ).toBe(true);
+  });
+
+  it("moves imperative practical note rows into insights", () => {
+    expect(
+      isTipLikeActivity({
+        name: "Bring cash for smaller vendors.",
+      }),
+    ).toBe(true);
+
+    expect(
+      isTipLikeActivity({
+        name: "Reserve popular restaurants before the trip",
+        description: "Weekend dinner slots book out fast.",
+      }),
+    ).toBe(true);
+  });
+
+  it("moves practical section rows into insights instead of day activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Cafe Onion Anguk",
+            description: "Start with coffee in the hanok courtyard.",
+            category: "Cafe",
+          },
+          {
+            name: "Opening hours",
+            description: "Go before 10 AM for the calmest tables.",
+          },
+          {
+            name: "Reservation",
+            description: "Book weekend tea service before the trip.",
+          },
+          {
+            name: "Language phrase",
+            description: "Say annyeonghaseyo when entering small shops.",
+          },
+          {
+            name: "Transit pass",
+            description: "Use T-money and walk from Anguk Station exit 3.",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities.map((activity) => activity.name)).toEqual([
+      "Cafe Onion Anguk",
+    ]);
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Opening hours: Go before 10 AM for the calmest tables. Reservation: Book weekend tea service before the trip. Language phrase: Say annyeonghaseyo when entering small shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Transit pass: Use T-money and walk from Anguk Station exit 3.",
+      }),
+    ]);
   });
 
   it("treats generic meal or time-slot rows as tips but keeps named meal places", () => {
@@ -64,7 +135,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
       isTipLikeActivity({
         name: "Lunch",
         description: "Try a market stall near the museum.",
-      })
+      }),
     ).toBe(true);
 
     expect(
@@ -72,7 +143,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
         name: "Breakfast at Mangwon Market",
         description: "Start with local dumplings.",
         category: "Food",
-      })
+      }),
     ).toBe(false);
   });
 
@@ -93,6 +164,10 @@ describe("sanitizeGeneratedDailyPlans", () => {
             description: "Many stalls close after lunch.",
             category: "Advice",
           },
+          {
+            name: "Use the metro between stops.",
+            category: "Transport",
+          },
         ],
       },
     ]);
@@ -102,7 +177,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result.dailyPlans[0].transportTips).toBeUndefined();
     expect(result.insights.map((insight) => insight.text)).toEqual([
       "Bring cash. Things to know: Many stalls close after lunch.",
-      "Use the metro.",
+      "Use the metro. Use the metro between stops.",
     ]);
   });
 
@@ -123,7 +198,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
 
     expect(result.dailyPlans[0].activities).toHaveLength(1);
     expect(result.dailyPlans[0].activities[0].description).toBe(
-      "Order seasonal tea before the afternoon rush."
+      "Order seasonal tea before the afternoon rush.",
     );
     expect(result.insights).toEqual([
       expect.objectContaining({
@@ -133,6 +208,232 @@ describe("sanitizeGeneratedDailyPlans", () => {
       expect.objectContaining({
         label: "Day 1 getting around",
         text: "Getting around: Walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
+  it("extracts inline labeled tips from activity descriptions", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Ikseon Teahouse",
+            description:
+              "Order seasonal tea before the afternoon rush. Tip: Bring cash for nearby shops. Getting around: Walk from Jongno 3-ga exit 4.",
+            category: "Cafe",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Order seasonal tea before the afternoon rush.",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Tip: Bring cash for nearby shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Getting around: Walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
+  it("extracts numbered and dash-labeled tip lines from real activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Cafe Onion Anguk",
+            description:
+              "Start with coffee in the hanok courtyard.\n1. Tip - Bring cash for nearby shops.\n2. Getting around - Walk from Anguk Station exit 3.",
+            category: "Cafe",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Start with coffee in the hanok courtyard.",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Tip: Bring cash for nearby shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Getting around: Walk from Anguk Station exit 3.",
+      }),
+    ]);
+  });
+
+  it("extracts unlabeled practical description lines from real activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Ikseon Teahouse",
+            description:
+              "Order seasonal tea in the hanok courtyard.\nBring cash for smaller shops.\nUse the metro and walk from Jongno 3-ga exit 4.\nThe courtyard seats are best for photos.",
+            category: "Cafe",
+            address: "Ikseon-dong, Jongno-gu, Seoul",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Order seasonal tea in the hanok courtyard.\nThe courtyard seats are best for photos.",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Bring cash for smaller shops.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Use the metro and walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
+  it("keeps unlabeled descriptive activity lines when they are not practical tips", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Seochon Photo Walk",
+            description:
+              "Walk through old alleys with small galleries.\nTake photos from the quiet rooftop view.",
+            category: "Culture",
+            address: "Seochon, Jongno-gu, Seoul",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Walk through old alleys with small galleries.\nTake photos from the quiet rooftop view.",
+    );
+    expect(result.insights).toEqual([]);
+  });
+
+  it("extracts food, booking, and route notes from real activities", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Bupyeong Kkangtong Market",
+            description:
+              "Eat through named stalls after dark.\nWhat to order: seed hotteok and eomuk.\nBooking note: No reservation needed.\nRoute note: Start at Jagalchi Station.",
+            category: "Market",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0].description).toBe(
+      "Eat through named stalls after dark.",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "What to order: seed hotteok and eomuk. Booking note: No reservation needed.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Route note: Start at Jagalchi Station.",
+      }),
+    ]);
+  });
+
+  it("moves activity-scoped note fields into insights and strips them from stops", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Ikseon Teahouse",
+            description: "Order seasonal tea in the hanok courtyard.",
+            category: "Cafe",
+            address: "Ikseon-dong, Jongno-gu, Seoul",
+            tips: ["Bring cash for smaller shops."],
+            whatToOrder: "Seasonal omija tea.",
+            gettingAround: "Walk from Jongno 3-ga exit 4.",
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0]).toMatchObject({
+      name: "Ikseon Teahouse",
+      description: "Order seasonal tea in the hanok courtyard.",
+      address: "Ikseon-dong, Jongno-gu, Seoul",
+    });
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty("tips");
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty(
+      "whatToOrder",
+    );
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty(
+      "gettingAround",
+    );
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Tip: Bring cash for smaller shops. What to order: Seasonal omija tea.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Getting around: Walk from Jongno 3-ga exit 4.",
+      }),
+    ]);
+  });
+
+  it("handles nested activity note objects without keeping them in day payloads", () => {
+    const result = normalizeDailyPlansForDisplay([
+      {
+        day: 1,
+        activities: [
+          {
+            name: "Bupyeong Kkangtong Market",
+            description: "Eat through named stalls after dark.",
+            category: "Market",
+            bookingNote: { text: "No reservation needed, but go early." },
+            routeNote: {
+              start: "Start at Jagalchi Station.",
+              end: "Exit through BIFF Square.",
+            },
+          },
+        ],
+      },
+    ]);
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty(
+      "bookingNote",
+    );
+    expect(result.dailyPlans[0].activities[0]).not.toHaveProperty("routeNote");
+    expect(result.insights).toEqual([
+      expect.objectContaining({
+        label: "Day 1 local tip",
+        text: "Booking note: No reservation needed, but go early.",
+      }),
+      expect.objectContaining({
+        label: "Day 1 getting around",
+        text: "Route note: Start at Jagalchi Station. Route note: Exit through BIFF Square.",
       }),
     ]);
   });
@@ -159,7 +460,7 @@ describe("sanitizeGeneratedDailyPlans", () => {
           text: "Bring small bills for market stalls.",
           kind: "local",
         },
-      ]
+      ],
     );
 
     const result = normalizeDailyPlansForDisplay(payload);
@@ -169,6 +470,45 @@ describe("sanitizeGeneratedDailyPlans", () => {
     expect(result.insights.map((insight) => insight.text)).toEqual([
       "Bring small bills for market stalls.",
       "Go before lunch.",
+    ]);
+  });
+
+  it("dedupes repeated tips when legacy fields and top-level insights overlap", () => {
+    const result = normalizeDailyPlansForDisplay(
+      [
+        {
+          day: 1,
+          localTip: "Bring small bills for market stalls.",
+          transportTips: "Use exit 4.",
+          activities: [
+            {
+              name: "Gwangjang Market",
+              description: "Try bindaetteok at a named stall.",
+              category: "market",
+            },
+          ],
+        },
+      ],
+      [
+        {
+          id: "trip-cash",
+          label: "Cash tip",
+          text: "Bring small bills for market stalls.",
+          kind: "local",
+        },
+        {
+          id: "trip-route",
+          label: "Route note",
+          text: "Use exit 4.",
+          kind: "transport",
+        },
+      ],
+    );
+
+    expect(result.dailyPlans[0].activities).toHaveLength(1);
+    expect(result.insights.map((insight) => insight.text)).toEqual([
+      "Bring small bills for market stalls.",
+      "Use exit 4.",
     ]);
   });
 
@@ -193,10 +533,13 @@ describe("sanitizeGeneratedDailyPlans", () => {
           ],
         },
       ],
-      [{ label: "Booking note", text: "Reserve dinner.", kind: "local" }]
+      [{ label: "Booking note", text: "Reserve dinner.", kind: "local" }],
     );
 
-    const payload = buildItineraryPlanPayload(normalized.dailyPlans, normalized.insights);
+    const payload = buildItineraryPlanPayload(
+      normalized.dailyPlans,
+      normalized.insights,
+    );
 
     expect(normalized.dailyPlans[0].activities).toHaveLength(1);
     expect(normalized.dailyPlans[0]).not.toHaveProperty("localTip");

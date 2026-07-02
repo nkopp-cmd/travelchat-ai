@@ -1,67 +1,106 @@
-import { hasUsableCoordinates } from "@/lib/spots/location-confidence";
+import {
+  hasUsableCoordinates,
+  isAreaLevelAddress,
+} from "@/lib/spots/location-confidence";
 
 export interface SpotDirectionsInput {
-    name: string;
-    address: string;
-    lat?: number;
-    lng?: number;
-    googlePlaceId?: string | null;
+  name: string;
+  address: string;
+  lat?: number;
+  lng?: number;
+  googlePlaceId?: string | null;
 }
 
 export function isKoreanLocation(address: string): boolean {
-    const koreanIndicators = [
-        "Korea",
-        "Seoul",
-        "Busan",
-        "Incheon",
-        "Daegu",
-        "Daejeon",
-        "Gwangju",
-        "Ulsan",
-        "Gyeonggi",
-        "Gangwon",
-        "Jeju",
-        "대한민국",
-        "서울",
-        "부산",
-        "인천",
-        "대구",
-        "대전",
-        "광주",
-        "울산",
-        "제주",
-    ];
+  const koreanIndicators = [
+    "Korea",
+    "Seoul",
+    "Busan",
+    "Incheon",
+    "Daegu",
+    "Daejeon",
+    "Gwangju",
+    "Ulsan",
+    "Gyeonggi",
+    "Gangwon",
+    "Jeju",
+    "대한민국",
+    "서울",
+    "부산",
+    "인천",
+    "대구",
+    "대전",
+    "광주",
+    "울산",
+    "제주",
+  ];
 
-    return koreanIndicators.some((indicator) =>
-        address.toLowerCase().includes(indicator.toLowerCase())
-    );
+  return koreanIndicators.some((indicator) =>
+    address.toLowerCase().includes(indicator.toLowerCase()),
+  );
 }
 
-export function getSpotDirectionsSearchText(input: SpotDirectionsInput): string {
-    return [input.name, input.address]
-        .map((value) => value.trim())
-        .filter(Boolean)
-        .join(", ");
+export function getSpotDirectionsSearchText(
+  input: SpotDirectionsInput,
+): string {
+  return [input.name, input.address]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
+function getCoordinateDestination(input: SpotDirectionsInput): string {
+  return hasUsableCoordinates(input.lat, input.lng)
+    ? `${input.lat},${input.lng}`
+    : "";
+}
+
+function buildKakaoRouteTarget(input: SpotDirectionsInput): string {
+  const label =
+    input.name.trim() || input.address.trim() || "Destination";
+
+  return `${encodeURIComponent(label)},${input.lat},${input.lng}`;
 }
 
 export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
-    const exactQuery = getSpotDirectionsSearchText(input);
-    const usableCoordinates = hasUsableCoordinates(input.lat, input.lng);
-    const coordinateDestination = usableCoordinates ? `${input.lat},${input.lng}` : "";
+  const exactQuery = getSpotDirectionsSearchText(input);
+  const coordinateDestination = getCoordinateDestination(input);
+  const destinationText =
+    exactQuery || input.address.trim() || input.name.trim();
+  const hasAreaLevelAddress = isAreaLevelAddress(input.address);
 
-    if (isKoreanLocation(input.address)) {
-        return `https://map.kakao.com/link/search/${encodeURIComponent(exactQuery || input.address)}`;
+  if (isKoreanLocation(input.address)) {
+    if (!hasAreaLevelAddress && coordinateDestination) {
+      return `https://map.kakao.com/link/to/${buildKakaoRouteTarget(input)}`;
     }
 
-    const destination =
-        exactQuery ||
-        coordinateDestination ||
-        input.address;
+    return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
+  }
 
-    const params = new URLSearchParams({ api: "1", destination });
-    if (input.googlePlaceId) {
-        params.set("destination_place_id", input.googlePlaceId);
-    }
-
+  if (input.googlePlaceId && destinationText) {
+    const params = new URLSearchParams({
+      api: "1",
+      destination: destinationText,
+      destination_place_id: input.googlePlaceId,
+    });
     return `https://www.google.com/maps/dir/?${params.toString()}`;
+  }
+
+  if (!hasAreaLevelAddress && coordinateDestination) {
+    const params = new URLSearchParams({
+      api: "1",
+      destination: coordinateDestination,
+    });
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
+  }
+
+  if (destinationText) {
+    const params = new URLSearchParams({ api: "1", query: destinationText });
+    return `https://www.google.com/maps/search/?${params.toString()}`;
+  }
+
+  const destination = destinationText || coordinateDestination;
+
+  const params = new URLSearchParams({ api: "1", destination });
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
 }

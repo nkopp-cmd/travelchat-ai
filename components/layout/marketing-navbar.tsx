@@ -86,20 +86,24 @@ export function MarketingNavbar() {
                                 </div>
 
                                 <div className="mt-auto space-y-2 border-t border-white/10 pt-4">
-                                    <Link href="/sign-up">
-                                        <Button className="h-12 w-full rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400">
+                                    <Button
+                                        asChild
+                                        className="h-12 w-full rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400"
+                                    >
+                                        <Link href="/sign-up">
                                             <Sparkles className="h-4 w-4" />
                                             Create account
-                                        </Button>
-                                    </Link>
-                                    <Link href="/sign-in">
-                                        <Button
-                                            variant="outline"
-                                            className="h-11 w-full rounded-lg border-white/10 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
-                                        >
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="h-11 w-full rounded-lg border-white/10 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
+                                    >
+                                        <Link href="/sign-in">
                                             Sign in
-                                        </Button>
-                                    </Link>
+                                        </Link>
+                                    </Button>
                                 </div>
                             </nav>
                         </SheetContent>
@@ -125,23 +129,25 @@ export function MarketingNavbar() {
                 </nav>
 
                 <div className="flex items-center gap-2">
-                    <Link href="/sign-in">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-white/80 hover:text-white hover:bg-white/10"
-                        >
+                    <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="text-white/80 hover:bg-white/10 hover:text-white"
+                    >
+                        <Link href="/sign-in">
                             Sign In
-                        </Button>
-                    </Link>
-                    <Link href="/sign-up">
-                        <Button
-                            size="sm"
-                            className="bg-violet-600 hover:bg-violet-700 rounded-full px-6 shadow-lg shadow-violet-500/20 transition-all hover:scale-105"
-                        >
+                        </Link>
+                    </Button>
+                    <Button
+                        asChild
+                        size="sm"
+                        className="rounded-full bg-violet-600 px-6 shadow-lg shadow-violet-500/20 transition-all hover:scale-105 hover:bg-violet-700"
+                    >
+                        <Link href="/sign-up">
                             Get Started
-                        </Button>
-                    </Link>
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </header>

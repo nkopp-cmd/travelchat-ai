@@ -1,5 +1,11 @@
 import { createSupabaseAdmin } from './supabase';
 import {
+  normalizeStoredSpotPhotoUrls,
+  summarizeSpotPhotos,
+} from '@/lib/place-images';
+import { inferSpotContextCity } from '@/lib/spots/city-context';
+import { getSpotCoordinateValues } from '@/lib/spots/coordinates';
+import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
 } from '@/lib/spots/public-quality';
@@ -30,11 +36,13 @@ interface RawRecommendationSpot {
   id: string;
   name: LocalizedField;
   description: LocalizedField;
+  address: LocalizedField;
   category: string | null;
   subcategories: string[] | null;
   localley_score: number | null;
   location: unknown;
   photos: string[] | null;
+  google_place_id?: string | null;
   verified: boolean | null;
   trending_score: number | null;
 }
@@ -43,11 +51,15 @@ interface Spot {
   id: string;
   name: string;
   description: string;
+  address: string;
   category: string;
   subcategories: string[];
   localley_score: number;
   location: unknown;
+  lat: number;
+  lng: number;
   photos: string[];
+  hasRealPhoto: boolean;
   verified: boolean;
   trending_score: number;
 }
@@ -188,7 +200,7 @@ function matchesPreferences(
   }
 
   // New city exploration (prefer cities not yet visited)
-  const spotCity = extractCityFromAddress(spot.location);
+  const spotCity = getRecommendationCity(spot);
   if (spotCity && !visitedCities.includes(spotCity.toLowerCase())) {
     score += 5;
     if (!reason) reason = `Discover ${spotCity}`;
@@ -202,17 +214,21 @@ function matchesPreferences(
   return { score, reason };
 }
 
-/**
- * Extract city from location data
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
 function getLocalizedValue(field: LocalizedField): string {
   if (!field) return '';
   if (typeof field === 'string') return field;
   return field.en || Object.values(field)[0] || '';
+}
+
+function getRecommendationCity(
+  spot: Pick<Spot, 'name' | 'address' | 'lat' | 'lng'>
+): string | null {
+  return inferSpotContextCity({
+    name: spot.name,
+    address: spot.address,
+    lat: spot.lat,
+    lng: spot.lng,
+  });
 }
 
 function normalizeRecommendationSpot(
@@ -220,44 +236,28 @@ function normalizeRecommendationSpot(
   recommendationScore: number,
   reason: string
 ): RecommendedSpot {
+  const { lat, lng } = getSpotCoordinateValues(spot.location);
+  const photos = normalizeStoredSpotPhotoUrls(spot.photos, 900);
+  const photoSummary = summarizeSpotPhotos(photos);
+
   return {
     id: spot.id,
     name: getLocalizedValue(spot.name),
     description: getLocalizedValue(spot.description),
+    address: getLocalizedValue(spot.address),
     category: spot.category || 'Uncategorized',
     subcategories: spot.subcategories || [],
     localley_score: spot.localley_score || 3,
     location: spot.location,
-    photos: spot.photos || [],
+    lat,
+    lng,
+    photos,
+    hasRealPhoto: photoSummary.hasRealPhoto,
     verified: spot.verified || false,
     trending_score: spot.trending_score || 0,
     recommendationScore,
     reason,
   };
-}
-
-function extractCityFromAddress(location: unknown): string | null {
-  try {
-    if (!location) return null;
-
-    // Try to get address string
-    let address = '';
-    if (isRecord(location) && typeof location.address === 'string') {
-      address = location.address;
-    } else if (
-      isRecord(location) &&
-      isRecord(location.address) &&
-      typeof location.address.en === 'string'
-    ) {
-      address = location.address.en;
-    }
-
-    // Extract city (usually first part before comma)
-    const parts = address.split(',');
-    return parts[0]?.trim() || null;
-  } catch {
-    return null;
-  }
 }
 
 /**
