@@ -34,6 +34,16 @@ const activeFilters: SpotsFilterState = {
   limit: 24,
 };
 
+const defaultFilters: SpotsFilterState = {
+  city: null,
+  category: null,
+  score: null,
+  sortBy: "score",
+  search: "",
+  page: 1,
+  limit: 24,
+};
+
 describe("SpotsFilterBar", () => {
   it("keeps mobile filter controls from overlapping active score controls", () => {
     render(
@@ -60,5 +70,23 @@ describe("SpotsFilterBar", () => {
     expect(scoreTrigger.className).toContain("max-w-full");
     expect(scoreTrigger.className).toContain("overflow-hidden");
     expect(screen.getByText("Edit filters")).toBeTruthy();
+  });
+
+  it("lets the mobile filter toggle use the full row when clear is hidden", () => {
+    render(
+      <SpotsFilterBar
+        filterOptions={filterOptions}
+        currentFilters={defaultFilters}
+        onFilterChange={vi.fn()}
+        onClearFilters={vi.fn()}
+        isPending={false}
+      />,
+    );
+
+    const mobileRow = screen.getByTestId("spots-mobile-filter-row");
+
+    expect(mobileRow.className).toContain("grid-cols-1");
+    expect(screen.queryByTestId("spots-mobile-clear-filters")).toBeNull();
+    expect(screen.getByText("Filters")).toBeTruthy();
   });
 });
