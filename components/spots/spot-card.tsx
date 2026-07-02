@@ -21,7 +21,7 @@ import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { addFallbackToPlacePhotoUrl } from "@/lib/place-images";
 import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
 import {
-  getFirstRealDisplaySpotPhoto,
+  getRealDisplaySpotPhotos,
   hasRealDisplaySpotPhoto,
 } from "@/lib/spots/display-images";
 
@@ -44,12 +44,12 @@ function inferSpotCity(spot: Spot): string | null {
 }
 
 function getInitialImage(spot: Spot) {
-  const realPhoto = getFirstRealDisplaySpotPhoto(spot.photos);
-  if (realPhoto) return { src: realPhoto, isAreaFallback: false };
+  const realPhoto = getRealDisplaySpotPhotos(spot.photos)[0];
+  if (realPhoto) return { src: realPhoto, isAreaFallback: false, realPhotoIndex: 0 };
 
   const fallback =
     getCityFallbackImage(spot) ?? spot.photos[0] ?? PLACEHOLDER_IMAGE;
-  return { src: fallback, isAreaFallback: true };
+  return { src: fallback, isAreaFallback: true, realPhotoIndex: -1 };
 }
 
 function getCityFallbackImage(spot: Spot) {
@@ -207,8 +207,14 @@ function TrendingChip({
       title="Trending"
     >
       <TrendingUp className="h-3 w-3 shrink-0" aria-hidden="true" />
-      {showLabel && <span className="truncate">Hot</span>}
-      <span className={showLabel ? "sr-only" : "truncate"}>Trending</span>
+      {showLabel ? (
+        <span className="truncate">Trending</span>
+      ) : (
+        <>
+          <span className="hidden truncate min-[430px]:inline">Hot</span>
+          <span className="sr-only">Trending</span>
+        </>
+      )}
     </span>
   );
 }
@@ -261,9 +267,13 @@ export function SpotCard({
   priority = false,
 }: SpotCardProps) {
   const initialImage = getInitialImage(spot);
+  const realPhotoCandidates = getRealDisplaySpotPhotos(spot.photos);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [usingAreaImage, setUsingAreaImage] = useState(
     initialImage.isAreaFallback,
+  );
+  const [realPhotoIndex, setRealPhotoIndex] = useState(
+    initialImage.realPhotoIndex,
   );
   const [showGradientFallback, setShowGradientFallback] = useState(false);
   const hasRealPhoto = hasRealSpotPhoto(spot);
@@ -276,6 +286,16 @@ export function SpotCard({
   const fallbackGradient = getCityGradient(fallbackLabel);
 
   const handleImageError = () => {
+    const nextRealPhotoIndex = realPhotoIndex + 1;
+    const nextRealPhoto = realPhotoCandidates[nextRealPhotoIndex];
+    if (nextRealPhoto) {
+      setRealPhotoIndex(nextRealPhotoIndex);
+      setImageSrc(addFallbackToPlacePhotoUrl(nextRealPhoto, cityFallbackImage));
+      setUsingAreaImage(false);
+      setImageLoaded(false);
+      return;
+    }
+
     const cityFallback = cityFallbackImage;
     if (cityFallback && imageSrc !== cityFallback) {
       setImageSrc(cityFallback);
@@ -391,7 +411,7 @@ export function SpotCard({
             </div>
             <div
               data-spot-card-meta
-              className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden"
+              className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden min-[460px]:grid-cols-[minmax(0,1fr)_auto_auto]"
             >
               <LocationConfidenceChip
                 spot={spot}

@@ -11,7 +11,13 @@ export function isRealDisplaySpotPhoto(photo: string | null | undefined): boolea
 export function getFirstRealDisplaySpotPhoto(
   photos: string[] | null | undefined,
 ): string | null {
-  return photos?.find((photo) => isRealDisplaySpotPhoto(photo)) || null;
+  return getRealDisplaySpotPhotos(photos)[0] || null;
+}
+
+export function getRealDisplaySpotPhotos(
+  photos: string[] | null | undefined,
+): string[] {
+  return photos?.filter((photo) => isRealDisplaySpotPhoto(photo)) || [];
 }
 
 export function hasRealDisplaySpotPhoto(

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   countRealDisplaySpotPhotos,
   getFirstRealDisplaySpotPhoto,
+  getRealDisplaySpotPhotos,
   hasRealDisplaySpotPhoto,
   isRealDisplaySpotPhoto,
 } from "@/lib/spots/display-images";
@@ -32,6 +33,10 @@ describe("spot display images", () => {
     ];
 
     expect(getFirstRealDisplaySpotPhoto(photos)).toBe(realRemotePhoto);
+    expect(getRealDisplaySpotPhotos(photos)).toEqual([
+      realRemotePhoto,
+      "/api/places/photo?name=places%2FChIJ-real-place%2Fphotos%2Fabc&w=1200",
+    ]);
     expect(hasRealDisplaySpotPhoto(photos)).toBe(true);
     expect(countRealDisplaySpotPhotos(photos)).toBe(2);
   });
@@ -44,6 +49,7 @@ describe("spot display images", () => {
     ];
 
     expect(getFirstRealDisplaySpotPhoto(photos)).toBeNull();
+    expect(getRealDisplaySpotPhotos(photos)).toEqual([]);
     expect(hasRealDisplaySpotPhoto(photos)).toBe(false);
     expect(countRealDisplaySpotPhotos(photos)).toBe(0);
   });

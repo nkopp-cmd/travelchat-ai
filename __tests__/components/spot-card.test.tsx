@@ -55,10 +55,18 @@ describe("SpotCard", () => {
   });
 
   it("keeps trending metadata readable on compact mobile cards", () => {
-    render(<SpotCard spot={baseSpot} compact />);
+    const { container } = render(<SpotCard spot={baseSpot} compact />);
 
     expect(screen.getByText("Trending")).toBeTruthy();
     expect(screen.getByText("5/6")).toBeTruthy();
     expect(screen.getByText("Verified")).toBeTruthy();
+
+    const meta = container.querySelector("[data-spot-card-meta]");
+    expect(meta?.className).toContain(
+      "min-[460px]:grid-cols-[minmax(0,1fr)_auto_auto]",
+    );
+
+    const trendingChip = screen.getByTitle("Trending");
+    expect(trendingChip.className).toContain("max-w-[2rem]");
   });
 });
