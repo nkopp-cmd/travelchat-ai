@@ -425,8 +425,9 @@ export function getSpotPhotoBackfillNeeds(
     const placePhotoIdentity = getSpotPlacePhotoIdentityStatus(photos, googlePlaceId);
     const needsPhotoBackfill = needsSpotPhotoBackfill(photos);
     const needsPlaceIdBackfill = !placePhotoIdentity.hasStoredPlaceId;
-    const needsPlacePhotoUpgrade = !placePhotoIdentity.ready;
     const hasIdentityMismatch = placePhotoIdentity.hasIdentityMismatch;
+    const needsPlacePhotoUpgrade =
+        hasIdentityMismatch || !placePhotoIdentity.hasOwnPlacePhoto;
 
     return {
         needsPhotoBackfill,

@@ -269,7 +269,7 @@ describe("spot photo classification", () => {
         expect(getSpotPhotoBackfillNeeds([matchingPhoto], null)).toMatchObject({
             needsPhotoBackfill: false,
             needsPlaceIdBackfill: true,
-            needsPlacePhotoUpgrade: true,
+            needsPlacePhotoUpgrade: false,
             hasIdentityMismatch: false,
             shouldBackfill: true,
         });
