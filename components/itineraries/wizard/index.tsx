@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "lucide-react";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { WizardProgress } from "./wizard-progress";
 import { StepDestination } from "./step-destination";
@@ -23,12 +23,20 @@ const PROGRESS_MESSAGES = [
   "Almost there...",
 ];
 
+export function getTemplateFooterCityLabel(city: string): string {
+  return city ? `Confirm city: ${city}` : "Pick a city";
+}
+
+export function getTemplateGenerateLabel(city: string): string {
+  return city ? `Generate for ${city}` : "Generate";
+}
+
 function WizardContent({
   onGenerate,
 }: {
   onGenerate: (data: WizardData) => Promise<void>;
 }) {
-  const { currentStep, totalSteps, data, canProceed, nextStep, prevStep } = useWizard();
+  const { currentStep, totalSteps, data, canProceed, nextStep, prevStep, goToStep } = useWizard();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const stepScrollRef = useRef<HTMLDivElement | null>(null);
@@ -76,11 +84,20 @@ function WizardContent({
     nextStep();
   };
 
+  const handleChangeTemplateCity = () => {
+    if (currentStep !== 0) {
+      goToStep(0);
+      return;
+    }
+
+    stepScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const primaryActionLabel =
     isLastStep
       ? "Generate Itinerary"
       : canGenerateFromTemplate
-        ? "Generate"
+        ? getTemplateGenerateLabel(data.city)
         : currentStep === 0 && templateApplied && !data.city
           ? "Pick a city"
           : "Next";
@@ -153,7 +170,7 @@ function WizardContent({
               <div className="min-w-0 flex-1 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:px-3 sm:text-xs">
                 <span className="block truncate">{data.templateName}</span>
                 <span className="block truncate text-violet-200/80">
-                  {data.city ? `${data.city} ready` : `Step ${currentStep + 1}/${totalSteps}`}
+                  {data.city ? getTemplateFooterCityLabel(data.city) : `Step ${currentStep + 1}/${totalSteps}`}
                 </span>
               </div>
             )}
@@ -178,6 +195,17 @@ function WizardContent({
                 Customize
               </Button>
             )}
+            {compactTemplateFooter && data.city && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleChangeTemplateCity}
+                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
+              >
+                <MapPin className="mr-1 h-3.5 w-3.5" />
+                Change
+              </Button>
+            )}
             <Button
               onClick={handleNext}
               disabled={!canProceed}
@@ -194,8 +222,8 @@ function WizardContent({
             >
               {isLastStep || canGenerateFromTemplate ? (
                 <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  {primaryActionLabel}
+                  <Sparkles className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="min-w-0 truncate">{primaryActionLabel}</span>
                 </>
               ) : (
                 <>

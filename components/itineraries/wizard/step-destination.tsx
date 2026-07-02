@@ -79,7 +79,9 @@ export function StepDestination() {
         </div>
         <h2 className="mb-1 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
         <p className="text-sm text-gray-400 sm:text-base">
-          {data.templateName ? "Pick a city and tune the final details" : "Pick a city to explore like a local"}
+          {data.templateName
+            ? "Confirm the suggested city or switch it before generating"
+            : "Pick a city to explore like a local"}
         </p>
       </div>
 
