@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import { generateItineraryTextWithFallback } from "@/app/api/itineraries/generate/provider-fallback";
 
+const primaryModel = process.env.GLM_MODEL?.trim() || "glm-5.2";
+const fallbackModel = process.env.OPENAI_MODEL?.trim() || "gpt-4o";
+
 describe("itinerary provider fallback", () => {
   it("uses GLM as the primary itinerary text provider when available", async () => {
     const glm = {
@@ -28,7 +31,12 @@ describe("itinerary provider fallback", () => {
     expect(result).toEqual({
       rawContent: '{"title":"Seoul Cafes","dailyPlans":[]}',
       provider: "glm",
+      model: primaryModel,
       fallbackUsed: false,
+      fallbackReason: null,
+      primaryProvider: "glm",
+      primaryModel,
+      primaryConfigured: true,
     });
     expect(glm.generateText).toHaveBeenCalledWith({
       systemPrompt: "System",
@@ -58,7 +66,12 @@ describe("itinerary provider fallback", () => {
     expect(result).toEqual({
       rawContent: '{"title":"OpenAI","dailyPlans":[]}',
       provider: "openai",
+      model: fallbackModel,
       fallbackUsed: false,
+      fallbackReason: "glm_unavailable",
+      primaryProvider: "glm",
+      primaryModel,
+      primaryConfigured: false,
     });
     expect(glm.generateText).not.toHaveBeenCalled();
     expect(generateWithOpenAI).toHaveBeenCalledWith("System", "Plan Seoul");
@@ -85,7 +98,12 @@ describe("itinerary provider fallback", () => {
     expect(result).toEqual({
       rawContent: '{"title":"OpenAI","dailyPlans":[]}',
       provider: "openai",
+      model: fallbackModel,
       fallbackUsed: true,
+      fallbackReason: "glm_error",
+      primaryProvider: "glm",
+      primaryModel,
+      primaryConfigured: true,
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(generateWithOpenAI).toHaveBeenCalledOnce();
@@ -114,7 +132,12 @@ describe("itinerary provider fallback", () => {
 
     expect(result).toMatchObject({
       provider: "openai",
+      model: fallbackModel,
       fallbackUsed: true,
+      fallbackReason: "glm_empty_response",
+      primaryProvider: "glm",
+      primaryModel,
+      primaryConfigured: true,
     });
     expect(logger.error).toHaveBeenCalledOnce();
     expect(generateWithOpenAI).toHaveBeenCalledOnce();

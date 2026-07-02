@@ -286,11 +286,14 @@ Make it exciting, authentic, and full of hidden gems!
       },
       {
         generateWithOpenAI,
+        openaiModel: OPENAI_MODEL,
       }
     );
     let rawContent = aiResponse.rawContent;
     let aiProvider = aiResponse.provider;
+    let aiModel = aiResponse.model;
     let fallbackUsed = aiResponse.fallbackUsed;
+    let fallbackReason = aiResponse.fallbackReason;
 
     // Parse and validate the response
     let itineraryData;
@@ -301,7 +304,9 @@ Make it exciting, authentic, and full of hidden gems!
         console.error("Failed to parse GLM response; retrying with OpenAI:", parseError, rawContent);
         rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
         aiProvider = "openai";
+        aiModel = OPENAI_MODEL;
         fallbackUsed = true;
+        fallbackReason = "glm_invalid_json";
         itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
       } else {
         console.error("Failed to parse OpenAI response:", rawContent);
@@ -428,7 +433,12 @@ Make it exciting, authentic, and full of hidden gems!
       },
       meta: {
         provider: aiProvider,
+        model: aiModel,
         fallbackUsed,
+        fallbackReason,
+        primaryProvider: aiResponse.primaryProvider,
+        primaryModel: aiResponse.primaryModel,
+        primaryConfigured: aiResponse.primaryConfigured,
       },
       // For anonymous users, prompt them to sign up to save
       ...(isAnonymous && {

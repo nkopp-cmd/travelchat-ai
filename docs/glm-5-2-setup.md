@@ -38,7 +38,7 @@ Localley trims these values before use. A variable that exists but contains only
 4. Repeat for Preview and Development if those environments should use GLM.
 5. Redeploy the latest `main` deployment.
 6. Test `/chat` and create one itinerary.
-7. Check API JSON responses for `provider: "glm"`, `model: "glm-5.2"`, and `fallbackUsed: false` on chat responses, and `meta.provider: "glm"` plus `meta.fallbackUsed: false` on itinerary responses.
+7. Check API JSON responses for `provider: "glm"`, `model: "glm-5.2"`, and `fallbackUsed: false` on chat responses, and `meta.provider: "glm"`, `meta.model: "glm-5.2"`, `meta.primaryProvider: "glm"`, `meta.primaryModel: "glm-5.2"`, `meta.primaryConfigured: true`, `meta.fallbackReason: null`, plus `meta.fallbackUsed: false` on itinerary responses.
 
 Use the standard Z.AI OpenAI-compatible endpoint for Localley chat/completions. Do not use the coding-plan endpoint for the app runtime unless the provider implementation is changed deliberately.
 
@@ -127,6 +127,7 @@ Admin users can verify runtime routing without exposing secrets:
 - `GET /api/admin/llm-metrics?health=glm` runs a lightweight GLM health check and returns `chatProviderReadiness.glm.healthy`.
 - `POST /api/chat` returns `provider`, `model`, `fallbackUsed`, `fallbackReason`, `primaryProvider`, `primaryModel`, and `primaryConfigured`. A healthy GLM-primary response should return `provider: "glm"`, `model: "glm-5.2"`, `primaryProvider: "glm"`, `primaryModel: "glm-5.2"`, `primaryConfigured: true`, `fallbackReason: null`, and `fallbackUsed: false`.
 - If chat returns `provider: "anthropic"` with `fallbackReason: "glm_unavailable"` and `primaryConfigured: false`, the GLM key is missing or blank in the running environment. If it returns `fallbackReason: "glm_error"` or `fallbackReason: "glm_empty_response"` with `primaryConfigured: true`, GLM was configured and attempted, but Anthropic handled the message.
-- `POST /api/itineraries/generate` returns `meta.provider` and `meta.fallbackUsed`. A healthy GLM-primary response should return `meta.provider: "glm"` and `meta.fallbackUsed: false`; `meta.provider: "openai"` with `meta.fallbackUsed: true` means GLM was attempted but failed or returned invalid JSON, and OpenAI handled the itinerary.
+- `POST /api/itineraries/generate` returns `meta.provider`, `meta.model`, `meta.fallbackUsed`, `meta.fallbackReason`, `meta.primaryProvider`, `meta.primaryModel`, and `meta.primaryConfigured`. A healthy GLM-primary response should return `meta.provider: "glm"`, `meta.model: "glm-5.2"`, `meta.primaryProvider: "glm"`, `meta.primaryModel: "glm-5.2"`, `meta.primaryConfigured: true`, `meta.fallbackReason: null`, and `meta.fallbackUsed: false`.
+- If itinerary generation returns `meta.provider: "openai"` with `meta.fallbackReason: "glm_unavailable"` and `meta.primaryConfigured: false`, the GLM key is missing or blank in the running environment. If it returns `meta.fallbackReason: "glm_error"`, `meta.fallbackReason: "glm_empty_response"`, or `meta.fallbackReason: "glm_invalid_json"` with `meta.primaryConfigured: true`, GLM was configured and attempted, but OpenAI handled the itinerary.
 
 The health-check query intentionally runs only when `health=glm` is present so normal metrics reads do not spend model tokens.
