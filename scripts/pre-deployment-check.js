@@ -17,6 +17,9 @@ let passed = 0;
 let failed = 0;
 let warnings = 0;
 
+const DEFAULT_GLM_MODEL = 'glm-5.2';
+const DEFAULT_GLM_BASE_URL = 'https://api.z.ai/api/paas/v4/';
+
 // Helper functions
 function check(name, condition, isWarning = false) {
   if (condition) {
@@ -76,7 +79,19 @@ function parseEnvFile(filepath) {
 }
 
 function hasEnvValue(env, key) {
-  return typeof env[key] === 'string' && env[key].trim().length > 0;
+  return getEnvValue(env, key).length > 0;
+}
+
+function getEnvValue(env, key) {
+  return typeof env[key] === 'string' ? env[key].trim() : '';
+}
+
+function getResolvedGLMModel(env) {
+  return getEnvValue(env, 'GLM_MODEL') || DEFAULT_GLM_MODEL;
+}
+
+function getResolvedGLMBaseUrl(env) {
+  return getEnvValue(env, 'GLM_BASE_URL') || getEnvValue(env, 'ZAI_BASE_URL') || DEFAULT_GLM_BASE_URL;
 }
 
 // 1. Core Files Check
@@ -152,8 +167,9 @@ if (fileExists('.env.local')) {
   check('SUPABASE_SERVICE_ROLE_KEY configured', hasEnvValue(env, 'SUPABASE_SERVICE_ROLE_KEY'));
   check('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY configured', hasEnvValue(env, 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'));
   check('CLERK_SECRET_KEY configured', hasEnvValue(env, 'CLERK_SECRET_KEY'));
-  check('GLM primary key configured', hasEnvValue(env, 'GLM_API_KEY') || hasEnvValue(env, 'ZAI_API_KEY'));
-  check('GLM model configured', hasEnvValue(env, 'GLM_MODEL'), true);
+  check('GLM/Z.AI primary key configured', hasEnvValue(env, 'GLM_API_KEY') || hasEnvValue(env, 'ZAI_API_KEY'));
+  check(`GLM model resolves to ${getResolvedGLMModel(env)}`, Boolean(getResolvedGLMModel(env)), true);
+  check(`GLM base URL resolves to ${getResolvedGLMBaseUrl(env)}`, Boolean(getResolvedGLMBaseUrl(env)), true);
   check('OPENAI_API_KEY configured', hasEnvValue(env, 'OPENAI_API_KEY'));
   check('ANTHROPIC_API_KEY configured', hasEnvValue(env, 'ANTHROPIC_API_KEY'));
   check('NEXT_PUBLIC_SENTRY_DSN configured', hasEnvValue(env, 'NEXT_PUBLIC_SENTRY_DSN'), true);
