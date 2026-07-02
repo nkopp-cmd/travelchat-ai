@@ -13,6 +13,10 @@ import {
     shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
 import { getSpotLocationConfidence, hasUsableCoordinates } from "@/lib/spots/location-confidence";
+import {
+    buildSpotQualitySchemaStatus,
+    type SpotQualitySchemaStatus,
+} from "@/lib/admin/spot-quality-action-plan";
 
 export type SpotQualityIssue =
     | "missing_real_photo"
@@ -78,6 +82,7 @@ export interface SpotQualityQueueSummary {
 export interface SpotQualityQueue {
     generatedAt: string;
     hasGooglePlaceIdColumn: boolean;
+    schema: SpotQualitySchemaStatus;
     city: string | null;
     issue: SpotQualityIssue | "all";
     limit: number;
@@ -396,6 +401,7 @@ export function buildSpotQualityQueueFromItems({
     return {
         generatedAt,
         hasGooglePlaceIdColumn,
+        schema: buildSpotQualitySchemaStatus(hasGooglePlaceIdColumn),
         city,
         issue,
         limit,

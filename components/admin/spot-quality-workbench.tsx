@@ -56,9 +56,6 @@ const ISSUE_LABELS: Record<SpotQualityIssue, string> = {
     missing_name: "Missing name",
 };
 
-const PLACE_ID_MIGRATION_COMMAND =
-    'npx supabase db query --linked --file supabase/migrations/006_spots_google_place_id.sql';
-
 const ACTION_LABELS: Record<string, string> = {
     add_reviewed_real_spot_photo: "Add reviewed real image",
     add_exact_address_and_coordinates: "Add exact address and pin",
@@ -651,6 +648,10 @@ export function SpotQualityWorkbench() {
     const visibleCount = queue?.items.length || 0;
     const filteredCount = queue?.filteredSummary.total || 0;
     const datasetCount = queue?.summary.total || 0;
+    const schemaStatus = queue?.schema;
+    const migrationCommand = schemaStatus?.commands.applyMigration || "";
+    const migrationSql = schemaStatus?.commands.applyMigrationSql || "";
+    const verifyCommand = schemaStatus?.commands.verifyColumn || "";
 
     return (
         <div className="mx-auto max-w-7xl px-3 py-4 text-white sm:px-5 lg:px-6">
@@ -903,28 +904,60 @@ export function SpotQualityWorkbench() {
                 </div>
             )}
 
-            {queue?.hasGooglePlaceIdColumn === false && (
+            {schemaStatus?.migrationRequired && (
                 <div className="mb-4 rounded-lg border border-amber-300/25 bg-amber-500/10 p-3 text-sm text-amber-50">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 font-semibold">
                                 <AlertTriangle className="h-4 w-4 shrink-0" />
                                 Place ID storage is blocked by a missing database column
                             </div>
                             <p className="mt-1 leading-6 text-amber-50/75">
-                                Apply `supabase/migrations/006_spots_google_place_id.sql` before saving durable Google Place IDs for exact directions and photo provenance.
+                                Apply `{schemaStatus.migrationPath}` before saving durable Google Place IDs for exact directions and photo provenance.
                             </p>
+                            <div className="mt-2 grid gap-1.5 text-xs text-amber-50/70 sm:grid-cols-3">
+                                {schemaStatus.blockedOperations.map((operation) => (
+                                    <span
+                                        key={operation}
+                                        className="rounded-md border border-amber-200/15 bg-black/10 px-2 py-1"
+                                    >
+                                        {operation.replaceAll("_", " ")}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyText(PLACE_ID_MIGRATION_COMMAND, "migration command")}
-                            className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
-                        >
-                            <Copy className="mr-2 h-3.5 w-3.5" />
-                            Copy command
-                        </Button>
+                        <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[28rem]">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyText(migrationCommand, "migration command")}
+                                className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                            >
+                                <Copy className="mr-2 h-3.5 w-3.5" />
+                                CLI
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyText(migrationSql, "SQL fallback")}
+                                className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                            >
+                                <Copy className="mr-2 h-3.5 w-3.5" />
+                                SQL
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyText(verifyCommand, "verification command")}
+                                className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                            >
+                                <Copy className="mr-2 h-3.5 w-3.5" />
+                                Verify
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}

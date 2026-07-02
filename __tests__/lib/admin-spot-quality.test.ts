@@ -278,6 +278,38 @@ describe("admin spot quality", () => {
             total: 1,
             missingRealPhoto: 1,
         });
+        expect(queue.schema).toMatchObject({
+            hasGooglePlaceIdColumn: true,
+            migrationRequired: false,
+            blockingAction: null,
+        });
         expect(queue.items.map((item) => item.id)).toEqual(["spot_1"]);
+    });
+
+    it("includes schema blocker commands when Place ID storage is not selectable", () => {
+        const queue = buildSpotQualityQueueFromItems({
+            items: [toSpotQualityItem(createRow(), false)],
+            hasGooglePlaceIdColumn: false,
+            city: null,
+            issue: "all",
+            limit: 10,
+            generatedAt: "2026-07-01T00:00:00.000Z",
+        });
+
+        expect(queue.schema).toMatchObject({
+            hasGooglePlaceIdColumn: false,
+            migrationRequired: true,
+            migrationPath: "supabase/migrations/006_spots_google_place_id.sql",
+            blockingAction: "apply_google_place_id_migration_before_place_id_writes",
+        });
+        expect(queue.schema.commands.applyMigration).toContain(
+            "supabase/migrations/006_spots_google_place_id.sql"
+        );
+        expect(queue.schema.commands.applyMigrationSql).toContain(
+            "ADD COLUMN IF NOT EXISTS google_place_id TEXT"
+        );
+        expect(queue.schema.commands.verifyColumn).toContain(
+            "export-spot-quality-action-plan"
+        );
     });
 });
