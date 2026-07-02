@@ -239,9 +239,9 @@ function CategoryTrendRow({
     >
       <span
         className={cn(
-          "min-w-0 truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium leading-none text-violet-100",
+          "min-w-0 shrink truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium leading-none text-violet-100",
           compact
-            ? "max-w-[7rem] px-1.5 py-1 text-[9px] min-[390px]:max-w-[8.5rem] min-[390px]:px-2 min-[390px]:text-[10px]"
+            ? "max-w-[6.5rem] px-1.5 py-1 text-[9px] min-[390px]:max-w-[8rem] min-[390px]:px-2 min-[390px]:text-[10px]"
             : "px-1.5 py-1 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
         )}
         title={category}
@@ -252,7 +252,7 @@ function CategoryTrendRow({
         <TrendingChip
           className={cn(
             "shrink-0",
-            compact ? "h-5 max-w-[2rem] px-1.5 min-[430px]:max-w-[4.75rem]" : "max-w-[4.5rem]",
+            compact ? "h-5 max-w-[3.2rem] px-1.5 min-[430px]:max-w-[4.75rem]" : "max-w-[4.5rem]",
           )}
           showLabel={!compact}
         />
@@ -398,32 +398,31 @@ export function SpotCard({
               />
             </div>
           </div>
-          <p className="mt-1 line-clamp-2 text-xs leading-5 text-violet-50/60 sm:mt-1.5 sm:text-sm">
+          <p className="mt-1 line-clamp-2 text-xs leading-5 text-violet-50/60 min-[480px]:line-clamp-1 sm:mt-1.5 sm:text-sm">
             {spot.description}
           </p>
           <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5 text-xs text-violet-50/60 sm:pt-2">
-            <div className="mb-1.5 min-w-0">
+            <div
+              data-spot-card-meta
+              className="flex min-w-0 flex-wrap items-center gap-1 overflow-visible"
+            >
               <CategoryTrendRow
                 category={spot.category}
                 trending={spot.trending}
                 compact
+                className="max-w-full"
               />
-            </div>
-            <div
-              data-spot-card-meta
-              className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden min-[460px]:grid-cols-[minmax(0,1fr)_auto_auto]"
-            >
               <LocationConfidenceChip
                 spot={spot}
-                className="max-w-full"
+                className="max-w-[7.25rem]"
               />
               <SpotScoreChip
                 score={spot.localleyScore}
-                className="max-w-full justify-self-end"
+                className="max-w-[3.75rem]"
               />
               <LocalCrowdChip
                 percentage={spot.localPercentage}
-                className="hidden min-[460px]:inline-flex"
+                className="hidden min-[520px]:inline-flex"
               />
             </div>
           </div>

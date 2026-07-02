@@ -63,10 +63,11 @@ describe("SpotCard", () => {
 
     const meta = container.querySelector("[data-spot-card-meta]");
     expect(meta?.className).toContain(
-      "min-[460px]:grid-cols-[minmax(0,1fr)_auto_auto]",
+      "flex-wrap",
     );
+    expect(meta?.className).toContain("overflow-visible");
 
     const trendingChip = screen.getByTitle("Trending");
-    expect(trendingChip.className).toContain("max-w-[2rem]");
+    expect(trendingChip.className).toContain("max-w-[3.2rem]");
   });
 });
