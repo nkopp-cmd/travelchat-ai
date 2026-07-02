@@ -132,6 +132,27 @@ describe("parseChatItineraryPreview", () => {
     ]);
   });
 
+  it("pulls lowercase practical sentences out of activity descriptions", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Cafes**
+
+- **Ikseon Teahouse (Hidden Gem)**: Order seasonal tea in the hanok courtyard. bring cash for smaller counters. use the subway from Jongno 3-ga exit 4. The courtyard seats are best for photos.
+  Address: Ikseon-dong, Jongno-gu, Seoul
+`);
+
+    expect(result.days[0].activities[0]).toMatchObject({
+      title: "Ikseon Teahouse",
+      description:
+        "Order seasonal tea in the hanok courtyard. The courtyard seats are best for photos.",
+      address: "Ikseon-dong, Jongno-gu, Seoul",
+    });
+    expect(result.tips).toEqual([
+      "bring cash for smaller counters.",
+      "use the subway from Jongno 3-ga exit 4.",
+    ]);
+  });
+
   it("removes address and location lines from the preview description", () => {
     expect(
       cleanChatItineraryDescription("Start in the hanok courtyard.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")
@@ -295,6 +316,27 @@ Booking note: No reservations needed, but go before peak dinner.
     ]);
   });
 
+  it("keeps Korean and Japanese practical labels outside generated day activities", () => {
+    const result = parseChatItineraryPreview(`# Seoul Hidden Gems
+
+**Day 1: Tea**
+- **Ikseon Teahouse (Hidden Gem)**: Order seasonal tea in the hanok courtyard.
+  Address: Ikseon-dong, Jongno-gu, Seoul
+- 현금: 작은 가게는 카드가 안 될 수 있어요.
+- 交通: 地下鉄の出口4から歩いてください.
+- 予約: weekend tea service books out.
+`);
+
+    expect(result.days[0].activities.map((activity) => activity.title)).toEqual([
+      "Ikseon Teahouse",
+    ]);
+    expect(result.tips).toEqual([
+      "현금: 작은 가게는 카드가 안 될 수 있어요.",
+      "交通: 地下鉄の出口4から歩いてください.",
+      "予約: weekend tea service books out.",
+    ]);
+  });
+
   it("drops day sections that only contain notes after filtering", () => {
     const result = parseChatItineraryPreview(`# Seoul Hidden Gems
 
@@ -349,7 +391,9 @@ Booking note: No reservations needed, but go before peak dinner.
 
   it("classifies chat tips for saved itinerary insights", () => {
     expect(getChatTipKind("Use the subway and walk the last few blocks.")).toBe("transport");
+    expect(getChatTipKind("交通: 地下鉄の出口4から歩いてください.")).toBe("transport");
     expect(getChatTipKind("Bring cash and go early.")).toBe("local");
+    expect(getChatTipKind("현금: 작은 가게는 카드가 안 될 수 있어요.")).toBe("local");
     expect(getChatTipKind("Pack a small umbrella in rainy season.")).toBe("insight");
   });
 });

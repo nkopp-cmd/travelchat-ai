@@ -30,6 +30,12 @@ const ADDRESS_LINE_PATTERN =
   /^(?:[-*]|\d+[.)])?\s*(?:\u{1F4CD}\s*)?(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*(.+)$/iu;
 const PIN_ADDRESS_LINE_PATTERN = /^(?:[-*]|\d+[.)])?\s*\u{1F4CD}\s*(.+)$/u;
 const LIST_MARKER_PATTERN = /^(?:[-*]|\d+[.)])\s+/;
+const MULTILINGUAL_PRACTICAL_LABEL_PATTERN =
+  /^(?:현금|카드|결제|교통|지하철|버스|택시|예약|주의|팁|메모|現金|支払い|交通|地下鉄|電車|バス|タクシー|予約|注意|持ち物|行き方|现金|付款|預約|预约|提示|小贴士)$/iu;
+const MULTILINGUAL_TRANSPORT_PATTERN =
+  /(?:교통|지하철|버스|택시|交通|地下鉄|電車|バス|タクシー|行き方|地鐵|地铁|公交|巴士|出租车)/iu;
+const MULTILINGUAL_LOCAL_TIP_PATTERN =
+  /(?:현금|카드|결제|예약|주의|팁|메모|現金|支払い|予約|注意|持ち物|现金|付款|預約|预约|提示|小贴士)/iu;
 
 function isTipsHeading(line: string): boolean {
   return /^[#*]*\s*(local\s+tips|insider\s+tips|travel\s+tips|trip\s+tips|practical\s+tips|tips|local\s+notes|trip\s+notes|practical\s+notes|route\s+notes|map\s+notes|booking\s+notes|food\s+notes|money\s+notes|notes|what\s+to\s+order|before\s+you\s+go|getting\s+around|getting\s+there|transport|transport\s+tips|transit|transit\s+tips)\s*:?\s*\**$/i.test(line.trim());
@@ -48,6 +54,10 @@ function getActivityType(title: string): ParsedChatActivity["type"] {
 
 function cleanActivityTitle(title: string): string {
   return title.replace(/\s*\(.+?\)\s*$/, "").trim();
+}
+
+function isMultilingualPracticalLabel(value: string): boolean {
+  return MULTILINGUAL_PRACTICAL_LABEL_PATTERN.test(value.trim());
 }
 
 const LABELED_TIP_FRAGMENT_PATTERN =
@@ -79,7 +89,7 @@ function looksLikeUnlabeledPracticalTip(value: string): boolean {
 
 function splitSentencesForTipExtraction(value: string): string[] {
   return value
-    .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+    .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
     .filter(Boolean);
 }
@@ -157,7 +167,10 @@ function pushActivityOrTip(
 ) {
   const cleanTitle = cleanActivityTitle(rawTitle);
 
-  if (isTipLikeActivity({ name: cleanTitle, description })) {
+  if (
+    isMultilingualPracticalLabel(cleanTitle) ||
+    isTipLikeActivity({ name: cleanTitle, description })
+  ) {
     const tipText = description ? `${cleanTitle}: ${description}` : cleanTitle;
     tips.push(tipText);
     return;
@@ -189,7 +202,10 @@ function parseIndentedTip(note: string): string | null {
   if (!parsed) return null;
 
   const cleanTitle = cleanActivityTitle(parsed.title);
-  if (!isTipLikeActivity({ name: cleanTitle, description: parsed.description })) return null;
+  if (
+    !isMultilingualPracticalLabel(cleanTitle) &&
+    !isTipLikeActivity({ name: cleanTitle, description: parsed.description })
+  ) return null;
 
   return parsed.description ? `${cleanTitle}: ${parsed.description}` : cleanTitle;
 }
@@ -214,17 +230,26 @@ function parseStandaloneTipLine(line: string): string | null {
   if (!parsed) return null;
 
   const cleanTitle = cleanActivityTitle(parsed.title);
-  if (!isTipLikeActivity({ name: cleanTitle, description: parsed.description })) return null;
+  if (
+    !isMultilingualPracticalLabel(cleanTitle) &&
+    !isTipLikeActivity({ name: cleanTitle, description: parsed.description })
+  ) return null;
 
   return parsed.description ? `${cleanTitle}: ${parsed.description}` : cleanTitle;
 }
 
 export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
-  if (/\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|route|ride|getting around|kakao|maps?)\b/i.test(tip)) {
+  if (
+    /\b(transport|transit|subway|metro|bus|train|taxi|walk|walking|route|ride|getting around|kakao|maps?)\b/i.test(tip) ||
+    MULTILINGUAL_TRANSPORT_PATTERN.test(tip)
+  ) {
     return "transport";
   }
 
-  if (/\b(local|insider|cash|bills?|small bills?|order|avoid|before you go|go early|queue|reservation|language|phrase)\b/i.test(tip)) {
+  if (
+    /\b(local|insider|cash|bills?|small bills?|order|avoid|before you go|go early|queue|reservation|language|phrase)\b/i.test(tip) ||
+    MULTILINGUAL_LOCAL_TIP_PATTERN.test(tip)
+  ) {
     return "local";
   }
 
