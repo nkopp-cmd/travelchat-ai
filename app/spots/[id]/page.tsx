@@ -28,6 +28,7 @@ import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import {
   addFallbackToPlacePhotoUrl,
+  getDisplayPlacePhotoUrl,
   summarizeSpotPhotos,
 } from "@/lib/place-images";
 import {
@@ -270,8 +271,11 @@ function getSpotGalleryImages(
   return photos.length > 1 ? photos.slice(1, 4) : [];
 }
 
-function getDisplaySpotImage(src: string, fallbackImage: string) {
-  return addFallbackToPlacePhotoUrl(src, fallbackImage);
+function getDisplaySpotImage(src: string, fallbackImage: string, width = 1600) {
+  return addFallbackToPlacePhotoUrl(
+    getDisplayPlacePhotoUrl(src, width),
+    fallbackImage,
+  );
 }
 
 function getLocationConfidence(

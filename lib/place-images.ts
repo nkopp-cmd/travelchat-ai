@@ -177,6 +177,25 @@ export function addFallbackToPlacePhotoUrl(photo: string, fallbackPhoto: string 
     }
 }
 
+export function getDisplayPlacePhotoUrl(photo: string, width = 1600): string {
+    try {
+        const url = new URL(photo, "https://www.localley.io");
+        if (url.pathname !== GOOGLE_PHOTO_PROXY_PATH) {
+            return getProxiedGooglePhotoUrl(photo, width) || photo;
+        }
+
+        if (!url.searchParams.has("name") && !url.searchParams.has("ref")) {
+            return photo;
+        }
+
+        url.searchParams.set("w", String(normalizePhotoWidth(String(width))));
+        url.searchParams.set("v", GOOGLE_PHOTO_PROXY_VERSION);
+        return `${url.pathname}?${url.searchParams.toString()}`;
+    } catch {
+        return photo;
+    }
+}
+
 export function getProxiedGooglePhotoUrl(photo: string, width = 1200): string | null {
     try {
         const url = new URL(photo, "https://www.localley.io");

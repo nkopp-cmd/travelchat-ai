@@ -6,6 +6,7 @@ import {
     getGooglePlaceIdFromPhotoUrl,
     getGooglePlaceIdFromSpotPhotos,
     getGooglePlaceIdsFromSpotPhotos,
+    getDisplayPlacePhotoUrl,
     getSpotPlacePhotoIdentityStatus,
     getSpotPhotoBackfillNeeds,
     getProxiedGooglePhotoUrl,
@@ -125,6 +126,28 @@ describe("spot photo classification", () => {
         );
 
         expect(addFallbackToPlacePhotoUrl("https://cdn.example.com/spot.jpg", "https://images.unsplash.com/photo")).toBe(
+            "https://cdn.example.com/spot.jpg"
+        );
+    });
+
+    it("upgrades proxied Google photo width for large display surfaces", () => {
+        expect(
+            getDisplayPlacePhotoUrl(
+                "/api/places/photo?w=1200&name=places%2Fabc%2Fphotos%2Fdef",
+                1600
+            )
+        ).toBe(
+            "/api/places/photo?w=1600&name=places%2Fabc%2Fphotos%2Fdef&v=2"
+        );
+
+        expect(
+            getDisplayPlacePhotoUrl(
+                "https://places.googleapis.com/v1/places/abc/photos/def/media?maxWidthPx=800&key=old",
+                1600
+            )
+        ).toBe("/api/places/photo?w=1600&v=2&name=places%2Fabc%2Fphotos%2Fdef");
+
+        expect(getDisplayPlacePhotoUrl("https://cdn.example.com/spot.jpg", 1600)).toBe(
             "https://cdn.example.com/spot.jpg"
         );
     });
