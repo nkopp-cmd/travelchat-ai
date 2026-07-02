@@ -81,7 +81,10 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
   };
 
   return (
-    <section className="grid gap-3 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:pb-0">
+    <section
+      className="grid gap-3 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start lg:pb-0"
+      data-testid="template-picker-shell"
+    >
       <div className="min-w-0 space-y-2.5">
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0">
           {(Object.keys(paceLabels) as PaceFilter[]).map((pace) => (
@@ -101,7 +104,10 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-3 sm:gap-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-3 sm:gap-2 lg:grid-cols-3 xl:grid-cols-4"
+          data-testid="template-picker-grid"
+        >
           {visibleTemplates.map((template) => (
             <TemplateCard
               key={template.id}
