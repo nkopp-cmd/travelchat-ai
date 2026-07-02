@@ -192,6 +192,20 @@ describe("/api/itineraries/generate-v2/stream", () => {
     const completeEvent = events.find((event) => event.type === "complete");
 
     expect(completeEvent?.data.success).toBe(true);
+    expect(completeEvent?.data.meta).toMatchObject({
+      provider: "glm",
+      model: "glm-5.2",
+      fallbackUsed: false,
+      fallbackReason: null,
+      primaryProvider: "glm",
+      primaryModel: "glm-5.2",
+      primaryConfigured: true,
+      metrics: {
+        providersUsed: ["glm"],
+        cacheHits: 0,
+        retryCount: 0,
+      },
+    });
     expect(mocks.geocodeItineraryActivities).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({

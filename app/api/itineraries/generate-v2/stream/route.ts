@@ -29,6 +29,7 @@ import {
   buildItineraryPlanPayload,
   normalizeDailyPlansForDisplay,
 } from '@/lib/itineraries/normalize-daily-plans';
+import { buildItineraryProviderMeta } from '@/lib/llm/itinerary-provider-meta';
 
 // Maximum time for the entire generation process (5 minutes)
 const STREAM_TIMEOUT_MS = 5 * 60 * 1000;
@@ -339,19 +340,7 @@ export async function POST(req: NextRequest) {
             id: savedItinerary?.id,
             ...itineraryData,
           },
-          meta:
-            useMultiLLM && (tier === 'pro' || tier === 'premium')
-              ? {
-                  qualityScore: result.qualityScore,
-                  validationReport: result.validationReport,
-                  fallbackUsed: result.fallbackUsed,
-                  metrics: {
-                    totalLatencyMs: result.metrics.totalLatencyMs,
-                    providersUsed: result.metrics.providersUsed,
-                    cacheHits: result.metrics.cacheHits,
-                  },
-                }
-              : undefined,
+          meta: buildItineraryProviderMeta(result),
         },
       });
     }

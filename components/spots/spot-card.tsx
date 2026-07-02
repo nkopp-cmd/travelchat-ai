@@ -18,8 +18,6 @@ import { cn } from "@/lib/utils";
 import { getCityGradient } from "@/lib/city-images";
 import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
-import { addFallbackToPlacePhotoUrl } from "@/lib/place-images";
-import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
 import {
   getRealDisplaySpotPhotos,
   hasRealDisplaySpotPhoto,
@@ -47,24 +45,7 @@ function getInitialImage(spot: Spot) {
   const realPhoto = getRealDisplaySpotPhotos(spot.photos)[0];
   if (realPhoto) return { src: realPhoto, isAreaFallback: false, realPhotoIndex: 0 };
 
-  const fallback =
-    getCityFallbackImage(spot) ?? spot.photos[0] ?? PLACEHOLDER_IMAGE;
-  return { src: fallback, isAreaFallback: true, realPhotoIndex: -1 };
-}
-
-function getCityFallbackImage(spot: Spot) {
-  const city = inferSpotCity(spot);
-  if (!city) return null;
-
-  return getSpotFallbackImageUrl({
-    name: spot.name,
-    category: spot.category,
-    city,
-    address: spot.location.address,
-    width: 1200,
-    height: 900,
-    quality: 90,
-  });
+  return { src: PLACEHOLDER_IMAGE, isAreaFallback: true, realPhotoIndex: -1 };
 }
 
 function hasRealSpotPhoto(spot: Spot) {
@@ -172,21 +153,21 @@ function LocationConfidenceChip({
   );
 }
 
-function AreaImageChip({ className }: { className?: string }) {
+function PhotoBackfillChip({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex max-w-[calc(100%-0.5rem)] items-center gap-0.5 rounded-md border border-violet-100/20 bg-black/60 px-1 py-0.5 text-[9px] font-medium leading-none text-violet-50/85 shadow-lg shadow-black/15 backdrop-blur min-[360px]:gap-1 min-[360px]:rounded-full min-[360px]:px-1.5 min-[360px]:text-[10px]",
+        "inline-flex max-w-[calc(100%-0.5rem)] items-center gap-0.5 rounded-md border border-amber-200/25 bg-black/60 px-1 py-0.5 text-[9px] font-medium leading-none text-amber-50/90 shadow-lg shadow-black/15 backdrop-blur min-[360px]:gap-1 min-[360px]:rounded-full min-[360px]:px-1.5 min-[360px]:text-[10px]",
         className,
       )}
-      title="Area image shown until a real spot photo is available"
+      title="This spot needs a verified real photo before it is public-ready"
     >
       <ImageIcon
         className="h-2.5 w-2.5 flex-shrink-0 min-[360px]:h-3 min-[360px]:w-3"
         aria-hidden="true"
       />
-      <span className="truncate min-[430px]:hidden">Area</span>
-      <span className="hidden truncate min-[430px]:inline">Area photo</span>
+      <span className="truncate min-[430px]:hidden">Photo</span>
+      <span className="hidden truncate min-[430px]:inline">Photo needed</span>
     </span>
   );
 }
@@ -285,10 +266,7 @@ export function SpotCard({
   const [showGradientFallback, setShowGradientFallback] = useState(false);
   const hasRealPhoto = hasRealSpotPhoto(spot);
   const inferredCity = inferSpotCity(spot);
-  const cityFallbackImage = getCityFallbackImage(spot);
-  const [imageSrc, setImageSrc] = useState(
-    addFallbackToPlacePhotoUrl(initialImage.src, cityFallbackImage),
-  );
+  const [imageSrc, setImageSrc] = useState(initialImage.src);
   const fallbackLabel = inferredCity ? `${inferredCity} area` : spot.category;
   const fallbackGradient = getCityGradient(fallbackLabel);
 
@@ -297,16 +275,8 @@ export function SpotCard({
     const nextRealPhoto = realPhotoCandidates[nextRealPhotoIndex];
     if (nextRealPhoto) {
       setRealPhotoIndex(nextRealPhotoIndex);
-      setImageSrc(addFallbackToPlacePhotoUrl(nextRealPhoto, cityFallbackImage));
+      setImageSrc(nextRealPhoto);
       setUsingAreaImage(false);
-      setImageLoaded(false);
-      return;
-    }
-
-    const cityFallback = cityFallbackImage;
-    if (cityFallback && imageSrc !== cityFallback) {
-      setImageSrc(cityFallback);
-      setUsingAreaImage(true);
       setImageLoaded(false);
       return;
     }
@@ -317,7 +287,7 @@ export function SpotCard({
   };
 
   const renderImage = (sizes: string) => {
-    if (showGradientFallback) {
+    if (!hasRealPhoto || showGradientFallback) {
       return (
         <div
           className={cn(
@@ -325,8 +295,8 @@ export function SpotCard({
             fallbackGradient,
           )}
         >
-          <span className="rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
-            {fallbackLabel}
+          <span className="rounded-full border border-amber-200/25 bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-amber-50 backdrop-blur">
+            Photo needed
           </span>
         </div>
       );
@@ -377,7 +347,7 @@ export function SpotCard({
           {renderImage("(max-width: 640px) 112px, 160px")}
           <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
           {(!hasRealPhoto || usingAreaImage) && (
-            <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10" />
+            <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10" />
           )}
         </Link>
 
@@ -476,7 +446,7 @@ export function SpotCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
 
         {(!hasRealPhoto || usingAreaImage) && (
-          <AreaImageChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
+          <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
       </Link>
       <div className="absolute right-1.5 top-1.5 z-20 hidden md:right-2.5 md:top-2.5 md:block">
