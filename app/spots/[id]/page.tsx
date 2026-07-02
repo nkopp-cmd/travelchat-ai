@@ -602,6 +602,7 @@ function GetDirectionsButton({
       size="lg"
     >
       <Link
+        data-testid="spot-directions-link"
         href={directionsUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -654,6 +655,7 @@ function NavigationTargetPanel({
 
   return (
     <div
+      data-testid="spot-detail-navigation-target"
       className={`rounded-lg border border-white/10 bg-white/[0.055] ${
         compact ? "p-3" : "p-4"
       }`}
@@ -1070,7 +1072,10 @@ export default async function SpotPage({
           Back to spots
         </Link>
 
-        <div className="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">
+        <div
+          data-testid="spot-detail-hero"
+          className="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]"
+        >
           <SpotPhotoImage
             src={getDisplaySpotImage(heroImage, fallbackImage)}
             fallbackSrc={fallbackImage}
@@ -1144,7 +1149,9 @@ export default async function SpotPage({
               </h1>
               <div className="mt-3 hidden items-start gap-2 text-sm leading-6 text-violet-50/75 sm:flex">
                 <MapPin className="mt-1 h-4 w-4 shrink-0" />
-                <span>{spot.location.address}</span>
+                <span data-testid="spot-detail-address">
+                  {spot.location.address}
+                </span>
               </div>
             </div>
           </div>
@@ -1159,11 +1166,14 @@ export default async function SpotPage({
           </h1>
           <div className="flex items-start gap-2 text-sm leading-6 text-violet-50/70">
             <MapPin className="mt-1 h-4 w-4 shrink-0 text-violet-300" />
-            <span>{spot.location.address}</span>
+            <span data-testid="spot-detail-address">
+              {spot.location.address}
+            </span>
           </div>
         </section>
 
         <section
+          data-testid="spot-detail-mobile-actions"
           className={`${LIQUID_CARD} space-y-3 p-3 lg:hidden`}
           aria-label="Spot planning actions"
         >
@@ -1556,7 +1566,10 @@ export default async function SpotPage({
                     )}
                     {locationPlanningCopy.locationHeading}
                   </h3>
-                  <p className="text-sm leading-6 text-violet-50/70">
+                  <p
+                    data-testid="spot-detail-sidebar-address"
+                    className="text-sm leading-6 text-violet-50/70"
+                  >
                     {spot.location.address}
                   </p>
                   <div className="mt-3">
