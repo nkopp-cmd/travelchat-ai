@@ -86,6 +86,25 @@ export interface SpotRecordConfidence {
     checks: SpotRecordConfidenceCheck[];
 }
 
+export function getSpotNavigationSignalTone(input: {
+    status: SpotNavigationMode["status"];
+    locationTone: SpotLocationConfidence["tone"];
+}): "emerald" | "sky" | "amber" {
+    if (
+        input.status === "exact_place_id" ||
+        input.status === "exact_coordinate_directions" ||
+        input.status === "exact_address_search"
+    ) {
+        return "emerald";
+    }
+
+    if (input.status === "search_first_pin" || input.locationTone === "pinned") {
+        return "sky";
+    }
+
+    return "amber";
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }

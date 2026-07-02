@@ -61,6 +61,7 @@ import {
   getSpotCoordinateEvidenceLabel,
   getSpotDirectionsButtonLabel,
   getSpotNavigationMode,
+  getSpotNavigationSignalTone,
   getSpotNavigationTargetValue,
   getSpotPhotoEvidenceHelper,
   getSpotPhotoEvidenceLabel,
@@ -376,6 +377,15 @@ function getLocationToneClasses(
   return "border-amber-200/25 bg-amber-400/10 text-amber-100";
 }
 
+function getSignalToneClasses(tone: "emerald" | "sky" | "amber" | "violet") {
+  if (tone === "emerald")
+    return "border-emerald-200/20 bg-emerald-400/10 text-emerald-100";
+  if (tone === "sky") return "border-sky-200/20 bg-sky-400/10 text-sky-100";
+  if (tone === "violet")
+    return "border-violet-200/20 bg-violet-400/10 text-violet-100";
+  return "border-amber-200/25 bg-amber-400/10 text-amber-100";
+}
+
 function DetailSignal({
   icon: Icon,
   label,
@@ -648,7 +658,12 @@ function NavigationTargetPanel({
           {navigationMode.targetLabel}
         </span>
         <span
-          className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
+          className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(
+            getSpotNavigationSignalTone({
+              status: navigationMode.status,
+              locationTone: locationConfidence.tone,
+            }),
+          )}`}
         >
           {navigationMode.label}
         </span>
@@ -960,16 +975,22 @@ export default async function SpotPage({
   const fallbackImage = getSpotFallbackImage(spot);
   const galleryImages = getSpotGalleryImages(spot);
   const locationConfidence = getLocationConfidence(spot);
+  const isKorea = isKoreanLocation(spot.location.address);
+  const hasMatchedGooglePlace = Boolean(spot.googlePlaceId) && !isKorea;
+  const navigationMode = getSpotNavigationMode({
+    tone: locationConfidence.tone,
+    isKorea,
+    hasMatchedGooglePlace,
+    usableCoordinates: locationConfidence.usableCoordinates,
+  });
   const primaryArea = getPrimaryArea(spot.location.address, city);
   const scoreNarrative = getScoreNarrative(spot.localleyScore);
   const locationPlanningCopy = getLocationPlanningCopy(spot);
   const spotPrimaryUse = getSpotPrimaryUse(spot.category);
-  const locationSignalTone =
-    locationConfidence.tone === "exact"
-      ? "emerald"
-      : locationConfidence.tone === "pinned"
-        ? "sky"
-        : "amber";
+  const locationSignalTone = getSpotNavigationSignalTone({
+    status: navigationMode.status,
+    locationTone: locationConfidence.tone,
+  });
   const relatedSpots = await getRelatedSpots(spot, city);
   const hasDistanceRankedRelatedSpots = relatedSpots.some(
     (related) => related.distanceKm !== null,
@@ -1129,7 +1150,7 @@ export default async function SpotPage({
             <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2.5">
               <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
                 <MapPin className="h-3.5 w-3.5 text-violet-300" />
-                {locationConfidence.label}
+                {navigationMode.label}
               </span>
               <span className="mt-1 block truncate text-xs text-violet-50/50">
                 {primaryArea}
@@ -1235,8 +1256,8 @@ export default async function SpotPage({
                 <DetailSignal
                   icon={Route}
                   label="Route precision"
-                  value={locationPlanningCopy.routeTitle}
-                  helper={getDirectionsHelperText(spot)}
+                  value={navigationMode.label}
+                  helper={navigationMode.helper}
                   tone={locationSignalTone}
                 />
                 <DetailSignal
@@ -1260,9 +1281,9 @@ export default async function SpotPage({
                   </h2>
                 </div>
                 <span
-                  className={`w-fit rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
+                  className={`w-fit rounded-md border px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(locationSignalTone)}`}
                 >
-                  {locationConfidence.label}
+                  {navigationMode.label}
                 </span>
               </div>
 

@@ -5,6 +5,7 @@ import {
     getSpotCoordinateEvidenceLabel,
     getSpotDirectionsButtonLabel,
     getSpotNavigationMode,
+    getSpotNavigationSignalTone,
     getSpotNavigationTargetValue,
     getSpotPhotoEvidenceHelper,
     getSpotPhotoEvidenceLabel,
@@ -180,6 +181,29 @@ describe("spot detail normalization", () => {
             label: "Area Kakao search",
             targetLabel: "Search target",
         });
+    });
+
+    it("tones place-id routes as exact even when address text is area-level", () => {
+        expect(
+            getSpotNavigationSignalTone({
+                status: "exact_place_id",
+                locationTone: "area",
+            })
+        ).toBe("emerald");
+
+        expect(
+            getSpotNavigationSignalTone({
+                status: "search_first_pin",
+                locationTone: "pinned",
+            })
+        ).toBe("sky");
+
+        expect(
+            getSpotNavigationSignalTone({
+                status: "search_first_area",
+                locationTone: "area",
+            })
+        ).toBe("amber");
     });
 
     it("shows coordinate route targets only when directions actually route to coordinates", () => {
