@@ -49,7 +49,8 @@ describe("spot detail normalization", () => {
     });
 
     it("labels pinned directions as search-first until the address is exact", () => {
-        expect(getSpotDirectionsButtonLabel("exact", true)).toBe("Search exact spot in Kakao");
+        expect(getSpotDirectionsButtonLabel("exact", true, false, true)).toBe("Get Kakao directions");
+        expect(getSpotDirectionsButtonLabel("exact", true, false, false)).toBe("Search exact spot in Kakao");
         expect(getSpotDirectionsButtonLabel("exact", false)).toBe("Get exact directions");
         expect(getSpotDirectionsButtonLabel("exact", false, true)).toBe("Get exact directions");
         expect(getSpotDirectionsButtonLabel("pinned", true)).toBe("Search area in Kakao");
@@ -134,6 +135,19 @@ describe("spot detail normalization", () => {
                 isKorea: true,
                 hasMatchedGooglePlace: false,
                 usableCoordinates: true,
+            })
+        ).toMatchObject({
+            status: "exact_coordinate_directions",
+            label: "Exact Kakao route",
+            targetLabel: "Route target",
+        });
+
+        expect(
+            getSpotNavigationMode({
+                tone: "exact",
+                isKorea: true,
+                hasMatchedGooglePlace: false,
+                usableCoordinates: false,
             })
         ).toMatchObject({
             status: "exact_address_search",

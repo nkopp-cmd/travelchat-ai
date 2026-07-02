@@ -201,12 +201,14 @@ export function getSpotNavigationMode(input: SpotNavigationModeInput): SpotNavig
     }
 
     if (input.tone === "exact") {
-        if (!input.isKorea && input.usableCoordinates) {
+        if (input.usableCoordinates) {
             return {
                 status: "exact_coordinate_directions",
-                label: "Exact coordinate",
+                label: input.isKorea ? "Exact Kakao route" : "Exact coordinate",
                 targetLabel: "Route target",
-                helper: "Directions use the saved exact coordinate, with the spot name and address shown as context on the page.",
+                helper: input.isKorea
+                    ? "Kakao opens a route to the saved exact coordinate, with the spot name and address shown as context on the page."
+                    : "Directions use the saved exact coordinate, with the spot name and address shown as context on the page.",
             };
         }
 
@@ -254,11 +256,13 @@ export function getSpotNavigationTargetValue(input: SpotNavigationTargetInput): 
 export function getSpotDirectionsButtonLabel(
     tone: SpotLocationConfidence["tone"],
     isKorea: boolean,
-    hasMatchedGooglePlace = false
+    hasMatchedGooglePlace = false,
+    usableCoordinates = false
 ): string {
     if (!isKorea && hasMatchedGooglePlace) return "Get exact directions";
 
     if (tone === "exact") {
+        if (isKorea && usableCoordinates) return "Get Kakao directions";
         if (isKorea) return "Search exact spot in Kakao";
         return "Get exact directions";
     }

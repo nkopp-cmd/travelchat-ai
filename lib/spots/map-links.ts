@@ -55,6 +55,13 @@ function getCoordinateDestination(input: SpotDirectionsInput): string {
     : "";
 }
 
+function buildKakaoRouteTarget(input: SpotDirectionsInput): string {
+  const label =
+    input.name.trim() || input.address.trim() || "Destination";
+
+  return `${encodeURIComponent(label)},${input.lat},${input.lng}`;
+}
+
 export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
   const exactQuery = getSpotDirectionsSearchText(input);
   const coordinateDestination = getCoordinateDestination(input);
@@ -63,6 +70,10 @@ export function buildSpotDirectionsUrl(input: SpotDirectionsInput): string {
   const hasAreaLevelAddress = isAreaLevelAddress(input.address);
 
   if (isKoreanLocation(input.address)) {
+    if (!hasAreaLevelAddress && coordinateDestination) {
+      return `https://map.kakao.com/link/to/${buildKakaoRouteTarget(input)}`;
+    }
+
     return `https://map.kakao.com/link/search/${encodeURIComponent(destinationText)}`;
   }
 

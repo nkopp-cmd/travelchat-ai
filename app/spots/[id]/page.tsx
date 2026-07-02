@@ -121,7 +121,9 @@ function getDirectionsHelperText(
   }
 
   if (isKorea && locationConfidence.tone === "exact") {
-    return "Kakao searches the exact spot name and address so imported coordinates do not override the place context.";
+    return locationConfidence.usableCoordinates
+      ? "Kakao opens a route to the saved exact coordinate, with the spot name and address kept visible for context."
+      : "Kakao searches the exact spot name and address because no verified coordinate is stored yet.";
   }
 
   return isKorea
@@ -588,6 +590,7 @@ function GetDirectionsButton({
           locationConfidence.tone,
           isKorea,
           hasMatchedGooglePlace,
+          locationConfidence.usableCoordinates,
         )}
       </Link>
     </Button>
