@@ -327,6 +327,9 @@ async function main() {
             schema.migrationRequired
                 ? `Blocking schema action: ${schema.blockingAction} (${schema.migrationPath})`
                 : "Blocking schema action: none",
+            schema.migrationRequired
+                ? "Migration SQL included in action-plan.json at schema.commands.applyMigrationSql"
+                : "Migration SQL: not needed",
             `Missing images: ${report.summary.missingRealPhoto}`,
             `Inexact locations: ${report.summary.inexactLocation}`,
             `Missing Place IDs: ${report.summary.missingPlaceId}`,

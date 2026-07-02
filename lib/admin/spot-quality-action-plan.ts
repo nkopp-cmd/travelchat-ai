@@ -3,6 +3,17 @@ import type { SpotQualityItem, SpotQualityIssue } from "@/lib/admin/spot-quality
 export const SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH =
     "supabase/migrations/006_spots_google_place_id.sql";
 
+export const SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL = [
+    "ALTER TABLE spots",
+    "ADD COLUMN IF NOT EXISTS google_place_id TEXT;",
+    "",
+    "CREATE INDEX IF NOT EXISTS idx_spots_google_place_id",
+    "ON spots(google_place_id)",
+    "WHERE google_place_id IS NOT NULL;",
+    "",
+    "COMMENT ON COLUMN spots.google_place_id IS 'Durable Google Places place ID used for exact photo provenance and Google Maps directions.';",
+].join("\n");
+
 export interface SpotQualityOperatorStatus {
     realImage: "ready" | "needs_real_image" | "needs_image_review" | "needs_place_photo_match";
     location: "exact" | "pinned_needs_address_review" | "needs_exact_address_and_pin";
@@ -31,6 +42,7 @@ export interface SpotQualitySchemaStatus {
     blockedOperations: string[];
     commands: {
         applyMigration: string | null;
+        applyMigrationSql: string | null;
         verifyColumn: string;
         rerunReadiness: string;
     };
@@ -214,6 +226,9 @@ export function buildSpotQualitySchemaStatus(hasGooglePlaceIdColumn: boolean): S
             applyMigration: hasGooglePlaceIdColumn
                 ? null
                 : `npx supabase db query --linked --file ${SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH}`,
+            applyMigrationSql: hasGooglePlaceIdColumn
+                ? null
+                : SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL,
             verifyColumn:
                 "npx tsx scripts/export-spot-quality-action-plan.ts --limit=1 --json",
             rerunReadiness:

@@ -7,6 +7,7 @@ import {
     getSpotQualityPriority,
     getSpotQualityRecommendedAction,
     SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH,
+    SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL,
 } from "@/lib/admin/spot-quality-action-plan";
 import { toSpotQualityItem, type SpotQualityRow } from "@/lib/admin/spot-quality";
 
@@ -39,10 +40,23 @@ describe("spot quality action plan", () => {
             ],
             commands: {
                 applyMigration: `npx supabase db query --linked --file ${SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH}`,
+                applyMigrationSql: SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL,
                 verifyColumn: "npx tsx scripts/export-spot-quality-action-plan.ts --limit=1 --json",
                 rerunReadiness: "npm run spots:readiness -- --limit=250 --sample-limit=80",
             },
         });
+    });
+
+    it("keeps the dashboard SQL fallback in sync with the migration file", () => {
+        expect(SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL).toContain(
+            "ADD COLUMN IF NOT EXISTS google_place_id TEXT;"
+        );
+        expect(SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL).toContain(
+            "idx_spots_google_place_id"
+        );
+        expect(SPOT_GOOGLE_PLACE_ID_MIGRATION_SQL).toContain(
+            "exact photo provenance and Google Maps directions"
+        );
     });
 
     it("keeps spot-level actions separate from schema readiness", () => {

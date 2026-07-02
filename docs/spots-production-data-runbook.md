@@ -7,17 +7,17 @@ Localley spot quality depends on two separate data gates:
 
 ## Current Production Finding
 
-Production readiness packet from July 1, 2026, rerun from Vercel production env:
+Production readiness packet from July 2, 2026, rerun from Vercel production env:
 
 - Total spots: 3,287
 - Public-ready spots: 1,436
 - Needs work: 1,851
-- Real photo coverage: 97.3% (3,198/3,287)
-- Missing real images: 89
+- Real photo coverage: 97.3% (3,199/3,287)
+- Missing real images: 88
 - Exact address coverage: 43.9% (1,444/3,287)
 - Inexact or area-level addresses: 1,843
 - Weak directions with missing or zero coordinates: 150
-- Missing place identity according to the photo audit: 89
+- Missing place identity according to the photo audit: 88
 - `actionPlan.schema.migrationRequired`: true, meaning `spots.google_place_id` is still not selectable by the app service role
 
 The main blocker is no longer the photo layer. It is exactness: too many records are still neighborhood, district, event, route, or collection-level entries. Those can look good in cards, but they cannot power trustworthy directions until each card represents an exact mappable destination or is intentionally rewritten as a collection/template item.
@@ -59,6 +59,8 @@ npx supabase link --project-ref llehrhqeolfprutcaopi
 npx supabase db query --linked --file supabase/migrations/006_spots_google_place_id.sql
 ```
 
+If CLI access is not available, use the SQL editor fallback emitted in `action-plan.json` at `schema.commands.applyMigrationSql`. It should match `supabase/migrations/006_spots_google_place_id.sql`.
+
 ## Audit Commands
 
 For a single timestamped operator packet, run the combined read-only audit:
@@ -75,7 +77,7 @@ rm -f "$tmp_env"
 This writes `reports/spot-readiness-<timestamp>/manifest.json`, `photo-coverage.json`, `location-quality.json`, `action-plan.json`, and `action-plan.csv`.
 Add `--verbose` when you want to see the child audit output while the packet runs. The default mode stays quiet and prints the packet path plus final status.
 The action-plan JSON and CSV include a research query, Google Maps search link, traveler-facing directions preview link, image search link, Place ID guide link, public spot link, and admin deep link for each prioritized record. They also include operator-ready status fields for real image evidence, exact location evidence, direction trust, public-card visibility, stored photo/place-ID evidence, and a row-level checklist so spot cleanup can proceed from highest priority without re-diagnosing every card.
-When the Place ID migration is still missing, `manifest.json` now includes the exact migration command in `nextSteps`, and each CSV row includes `schemaBlockingAction` so operator cleanup does not confuse spot-level image/address work with the global schema blocker.
+When the Place ID migration is still missing, `manifest.json` now includes the exact migration command and SQL-editor fallback in `nextSteps`, and each CSV row includes `schemaBlockingAction` so operator cleanup does not confuse spot-level image/address work with the global schema blocker.
 
 Pull production env into a temporary file and run the audits without printing secrets:
 

@@ -168,6 +168,7 @@ function getNestedBoolean(value: unknown, pathParts: string[]): boolean {
 function buildNextSteps(actionPlanSummary: unknown): string[] {
     const migrationRequired = getNestedBoolean(actionPlanSummary, ["schema", "migrationRequired"]);
     const applyMigrationCommand = getNestedString(actionPlanSummary, ["schema", "commands", "applyMigration"]);
+    const applyMigrationSql = getNestedString(actionPlanSummary, ["schema", "commands", "applyMigrationSql"]);
     const verifyColumnCommand = getNestedString(actionPlanSummary, ["schema", "commands", "verifyColumn"]);
     const rerunReadinessCommand = getNestedString(actionPlanSummary, ["schema", "commands", "rerunReadiness"]);
 
@@ -175,6 +176,9 @@ function buildNextSteps(actionPlanSummary: unknown): string[] {
         migrationRequired
             ? `Apply ${SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH} before place-ID writes: ${applyMigrationCommand || `npx supabase db query --linked --file ${SPOT_GOOGLE_PLACE_ID_MIGRATION_PATH}`}`
             : "Google Place ID schema is selectable; continue with reviewed image, address, and place-ID enrichment.",
+        migrationRequired && applyMigrationSql
+            ? `Supabase SQL editor fallback:\n${applyMigrationSql}`
+            : "No schema SQL fallback needed.",
         migrationRequired && verifyColumnCommand
             ? `Verify the schema is selectable: ${verifyColumnCommand}`
             : "Review action-plan.csv from highest priority downward in /admin/spots/quality.",
