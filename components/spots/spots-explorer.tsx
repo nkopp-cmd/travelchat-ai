@@ -148,9 +148,9 @@ export function SpotsExplorer({
             />
 
             {/* Results Header */}
-            <div ref={resultsTopRef} className="mb-4 flex flex-wrap items-center justify-between gap-3 scroll-mt-4">
+            <div ref={resultsTopRef} className="mb-4 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-4 sm:gap-3">
                 <div
-                    className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground"
+                    className="flex min-w-0 items-center gap-2 overflow-hidden text-sm text-muted-foreground"
                     aria-live="polite"
                 >
                     {isPending && (
@@ -159,7 +159,7 @@ export function SpotsExplorer({
                             aria-hidden="true"
                         />
                     )}
-                    <span>
+                    <span className="min-w-0 truncate">
                         {isPending
                             ? "Loading..."
                             : totalCount > 0
@@ -170,7 +170,7 @@ export function SpotsExplorer({
 
                 {/* View Mode Toggle */}
                 <div
-                    className="flex flex-shrink-0 overflow-hidden rounded-lg border border-black/5 bg-white/50 dark:border-white/10 dark:bg-white/5"
+                    className="flex shrink-0 overflow-hidden rounded-lg border border-black/5 bg-white/50 dark:border-white/10 dark:bg-white/5"
                     role="group"
                     aria-label="View mode"
                 >

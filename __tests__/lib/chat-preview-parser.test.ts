@@ -134,12 +134,26 @@ describe("parseChatItineraryPreview", () => {
 
   it("removes address and location lines from the preview description", () => {
     expect(
-      cleanChatItineraryDescription("Go early.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")
-    ).toBe("Go early. Order the seasonal tea.");
+      cleanChatItineraryDescription("Start in the hanok courtyard.\nAddress: Ikseon-dong, Jongno-gu, Seoul\nOrder the seasonal tea.")
+    ).toBe("Start in the hanok courtyard. Order the seasonal tea.");
 
     expect(
       cleanChatItineraryDescription("Start with coffee.\nWhere - Cafe Onion Anguk, Jongno-gu, Seoul\n\u{1F4CD} Seoul Forest, Seoul")
     ).toBe("Start with coffee.");
+  });
+
+  it("removes surviving tip fragments from rendered and saved descriptions", () => {
+    expect(
+      cleanChatItineraryDescription(
+        "Order seasonal tea in the hanok courtyard. Tip: Bring cash for smaller shops. Getting around: Walk from Jongno 3-ga exit 4."
+      )
+    ).toBe("Order seasonal tea in the hanok courtyard.");
+
+    expect(
+      cleanChatItineraryDescription(
+        "Start with the house blend. Bring cash for smaller counters. The second-floor seats are quiet."
+      )
+    ).toBe("Start with the house blend. The second-floor seats are quiet.");
   });
 
   it("parses plain day headings without requiring markdown decoration", () => {

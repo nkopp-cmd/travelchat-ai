@@ -233,7 +233,7 @@ export function getChatTipKind(tip: string): ItineraryInsight["kind"] {
 
 export function cleanChatItineraryDescription(text: string): string {
   if (!text) return "";
-  return text
+  const withoutAddressLines = text
     .replace(
       /(?:^|\n)\s*(?:[-*]\s*)?(?:\u{1F4CD}\s*)?(?:Address|Location|Where)\s*[:\-\u2013\u2014]\s*.+?(?=\n|$)/giu,
       "\n"
@@ -241,6 +241,8 @@ export function cleanChatItineraryDescription(text: string): string {
     .replace(/(?:^|\n)\s*(?:[-*]\s*)?\u{1F4CD}\s*.+?(?=\n|$)/gu, "\n")
     .replace(/\n+/g, " ")
     .trim();
+
+  return splitChatDescriptionTips(withoutAddressLines).description;
 }
 
 export function parseChatItineraryPreview(content: string): ParsedChatItinerary {

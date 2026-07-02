@@ -36,6 +36,7 @@ describe("transformSpot", () => {
             "/api/places/photo?w=1200&v=2&name=places%2FChIJabc123%2Fphotos%2Fphoto456",
         ]);
         expect(spot.hasRealPhoto).toBe(true);
+        expect(spot.googlePlaceId).toBe("ChIJabc123");
     });
 
     it("keeps placeholder fallback photos marked as not real", () => {
@@ -47,5 +48,22 @@ describe("transformSpot", () => {
 
         expect(spot.photos).toEqual(["/images/placeholders/cafe.svg"]);
         expect(spot.hasRealPhoto).toBe(false);
+    });
+
+    it("does not expose mismatched place ids as verified card targets", () => {
+        const spot = transformSpot(
+            makeRawSpot({
+                google_place_id: "ChIJ-stale-place",
+                photos: [
+                    "https://places.googleapis.com/v1/places/ChIJ-real-photo-place/photos/photo456/media?maxWidthPx=800&key=old",
+                ],
+            })
+        );
+
+        expect(spot.photos).toEqual([
+            "/api/places/photo?w=1200&v=2&name=places%2FChIJ-real-photo-place%2Fphotos%2Fphoto456",
+        ]);
+        expect(spot.hasRealPhoto).toBe(true);
+        expect(spot.googlePlaceId).toBeNull();
     });
 });
