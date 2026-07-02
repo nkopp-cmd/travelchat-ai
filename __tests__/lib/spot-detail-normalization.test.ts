@@ -221,6 +221,7 @@ describe("spot detail normalization", () => {
             })
         ).toMatchObject({
             label: "Verified route-ready record",
+            actionLabel: "Plan with confidence",
             tone: "emerald",
             checks: [
                 { label: "Image", value: "3 real photos", ready: true },
@@ -239,6 +240,7 @@ describe("spot detail normalization", () => {
             })
         ).toMatchObject({
             label: "Image-ready, route needs review",
+            actionLabel: "Search before routing",
             tone: "amber",
             checks: [
                 { label: "Image", value: "1 real photo", ready: true },
@@ -257,6 +259,7 @@ describe("spot detail normalization", () => {
             })
         ).toMatchObject({
             label: "Needs photo and route review",
+            actionLabel: "Keep as research lead",
             tone: "amber",
             checks: [
                 { label: "Image", value: "Needs photo", ready: false },

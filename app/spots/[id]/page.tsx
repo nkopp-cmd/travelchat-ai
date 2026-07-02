@@ -504,6 +504,17 @@ function RecordConfidencePanel({
         <p className="mt-2 text-sm leading-6 text-violet-50/65">
           {confidence.helper}
         </p>
+        <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.055] p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+            Next best action
+          </p>
+          <p className="mt-1 text-sm font-semibold leading-5 text-white">
+            {confidence.actionLabel}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-violet-50/60">
+            {confidence.actionHelper}
+          </p>
+        </div>
       </div>
       <div className="grid min-w-0 grid-cols-3 gap-2">
         {confidence.checks.map((check) => (

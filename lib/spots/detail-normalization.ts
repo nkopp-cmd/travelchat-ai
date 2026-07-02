@@ -80,6 +80,8 @@ export interface SpotRecordConfidenceCheck {
 export interface SpotRecordConfidence {
     label: string;
     helper: string;
+    actionLabel: string;
+    actionHelper: string;
     tone: "emerald" | "sky" | "amber";
     checks: SpotRecordConfidenceCheck[];
 }
@@ -304,6 +306,8 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
         return {
             label: input.verified ? "Verified route-ready record" : "Route-ready record",
             helper: "This spot has real image evidence and a specific map target for trip planning.",
+            actionLabel: "Plan with confidence",
+            actionHelper: "Use this as a route anchor and open directions directly when you are ready to go.",
             tone: "emerald",
             checks,
         };
@@ -313,6 +317,8 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
         return {
             label: "Route-ready, image pending",
             helper: "The map target is specific, but the visual record still needs a reviewed real spot image.",
+            actionLabel: "Use route, review photo",
+            actionHelper: "Directions are specific enough for planning; treat the image as temporary until photo review finishes.",
             tone: "sky",
             checks,
         };
@@ -322,6 +328,8 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
         return {
             label: "Image-ready, route needs review",
             helper: "The spot has real imagery, but directions should stay search-first until the address is exact.",
+            actionLabel: "Search before routing",
+            actionHelper: "Use the saved name and address to confirm the map result before starting directions.",
             tone: "amber",
             checks,
         };
@@ -330,6 +338,8 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
     return {
         label: "Needs photo and route review",
         helper: "This record should stay search-first until a real image and exact location evidence are added.",
+        actionLabel: "Keep as research lead",
+        actionHelper: "Treat this as a candidate until the exact address and real spot imagery are backfilled.",
         tone: "amber",
         checks,
     };
