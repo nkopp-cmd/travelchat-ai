@@ -73,6 +73,8 @@ function SpotScoreChip({
 }) {
   return (
     <span
+      data-layout-chip
+      data-testid="spot-score-chip"
       className={cn(
         "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         getScoreTone(score),
@@ -96,6 +98,8 @@ function LocalCrowdChip({
 }) {
   return (
     <span
+      data-layout-chip
+      data-testid="spot-local-crowd-chip"
       className={cn(
         "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border border-emerald-200/15 bg-emerald-400/10 px-1.5 text-[10px] font-semibold leading-none text-emerald-100 sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         className,
@@ -124,6 +128,8 @@ function LocationConfidenceChip({
 
   return (
     <span
+      data-layout-chip
+      data-testid="spot-location-confidence-chip"
       className={cn(
         "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         hasPlaceMatch || confidence.tone === "exact"
@@ -156,6 +162,8 @@ function LocationConfidenceChip({
 function PhotoBackfillChip({ className }: { className?: string }) {
   return (
     <span
+      data-layout-chip
+      data-testid="spot-photo-backfill-chip"
       className={cn(
         "inline-flex max-w-[calc(100%-0.5rem)] items-center gap-0.5 rounded-md border border-amber-200/25 bg-black/60 px-1 py-0.5 text-[9px] font-medium leading-none text-amber-50/90 shadow-lg shadow-black/15 backdrop-blur min-[360px]:gap-1 min-[360px]:rounded-full min-[360px]:px-1.5 min-[360px]:text-[10px]",
         className,
@@ -183,6 +191,8 @@ function TrendingChip({
 }) {
   return (
     <span
+      data-layout-chip
+      data-testid="spot-trending-chip"
       className={cn(
         "inline-flex h-5 min-w-0 max-w-full shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
         className,
@@ -225,6 +235,8 @@ function CategoryTrendRow({
       )}
     >
       <span
+        data-layout-chip
+        data-testid="spot-category-chip"
         className={cn(
           "min-w-0 shrink truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium leading-none text-violet-100",
           compact
@@ -325,6 +337,7 @@ export function SpotCard({
     // Premium compact horizontal card for list view
     return (
       <Card
+        data-testid="spot-card"
         data-spot-card="list"
         className={cn(
           "group relative flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
@@ -339,6 +352,7 @@ export function SpotCard({
         <Link
           href={`/spots/${spot.id}`}
           aria-label={`Open ${spot.name}`}
+          data-testid="spot-card-photo"
           className="relative aspect-[4/3] w-[4.75rem] flex-shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[390px]:w-24 sm:w-32 md:w-36"
         >
           {!showGradientFallback && !imageLoaded && (
@@ -358,7 +372,10 @@ export function SpotCard({
                 href={`/spots/${spot.id}`}
                 className="block rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
               >
-                <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base">
+                <h3
+                  data-testid="spot-card-title"
+                  className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base"
+                >
                   {spot.name}
                 </h3>
               </Link>
@@ -413,6 +430,7 @@ export function SpotCard({
   // Premium grid card with glassmorphism and micro-animations
   return (
     <Card
+      data-testid="spot-card"
       data-spot-card="grid"
       className={cn(
         "group relative flex min-h-[4.5rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
@@ -428,6 +446,7 @@ export function SpotCard({
       <Link
         href={`/spots/${spot.id}`}
         aria-label={`Open ${spot.name}`}
+        data-testid="spot-card-photo"
         className="relative w-[4.75rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[390px]:w-24 md:aspect-[2/1] md:w-full"
       >
         {!showGradientFallback && !imageLoaded && (
@@ -473,7 +492,10 @@ export function SpotCard({
             href={`/spots/${spot.id}`}
             className="block min-w-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
           >
-            <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-[15px]">
+            <h3
+              data-testid="spot-card-title"
+              className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-[15px]"
+            >
               {spot.name}
             </h3>
           </Link>

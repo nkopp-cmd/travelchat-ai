@@ -21,10 +21,19 @@ export interface PublicSpotQualityInput {
 export const PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS = [
     "%Residential%",
     "%Office District%",
+    "%Alley Bars%",
+    "%Office Lunch%",
     "%Working District%",
     "%Station Area%",
+    "%-dong Lunch%",
+    "%-ga Pojangmacha%",
+    "%Jewelry District%",
+    "%Local Dining%",
+    "%Neighborhood Walk%",
+    "%Cafe Street%",
     "% Local",
     "% Local Scene%",
+    "% Industry%",
     "% Industrial",
     "%Industrial Area%",
     "%Walking Route%",
@@ -35,10 +44,10 @@ export const PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS = [
     "%Multiple%",
 ] as const;
 
-export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v8";
+export const PUBLIC_SPOT_VISIBILITY_CACHE_VERSION = "public-spot-visibility-v9";
 
 const PUBLIC_BROAD_SPOT_NAME_PATTERN =
-    /\b(?:residential(?:\s+area)?|(?:office|working)\s+district|station\s+area|local\s+scene|industrial\s+area|walking\s+route|day\s+trip|bar\s+crawl|market\s+crawl|various|multiple)\b|\blocal$|\bindustrial$/i;
+    /\b(?:residential(?:\s+area)?|(?:office|working)\s+district|station\s+area|office\s+lunch|local\s+dining|local\s+scene|neighborhood\s+walk|cafe\s+street|jewelry\s+district|alley\s+bars|industrial\s+area|walking\s+route|day\s+trip|bar\s+crawl|market\s+crawl|various|multiple)\b|\b(?:[\p{L}\p{N}'-]+-)?(?:dong|ga)\s+(?:industry|lunch|pojangmacha)\b|\blocal$|\b(?:industrial|industry)$/iu;
 
 type PublicSpotFilterBuilder<TQuery> = {
     not: (column: string, operator: string, value: string | null) => TQuery;
