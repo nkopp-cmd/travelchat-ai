@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -56,6 +56,21 @@ const statusLabel: Record<NonNullable<SubmissionResponse["submission"]>["status"
 const socialSpotSubmissionsEnabled =
   process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
 
+function extractSocialUrl(value: string | null): string {
+  if (!value) return "";
+
+  const candidates = value.match(/https?:\/\/[^\s"'<>]+/gi) || [value];
+
+  return candidates.find((candidate) => {
+    try {
+      const host = new URL(candidate.trim()).hostname.toLowerCase();
+      return host.endsWith("instagram.com") || host.endsWith("tiktok.com");
+    } catch {
+      return false;
+    }
+  }) || "";
+}
+
 function SocialSubmissionsUnavailable() {
   return (
     <AppBackground>
@@ -101,6 +116,16 @@ function SubmitSpotForm() {
   const [result, setResult] = useState<SubmissionResponse | null>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl =
+      extractSocialUrl(params.get("url")) ||
+      extractSocialUrl(params.get("text")) ||
+      extractSocialUrl(params.get("title"));
+
+    if (sharedUrl) setUrl(sharedUrl);
+  }, []);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -112,7 +137,7 @@ function SubmitSpotForm() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           url,
-          email,
+          email: email.trim() || undefined,
           contributorName: contributorName || undefined,
           cityHint: cityHint || undefined,
           notes: notes || undefined,
@@ -162,8 +187,11 @@ function SubmitSpotForm() {
                   Community discovery
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-                  Submit a social spot
+                  Drop a video link
                 </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-50/65">
+                  Paste a TikTok or Instagram spot video. Localley will research the place, dedupe it, and queue the spot.
+                </p>
               </div>
               <div className="flex gap-2">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-violet-100">
@@ -178,7 +206,7 @@ function SubmitSpotForm() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="social-url" className="text-violet-50">
-                  TikTok or Instagram link
+                  TikTok or Instagram video URL
                 </Label>
                 <Input
                   id="social-url"
@@ -194,7 +222,7 @@ function SubmitSpotForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-violet-50">
-                    Email
+                    Email <span className="text-violet-50/45">(optional)</span>
                   </Label>
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-200/60" />
@@ -202,8 +230,7 @@ function SubmitSpotForm() {
                       id="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder="you@example.com"
-                      required
+                      placeholder="For credits and history"
                       type="email"
                       className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/35"
                     />
@@ -212,7 +239,7 @@ function SubmitSpotForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="contributor-name" className="text-violet-50">
-                    Credit name
+                    Credit name <span className="text-violet-50/45">(optional)</span>
                   </Label>
                   <div className="relative">
                     <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-200/60" />
@@ -230,7 +257,7 @@ function SubmitSpotForm() {
               <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-violet-50">
-                    City hint
+                    City hint <span className="text-violet-50/45">(optional)</span>
                   </Label>
                   <Input
                     id="city"
@@ -243,7 +270,7 @@ function SubmitSpotForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="notes" className="text-violet-50">
-                    Notes
+                    Notes <span className="text-violet-50/45">(optional)</span>
                   </Label>
                   <Textarea
                     id="notes"
@@ -265,7 +292,7 @@ function SubmitSpotForm() {
                 ) : (
                   <Sparkles className="h-4 w-4" />
                 )}
-                Submit spot
+                Submit video
               </Button>
             </form>
           </section>
@@ -280,7 +307,7 @@ function SubmitSpotForm() {
                       {result.submission ? statusLabel[result.submission.status] : "Submission saved"}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
-                      Credited to {result.contributor?.creditName || "your contributor profile"}.
+                      Credited to {result.contributor?.creditName || "Localley contributor"}.
                     </p>
                   </div>
                 </div>
@@ -323,13 +350,13 @@ function SubmitSpotForm() {
                     25 tokens
                   </span>
                   <p className="mt-1 text-sm leading-6 text-violet-50/60">
-                    Each saved new link receives contribution tokens after attribution is stored.
+                    Paste only the video URL. Add email later if you want credits tied to you.
                   </p>
                 </div>
                 <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                   <span className="text-sm font-semibold text-white">Credit</span>
                   <p className="mt-1 text-sm leading-6 text-violet-50/60">
-                    Public credit uses your credit name, or a masked email if you leave it blank.
+                    Public credit uses your credit name, masked email, or anonymous Localley contributor.
                   </p>
                 </div>
               </div>

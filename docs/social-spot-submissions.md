@@ -8,12 +8,14 @@ migration has been applied in the target environment.
 
 ## Flow
 
-1. The contributor pastes a TikTok or Instagram post/reel link and enters an email.
+1. The contributor pastes a TikTok or Instagram post/reel link. Email, credit name, city, and notes are optional.
 2. `/api/spots/social-submissions` canonicalizes the URL, stores contributor attribution, and checks for duplicate submissions.
 3. The server fetches social Open Graph metadata from an allowlisted host only.
 4. OpenAI web-search research extracts a candidate place, Localley score, local percentage, address, and evidence. This is only for social-link research; chat and itinerary generation remain GLM-first.
 5. A spot is created or reused only when the candidate clears the confidence gate and geocoding succeeds.
-6. Every durable new submission receives an idempotent token ledger entry.
+6. Every durable new submission receives an idempotent token ledger entry. URL-only submissions use anonymous Localley contributor attribution.
+
+Installed PWA users can share into Localley on platforms that support Web Share Target. The manifest sends shared `title`, `text`, and `url` data to `/spots/submit`, and the form auto-fills the first TikTok or Instagram URL it finds.
 
 ## Database
 
@@ -32,7 +34,7 @@ New tables use explicit service-role grants and RLS policies. Public clients do 
 1. Apply `supabase/migrations/007_social_spot_submissions.sql`.
 2. Set `NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED=true` in Vercel.
 3. Redeploy the app so the spots CTA and `/spots/submit` page become active.
-4. Submit one known Instagram or TikTok URL and confirm the API returns either `spot_created`, `spot_reused`, `needs_review`, or `research_pending`.
+4. Submit one known Instagram or TikTok URL without email and confirm the API returns either `spot_created`, `spot_reused`, `needs_review`, or `research_pending`.
 
 ## Loop Checks
 

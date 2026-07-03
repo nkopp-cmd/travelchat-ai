@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildPublicCreditName,
+  buildAnonymousContributorEmail,
   extractSocialMetadataFromHtml,
   maskEmailForCredit,
   normalizeContributorEmail,
@@ -44,6 +45,9 @@ describe("social spot submission helpers", () => {
       "Nils",
     );
     expect(buildPublicCreditName({ email: "nils@example.com" })).toBe("ni...@example.com");
+    expect(buildPublicCreditName({ email: buildAnonymousContributorEmail("https://vm.tiktok.com/ZMh123") })).toBe(
+      "Localley contributor",
+    );
   });
 
   it("validates the submission payload shape", () => {
@@ -56,7 +60,18 @@ describe("social spot submission helpers", () => {
     });
 
     expect(result.success).toBe(true);
+    expect(
+      socialSpotSubmissionSchema.safeParse({
+        url: "https://www.instagram.com/reel/ABC123",
+      }).success,
+    ).toBe(true);
 
+    expect(
+      socialSpotSubmissionSchema.safeParse({
+        url: "https://www.instagram.com/reel/ABC123",
+        email: "",
+      }).success,
+    ).toBe(true);
     expect(
       socialSpotSubmissionSchema.safeParse({
         url: "https://www.instagram.com/reel/ABC123",

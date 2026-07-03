@@ -8,6 +8,7 @@ import { rateLimiters } from "@/lib/rate-limit";
 import {
   SOCIAL_RESEARCH_CONFIDENCE_THRESHOLD,
   SOCIAL_SUBMISSION_TOKEN_AWARD,
+  buildAnonymousContributorEmail,
   buildPublicCreditName,
   fetchSocialLinkMetadata,
   normalizeContributorEmail,
@@ -173,7 +174,9 @@ export async function POST(req: NextRequest) {
 
     const { userId } = await auth();
     const supabase = createSupabaseAdmin();
-    const email = normalizeContributorEmail(validation.data.email);
+    const email = validation.data.email
+      ? normalizeContributorEmail(validation.data.email)
+      : buildAnonymousContributorEmail(normalized.canonicalUrl);
     const publicCreditName = buildPublicCreditName({
       email,
       contributorName: validation.data.contributorName,

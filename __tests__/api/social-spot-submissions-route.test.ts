@@ -262,6 +262,35 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
   });
 
+  it("accepts a URL-only submission with anonymous attribution", async () => {
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      success: true,
+      duplicate: false,
+      contributor: {
+        creditName: "Localley contributor",
+        tokensAwarded: 25,
+        totalTokens: 25,
+      },
+    });
+    expect(mocks.contributorRows[0]).toMatchObject({
+      email: expect.stringMatching(/^anonymous-[0-9a-f]+@contributor\.localley\.io$/),
+      public_credit_name: "Localley contributor",
+    });
+    expect(mocks.submissionRows[0]).toMatchObject({
+      canonical_url: "https://vm.tiktok.com/ZMh123",
+      contributor_credit: "Localley contributor",
+      token_awarded: 25,
+    });
+  });
+
   it("is idempotent for the same contributor and canonical URL", async () => {
     mocks.contributorRows.push({
       id: "contributor_test",

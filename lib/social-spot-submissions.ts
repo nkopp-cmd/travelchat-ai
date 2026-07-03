@@ -31,7 +31,10 @@ const TIKTOK_HOSTS = new Set([
 
 export const socialSpotSubmissionSchema = z.object({
   url: z.string().trim().min(12).max(2000),
-  email: z.string().trim().email().max(254),
+  email: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().trim().email().max(254).optional(),
+  ),
   contributorName: z.string().trim().min(1).max(80).optional(),
   notes: z.string().trim().max(1000).optional(),
   cityHint: z.string().trim().max(120).optional(),
@@ -96,6 +99,17 @@ export function normalizeContributorEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
+export function buildAnonymousContributorEmail(canonicalUrl: string): string {
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < canonicalUrl.length; index += 1) {
+    hash ^= canonicalUrl.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+
+  return `anonymous-${(hash >>> 0).toString(16)}@contributor.localley.io`;
+}
+
 export function maskEmailForCredit(email: string): string {
   const normalized = normalizeContributorEmail(email);
   const [localPart, domain] = normalized.split("@");
@@ -110,11 +124,13 @@ export function maskEmailForCredit(email: string): string {
 }
 
 export function buildPublicCreditName(input: {
-  email: string;
+  email?: string | null;
   contributorName?: string | null;
 }): string {
   const name = input.contributorName?.trim();
-  return name || maskEmailForCredit(input.email);
+  if (name) return name;
+  if (!input.email || input.email.startsWith("anonymous-")) return "Localley contributor";
+  return maskEmailForCredit(input.email);
 }
 
 export function normalizeSocialSpotUrl(rawUrl: string): CanonicalSocialSpotUrl {
