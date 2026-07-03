@@ -81,18 +81,22 @@ export function rateLimit(config: RateLimitConfig) {
         const key = `${ip}:${req.nextUrl.pathname}`;
 
         let success: boolean;
-        let remaining: number;
         let reset: Date;
 
         if (upstashLimiter) {
-            const result = await upstashLimiter.limit(key);
-            success = result.success;
-            remaining = result.remaining;
-            reset = new Date(result.reset);
+            try {
+                const result = await upstashLimiter.limit(key);
+                success = result.success;
+                reset = new Date(result.reset);
+            } catch (error) {
+                console.warn("[rate-limit] Upstash limiter failed; using in-memory fallback.", error);
+                const result = inMemoryRateLimit(key, windowMs, maxRequests);
+                success = result.success;
+                reset = result.reset;
+            }
         } else {
             const result = inMemoryRateLimit(key, windowMs, maxRequests);
             success = result.success;
-            remaining = result.remaining;
             reset = result.reset;
         }
 
