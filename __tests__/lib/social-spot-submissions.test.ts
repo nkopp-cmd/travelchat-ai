@@ -95,6 +95,7 @@ describe("social spot submission helpers", () => {
       title: "Hidden Cafe & Alley | TikTok",
       description: "Small Seoul cafe",
       imageUrl: "https://cdn.example.com/photo.jpg",
+      thumbnailUrl: "https://cdn.example.com/photo.jpg",
       finalUrl: "https://vm.tiktok.com/ZMh123",
     });
   });

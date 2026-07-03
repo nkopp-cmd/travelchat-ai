@@ -134,13 +134,32 @@ function createSupabaseMock() {
         return {
           select: vi.fn(() => {
             const query = {
-              ilike: vi.fn(() => query),
-              limit: vi.fn(async () => ({ data: mocks.spotRows, error: null })),
+              filters: [] as Array<[string, string]>,
+              ilike: vi.fn((column: string, value: string) => {
+                query.filters.push([column, value]);
+                return query;
+              }),
+              limit: vi.fn(async () => {
+                const rows = mocks.spotRows.filter((spot) =>
+                  query.filters.every(([column, value]) => {
+                    const normalizedValue = value.replace(/%/g, "").toLowerCase();
+                    if (column === "name->>en") {
+                      return String((spot.name as { en?: string })?.en || "").toLowerCase() === normalizedValue;
+                    }
+                    if (column === "address->>en") {
+                      return String((spot.address as { en?: string })?.en || "").toLowerCase().includes(normalizedValue);
+                    }
+                    return false;
+                  }),
+                );
+
+                return { data: rows, error: null };
+              }),
             };
             return query;
           }),
           insert: vi.fn((payload: Record<string, unknown>) => {
-            const row = { id: "spot_test", ...payload };
+            const row = { id: `spot_test_${mocks.spotRows.length + 1}`, ...payload };
             mocks.spotRows.push(row);
             return {
               select: vi.fn(() => ({
@@ -236,14 +255,14 @@ describe("/api/spots/social-submissions", () => {
       submission: {
         id: "submission_test",
         status: "spot_created",
-        spotId: "spot_test",
+        spotId: "spot_test_1",
       },
       contributor: {
         creditName: "Spotter",
         tokensAwarded: 25,
         totalTokens: 25,
       },
-      spotUrl: "/spots/spot_test",
+      spotUrl: "/spots/spot_test_1",
     });
     expect(mocks.spotRows[0]).toMatchObject({
       name: { en: "Hidden Seoul Cafe" },
@@ -288,6 +307,106 @@ describe("/api/spots/social-submissions", () => {
       canonical_url: "https://vm.tiktok.com/ZMh123",
       contributor_credit: "Localley contributor",
       token_awarded: 25,
+    });
+  });
+
+  it("creates multiple localized spots from one social video when research finds several candidates", async () => {
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Hidden Seoul Cafe",
+      description: "A small cafe with strong local signal.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 5,
+      localPercentage: 82,
+      bestTime: "Weekday afternoon",
+      tips: ["Go before dinner"],
+      confidence: 0.84,
+      researchSummary: "Verified two distinct places from the video and web evidence.",
+      evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+      imageUrl: "https://cdn.example.com/cafe-frame.jpg",
+      visualEvidence: "Cover image shows the cafe frontage.",
+      candidates: [
+        {
+          status: "candidate",
+          spotName: "Hidden Seoul Cafe",
+          description: "A small cafe with strong local signal.",
+          address: "1 Seoullo, Seoul",
+          city: "Seoul",
+          category: "Cafe",
+          subcategories: ["Coffee"],
+          localleyScore: 5,
+          localPercentage: 82,
+          bestTime: "Weekday afternoon",
+          tips: ["Go before dinner"],
+          confidence: 0.84,
+          researchSummary: "Verified as a real cafe.",
+          evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+          imageUrl: "https://cdn.example.com/cafe-frame.jpg",
+          visualEvidence: "Cover image shows the cafe frontage.",
+        },
+        {
+          status: "candidate",
+          spotName: "Ikseon Alley Dessert",
+          description: "A dessert shop shown later in the same social video.",
+          address: "22 Supyo-ro 28-gil, Seoul",
+          city: "Seoul",
+          category: "Dessert",
+          subcategories: ["Dessert"],
+          localleyScore: 4,
+          localPercentage: 76,
+          bestTime: "After lunch",
+          tips: ["Expect a short wait"],
+          confidence: 0.79,
+          researchSummary: "Verified as a separate dessert shop.",
+          evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+          imageUrl: "https://cdn.example.com/dessert-frame.jpg",
+          visualEvidence: "Cover metadata and caption mention a second dessert stop.",
+        },
+      ],
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "spot_created",
+      spotId: "spot_test_1",
+    });
+    expect(body.spots).toEqual([
+      expect.objectContaining({
+        spotId: "spot_test_1",
+        name: "Hidden Seoul Cafe",
+        status: "spot_created",
+      }),
+      expect.objectContaining({
+        spotId: "spot_test_2",
+        name: "Ikseon Alley Dessert",
+        status: "spot_created",
+      }),
+    ]);
+    expect(mocks.spotRows).toHaveLength(2);
+    expect(mocks.spotRows[0]).toMatchObject({
+      photos: ["https://cdn.example.com/cafe-frame.jpg"],
+    });
+    expect(mocks.spotRows[1]).toMatchObject({
+      photos: ["https://cdn.example.com/dessert-frame.jpg"],
+    });
+    expect(mocks.submissionRows[0].research).toMatchObject({
+      candidates: expect.arrayContaining([
+        expect.objectContaining({ spotName: "Hidden Seoul Cafe" }),
+        expect.objectContaining({ spotName: "Ikseon Alley Dessert" }),
+      ]),
+      createdCandidates: expect.arrayContaining([
+        expect.objectContaining({ spotId: "spot_test_1" }),
+        expect.objectContaining({ spotId: "spot_test_2" }),
+      ]),
     });
   });
 

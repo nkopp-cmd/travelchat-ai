@@ -10,10 +10,11 @@ migration has been applied in the target environment.
 
 1. The contributor pastes a TikTok or Instagram post/reel link. Email, credit name, city, and notes are optional.
 2. `/api/spots/social-submissions` canonicalizes the URL, stores contributor attribution, and checks for duplicate submissions.
-3. The server fetches social Open Graph metadata from an allowlisted host only.
-4. OpenAI web-search research extracts a candidate place, Localley score, local percentage, address, and evidence. This is only for social-link research; chat and itinerary generation remain GLM-first.
-5. A spot is created or reused only when the candidate clears the confidence gate and geocoding succeeds.
-6. Every durable new submission receives an idempotent token ledger entry. URL-only submissions use anonymous Localley contributor attribution.
+3. The server fetches social Open Graph metadata from an allowlisted host only and augments TikTok links with oEmbed metadata where available.
+4. The best available cover image/thumbnail is treated as the URL-only visual frame. True frame extraction requires an uploaded video file or authorized media access.
+5. OpenAI web-search research extracts up to 5 distinct candidate places, Localley score, local percentage, exact address, visual evidence notes, and web evidence. This is only for social-link research; chat and itinerary generation remain GLM-first.
+6. Each high-confidence candidate is created or reused as a Localley spot only when the candidate clears the confidence gate and geocoding succeeds. The submission stores the primary `spot_id` and all candidate results in the `research` payload.
+7. Every durable new submission receives an idempotent token ledger entry. URL-only submissions use anonymous Localley contributor attribution.
 
 Installed PWA users can share into Localley on platforms that support Web Share Target. The manifest sends shared `title`, `text`, and `url` data to `/spots/submit`, and the form auto-fills the first TikTok or Instagram URL it finds.
 

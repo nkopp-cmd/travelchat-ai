@@ -52,10 +52,14 @@ export interface SocialLinkMetadata {
   title: string | null;
   description: string | null;
   imageUrl: string | null;
+  thumbnailUrl?: string | null;
+  authorName?: string | null;
+  providerName?: string | null;
+  embedHtml?: string | null;
   finalUrl: string;
 }
 
-export interface SocialSpotResearchResult {
+export interface SocialSpotResearchCandidate {
   status: "candidate" | "needs_review" | "research_pending";
   spotName: string | null;
   description: string | null;
@@ -70,9 +74,15 @@ export interface SocialSpotResearchResult {
   confidence: number;
   researchSummary: string;
   evidenceUrls: string[];
+  imageUrl?: string | null;
+  visualEvidence?: string | null;
 }
 
-const researchResultSchema = z.object({
+export interface SocialSpotResearchResult extends SocialSpotResearchCandidate {
+  candidates: SocialSpotResearchCandidate[];
+}
+
+const researchCandidateSchema = z.object({
   status: z.enum(["candidate", "needs_review", "research_pending"]),
   spotName: z.string().min(1).max(160).nullable(),
   description: z.string().min(1).max(800).nullable(),
@@ -87,7 +97,72 @@ const researchResultSchema = z.object({
   confidence: z.number().min(0).max(1),
   researchSummary: z.string().min(1).max(1000),
   evidenceUrls: z.array(z.string().url()).max(8).default([]),
+  imageUrl: z.string().url().nullable().optional(),
+  visualEvidence: z.string().min(1).max(500).nullable().optional(),
 });
+
+const researchResultSchema = researchCandidateSchema.extend({
+  candidates: z.array(researchCandidateSchema).max(6).default([]),
+});
+
+function candidateKey(candidate: SocialSpotResearchCandidate): string {
+  return [
+    candidate.spotName?.trim().toLowerCase() || "",
+    candidate.address?.trim().toLowerCase() || "",
+    candidate.city?.trim().toLowerCase() || "",
+  ].join("|");
+}
+
+export function getResearchCandidates(
+  research: SocialSpotResearchResult | SocialSpotResearchCandidate,
+): SocialSpotResearchCandidate[] {
+  const primary: SocialSpotResearchCandidate = {
+    status: research.status,
+    spotName: research.spotName,
+    description: research.description,
+    address: research.address,
+    city: research.city,
+    category: research.category,
+    subcategories: research.subcategories,
+    localleyScore: research.localleyScore,
+    localPercentage: research.localPercentage,
+    bestTime: research.bestTime,
+    tips: research.tips,
+    confidence: research.confidence,
+    researchSummary: research.researchSummary,
+    evidenceUrls: research.evidenceUrls,
+    imageUrl: research.imageUrl,
+    visualEvidence: research.visualEvidence,
+  };
+  const nested = "candidates" in research ? research.candidates : [];
+  const candidates = [primary, ...nested].filter((candidate) =>
+    Boolean(candidate.spotName || candidate.address || candidate.researchSummary),
+  );
+  const seen = new Set<string>();
+
+  return candidates.filter((candidate) => {
+    const key = candidateKey(candidate);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 6);
+}
+
+function parseResearchResult(raw: unknown): SocialSpotResearchResult | null {
+  const parsed = researchResultSchema.safeParse(raw);
+  if (parsed.success) {
+    const candidates = getResearchCandidates(parsed.data);
+    return { ...parsed.data, candidates };
+  }
+
+  const legacy = researchCandidateSchema.safeParse(raw);
+  if (legacy.success) {
+    const candidates = getResearchCandidates(legacy.data);
+    return { ...legacy.data, candidates };
+  }
+
+  return null;
+}
 
 function getSocialPlatform(host: string): SocialSpotPlatform | null {
   if (INSTAGRAM_HOSTS.has(host)) return "instagram";
@@ -204,7 +279,90 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
       getMetaContent(html, "og:description") ||
       getMetaContent(html, "description"),
     imageUrl: getMetaContent(html, "og:image"),
+    thumbnailUrl: getMetaContent(html, "og:image"),
     finalUrl,
+  };
+}
+
+function normalizeMetadataImageUrl(value: unknown, baseUrl: string): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+
+  try {
+    const parsed = new URL(value.trim(), baseUrl);
+    if (parsed.protocol !== "https:") return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+async function fetchJsonWithTimeout(url: string): Promise<unknown | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SOCIAL_FETCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "accept": "application/json",
+        "user-agent": "LocalleyBot/1.0 (+https://localley.io)",
+      },
+    });
+
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchTikTokOEmbed(canonicalUrl: string): Promise<Partial<SocialLinkMetadata> | null> {
+  const payload = await fetchJsonWithTimeout(
+    `https://www.tiktok.com/oembed?url=${encodeURIComponent(canonicalUrl)}`,
+  );
+
+  if (!payload || typeof payload !== "object") return null;
+  const data = payload as Record<string, unknown>;
+  const thumbnailUrl = normalizeMetadataImageUrl(data.thumbnail_url, canonicalUrl);
+
+  return {
+    title: typeof data.title === "string" ? data.title : null,
+    description: typeof data.title === "string" ? data.title : null,
+    imageUrl: thumbnailUrl,
+    thumbnailUrl,
+    authorName: typeof data.author_name === "string" ? data.author_name : null,
+    providerName: typeof data.provider_name === "string" ? data.provider_name : "TikTok",
+    embedHtml: typeof data.html === "string" ? data.html : null,
+  };
+}
+
+async function fetchPlatformOEmbed(
+  normalized: CanonicalSocialSpotUrl,
+): Promise<Partial<SocialLinkMetadata> | null> {
+  if (normalized.platform === "tiktok") {
+    return fetchTikTokOEmbed(normalized.canonicalUrl);
+  }
+
+  return null;
+}
+
+function mergeSocialMetadata(
+  base: SocialLinkMetadata,
+  extra: Partial<SocialLinkMetadata> | null,
+): SocialLinkMetadata {
+  if (!extra) return base;
+
+  return {
+    title: base.title || extra.title || null,
+    description: base.description || extra.description || null,
+    imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
+    thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
+    authorName: base.authorName || extra.authorName || null,
+    providerName: base.providerName || extra.providerName || null,
+    embedHtml: base.embedHtml || extra.embedHtml || null,
+    finalUrl: base.finalUrl || extra.finalUrl || "",
   };
 }
 
@@ -230,6 +388,8 @@ export async function fetchSocialLinkMetadata(
   canonicalUrl: string,
 ): Promise<SocialLinkMetadata> {
   let currentUrl = canonicalUrl;
+  const initial = normalizeSocialSpotUrl(canonicalUrl);
+  const oembed = await fetchPlatformOEmbed(initial);
 
   for (let redirectCount = 0; redirectCount <= SOCIAL_REDIRECT_LIMIT; redirectCount++) {
     const normalized = normalizeSocialSpotUrl(currentUrl);
@@ -259,7 +419,10 @@ export async function fetchSocialLinkMetadata(
       if (!contentType.includes("text/html")) break;
 
       const html = await readResponseTextWithLimit(response);
-      return extractSocialMetadataFromHtml(html, normalized.canonicalUrl);
+      return mergeSocialMetadata(
+        extractSocialMetadataFromHtml(html, normalized.canonicalUrl),
+        oembed,
+      );
     } catch {
       break;
     } finally {
@@ -268,9 +431,13 @@ export async function fetchSocialLinkMetadata(
   }
 
   return {
-    title: null,
-    description: null,
-    imageUrl: null,
+    title: oembed?.title || null,
+    description: oembed?.description || null,
+    imageUrl: oembed?.imageUrl || oembed?.thumbnailUrl || null,
+    thumbnailUrl: oembed?.thumbnailUrl || oembed?.imageUrl || null,
+    authorName: oembed?.authorName || null,
+    providerName: oembed?.providerName || null,
+    embedHtml: oembed?.embedHtml || null,
     finalUrl: canonicalUrl,
   };
 }
@@ -290,6 +457,7 @@ function buildFallbackResearch(input: {
   cityHint?: string;
 }): SocialSpotResearchResult {
   const cleanedTitle = cleanSocialTitle(input.metadata.title);
+  const imageUrl = input.metadata.imageUrl || input.metadata.thumbnailUrl || null;
 
   return {
     status: "research_pending",
@@ -306,6 +474,9 @@ function buildFallbackResearch(input: {
     confidence: cleanedTitle ? 0.32 : 0.12,
     researchSummary: `Saved the ${input.platform} link and queued it for deeper Localley research.`,
     evidenceUrls: [input.metadata.finalUrl],
+    imageUrl,
+    visualEvidence: imageUrl ? "Captured the social post cover image for review." : null,
+    candidates: [],
   };
 }
 
@@ -318,7 +489,7 @@ function buildResearchPrompt(input: {
 }): string {
   return JSON.stringify({
     task:
-      "Research this social travel link as a potential Localley spot. Identify one real place only if evidence supports it. Estimate a Localley score from 1 tourist-trap to 6 legendary local alley, and a local percentage. If evidence is weak, return needs_review or research_pending.",
+      "Research this social travel link as a potential Localley spot submission. Detect every distinct real-world place mentioned or clearly shown, up to 5 candidates. Localize each candidate for Localley's spot system.",
     platform: input.platform,
     url: input.canonicalUrl,
     metadata: input.metadata,
@@ -327,9 +498,14 @@ function buildResearchPrompt(input: {
     requirements: [
       "Return exact JSON only.",
       "Do not invent an address or place name.",
-      "Prefer a real venue, cafe, restaurant, market, viewpoint, shop, alley, or neighborhood anchor.",
+      "Candidates can be venues, cafes, restaurants, markets, viewpoints, shops, alleys, or neighborhood anchors.",
+      "If the video/post appears to cover several different places, return several candidates.",
+      "Use the social cover image or thumbnail as visual evidence when available, but do not claim frame-level certainty unless the metadata supports it.",
       "Use web search evidence when the social page is hard to read.",
-      "Set confidence below 0.56 unless the place name, city, and address are all supported.",
+      "For each candidate, set confidence below 0.56 unless the place name, city, and address are all supported.",
+      "Return the best/primary candidate in the top-level fields and all candidates in candidates.",
+      "If no exact place can be verified, return research_pending or needs_review with candidates empty or low confidence.",
+      "Localley score: 1 tourist trap, 2 common, 3 solid, 4 local favorite, 5 hidden gem, 6 legendary local alley.",
     ],
   });
 }
@@ -391,6 +567,9 @@ export async function researchSocialSpotLink(input: {
               "confidence",
               "researchSummary",
               "evidenceUrls",
+              "imageUrl",
+              "visualEvidence",
+              "candidates",
             ],
             properties: {
               status: { type: "string", enum: ["candidate", "needs_review", "research_pending"] },
@@ -407,6 +586,52 @@ export async function researchSocialSpotLink(input: {
               confidence: { type: "number", minimum: 0, maximum: 1 },
               researchSummary: { type: "string" },
               evidenceUrls: { type: "array", items: { type: "string" }, maxItems: 8 },
+              imageUrl: { type: ["string", "null"] },
+              visualEvidence: { type: ["string", "null"] },
+              candidates: {
+                type: "array",
+                maxItems: 6,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: [
+                    "status",
+                    "spotName",
+                    "description",
+                    "address",
+                    "city",
+                    "category",
+                    "subcategories",
+                    "localleyScore",
+                    "localPercentage",
+                    "bestTime",
+                    "tips",
+                    "confidence",
+                    "researchSummary",
+                    "evidenceUrls",
+                    "imageUrl",
+                    "visualEvidence",
+                  ],
+                  properties: {
+                    status: { type: "string", enum: ["candidate", "needs_review", "research_pending"] },
+                    spotName: { type: ["string", "null"] },
+                    description: { type: ["string", "null"] },
+                    address: { type: ["string", "null"] },
+                    city: { type: ["string", "null"] },
+                    category: { type: ["string", "null"] },
+                    subcategories: { type: "array", items: { type: "string" }, maxItems: 8 },
+                    localleyScore: { type: ["integer", "null"], minimum: 1, maximum: 6 },
+                    localPercentage: { type: ["integer", "null"], minimum: 0, maximum: 100 },
+                    bestTime: { type: ["string", "null"] },
+                    tips: { type: "array", items: { type: "string" }, maxItems: 5 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    researchSummary: { type: "string" },
+                    evidenceUrls: { type: "array", items: { type: "string" }, maxItems: 8 },
+                    imageUrl: { type: ["string", "null"] },
+                    visualEvidence: { type: ["string", "null"] },
+                  },
+                },
+              },
             },
           },
           strict: true,
@@ -414,12 +639,12 @@ export async function researchSocialSpotLink(input: {
       } as never,
     });
 
-    const parsed = researchResultSchema.safeParse(JSON.parse(response.output_text));
-    if (!parsed.success) {
+    const parsed = parseResearchResult(JSON.parse(response.output_text));
+    if (!parsed) {
       return buildFallbackResearch(input);
     }
 
-    return parsed.data;
+    return parsed;
   } catch (error) {
     console.error("[social-spot-submissions] Research failed:", error);
     return buildFallbackResearch(input);

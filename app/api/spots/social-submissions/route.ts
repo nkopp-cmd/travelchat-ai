@@ -11,10 +11,12 @@ import {
   buildAnonymousContributorEmail,
   buildPublicCreditName,
   fetchSocialLinkMetadata,
+  getResearchCandidates,
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
   researchSocialSpotLink,
   socialSpotSubmissionSchema,
+  type SocialSpotResearchCandidate,
   type SocialSpotSubmissionStatus,
   type SocialSpotResearchResult,
 } from "@/lib/social-spot-submissions";
@@ -31,17 +33,17 @@ function formatPoint(lng: number, lat: number): string {
   return `POINT(${lng.toFixed(7)} ${lat.toFixed(7)})`;
 }
 
-function getSpotCategory(research: SocialSpotResearchResult): string {
+function getSpotCategory(research: SocialSpotResearchCandidate): string {
   return research.category || "Food";
 }
 
-function getSpotDescription(research: SocialSpotResearchResult): string {
+function getSpotDescription(research: SocialSpotResearchCandidate): string {
   if (research.description) return research.description;
   if (research.researchSummary) return research.researchSummary;
   return "A community-submitted place from a social travel link, queued for deeper Localley review.";
 }
 
-function canCreateSpot(research: SocialSpotResearchResult): boolean {
+function canCreateSpot(research: SocialSpotResearchCandidate): boolean {
   return Boolean(
     research.status === "candidate" &&
       research.spotName &&
@@ -53,7 +55,7 @@ function canCreateSpot(research: SocialSpotResearchResult): boolean {
 
 async function findExistingSpot(
   supabase: ReturnType<typeof createSupabaseAdmin>,
-  research: SocialSpotResearchResult,
+  research: SocialSpotResearchCandidate,
 ): Promise<string | null> {
   if (!research.spotName || !research.address) return null;
 
@@ -79,7 +81,7 @@ async function createSpotFromResearch({
   imageUrl,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
-  research: SocialSpotResearchResult;
+  research: SocialSpotResearchCandidate;
   imageUrl: string | null;
 }): Promise<{ spotId: string | null; status: SocialSpotSubmissionStatus }> {
   if (!canCreateSpot(research)) {
@@ -139,6 +141,15 @@ async function createSpotFromResearch({
 
   revalidateTag("spots", "default");
   return { spotId: insertedSpot?.id || null, status: "spot_created" };
+}
+
+function summarizeCandidateStatuses(
+  results: Array<{ spotId: string | null; status: SocialSpotSubmissionStatus }>,
+): SocialSpotSubmissionStatus {
+  if (results.some((result) => result.status === "spot_created")) return "spot_created";
+  if (results.some((result) => result.status === "spot_reused")) return "spot_reused";
+  if (results.some((result) => result.status === "research_pending")) return "research_pending";
+  return "needs_review";
 }
 
 export async function POST(req: NextRequest) {
@@ -204,7 +215,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingSubmission, error: existingError } = await supabase
       .from("social_spot_submissions")
-      .select("id, status, spot_id, token_awarded, research_confidence, research_summary")
+      .select("id, status, spot_id, token_awarded, research_confidence, research_summary, research")
       .eq("canonical_url", normalized.canonicalUrl)
       .maybeSingle();
 
@@ -230,6 +241,9 @@ export async function POST(req: NextRequest) {
         research: {
           confidence: existingSubmission.research_confidence,
           summary: existingSubmission.research_summary,
+          candidates: Array.isArray(existingSubmission.research?.candidates)
+            ? existingSubmission.research.candidates
+            : undefined,
         },
       });
     }
@@ -242,11 +256,38 @@ export async function POST(req: NextRequest) {
       notes: validation.data.notes,
       cityHint: validation.data.cityHint,
     });
-    const spotResult = await createSpotFromResearch({
-      supabase,
-      research,
-      imageUrl: metadata.imageUrl,
-    });
+    const candidates = getResearchCandidates(research);
+    const candidateResults = [];
+
+    for (const candidate of candidates) {
+      const spotResult = await createSpotFromResearch({
+        supabase,
+        research: candidate,
+        imageUrl: candidate.imageUrl || metadata.imageUrl || metadata.thumbnailUrl || null,
+      });
+
+      candidateResults.push({
+        ...spotResult,
+        spotName: candidate.spotName,
+        address: candidate.address,
+        city: candidate.city,
+        confidence: candidate.confidence,
+        summary: candidate.researchSummary,
+      });
+    }
+
+    const primaryResult =
+      candidateResults.find((result) => result.spotId) ||
+      candidateResults[0] ||
+      { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
+    const submissionStatus = summarizeCandidateStatuses(candidateResults);
+    const enrichedResearch: SocialSpotResearchResult = {
+      ...research,
+      candidates,
+      createdCandidates: candidateResults,
+    } as SocialSpotResearchResult & {
+      createdCandidates: typeof candidateResults;
+    };
 
     const tokenAward = SOCIAL_SUBMISSION_TOKEN_AWARD;
     const { data: submission, error: submissionError } = await supabase
@@ -254,11 +295,11 @@ export async function POST(req: NextRequest) {
       .insert({
         contributor_id: contributor.id,
         clerk_user_id: userId,
-        spot_id: spotResult.spotId,
+        spot_id: primaryResult.spotId,
         source_url: validation.data.url,
         canonical_url: normalized.canonicalUrl,
         platform: normalized.platform,
-        status: spotResult.status,
+        status: submissionStatus,
         contributor_credit: contributor.public_credit_name,
         token_awarded: tokenAward,
         notes: validation.data.notes || null,
@@ -270,7 +311,7 @@ export async function POST(req: NextRequest) {
         local_percentage: research.localPercentage,
         research_confidence: Number(research.confidence.toFixed(2)),
         research_summary: research.researchSummary,
-        research,
+        research: enrichedResearch,
         metadata,
       })
       .select("id, status, spot_id")
@@ -280,7 +321,7 @@ export async function POST(req: NextRequest) {
       if (submissionError?.code === "23505") {
         const { data: duplicateSubmission } = await supabase
           .from("social_spot_submissions")
-          .select("id, status, spot_id, research_confidence, research_summary")
+          .select("id, status, spot_id, research_confidence, research_summary, research")
           .eq("canonical_url", normalized.canonicalUrl)
           .maybeSingle();
 
@@ -303,6 +344,9 @@ export async function POST(req: NextRequest) {
             ? {
                 confidence: duplicateSubmission.research_confidence,
                 summary: duplicateSubmission.research_summary,
+                candidates: Array.isArray(duplicateSubmission.research?.candidates)
+                  ? duplicateSubmission.research.candidates
+                  : undefined,
               }
             : undefined,
         });
@@ -357,8 +401,20 @@ export async function POST(req: NextRequest) {
         summary: research.researchSummary,
         localleyScore: research.localleyScore,
         localPercentage: research.localPercentage,
+        candidates: enrichedResearch.candidates,
       },
       spotUrl: submission.spot_id ? `/spots/${submission.spot_id}` : null,
+      spots: candidateResults
+        .filter((result) => result.spotId)
+        .map((result) => ({
+          spotId: result.spotId,
+          spotUrl: `/spots/${result.spotId}`,
+          status: result.status,
+          name: result.spotName,
+          address: result.address,
+          city: result.city,
+          confidence: result.confidence,
+        })),
     });
   } catch (error) {
     return handleApiError(error, "social-spot-submissions");
