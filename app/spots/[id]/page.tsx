@@ -679,7 +679,8 @@ function NavigationTargetPanel({
         {targetValue}
       </p>
       <p className="mt-2 break-words text-xs leading-5 text-violet-50/60">
-        Address on record: {spot.location.address}
+        Address on record:{" "}
+        <span data-testid="spot-detail-address">{spot.location.address}</span>
       </p>
       {isSearchFirst && (
         <p className="mt-2 rounded-md border border-amber-200/20 bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">

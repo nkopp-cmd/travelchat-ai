@@ -24,6 +24,18 @@ const HAS_LOCAL_SUPABASE_ENV =
       contents.includes("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     );
   });
+const HAS_LOCAL_SUPABASE_ADMIN_ENV =
+  Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+  ) ||
+  LOCAL_ENV_FILES.some((file) => {
+    const contents = fs.readFileSync(file, "utf8");
+    return (
+      contents.includes("NEXT_PUBLIC_SUPABASE_URL") &&
+      contents.includes("SUPABASE_SERVICE_ROLE_KEY")
+    );
+  });
 
 function isLocalBaseUrl(baseURL?: string) {
   return Boolean(
@@ -176,7 +188,7 @@ test.describe("spots responsive layout", () => {
     baseURL,
   }) => {
     test.skip(
-      !baseURL || (isLocalBaseUrl(baseURL) && !HAS_LOCAL_SUPABASE_ENV),
+      !baseURL || (isLocalBaseUrl(baseURL) && !HAS_LOCAL_SUPABASE_ADMIN_ENV),
       "Spot detail pages need production-like Supabase admin env.",
     );
 
