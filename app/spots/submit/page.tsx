@@ -9,6 +9,7 @@ import {
   Instagram,
   Loader2,
   Mail,
+  ListVideo,
   Sparkles,
   Ticket,
   User,
@@ -39,8 +40,24 @@ type SubmissionResponse = {
     summary: string | null;
     localleyScore?: number | null;
     localPercentage?: number | null;
+    candidates?: Array<{
+      spotName: string | null;
+      address: string | null;
+      city: string | null;
+      confidence: number;
+      status: string;
+    }>;
   };
   spotUrl?: string | null;
+  spots?: Array<{
+    spotId: string;
+    spotUrl: string;
+    status: string;
+    name: string | null;
+    address: string | null;
+    city: string | null;
+    confidence: number;
+  }>;
   error?: {
     message: string;
   };
@@ -81,6 +98,13 @@ function SocialSubmissionsUnavailable() {
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
+        </Link>
+        <Link
+          href="/spots/submissions"
+          className="ml-2 inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+        >
+          <ListVideo className="mr-2 h-4 w-4" />
+          Submitted videos
         </Link>
 
         <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
@@ -152,9 +176,9 @@ function SubmitSpotForm() {
       setResult(body);
       toast({
         title: body.duplicate ? "Already submitted" : "Submission saved",
-        description: body.contributor
-          ? `${body.contributor.tokensAwarded} tokens awarded. Balance: ${body.contributor.totalTokens}.`
-          : undefined,
+        description: body.spots?.length
+          ? `${body.spots.length} spot${body.spots.length === 1 ? "" : "s"} ready to open.`
+          : "Saved to Submitted videos for research/review.",
       });
     } catch (error) {
       toast({
@@ -307,12 +331,46 @@ function SubmitSpotForm() {
                       {result.submission ? statusLabel[result.submission.status] : "Submission saved"}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
-                      Credited to {result.contributor?.creditName || "Localley contributor"}.
+                      {result.spots?.length
+                        ? `${result.spots.length} spot${result.spots.length === 1 ? "" : "s"} created or matched from this video.`
+                        : "Saved to Submitted videos. If we cannot verify the exact place, it stays queued for review instead of disappearing."}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid gap-2">
+                  <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                      <ListVideo className="h-4 w-4 text-violet-300" />
+                      Submitted videos
+                    </span>
+                    <p className="mt-1 text-sm leading-6 text-violet-50/65">
+                      This video is saved in the submission tracker with its research status and any created spots.
+                    </p>
+                  </div>
+
+                  {result.spots && result.spots.length > 0 && (
+                    <div className="rounded-lg border border-emerald-200/15 bg-emerald-400/10 p-3">
+                      <span className="text-sm font-semibold text-white">Created spots</span>
+                      <div className="mt-2 grid gap-2">
+                        {result.spots.map((spot) => (
+                          <Link
+                            key={spot.spotId}
+                            href={spot.spotUrl}
+                            className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/80 transition-colors hover:border-violet-200/35 hover:bg-white/10 hover:text-white"
+                          >
+                            <span className="block font-semibold text-white">
+                              {spot.name || "Created spot"}
+                            </span>
+                            <span className="mt-0.5 block text-xs text-violet-50/55">
+                              {spot.city || "Location"} · {Math.round(spot.confidence * 100)}% confidence
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                     <span className="flex items-center gap-2 text-sm font-semibold text-white">
                       <Ticket className="h-4 w-4 text-violet-300" />
@@ -341,9 +399,21 @@ function SubmitSpotForm() {
                     </Link>
                   </Button>
                 )}
+                <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                  <Link href="/spots/submissions">
+                    View submitted videos
+                    <ListVideo className="h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
             ) : (
               <div className="space-y-3">
+                <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                  <Link href="/spots/submissions">
+                    <ListVideo className="h-4 w-4" />
+                    View submitted videos
+                  </Link>
+                </Button>
                 <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                   <span className="flex items-center gap-2 text-sm font-semibold text-white">
                     <Ticket className="h-4 w-4 text-violet-300" />

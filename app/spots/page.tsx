@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
-import { MapPin, Plus } from "lucide-react";
+import { ListVideo, MapPin, Plus } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -149,15 +149,27 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
                             {socialSpotSubmissionsEnabled && (
-                                <Button
-                                    asChild
-                                    className="mt-4 h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
-                                >
-                                    <Link href="/spots/submit">
-                                        <Plus className="h-4 w-4" />
-                                        Submit social spot
-                                    </Link>
-                                </Button>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    <Button
+                                        asChild
+                                        className="h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
+                                    >
+                                        <Link href="/spots/submit">
+                                            <Plus className="h-4 w-4" />
+                                            Submit video
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="h-10 rounded-lg border-violet-200/20 bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white"
+                                    >
+                                        <Link href="/spots/submissions">
+                                            <ListVideo className="h-4 w-4" />
+                                            Submitted videos
+                                        </Link>
+                                    </Button>
+                                </div>
                             )}
                         </div>
                     </div>
