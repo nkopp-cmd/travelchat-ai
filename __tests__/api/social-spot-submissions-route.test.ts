@@ -127,6 +127,26 @@ function createSupabaseMock() {
               })),
             };
           }),
+          update: vi.fn((payload: Record<string, unknown>) => {
+            const query = {
+              filters: [] as Array<[string, string]>,
+              eq: vi.fn((column: string, value: string) => {
+                query.filters.push([column, value]);
+                return query;
+              }),
+              select: vi.fn(() => ({
+                single: vi.fn(async () => {
+                  const row = mocks.submissionRows.find((submission) =>
+                    query.filters.every(([column, value]) => submission[column] === value),
+                  );
+                  if (!row) return { data: null, error: { message: "not found" } };
+                  Object.assign(row, payload);
+                  return { data: row, error: null };
+                }),
+              })),
+            };
+            return query;
+          }),
         };
       }
 
@@ -187,6 +207,16 @@ function createSupabaseMock() {
 function createRequest(body: Record<string, unknown>) {
   return new NextRequest("https://www.localley.io/api/spots/social-submissions", {
     method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+}
+
+function createPatchRequest(body: Record<string, unknown>) {
+  return new NextRequest("https://www.localley.io/api/spots/social-submissions", {
+    method: "PATCH",
     body: JSON.stringify(body),
     headers: {
       "content-type": "application/json",
@@ -586,5 +616,112 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.ledgerRows).toHaveLength(1);
+  });
+
+  it("reruns research with added evidence and creates a spot without awarding more tokens", async () => {
+    mocks.submissionRows.push({
+      id: "11111111-1111-4111-8111-111111111111",
+      canonical_url: "https://www.instagram.com/p/IMG123",
+      platform: "instagram",
+      status: "research_pending",
+      spot_id: null,
+      notes: null,
+      city_hint: null,
+      metadata: {
+        title: "Instagram post",
+        imageUrl: "https://cdn.example.com/post.jpg",
+        finalUrl: "https://www.instagram.com/p/IMG123",
+      },
+      research_confidence: 0.12,
+      research_summary: "Could not verify the post.",
+    });
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Cafe Saeraul",
+      description: "A peaceful cafe verified after the contributor added the place name.",
+      address: "10 Saeraul-ro, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 4,
+      localPercentage: 78,
+      bestTime: "Weekday morning",
+      tips: ["Check opening hours"],
+      confidence: 0.81,
+      researchSummary: "Verified using the added place hint and web evidence.",
+      evidenceUrls: ["https://www.instagram.com/p/IMG123"],
+      imageUrl: null,
+      visualEvidence: "Contributor identified the place.",
+      candidates: [],
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "11111111-1111-4111-8111-111111111111",
+      canonicalUrl: "https://www.instagram.com/p/IMG123",
+      placeHint: "Cafe Saeraul",
+      cityHint: "Seoul",
+      notes: "Caption shows Cafe Saeraul and a courtyard.",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      success: true,
+      submission: {
+        id: "11111111-1111-4111-8111-111111111111",
+        status: "spot_created",
+        spotId: "spot_test_1",
+      },
+      spotUrl: "/spots/spot_test_1",
+    });
+    expect(mocks.spotRows[0]).toMatchObject({
+      name: { en: "Cafe Saeraul" },
+      photos: ["https://cdn.example.com/post.jpg"],
+    });
+    expect(mocks.submissionRows[0]).toMatchObject({
+      status: "spot_created",
+      spot_id: "spot_test_1",
+      city_hint: "Seoul",
+      notes: expect.stringContaining("Place hint: Cafe Saeraul"),
+      research_summary: "Verified using the added place hint and web evidence.",
+      research: expect.objectContaining({
+        contributorEvidence: expect.arrayContaining([
+          expect.objectContaining({
+            placeHint: "Cafe Saeraul",
+            cityHint: "Seoul",
+          }),
+        ]),
+      }),
+    });
+    expect(mocks.ledgerRows).toHaveLength(0);
+  });
+
+  it("rejects added evidence for submissions that already have spots", async () => {
+    mocks.submissionRows.push({
+      id: "22222222-2222-4222-8222-222222222222",
+      canonical_url: "https://www.instagram.com/p/IMG123",
+      platform: "instagram",
+      status: "spot_created",
+      spot_id: "spot_existing",
+      notes: null,
+      city_hint: null,
+      metadata: {
+        finalUrl: "https://www.instagram.com/p/IMG123",
+      },
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "22222222-2222-4222-8222-222222222222",
+      canonicalUrl: "https://www.instagram.com/p/IMG123",
+      placeHint: "Different place",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error.code).toBe("validation_error");
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+    expect(mocks.spotRows).toHaveLength(0);
   });
 });

@@ -15,10 +15,12 @@ import {
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
   researchSocialSpotLink,
+  socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
   type SocialSpotResearchCandidate,
   type SocialSpotSubmissionStatus,
   type SocialSpotResearchResult,
+  type SocialLinkMetadata,
 } from "@/lib/social-spot-submissions";
 import { validateBody } from "@/lib/validations";
 
@@ -152,6 +154,51 @@ function summarizeCandidateStatuses(
   return "needs_review";
 }
 
+function buildEvidenceNotes(input: {
+  existingNotes?: string | null;
+  placeHint?: string;
+  notes?: string;
+}): string | null {
+  const parts = [
+    input.existingNotes,
+    input.placeHint ? `Place hint: ${input.placeHint}` : null,
+    input.notes ? `Extra source details: ${input.notes}` : null,
+  ].filter(Boolean);
+
+  return parts.length > 0 ? parts.join("\n\n").slice(0, 1000) : null;
+}
+
+async function createCandidateResults({
+  supabase,
+  candidates,
+  metadata,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  candidates: SocialSpotResearchCandidate[];
+  metadata: SocialLinkMetadata;
+}) {
+  const candidateResults = [];
+
+  for (const candidate of candidates) {
+    const spotResult = await createSpotFromResearch({
+      supabase,
+      research: candidate,
+      imageUrl: candidate.imageUrl || metadata.imageUrl || metadata.thumbnailUrl || null,
+    });
+
+    candidateResults.push({
+      ...spotResult,
+      spotName: candidate.spotName,
+      address: candidate.address,
+      city: candidate.city,
+      confidence: candidate.confidence,
+      summary: candidate.researchSummary,
+    });
+  }
+
+  return candidateResults;
+}
+
 export async function POST(req: NextRequest) {
   try {
     if (!isSocialSpotSubmissionsEnabled()) {
@@ -245,6 +292,7 @@ export async function POST(req: NextRequest) {
             ? existingSubmission.research.candidates
             : undefined,
         },
+        spotUrl: existingSubmission.spot_id ? `/spots/${existingSubmission.spot_id}` : null,
       });
     }
 
@@ -257,24 +305,7 @@ export async function POST(req: NextRequest) {
       cityHint: validation.data.cityHint,
     });
     const candidates = getResearchCandidates(research);
-    const candidateResults = [];
-
-    for (const candidate of candidates) {
-      const spotResult = await createSpotFromResearch({
-        supabase,
-        research: candidate,
-        imageUrl: candidate.imageUrl || metadata.imageUrl || metadata.thumbnailUrl || null,
-      });
-
-      candidateResults.push({
-        ...spotResult,
-        spotName: candidate.spotName,
-        address: candidate.address,
-        city: candidate.city,
-        confidence: candidate.confidence,
-        summary: candidate.researchSummary,
-      });
-    }
+    const candidateResults = await createCandidateResults({ supabase, candidates, metadata });
 
     const primaryResult =
       candidateResults.find((result) => result.spotId) ||
@@ -349,6 +380,7 @@ export async function POST(req: NextRequest) {
                   : undefined,
               }
             : undefined,
+          spotUrl: duplicateSubmission?.spot_id ? `/spots/${duplicateSubmission.spot_id}` : null,
         });
       }
 
@@ -418,5 +450,172 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     return handleApiError(error, "social-spot-submissions");
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    if (!isSocialSpotSubmissionsEnabled()) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "social_submissions_disabled",
+            message: "Social spot submissions are not enabled yet.",
+          },
+        },
+        { status: 404 },
+      );
+    }
+
+    const limited = await rateLimiters.strict(req);
+    if (limited) return limited;
+
+    const validation = await validateBody(req, socialSpotEvidenceSchema);
+    if (!validation.success) {
+      return Errors.validationError(validation.error);
+    }
+
+    let validatedCanonical;
+    try {
+      validatedCanonical = normalizeSocialSpotUrl(validation.data.canonicalUrl);
+    } catch (error) {
+      return Errors.validationError(
+        error instanceof Error ? error.message : "This submission has an invalid social link.",
+      );
+    }
+
+    const { userId } = await auth();
+    const supabase = createSupabaseAdmin();
+    const { data: existingSubmission, error: existingError } = await supabase
+      .from("social_spot_submissions")
+      .select("id, status, spot_id, canonical_url, platform, notes, city_hint, metadata, research")
+      .eq("id", validation.data.submissionId)
+      .eq("canonical_url", validatedCanonical.canonicalUrl)
+      .maybeSingle();
+
+    if (existingError) {
+      console.error("[social-submissions] Evidence lookup failed:", existingError);
+      return Errors.databaseError("Could not load this submission.");
+    }
+
+    if (!existingSubmission) {
+      return Errors.notFound("Submission");
+    }
+
+    if (["spot_created", "spot_reused"].includes(existingSubmission.status)) {
+      return Errors.validationError("This submission already has a Localley spot.");
+    }
+
+    let normalized;
+    try {
+      normalized = normalizeSocialSpotUrl(existingSubmission.canonical_url);
+    } catch (error) {
+      return Errors.validationError(
+        error instanceof Error ? error.message : "This submission has an invalid social link.",
+      );
+    }
+
+    const evidenceNotes = buildEvidenceNotes({
+      existingNotes: existingSubmission.notes,
+      placeHint: validation.data.placeHint,
+      notes: validation.data.notes,
+    });
+    const cityHint = validation.data.cityHint || existingSubmission.city_hint || undefined;
+    const metadata = {
+      ...(existingSubmission.metadata || {}),
+      finalUrl: normalized.canonicalUrl,
+    } as SocialLinkMetadata;
+    const research = await researchSocialSpotLink({
+      canonicalUrl: normalized.canonicalUrl,
+      platform: normalized.platform,
+      metadata,
+      notes: evidenceNotes || undefined,
+      cityHint,
+    });
+    const candidates = getResearchCandidates(research);
+    const candidateResults = await createCandidateResults({ supabase, candidates, metadata });
+    const primaryResult =
+      candidateResults.find((result) => result.spotId) ||
+      candidateResults[0] ||
+      { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
+    const submissionStatus = summarizeCandidateStatuses(candidateResults);
+    const previousEvidence = Array.isArray(existingSubmission.research?.contributorEvidence)
+      ? existingSubmission.research.contributorEvidence
+      : [];
+    const contributorEvidence = [
+      ...previousEvidence,
+      {
+        submittedAt: new Date().toISOString(),
+        clerkUserId: userId,
+        placeHint: validation.data.placeHint || null,
+        cityHint: validation.data.cityHint || null,
+        notes: validation.data.notes || null,
+      },
+    ].slice(-10);
+    const enrichedResearch: SocialSpotResearchResult = {
+      ...research,
+      candidates,
+      createdCandidates: candidateResults,
+      contributorEvidence,
+    } as SocialSpotResearchResult & {
+      createdCandidates: typeof candidateResults;
+      contributorEvidence: typeof contributorEvidence;
+    };
+
+    const { data: updatedSubmission, error: updateError } = await supabase
+      .from("social_spot_submissions")
+      .update({
+        spot_id: primaryResult.spotId,
+        status: submissionStatus,
+        notes: evidenceNotes,
+        city_hint: cityHint || null,
+        extracted_name: research.spotName,
+        extracted_address: research.address,
+        extracted_city: research.city,
+        localley_score: research.localleyScore,
+        local_percentage: research.localPercentage,
+        research_confidence: Number(research.confidence.toFixed(2)),
+        research_summary: research.researchSummary,
+        research: enrichedResearch,
+        metadata,
+      })
+      .eq("id", existingSubmission.id)
+      .select("id, status, spot_id")
+      .single();
+
+    if (updateError || !updatedSubmission) {
+      console.error("[social-submissions] Evidence update failed:", updateError);
+      return Errors.databaseError("Could not save the added evidence.");
+    }
+
+    return NextResponse.json({
+      success: true,
+      submission: {
+        id: updatedSubmission.id,
+        status: updatedSubmission.status,
+        spotId: updatedSubmission.spot_id,
+      },
+      research: {
+        confidence: research.confidence,
+        summary: research.researchSummary,
+        localleyScore: research.localleyScore,
+        localPercentage: research.localPercentage,
+        candidates: enrichedResearch.candidates,
+      },
+      spotUrl: updatedSubmission.spot_id ? `/spots/${updatedSubmission.spot_id}` : null,
+      spots: candidateResults
+        .filter((result) => result.spotId)
+        .map((result) => ({
+          spotId: result.spotId,
+          spotUrl: `/spots/${result.spotId}`,
+          status: result.status,
+          name: result.spotName,
+          address: result.address,
+          city: result.city,
+          confidence: result.confidence,
+        })),
+    });
+  } catch (error) {
+    return handleApiError(error, "social-spot-submissions-evidence");
   }
 }

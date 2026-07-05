@@ -42,6 +42,19 @@ export const socialSpotSubmissionSchema = z.object({
 
 export type SocialSpotSubmissionInput = z.infer<typeof socialSpotSubmissionSchema>;
 
+export const socialSpotEvidenceSchema = z.object({
+  submissionId: z.string().trim().uuid(),
+  canonicalUrl: z.string().trim().min(12).max(2000),
+  placeHint: z.string().trim().min(2).max(160).optional(),
+  cityHint: z.string().trim().min(2).max(120).optional(),
+  notes: z.string().trim().min(4).max(1000).optional(),
+}).strict().refine(
+  (value) => Boolean(value.placeHint || value.cityHint || value.notes),
+  "Add a place name, city, or detail so Localley can research again.",
+);
+
+export type SocialSpotEvidenceInput = z.infer<typeof socialSpotEvidenceSchema>;
+
 export interface CanonicalSocialSpotUrl {
   canonicalUrl: string;
   platform: SocialSpotPlatform;

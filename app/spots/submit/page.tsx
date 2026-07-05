@@ -67,7 +67,7 @@ const statusLabel: Record<NonNullable<SubmissionResponse["submission"]>["status"
   spot_created: "Spot added",
   spot_reused: "Matched existing spot",
   needs_review: "Queued for review",
-  research_pending: "Research queued",
+  research_pending: "Needs source info",
 };
 
 const socialSpotSubmissionsEnabled =
@@ -173,7 +173,10 @@ function SubmitSpotForm() {
         throw new Error(body.error?.message || "Could not submit the spot.");
       }
 
-      setResult(body);
+      setResult({
+        ...body,
+        spotUrl: body.spotUrl || (body.submission?.spotId ? `/spots/${body.submission.spotId}` : null),
+      });
       toast({
         title: body.duplicate ? "Already submitted" : "Submission saved",
         description: body.spots?.length
@@ -281,26 +284,26 @@ function SubmitSpotForm() {
               <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-violet-50">
-                    City hint <span className="text-violet-50/45">(optional)</span>
+                    City or neighborhood <span className="text-violet-50/45">(optional)</span>
                   </Label>
                   <Input
                     id="city"
                     value={cityHint}
                     onChange={(event) => setCityHint(event.target.value)}
-                    placeholder="Seoul"
+                    placeholder="Seoul, Seongsu, Ikseon-dong..."
                     className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/35"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="notes" className="text-violet-50">
-                    Notes <span className="text-violet-50/45">(optional)</span>
+                    Place clues <span className="text-violet-50/45">(optional)</span>
                   </Label>
                   <Textarea
                     id="notes"
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
-                    placeholder="What should we know about this place?"
+                    placeholder="Place name, sign text, nearest station, caption clue, or address"
                     className="min-h-24 border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/35"
                   />
                 </div>
@@ -333,7 +336,7 @@ function SubmitSpotForm() {
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
                       {result.spots?.length
                         ? `${result.spots.length} spot${result.spots.length === 1 ? "" : "s"} created or matched from this post.`
-                        : "Saved to Submitted posts. If we cannot verify the exact place, it stays queued for review instead of disappearing."}
+                        : "Saved to Submitted posts. Add a place clue if the public post is blocked or missing location details."}
                     </p>
                   </div>
                 </div>

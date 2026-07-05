@@ -6,6 +6,7 @@ import {
   maskEmailForCredit,
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
+  socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
 } from "@/lib/social-spot-submissions";
 
@@ -84,6 +85,31 @@ describe("social spot submission helpers", () => {
       socialSpotSubmissionSchema.safeParse({
         url: "https://www.instagram.com/reel/ABC123",
         email: "not-an-email",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("validates added evidence payloads", () => {
+    expect(
+      socialSpotEvidenceSchema.safeParse({
+        submissionId: "11111111-1111-4111-8111-111111111111",
+        canonicalUrl: "https://www.instagram.com/p/IMG123",
+        placeHint: "Cafe Saeraul",
+      }).success,
+    ).toBe(true);
+
+    expect(
+      socialSpotEvidenceSchema.safeParse({
+        submissionId: "11111111-1111-4111-8111-111111111111",
+        canonicalUrl: "https://www.instagram.com/p/IMG123",
+      }).success,
+    ).toBe(false);
+
+    expect(
+      socialSpotEvidenceSchema.safeParse({
+        submissionId: "not-a-uuid",
+        canonicalUrl: "https://www.instagram.com/p/IMG123",
+        placeHint: "Cafe Saeraul",
       }).success,
     ).toBe(false);
   });

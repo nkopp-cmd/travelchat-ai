@@ -14,6 +14,7 @@ import { AppBackground } from "@/components/layout/app-background";
 import { Button } from "@/components/ui/button";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { SubmissionEvidenceForm } from "./evidence-form";
 
 export const dynamic = "force-dynamic";
 
@@ -90,8 +91,8 @@ function getStatusCopy(status: SubmissionRow["status"]) {
       };
     default:
       return {
-        label: "Research queued",
-        helper: "The post is saved and waiting for deeper research.",
+        label: "Needs source info",
+        helper: "Saved, but Localley could not verify the exact place from the public post alone.",
         icon: Clock3,
         className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
       };
@@ -322,6 +323,14 @@ export default async function SubmittedPostsPage() {
                         </p>
                       </div>
                     ) : null}
+                    {createdCandidates.length === 0 &&
+                      ["needs_review", "research_pending"].includes(submission.status) && (
+                        <SubmissionEvidenceForm
+                          submissionId={submission.id}
+                          canonicalUrl={submission.canonical_url}
+                          defaultCity={submission.extracted_city}
+                        />
+                      )}
                   </div>
                 </article>
               );
