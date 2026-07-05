@@ -6,14 +6,14 @@ import {
   ArrowLeft,
   CheckCircle2,
   ExternalLink,
+  ImagePlus,
+  Images,
   Instagram,
   Loader2,
   Mail,
-  ListVideo,
   Sparkles,
   Ticket,
   User,
-  Video,
 } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { Button } from "@/components/ui/button";
@@ -103,8 +103,8 @@ function SocialSubmissionsUnavailable() {
           href="/spots/submissions"
           className="ml-2 inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
         >
-          <ListVideo className="mr-2 h-4 w-4" />
-          Submitted videos
+          <Images className="mr-2 h-4 w-4" />
+          Submitted posts
         </Link>
 
         <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
@@ -178,7 +178,7 @@ function SubmitSpotForm() {
         title: body.duplicate ? "Already submitted" : "Submission saved",
         description: body.spots?.length
           ? `${body.spots.length} spot${body.spots.length === 1 ? "" : "s"} ready to open.`
-          : "Saved to Submitted videos for research/review.",
+          : "Saved to Submitted posts for research/review.",
       });
     } catch (error) {
       toast({
@@ -211,10 +211,10 @@ function SubmitSpotForm() {
                   Community discovery
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-                  Drop a video link
+                  Drop a social post link
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-50/65">
-                  Paste a TikTok or Instagram spot video. Localley will research the place, dedupe it, and queue the spot.
+                  Paste a TikTok or Instagram post, reel, carousel, or video. Localley will research the place, dedupe it, and queue the spot.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -222,7 +222,7 @@ function SubmitSpotForm() {
                   <Instagram className="h-5 w-5" />
                 </span>
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-violet-100">
-                  <Video className="h-5 w-5" />
+                  <ImagePlus className="h-5 w-5" />
                 </span>
               </div>
             </div>
@@ -230,7 +230,7 @@ function SubmitSpotForm() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="social-url" className="text-violet-50">
-                  TikTok or Instagram video URL
+                  TikTok or Instagram post URL
                 </Label>
                 <Input
                   id="social-url"
@@ -316,7 +316,7 @@ function SubmitSpotForm() {
                 ) : (
                   <Sparkles className="h-4 w-4" />
                 )}
-                Submit video
+                Submit post
               </Button>
             </form>
           </section>
@@ -332,8 +332,8 @@ function SubmitSpotForm() {
                     </p>
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
                       {result.spots?.length
-                        ? `${result.spots.length} spot${result.spots.length === 1 ? "" : "s"} created or matched from this video.`
-                        : "Saved to Submitted videos. If we cannot verify the exact place, it stays queued for review instead of disappearing."}
+                        ? `${result.spots.length} spot${result.spots.length === 1 ? "" : "s"} created or matched from this post.`
+                        : "Saved to Submitted posts. If we cannot verify the exact place, it stays queued for review instead of disappearing."}
                     </p>
                   </div>
                 </div>
@@ -341,11 +341,11 @@ function SubmitSpotForm() {
                 <div className="grid gap-2">
                   <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                     <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                      <ListVideo className="h-4 w-4 text-violet-300" />
-                      Submitted videos
+                      <Images className="h-4 w-4 text-violet-300" />
+                      Submitted posts
                     </span>
                     <p className="mt-1 text-sm leading-6 text-violet-50/65">
-                      This video is saved in the submission tracker with its research status and any created spots.
+                      This post is saved in the submission tracker with its research status and any created spots.
                     </p>
                   </div>
 
@@ -401,8 +401,8 @@ function SubmitSpotForm() {
                 )}
                 <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                   <Link href="/spots/submissions">
-                    View submitted videos
-                    <ListVideo className="h-4 w-4" />
+                    View submitted posts
+                    <Images className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -410,8 +410,8 @@ function SubmitSpotForm() {
               <div className="space-y-3">
                 <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                   <Link href="/spots/submissions">
-                    <ListVideo className="h-4 w-4" />
-                    View submitted videos
+                    <Images className="h-4 w-4" />
+                    View submitted posts
                   </Link>
                 </Button>
                 <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
@@ -420,7 +420,7 @@ function SubmitSpotForm() {
                     25 tokens
                   </span>
                   <p className="mt-1 text-sm leading-6 text-violet-50/60">
-                    Paste only the video URL. Add email later if you want credits tied to you.
+                    Paste only the social post URL. Add email later if you want credits tied to you.
                   </p>
                 </div>
                 <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">

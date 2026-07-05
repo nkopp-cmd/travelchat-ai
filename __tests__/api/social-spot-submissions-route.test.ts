@@ -310,7 +310,62 @@ describe("/api/spots/social-submissions", () => {
     });
   });
 
-  it("creates multiple localized spots from one social video when research finds several candidates", async () => {
+  it("creates a spot from an Instagram image post", async () => {
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Tiny Noodle Bar on Instagram",
+      description: "A photo post from a local creator.",
+      imageUrl: "https://cdn.example.com/noodle-post.jpg",
+      thumbnailUrl: "https://cdn.example.com/noodle-post.jpg",
+      sourceType: "instagram_post",
+      sourceLabel: "Instagram post",
+      finalUrl: "https://www.instagram.com/p/IMG123",
+    });
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Tiny Noodle Bar",
+      description: "A compact noodle shop identified from an Instagram image post.",
+      address: "7 Eulji-ro, Seoul",
+      city: "Seoul",
+      category: "Restaurant",
+      subcategories: ["Noodles"],
+      localleyScore: 5,
+      localPercentage: 80,
+      bestTime: "Late lunch",
+      tips: ["Check the daily broth"],
+      confidence: 0.82,
+      researchSummary: "Verified from the Instagram post metadata and web evidence.",
+      evidenceUrls: ["https://www.instagram.com/p/IMG123"],
+      imageUrl: null,
+      visualEvidence: "Instagram post image shows the storefront signage.",
+      candidates: [],
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/p/IMG123/?igsh=abc",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "spot_created",
+      spotId: "spot_test_1",
+    });
+    expect(mocks.submissionRows[0]).toMatchObject({
+      canonical_url: "https://www.instagram.com/p/IMG123",
+      platform: "instagram",
+      metadata: expect.objectContaining({
+        sourceType: "instagram_post",
+        sourceLabel: "Instagram post",
+      }),
+    });
+    expect(mocks.spotRows[0]).toMatchObject({
+      name: { en: "Tiny Noodle Bar" },
+      photos: ["https://cdn.example.com/noodle-post.jpg"],
+    });
+  });
+
+  it("creates multiple localized spots from one social post when research finds several candidates", async () => {
     mocks.researchSocialSpotLink.mockResolvedValueOnce({
       status: "candidate",
       spotName: "Hidden Seoul Cafe",
@@ -324,7 +379,7 @@ describe("/api/spots/social-submissions", () => {
       bestTime: "Weekday afternoon",
       tips: ["Go before dinner"],
       confidence: 0.84,
-      researchSummary: "Verified two distinct places from the video and web evidence.",
+      researchSummary: "Verified two distinct places from the post and web evidence.",
       evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
       imageUrl: "https://cdn.example.com/cafe-frame.jpg",
       visualEvidence: "Cover image shows the cafe frontage.",
@@ -350,7 +405,7 @@ describe("/api/spots/social-submissions", () => {
         {
           status: "candidate",
           spotName: "Ikseon Alley Dessert",
-          description: "A dessert shop shown later in the same social video.",
+          description: "A dessert shop shown later in the same social post.",
           address: "22 Supyo-ro 28-gil, Seoul",
           city: "Seoul",
           category: "Dessert",

@@ -19,6 +19,14 @@ describe("social spot submission helpers", () => {
       host: "www.instagram.com",
     });
 
+    expect(
+      normalizeSocialSpotUrl("https://www.instagram.com/p/IMG123/?igsh=abc"),
+    ).toEqual({
+      canonicalUrl: "https://www.instagram.com/p/IMG123",
+      platform: "instagram",
+      host: "www.instagram.com",
+    });
+
     expect(normalizeSocialSpotUrl("https://vm.tiktok.com/ZMh123/?share_item_id=1")).toEqual({
       canonicalUrl: "https://vm.tiktok.com/ZMh123",
       platform: "tiktok",
@@ -96,7 +104,30 @@ describe("social spot submission helpers", () => {
       description: "Small Seoul cafe",
       imageUrl: "https://cdn.example.com/photo.jpg",
       thumbnailUrl: "https://cdn.example.com/photo.jpg",
+      sourceType: "tiktok_post",
+      sourceLabel: "TikTok post",
       finalUrl: "https://vm.tiktok.com/ZMh123",
+    });
+  });
+
+  it("labels Instagram image posts from Open Graph metadata", () => {
+    const html = `
+      <html>
+        <head>
+          <meta property="og:title" content="Tiny Noodle Bar on Instagram">
+          <meta property="og:description" content="Photo by local creator">
+          <meta property="og:image:secure_url" content="https://cdn.example.com/insta-photo.jpg">
+        </head>
+      </html>
+    `;
+
+    expect(extractSocialMetadataFromHtml(html, "https://www.instagram.com/p/IMG123")).toMatchObject({
+      title: "Tiny Noodle Bar on Instagram",
+      description: "Photo by local creator",
+      imageUrl: "https://cdn.example.com/insta-photo.jpg",
+      thumbnailUrl: "https://cdn.example.com/insta-photo.jpg",
+      sourceType: "instagram_post",
+      sourceLabel: "Instagram post",
     });
   });
 });

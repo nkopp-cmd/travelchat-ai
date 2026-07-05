@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
-import { ListVideo, MapPin, Plus } from "lucide-react";
+import { Images, MapPin, Plus } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -156,7 +156,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                     >
                                         <Link href="/spots/submit">
                                             <Plus className="h-4 w-4" />
-                                            Submit video
+                                            Submit post
                                         </Link>
                                     </Button>
                                     <Button
@@ -165,8 +165,8 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                         className="h-10 rounded-lg border-violet-200/20 bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white"
                                     >
                                         <Link href="/spots/submissions">
-                                            <ListVideo className="h-4 w-4" />
-                                            Submitted videos
+                                            <Images className="h-4 w-4" />
+                                            Submitted posts
                                         </Link>
                                     </Button>
                                 </div>

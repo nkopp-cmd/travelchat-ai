@@ -5,10 +5,10 @@ import {
   CheckCircle2,
   Clock3,
   ExternalLink,
-  ListVideo,
+  ImagePlus,
+  Images,
   Search,
   Sparkles,
-  Video,
 } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Submitted Videos",
+  title: "Submitted Posts",
   description: "Track community TikTok and Instagram spot submissions on Localley.",
 };
 
@@ -56,6 +56,7 @@ type SubmissionRow = {
     title?: string | null;
     imageUrl?: string | null;
     thumbnailUrl?: string | null;
+    sourceLabel?: string | null;
     providerName?: string | null;
   } | null;
   research: {
@@ -69,28 +70,28 @@ function getStatusCopy(status: SubmissionRow["status"]) {
     case "spot_created":
       return {
         label: "Spot created",
-        helper: "Localley created a new spot from this video.",
+        helper: "Localley created a new spot from this post.",
         icon: CheckCircle2,
         className: "border-emerald-200/25 bg-emerald-400/10 text-emerald-100",
       };
     case "spot_reused":
       return {
         label: "Matched spot",
-        helper: "This video matched an existing Localley spot.",
+        helper: "This post matched an existing Localley spot.",
         icon: CheckCircle2,
         className: "border-sky-200/25 bg-sky-400/10 text-sky-100",
       };
     case "needs_review":
       return {
         label: "Needs review",
-        helper: "The video is saved, but exact place evidence needs a human check.",
+        helper: "The post is saved, but exact place evidence needs a human check.",
         icon: Search,
         className: "border-amber-200/30 bg-amber-400/10 text-amber-100",
       };
     default:
       return {
         label: "Research queued",
-        helper: "The video is saved and waiting for deeper research.",
+        helper: "The post is saved and waiting for deeper research.",
         icon: Clock3,
         className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
       };
@@ -110,7 +111,8 @@ function getSubmissionTitle(submission: SubmissionRow) {
   return (
     submission.extracted_name ||
     submission.metadata?.title?.replace(/\s*\|\s*TikTok\s*$/i, "") ||
-    `${submission.platform} video`
+    submission.metadata?.sourceLabel ||
+    `${submission.platform} post`
   );
 }
 
@@ -146,14 +148,14 @@ async function getSubmissions(): Promise<SubmissionRow[]> {
     .limit(50);
 
   if (error) {
-    console.error("[submitted-videos] Failed to load social submissions:", error.message);
+    console.error("[submitted-posts] Failed to load social submissions:", error.message);
     return [];
   }
 
   return (data || []) as SubmissionRow[];
 }
 
-export default async function SubmittedVideosPage() {
+export default async function SubmittedPostsPage() {
   const submissions = await getSubmissions();
 
   return (
@@ -168,31 +170,31 @@ export default async function SubmittedVideosPage() {
           </Button>
           <Button asChild className="rounded-lg bg-white text-violet-950 hover:bg-violet-50">
             <Link href="/spots/submit">
-              <Video className="h-4 w-4" />
-              Submit video
+              <ImagePlus className="h-4 w-4" />
+              Submit post
             </Link>
           </Button>
         </div>
 
         <section className="mb-5 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
-            <ListVideo className="h-4 w-4" />
-            Submitted videos
+            <Images className="h-4 w-4" />
+            Submitted posts
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-            Video submission tracker
+            Social post tracker
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-violet-50/65 md:text-base">
-            Every TikTok or Instagram link submitted by the community lands here first. Created spots link directly; uncertain videos stay visible as review or research items.
+            Every TikTok or Instagram post submitted by the community lands here first. Created spots link directly; uncertain posts stay visible as review or research items.
           </p>
         </section>
 
         {submissions.length === 0 ? (
           <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
             <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
-            <h2 className="mt-3 text-xl font-bold text-white">No submitted videos yet</h2>
+            <h2 className="mt-3 text-xl font-bold text-white">No submitted posts yet</h2>
             <p className="mt-2 text-sm text-violet-50/60">
-              Paste the first TikTok or Instagram spot video and it will show up here.
+              Paste the first TikTok or Instagram spot post and it will show up here.
             </p>
           </section>
         ) : (
@@ -218,7 +220,7 @@ export default async function SubmittedVideosPage() {
                       />
                     ) : (
                       <div className="flex h-full min-h-40 items-center justify-center">
-                        <Video className="h-10 w-10 text-violet-100/35" />
+                        <Images className="h-10 w-10 text-violet-100/35" />
                       </div>
                     )}
                     <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-2 py-1 text-xs font-semibold uppercase text-white backdrop-blur">
@@ -248,7 +250,7 @@ export default async function SubmittedVideosPage() {
 
                       <Button asChild variant="outline" className="shrink-0 rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                         <a href={submission.canonical_url} target="_blank" rel="noreferrer">
-                          Open video
+                          Open post
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       </Button>

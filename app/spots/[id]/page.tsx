@@ -1113,7 +1113,7 @@ export default async function SpotPage({
                     className="border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
                   >
                     <UserRound className="mr-1 h-3.5 w-3.5" />
-                    Submitted video
+                    Submitted post
                   </Badge>
                 )}
                 <Badge
@@ -1231,7 +1231,7 @@ export default async function SpotPage({
               </span>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-sky-200/80">
-                  Submitted video
+                  Submitted post
                 </p>
                 <h2 className="mt-1 text-xl font-bold leading-tight text-white">
                   Submitted by {spot.communitySubmission.contributorCredit}

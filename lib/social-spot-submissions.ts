@@ -53,6 +53,8 @@ export interface SocialLinkMetadata {
   description: string | null;
   imageUrl: string | null;
   thumbnailUrl?: string | null;
+  sourceType?: "instagram_post" | "instagram_reel" | "instagram_video" | "tiktok_post" | "social_post";
+  sourceLabel?: string;
   authorName?: string | null;
   providerName?: string | null;
   embedHtml?: string | null;
@@ -170,6 +172,32 @@ function getSocialPlatform(host: string): SocialSpotPlatform | null {
   return null;
 }
 
+function inferSocialSource(canonicalUrl: string): Pick<SocialLinkMetadata, "sourceType" | "sourceLabel"> {
+  try {
+    const parsed = new URL(canonicalUrl);
+    const platform = getSocialPlatform(parsed.hostname.toLowerCase());
+    const path = parsed.pathname.toLowerCase();
+
+    if (platform === "instagram") {
+      if (path.startsWith("/p/")) {
+        return { sourceType: "instagram_post", sourceLabel: "Instagram post" };
+      }
+      if (path.startsWith("/reel/") || path.startsWith("/reels/")) {
+        return { sourceType: "instagram_reel", sourceLabel: "Instagram reel" };
+      }
+      return { sourceType: "instagram_video", sourceLabel: "Instagram share" };
+    }
+
+    if (platform === "tiktok") {
+      return { sourceType: "tiktok_post", sourceLabel: "TikTok post" };
+    }
+  } catch {
+    // Fall through to the generic label.
+  }
+
+  return { sourceType: "social_post", sourceLabel: "Social post" };
+}
+
 export function normalizeContributorEmail(email: string): string {
   return email.trim().toLowerCase();
 }
@@ -272,14 +300,28 @@ function getMetaContent(html: string, key: string): string | null {
 
 export function extractSocialMetadataFromHtml(html: string, finalUrl: string): SocialLinkMetadata {
   const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] || null;
+  const imageUrl =
+    normalizeMetadataImageUrl(
+      getMetaContent(html, "og:image:secure_url") ||
+        getMetaContent(html, "og:image") ||
+        getMetaContent(html, "twitter:image"),
+      finalUrl,
+    );
+  const source = inferSocialSource(finalUrl);
 
   return {
-    title: getMetaContent(html, "og:title") || (titleTag ? decodeHtml(titleTag) : null),
+    title:
+      getMetaContent(html, "og:title") ||
+      getMetaContent(html, "twitter:title") ||
+      (titleTag ? decodeHtml(titleTag) : null),
     description:
       getMetaContent(html, "og:description") ||
+      getMetaContent(html, "twitter:description") ||
       getMetaContent(html, "description"),
-    imageUrl: getMetaContent(html, "og:image"),
-    thumbnailUrl: getMetaContent(html, "og:image"),
+    imageUrl,
+    thumbnailUrl: imageUrl,
+    sourceType: source.sourceType,
+    sourceLabel: source.sourceLabel,
     finalUrl,
   };
 }
@@ -359,6 +401,8 @@ function mergeSocialMetadata(
     description: base.description || extra.description || null,
     imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
     thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
+    sourceType: base.sourceType || extra.sourceType,
+    sourceLabel: base.sourceLabel || extra.sourceLabel,
     authorName: base.authorName || extra.authorName || null,
     providerName: base.providerName || extra.providerName || null,
     embedHtml: base.embedHtml || extra.embedHtml || null,
@@ -435,6 +479,7 @@ export async function fetchSocialLinkMetadata(
     description: oembed?.description || null,
     imageUrl: oembed?.imageUrl || oembed?.thumbnailUrl || null,
     thumbnailUrl: oembed?.thumbnailUrl || oembed?.imageUrl || null,
+    ...inferSocialSource(canonicalUrl),
     authorName: oembed?.authorName || null,
     providerName: oembed?.providerName || null,
     embedHtml: oembed?.embedHtml || null,
@@ -489,7 +534,7 @@ function buildResearchPrompt(input: {
 }): string {
   return JSON.stringify({
     task:
-      "Research this social travel link as a potential Localley spot submission. Detect every distinct real-world place mentioned or clearly shown, up to 5 candidates. Localize each candidate for Localley's spot system.",
+      "Research this social travel link as a potential Localley spot submission. It can be a video, image post, carousel, reel, or caption-only share. Detect every distinct real-world place mentioned or clearly shown, up to 5 candidates. Localize each candidate for Localley's spot system.",
     platform: input.platform,
     url: input.canonicalUrl,
     metadata: input.metadata,
@@ -499,8 +544,10 @@ function buildResearchPrompt(input: {
       "Return exact JSON only.",
       "Do not invent an address or place name.",
       "Candidates can be venues, cafes, restaurants, markets, viewpoints, shops, alleys, or neighborhood anchors.",
-      "If the video/post appears to cover several different places, return several candidates.",
-      "Use the social cover image or thumbnail as visual evidence when available, but do not claim frame-level certainty unless the metadata supports it.",
+      "Instagram /p/ image posts and carousel posts are valid spot sources; do not require a video.",
+      "If the post, carousel, reel, or video appears to cover several different places, return several candidates.",
+      "Use captions, titles, hashtags, contributor notes, visible cover images, thumbnails, and web evidence together.",
+      "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty unless the metadata supports it.",
       "Use web search evidence when the social page is hard to read.",
       "For each candidate, set confidence below 0.56 unless the place name, city, and address are all supported.",
       "Return the best/primary candidate in the top-level fields and all candidates in candidates.",
