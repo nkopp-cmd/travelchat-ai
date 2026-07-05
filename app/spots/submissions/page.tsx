@@ -121,7 +121,9 @@ function getSubmissionImage(submission: SubmissionRow) {
 }
 
 function getCreatedCandidates(submission: SubmissionRow): CreatedCandidate[] {
-  const created = submission.research?.createdCandidates || [];
+  const created = (submission.research?.createdCandidates || []).filter((candidate) =>
+    Boolean(candidate.spotId),
+  );
   if (created.length > 0) return created;
   if (!submission.spot_id) return [];
 
@@ -135,6 +137,14 @@ function getCreatedCandidates(submission: SubmissionRow): CreatedCandidate[] {
       confidence: submission.research_confidence,
     },
   ];
+}
+
+function hasUsableCandidatePlace(candidate: Candidate): boolean {
+  return Boolean(candidate.spotName || candidate.address || candidate.city);
+}
+
+function getReviewCandidates(submission: SubmissionRow): Candidate[] {
+  return (submission.research?.candidates || []).filter(hasUsableCandidatePlace);
 }
 
 async function getSubmissions(): Promise<SubmissionRow[]> {
@@ -205,7 +215,7 @@ export default async function SubmittedPostsPage() {
               const title = getSubmissionTitle(submission);
               const image = getSubmissionImage(submission);
               const createdCandidates = getCreatedCandidates(submission);
-              const candidates = submission.research?.candidates || [];
+              const candidates = getReviewCandidates(submission);
 
               return (
                 <article
@@ -301,6 +311,15 @@ export default async function SubmittedPostsPage() {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    ) : submission.status === "research_pending" ? (
+                      <div className="mt-4 rounded-lg border border-violet-200/20 bg-violet-400/10 p-3">
+                        <p className="text-sm font-semibold text-violet-100">
+                          Needs more source info
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-violet-50/65">
+                          This post is saved, but Localley could not read enough public caption, image, or location evidence to create a spot yet.
+                        </p>
                       </div>
                     ) : null}
                   </div>
