@@ -476,6 +476,24 @@ describe("getPlacePhotoMatchQuality", () => {
         expect(quality.acceptable).toBe(true);
     });
 
+    it("accepts exact cafes even when Google also tags them as stores", () => {
+        const quality = getPlacePhotoMatchQuality(
+            "aanzee",
+            "19-24 Hangang-daero 15-gil, Yongsan District, Seoul, South Korea",
+            "Cafe",
+            {
+                displayName: "aanzee",
+                formattedAddress: "19-24 Hangang-daero 15-gil, Yongsan District, Seoul, South Korea",
+                types: ["coffee_shop", "cafe", "food_store", "store", "food", "establishment"],
+            }
+        );
+
+        expect(quality).toMatchObject({
+            acceptable: true,
+            reason: "accepted",
+        });
+    });
+
     it("accepts area matches when the name and address agree", () => {
         const quality = getPlacePhotoMatchQuality(
             "Nakazakicho",

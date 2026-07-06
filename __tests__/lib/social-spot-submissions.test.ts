@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildPublicCreditName,
   buildAnonymousContributorEmail,
   extractSocialMetadataFromHtml,
+  fetchSocialLinkMetadata,
   maskEmailForCredit,
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
@@ -11,6 +12,10 @@ import {
 } from "@/lib/social-spot-submissions";
 
 describe("social spot submission helpers", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("canonicalizes supported Instagram and TikTok links", () => {
     expect(
       normalizeSocialSpotUrl("http://www.instagram.com/reel/ABC123/?utm_source=ig_web_copy_link#frag"),
@@ -155,5 +160,54 @@ describe("social spot submission helpers", () => {
       sourceType: "instagram_post",
       sourceLabel: "Instagram post",
     });
+  });
+
+  it("recovers TikTok oEmbed metadata after a short URL redirects to the video URL", async () => {
+    const finalUrl = "https://www.tiktok.com/@worththehypesg/video/7220330037893958914";
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+
+      if (url.includes("/oembed") && url.includes("vt.tiktok.com")) {
+        return new Response(JSON.stringify({ message: "Something went wrong" }), { status: 400 });
+      }
+
+      if (url === "https://vt.tiktok.com/ZSLSUAnYf") {
+        return new Response(null, {
+          status: 302,
+          headers: { location: `${finalUrl}?share_item_id=7220330037893958914` },
+        });
+      }
+
+      if (url.includes("/oembed") && url.includes("7220330037893958914")) {
+        return new Response(
+          JSON.stringify({
+            title: "Brb in raw crab heaven #hapjeongstation #seoul",
+            author_name: "Worth The Hype",
+            provider_name: "TikTok",
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+
+      if (url === finalUrl) {
+        return new Response("<html><head><title>TikTok - Make Your Day</title></head></html>", {
+          status: 200,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        });
+      }
+
+      throw new Error(`Unexpected fetch ${url}`);
+    });
+
+    const metadata = await fetchSocialLinkMetadata("https://vt.tiktok.com/ZSLSUAnYf");
+
+    expect(metadata).toMatchObject({
+      title: "Brb in raw crab heaven #hapjeongstation #seoul",
+      description: "Brb in raw crab heaven #hapjeongstation #seoul",
+      authorName: "Worth The Hype",
+      providerName: "TikTok",
+      finalUrl,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 });

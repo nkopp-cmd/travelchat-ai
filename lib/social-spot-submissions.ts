@@ -408,6 +408,35 @@ function mergeSocialMetadata(
   extra: Partial<SocialLinkMetadata> | null,
 ): SocialLinkMetadata {
   if (!extra) return base;
+  const baseTitleIsGeneric = isGenericSocialTitle(base.title);
+
+  return {
+    title: baseTitleIsGeneric ? extra.title || base.title || null : base.title || extra.title || null,
+    description: base.description || extra.description || null,
+    imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
+    thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
+    sourceType: base.sourceType || extra.sourceType,
+    sourceLabel: base.sourceLabel || extra.sourceLabel,
+    authorName: base.authorName || extra.authorName || null,
+    providerName: base.providerName || extra.providerName || null,
+    embedHtml: base.embedHtml || extra.embedHtml || null,
+    finalUrl: base.finalUrl || extra.finalUrl || "",
+  };
+}
+
+function isGenericSocialTitle(title: string | null | undefined): boolean {
+  return Boolean(
+    title &&
+      /^(TikTok - Make Your Day|Instagram|Instagram photo by|Instagram video by)$/i.test(title.trim()),
+  );
+}
+
+function mergePartialSocialMetadata(
+  base: Partial<SocialLinkMetadata> | null,
+  extra: Partial<SocialLinkMetadata> | null,
+): Partial<SocialLinkMetadata> | null {
+  if (!base) return extra;
+  if (!extra) return base;
 
   return {
     title: base.title || extra.title || null,
@@ -446,10 +475,16 @@ export async function fetchSocialLinkMetadata(
 ): Promise<SocialLinkMetadata> {
   let currentUrl = canonicalUrl;
   const initial = normalizeSocialSpotUrl(canonicalUrl);
-  const oembed = await fetchPlatformOEmbed(initial);
+  let oembed = await fetchPlatformOEmbed(initial);
+  let oembedUrl = initial.canonicalUrl;
 
   for (let redirectCount = 0; redirectCount <= SOCIAL_REDIRECT_LIMIT; redirectCount++) {
     const normalized = normalizeSocialSpotUrl(currentUrl);
+    if (normalized.canonicalUrl !== oembedUrl) {
+      const redirectedOembed = await fetchPlatformOEmbed(normalized);
+      oembed = mergePartialSocialMetadata(oembed, redirectedOembed);
+      oembedUrl = normalized.canonicalUrl;
+    }
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), SOCIAL_FETCH_TIMEOUT_MS);
 

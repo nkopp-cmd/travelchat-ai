@@ -119,6 +119,18 @@ const BUSINESS_PLACE_TYPES = new Set([
     "home_goods_store",
     "store",
 ]);
+const FOOD_PLACE_TYPES = new Set([
+    "bakery",
+    "bar",
+    "cafe",
+    "coffee_shop",
+    "food",
+    "ice_cream_shop",
+    "korean_restaurant",
+    "meal_takeaway",
+    "restaurant",
+    "seafood_restaurant",
+]);
 const COMMERCIAL_NAME_WORDS = new Set([
     "apartment",
     "apartments",
@@ -519,6 +531,9 @@ function hasSpecificBusinessMismatch(
     place: Pick<PlacePhotoSearchResult, "displayName" | "types">
 ): boolean {
     const placeTypes = new Set(place.types || []);
+    const hasFoodPlaceType = [...FOOD_PLACE_TYPES].some((type) => placeTypes.has(type));
+    if (hasFoodPlaceType) return false;
+
     const hasBusinessType = [...BUSINESS_PLACE_TYPES].some((type) => placeTypes.has(type));
     const placeExtraWords = extraComparableWords(spotName, place.displayName || "");
     const hasCommercialExtraWord = placeExtraWords.some((word) => COMMERCIAL_NAME_WORDS.has(word));
