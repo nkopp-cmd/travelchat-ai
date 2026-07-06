@@ -349,11 +349,10 @@ export function SpotCard({
           "hover:-translate-y-0.5",
         )}
       >
-        <Link
-          href={`/spots/${spot.id}`}
-          aria-label={`Open ${spot.name}`}
+        <div
           data-testid="spot-card-photo"
-          className="relative aspect-[4/3] w-[4.75rem] flex-shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[390px]:w-24 sm:w-32 md:w-36"
+          className="relative aspect-[4/3] w-[4.75rem] flex-shrink-0 overflow-hidden bg-violet-950/60 min-[390px]:w-24 sm:w-32 md:w-36"
+          aria-hidden="true"
         >
           {!showGradientFallback && !imageLoaded && (
             <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
@@ -363,7 +362,7 @@ export function SpotCard({
           {(!hasRealPhoto || usingAreaImage) && (
             <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10" />
           )}
-        </Link>
+        </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
           <div className="flex items-start justify-between gap-2">
@@ -443,11 +442,10 @@ export function SpotCard({
         "hover:-translate-y-0.5",
       )}
     >
-      <Link
-        href={`/spots/${spot.id}`}
-        aria-label={`Open ${spot.name}`}
+      <div
         data-testid="spot-card-photo"
-        className="relative w-[4.75rem] shrink-0 overflow-hidden bg-violet-950/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0714] min-[390px]:w-24 md:aspect-[2/1] md:w-full"
+        className="relative w-[4.75rem] shrink-0 overflow-hidden bg-violet-950/60 min-[390px]:w-24 md:aspect-[2/1] md:w-full"
+        aria-hidden="true"
       >
         {!showGradientFallback && !imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
@@ -467,7 +465,7 @@ export function SpotCard({
         {(!hasRealPhoto || usingAreaImage) && (
           <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
-      </Link>
+      </div>
       <div className="absolute right-1.5 top-1.5 z-20 hidden md:right-2.5 md:top-2.5 md:block">
         <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
           <SaveSpotButton
