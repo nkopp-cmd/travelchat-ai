@@ -188,7 +188,7 @@ function SubmitSpotForm() {
         title: body.duplicate ? "Already submitted" : "Submission saved",
         description: body.spots?.length
           ? `${body.spots.length} spot${body.spots.length === 1 ? "" : "s"} ready to open.`
-          : "Saved to Submitted posts for research/review.",
+          : "Saved to community submissions for research/review.",
       });
     } catch (error) {
       toast({
@@ -343,7 +343,7 @@ function SubmitSpotForm() {
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
                       {result.spots?.length
                         ? `${result.spots.length} spot${result.spots.length === 1 ? "" : "s"} created or matched from this post.`
-                        : "Saved to Submitted posts. Add a place clue if the public post is blocked or missing location details."}
+                        : "Saved to community submissions. Add a place clue if the public post is blocked or missing location details."}
                     </p>
                   </div>
                 </div>
@@ -352,16 +352,16 @@ function SubmitSpotForm() {
                   <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                     <span className="flex items-center gap-2 text-sm font-semibold text-white">
                       <Images className="h-4 w-4 text-violet-300" />
-                      Submitted posts
+                      Community submission tracker
                     </span>
                     <p className="mt-1 text-sm leading-6 text-violet-50/65">
-                      This post is saved in the submission tracker with its research status and any created spots.
+                      This post is saved in the community tracker with its research status and any created spots.
                     </p>
                   </div>
 
                   {result.spots && result.spots.length > 0 && (
                     <div className="rounded-lg border border-emerald-200/15 bg-emerald-400/10 p-3">
-                      <span className="text-sm font-semibold text-white">Created spots</span>
+                      <span className="text-sm font-semibold text-white">Community spots created</span>
                       <div className="mt-2 grid gap-2">
                         {result.spots.map((spot) => (
                           <Link

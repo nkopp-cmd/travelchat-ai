@@ -19,7 +19,7 @@ import { SubmissionEvidenceForm } from "./evidence-form";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Submitted Posts",
+  title: "Community Submissions",
   description: "Track community TikTok and Instagram spot submissions on Localley.",
 };
 
@@ -248,13 +248,13 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
         <section className="mb-5 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
             <Images className="h-4 w-4" />
-            Submitted posts
+            Community submissions
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
             Social post tracker
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-violet-50/65 md:text-base">
-            Every TikTok or Instagram post submitted by the community lands here first. Created spots link directly; uncertain posts stay visible as review or research items.
+            Every TikTok or Instagram post shared by the Localley community lands here first. Created community spots link directly; uncertain posts stay visible as review or research items.
           </p>
         </section>
 
@@ -403,6 +403,9 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                             href={candidate.spotId ? `/spots/${candidate.spotId}` : "/spots/submissions"}
                             className="rounded-lg border border-emerald-200/15 bg-emerald-400/10 p-3 text-sm transition-colors hover:border-emerald-200/35 hover:bg-emerald-400/15"
                           >
+                            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-emerald-100/70">
+                              Community spot
+                            </span>
                             <span className="block font-semibold text-white">
                               {candidate.spotName || "Created spot"}
                             </span>
