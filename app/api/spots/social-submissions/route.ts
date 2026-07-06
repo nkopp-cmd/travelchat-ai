@@ -3,7 +3,12 @@ import { revalidateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import { geocodeWithCascade } from "@/lib/geocoding";
+import {
+  buildSpotPhotoUrls,
+  findBestGooglePlaceMatch,
+  getGooglePlacesApiKey,
+  type PlacePhotoSearchResult,
+} from "@/lib/place-images";
 import { rateLimiters } from "@/lib/rate-limit";
 import {
   SOCIAL_RESEARCH_CONFIDENCE_THRESHOLD,
@@ -33,6 +38,83 @@ function isSocialSpotSubmissionsEnabled(): boolean {
 
 function formatPoint(lng: number, lat: number): string {
   return `POINT(${lng.toFixed(7)} ${lat.toFixed(7)})`;
+}
+
+function normalizePlaceName(value: string | null | undefined): string {
+  return (value || "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function canUseTransliteratedPlaceMatch(
+  research: SocialSpotResearchCandidate,
+  place: PlacePhotoSearchResult | null | undefined,
+): place is PlacePhotoSearchResult {
+  if (!place?.displayName || !research.spotName) return false;
+  if (research.confidence < 0.7) return false;
+  if (!place.formattedAddress || !place.location || place.photos.length === 0) return false;
+
+  return normalizePlaceName(place.displayName) === normalizePlaceName(research.spotName);
+}
+
+async function enrichResearchWithGooglePlace(
+  research: SocialSpotResearchCandidate,
+): Promise<{
+  address: string;
+  location: { lat: number; lng: number };
+  photos: string[];
+  placeName: string | null;
+  placeId: string | null;
+  query: string | null;
+  usedTransliteratedNameFallback: boolean;
+} | null> {
+  if (!research.spotName || !research.address) return null;
+
+  const apiKey = getGooglePlacesApiKey();
+  if (!apiKey) {
+    console.warn("[social-submissions] Google Places key missing; keeping candidate in review.");
+    return null;
+  }
+
+  try {
+    const match = await findBestGooglePlaceMatch(
+      research.spotName,
+      research.address,
+      research.category,
+      apiKey,
+      { timeoutMs: 12_000, maxResults: 5 },
+    );
+    const usedTransliteratedNameFallback =
+      !match.place && canUseTransliteratedPlaceMatch(research, match.rejectedPlace);
+    const place = match.place || (usedTransliteratedNameFallback ? match.rejectedPlace : null);
+    const photos = place ? buildSpotPhotoUrls(place.photos) : [];
+
+    if (!place?.formattedAddress || !place.location || photos.length === 0) {
+      return null;
+    }
+
+    return {
+      address: place.formattedAddress,
+      location: {
+        lat: place.location.latitude,
+        lng: place.location.longitude,
+      },
+      photos,
+      placeName: place.displayName,
+      placeId: place.placeId,
+      query: match.query,
+      usedTransliteratedNameFallback,
+    };
+  } catch (error) {
+    console.warn(
+      "[social-submissions] Google place enrichment failed:",
+      error instanceof Error ? error.message : error,
+    );
+    return null;
+  }
 }
 
 function getSpotCategory(research: SocialSpotResearchCandidate): string {
@@ -80,12 +162,17 @@ async function findExistingSpot(
 async function createSpotFromResearch({
   supabase,
   research,
-  imageUrl,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
   research: SocialSpotResearchCandidate;
-  imageUrl: string | null;
-}): Promise<{ spotId: string | null; status: SocialSpotSubmissionStatus }> {
+}): Promise<{
+  spotId: string | null;
+  status: SocialSpotSubmissionStatus;
+  enrichmentStatus?: "place_photo_ready" | "place_photo_missing";
+  placeName?: string | null;
+  placeId?: string | null;
+  photoCount?: number;
+}> {
   if (!canCreateSpot(research)) {
     return {
       spotId: null,
@@ -98,14 +185,13 @@ async function createSpotFromResearch({
     return { spotId: existingSpotId, status: "spot_reused" };
   }
 
-  const geocoded = await geocodeWithCascade(
-    research.address!,
-    research.city!,
-    research.spotName!,
-  );
-
-  if (!geocoded) {
-    return { spotId: null, status: "needs_review" };
+  const placeEnrichment = await enrichResearchWithGooglePlace(research);
+  if (!placeEnrichment) {
+    return {
+      spotId: null,
+      status: "needs_review",
+      enrichmentStatus: "place_photo_missing",
+    };
   }
 
   const category = getSpotCategory(research);
@@ -114,14 +200,14 @@ async function createSpotFromResearch({
     .insert({
       name: { en: research.spotName },
       description: { en: getSpotDescription(research) },
-      location: formatPoint(geocoded.lng, geocoded.lat),
-      address: { en: research.address },
+      location: formatPoint(placeEnrichment.location.lng, placeEnrichment.location.lat),
+      address: { en: placeEnrichment.address },
       category,
       subcategories: research.subcategories,
       localley_score: research.localleyScore || 3,
       local_percentage: research.localPercentage || 55,
       best_times: { en: research.bestTime || "Check current opening hours before going." },
-      photos: imageUrl ? [imageUrl] : [],
+      photos: placeEnrichment.photos,
       tips: { en: research.tips },
       verified: false,
       trending_score: Math.min(1, Math.max(0, (research.localPercentage || 50) / 100)),
@@ -142,7 +228,14 @@ async function createSpotFromResearch({
   }
 
   revalidateTag("spots", "default");
-  return { spotId: insertedSpot?.id || null, status: "spot_created" };
+  return {
+    spotId: insertedSpot?.id || null,
+    status: "spot_created",
+    enrichmentStatus: "place_photo_ready",
+    placeName: placeEnrichment.placeName,
+    placeId: placeEnrichment.placeId,
+    photoCount: placeEnrichment.photos.length,
+  };
 }
 
 function summarizeCandidateStatuses(
@@ -171,11 +264,9 @@ function buildEvidenceNotes(input: {
 async function createCandidateResults({
   supabase,
   candidates,
-  metadata,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
   candidates: SocialSpotResearchCandidate[];
-  metadata: SocialLinkMetadata;
 }) {
   const candidateResults = [];
 
@@ -183,7 +274,6 @@ async function createCandidateResults({
     const spotResult = await createSpotFromResearch({
       supabase,
       research: candidate,
-      imageUrl: candidate.imageUrl || metadata.imageUrl || metadata.thumbnailUrl || null,
     });
 
     candidateResults.push({
@@ -305,7 +395,7 @@ export async function POST(req: NextRequest) {
       cityHint: validation.data.cityHint,
     });
     const candidates = getResearchCandidates(research);
-    const candidateResults = await createCandidateResults({ supabase, candidates, metadata });
+    const candidateResults = await createCandidateResults({ supabase, candidates });
 
     const primaryResult =
       candidateResults.find((result) => result.spotId) ||
@@ -533,7 +623,7 @@ export async function PATCH(req: NextRequest) {
       cityHint,
     });
     const candidates = getResearchCandidates(research);
-    const candidateResults = await createCandidateResults({ supabase, candidates, metadata });
+    const candidateResults = await createCandidateResults({ supabase, candidates });
     const primaryResult =
       candidateResults.find((result) => result.spotId) ||
       candidateResults[0] ||

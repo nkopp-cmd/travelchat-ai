@@ -7,6 +7,23 @@ const mocks = vi.hoisted(() => ({
   rateLimitStrict: vi.fn(async () => null),
   revalidateTag: vi.fn(),
   geocodeWithCascade: vi.fn(async () => ({ lat: 37.5665, lng: 126.9780, provider: "nominatim" })),
+  getGooglePlacesApiKey: vi.fn(() => "google_places_test"),
+  findBestGooglePlaceMatch: vi.fn(async (name: string, address: string) => {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "spot";
+
+    return {
+      place: {
+        placeId: `place_${slug}`,
+        displayName: name,
+        formattedAddress: `${address}, South Korea`,
+        location: { latitude: 37.5665, longitude: 126.9780 },
+        types: ["cafe"],
+        photos: [{ name: `places/place_${slug}/photos/photo_1` }],
+      },
+      quality: { acceptable: true, reason: "accepted", nameScore: 1, addressScore: 1 },
+      query: `${name}, ${address}`,
+    };
+  }),
   fetchSocialLinkMetadata: vi.fn(async () => ({
     title: "Hidden Seoul Cafe | TikTok",
     description: "Small cafe",
@@ -56,6 +73,15 @@ vi.mock("@/lib/rate-limit", () => ({
 vi.mock("@/lib/geocoding", () => ({
   geocodeWithCascade: mocks.geocodeWithCascade,
 }));
+
+vi.mock("@/lib/place-images", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/place-images")>();
+  return {
+    ...actual,
+    getGooglePlacesApiKey: mocks.getGooglePlacesApiKey,
+    findBestGooglePlaceMatch: mocks.findBestGooglePlaceMatch,
+  };
+});
 
 vi.mock("@/lib/social-spot-submissions", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/social-spot-submissions")>();
@@ -296,10 +322,10 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.spotRows[0]).toMatchObject({
       name: { en: "Hidden Seoul Cafe" },
-      address: { en: "1 Seoullo, Seoul" },
+      address: { en: "1 Seoullo, Seoul, South Korea" },
       location: "POINT(126.9780000 37.5665000)",
       localley_score: 5,
-      photos: ["https://cdn.example.com/cafe.jpg"],
+      photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
     });
     expect(mocks.submissionRows[0]).toMatchObject({
       canonical_url: "https://vm.tiktok.com/ZMh123",
@@ -391,7 +417,41 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.spotRows[0]).toMatchObject({
       name: { en: "Tiny Noodle Bar" },
-      photos: ["https://cdn.example.com/noodle-post.jpg"],
+      photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
+    });
+  });
+
+  it("keeps verified research in review when real place photos cannot be resolved", async () => {
+    mocks.findBestGooglePlaceMatch.mockResolvedValueOnce({
+      place: null,
+      quality: null,
+      query: null,
+      rejectedPlace: null,
+      rejectedQuality: null,
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+      email: "spotter@example.com",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "needs_review",
+      spotId: null,
+    });
+    expect(body.spotUrl).toBeNull();
+    expect(mocks.spotRows).toHaveLength(0);
+    expect(mocks.submissionRows[0].research).toMatchObject({
+      createdCandidates: [
+        expect.objectContaining({
+          spotId: null,
+          status: "needs_review",
+          enrichmentStatus: "place_photo_missing",
+        }),
+      ],
     });
   });
 
@@ -478,10 +538,10 @@ describe("/api/spots/social-submissions", () => {
     ]);
     expect(mocks.spotRows).toHaveLength(2);
     expect(mocks.spotRows[0]).toMatchObject({
-      photos: ["https://cdn.example.com/cafe-frame.jpg"],
+      photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
     });
     expect(mocks.spotRows[1]).toMatchObject({
-      photos: ["https://cdn.example.com/dessert-frame.jpg"],
+      photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
     });
     expect(mocks.submissionRows[0].research).toMatchObject({
       candidates: expect.arrayContaining([
@@ -679,7 +739,7 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.spotRows[0]).toMatchObject({
       name: { en: "Cafe Saeraul" },
-      photos: ["https://cdn.example.com/post.jpg"],
+      photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
     });
     expect(mocks.submissionRows[0]).toMatchObject({
       status: "spot_created",
