@@ -63,14 +63,20 @@ function getPublicSpotText(field: PublicSpotTextField): string {
     return field;
 }
 
-function getPublicSpotLocationIssue(spot: PublicSpotQualityInput): string | null {
+function getPublicSpotLocationIssue(
+    spot: PublicSpotQualityInput,
+    options: { allowPinnedPlacePhotoAddress?: boolean } = {}
+): string | null {
     if (!("address" in spot)) return null;
 
     const address = getPublicSpotText(spot.address).trim();
     const { lat, lng } = getSpotCoordinateValues(spot.location);
     const confidence = getSpotLocationConfidence({ address, lat, lng });
 
-    return confidence.exactAddress ? null : "inexact_location";
+    if (confidence.exactAddress) return null;
+    if (options.allowPinnedPlacePhotoAddress && confidence.usableCoordinates) return null;
+
+    return "inexact_location";
 }
 
 export function getPublicSpotQualityIssue(
@@ -80,6 +86,8 @@ export function getPublicSpotQualityIssue(
 
     if (!name) return "missing_name";
     if (PUBLIC_BROAD_SPOT_NAME_PATTERN.test(name)) return "broad_place_name";
+    let allowPinnedPlacePhotoAddress = false;
+
     if ("photos" in spot) {
         const photos = normalizeStoredSpotPhotoUrls(spot.photos);
         const photoSummary = summarizeSpotPhotos(photos);
@@ -94,8 +102,15 @@ export function getPublicSpotQualityIssue(
         if (placeIdentity.hasIdentityMismatch) {
             return "mismatched_place_photo_identity";
         }
+
+        allowPinnedPlacePhotoAddress =
+            photoSummary.hasGooglePlacePhoto &&
+            placeIdentity.hasOwnPlacePhoto &&
+            !placeIdentity.hasIdentityMismatch;
     }
-    const locationIssue = getPublicSpotLocationIssue(spot);
+    const locationIssue = getPublicSpotLocationIssue(spot, {
+        allowPinnedPlacePhotoAddress,
+    });
     if (locationIssue) return locationIssue;
 
     return null;

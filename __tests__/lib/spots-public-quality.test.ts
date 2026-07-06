@@ -165,4 +165,30 @@ describe("public spot quality", () => {
             })
         ).toBe(true);
     });
+
+    it("allows pinned Google Place photo records for natural places with area-level formatted addresses", () => {
+        expect(
+            shouldShowPublicSpot({
+                name: "Bangameori Beach",
+                address: { en: "South Korea, 경기도 안산시 단원구 대부동" },
+                location: {
+                    type: "Point",
+                    coordinates: [126.5765444, 37.289168],
+                },
+                photos: ["/api/places/photo?name=places%2FChIJCY8opy-gezURl3JHbg7ilyc%2Fphotos%2Fabc&w=1200"],
+            })
+        ).toBe(true);
+
+        expect(
+            getPublicSpotQualityIssue({
+                name: "Gion Corner",
+                address: { en: "Gion, Kyoto" },
+                location: {
+                    type: "Point",
+                    coordinates: [135.7788, 35.0037],
+                },
+                photos: ["https://cdn.localley.io/spots/gion-corner.jpg"],
+            })
+        ).toBe("inexact_location");
+    });
 });
