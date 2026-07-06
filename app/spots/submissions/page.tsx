@@ -66,6 +66,26 @@ type SubmissionRow = {
   } | null;
 };
 
+type SubmissionStatusFilter = SubmissionRow["status"] | "all";
+
+type SubmittedPostsPageProps = {
+  searchParams: Promise<{
+    status?: string;
+    submission?: string;
+  }>;
+};
+
+const statusFilters: Array<{
+  label: string;
+  value: SubmissionStatusFilter;
+}> = [
+  { label: "All", value: "all" },
+  { label: "Needs source info", value: "research_pending" },
+  { label: "Needs review", value: "needs_review" },
+  { label: "Created", value: "spot_created" },
+  { label: "Matched", value: "spot_reused" },
+];
+
 function getStatusCopy(status: SubmissionRow["status"]) {
   switch (status) {
     case "spot_created":
@@ -148,7 +168,32 @@ function getReviewCandidates(submission: SubmissionRow): Candidate[] {
   return (submission.research?.candidates || []).filter(hasUsableCandidatePlace);
 }
 
-async function getSubmissions(): Promise<SubmissionRow[]> {
+function parseStatusFilter(value: string | undefined): SubmissionStatusFilter {
+  if (
+    value === "spot_created" ||
+    value === "spot_reused" ||
+    value === "needs_review" ||
+    value === "research_pending"
+  ) {
+    return value;
+  }
+
+  return "all";
+}
+
+function getFilterHref(status: SubmissionStatusFilter) {
+  return status === "all" ? "/spots/submissions" : `/spots/submissions?status=${status}`;
+}
+
+function getStatusCount(submissions: SubmissionRow[], status: SubmissionStatusFilter) {
+  if (status === "all") return submissions.length;
+  return submissions.filter((submission) => submission.status === status).length;
+}
+
+async function getSubmissions(): Promise<{
+  submissions: SubmissionRow[];
+  error: string | null;
+}> {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("social_spot_submissions")
@@ -160,14 +205,27 @@ async function getSubmissions(): Promise<SubmissionRow[]> {
 
   if (error) {
     console.error("[submitted-posts] Failed to load social submissions:", error.message);
-    return [];
+    return {
+      submissions: [],
+      error: "Could not load submitted posts. Please refresh in a moment.",
+    };
   }
 
-  return (data || []) as SubmissionRow[];
+  return {
+    submissions: (data || []) as SubmissionRow[],
+    error: null,
+  };
 }
 
-export default async function SubmittedPostsPage() {
-  const submissions = await getSubmissions();
+export default async function SubmittedPostsPage({ searchParams }: SubmittedPostsPageProps) {
+  const params = await searchParams;
+  const activeStatus = parseStatusFilter(params.status);
+  const highlightedSubmissionId = params.submission || null;
+  const { submissions, error } = await getSubmissions();
+  const filteredSubmissions =
+    activeStatus === "all"
+      ? submissions
+      : submissions.filter((submission) => submission.status === activeStatus);
 
   return (
     <AppBackground ambient fitParent>
@@ -200,7 +258,13 @@ export default async function SubmittedPostsPage() {
           </p>
         </section>
 
-        {submissions.length === 0 ? (
+        {error ? (
+          <section className="rounded-lg border border-rose-200/20 bg-rose-500/10 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+            <Search className="mx-auto h-8 w-8 text-rose-100/70" />
+            <h2 className="mt-3 text-xl font-bold text-white">Tracker unavailable</h2>
+            <p className="mt-2 text-sm text-rose-50/70">{error}</p>
+          </section>
+        ) : submissions.length === 0 ? (
           <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
             <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
             <h2 className="mt-3 text-xl font-bold text-white">No submitted posts yet</h2>
@@ -209,19 +273,68 @@ export default async function SubmittedPostsPage() {
             </p>
           </section>
         ) : (
-          <div className="grid gap-4">
-            {submissions.map((submission) => {
+          <>
+            <nav
+              aria-label="Submission status filters"
+              className="mb-4 flex gap-2 overflow-x-auto rounded-lg border border-violet-200/15 bg-[#100b1c]/76 p-2 shadow-lg shadow-violet-950/20 backdrop-blur-xl"
+            >
+              {statusFilters.map((filter) => {
+                const active = filter.value === activeStatus;
+
+                return (
+                  <Link
+                    key={filter.value}
+                    href={getFilterHref(filter.value)}
+                    className={cn(
+                      "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors",
+                      active
+                        ? "bg-white text-violet-950"
+                        : "border border-violet-200/15 bg-white/[0.04] text-violet-50/70 hover:bg-violet-400/10 hover:text-white",
+                    )}
+                  >
+                    {filter.label}
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs",
+                        active ? "bg-violet-950/10 text-violet-950" : "bg-white/10 text-violet-50/60",
+                      )}
+                    >
+                      {getStatusCount(submissions, filter.value)}
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {filteredSubmissions.length === 0 ? (
+              <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+                <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
+                <h2 className="mt-3 text-xl font-bold text-white">No posts in this status</h2>
+                <p className="mt-2 text-sm text-violet-50/60">
+                  Switch filters to see the rest of the submission queue.
+                </p>
+              </section>
+            ) : (
+              <div className="grid gap-4">
+                {filteredSubmissions.map((submission) => {
               const status = getStatusCopy(submission.status);
               const StatusIcon = status.icon;
               const title = getSubmissionTitle(submission);
               const image = getSubmissionImage(submission);
               const createdCandidates = getCreatedCandidates(submission);
               const candidates = getReviewCandidates(submission);
+              const isHighlighted = submission.id === highlightedSubmissionId;
 
               return (
                 <article
+                  id={`submission-${submission.id}`}
                   key={submission.id}
-                  className="overflow-hidden rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:grid md:grid-cols-[220px_1fr]"
+                  className={cn(
+                    "scroll-mt-24 overflow-hidden rounded-lg border bg-[#100b1c]/86 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:grid md:grid-cols-[220px_1fr]",
+                    isHighlighted
+                      ? "border-violet-200/50 ring-2 ring-violet-300/35"
+                      : "border-violet-200/15",
+                  )}
                 >
                   <div className="relative aspect-video bg-violet-950/60 md:aspect-auto md:min-h-full">
                     {image ? (
@@ -334,8 +447,10 @@ export default async function SubmittedPostsPage() {
                   </div>
                 </article>
               );
-            })}
-          </div>
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
     </AppBackground>

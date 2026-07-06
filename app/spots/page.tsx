@@ -166,7 +166,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                     >
                                         <Link href="/spots/submissions">
                                             <Images className="h-4 w-4" />
-                                            Submitted posts
+                                            Track submissions
                                         </Link>
                                     </Button>
                                 </div>

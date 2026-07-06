@@ -533,6 +533,7 @@ describe("/api/spots/social-submissions", () => {
         tokensAwarded: 0,
         totalTokens: 25,
       },
+      spotUrl: "/spots/spot_existing",
     });
     expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.ledgerRows).toHaveLength(0);
@@ -578,6 +579,7 @@ describe("/api/spots/social-submissions", () => {
         tokensAwarded: 0,
         totalTokens: 0,
       },
+      spotUrl: "/spots/spot_existing",
     });
     expect(mocks.submissionRows).toHaveLength(1);
     expect(mocks.ledgerRows).toHaveLength(0);

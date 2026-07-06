@@ -88,6 +88,13 @@ function extractSocialUrl(value: string | null): string {
   }) || "";
 }
 
+function getSubmissionTrackerHref(result: SubmissionResponse | null): string {
+  const submissionId = result?.submission?.id;
+  if (!submissionId) return "/spots/submissions";
+
+  return `/spots/submissions?submission=${submissionId}#submission-${submissionId}`;
+}
+
 function SocialSubmissionsUnavailable() {
   return (
     <AppBackground>
@@ -104,7 +111,7 @@ function SocialSubmissionsUnavailable() {
           className="ml-2 inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
         >
           <Images className="mr-2 h-4 w-4" />
-          Submitted posts
+          Track submissions
         </Link>
 
         <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
@@ -403,8 +410,8 @@ function SubmitSpotForm() {
                   </Button>
                 )}
                 <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
-                  <Link href="/spots/submissions">
-                    View submitted posts
+                  <Link href={getSubmissionTrackerHref(result)}>
+                    Track this submission
                     <Images className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -414,7 +421,7 @@ function SubmitSpotForm() {
                 <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                   <Link href="/spots/submissions">
                     <Images className="h-4 w-4" />
-                    View submitted posts
+                    Track submissions
                   </Link>
                 </Button>
                 <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
