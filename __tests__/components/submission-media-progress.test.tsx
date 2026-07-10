@@ -148,6 +148,25 @@ describe("SubmissionMediaProgress", () => {
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
+  it("does not claim an unadmitted legacy submission is already queued", () => {
+    render(<SubmissionMediaProgress
+      items={[]}
+      processing={{
+        state: "not_started",
+        revision: 0,
+        total: 0,
+        succeeded: 0,
+        failed: 0,
+        extractionAttempts: 0,
+        finalizationAttempts: 0,
+      }}
+    />);
+
+    expect(screen.getByRole("status").textContent).toContain("Awaiting full media check");
+    expect(screen.getByText(/waiting for an operator-reviewed media check/i)).toBeTruthy();
+    expect(screen.queryByText(/queued to enter/i)).toBeNull();
+  });
+
   it("polls parent processing state even before media jobs are created", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({

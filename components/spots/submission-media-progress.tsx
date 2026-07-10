@@ -307,7 +307,7 @@ export function SubmissionMediaProgress({
       case "not_started":
         return {
           label: "Awaiting full media check",
-          helper: "This older submission is queued to enter complete image and video processing.",
+          helper: "This older submission is waiting for an operator-reviewed media check.",
         };
       case "coverage_retry":
       case "coverage_processing":
