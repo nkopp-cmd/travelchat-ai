@@ -1567,6 +1567,7 @@ describe("/api/spots/social-submissions", () => {
         expect.objectContaining({ spotId: "spot_test_1" }),
       ]),
     });
+    expect(mocks.candidateRows.some((candidate) => candidate.spotName === "Second Cafe")).toBe(false);
   });
 
   it("rejects replayable cron authorization without the one-time finalization claim", async () => {
