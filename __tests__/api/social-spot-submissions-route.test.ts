@@ -30,6 +30,7 @@ const mocks = vi.hoisted(() => ({
     imageUrl: "https://cdn.example.com/cafe.jpg",
     finalUrl: "https://vm.tiktok.com/ZMh123",
   })),
+  enrichSocialLinkMetadataWithProvider: vi.fn(async (metadata: Record<string, unknown>) => metadata),
   researchSocialSpotLink: vi.fn(async () => ({
     status: "candidate",
     spotName: "Hidden Seoul Cafe",
@@ -54,6 +55,7 @@ const mocks = vi.hoisted(() => ({
   aliasRows: [] as Array<Record<string, unknown>>,
   candidateRows: [] as Array<Record<string, unknown>>,
   optionalSocialSchemaAvailable: true,
+  resumeClaimConflict: false,
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
@@ -91,6 +93,7 @@ vi.mock("@/lib/social-spot-submissions", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/social-spot-submissions")>();
   return {
     ...actual,
+    enrichSocialLinkMetadataWithProvider: mocks.enrichSocialLinkMetadataWithProvider,
     fetchSocialLinkMetadata: mocks.fetchSocialLinkMetadata,
     researchSocialSpotLink: mocks.researchSocialSpotLink,
   };
@@ -249,8 +252,8 @@ function createSupabaseMock() {
                 query.filters.push([column, value]);
                 return query;
               }),
-              select: vi.fn(() => ({
-                single: vi.fn(async () => {
+              select: vi.fn(() => {
+                const execute = async (allowMissing: boolean) => {
                   if (
                     !mocks.optionalSocialSchemaAvailable &&
                     ("processing_state" in payload || "completed_at" in payload)
@@ -263,11 +266,25 @@ function createSupabaseMock() {
                   const row = mocks.submissionRows.find((submission) =>
                     query.filters.every(([column, value]) => submission[column] === value),
                   );
-                  if (!row) return { data: null, error: { message: "not found" } };
+                  if (!row) {
+                    return allowMissing
+                      ? { data: null, error: null }
+                      : { data: null, error: { message: "not found" } };
+                  }
+                  if (mocks.resumeClaimConflict && "processing_state" in payload) {
+                    mocks.resumeClaimConflict = false;
+                    row.updated_at = new Date().toISOString();
+                    return { data: null, error: null };
+                  }
                   Object.assign(row, payload);
+                  row.updated_at = new Date().toISOString();
                   return { data: row, error: null };
-                }),
-              })),
+                };
+                return {
+                  single: vi.fn(() => execute(false)),
+                  maybeSingle: vi.fn(() => execute(true)),
+                };
+              }),
             };
             return query;
           }),
@@ -412,9 +429,11 @@ describe("/api/spots/social-submissions", () => {
     mocks.aliasRows.length = 0;
     mocks.candidateRows.length = 0;
     mocks.optionalSocialSchemaAvailable = true;
+    mocks.resumeClaimConflict = false;
     mocks.createSupabaseAdmin.mockReturnValue(createSupabaseMock());
     mocks.rateLimitStrict.mockResolvedValue(null);
     mocks.auth.mockResolvedValue({ userId: "clerk_test" });
+    mocks.enrichSocialLinkMetadataWithProvider.mockImplementation(async (metadata) => metadata);
   });
 
   it("stays disabled until the feature flag is enabled", async () => {
@@ -504,6 +523,153 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.ledgerRows).toHaveLength(1);
     expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
+  });
+
+  it("keeps a partially analyzed multi-video submission in review", async () => {
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Hidden Seoul Cafe",
+      description: "A small cafe with strong local signal.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 5,
+      localPercentage: 82,
+      bestTime: "Weekday afternoon",
+      tips: ["Go before dinner"],
+      confidence: 0.84,
+      researchSummary: "One of two videos was analyzed.",
+      evidenceUrls: ["https://www.instagram.com/p/MIXED123"],
+      mediaAnalysis: {
+        status: "video_partially_analyzed",
+        output: "Partial video evidence",
+        analyzedVideoCount: 1,
+        totalVideoCount: 2,
+      },
+    });
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Mixed carousel",
+      description: "Two videos",
+      imageUrl: "https://scontent.cdninstagram.com/cover.jpg",
+      videoUrl: "https://scontent.cdninstagram.com/one.mp4",
+      videoUrls: [
+        "https://scontent.cdninstagram.com/one.mp4",
+        "https://scontent.cdninstagram.com/two.mp4",
+      ],
+      mediaCompleteness: "complete",
+      finalUrl: "https://www.instagram.com/p/MIXED123",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/p/MIXED123",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission.status).toBe("needs_review");
+    expect(body.spots).toHaveLength(1);
+    expect(mocks.submissionRows[0]).toMatchObject({ status: "needs_review" });
+  });
+
+  it("keeps an unavailable source video in review", async () => {
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Hidden Seoul Cafe",
+      description: "A small cafe with strong local signal.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 5,
+      localPercentage: 82,
+      bestTime: "Weekday afternoon",
+      tips: [],
+      confidence: 0.84,
+      researchSummary: "The caption is useful, but the source video was unavailable.",
+      evidenceUrls: ["https://www.instagram.com/reel/UNAVAILABLE123"],
+      mediaAnalysis: {
+        status: "video_unavailable",
+        output: null,
+        analyzedVideoCount: 0,
+        totalVideoCount: 1,
+      },
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/reel/UNAVAILABLE123",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission.status).toBe("needs_review");
+    expect(mocks.submissionRows[0]).toMatchObject({ status: "needs_review" });
+  });
+
+  it("keeps provider-unavailable Instagram media in review", async () => {
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Caption Cafe",
+      description: "A cafe named in the post caption.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: [],
+      localleyScore: 4,
+      localPercentage: 75,
+      bestTime: "Afternoon",
+      tips: [],
+      confidence: 0.82,
+      researchSummary: "The provider media could not be fully verified.",
+      evidenceUrls: ["https://www.instagram.com/p/PARTIALMEDIA123"],
+      mediaAnalysis: {
+        status: "media_partially_extracted",
+        output: null,
+        analyzedVideoCount: 0,
+        totalVideoCount: 0,
+      },
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/p/PARTIALMEDIA123",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission.status).toBe("needs_review");
+    expect(mocks.submissionRows[0]).toMatchObject({ status: "needs_review" });
+  });
+
+  it("checkpoints a submission before invoking paid provider enrichment", async () => {
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Instagram",
+      description: null,
+      imageUrl: null,
+      finalUrl: "https://www.instagram.com/p/CHECKPOINT123",
+    });
+    mocks.enrichSocialLinkMetadataWithProvider.mockImplementationOnce(async (metadata) => {
+      expect(mocks.submissionRows).toHaveLength(1);
+      expect(mocks.submissionRows[0]).toMatchObject({
+        canonical_url: "https://www.instagram.com/p/CHECKPOINT123",
+        status: "research_pending",
+      });
+      return metadata;
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/p/CHECKPOINT123",
+    }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.fetchSocialLinkMetadata).toHaveBeenCalledWith(
+      "https://www.instagram.com/p/CHECKPOINT123",
+      expect.objectContaining({ includeInstagramProvider: false }),
+    );
+    expect(mocks.enrichSocialLinkMetadataWithProvider).toHaveBeenCalledOnce();
   });
 
   it("stays compatible while the optional reliability migration is pending", async () => {
@@ -973,6 +1139,52 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.ledgerRows).toHaveLength(1);
   });
 
+  it("lets only one concurrent request claim a stale processing checkpoint", async () => {
+    mocks.resumeClaimConflict = true;
+    mocks.contributorRows.push({
+      id: "contributor_test",
+      email: "spotter@example.com",
+      public_credit_name: "sp...@example.com",
+      total_tokens: 0,
+    });
+    mocks.submissionRows.push({
+      id: "submission_stale",
+      contributor_id: "contributor_test",
+      clerk_user_id: "clerk_test",
+      canonical_url: "https://www.instagram.com/reel/ABC123",
+      status: "research_pending",
+      spot_id: null,
+      token_awarded: 0,
+      updated_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+      research_confidence: 0,
+      research_summary: "Processing interrupted.",
+      research: { processing: { state: "processing", attempt: 1 }, createdCandidates: [] },
+    });
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Hidden Seoul Cafe",
+      description: "Small cafe",
+      imageUrl: "https://cdn.example.com/cafe.jpg",
+      finalUrl: "https://www.instagram.com/reel/ABC123",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/reel/ABC123",
+      email: "spotter@example.com",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      duplicate: true,
+      submission: { id: "submission_stale", status: "research_pending" },
+    });
+    expect(mocks.enrichSocialLinkMetadataWithProvider).not.toHaveBeenCalled();
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+    expect(mocks.spotRows).toHaveLength(0);
+    expect(mocks.ledgerRows).toHaveLength(0);
+  });
+
   it("does not award tokens when another contributor submits an existing canonical URL", async () => {
     mocks.contributorRows.push({
       id: "contributor_original",
@@ -1348,6 +1560,8 @@ describe("/api/spots/social-submissions", () => {
       duplicate: true,
       submission: { id: "submission_alias_target", spotId: "spot_existing" },
     });
+    expect(mocks.fetchSocialLinkMetadata).not.toHaveBeenCalled();
+    expect(mocks.enrichSocialLinkMetadataWithProvider).not.toHaveBeenCalled();
     expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
     expect(mocks.ledgerRows).toHaveLength(0);
   });

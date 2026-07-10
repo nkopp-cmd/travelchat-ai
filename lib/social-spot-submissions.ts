@@ -25,6 +25,11 @@ const SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES = 40_000_000;
 const SOCIAL_VIDEO_REDIRECT_LIMIT = 3;
 const SOCIAL_RESEARCH_REQUEST_TIMEOUT_MS = 45_000;
 const SOCIAL_MIN_EXTERNAL_REQUEST_TIMEOUT_MS = 1_000;
+const INSTAGRAM_PROVIDER_TIMEOUT_MS = 12_000;
+const SOCIAL_PROVIDER_JSON_MAX_BYTES = 2_000_000;
+const INSTAGRAM_ACTOR_ID = "apify~instagram-scraper";
+const INSTAGRAM_ACTOR_BUILD = "0.0.674";
+const INSTAGRAM_ACTOR_MAX_CHARGE_USD = "0.01";
 
 const INSTAGRAM_HOSTS = new Set([
   "instagram.com",
@@ -84,12 +89,29 @@ export interface SocialLinkMetadata {
   providerName?: string | null;
   embedHtml?: string | null;
   videoUrl?: string | null;
+  videoUrls?: string[];
   videoDurationSeconds?: number | null;
   mediaAccessStatus?:
     | "video_ready"
     | "carousel_images"
     | "cover_only"
     | "media_unavailable";
+  extractionProvider?: "apify_instagram";
+  mediaCompleteness?: "complete" | "partial";
+  mediaItemCount?: number;
+  mediaExtractedCount?: number;
+  providerContext?: {
+    shortCode: string;
+    type?: string | null;
+    productType?: string | null;
+    alt?: string | null;
+    locationName?: string | null;
+    locationId?: string | null;
+    hashtags?: string[];
+    mentions?: string[];
+    taggedUsers?: string[];
+    timestamp?: string | null;
+  };
   finalUrl: string;
 }
 
@@ -121,8 +143,17 @@ export interface SocialSpotResearchCandidate {
 export interface SocialSpotResearchResult extends SocialSpotResearchCandidate {
   candidates: SocialSpotResearchCandidate[];
   mediaAnalysis?: {
-    status: "video_analyzed" | "video_unavailable" | "images_extracted" | "cover_only" | "media_unavailable";
+    status:
+      | "video_analyzed"
+      | "video_partially_analyzed"
+      | "video_unavailable"
+      | "images_extracted"
+      | "media_partially_extracted"
+      | "cover_only"
+      | "media_unavailable";
     output: string | null;
+    analyzedVideoCount?: number;
+    totalVideoCount?: number;
   };
 }
 
@@ -370,6 +401,10 @@ export function normalizeSocialSpotUrl(rawUrl: string): CanonicalSocialSpotUrl {
     throw new Error("Social spot links must use http or https.");
   }
 
+  if (parsed.username || parsed.password || parsed.port) {
+    throw new Error("Social spot links cannot include credentials or custom ports.");
+  }
+
   parsed.protocol = "https:";
   parsed.hostname = parsed.hostname.toLowerCase().replace(/\.$/, "");
   const host = parsed.hostname;
@@ -495,10 +530,33 @@ function isTrustedTikTokImageUrl(value: unknown): value is string {
   try {
     const parsed = new URL(value);
     const host = parsed.hostname.toLowerCase();
-    return parsed.protocol === "https:" && (
-      host.endsWith(".tiktokcdn.com") ||
-      host.endsWith(".tiktokcdn-eu.com") ||
-      host.endsWith(".tiktokcdn-us.com")
+    return parsed.protocol === "https:" && parsed.port === "" && (
+        host.endsWith(".tiktokcdn.com") ||
+        host.endsWith(".tiktokcdn-eu.com") ||
+        host.endsWith(".tiktokcdn-us.com")
+      );
+  } catch {
+    return false;
+  }
+}
+
+export function isTrustedInstagramMediaUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.toLowerCase();
+    return (
+      parsed.protocol === "https:" &&
+      parsed.username === "" &&
+      parsed.password === "" &&
+      parsed.port === "" &&
+      (
+        host === "cdninstagram.com" ||
+        host.endsWith(".cdninstagram.com") ||
+        host === "fbcdn.net" ||
+        host.endsWith(".fbcdn.net")
+      )
     );
   } catch {
     return false;
@@ -514,6 +572,7 @@ export function isTrustedTikTokVideoUrl(value: unknown): value is string {
       parsed.protocol === "https:" &&
       parsed.username === "" &&
       parsed.password === "" &&
+      parsed.port === "" &&
       parsed.hostname.toLowerCase() === "www.tiktok.com" &&
       parsed.pathname === "/aweme/v1/play/" &&
       parsed.searchParams.has("video_id")
@@ -523,8 +582,13 @@ export function isTrustedTikTokVideoUrl(value: unknown): value is string {
   }
 }
 
-function isTrustedTikTokDownloadUrl(value: unknown): value is string {
+function isTrustedSocialVideoUrl(value: unknown): value is string {
+  return isTrustedTikTokVideoUrl(value) || isTrustedInstagramMediaUrl(value);
+}
+
+function isTrustedSocialDownloadUrl(value: unknown): value is string {
   if (isTrustedTikTokVideoUrl(value)) return true;
+  if (isTrustedInstagramMediaUrl(value)) return true;
   if (typeof value !== "string") return false;
 
   try {
@@ -534,6 +598,7 @@ function isTrustedTikTokDownloadUrl(value: unknown): value is string {
       parsed.protocol === "https:" &&
       parsed.username === "" &&
       parsed.password === "" &&
+      parsed.port === "" &&
       (
         host.endsWith(".tiktokcdn.com") ||
         host.endsWith(".tiktokcdn-eu.com") ||
@@ -741,6 +806,240 @@ async function fetchTikTokOEmbed(
   };
 }
 
+function getTrustedInstagramMediaUrl(value: unknown): string | null {
+  return isTrustedInstagramMediaUrl(value) ? value : null;
+}
+
+function getInstagramShortcode(value: string): string | null {
+  try {
+    const parsed = new URL(value);
+    if (!INSTAGRAM_HOSTS.has(parsed.hostname.toLowerCase())) return null;
+    return parsed.pathname.match(/^\/(?:p|reel|reels|tv)\/([^/]+)/i)?.[1] || null;
+  } catch {
+    return null;
+  }
+}
+
+function getFirstInstagramMediaUrl(values: unknown[]): string | null {
+  return values.map(getTrustedInstagramMediaUrl).find(Boolean) || null;
+}
+
+function getInstagramMediaUrlsFromItem(item: UnknownRecord): {
+  imageUrls: string[];
+  videoUrls: string[];
+  extractedItemCount: number;
+  expectedItemCount: number;
+} {
+  const imageUrls: string[] = [];
+  const videoUrls: string[] = [];
+  const childPosts = Array.isArray(item.childPosts) ? item.childPosts : [];
+  let extractedItemCount = 0;
+
+  if (childPosts.length > 0) {
+    for (const child of childPosts) {
+      const record = asRecord(child);
+      if (!record) continue;
+      const imageUrl = getFirstInstagramMediaUrl([
+        ...(Array.isArray(record.images) ? record.images : []),
+        record.displayUrl,
+        record.imageUrl,
+        record.thumbnailUrl,
+      ]);
+      const videoUrl = getTrustedInstagramMediaUrl(record.videoUrl);
+      if (imageUrl) imageUrls.push(imageUrl);
+      if (videoUrl) videoUrls.push(videoUrl);
+      if (imageUrl || videoUrl) extractedItemCount += 1;
+    }
+  } else {
+    const carouselImages = Array.isArray(item.carouselImages) ? item.carouselImages : [];
+    const itemImages = Array.isArray(item.images) ? item.images : [];
+    const logicalImages = carouselImages.length > 0 ? carouselImages : itemImages;
+    imageUrls.push(...logicalImages
+      .map(getTrustedInstagramMediaUrl)
+      .filter((value): value is string => Boolean(value)));
+    if (imageUrls.length === 0) {
+      const displayUrl = getFirstInstagramMediaUrl([
+        item.displayUrl,
+        item.imageUrl,
+        item.thumbnailUrl,
+      ]);
+      if (displayUrl) imageUrls.push(displayUrl);
+    }
+    const videoUrl = getTrustedInstagramMediaUrl(item.videoUrl);
+    if (videoUrl) videoUrls.push(videoUrl);
+    extractedItemCount = imageUrls.length || (videoUrl ? 1 : 0);
+  }
+
+  const declaredCount = typeof item.carouselImageCount === "number" && item.carouselImageCount > 0
+    ? Math.floor(item.carouselImageCount)
+    : 0;
+  const expectedItemCount = Math.max(declaredCount, childPosts.length, extractedItemCount);
+
+  return {
+    imageUrls: uniqueMediaUrls(imageUrls),
+    videoUrls: uniqueMediaUrls(videoUrls),
+    extractedItemCount,
+    expectedItemCount,
+  };
+}
+
+function parseInstagramProviderResult(
+  payload: unknown,
+  canonicalUrl: string,
+): Partial<SocialLinkMetadata> | null {
+  if (!Array.isArray(payload)) return null;
+  const item = asRecord(payload[0]);
+  if (!item) return null;
+  const expectedShortcode = getInstagramShortcode(canonicalUrl);
+  const returnedShortcode = typeof item.shortCode === "string" ? item.shortCode : null;
+  if (!expectedShortcode || returnedShortcode !== expectedShortcode) return null;
+  const returnedIdentityUrls = [item.url, item.inputUrl]
+    .filter((value): value is string => typeof value === "string");
+  if (returnedIdentityUrls.some((value) => {
+    const shortcode = getInstagramShortcode(value);
+    return shortcode !== null && shortcode !== expectedShortcode;
+  })) {
+    return null;
+  }
+
+  const { imageUrls, videoUrls, extractedItemCount, expectedItemCount } =
+    getInstagramMediaUrlsFromItem(item);
+  const caption = typeof item.caption === "string" ? item.caption.trim().slice(0, 4_000) : "";
+  const ownerName = typeof item.ownerFullName === "string" && item.ownerFullName.trim()
+    ? item.ownerFullName.trim().slice(0, 160)
+    : typeof item.ownerUsername === "string" && item.ownerUsername.trim()
+      ? item.ownerUsername.trim().slice(0, 160)
+      : null;
+  const title = caption.split(/\r?\n/).find((line) => line.trim())?.trim().slice(0, 180) || ownerName;
+  const source = inferSocialSource(canonicalUrl);
+  const videoUrl = videoUrls[0] || null;
+  const videoDuration = typeof item.videoDuration === "number" && Number.isFinite(item.videoDuration)
+    ? item.videoDuration
+    : typeof item.videoDurationSeconds === "number" && Number.isFinite(item.videoDurationSeconds)
+      ? item.videoDurationSeconds
+      : null;
+
+  if (!caption && imageUrls.length === 0 && !videoUrl) return null;
+
+  const getOptionalText = (value: unknown, maxLength: number): string | null =>
+    typeof value === "string" && value.trim() ? value.trim().slice(0, maxLength) : null;
+  const getStringList = (value: unknown): string[] => Array.isArray(value)
+    ? value
+      .filter((entry): entry is string => typeof entry === "string")
+      .map((entry) => entry.trim().slice(0, 100))
+      .filter(Boolean)
+      .slice(0, 50)
+    : [];
+  const location = asRecord(item.location);
+
+  return {
+    title,
+    description: caption || null,
+    imageUrl: imageUrls[0] || null,
+    thumbnailUrl: imageUrls[0] || null,
+    mediaUrls: imageUrls,
+    sourceType: source.sourceType,
+    sourceLabel: source.sourceLabel,
+    authorName: ownerName,
+    providerName: "Apify Instagram Scraper",
+    videoUrl,
+    videoUrls,
+    videoDurationSeconds: videoDuration,
+    mediaAccessStatus: videoUrl
+      ? "video_ready"
+      : imageUrls.length > 1
+        ? "carousel_images"
+        : imageUrls.length === 1
+          ? "cover_only"
+          : "media_unavailable",
+    extractionProvider: "apify_instagram",
+    mediaCompleteness: expectedItemCount > 0 && extractedItemCount >= expectedItemCount
+      ? "complete"
+      : "partial",
+    mediaItemCount: expectedItemCount,
+    mediaExtractedCount: extractedItemCount,
+    providerContext: {
+      shortCode: expectedShortcode,
+      type: getOptionalText(item.type, 50),
+      productType: getOptionalText(item.productType, 80),
+      alt: getOptionalText(item.alt, 500),
+      locationName: getOptionalText(item.locationName, 200) ||
+        getOptionalText(location?.name, 200),
+      locationId: getOptionalText(item.locationId, 100) ||
+        getOptionalText(location?.id, 100),
+      hashtags: getStringList(item.hashtags),
+      mentions: getStringList(item.mentions),
+      taggedUsers: getStringList(item.taggedUsers),
+      timestamp: getOptionalText(item.timestamp, 80),
+    },
+    finalUrl: canonicalUrl,
+  };
+}
+
+async function fetchInstagramProviderMetadata(
+  canonicalUrl: string,
+  deadlineAt?: number,
+): Promise<Partial<SocialLinkMetadata> | null> {
+  const token = process.env.APIFY_API_TOKEN?.trim();
+  if (!token || !hasExternalRequestBudget(deadlineAt)) return null;
+
+  if (!getInstagramShortcode(canonicalUrl)) return null;
+
+  const source = inferSocialSource(canonicalUrl);
+  const resultsType = source.sourceType === "instagram_reel" ? "reels" : "posts";
+  const timeoutMs = remainingExternalTimeout(deadlineAt, INSTAGRAM_PROVIDER_TIMEOUT_MS);
+  if (timeoutMs < SOCIAL_MIN_EXTERNAL_REQUEST_TIMEOUT_MS) return null;
+
+  const endpoint = new URL(
+    `https://api.apify.com/v2/acts/${INSTAGRAM_ACTOR_ID}/run-sync-get-dataset-items`,
+  );
+  endpoint.searchParams.set("timeout", String(Math.max(1, Math.floor(timeoutMs / 1000))));
+  endpoint.searchParams.set("clean", "true");
+  endpoint.searchParams.set("build", INSTAGRAM_ACTOR_BUILD);
+  endpoint.searchParams.set("maxItems", "1");
+  endpoint.searchParams.set("limit", "1");
+  endpoint.searchParams.set("maxTotalChargeUsd", INSTAGRAM_ACTOR_MAX_CHARGE_USD);
+  endpoint.searchParams.set("restartOnError", "false");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        resultsType,
+        directUrls: [canonicalUrl],
+        resultsLimit: 1,
+      }),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      console.warn(`[social-spot-submissions] Instagram provider returned ${response.status}.`);
+      return null;
+    }
+
+    const payloadText = await readResponseTextWithLimit(
+      response,
+      SOCIAL_PROVIDER_JSON_MAX_BYTES,
+    );
+    if (!payloadText) return null;
+    return parseInstagramProviderResult(JSON.parse(payloadText), canonicalUrl);
+  } catch (error) {
+    console.warn(
+      "[social-spot-submissions] Instagram provider unavailable:",
+      error instanceof Error ? error.message : error,
+    );
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function fetchPlatformOEmbed(
   normalized: CanonicalSocialSpotUrl,
   deadlineAt?: number,
@@ -758,13 +1057,25 @@ function mergeSocialMetadata(
 ): SocialLinkMetadata {
   if (!extra) return base;
   const baseTitleIsGeneric = isGenericSocialTitle(base.title);
+  const preferExtraMedia = extra.extractionProvider === "apify_instagram";
 
   return {
     title: baseTitleIsGeneric ? extra.title || base.title || null : base.title || extra.title || null,
-    description: base.description || extra.description || null,
-    imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
-    thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
-    mediaUrls: uniqueMediaUrls([
+    description: preferExtraMedia
+      ? extra.description || base.description || null
+      : base.description || extra.description || null,
+    imageUrl: preferExtraMedia
+      ? extra.imageUrl || extra.thumbnailUrl || base.imageUrl || null
+      : base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
+    thumbnailUrl: preferExtraMedia
+      ? extra.thumbnailUrl || extra.imageUrl || base.thumbnailUrl || null
+      : base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
+    mediaUrls: uniqueMediaUrls(preferExtraMedia ? [
+      ...(extra.mediaUrls || []),
+      ...(extra.imageUrl ? [extra.imageUrl] : []),
+      ...(extra.thumbnailUrl ? [extra.thumbnailUrl] : []),
+      ...(base.mediaUrls || []),
+    ] : [
       ...(base.mediaUrls || []),
       ...(extra.mediaUrls || []),
       ...(extra.imageUrl ? [extra.imageUrl] : []),
@@ -775,9 +1086,29 @@ function mergeSocialMetadata(
     authorName: base.authorName || extra.authorName || null,
     providerName: base.providerName || extra.providerName || null,
     embedHtml: base.embedHtml || extra.embedHtml || null,
-    videoUrl: base.videoUrl || extra.videoUrl || null,
-    videoDurationSeconds: base.videoDurationSeconds || extra.videoDurationSeconds || null,
-    mediaAccessStatus: base.mediaAccessStatus || extra.mediaAccessStatus,
+    videoUrl: preferExtraMedia ? extra.videoUrl || base.videoUrl || null : base.videoUrl || extra.videoUrl || null,
+    videoUrls: uniqueMediaUrls(preferExtraMedia ? [
+      ...(extra.videoUrls || []),
+      ...(extra.videoUrl ? [extra.videoUrl] : []),
+      ...(base.videoUrls || []),
+      ...(base.videoUrl ? [base.videoUrl] : []),
+    ] : [
+      ...(base.videoUrls || []),
+      ...(base.videoUrl ? [base.videoUrl] : []),
+      ...(extra.videoUrls || []),
+      ...(extra.videoUrl ? [extra.videoUrl] : []),
+    ]),
+    videoDurationSeconds: preferExtraMedia
+      ? extra.videoDurationSeconds || base.videoDurationSeconds || null
+      : base.videoDurationSeconds || extra.videoDurationSeconds || null,
+    mediaAccessStatus: preferExtraMedia
+      ? extra.mediaAccessStatus || base.mediaAccessStatus
+      : base.mediaAccessStatus || extra.mediaAccessStatus,
+    extractionProvider: extra.extractionProvider || base.extractionProvider,
+    mediaCompleteness: extra.mediaCompleteness || base.mediaCompleteness,
+    mediaItemCount: extra.mediaItemCount ?? base.mediaItemCount,
+    mediaExtractedCount: extra.mediaExtractedCount ?? base.mediaExtractedCount,
+    providerContext: extra.providerContext || base.providerContext,
     finalUrl: base.finalUrl || extra.finalUrl || "",
   };
 }
@@ -813,13 +1144,27 @@ function mergePartialSocialMetadata(
     providerName: base.providerName || extra.providerName || null,
     embedHtml: base.embedHtml || extra.embedHtml || null,
     videoUrl: base.videoUrl || extra.videoUrl || null,
+    videoUrls: uniqueMediaUrls([
+      ...(base.videoUrls || []),
+      ...(base.videoUrl ? [base.videoUrl] : []),
+      ...(extra.videoUrls || []),
+      ...(extra.videoUrl ? [extra.videoUrl] : []),
+    ]),
     videoDurationSeconds: base.videoDurationSeconds || extra.videoDurationSeconds || null,
     mediaAccessStatus: base.mediaAccessStatus || extra.mediaAccessStatus,
+    extractionProvider: base.extractionProvider || extra.extractionProvider,
+    mediaCompleteness: base.mediaCompleteness || extra.mediaCompleteness,
+    mediaItemCount: base.mediaItemCount ?? extra.mediaItemCount,
+    mediaExtractedCount: base.mediaExtractedCount ?? extra.mediaExtractedCount,
+    providerContext: base.providerContext || extra.providerContext,
     finalUrl: base.finalUrl || extra.finalUrl || "",
   };
 }
 
-async function readResponseTextWithLimit(response: Response): Promise<string> {
+async function readResponseTextWithLimit(
+  response: Response,
+  maxBytes = SOCIAL_METADATA_MAX_BYTES,
+): Promise<string> {
   const reader = response.body?.getReader();
   if (!reader) return "";
 
@@ -827,16 +1172,16 @@ async function readResponseTextWithLimit(response: Response): Promise<string> {
   let received = 0;
   let text = "";
 
-  while (received < SOCIAL_METADATA_MAX_BYTES) {
+  while (received < maxBytes) {
     const { done, value } = await reader.read();
     if (done) break;
-    const remaining = SOCIAL_METADATA_MAX_BYTES - received;
+    const remaining = maxBytes - received;
     const chunk = value.byteLength > remaining ? value.subarray(0, remaining) : value;
     received += chunk.byteLength;
     text += decoder.decode(chunk, { stream: true });
   }
 
-  if (received >= SOCIAL_METADATA_MAX_BYTES) {
+  if (received >= maxBytes) {
     await reader.cancel();
   }
 
@@ -845,16 +1190,18 @@ async function readResponseTextWithLimit(response: Response): Promise<string> {
 
 export async function fetchSocialLinkMetadata(
   canonicalUrl: string,
-  options: { deadlineAt?: number } = {},
+  options: { deadlineAt?: number; includeInstagramProvider?: boolean } = {},
 ): Promise<SocialLinkMetadata> {
   let currentUrl = canonicalUrl;
   const initial = normalizeSocialSpotUrl(canonicalUrl);
   let oembed = await fetchPlatformOEmbed(initial, options.deadlineAt);
   let oembedUrl = initial.canonicalUrl;
+  let finalCanonicalUrl = initial.canonicalUrl;
 
   for (let redirectCount = 0; redirectCount <= SOCIAL_REDIRECT_LIMIT; redirectCount++) {
     if (!hasExternalRequestBudget(options.deadlineAt)) break;
     const normalized = normalizeSocialSpotUrl(currentUrl);
+    finalCanonicalUrl = normalized.canonicalUrl;
     if (normalized.canonicalUrl !== oembedUrl) {
       const redirectedOembed = await fetchPlatformOEmbed(normalized, options.deadlineAt);
       oembed = mergePartialSocialMetadata(oembed, redirectedOembed);
@@ -890,9 +1237,13 @@ export async function fetchSocialLinkMetadata(
       if (!contentType.includes("text/html")) break;
 
       const html = await readResponseTextWithLimit(response);
+      const providerMetadata = normalized.platform === "instagram" &&
+        options.includeInstagramProvider !== false
+        ? await fetchInstagramProviderMetadata(normalized.canonicalUrl, options.deadlineAt)
+        : oembed;
       return mergeSocialMetadata(
         extractSocialMetadataFromHtml(html, normalized.canonicalUrl),
-        oembed,
+        providerMetadata,
       );
     } catch {
       break;
@@ -901,27 +1252,72 @@ export async function fetchSocialLinkMetadata(
     }
   }
 
+  let providerMetadata = oembed;
+  try {
+    const resolved = normalizeSocialSpotUrl(currentUrl);
+    if (resolved.platform === initial.platform) {
+      finalCanonicalUrl = resolved.canonicalUrl;
+      if (
+        resolved.platform === "instagram" &&
+        options.includeInstagramProvider !== false
+      ) {
+        providerMetadata = await fetchInstagramProviderMetadata(
+          resolved.canonicalUrl,
+          options.deadlineAt,
+        );
+      }
+    }
+  } catch {
+    // Keep the last validated canonical URL.
+  }
+
   return {
-    title: oembed?.title || null,
-    description: oembed?.description || null,
-    imageUrl: oembed?.imageUrl || oembed?.thumbnailUrl || null,
-    thumbnailUrl: oembed?.thumbnailUrl || oembed?.imageUrl || null,
+    title: providerMetadata?.title || null,
+    description: providerMetadata?.description || null,
+    imageUrl: providerMetadata?.imageUrl || providerMetadata?.thumbnailUrl || null,
+    thumbnailUrl: providerMetadata?.thumbnailUrl || providerMetadata?.imageUrl || null,
     mediaUrls: uniqueMediaUrls([
-      ...(oembed?.mediaUrls || []),
-      ...(oembed?.imageUrl ? [oembed.imageUrl] : []),
-      ...(oembed?.thumbnailUrl ? [oembed.thumbnailUrl] : []),
+      ...(providerMetadata?.mediaUrls || []),
+      ...(providerMetadata?.imageUrl ? [providerMetadata.imageUrl] : []),
+      ...(providerMetadata?.thumbnailUrl ? [providerMetadata.thumbnailUrl] : []),
     ]),
-    ...inferSocialSource(canonicalUrl),
-    authorName: oembed?.authorName || null,
-    providerName: oembed?.providerName || null,
-    embedHtml: oembed?.embedHtml || null,
-    videoUrl: oembed?.videoUrl || null,
-    videoDurationSeconds: oembed?.videoDurationSeconds || null,
-    mediaAccessStatus: oembed?.mediaAccessStatus || (
-      oembed?.imageUrl || oembed?.thumbnailUrl ? "cover_only" : "media_unavailable"
+    ...inferSocialSource(finalCanonicalUrl),
+    authorName: providerMetadata?.authorName || null,
+    providerName: providerMetadata?.providerName || null,
+    embedHtml: providerMetadata?.embedHtml || null,
+    videoUrl: providerMetadata?.videoUrl || null,
+    videoUrls: providerMetadata?.videoUrls || [],
+    videoDurationSeconds: providerMetadata?.videoDurationSeconds || null,
+    mediaAccessStatus: providerMetadata?.mediaAccessStatus || (
+      providerMetadata?.imageUrl || providerMetadata?.thumbnailUrl ? "cover_only" : "media_unavailable"
     ),
-    finalUrl: canonicalUrl,
+    extractionProvider: providerMetadata?.extractionProvider,
+    mediaCompleteness: providerMetadata?.mediaCompleteness,
+    mediaItemCount: providerMetadata?.mediaItemCount,
+    mediaExtractedCount: providerMetadata?.mediaExtractedCount,
+    providerContext: providerMetadata?.providerContext,
+    finalUrl: finalCanonicalUrl,
   };
+}
+
+export async function enrichSocialLinkMetadataWithProvider(
+  metadata: SocialLinkMetadata,
+  options: { deadlineAt?: number } = {},
+): Promise<SocialLinkMetadata> {
+  const normalized = normalizeSocialSpotUrl(metadata.finalUrl);
+  if (normalized.platform !== "instagram") return metadata;
+
+  const providerMetadata = await fetchInstagramProviderMetadata(
+    normalized.canonicalUrl,
+    options.deadlineAt,
+  );
+  if (!providerMetadata) {
+    return {
+      ...metadata,
+      mediaCompleteness: "partial",
+    };
+  }
+  return mergeSocialMetadata(metadata, providerMetadata);
 }
 
 export async function analyzeSocialVideo(input: {
@@ -929,7 +1325,7 @@ export async function analyzeSocialVideo(input: {
   durationSeconds?: number | null;
   deadlineAt?: number;
 }): Promise<string | null> {
-  if (!process.env.FAL_KEY || !isTrustedTikTokVideoUrl(input.videoUrl)) return null;
+  if (!process.env.FAL_KEY || !isTrustedSocialVideoUrl(input.videoUrl)) return null;
   if (
     input.durationSeconds &&
     input.durationSeconds > SOCIAL_VIDEO_ANALYSIS_MAX_SECONDS
@@ -972,7 +1368,7 @@ export async function analyzeSocialVideo(input: {
     }
   };
 
-  const videoBlob = await downloadTrustedTikTokVideo(input.videoUrl, input.deadlineAt);
+  const videoBlob = await downloadTrustedSocialVideo(input.videoUrl, input.deadlineAt);
   if (!hasExternalRequestBudget(input.deadlineAt)) {
     throw new Error("Social video upload exceeded its processing budget.");
   }
@@ -983,7 +1379,7 @@ export async function analyzeSocialVideo(input: {
       fal.storage.upload(videoBlob),
       new Promise<never>((_resolve, reject) => {
         uploadTimeout = setTimeout(
-          () => reject(new Error("TikTok video upload timed out.")),
+          () => reject(new Error("Social video upload timed out.")),
           remainingExternalTimeout(input.deadlineAt, SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS),
         );
       }),
@@ -997,12 +1393,12 @@ export async function analyzeSocialVideo(input: {
   return output ? output.slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS) : null;
 }
 
-async function downloadTrustedTikTokVideo(
+async function downloadTrustedSocialVideo(
   videoUrl: string,
   deadlineAt?: number,
 ): Promise<Blob> {
   if (!hasExternalRequestBudget(deadlineAt)) {
-    throw new Error("TikTok video download exceeded its processing budget.");
+    throw new Error("Social video download exceeded its processing budget.");
   }
   const controller = new AbortController();
   const timeout = setTimeout(
@@ -1013,16 +1409,20 @@ async function downloadTrustedTikTokVideo(
 
   try {
     for (let redirectCount = 0; redirectCount <= SOCIAL_VIDEO_REDIRECT_LIMIT; redirectCount++) {
-      if (!isTrustedTikTokDownloadUrl(currentUrl)) {
-        throw new Error("TikTok returned an untrusted media location.");
+      if (!isTrustedSocialDownloadUrl(currentUrl)) {
+        throw new Error("The social provider returned an untrusted media location.");
       }
+
+      const referer = isTrustedInstagramMediaUrl(currentUrl)
+        ? "https://www.instagram.com/"
+        : "https://www.tiktok.com/";
 
       const response = await fetch(currentUrl, {
         redirect: "manual",
         signal: controller.signal,
         headers: {
           accept: "video/mp4,video/*;q=0.9,*/*;q=0.1",
-          referer: "https://www.tiktok.com/",
+          referer,
           "user-agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128 Safari/537.36",
         },
@@ -1031,26 +1431,26 @@ async function downloadTrustedTikTokVideo(
       if ([301, 302, 303, 307, 308].includes(response.status)) {
         const location = response.headers.get("location");
         if (!location || redirectCount === SOCIAL_VIDEO_REDIRECT_LIMIT) {
-          throw new Error("TikTok media redirected too many times.");
+          throw new Error("Social media redirected too many times.");
         }
         currentUrl = new URL(location, currentUrl).toString();
         continue;
       }
 
       if (!response.ok) {
-        throw new Error(`TikTok media download failed with ${response.status}.`);
+        throw new Error(`Social video download failed with ${response.status}.`);
       }
       const contentType = response.headers.get("content-type") || "";
       if (!contentType.toLowerCase().startsWith("video/")) {
-        throw new Error("TikTok media did not return a video.");
+        throw new Error("The social media URL did not return a video.");
       }
       const declaredSize = Number(response.headers.get("content-length") || 0);
       if (declaredSize > SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES) {
-        throw new Error("TikTok video is too large to analyze safely.");
+        throw new Error("The social video is too large to analyze safely.");
       }
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error("TikTok video response was empty.");
+      if (!reader) throw new Error("Social video response was empty.");
       const chunks: Uint8Array[] = [];
       let received = 0;
       while (true) {
@@ -1059,11 +1459,11 @@ async function downloadTrustedTikTokVideo(
         received += value.byteLength;
         if (received > SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES) {
           await reader.cancel();
-          throw new Error("TikTok video is too large to analyze safely.");
+          throw new Error("The social video is too large to analyze safely.");
         }
         chunks.push(value);
       }
-      if (received === 0) throw new Error("TikTok video response was empty.");
+      if (received === 0) throw new Error("Social video response was empty.");
 
       const videoBytes = new Uint8Array(received);
       let offset = 0;
@@ -1076,7 +1476,7 @@ async function downloadTrustedTikTokVideo(
       });
     }
 
-    throw new Error("TikTok media could not be downloaded.");
+    throw new Error("Social media could not be downloaded.");
   } finally {
     clearTimeout(timeout);
   }
@@ -1098,6 +1498,23 @@ function buildFallbackResearch(input: {
 }): SocialSpotResearchResult {
   const cleanedTitle = cleanSocialTitle(input.metadata.title);
   const imageUrl = input.metadata.imageUrl || input.metadata.thumbnailUrl || null;
+  const videoUrls = uniqueMediaUrls([
+    ...(input.metadata.videoUrls || []),
+    ...(input.metadata.videoUrl ? [input.metadata.videoUrl] : []),
+  ]).filter(isTrustedSocialVideoUrl);
+  const isPartialMedia = input.metadata.mediaCompleteness === "partial" ||
+    videoUrls.length > 1;
+  const mediaStatus = isPartialMedia
+    ? videoUrls.length > 1
+      ? "video_partially_analyzed"
+      : "media_partially_extracted"
+    : videoUrls.length > 0
+      ? "video_unavailable"
+      : input.metadata.mediaAccessStatus === "carousel_images"
+        ? "images_extracted"
+        : input.metadata.mediaAccessStatus === "cover_only"
+          ? "cover_only"
+          : "media_unavailable";
 
   return {
     status: "research_pending",
@@ -1117,6 +1534,12 @@ function buildFallbackResearch(input: {
     imageUrl,
     visualEvidence: imageUrl ? "Captured the social post cover image for review." : null,
     candidates: [],
+    mediaAnalysis: {
+      status: mediaStatus,
+      output: null,
+      analyzedVideoCount: 0,
+      totalVideoCount: videoUrls.length,
+    },
   };
 }
 
@@ -1146,6 +1569,7 @@ function buildResearchPrompt(input: {
       "Use captions, titles, hashtags, contributor notes, visible cover images, thumbnails, and web evidence together.",
       "When several visual inputs are attached, inspect each one independently and return a separate candidate for every distinct verified place.",
       "When videoAnalysis is present, it represents full-video frame, OCR, and timestamp evidence. Account for every distinctly named place it contains, either as a verified candidate or a low-confidence review candidate.",
+      "If metadata says mediaCompleteness is partial or videoAnalysis says only some videos were analyzed, do not imply the entire post was covered; keep unverified places in needs_review.",
       "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty without videoAnalysis.",
       "Use web search evidence when the social page is hard to read.",
       "For each candidate, set confidence below 0.56 unless the place name, city, and address are all supported.",
@@ -1174,21 +1598,33 @@ export async function researchSocialSpotLink(input: {
   }
 
   let videoAnalysis: string | null = null;
-  if (input.metadata.videoUrl) {
+  let analyzedVideoCount = 0;
+  const videoUrls = uniqueMediaUrls([
+    ...(input.metadata.videoUrls || []),
+    ...(input.metadata.videoUrl ? [input.metadata.videoUrl] : []),
+  ]).filter(isTrustedSocialVideoUrl);
+  if (videoUrls.length > 0) {
     const videoAnalyzer = input.videoAnalyzer || analyzeSocialVideo;
     try {
       const analyzerInput: Parameters<SocialVideoAnalyzer>[0] = {
-        videoUrl: input.metadata.videoUrl,
+        videoUrl: videoUrls[0],
         durationSeconds: input.metadata.videoDurationSeconds,
       };
       if (input.deadlineAt) analyzerInput.deadlineAt = input.deadlineAt;
       videoAnalysis = await videoAnalyzer(analyzerInput);
+      if (videoAnalysis) analyzedVideoCount = 1;
     } catch (error) {
       console.warn(
         "[social-spot-submissions] Video analysis unavailable; continuing with other evidence:",
         error instanceof Error ? error.message : error,
       );
     }
+  }
+  if (videoAnalysis && videoUrls.length > analyzedVideoCount) {
+    videoAnalysis = [
+      `PARTIAL VIDEO COVERAGE: analyzed ${analyzedVideoCount} of ${videoUrls.length} videos.`,
+      videoAnalysis,
+    ].join("\n");
   }
 
   const visualEvidenceUrls = uniqueMediaUrls([
@@ -1338,9 +1774,15 @@ export async function researchSocialSpotLink(input: {
       return buildFallbackResearch(input);
     }
 
-    const mediaStatus = videoAnalysis
-      ? "video_analyzed"
-      : input.metadata.videoUrl
+    const isPartialMedia = input.metadata.mediaCompleteness === "partial" ||
+      videoUrls.length > 1 && analyzedVideoCount < videoUrls.length;
+    const mediaStatus = isPartialMedia
+      ? videoUrls.length > 1
+        ? "video_partially_analyzed"
+        : "media_partially_extracted"
+      : videoAnalysis
+        ? "video_analyzed"
+        : videoUrls.length > 0
         ? "video_unavailable"
         : input.metadata.mediaAccessStatus === "carousel_images"
           ? "images_extracted"
@@ -1353,6 +1795,8 @@ export async function researchSocialSpotLink(input: {
       mediaAnalysis: {
         status: mediaStatus,
         output: videoAnalysis,
+        analyzedVideoCount,
+        totalVideoCount: videoUrls.length,
       },
     };
   } catch (error) {

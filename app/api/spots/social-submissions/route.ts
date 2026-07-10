@@ -16,6 +16,7 @@ import {
   SOCIAL_SUBMISSION_TOKEN_AWARD,
   buildAnonymousContributorEmail,
   buildPublicCreditName,
+  enrichSocialLinkMetadataWithProvider,
   fetchSocialLinkMetadata,
   getResearchCandidates,
   normalizeContributorEmail,
@@ -333,6 +334,18 @@ function summarizeCandidateStatuses(
   return "needs_review";
 }
 
+function summarizeSubmissionStatus(
+  results: Array<{ spotId: string | null; status: SocialSpotSubmissionStatus }>,
+  research: SocialSpotResearchResult,
+): SocialSpotSubmissionStatus {
+  if (["video_partially_analyzed", "video_unavailable", "media_partially_extracted"].includes(
+    research.mediaAnalysis?.status || "",
+  )) {
+    return "needs_review";
+  }
+  return summarizeCandidateStatuses(results);
+}
+
 function hasUnresolvedCandidateResults(research: unknown): boolean {
   if (!research || typeof research !== "object") return false;
   const createdCandidates = (research as {
@@ -443,6 +456,8 @@ type StoredSubmissionRecord = {
     }>;
     processing?: {
       state?: string | null;
+      attempt?: number | null;
+      startedAt?: string | null;
     };
   } | null;
 };
@@ -460,6 +475,49 @@ function canResumeSubmission(
       ["processing", "retryable"].includes(submission.research?.processing?.state || "") &&
       isStale,
   );
+}
+
+async function claimResumableSubmission({
+  supabase,
+  submission,
+  startedAt,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  submission: StoredSubmissionRecord;
+  startedAt: string;
+}) {
+  if (!submission.updated_at) {
+    return { data: null, error: null };
+  }
+
+  const attempt = Math.max(0, Number(submission.research?.processing?.attempt || 0)) + 1;
+  const research = {
+    ...(submission.research || {}),
+    processing: {
+      state: "processing",
+      attempt,
+      startedAt,
+    },
+  };
+  const updateWithCas = async (payload: Record<string, unknown>) => supabase
+    .from("social_spot_submissions")
+    .update(payload)
+    .eq("id", submission.id)
+    .eq("updated_at", submission.updated_at as string)
+    .select("id, status, spot_id")
+    .maybeSingle();
+
+  let result = await updateWithCas({
+    research,
+    processing_state: "processing",
+    processing_attempt: attempt,
+    processing_started_at: startedAt,
+    last_error: null,
+  });
+  if (result.error && isMissingOptionalSocialSchema(result.error)) {
+    result = await updateWithCas({ research });
+  }
+  return result;
 }
 
 function buildDuplicateSubmissionPayload(
@@ -812,8 +870,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const metadata = await fetchSocialLinkMetadata(normalized.canonicalUrl, {
+    const submittedAlias = await findSubmissionByAlias({
+      supabase,
+      urls: [validation.data.url, normalized.canonicalUrl],
+    });
+    if (submittedAlias) {
+      if (canResumeSubmission(submittedAlias, userId)) {
+        resumableSubmission = submittedAlias;
+      } else {
+        return NextResponse.json(
+          buildDuplicateSubmissionPayload(submittedAlias, contributor),
+        );
+      }
+    }
+
+    let metadata = await fetchSocialLinkMetadata(normalized.canonicalUrl, {
       deadlineAt: processingDeadlineAt,
+      includeInstagramProvider: false,
     });
     let resolvedCanonicalUrl = normalized.canonicalUrl;
     try {
@@ -866,16 +939,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const aliasedSubmission = await findSubmissionByAlias({
+    const resolvedAliasSubmission = await findSubmissionByAlias({
       supabase,
       urls: [normalized.canonicalUrl, resolvedCanonicalUrl, metadata.finalUrl],
     });
-    if (aliasedSubmission) {
-      if (canResumeSubmission(aliasedSubmission, userId)) {
-        resumableSubmission = aliasedSubmission;
+    if (resolvedAliasSubmission) {
+      if (canResumeSubmission(resolvedAliasSubmission, userId)) {
+        resumableSubmission = resolvedAliasSubmission;
       } else {
         return NextResponse.json(
-          buildDuplicateSubmissionPayload(aliasedSubmission, contributor),
+          buildDuplicateSubmissionPayload(resolvedAliasSubmission, contributor),
         );
       }
     }
@@ -906,16 +979,29 @@ export async function POST(req: NextRequest) {
       research: initialResearch,
       metadata,
     };
-    let placeholderResult = resumableSubmission
-      ? {
-          data: {
-            id: resumableSubmission.id,
-            status: resumableSubmission.status,
-            spot_id: resumableSubmission.spot_id,
-          },
-          error: null,
+    let placeholderResult;
+    if (resumableSubmission) {
+      placeholderResult = await claimResumableSubmission({
+        supabase,
+        submission: resumableSubmission,
+        startedAt: now,
+      });
+      if (!placeholderResult.error && !placeholderResult.data) {
+        const { data: activeSubmission, error: activeSubmissionError } = await supabase
+          .from("social_spot_submissions")
+          .select("id, status, spot_id, clerk_user_id, updated_at, research_confidence, research_summary, research")
+          .eq("id", resumableSubmission.id)
+          .maybeSingle();
+        if (activeSubmissionError) {
+          console.error("[social-submissions] Resume claim lookup failed:", activeSubmissionError);
+          return Errors.databaseError("Could not resume the social spot submission.");
         }
-      : await supabase
+        return NextResponse.json(
+          buildDuplicateSubmissionPayload(activeSubmission || resumableSubmission, contributor),
+        );
+      }
+    } else {
+      placeholderResult = await supabase
         .from("social_spot_submissions")
         .insert({
           ...baseSubmissionPayload,
@@ -926,6 +1012,7 @@ export async function POST(req: NextRequest) {
         })
         .select("id, status, spot_id")
         .single();
+    }
 
     if (placeholderResult.error && isMissingOptionalSocialSchema(placeholderResult.error)) {
       placeholderResult = await supabase
@@ -961,6 +1048,10 @@ export async function POST(req: NextRequest) {
       urls: [normalized.canonicalUrl, resolvedCanonicalUrl, metadata.finalUrl],
     });
 
+    metadata = await enrichSocialLinkMetadataWithProvider(metadata, {
+      deadlineAt: processingDeadlineAt,
+    });
+
     const research = await researchSocialSpotLink({
       canonicalUrl: resolvedCanonicalUrl,
       platform: normalized.platform,
@@ -985,7 +1076,7 @@ export async function POST(req: NextRequest) {
       candidateResults.find((result) => result.spotId) ||
       candidateResults[0] ||
       { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
-    const submissionStatus = summarizeCandidateStatuses(candidateResults);
+    const submissionStatus = summarizeSubmissionStatus(candidateResults, research);
     const enrichedResearch: SocialSpotResearchResult = {
       ...research,
       candidates,
@@ -1206,7 +1297,7 @@ export async function PATCH(req: NextRequest) {
       mergedCandidateResults.find((result) => result.spotId) ||
       mergedCandidateResults[0] ||
       { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
-    const submissionStatus = summarizeCandidateStatuses(mergedCandidateResults);
+    const submissionStatus = summarizeSubmissionStatus(mergedCandidateResults, research);
     const previousEvidence = Array.isArray(existingSubmission.research?.contributorEvidence)
       ? existingSubmission.research.contributorEvidence
       : [];

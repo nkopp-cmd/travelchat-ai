@@ -66,12 +66,25 @@ type SubmissionRow = {
     mediaUrls?: string[];
     mediaAccessStatus?: "video_ready" | "carousel_images" | "cover_only" | "media_unavailable";
     videoDurationSeconds?: number | null;
+    videoUrls?: string[];
+    mediaCompleteness?: "complete" | "partial";
+    mediaItemCount?: number;
+    mediaExtractedCount?: number;
   } | null;
   research: {
     candidates?: Candidate[];
     createdCandidates?: CreatedCandidate[];
     mediaAnalysis?: {
-      status?: "video_analyzed" | "video_unavailable" | "images_extracted" | "cover_only" | "media_unavailable";
+      status?:
+        | "video_analyzed"
+        | "video_partially_analyzed"
+        | "video_unavailable"
+        | "images_extracted"
+        | "media_partially_extracted"
+        | "cover_only"
+        | "media_unavailable";
+      analyzedVideoCount?: number;
+      totalVideoCount?: number;
     };
   } | null;
 };
@@ -232,6 +245,27 @@ function getMediaStatusCopy(submission: SubmissionRow) {
       label: "Full video analyzed",
       icon: Video,
       className: "border-cyan-200/25 bg-cyan-400/10 text-cyan-100",
+    };
+  }
+  if (analysisStatus === "video_partially_analyzed") {
+    const analyzed = submission.research?.mediaAnalysis?.analyzedVideoCount || 0;
+    const total = submission.research?.mediaAnalysis?.totalVideoCount ||
+      submission.metadata?.videoUrls?.length || 0;
+    return {
+      label: total > 0 ? `${analyzed} of ${total} videos analyzed` : "Video partially analyzed",
+      icon: Video,
+      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+    };
+  }
+  if (analysisStatus === "media_partially_extracted") {
+    const extracted = submission.metadata?.mediaExtractedCount || 0;
+    const total = submission.metadata?.mediaItemCount || 0;
+    return {
+      label: total > 0
+        ? `${extracted} of ${total} media items available`
+        : "Post media partially available",
+      icon: Images,
+      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
     };
   }
   if (analysisStatus === "images_extracted") {
