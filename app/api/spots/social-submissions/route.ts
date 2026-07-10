@@ -32,6 +32,13 @@ import { validateBody } from "@/lib/validations";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+const SOCIAL_SUBMISSION_PROCESSING_BUDGET_MS = 100_000;
+const SOCIAL_SUBMISSION_MIN_ENRICHMENT_BUDGET_MS = 1_000;
+
+function remainingProcessingTimeout(deadlineAt: number | undefined, maximumMs: number): number {
+  if (!deadlineAt) return maximumMs;
+  return Math.min(maximumMs, Math.max(0, deadlineAt - Date.now()));
+}
 
 function isSocialSpotSubmissionsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
@@ -77,6 +84,7 @@ function canUseTransliteratedPlaceMatch(
 
 async function enrichResearchWithGooglePlace(
   research: SocialSpotResearchCandidate,
+  deadlineAt?: number,
 ): Promise<{
   address: string;
   location: { lat: number; lng: number };
@@ -87,6 +95,8 @@ async function enrichResearchWithGooglePlace(
   usedTransliteratedNameFallback: boolean;
 } | null> {
   if (!research.spotName || !research.address) return null;
+  const timeoutMs = remainingProcessingTimeout(deadlineAt, 12_000);
+  if (timeoutMs < SOCIAL_SUBMISSION_MIN_ENRICHMENT_BUDGET_MS) return null;
 
   const apiKey = getGooglePlacesApiKey();
   if (!apiKey) {
@@ -100,7 +110,7 @@ async function enrichResearchWithGooglePlace(
       research.address,
       research.category,
       apiKey,
-      { timeoutMs: 12_000, maxResults: 5 },
+      { timeoutMs, maxResults: 5, deadlineAt },
     );
     const usedTransliteratedNameFallback =
       !match.place && canUseTransliteratedPlaceMatch(research, match.rejectedPlace);
@@ -199,9 +209,11 @@ async function findExistingSpotByGooglePlaceId(
 async function createSpotFromResearch({
   supabase,
   research,
+  deadlineAt,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
   research: SocialSpotResearchCandidate;
+  deadlineAt?: number;
 }): Promise<{
   spotId: string | null;
   status: SocialSpotSubmissionStatus;
@@ -224,7 +236,7 @@ async function createSpotFromResearch({
     return { spotId: existingSpotId, status: "spot_reused" };
   }
 
-  const placeEnrichment = await enrichResearchWithGooglePlace(research);
+  const placeEnrichment = await enrichResearchWithGooglePlace(research, deadlineAt);
   if (!placeEnrichment) {
     return {
       spotId: null,
@@ -356,14 +368,17 @@ function buildEvidenceNotes(input: {
 async function createCandidateResults({
   supabase,
   candidates,
+  deadlineAt,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
   candidates: SocialSpotResearchCandidate[];
+  deadlineAt?: number;
 }) {
   return Promise.all(candidates.map(async (candidate) => {
     const spotResult = await createSpotFromResearch({
       supabase,
       research: candidate,
+      deadlineAt,
     });
 
     return {
@@ -712,6 +727,7 @@ async function awardSubmissionTokens({
 }
 
 export async function POST(req: NextRequest) {
+  const processingDeadlineAt = Date.now() + SOCIAL_SUBMISSION_PROCESSING_BUDGET_MS;
   try {
     if (!isSocialSpotSubmissionsEnabled()) {
       return NextResponse.json(
@@ -796,7 +812,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const metadata = await fetchSocialLinkMetadata(normalized.canonicalUrl);
+    const metadata = await fetchSocialLinkMetadata(normalized.canonicalUrl, {
+      deadlineAt: processingDeadlineAt,
+    });
     let resolvedCanonicalUrl = normalized.canonicalUrl;
     try {
       const resolved = normalizeSocialSpotUrl(metadata.finalUrl);
@@ -949,9 +967,14 @@ export async function POST(req: NextRequest) {
       metadata,
       notes: validation.data.notes,
       cityHint: validation.data.cityHint,
+      deadlineAt: processingDeadlineAt,
     });
     const candidates = getResearchCandidates(research);
-    const candidateResults = await createCandidateResults({ supabase, candidates });
+    const candidateResults = await createCandidateResults({
+      supabase,
+      candidates,
+      deadlineAt: processingDeadlineAt,
+    });
     await syncCandidateRecords({
       supabase,
       submissionId: placeholderSubmission.id,
@@ -1065,6 +1088,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const processingDeadlineAt = Date.now() + SOCIAL_SUBMISSION_PROCESSING_BUDGET_MS;
   try {
     if (!isSocialSpotSubmissionsEnabled()) {
       return NextResponse.json(
@@ -1153,9 +1177,14 @@ export async function PATCH(req: NextRequest) {
       metadata,
       notes: evidenceNotes || undefined,
       cityHint,
+      deadlineAt: processingDeadlineAt,
     });
     const candidates = getResearchCandidates(research);
-    const candidateResults = await createCandidateResults({ supabase, candidates });
+    const candidateResults = await createCandidateResults({
+      supabase,
+      candidates,
+      deadlineAt: processingDeadlineAt,
+    });
     const mergedCandidateResults = mergePreviouslyResolvedCandidates(
       existingSubmission.research,
       candidateResults,

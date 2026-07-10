@@ -235,7 +235,7 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     };
   }
   if (analysisStatus === "images_extracted") {
-    const imageCount = Math.min(submission.metadata?.mediaUrls?.length || 0, 5);
+    const imageCount = submission.metadata?.mediaUrls?.length || 0;
     return {
       label: imageCount > 1 ? `${imageCount} images analyzed` : "Post images analyzed",
       icon: Images,
@@ -260,9 +260,16 @@ function getMediaStatusCopy(submission: SubmissionRow) {
       className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
     };
   }
-  if (analysisStatus === "cover_only" || mediaStatus === "cover_only") {
+  if (analysisStatus === "cover_only") {
     return {
       label: "Cover image analyzed",
+      icon: Images,
+      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+    };
+  }
+  if (mediaStatus === "cover_only") {
+    return {
+      label: "Cover image available",
       icon: Images,
       className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
     };
@@ -631,7 +638,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                             : "Candidate places still need review"}
                         </p>
                         <div className="mt-2 grid gap-2">
-                          {pendingCandidates.slice(0, 6).map((candidate) => (
+                          {pendingCandidates.map((candidate) => (
                             <div
                               key={`${candidate.spotName}-${candidate.address}`}
                               className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/70"

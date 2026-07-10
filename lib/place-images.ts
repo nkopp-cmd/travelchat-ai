@@ -30,6 +30,7 @@ export interface PlacePhotoSearchResult {
 export interface FindGooglePlacePhotosOptions {
     timeoutMs?: number;
     maxResults?: number;
+    deadlineAt?: number;
 }
 
 export interface BestGooglePlacePhotoResult {
@@ -721,7 +722,16 @@ async function findGooglePlacePhotoCandidatesByQuery(
     apiKey: string,
     options: FindGooglePlacePhotosOptions = {}
 ): Promise<PlacePhotoSearchResult[]> {
-    const timeoutMs = options.timeoutMs ?? DEFAULT_GOOGLE_PLACES_TIMEOUT_MS;
+    const remainingMs = options.deadlineAt
+        ? options.deadlineAt - Date.now()
+        : Number.POSITIVE_INFINITY;
+    if (remainingMs <= 0) {
+        throw new Error("Google Places search exceeded its processing deadline");
+    }
+    const timeoutMs = Math.max(1, Math.min(
+        options.timeoutMs ?? DEFAULT_GOOGLE_PLACES_TIMEOUT_MS,
+        remainingMs
+    ));
     const maxResultCount = Math.min(
         MAX_GOOGLE_PLACES_SEARCH_RESULTS,
         Math.max(1, options.maxResults ?? DEFAULT_GOOGLE_PLACES_SEARCH_RESULTS)
@@ -729,36 +739,7 @@ async function findGooglePlacePhotoCandidatesByQuery(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    let response: Response;
-    try {
-        response = await fetch("https://places.googleapis.com/v1/places:searchText", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.types",
-            },
-            body: JSON.stringify({
-                textQuery,
-                maxResultCount,
-            }),
-            signal: controller.signal,
-        });
-    } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-            throw new Error(`Google Places search timed out after ${timeoutMs}ms`);
-        }
-
-        throw error;
-    } finally {
-        clearTimeout(timeout);
-    }
-
-    if (!response.ok) {
-        throw new Error(`Google Places search failed with ${response.status}`);
-    }
-
-    const data = (await response.json()) as {
+    let data: {
         places?: Array<{
             id?: string;
             displayName?: { text?: string };
@@ -771,6 +752,33 @@ async function findGooglePlacePhotoCandidatesByQuery(
             types?: string[];
         }>;
     };
+    try {
+        const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Goog-Api-Key": apiKey,
+                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.types",
+            },
+            body: JSON.stringify({
+                textQuery,
+                maxResultCount,
+            }),
+            signal: controller.signal,
+        });
+        if (!response.ok) {
+            throw new Error(`Google Places search failed with ${response.status}`);
+        }
+        data = (await response.json()) as typeof data;
+    } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+            throw new Error(`Google Places search timed out after ${timeoutMs}ms`);
+        }
+
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
     return (data.places || []).map((place) => ({
         placeId: place.id || null,
         displayName: place.displayName?.text || null,

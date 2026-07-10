@@ -10,9 +10,11 @@ export type SocialSpotSubmissionStatus =
 
 export const SOCIAL_SUBMISSION_TOKEN_AWARD = 25;
 export const SOCIAL_RESEARCH_CONFIDENCE_THRESHOLD = 0.56;
+export const SOCIAL_RESEARCH_MAX_CANDIDATES = 20;
 
 const SOCIAL_FETCH_TIMEOUT_MS = 8000;
 const SOCIAL_METADATA_MAX_BYTES = 850_000;
+const SOCIAL_RESEARCH_MAX_VISUALS = 20;
 const SOCIAL_REDIRECT_LIMIT = 3;
 const SOCIAL_VIDEO_ANALYSIS_TIMEOUT_MS = 38_000;
 const SOCIAL_VIDEO_ANALYSIS_MAX_SECONDS = 180;
@@ -21,6 +23,8 @@ const SOCIAL_VIDEO_DOWNLOAD_TIMEOUT_MS = 15_000;
 const SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS = 12_000;
 const SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES = 40_000_000;
 const SOCIAL_VIDEO_REDIRECT_LIMIT = 3;
+const SOCIAL_RESEARCH_REQUEST_TIMEOUT_MS = 45_000;
+const SOCIAL_MIN_EXTERNAL_REQUEST_TIMEOUT_MS = 1_000;
 
 const INSTAGRAM_HOSTS = new Set([
   "instagram.com",
@@ -92,6 +96,7 @@ export interface SocialLinkMetadata {
 export type SocialVideoAnalyzer = (input: {
   videoUrl: string;
   durationSeconds?: number | null;
+  deadlineAt?: number;
 }) => Promise<string | null>;
 
 export interface SocialSpotResearchCandidate {
@@ -121,6 +126,14 @@ export interface SocialSpotResearchResult extends SocialSpotResearchCandidate {
   };
 }
 
+const candidateHttpUrlSchema = z.string().url().refine((value) => {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}, "Only HTTP(S) evidence URLs are allowed.");
+
 const researchCandidateSchema = z.object({
   status: z.enum(["candidate", "needs_review", "research_pending"]),
   spotName: z.string().min(1).max(160).nullable(),
@@ -135,13 +148,13 @@ const researchCandidateSchema = z.object({
   tips: z.array(z.string().min(1).max(160)).max(5).default([]),
   confidence: z.number().min(0).max(1),
   researchSummary: z.string().min(1).max(1000),
-  evidenceUrls: z.array(z.string().url()).max(8).default([]),
-  imageUrl: z.string().url().nullable().optional(),
+  evidenceUrls: z.array(candidateHttpUrlSchema).max(8).default([]),
+  imageUrl: candidateHttpUrlSchema.nullable().optional(),
   visualEvidence: z.string().min(1).max(500).nullable().optional(),
 });
 
 const researchResultSchema = researchCandidateSchema.extend({
-  candidates: z.array(researchCandidateSchema).max(5).default([]),
+  candidates: z.array(researchCandidateSchema).max(SOCIAL_RESEARCH_MAX_CANDIDATES).default([]),
 });
 
 function candidateKey(candidate: SocialSpotResearchCandidate): string {
@@ -184,7 +197,7 @@ export function getResearchCandidates(
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, 5);
+  }).slice(0, SOCIAL_RESEARCH_MAX_CANDIDATES);
 }
 
 function parseResearchResult(raw: unknown): SocialSpotResearchResult | null {
@@ -194,13 +207,85 @@ function parseResearchResult(raw: unknown): SocialSpotResearchResult | null {
     return { ...parsed.data, candidates };
   }
 
-  const legacy = researchCandidateSchema.safeParse(raw);
-  if (legacy.success) {
-    const candidates = getResearchCandidates(legacy.data);
-    return { ...legacy.data, candidates };
-  }
+  const root = asRecord(raw);
+  if (!root) return null;
+  const nestedCandidates = (Array.isArray(root.candidates) ? root.candidates : [])
+    .map(parseResearchCandidate)
+    .filter((candidate): candidate is SocialSpotResearchCandidate => Boolean(candidate));
+  const primary = parseResearchCandidate(root) || nestedCandidates[0];
+  if (!primary) return null;
 
-  return null;
+  const candidates = getResearchCandidates({
+    ...primary,
+    candidates: nestedCandidates,
+  });
+  return { ...primary, candidates };
+}
+
+function normalizeNullableCandidateText(value: unknown, maxLength: number): unknown {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== "string") return value;
+  const normalized = value.trim().slice(0, maxLength);
+  return normalized || null;
+}
+
+function normalizeCandidateUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const normalized = value.trim();
+    const parsed = new URL(normalized);
+    return ["http:", "https:"].includes(parsed.protocol) ? normalized : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseResearchCandidate(raw: unknown): SocialSpotResearchCandidate | null {
+  const direct = researchCandidateSchema.safeParse(raw);
+  if (direct.success) return direct.data;
+
+  const candidate = asRecord(raw);
+  if (!candidate) return null;
+  const normalized = {
+    ...candidate,
+    spotName: normalizeNullableCandidateText(candidate.spotName, 160),
+    description: normalizeNullableCandidateText(candidate.description, 800),
+    address: normalizeNullableCandidateText(candidate.address, 300),
+    city: normalizeNullableCandidateText(candidate.city, 120),
+    category: normalizeNullableCandidateText(candidate.category, 80),
+    bestTime: normalizeNullableCandidateText(candidate.bestTime, 140),
+    researchSummary:
+      typeof candidate.researchSummary === "string"
+        ? candidate.researchSummary.trim().slice(0, 1000)
+        : candidate.researchSummary,
+    visualEvidence: normalizeNullableCandidateText(candidate.visualEvidence, 500),
+    subcategories: Array.isArray(candidate.subcategories)
+      ? candidate.subcategories
+        .filter((value): value is string => typeof value === "string")
+        .map((value) => value.trim().slice(0, 50))
+        .filter(Boolean)
+        .slice(0, 8)
+      : candidate.subcategories,
+    tips: Array.isArray(candidate.tips)
+      ? candidate.tips
+        .filter((value): value is string => typeof value === "string")
+        .map((value) => value.trim().slice(0, 160))
+        .filter(Boolean)
+        .slice(0, 5)
+      : candidate.tips,
+    evidenceUrls: Array.isArray(candidate.evidenceUrls)
+      ? candidate.evidenceUrls
+        .map(normalizeCandidateUrl)
+        .filter((value): value is string => Boolean(value))
+        .slice(0, 8)
+      : candidate.evidenceUrls,
+    imageUrl:
+      candidate.imageUrl === null || candidate.imageUrl === undefined
+        ? candidate.imageUrl
+        : normalizeCandidateUrl(candidate.imageUrl),
+  };
+  const recovered = researchCandidateSchema.safeParse(normalized);
+  return recovered.success ? recovered.data : null;
 }
 
 function getSocialPlatform(host: string): SocialSpotPlatform | null {
@@ -355,10 +440,45 @@ function extractEmbeddedMediaUrls(html: string, finalUrl: string): string[] {
     if (seen.has(identity)) continue;
     seen.add(identity);
     urls.push(normalized);
-    if (urls.length >= 8) break;
+    if (urls.length >= SOCIAL_RESEARCH_MAX_VISUALS) break;
   }
 
   return urls;
+}
+
+function uniqueMediaUrls(
+  values: Array<string | null | undefined>,
+  limit = SOCIAL_RESEARCH_MAX_VISUALS,
+): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    if (!value) continue;
+    let identity = value;
+    try {
+      const parsed = new URL(value);
+      identity = `${parsed.hostname.toLowerCase()}${parsed.pathname}`;
+    } catch {
+      // Invalid media URLs are rejected by their source parser.
+    }
+    if (seen.has(identity)) continue;
+    seen.add(identity);
+    result.push(value);
+    if (result.length >= limit) break;
+  }
+
+  return result;
+}
+
+function remainingExternalTimeout(deadlineAt: number | undefined, maximumMs: number): number {
+  if (!deadlineAt) return maximumMs;
+  return Math.min(maximumMs, Math.max(0, deadlineAt - Date.now()));
+}
+
+function hasExternalRequestBudget(deadlineAt: number | undefined): boolean {
+  return remainingExternalTimeout(deadlineAt, Number.MAX_SAFE_INTEGER) >=
+    SOCIAL_MIN_EXTERNAL_REQUEST_TIMEOUT_MS;
 }
 
 type UnknownRecord = Record<string, unknown>;
@@ -479,9 +599,23 @@ function extractTikTokHydrationMetadata(html: string): Partial<SocialLinkMetadat
       ? video.duration
       : null;
 
-    const imageStrings: string[] = [];
-    collectNestedStrings(item.imagePost, imageStrings, 80);
-    const mediaUrls = Array.from(new Set(imageStrings.filter(isTrustedTikTokImageUrl))).slice(0, 8);
+    const imagePost = asRecord(item.imagePost);
+    const images = Array.isArray(imagePost?.images) ? imagePost.images : [];
+    const perSlideUrls = images
+      .map((image) => {
+        const imageStrings: string[] = [];
+        collectNestedStrings(image, imageStrings, 30);
+        return imageStrings.find(isTrustedTikTokImageUrl) || null;
+      })
+      .filter((url): url is string => Boolean(url));
+    const fallbackImageStrings: string[] = [];
+    if (perSlideUrls.length === 0) {
+      collectNestedStrings(item.imagePost, fallbackImageStrings, 240);
+    }
+    const mediaUrls = uniqueMediaUrls([
+      ...perSlideUrls,
+      ...fallbackImageStrings.filter(isTrustedTikTokImageUrl),
+    ]);
 
     if (!videoUrl && mediaUrls.length === 0) return null;
     return {
@@ -510,14 +644,14 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
     );
   const source = inferSocialSource(finalUrl);
   const hydration = extractTikTokHydrationMetadata(html);
-  const mediaUrls = [
-    imageUrl,
-    ...extractEmbeddedMediaUrls(html, finalUrl),
-    ...(hydration?.mediaUrls || []),
-  ]
-    .filter((url): url is string => Boolean(url))
-    .filter((url, index, all) => all.indexOf(url) === index)
-    .slice(0, 8);
+  const embeddedMediaUrls = extractEmbeddedMediaUrls(html, finalUrl);
+  const mediaUrls = hydration?.mediaUrls?.length
+    ? uniqueMediaUrls([
+      ...hydration.mediaUrls,
+      ...embeddedMediaUrls,
+      imageUrl,
+    ])
+    : uniqueMediaUrls([...embeddedMediaUrls, imageUrl]);
 
   return {
     title:
@@ -554,9 +688,16 @@ function normalizeMetadataImageUrl(value: unknown, baseUrl: string): string | nu
   }
 }
 
-async function fetchJsonWithTimeout(url: string): Promise<unknown | null> {
+async function fetchJsonWithTimeout(
+  url: string,
+  deadlineAt?: number,
+): Promise<unknown | null> {
+  if (!hasExternalRequestBudget(deadlineAt)) return null;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), SOCIAL_FETCH_TIMEOUT_MS);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    remainingExternalTimeout(deadlineAt, SOCIAL_FETCH_TIMEOUT_MS),
+  );
 
   try {
     const response = await fetch(url, {
@@ -568,7 +709,7 @@ async function fetchJsonWithTimeout(url: string): Promise<unknown | null> {
     });
 
     if (!response.ok) return null;
-    return response.json();
+    return await response.json();
   } catch {
     return null;
   } finally {
@@ -576,9 +717,13 @@ async function fetchJsonWithTimeout(url: string): Promise<unknown | null> {
   }
 }
 
-async function fetchTikTokOEmbed(canonicalUrl: string): Promise<Partial<SocialLinkMetadata> | null> {
+async function fetchTikTokOEmbed(
+  canonicalUrl: string,
+  deadlineAt?: number,
+): Promise<Partial<SocialLinkMetadata> | null> {
   const payload = await fetchJsonWithTimeout(
     `https://www.tiktok.com/oembed?url=${encodeURIComponent(canonicalUrl)}`,
+    deadlineAt,
   );
 
   if (!payload || typeof payload !== "object") return null;
@@ -598,9 +743,10 @@ async function fetchTikTokOEmbed(canonicalUrl: string): Promise<Partial<SocialLi
 
 async function fetchPlatformOEmbed(
   normalized: CanonicalSocialSpotUrl,
+  deadlineAt?: number,
 ): Promise<Partial<SocialLinkMetadata> | null> {
   if (normalized.platform === "tiktok") {
-    return fetchTikTokOEmbed(normalized.canonicalUrl);
+    return fetchTikTokOEmbed(normalized.canonicalUrl, deadlineAt);
   }
 
   return null;
@@ -618,12 +764,12 @@ function mergeSocialMetadata(
     description: base.description || extra.description || null,
     imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
     thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
-    mediaUrls: Array.from(new Set([
+    mediaUrls: uniqueMediaUrls([
       ...(base.mediaUrls || []),
       ...(extra.mediaUrls || []),
       ...(extra.imageUrl ? [extra.imageUrl] : []),
       ...(extra.thumbnailUrl ? [extra.thumbnailUrl] : []),
-    ])).slice(0, 8),
+    ]),
     sourceType: base.sourceType || extra.sourceType,
     sourceLabel: base.sourceLabel || extra.sourceLabel,
     authorName: base.authorName || extra.authorName || null,
@@ -655,12 +801,12 @@ function mergePartialSocialMetadata(
     description: base.description || extra.description || null,
     imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
     thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
-    mediaUrls: Array.from(new Set([
+    mediaUrls: uniqueMediaUrls([
       ...(base.mediaUrls || []),
       ...(extra.mediaUrls || []),
       ...(extra.imageUrl ? [extra.imageUrl] : []),
       ...(extra.thumbnailUrl ? [extra.thumbnailUrl] : []),
-    ])).slice(0, 8),
+    ]),
     sourceType: base.sourceType || extra.sourceType,
     sourceLabel: base.sourceLabel || extra.sourceLabel,
     authorName: base.authorName || extra.authorName || null,
@@ -699,21 +845,27 @@ async function readResponseTextWithLimit(response: Response): Promise<string> {
 
 export async function fetchSocialLinkMetadata(
   canonicalUrl: string,
+  options: { deadlineAt?: number } = {},
 ): Promise<SocialLinkMetadata> {
   let currentUrl = canonicalUrl;
   const initial = normalizeSocialSpotUrl(canonicalUrl);
-  let oembed = await fetchPlatformOEmbed(initial);
+  let oembed = await fetchPlatformOEmbed(initial, options.deadlineAt);
   let oembedUrl = initial.canonicalUrl;
 
   for (let redirectCount = 0; redirectCount <= SOCIAL_REDIRECT_LIMIT; redirectCount++) {
+    if (!hasExternalRequestBudget(options.deadlineAt)) break;
     const normalized = normalizeSocialSpotUrl(currentUrl);
     if (normalized.canonicalUrl !== oembedUrl) {
-      const redirectedOembed = await fetchPlatformOEmbed(normalized);
+      const redirectedOembed = await fetchPlatformOEmbed(normalized, options.deadlineAt);
       oembed = mergePartialSocialMetadata(oembed, redirectedOembed);
       oembedUrl = normalized.canonicalUrl;
     }
+    if (!hasExternalRequestBudget(options.deadlineAt)) break;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), SOCIAL_FETCH_TIMEOUT_MS);
+    const timeout = setTimeout(
+      () => controller.abort(),
+      remainingExternalTimeout(options.deadlineAt, SOCIAL_FETCH_TIMEOUT_MS),
+    );
 
     try {
       const response = await fetch(normalized.canonicalUrl, {
@@ -754,11 +906,11 @@ export async function fetchSocialLinkMetadata(
     description: oembed?.description || null,
     imageUrl: oembed?.imageUrl || oembed?.thumbnailUrl || null,
     thumbnailUrl: oembed?.thumbnailUrl || oembed?.imageUrl || null,
-    mediaUrls: Array.from(new Set([
+    mediaUrls: uniqueMediaUrls([
       ...(oembed?.mediaUrls || []),
       ...(oembed?.imageUrl ? [oembed.imageUrl] : []),
       ...(oembed?.thumbnailUrl ? [oembed.thumbnailUrl] : []),
-    ])).slice(0, 8),
+    ]),
     ...inferSocialSource(canonicalUrl),
     authorName: oembed?.authorName || null,
     providerName: oembed?.providerName || null,
@@ -775,6 +927,7 @@ export async function fetchSocialLinkMetadata(
 export async function analyzeSocialVideo(input: {
   videoUrl: string;
   durationSeconds?: number | null;
+  deadlineAt?: number;
 }): Promise<string | null> {
   if (!process.env.FAL_KEY || !isTrustedTikTokVideoUrl(input.videoUrl)) return null;
   if (
@@ -796,8 +949,14 @@ export async function analyzeSocialVideo(input: {
   ].join(" ");
 
   const runAnalysis = async (videoUrl: string) => {
+    if (!hasExternalRequestBudget(input.deadlineAt)) {
+      throw new Error("Social video analysis exceeded its processing budget.");
+    }
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), SOCIAL_VIDEO_ANALYSIS_TIMEOUT_MS);
+    const timeout = setTimeout(
+      () => controller.abort(),
+      remainingExternalTimeout(input.deadlineAt, SOCIAL_VIDEO_ANALYSIS_TIMEOUT_MS),
+    );
     try {
       return await fal.subscribe("fal-ai/video-understanding", {
         input: {
@@ -813,7 +972,10 @@ export async function analyzeSocialVideo(input: {
     }
   };
 
-  const videoBlob = await downloadTrustedTikTokVideo(input.videoUrl);
+  const videoBlob = await downloadTrustedTikTokVideo(input.videoUrl, input.deadlineAt);
+  if (!hasExternalRequestBudget(input.deadlineAt)) {
+    throw new Error("Social video upload exceeded its processing budget.");
+  }
   let uploadTimeout: ReturnType<typeof setTimeout> | undefined;
   let uploadedUrl: string;
   try {
@@ -821,8 +983,8 @@ export async function analyzeSocialVideo(input: {
       fal.storage.upload(videoBlob),
       new Promise<never>((_resolve, reject) => {
         uploadTimeout = setTimeout(
-        () => reject(new Error("TikTok video upload timed out.")),
-        SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS,
+          () => reject(new Error("TikTok video upload timed out.")),
+          remainingExternalTimeout(input.deadlineAt, SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS),
         );
       }),
     ]);
@@ -835,9 +997,18 @@ export async function analyzeSocialVideo(input: {
   return output ? output.slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS) : null;
 }
 
-async function downloadTrustedTikTokVideo(videoUrl: string): Promise<Blob> {
+async function downloadTrustedTikTokVideo(
+  videoUrl: string,
+  deadlineAt?: number,
+): Promise<Blob> {
+  if (!hasExternalRequestBudget(deadlineAt)) {
+    throw new Error("TikTok video download exceeded its processing budget.");
+  }
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), SOCIAL_VIDEO_DOWNLOAD_TIMEOUT_MS);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    remainingExternalTimeout(deadlineAt, SOCIAL_VIDEO_DOWNLOAD_TIMEOUT_MS),
+  );
   let currentUrl = videoUrl;
 
   try {
@@ -959,7 +1130,7 @@ function buildResearchPrompt(input: {
 }): string {
   return JSON.stringify({
     task:
-      "Research this social travel link as a potential Localley spot submission. It can be a video, image post, carousel, reel, or caption-only share. Detect every distinct real-world place mentioned or clearly shown, up to 5 candidates. Localize each candidate for Localley's spot system.",
+      `Research this social travel link as a potential Localley spot submission. It can be a video, image post, carousel, reel, or caption-only share. Detect every distinct real-world place mentioned or clearly shown, up to ${SOCIAL_RESEARCH_MAX_CANDIDATES} candidates. Localize each candidate for Localley's spot system.`,
     platform: input.platform,
     url: input.canonicalUrl,
     metadata: input.metadata,
@@ -993,6 +1164,7 @@ export async function researchSocialSpotLink(input: {
   cityHint?: string;
   openai?: OpenAI;
   videoAnalyzer?: SocialVideoAnalyzer;
+  deadlineAt?: number;
 }): Promise<SocialSpotResearchResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
@@ -1005,10 +1177,12 @@ export async function researchSocialSpotLink(input: {
   if (input.metadata.videoUrl) {
     const videoAnalyzer = input.videoAnalyzer || analyzeSocialVideo;
     try {
-      videoAnalysis = await videoAnalyzer({
+      const analyzerInput: Parameters<SocialVideoAnalyzer>[0] = {
         videoUrl: input.metadata.videoUrl,
         durationSeconds: input.metadata.videoDurationSeconds,
-      });
+      };
+      if (input.deadlineAt) analyzerInput.deadlineAt = input.deadlineAt;
+      videoAnalysis = await videoAnalyzer(analyzerInput);
     } catch (error) {
       console.warn(
         "[social-spot-submissions] Video analysis unavailable; continuing with other evidence:",
@@ -1017,11 +1191,11 @@ export async function researchSocialSpotLink(input: {
     }
   }
 
-  const visualEvidenceUrls = Array.from(new Set([
+  const visualEvidenceUrls = uniqueMediaUrls([
     ...(input.metadata.mediaUrls || []),
     ...(input.metadata.imageUrl ? [input.metadata.imageUrl] : []),
     ...(input.metadata.thumbnailUrl ? [input.metadata.thumbnailUrl] : []),
-  ])).slice(0, 5);
+  ]);
   const userContent: Array<
     | { type: "input_text"; text: string }
     | { type: "input_image"; image_url: string; detail: "high" }
@@ -1040,6 +1214,9 @@ export async function researchSocialSpotLink(input: {
   }
 
   try {
+    if (!hasExternalRequestBudget(input.deadlineAt)) {
+      return buildFallbackResearch(input);
+    }
     const response = await client.responses.create({
       model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
       tools: [
@@ -1104,7 +1281,7 @@ export async function researchSocialSpotLink(input: {
               visualEvidence: { type: ["string", "null"] },
               candidates: {
                 type: "array",
-                maxItems: 5,
+                maxItems: SOCIAL_RESEARCH_MAX_CANDIDATES,
                 items: {
                   type: "object",
                   additionalProperties: false,
@@ -1151,6 +1328,9 @@ export async function researchSocialSpotLink(input: {
           strict: true,
         },
       } as never,
+    }, {
+      timeout: remainingExternalTimeout(input.deadlineAt, SOCIAL_RESEARCH_REQUEST_TIMEOUT_MS),
+      maxRetries: 0,
     });
 
     const parsed = parseResearchResult(JSON.parse(response.output_text));

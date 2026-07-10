@@ -5,10 +5,12 @@ import {
   buildAnonymousContributorEmail,
   extractSocialMetadataFromHtml,
   fetchSocialLinkMetadata,
+  getResearchCandidates,
   maskEmailForCredit,
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
   researchSocialSpotLink,
+  SOCIAL_RESEARCH_MAX_CANDIDATES,
   socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
 } from "@/lib/social-spot-submissions";
@@ -224,6 +226,75 @@ describe("social spot submission helpers", () => {
     expect(metadata.mediaAccessStatus).toBe("carousel_images");
   });
 
+  it("keeps one trusted image from every TikTok carousel slide", () => {
+    const slideUrls = Array.from(
+      { length: 13 },
+      (_, index) => `https://p16-sign.tiktokcdn-us.com/carousel/slide-${index + 1}.jpeg`,
+    );
+    const metadata = extractSocialMetadataFromHtml(
+      buildTikTokHydrationHtml({
+        imagePost: {
+          images: slideUrls.map((url, index) => ({
+            imageURL: {
+              urlList: [url, `https://p16-sign.tiktokcdn-us.com/carousel/slide-${index + 1}-small.jpeg`],
+            },
+          })),
+        },
+      }),
+      "https://www.tiktok.com/@localley/photo/987654321",
+    );
+
+    expect(metadata.mediaUrls).toEqual(slideUrls);
+  });
+
+  it("does not let a cover-image variant displace the final carousel slide", () => {
+    const slideUrls = Array.from(
+      { length: SOCIAL_RESEARCH_MAX_CANDIDATES },
+      (_, index) => `https://p16-sign.tiktokcdn-us.com/carousel/slide-${index + 1}.jpeg?size=large`,
+    );
+    const html = `
+      <meta property="og:image" content="https://p16-sign.tiktokcdn-us.com/carousel/slide-1.jpeg?size=cover">
+      ${buildTikTokHydrationHtml({
+        imagePost: {
+          images: slideUrls.map((url) => ({ imageURL: { urlList: [url] } })),
+        },
+      })}
+    `;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.tiktok.com/@localley/photo/987654321",
+    );
+
+    expect(metadata.mediaUrls).toHaveLength(SOCIAL_RESEARCH_MAX_CANDIDATES);
+    expect(metadata.mediaUrls?.at(-1)).toBe(slideUrls.at(-1));
+  });
+
+  it("keeps every distinct candidate beyond the old five-place limit", () => {
+    const candidate = (index: number) => ({
+      status: "candidate" as const,
+      spotName: `Place ${index}`,
+      description: `Verified place ${index}.`,
+      address: `${index} Seoul-ro, Seoul`,
+      city: "Seoul",
+      category: "Attraction",
+      subcategories: [],
+      localleyScore: 4,
+      localPercentage: 70,
+      bestTime: "Daytime",
+      tips: [],
+      confidence: 0.9,
+      researchSummary: `Verified candidate ${index}.`,
+      evidenceUrls: [`https://example.com/place-${index}`],
+      imageUrl: null as string | null,
+      visualEvidence: `Slide ${index}`,
+    });
+    const candidates = Array.from({ length: 12 }, (_, index) => candidate(index + 2));
+
+    expect(getResearchCandidates({ ...candidate(1), candidates })).toHaveLength(13);
+    expect(SOCIAL_RESEARCH_MAX_CANDIDATES).toBeGreaterThanOrEqual(13);
+  });
+
   it("labels Instagram image posts from Open Graph metadata", () => {
     const html = `
       <html>
@@ -265,10 +336,47 @@ describe("social spot submission helpers", () => {
     );
 
     expect(metadata.mediaUrls).toEqual([
-      "https://cdn.example.com/cover.jpg",
       "https://cdn.example.com/slide-one.jpg?width=1440",
       "https://cdn.example.com/slide-two.jpg?width=1440",
+      "https://cdn.example.com/cover.jpg",
     ]);
+  });
+
+  it("recovers every embedded image from a large public carousel", () => {
+    const slideUrls = Array.from(
+      { length: 13 },
+      (_, index) => `https://cdn.example.com/slide-${index + 1}.jpg`,
+    );
+    const html = `<script>${slideUrls
+      .map((url) => `{"display_url":"${url.replaceAll("/", "\\/")}"}`)
+      .join("")}</script>`;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.instagram.com/p/LARGE-CAROUSEL",
+    );
+
+    expect(metadata.mediaUrls).toEqual(slideUrls);
+  });
+
+  it("prioritizes all embedded Instagram slides over a separate cover rendition", () => {
+    const slideUrls = Array.from(
+      { length: SOCIAL_RESEARCH_MAX_CANDIDATES },
+      (_, index) => `https://cdn.example.com/carousel/slide-${index + 1}.jpg`,
+    );
+    const html = `
+      <meta property="og:image" content="https://cdn.example.com/rendered-cover.jpg">
+      <script>${slideUrls
+        .map((url) => `{"display_url":"${url.replaceAll("/", "\\/")}"}`)
+        .join("")}</script>
+    `;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.instagram.com/p/MAX-CAROUSEL",
+    );
+
+    expect(metadata.mediaUrls).toEqual(slideUrls);
   });
 
   it("recovers TikTok oEmbed metadata after a short URL redirects to the video URL", async () => {
@@ -372,6 +480,7 @@ describe("social spot submission helpers", () => {
           }),
         ]),
       }),
+      expect.objectContaining({ timeout: 45_000, maxRetries: 0 }),
     );
   });
 
@@ -438,6 +547,55 @@ describe("social spot submission helpers", () => {
     ]);
   });
 
+  it("keeps valid places when one model candidate has malformed optional URLs", async () => {
+    const candidate = (index: number) => ({
+      status: "candidate" as const,
+      spotName: `Verified Place ${index}`,
+      description: `Verified place ${index}.`,
+      address: `${index} Seoul-ro, Seoul`,
+      city: "Seoul",
+      category: "Attraction",
+      subcategories: [],
+      localleyScore: 4,
+      localPercentage: 70,
+      bestTime: "Daytime",
+      tips: [],
+      confidence: 0.9,
+      researchSummary: `Verified candidate ${index}.`,
+      evidenceUrls: [`https://example.com/place-${index}`],
+      imageUrl: null as string | null,
+      visualEvidence: null,
+    });
+    const primary = candidate(1);
+    const nested = Array.from({ length: 12 }, (_, index) => candidate(index + 2));
+    nested[5] = {
+      ...nested[5],
+      evidenceUrls: ["ftp://example.com/not-web-evidence", "https://example.com/recovered"],
+      imageUrl: "javascript:alert(1)",
+    };
+    const create = vi.fn(async () => ({
+      output_text: JSON.stringify({ ...primary, candidates: [primary, ...nested] }),
+    }));
+
+    const result = await researchSocialSpotLink({
+      canonicalUrl: "https://www.instagram.com/p/MULTI123",
+      platform: "instagram",
+      metadata: {
+        title: "Thirteen places",
+        description: "A large carousel",
+        imageUrl: null,
+        finalUrl: "https://www.instagram.com/p/MULTI123",
+      },
+      openai: { responses: { create } } as never,
+    });
+
+    expect(result.candidates).toHaveLength(13);
+    expect(result.candidates.map((item) => item.spotName)).toContain("Verified Place 7");
+    const recovered = result.candidates.find((item) => item.spotName === "Verified Place 7");
+    expect(recovered?.evidenceUrls).toEqual(["https://example.com/recovered"]);
+    expect(recovered?.imageUrl).toBeNull();
+  });
+
   it("falls back to image and text research when video analysis fails", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const videoAnalyzer = vi.fn(async () => {
@@ -498,6 +656,7 @@ describe("social spot submission helpers", () => {
           }),
         ]),
       }),
+      expect.objectContaining({ timeout: 45_000, maxRetries: 0 }),
     );
     expect(result.spotName).toBe("Fallback Cafe");
   });
