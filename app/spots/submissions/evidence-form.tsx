@@ -110,7 +110,7 @@ export function SubmissionEvidenceForm({
             value={placeHint}
             onChange={(event) => setPlaceHint(event.target.value)}
             placeholder="Cafe Saeraul, Gyeongbokgung..."
-            className="border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/35"
+            className="border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/55"
           />
         </div>
         <div className="space-y-1.5">
@@ -122,7 +122,7 @@ export function SubmissionEvidenceForm({
             value={cityHint}
             onChange={(event) => setCityHint(event.target.value)}
             placeholder="Seoul"
-            className="border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/35"
+            className="border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/55"
           />
         </div>
       </div>
@@ -136,15 +136,15 @@ export function SubmissionEvidenceForm({
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           placeholder="Caption says the address, storefront sign, neighborhood, menu item..."
-          className="min-h-20 border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/35"
+          className="min-h-20 border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/55"
         />
       </div>
 
       {error && (
-        <p className="mt-3 text-sm leading-6 text-rose-200">{error}</p>
+        <p role="alert" className="mt-3 text-sm leading-6 text-rose-200">{error}</p>
       )}
       {result && (
-        <div className="mt-3 rounded-lg border border-emerald-200/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
+        <div role="status" className="mt-3 rounded-lg border border-emerald-200/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
           <span className="flex items-center gap-2 font-semibold">
             <CheckCircle2 className="h-4 w-4" />
             Evidence saved
@@ -170,6 +170,7 @@ export function SubmissionEvidenceForm({
       <Button
         type="submit"
         disabled={isSubmitting || (!placeHint.trim() && !cityHint.trim() && !notes.trim())}
+        aria-busy={isSubmitting}
         className="mt-3 h-10 rounded-lg bg-violet-500 text-white shadow-lg shadow-violet-500/20 hover:bg-violet-400"
       >
         {isSubmitting ? (
@@ -177,7 +178,7 @@ export function SubmissionEvidenceForm({
         ) : (
           <Sparkles className="h-4 w-4" />
         )}
-        Research again
+        {isSubmitting ? "Researching again..." : "Research again"}
       </Button>
     </form>
   );

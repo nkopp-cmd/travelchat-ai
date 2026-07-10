@@ -66,6 +66,7 @@ export interface SocialLinkMetadata {
   description: string | null;
   imageUrl: string | null;
   thumbnailUrl?: string | null;
+  mediaUrls?: string[];
   sourceType?: "instagram_post" | "instagram_reel" | "instagram_video" | "tiktok_post" | "social_post";
   sourceLabel?: string;
   authorName?: string | null;
@@ -117,7 +118,7 @@ const researchCandidateSchema = z.object({
 });
 
 const researchResultSchema = researchCandidateSchema.extend({
-  candidates: z.array(researchCandidateSchema).max(6).default([]),
+  candidates: z.array(researchCandidateSchema).max(5).default([]),
 });
 
 function candidateKey(candidate: SocialSpotResearchCandidate): string {
@@ -160,7 +161,7 @@ export function getResearchCandidates(
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, 6);
+  }).slice(0, 5);
 }
 
 function parseResearchResult(raw: unknown): SocialSpotResearchResult | null {
@@ -311,6 +312,32 @@ function getMetaContent(html: string, key: string): string | null {
   return null;
 }
 
+function extractEmbeddedMediaUrls(html: string, finalUrl: string): string[] {
+  const urls: string[] = [];
+  const seen = new Set<string>();
+  const pattern = /"(?:display_url|contentUrl)"\s*:\s*"((?:\\.|[^"\\])*)"/g;
+
+  for (const match of html.matchAll(pattern)) {
+    let decoded = match[1];
+    try {
+      decoded = JSON.parse(`"${match[1]}"`) as string;
+    } catch {
+      decoded = match[1].replace(/\\\//g, "/").replace(/\\u0026/gi, "&");
+    }
+
+    const normalized = normalizeMetadataImageUrl(decoded, finalUrl);
+    if (!normalized) continue;
+    const parsed = new URL(normalized);
+    const identity = `${parsed.hostname}${parsed.pathname}`;
+    if (seen.has(identity)) continue;
+    seen.add(identity);
+    urls.push(normalized);
+    if (urls.length >= 8) break;
+  }
+
+  return urls;
+}
+
 export function extractSocialMetadataFromHtml(html: string, finalUrl: string): SocialLinkMetadata {
   const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] || null;
   const imageUrl =
@@ -321,6 +348,10 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
       finalUrl,
     );
   const source = inferSocialSource(finalUrl);
+  const mediaUrls = [imageUrl, ...extractEmbeddedMediaUrls(html, finalUrl)]
+    .filter((url): url is string => Boolean(url))
+    .filter((url, index, all) => all.indexOf(url) === index)
+    .slice(0, 8);
 
   return {
     title:
@@ -333,6 +364,7 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
       getMetaContent(html, "description"),
     imageUrl,
     thumbnailUrl: imageUrl,
+    mediaUrls,
     sourceType: source.sourceType,
     sourceLabel: source.sourceLabel,
     finalUrl,
@@ -415,6 +447,12 @@ function mergeSocialMetadata(
     description: base.description || extra.description || null,
     imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
     thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
+    mediaUrls: Array.from(new Set([
+      ...(base.mediaUrls || []),
+      ...(extra.mediaUrls || []),
+      ...(extra.imageUrl ? [extra.imageUrl] : []),
+      ...(extra.thumbnailUrl ? [extra.thumbnailUrl] : []),
+    ])).slice(0, 8),
     sourceType: base.sourceType || extra.sourceType,
     sourceLabel: base.sourceLabel || extra.sourceLabel,
     authorName: base.authorName || extra.authorName || null,
@@ -443,6 +481,12 @@ function mergePartialSocialMetadata(
     description: base.description || extra.description || null,
     imageUrl: base.imageUrl || extra.imageUrl || extra.thumbnailUrl || null,
     thumbnailUrl: base.thumbnailUrl || extra.thumbnailUrl || extra.imageUrl || null,
+    mediaUrls: Array.from(new Set([
+      ...(base.mediaUrls || []),
+      ...(extra.mediaUrls || []),
+      ...(extra.imageUrl ? [extra.imageUrl] : []),
+      ...(extra.thumbnailUrl ? [extra.thumbnailUrl] : []),
+    ])).slice(0, 8),
     sourceType: base.sourceType || extra.sourceType,
     sourceLabel: base.sourceLabel || extra.sourceLabel,
     authorName: base.authorName || extra.authorName || null,
@@ -527,6 +571,11 @@ export async function fetchSocialLinkMetadata(
     description: oembed?.description || null,
     imageUrl: oembed?.imageUrl || oembed?.thumbnailUrl || null,
     thumbnailUrl: oembed?.thumbnailUrl || oembed?.imageUrl || null,
+    mediaUrls: Array.from(new Set([
+      ...(oembed?.mediaUrls || []),
+      ...(oembed?.imageUrl ? [oembed.imageUrl] : []),
+      ...(oembed?.thumbnailUrl ? [oembed.thumbnailUrl] : []),
+    ])).slice(0, 8),
     ...inferSocialSource(canonicalUrl),
     authorName: oembed?.authorName || null,
     providerName: oembed?.providerName || null,
@@ -595,6 +644,7 @@ function buildResearchPrompt(input: {
       "Instagram /p/ image posts and carousel posts are valid spot sources; do not require a video.",
       "If the post, carousel, reel, or video appears to cover several different places, return several candidates.",
       "Use captions, titles, hashtags, contributor notes, visible cover images, thumbnails, and web evidence together.",
+      "When several visual inputs are attached, inspect each one independently and return a separate candidate for every distinct verified place.",
       "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty unless the metadata supports it.",
       "Use web search evidence when the social page is hard to read.",
       "For each candidate, set confidence below 0.56 unless the place name, city, and address are all supported.",
@@ -620,6 +670,28 @@ export async function researchSocialSpotLink(input: {
     return buildFallbackResearch(input);
   }
 
+  const visualEvidenceUrls = Array.from(new Set([
+    ...(input.metadata.mediaUrls || []),
+    ...(input.metadata.imageUrl ? [input.metadata.imageUrl] : []),
+    ...(input.metadata.thumbnailUrl ? [input.metadata.thumbnailUrl] : []),
+  ])).slice(0, 5);
+  const userContent: Array<
+    | { type: "input_text"; text: string }
+    | { type: "input_image"; image_url: string; detail: "high" }
+  > = [
+    {
+      type: "input_text",
+      text: buildResearchPrompt(input),
+    },
+  ];
+  for (const visualEvidenceUrl of visualEvidenceUrls) {
+    userContent.push({
+      type: "input_image",
+      image_url: visualEvidenceUrl,
+      detail: "high",
+    });
+  }
+
   try {
     const response = await client.responses.create({
       model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
@@ -637,7 +709,7 @@ export async function researchSocialSpotLink(input: {
         },
         {
           role: "user",
-          content: buildResearchPrompt(input),
+          content: userContent,
         },
       ],
       text: {
@@ -685,7 +757,7 @@ export async function researchSocialSpotLink(input: {
               visualEvidence: { type: ["string", "null"] },
               candidates: {
                 type: "array",
-                maxItems: 6,
+                maxItems: 5,
                 items: {
                   type: "object",
                   additionalProperties: false,

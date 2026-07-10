@@ -7,6 +7,7 @@ import {
   maskEmailForCredit,
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
+  researchSocialSpotLink,
   socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
 } from "@/lib/social-spot-submissions";
@@ -135,6 +136,7 @@ describe("social spot submission helpers", () => {
       description: "Small Seoul cafe",
       imageUrl: "https://cdn.example.com/photo.jpg",
       thumbnailUrl: "https://cdn.example.com/photo.jpg",
+      mediaUrls: ["https://cdn.example.com/photo.jpg"],
       sourceType: "tiktok_post",
       sourceLabel: "TikTok post",
       finalUrl: "https://vm.tiktok.com/ZMh123",
@@ -160,6 +162,32 @@ describe("social spot submission helpers", () => {
       sourceType: "instagram_post",
       sourceLabel: "Instagram post",
     });
+  });
+
+  it("recovers distinct public carousel slide images from embedded post data", () => {
+    const html = `
+      <html>
+        <head>
+          <meta property="og:image" content="https://cdn.example.com/cover.jpg">
+          <script type="application/json">
+            {"display_url":"https:\\/\\/cdn.example.com\\/slide-one.jpg?width=1440",
+             "display_url":"https:\\/\\/cdn.example.com\\/slide-two.jpg?width=1440",
+             "display_url":"https:\\/\\/cdn.example.com\\/slide-one.jpg?width=720"}
+          </script>
+        </head>
+      </html>
+    `;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.instagram.com/p/CAROUSEL123",
+    );
+
+    expect(metadata.mediaUrls).toEqual([
+      "https://cdn.example.com/cover.jpg",
+      "https://cdn.example.com/slide-one.jpg?width=1440",
+      "https://cdn.example.com/slide-two.jpg?width=1440",
+    ]);
   });
 
   it("recovers TikTok oEmbed metadata after a short URL redirects to the video URL", async () => {
@@ -209,5 +237,60 @@ describe("social spot submission helpers", () => {
       finalUrl,
     });
     expect(fetchMock).toHaveBeenCalledTimes(4);
+  });
+
+  it("sends the recovered cover image to the research model as visual evidence", async () => {
+    const create = vi.fn(async () => ({
+      output_text: JSON.stringify({
+        status: "candidate",
+        spotName: "Tiny Noodle Bar",
+        description: "A neighborhood noodle bar.",
+        address: "1 Seoul-ro, Seoul",
+        city: "Seoul",
+        category: "Restaurant",
+        subcategories: ["Noodles"],
+        localleyScore: 4,
+        localPercentage: 75,
+        bestTime: "Lunch",
+        tips: ["Arrive before noon"],
+        confidence: 0.86,
+        researchSummary: "Verified from the cover image and public place evidence.",
+        evidenceUrls: ["https://www.instagram.com/p/IMG123"],
+        imageUrl: "https://cdn.example.com/cover.jpg",
+        visualEvidence: "The storefront name is visible in the cover image.",
+        candidates: [],
+      }),
+    }));
+
+    const result = await researchSocialSpotLink({
+      canonicalUrl: "https://www.instagram.com/p/IMG123",
+      platform: "instagram",
+      metadata: {
+        title: "Tiny Noodle Bar",
+        description: "Neighborhood noodles",
+        imageUrl: "https://cdn.example.com/cover.jpg",
+        finalUrl: "https://www.instagram.com/p/IMG123",
+      },
+      openai: { responses: { create } } as never,
+    });
+
+    expect(result.spotName).toBe("Tiny Noodle Bar");
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.arrayContaining([
+          expect.objectContaining({
+            role: "user",
+            content: expect.arrayContaining([
+              expect.objectContaining({ type: "input_text" }),
+              {
+                type: "input_image",
+                image_url: "https://cdn.example.com/cover.jpg",
+                detail: "high",
+              },
+            ]),
+          }),
+        ]),
+      }),
+    );
   });
 });

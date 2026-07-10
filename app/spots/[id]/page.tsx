@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Sparkles,
   UserRound,
+  ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -77,7 +78,7 @@ import {
 import type { Metadata } from "next";
 
 const LIQUID_CARD =
-  "rounded-lg border border-violet-200/15 bg-[#100b1c]/86 shadow-lg shadow-violet-950/20 backdrop-blur-xl";
+  "rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
 
 interface RelatedSpot {
   id: string;
@@ -725,13 +726,26 @@ async function getSpot(id: string) {
     return null;
   }
 
-  const { data: communitySubmission } = await supabase
+  const { data: primaryCommunitySubmission } = await supabase
     .from("social_spot_submissions")
-    .select("contributor_credit, platform, status, created_at, research_summary")
+    .select("contributor_credit, platform, status, created_at, research_summary, canonical_url, research")
     .eq("spot_id", id)
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
+
+  let communitySubmission = primaryCommunitySubmission;
+  if (!communitySubmission) {
+    const { data: candidateCommunitySubmission } = await supabase
+      .from("social_spot_submissions")
+      .select("contributor_credit, platform, status, created_at, research_summary, canonical_url, research")
+      .contains("research", { createdCandidates: [{ spotId: id }] })
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    communitySubmission = candidateCommunitySubmission;
+  }
 
   const { lat, lng } = getSpotCoordinateValues(spot.location);
   const address = getName(spot.address);
@@ -754,6 +768,13 @@ async function getSpot(id: string) {
     1600,
   );
   const photoSummary = summarizeSpotPhotos(normalizedPhotos);
+  const communityCandidate = communitySubmission && Array.isArray(
+    communitySubmission.research?.createdCandidates,
+  )
+    ? communitySubmission.research.createdCandidates.find(
+        (candidate: { spotId?: string | null }) => candidate.spotId === id,
+      )
+    : null;
 
   return {
     id: spot.id,
@@ -779,8 +800,9 @@ async function getSpot(id: string) {
       ? {
           contributorCredit: communitySubmission.contributor_credit as string,
           platform: communitySubmission.platform as string,
-          status: communitySubmission.status as string,
+          status: (communityCandidate?.status || communitySubmission.status) as string,
           researchSummary: communitySubmission.research_summary as string | null,
+          sourceUrl: communitySubmission.canonical_url as string,
         }
       : null,
   };
@@ -1113,7 +1135,9 @@ export default async function SpotPage({
                     className="border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
                   >
                     <UserRound className="mr-1 h-3.5 w-3.5" />
-                    Community submitted
+                    {spot.communitySubmission.status === "spot_reused"
+                      ? "Community matched"
+                      : "Community submitted"}
                   </Badge>
                 )}
                 <Badge
@@ -1231,16 +1255,29 @@ export default async function SpotPage({
               </span>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-sky-200/80">
-                  Made by the community
+                  {spot.communitySubmission.status === "spot_reused"
+                    ? "Found through the community"
+                    : "Made by the community"}
                 </p>
                 <h2 className="mt-1 text-xl font-bold leading-tight text-white">
-                  Submitted by {spot.communitySubmission.contributorCredit}
+                  {spot.communitySubmission.status === "spot_reused"
+                    ? `Matched by ${spot.communitySubmission.contributorCredit}`
+                    : `Submitted by ${spot.communitySubmission.contributorCredit}`}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-violet-50/65">
                   Shared from {spot.communitySubmission.platform}.{" "}
                   {spot.communitySubmission.researchSummary ||
                     "Localley research converted the shared link into this spot record."}
                 </p>
+                <a
+                  href={spot.communitySubmission.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-200/20 bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/15"
+                >
+                  View source post
+                  <ExternalLink className="h-4 w-4" />
+                </a>
               </div>
             </div>
           </section>

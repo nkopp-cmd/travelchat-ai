@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { isAdminUser } from "@/lib/admin-auth";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import {
   buildSpotPhotoUrls,
@@ -44,9 +45,20 @@ function normalizePlaceName(value: string | null | undefined): string {
   return (value || "")
     .normalize("NFKD")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim()
     .replace(/\s+/g, " ");
+}
+
+function isMissingGooglePlaceIdColumn(error: {
+  code?: string | null;
+  message?: string | null;
+} | null | undefined): boolean {
+  return Boolean(
+    error &&
+      (error.code === "42703" ||
+        /google_place_id.*does not exist|column.*google_place_id/i.test(error.message || "")),
+  );
 }
 
 function canUseTransliteratedPlaceMatch(
@@ -57,7 +69,10 @@ function canUseTransliteratedPlaceMatch(
   if (research.confidence < 0.7) return false;
   if (!place.formattedAddress || !place.location || place.photos.length === 0) return false;
 
-  return normalizePlaceName(place.displayName) === normalizePlaceName(research.spotName);
+  const placeName = normalizePlaceName(place.displayName);
+  const researchName = normalizePlaceName(research.spotName);
+
+  return Boolean(placeName && researchName && placeName === researchName);
 }
 
 async function enrichResearchWithGooglePlace(
@@ -159,6 +174,28 @@ async function findExistingSpot(
   return data?.[0]?.id || null;
 }
 
+async function findExistingSpotByGooglePlaceId(
+  supabase: ReturnType<typeof createSupabaseAdmin>,
+  googlePlaceId: string | null,
+): Promise<string | null> {
+  if (!googlePlaceId) return null;
+
+  const { data, error } = await supabase
+    .from("spots")
+    .select("id")
+    .eq("google_place_id", googlePlaceId)
+    .limit(1);
+
+  if (error) {
+    if (!isMissingGooglePlaceIdColumn(error)) {
+      console.warn("[social-submissions] Existing Google place lookup failed:", error.message);
+    }
+    return null;
+  }
+
+  return data?.[0]?.id || null;
+}
+
 async function createSpotFromResearch({
   supabase,
   research,
@@ -172,6 +209,8 @@ async function createSpotFromResearch({
   placeName?: string | null;
   placeId?: string | null;
   photoCount?: number;
+  placeMatchQuery?: string | null;
+  usedTransliteratedNameFallback?: boolean;
 }> {
   if (!canCreateSpot(research)) {
     return {
@@ -194,10 +233,25 @@ async function createSpotFromResearch({
     };
   }
 
+  const existingGooglePlaceSpotId = await findExistingSpotByGooglePlaceId(
+    supabase,
+    placeEnrichment.placeId,
+  );
+  if (existingGooglePlaceSpotId) {
+    return {
+      spotId: existingGooglePlaceSpotId,
+      status: "spot_reused",
+      enrichmentStatus: "place_photo_ready",
+      placeName: placeEnrichment.placeName,
+      placeId: placeEnrichment.placeId,
+      photoCount: placeEnrichment.photos.length,
+      placeMatchQuery: placeEnrichment.query,
+      usedTransliteratedNameFallback: placeEnrichment.usedTransliteratedNameFallback,
+    };
+  }
+
   const category = getSpotCategory(research);
-  const { data: insertedSpot, error } = await supabase
-    .from("spots")
-    .insert({
+  const spotPayload = {
       name: { en: research.spotName },
       description: { en: getSpotDescription(research) },
       location: formatPoint(placeEnrichment.location.lng, placeEnrichment.location.lat),
@@ -208,16 +262,34 @@ async function createSpotFromResearch({
       local_percentage: research.localPercentage || 55,
       best_times: { en: research.bestTime || "Check current opening hours before going." },
       photos: placeEnrichment.photos,
+      google_place_id: placeEnrichment.placeId,
       tips: { en: research.tips },
       verified: false,
       trending_score: Math.min(1, Math.max(0, (research.localPercentage || 50) / 100)),
-    })
+    };
+  let insertResult = await supabase
+    .from("spots")
+    .insert(spotPayload)
     .select("id")
     .single();
 
+  if (isMissingGooglePlaceIdColumn(insertResult.error)) {
+    const { google_place_id: _googlePlaceId, ...legacySpotPayload } = spotPayload;
+    void _googlePlaceId;
+    insertResult = await supabase
+      .from("spots")
+      .insert(legacySpotPayload)
+      .select("id")
+      .single();
+  }
+
+  const { data: insertedSpot, error } = insertResult;
+
   if (error) {
     if (error.code === "23505") {
-      const retrySpotId = await findExistingSpot(supabase, research);
+      const retrySpotId =
+        await findExistingSpotByGooglePlaceId(supabase, placeEnrichment.placeId) ||
+        await findExistingSpot(supabase, research);
       if (retrySpotId) {
         return { spotId: retrySpotId, status: "spot_reused" };
       }
@@ -235,6 +307,8 @@ async function createSpotFromResearch({
     placeName: placeEnrichment.placeName,
     placeId: placeEnrichment.placeId,
     photoCount: placeEnrichment.photos.length,
+    placeMatchQuery: placeEnrichment.query,
+    usedTransliteratedNameFallback: placeEnrichment.usedTransliteratedNameFallback,
   };
 }
 
@@ -245,6 +319,24 @@ function summarizeCandidateStatuses(
   if (results.some((result) => result.status === "spot_reused")) return "spot_reused";
   if (results.some((result) => result.status === "research_pending")) return "research_pending";
   return "needs_review";
+}
+
+function hasUnresolvedCandidateResults(research: unknown): boolean {
+  if (!research || typeof research !== "object") return false;
+  const createdCandidates = (research as {
+    createdCandidates?: Array<{
+      spotId?: string | null;
+      status?: SocialSpotSubmissionStatus | null;
+    }>;
+  }).createdCandidates;
+
+  return Boolean(
+    createdCandidates?.some(
+      (candidate) =>
+        !candidate.spotId &&
+        ["needs_review", "research_pending"].includes(candidate.status || "needs_review"),
+    ),
+  );
 }
 
 function buildEvidenceNotes(input: {
@@ -289,6 +381,112 @@ async function createCandidateResults({
   return candidateResults;
 }
 
+type CandidateResultRecord = Awaited<ReturnType<typeof createCandidateResults>>[number];
+
+function mergePreviouslyResolvedCandidates(
+  previousResearch: unknown,
+  currentResults: CandidateResultRecord[],
+): CandidateResultRecord[] {
+  if (!previousResearch || typeof previousResearch !== "object") return currentResults;
+  const previousResults = (previousResearch as { createdCandidates?: unknown }).createdCandidates;
+  if (!Array.isArray(previousResults)) return currentResults;
+
+  const merged = [...currentResults];
+  const resolvedSpotIds = new Set(
+    currentResults.map((candidate) => candidate.spotId).filter(Boolean),
+  );
+
+  for (const previous of previousResults) {
+    if (!previous || typeof previous !== "object") continue;
+    const candidate = previous as Partial<CandidateResultRecord>;
+    if (!candidate.spotId || resolvedSpotIds.has(candidate.spotId)) continue;
+    if (!candidate.status || !["spot_created", "spot_reused"].includes(candidate.status)) continue;
+
+    merged.push(candidate as CandidateResultRecord);
+    resolvedSpotIds.add(candidate.spotId);
+  }
+
+  return merged;
+}
+
+type StoredSubmissionRecord = {
+  id: string;
+  status: SocialSpotSubmissionStatus;
+  spot_id: string | null;
+  research_confidence: number | null;
+  research_summary: string | null;
+  research?: {
+    spotName?: string | null;
+    address?: string | null;
+    city?: string | null;
+    candidates?: SocialSpotResearchCandidate[];
+    createdCandidates?: Array<{
+      spotId?: string | null;
+      status?: string | null;
+      spotName?: string | null;
+      address?: string | null;
+      city?: string | null;
+      confidence?: number | null;
+    }>;
+  } | null;
+};
+
+function buildDuplicateSubmissionPayload(
+  submission: StoredSubmissionRecord,
+  contributor: {
+    public_credit_name: string;
+    total_tokens?: number | null;
+  },
+) {
+  const spots = (submission.research?.createdCandidates || [])
+    .filter((candidate) => candidate.spotId)
+    .map((candidate) => ({
+      spotId: candidate.spotId as string,
+      spotUrl: `/spots/${candidate.spotId}`,
+      status: candidate.status || submission.status,
+      name: candidate.spotName || null,
+      address: candidate.address || null,
+      city: candidate.city || null,
+      confidence: candidate.confidence ?? submission.research_confidence ?? 0,
+    }));
+
+  if (spots.length === 0 && submission.spot_id) {
+    spots.push({
+      spotId: submission.spot_id,
+      spotUrl: `/spots/${submission.spot_id}`,
+      status: submission.status,
+      name: submission.research?.spotName || null,
+      address: submission.research?.address || null,
+      city: submission.research?.city || null,
+      confidence: submission.research_confidence ?? 0,
+    });
+  }
+
+  return {
+    success: true,
+    duplicate: true,
+    submission: {
+      id: submission.id,
+      status: submission.status,
+      spotId: submission.spot_id,
+    },
+    contributor: {
+      creditName: contributor.public_credit_name,
+      tokensAwarded: 0,
+      totalTokens: contributor.total_tokens || 0,
+    },
+    research: {
+      confidence: submission.research_confidence,
+      summary: submission.research_summary,
+      candidates: Array.isArray(submission.research?.candidates)
+        ? submission.research.candidates
+        : undefined,
+    },
+    spotUrl: submission.spot_id ? `/spots/${submission.spot_id}` : null,
+    spots,
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     if (!isSocialSpotSubmissionsEnabled()) {
@@ -321,6 +519,10 @@ export async function POST(req: NextRequest) {
     }
 
     const { userId } = await auth();
+    if (!userId) {
+      return Errors.unauthorized("Sign in to submit a community spot.");
+    }
+
     const supabase = createSupabaseAdmin();
     const email = validation.data.email
       ? normalizeContributorEmail(validation.data.email)
@@ -362,33 +564,61 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingSubmission) {
-      return NextResponse.json({
-        success: true,
-        duplicate: true,
-        submission: {
-          id: existingSubmission.id,
-          status: existingSubmission.status,
-          spotId: existingSubmission.spot_id,
-        },
-        contributor: {
-          creditName: contributor.public_credit_name,
-          tokensAwarded: 0,
-          totalTokens: contributor.total_tokens || 0,
-        },
-        research: {
-          confidence: existingSubmission.research_confidence,
-          summary: existingSubmission.research_summary,
-          candidates: Array.isArray(existingSubmission.research?.candidates)
-            ? existingSubmission.research.candidates
-            : undefined,
-        },
-        spotUrl: existingSubmission.spot_id ? `/spots/${existingSubmission.spot_id}` : null,
-      });
+      return NextResponse.json(
+        buildDuplicateSubmissionPayload(existingSubmission, contributor),
+      );
     }
 
     const metadata = await fetchSocialLinkMetadata(normalized.canonicalUrl);
+    let resolvedCanonicalUrl = normalized.canonicalUrl;
+    try {
+      const resolved = normalizeSocialSpotUrl(metadata.finalUrl);
+      if (resolved.platform === normalized.platform) {
+        resolvedCanonicalUrl = resolved.canonicalUrl;
+      }
+    } catch {
+      // Keep the validated submitted URL when a platform redirect is unreadable.
+    }
+
+    if (metadata.finalUrl) {
+      const duplicateSelect =
+        "id, status, spot_id, research_confidence, research_summary, research";
+      let redirectedSubmission: StoredSubmissionRecord | null = null;
+      let redirectedError: { message: string } | null = null;
+
+      if (resolvedCanonicalUrl !== normalized.canonicalUrl) {
+        const canonicalMatch = await supabase
+          .from("social_spot_submissions")
+          .select(duplicateSelect)
+          .eq("canonical_url", resolvedCanonicalUrl)
+          .maybeSingle();
+        redirectedSubmission = canonicalMatch.data;
+        redirectedError = canonicalMatch.error;
+      }
+
+      if (!redirectedSubmission && !redirectedError) {
+        const metadataMatch = await supabase
+          .from("social_spot_submissions")
+          .select(duplicateSelect)
+          .eq("metadata->>finalUrl", resolvedCanonicalUrl)
+          .maybeSingle();
+        redirectedSubmission = metadataMatch.data;
+        redirectedError = metadataMatch.error;
+      }
+
+      if (redirectedError) {
+        console.error("[social-submissions] Redirected duplicate lookup failed:", redirectedError);
+        return Errors.databaseError("Could not check the resolved social post.");
+      }
+      if (redirectedSubmission) {
+        return NextResponse.json(
+          buildDuplicateSubmissionPayload(redirectedSubmission, contributor),
+        );
+      }
+    }
+
     const research = await researchSocialSpotLink({
-      canonicalUrl: normalized.canonicalUrl,
+      canonicalUrl: resolvedCanonicalUrl,
       platform: normalized.platform,
       metadata,
       notes: validation.data.notes,
@@ -418,7 +648,7 @@ export async function POST(req: NextRequest) {
         clerk_user_id: userId,
         spot_id: primaryResult.spotId,
         source_url: validation.data.url,
-        canonical_url: normalized.canonicalUrl,
+        canonical_url: resolvedCanonicalUrl,
         platform: normalized.platform,
         status: submissionStatus,
         contributor_credit: contributor.public_credit_name,
@@ -443,35 +673,14 @@ export async function POST(req: NextRequest) {
         const { data: duplicateSubmission } = await supabase
           .from("social_spot_submissions")
           .select("id, status, spot_id, research_confidence, research_summary, research")
-          .eq("canonical_url", normalized.canonicalUrl)
+          .eq("canonical_url", resolvedCanonicalUrl)
           .maybeSingle();
 
-        return NextResponse.json({
-          success: true,
-          duplicate: true,
-          submission: duplicateSubmission
-            ? {
-                id: duplicateSubmission.id,
-                status: duplicateSubmission.status,
-                spotId: duplicateSubmission.spot_id,
-              }
-            : undefined,
-          contributor: {
-            creditName: contributor.public_credit_name,
-            tokensAwarded: 0,
-            totalTokens: contributor.total_tokens || 0,
-          },
-          research: duplicateSubmission
-            ? {
-                confidence: duplicateSubmission.research_confidence,
-                summary: duplicateSubmission.research_summary,
-                candidates: Array.isArray(duplicateSubmission.research?.candidates)
-                  ? duplicateSubmission.research.candidates
-                  : undefined,
-              }
-            : undefined,
-          spotUrl: duplicateSubmission?.spot_id ? `/spots/${duplicateSubmission.spot_id}` : null,
-        });
+        if (duplicateSubmission) {
+          return NextResponse.json(
+            buildDuplicateSubmissionPayload(duplicateSubmission, contributor),
+          );
+        }
       }
 
       console.error("[social-submissions] Submission insert failed:", submissionError);
@@ -575,10 +784,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { userId } = await auth();
+    if (!userId) {
+      return Errors.unauthorized("Sign in to add evidence to a community submission.");
+    }
+
     const supabase = createSupabaseAdmin();
     const { data: existingSubmission, error: existingError } = await supabase
       .from("social_spot_submissions")
-      .select("id, status, spot_id, canonical_url, platform, notes, city_hint, metadata, research")
+      .select("id, status, spot_id, clerk_user_id, canonical_url, platform, notes, city_hint, metadata, research")
       .eq("id", validation.data.submissionId)
       .eq("canonical_url", validatedCanonical.canonicalUrl)
       .maybeSingle();
@@ -592,7 +805,14 @@ export async function PATCH(req: NextRequest) {
       return Errors.notFound("Submission");
     }
 
-    if (["spot_created", "spot_reused"].includes(existingSubmission.status)) {
+    if (existingSubmission.clerk_user_id !== userId && !isAdminUser(userId)) {
+      return Errors.forbidden("Only the original contributor can add evidence to this submission.");
+    }
+
+    if (
+      ["spot_created", "spot_reused"].includes(existingSubmission.status) &&
+      !hasUnresolvedCandidateResults(existingSubmission.research)
+    ) {
       return Errors.validationError("This submission already has a Localley spot.");
     }
 
@@ -624,11 +844,23 @@ export async function PATCH(req: NextRequest) {
     });
     const candidates = getResearchCandidates(research);
     const candidateResults = await createCandidateResults({ supabase, candidates });
+    const mergedCandidateResults = mergePreviouslyResolvedCandidates(
+      existingSubmission.research,
+      candidateResults,
+    );
     const primaryResult =
-      candidateResults.find((result) => result.spotId) ||
-      candidateResults[0] ||
+      (existingSubmission.spot_id
+        ? mergedCandidateResults.find(
+            (result) => result.spotId === existingSubmission.spot_id,
+          ) || {
+          spotId: existingSubmission.spot_id,
+          status: existingSubmission.status as SocialSpotSubmissionStatus,
+        }
+        : null) ||
+      mergedCandidateResults.find((result) => result.spotId) ||
+      mergedCandidateResults[0] ||
       { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
-    const submissionStatus = summarizeCandidateStatuses(candidateResults);
+    const submissionStatus = summarizeCandidateStatuses(mergedCandidateResults);
     const previousEvidence = Array.isArray(existingSubmission.research?.contributorEvidence)
       ? existingSubmission.research.contributorEvidence
       : [];
@@ -645,10 +877,10 @@ export async function PATCH(req: NextRequest) {
     const enrichedResearch: SocialSpotResearchResult = {
       ...research,
       candidates,
-      createdCandidates: candidateResults,
+      createdCandidates: mergedCandidateResults,
       contributorEvidence,
     } as SocialSpotResearchResult & {
-      createdCandidates: typeof candidateResults;
+      createdCandidates: typeof mergedCandidateResults;
       contributorEvidence: typeof contributorEvidence;
     };
 
@@ -693,7 +925,7 @@ export async function PATCH(req: NextRequest) {
         candidates: enrichedResearch.candidates,
       },
       spotUrl: updatedSubmission.spot_id ? `/spots/${updatedSubmission.spot_id}` : null,
-      spots: candidateResults
+      spots: mergedCandidateResults
         .filter((result) => result.spotId)
         .map((result) => ({
           spotId: result.spotId,

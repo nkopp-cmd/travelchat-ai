@@ -49,6 +49,7 @@ const mocks = vi.hoisted(() => ({
   contributorRows: [] as Array<Record<string, unknown>>,
   submissionRows: [] as Array<Record<string, unknown>>,
   spotRows: [] as Array<Record<string, unknown>>,
+  spotInsertErrors: [] as Array<{ code: string; message: string }>,
   ledgerRows: [] as Array<Record<string, unknown>>,
 }));
 
@@ -134,7 +135,12 @@ function createSupabaseMock() {
               filters: [] as Array<[string, string]>,
               maybeSingle: vi.fn(async () => {
                 const row = mocks.submissionRows.find((submission) =>
-                  query.filters.every(([column, value]) => submission[column] === value),
+                  query.filters.every(([column, value]) => {
+                    if (column === "metadata->>finalUrl") {
+                      return (submission.metadata as { finalUrl?: string } | undefined)?.finalUrl === value;
+                    }
+                    return submission[column] === value;
+                  }),
                 );
                 return { data: row || null, error: null };
               }),
@@ -185,6 +191,10 @@ function createSupabaseMock() {
                 query.filters.push([column, value]);
                 return query;
               }),
+              eq: vi.fn((column: string, value: string) => {
+                query.filters.push([column, value]);
+                return query;
+              }),
               limit: vi.fn(async () => {
                 const rows = mocks.spotRows.filter((spot) =>
                   query.filters.every(([column, value]) => {
@@ -194,6 +204,9 @@ function createSupabaseMock() {
                     }
                     if (column === "address->>en") {
                       return String((spot.address as { en?: string })?.en || "").toLowerCase().includes(normalizedValue);
+                    }
+                    if (column === "google_place_id") {
+                      return spot.google_place_id === value;
                     }
                     return false;
                   }),
@@ -206,10 +219,14 @@ function createSupabaseMock() {
           }),
           insert: vi.fn((payload: Record<string, unknown>) => {
             const row = { id: `spot_test_${mocks.spotRows.length + 1}`, ...payload };
-            mocks.spotRows.push(row);
             return {
               select: vi.fn(() => ({
-                single: vi.fn(async () => ({ data: row, error: null })),
+                single: vi.fn(async () => {
+                  const error = mocks.spotInsertErrors.shift() || null;
+                  if (error) return { data: null, error };
+                  mocks.spotRows.push(row);
+                  return { data: row, error: null };
+                }),
               })),
             };
           }),
@@ -257,9 +274,11 @@ describe("/api/spots/social-submissions", () => {
     mocks.contributorRows.length = 0;
     mocks.submissionRows.length = 0;
     mocks.spotRows.length = 0;
+    mocks.spotInsertErrors.length = 0;
     mocks.ledgerRows.length = 0;
     mocks.createSupabaseAdmin.mockReturnValue(createSupabaseMock());
     mocks.rateLimitStrict.mockResolvedValue(null);
+    mocks.auth.mockResolvedValue({ userId: "clerk_test" });
   });
 
   it("stays disabled until the feature flag is enabled", async () => {
@@ -289,6 +308,20 @@ describe("/api/spots/social-submissions", () => {
 
     expect(response.status).toBe(400);
     expect(body.error.code).toBe("validation_error");
+    expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
+  });
+
+  it("requires sign-in before accepting a community submission", async () => {
+    mocks.auth.mockResolvedValueOnce({ userId: null });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/reel/ABC123",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body.error.code).toBe("unauthorized");
     expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
   });
 
@@ -335,6 +368,27 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.ledgerRows).toHaveLength(1);
     expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
+  });
+
+  it("creates the spot without a place ID when the production column is not migrated yet", async () => {
+    mocks.spotInsertErrors.push({
+      code: "42703",
+      message: "column spots.google_place_id does not exist",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "spot_created",
+      spotId: "spot_test_1",
+    });
+    expect(mocks.spotRows).toHaveLength(1);
+    expect(mocks.spotRows[0]).not.toHaveProperty("google_place_id");
   });
 
   it("accepts a URL-only submission with anonymous attribution", async () => {
@@ -418,6 +472,7 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.spotRows[0]).toMatchObject({
       name: { en: "Tiny Noodle Bar" },
       photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
+      google_place_id: "place_tiny_noodle_bar",
     });
   });
 
@@ -443,6 +498,69 @@ describe("/api/spots/social-submissions", () => {
       spotId: null,
     });
     expect(body.spotUrl).toBeNull();
+    expect(mocks.spotRows).toHaveLength(0);
+    expect(mocks.submissionRows[0].research).toMatchObject({
+      createdCandidates: [
+        expect.objectContaining({
+          spotId: null,
+          status: "needs_review",
+          enrichmentStatus: "place_photo_missing",
+        }),
+      ],
+    });
+  });
+
+  it("does not accept unrelated Korean place names as an exact fallback match", async () => {
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "카페 온화",
+      description: "A cafe identified from the social post.",
+      address: "서울특별시 마포구 월드컵북로 12",
+      city: "서울",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 4,
+      localPercentage: 74,
+      bestTime: "Weekday afternoon",
+      tips: ["Check opening hours"],
+      confidence: 0.88,
+      researchSummary: "The post appears to identify 카페 온화.",
+      evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+      imageUrl: null,
+      visualEvidence: "The caption names the cafe.",
+      candidates: [],
+    });
+    mocks.findBestGooglePlaceMatch.mockResolvedValueOnce({
+      place: null,
+      quality: null,
+      query: null,
+      rejectedPlace: {
+        placeId: "place_unrelated_restaurant",
+        displayName: "다른 식당",
+        formattedAddress: "서울특별시 마포구 월드컵북로 99",
+        location: { latitude: 37.5665, longitude: 126.9780 },
+        types: ["restaurant"],
+        photos: [{ name: "places/place_unrelated_restaurant/photos/photo_1" }],
+      },
+      rejectedQuality: {
+        acceptable: false,
+        reason: "partial_name_without_strong_address_match",
+        nameScore: 0,
+        addressScore: 0.4,
+      },
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "needs_review",
+      spotId: null,
+    });
     expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.submissionRows[0].research).toMatchObject({
       createdCandidates: [
@@ -539,9 +657,11 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.spotRows).toHaveLength(2);
     expect(mocks.spotRows[0]).toMatchObject({
       photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
+      google_place_id: "place_hidden_seoul_cafe",
     });
     expect(mocks.spotRows[1]).toMatchObject({
       photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
+      google_place_id: "place_ikseon_alley_dessert",
     });
     expect(mocks.submissionRows[0].research).toMatchObject({
       candidates: expect.arrayContaining([
@@ -552,6 +672,47 @@ describe("/api/spots/social-submissions", () => {
         expect.objectContaining({ spotId: "spot_test_1" }),
         expect.objectContaining({ spotId: "spot_test_2" }),
       ]),
+    });
+  });
+
+  it("reuses an existing Google place across different research names and addresses", async () => {
+    const existingSpot = {
+      id: "spot_existing_google_place",
+      name: { en: "Hidden Cafe Seoul" },
+      address: { en: "1 Seoul-ro, Jung-gu, Seoul, South Korea" },
+      google_place_id: "place_hidden_seoul_cafe",
+    };
+    mocks.spotRows.push(existingSpot);
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "spot_reused",
+      spotId: "spot_existing_google_place",
+    });
+    expect(body.spots).toEqual([
+      expect.objectContaining({
+        spotId: "spot_existing_google_place",
+        status: "spot_reused",
+        name: "Hidden Seoul Cafe",
+      }),
+    ]);
+    expect(mocks.spotRows).toEqual([existingSpot]);
+    expect(mocks.submissionRows[0].research).toMatchObject({
+      createdCandidates: [
+        expect.objectContaining({
+          spotId: "spot_existing_google_place",
+          status: "spot_reused",
+          placeId: "place_hidden_seoul_cafe",
+          placeMatchQuery: "Hidden Seoul Cafe, 1 Seoullo, Seoul",
+          usedTransliteratedNameFallback: false,
+        }),
+      ],
     });
   });
 
@@ -594,6 +755,12 @@ describe("/api/spots/social-submissions", () => {
         totalTokens: 25,
       },
       spotUrl: "/spots/spot_existing",
+      spots: [
+        expect.objectContaining({
+          spotId: "spot_existing",
+          spotUrl: "/spots/spot_existing",
+        }),
+      ],
     });
     expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.ledgerRows).toHaveLength(0);
@@ -646,6 +813,52 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
   });
 
+  it("deduplicates a full TikTok URL against an earlier short-link submission", async () => {
+    const finalUrl = "https://www.tiktok.com/@creator/video/7657943860898778388";
+    mocks.submissionRows.push({
+      id: "submission_short_link",
+      canonical_url: "https://vt.tiktok.com/ZSCCVR3mg",
+      status: "spot_created",
+      spot_id: "spot_existing",
+      token_awarded: 25,
+      research_confidence: 0.88,
+      research_summary: "Already researched from the short link.",
+      metadata: { finalUrl },
+      research: {
+        candidates: [],
+        createdCandidates: [
+          {
+            spotId: "spot_existing",
+            status: "spot_created",
+            spotName: "Existing Place",
+            address: "1 Seoul-ro, Seoul",
+            city: "Seoul",
+            confidence: 0.88,
+          },
+        ],
+      },
+    });
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Existing Place",
+      description: "Same post, expanded URL.",
+      imageUrl: "https://cdn.example.com/place.jpg",
+      finalUrl,
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({ url: finalUrl }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      duplicate: true,
+      submission: { id: "submission_short_link", spotId: "spot_existing" },
+      spots: [expect.objectContaining({ spotId: "spot_existing" })],
+    });
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+    expect(mocks.spotRows).toHaveLength(0);
+  });
+
   it("stores low-confidence research without creating a spot", async () => {
     mocks.researchSocialSpotLink.mockResolvedValueOnce({
       status: "needs_review",
@@ -687,6 +900,7 @@ describe("/api/spots/social-submissions", () => {
       platform: "instagram",
       status: "research_pending",
       spot_id: null,
+      clerk_user_id: "clerk_test",
       notes: null,
       city_hint: null,
       metadata: {
@@ -759,6 +973,69 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.ledgerRows).toHaveLength(0);
   });
 
+  it("preserves previously created spots when re-research resolves another candidate", async () => {
+    mocks.submissionRows.push({
+      id: "33333333-3333-4333-8333-333333333333",
+      canonical_url: "https://www.instagram.com/p/MULTI123",
+      platform: "instagram",
+      status: "spot_created",
+      spot_id: "spot_existing_primary",
+      clerk_user_id: "clerk_test",
+      notes: null,
+      city_hint: "Seoul",
+      metadata: {
+        title: "Two Seoul cafes",
+        imageUrl: "https://cdn.example.com/post.jpg",
+        finalUrl: "https://www.instagram.com/p/MULTI123",
+      },
+      research: {
+        candidates: [],
+        createdCandidates: [
+          {
+            spotId: "spot_existing_primary",
+            status: "spot_created",
+            spotName: "First Cafe",
+            address: "1 First-ro, Seoul",
+            city: "Seoul",
+            confidence: 0.88,
+            summary: "Previously verified.",
+          },
+          {
+            spotId: null,
+            status: "needs_review",
+            spotName: "Second Cafe",
+            address: null,
+            city: "Seoul",
+            confidence: 0.35,
+            summary: "Needed another clue.",
+          },
+        ],
+      },
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "33333333-3333-4333-8333-333333333333",
+      canonicalUrl: "https://www.instagram.com/p/MULTI123",
+      placeHint: "Hidden Seoul Cafe",
+      cityHint: "Seoul",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission.spotId).toBe("spot_existing_primary");
+    expect(body.spots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ spotId: "spot_existing_primary" }),
+      expect.objectContaining({ spotId: "spot_test_1" }),
+    ]));
+    expect(mocks.submissionRows[0].research).toMatchObject({
+      createdCandidates: expect.arrayContaining([
+        expect.objectContaining({ spotId: "spot_existing_primary" }),
+        expect.objectContaining({ spotId: "spot_test_1" }),
+      ]),
+    });
+  });
+
   it("rejects added evidence for submissions that already have spots", async () => {
     mocks.submissionRows.push({
       id: "22222222-2222-4222-8222-222222222222",
@@ -766,6 +1043,7 @@ describe("/api/spots/social-submissions", () => {
       platform: "instagram",
       status: "spot_created",
       spot_id: "spot_existing",
+      clerk_user_id: "clerk_test",
       notes: null,
       city_hint: null,
       metadata: {
@@ -785,5 +1063,48 @@ describe("/api/spots/social-submissions", () => {
     expect(body.error.code).toBe("validation_error");
     expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
     expect(mocks.spotRows).toHaveLength(0);
+  });
+
+  it("rejects evidence updates from signed-out callers", async () => {
+    mocks.auth.mockResolvedValueOnce({ userId: null });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "11111111-1111-4111-8111-111111111111",
+      canonicalUrl: "https://www.instagram.com/p/IMG123",
+      placeHint: "Cafe Saeraul",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body.error.code).toBe("unauthorized");
+    expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
+  });
+
+  it("rejects evidence updates from a different signed-in user", async () => {
+    mocks.submissionRows.push({
+      id: "11111111-1111-4111-8111-111111111111",
+      canonical_url: "https://www.instagram.com/p/IMG123",
+      platform: "instagram",
+      status: "research_pending",
+      spot_id: null,
+      clerk_user_id: "clerk_original",
+      notes: null,
+      city_hint: null,
+      metadata: { finalUrl: "https://www.instagram.com/p/IMG123" },
+      research: {},
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "11111111-1111-4111-8111-111111111111",
+      canonicalUrl: "https://www.instagram.com/p/IMG123",
+      placeHint: "Cafe Saeraul",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.error.code).toBe("forbidden");
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
   });
 });

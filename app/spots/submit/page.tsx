@@ -95,6 +95,27 @@ function getSubmissionTrackerHref(result: SubmissionResponse | null): string {
   return `/spots/submissions?submission=${submissionId}#submission-${submissionId}`;
 }
 
+function getCandidateKey(candidate: {
+  spotName?: string | null;
+  name?: string | null;
+  address?: string | null;
+  city?: string | null;
+}): string {
+  return [candidate.spotName || candidate.name, candidate.address, candidate.city]
+    .map((value) => value?.trim().toLowerCase() || "")
+    .join("|");
+}
+
+function getUnresolvedCandidates(result: SubmissionResponse | null) {
+  const candidates = result?.research?.candidates || [];
+  const readyKeys = new Set((result?.spots || []).map(getCandidateKey));
+
+  return candidates.filter((candidate) => {
+    const needsReview = ["needs_review", "research_pending"].includes(candidate.status);
+    return needsReview || !readyKeys.has(getCandidateKey(candidate));
+  });
+}
+
 function SocialSubmissionsUnavailable() {
   return (
     <AppBackground>
@@ -114,7 +135,7 @@ function SocialSubmissionsUnavailable() {
           Track submissions
         </Link>
 
-        <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
+        <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
             <Sparkles className="h-4 w-4" />
             Coming soon
@@ -180,14 +201,18 @@ function SubmitSpotForm() {
         throw new Error(body.error?.message || "Could not submit the spot.");
       }
 
-      setResult({
+      const normalizedResult = {
         ...body,
         spotUrl: body.spotUrl || (body.submission?.spotId ? `/spots/${body.submission.spotId}` : null),
-      });
+      };
+      const unresolvedCount = getUnresolvedCandidates(normalizedResult).length;
+      setResult(normalizedResult);
       toast({
         title: body.duplicate ? "Already submitted" : "Submission saved",
         description: body.spots?.length
-          ? `${body.spots.length} spot${body.spots.length === 1 ? "" : "s"} ready to open.`
+          ? `${body.spots.length} spot${body.spots.length === 1 ? "" : "s"} ready${
+              unresolvedCount > 0 ? `; ${unresolvedCount} still needs review.` : "."
+            }`
           : "Saved to community submissions for research/review.",
       });
     } catch (error) {
@@ -201,6 +226,8 @@ function SubmitSpotForm() {
     }
   }
 
+  const unresolvedCandidates = getUnresolvedCandidates(result);
+
   return (
     <AppBackground>
       <div className="mx-auto max-w-5xl space-y-5 pb-8">
@@ -213,7 +240,7 @@ function SubmitSpotForm() {
         </Link>
 
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-6">
+          <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-6">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
@@ -249,14 +276,14 @@ function SubmitSpotForm() {
                   placeholder="https://www.instagram.com/reel/..."
                   required
                   inputMode="url"
-                  className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                  className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/55"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-violet-50">
-                    Email <span className="text-violet-50/45">(optional)</span>
+                    Email <span className="text-violet-50/65">(optional)</span>
                   </Label>
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-200/60" />
@@ -266,14 +293,14 @@ function SubmitSpotForm() {
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder="For credits and history"
                       type="email"
-                      className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/35"
+                      className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="contributor-name" className="text-violet-50">
-                    Credit name <span className="text-violet-50/45">(optional)</span>
+                    Credit name <span className="text-violet-50/65">(optional)</span>
                   </Label>
                   <div className="relative">
                     <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-200/60" />
@@ -282,7 +309,7 @@ function SubmitSpotForm() {
                       value={contributorName}
                       onChange={(event) => setContributorName(event.target.value)}
                       placeholder="Optional"
-                      className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/35"
+                      className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
                     />
                   </div>
                 </div>
@@ -291,27 +318,27 @@ function SubmitSpotForm() {
               <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-violet-50">
-                    City or neighborhood <span className="text-violet-50/45">(optional)</span>
+                    City or neighborhood <span className="text-violet-50/65">(optional)</span>
                   </Label>
                   <Input
                     id="city"
                     value={cityHint}
                     onChange={(event) => setCityHint(event.target.value)}
                     placeholder="Seoul, Seongsu, Ikseon-dong..."
-                    className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                    className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/55"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="notes" className="text-violet-50">
-                    Place clues <span className="text-violet-50/45">(optional)</span>
+                    Place clues <span className="text-violet-50/65">(optional)</span>
                   </Label>
                   <Textarea
                     id="notes"
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     placeholder="Place name, sign text, nearest station, caption clue, or address"
-                    className="min-h-24 border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                    className="min-h-24 border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/55"
                   />
                 </div>
               </div>
@@ -319,6 +346,7 @@ function SubmitSpotForm() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
+                aria-busy={isSubmitting}
                 className="h-12 w-full rounded-lg bg-violet-500 text-base font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400 sm:w-auto"
               >
                 {isSubmitting ? (
@@ -326,19 +354,23 @@ function SubmitSpotForm() {
                 ) : (
                   <Sparkles className="h-4 w-4" />
                 )}
-                Submit post
+                {isSubmitting ? "Researching post..." : "Submit post"}
               </Button>
             </form>
           </section>
 
-          <aside className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-5">
+          <aside className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-5">
             {result ? (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-emerald-300" />
                   <div>
                     <p className="font-semibold text-white">
-                      {result.submission ? statusLabel[result.submission.status] : "Submission saved"}
+                      {result.spots?.length && unresolvedCandidates.length
+                        ? "Partially processed"
+                        : result.submission
+                          ? statusLabel[result.submission.status]
+                          : "Submission saved"}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
                       {result.spots?.length
@@ -376,6 +408,34 @@ function SubmitSpotForm() {
                               {spot.city || "Location"} · {Math.round(spot.confidence * 100)}% confidence
                             </span>
                           </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {unresolvedCandidates.length > 0 && (
+                    <div className="rounded-lg border border-amber-200/20 bg-amber-400/10 p-3">
+                      <span className="text-sm font-semibold text-amber-100">
+                        {result.spots?.length
+                          ? "Other places still need review"
+                          : "Candidate places need review"}
+                      </span>
+                      <div className="mt-2 grid gap-2">
+                        {unresolvedCandidates.slice(0, 6).map((candidate) => (
+                          <div
+                            key={getCandidateKey(candidate)}
+                            className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/75"
+                          >
+                            <span className="block font-semibold text-white">
+                              {candidate.spotName || "Unverified place"}
+                            </span>
+                            <span className="mt-0.5 block text-xs text-violet-50/55">
+                              {candidate.city || candidate.address || "More source evidence needed"}
+                              {typeof candidate.confidence === "number"
+                                ? ` · ${Math.round(candidate.confidence * 100)}% confidence`
+                                : ""}
+                            </span>
+                          </div>
                         ))}
                       </div>
                     </div>

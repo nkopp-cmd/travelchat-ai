@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { Button } from "@/components/ui/button";
+import { isAdminUser } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { SubmissionEvidenceForm } from "./evidence-form";
@@ -46,6 +48,7 @@ type SubmissionRow = {
   platform: string;
   status: "spot_created" | "spot_reused" | "needs_review" | "research_pending";
   spot_id: string | null;
+  clerk_user_id: string | null;
   contributor_credit: string;
   extracted_name: string | null;
   extracted_address: string | null;
@@ -168,6 +171,47 @@ function getReviewCandidates(submission: SubmissionRow): Candidate[] {
   return (submission.research?.candidates || []).filter(hasUsableCandidatePlace);
 }
 
+function getCandidateKey(candidate: Candidate | CreatedCandidate): string {
+  return [candidate.spotName, candidate.address, candidate.city]
+    .map((value) => value?.trim().toLowerCase() || "")
+    .join("|");
+}
+
+function getPendingCandidates(submission: SubmissionRow): Candidate[] {
+  const processed = submission.research?.createdCandidates || [];
+  const unresolvedResults = processed.filter(
+    (candidate) => !candidate.spotId && hasUsableCandidatePlace(candidate),
+  );
+  if (unresolvedResults.length > 0) return unresolvedResults;
+
+  const createdKeys = new Set(
+    processed.filter((candidate) => candidate.spotId).map(getCandidateKey),
+  );
+
+  return getReviewCandidates(submission).filter((candidate) => {
+    const statusNeedsReview = ["needs_review", "research_pending"].includes(
+      candidate.status || "",
+    );
+    return statusNeedsReview || !createdKeys.has(getCandidateKey(candidate));
+  });
+}
+
+function getSubmissionStatusCopy(submission: SubmissionRow) {
+  const createdCount = getCreatedCandidates(submission).length;
+  const pendingCount = getPendingCandidates(submission).length;
+
+  if (createdCount > 0 && pendingCount > 0) {
+    return {
+      label: `${createdCount} ready · ${pendingCount} needs review`,
+      helper: "Some places are ready while other places from the same post still need evidence.",
+      icon: Search,
+      className: "border-amber-200/30 bg-amber-400/10 text-amber-100",
+    };
+  }
+
+  return getStatusCopy(submission.status);
+}
+
 function parseStatusFilter(value: string | undefined): SubmissionStatusFilter {
   if (
     value === "spot_created" ||
@@ -186,20 +230,53 @@ function getFilterHref(status: SubmissionStatusFilter) {
 }
 
 function getStatusCount(submissions: SubmissionRow[], status: SubmissionStatusFilter) {
-  if (status === "all") return submissions.length;
-  return submissions.filter((submission) => submission.status === status).length;
+  return submissions.filter((submission) => submissionMatchesStatus(submission, status)).length;
 }
 
-async function getSubmissions(): Promise<{
+function submissionMatchesStatus(
+  submission: SubmissionRow,
+  status: SubmissionStatusFilter,
+): boolean {
+  if (status === "all") return true;
+  const pendingCandidates = getPendingCandidates(submission);
+  const createdCandidates = getCreatedCandidates(submission);
+
+  if (status === "research_pending") {
+    return (
+      submission.status === "research_pending" ||
+      pendingCandidates.some((candidate) => candidate.status === "research_pending")
+    );
+  }
+  if (status === "needs_review") {
+    return (
+      submission.status === "needs_review" ||
+      pendingCandidates.some((candidate) => candidate.status !== "research_pending")
+    );
+  }
+  if (status === "spot_created") {
+    return (
+      submission.status === "spot_created" ||
+      createdCandidates.some((candidate) => candidate.status === "spot_created")
+    );
+  }
+
+  return (
+    submission.status === "spot_reused" ||
+    createdCandidates.some((candidate) => candidate.status === "spot_reused")
+  );
+}
+
+const SUBMISSION_SELECT =
+  "id, canonical_url, platform, status, spot_id, clerk_user_id, contributor_credit, extracted_name, extracted_address, extracted_city, research_confidence, research_summary, created_at, metadata, research";
+
+async function getSubmissions(highlightedSubmissionId?: string | null): Promise<{
   submissions: SubmissionRow[];
   error: string | null;
 }> {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("social_spot_submissions")
-    .select(
-      "id, canonical_url, platform, status, spot_id, contributor_credit, extracted_name, extracted_address, extracted_city, research_confidence, research_summary, created_at, metadata, research",
-    )
+    .select(SUBMISSION_SELECT)
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -211,21 +288,36 @@ async function getSubmissions(): Promise<{
     };
   }
 
+  const submissions = (data || []) as SubmissionRow[];
+  if (
+    highlightedSubmissionId &&
+    !submissions.some((submission) => submission.id === highlightedSubmissionId)
+  ) {
+    const { data: highlightedSubmission, error: highlightedError } = await supabase
+      .from("social_spot_submissions")
+      .select(SUBMISSION_SELECT)
+      .eq("id", highlightedSubmissionId)
+      .maybeSingle();
+
+    if (!highlightedError && highlightedSubmission) {
+      submissions.unshift(highlightedSubmission as SubmissionRow);
+    }
+  }
+
   return {
-    submissions: (data || []) as SubmissionRow[],
+    submissions,
     error: null,
   };
 }
 
 export default async function SubmittedPostsPage({ searchParams }: SubmittedPostsPageProps) {
   const params = await searchParams;
+  const { userId } = await auth();
   const activeStatus = parseStatusFilter(params.status);
   const highlightedSubmissionId = params.submission || null;
-  const { submissions, error } = await getSubmissions();
+  const { submissions, error } = await getSubmissions(highlightedSubmissionId);
   const filteredSubmissions =
-    activeStatus === "all"
-      ? submissions
-      : submissions.filter((submission) => submission.status === activeStatus);
+    submissions.filter((submission) => submissionMatchesStatus(submission, activeStatus));
 
   return (
     <AppBackground ambient fitParent>
@@ -245,7 +337,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
           </Button>
         </div>
 
-        <section className="mb-5 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
+        <section className="mb-5 rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
             <Images className="h-4 w-4" />
             Community submissions
@@ -265,7 +357,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
             <p className="mt-2 text-sm text-rose-50/70">{error}</p>
           </section>
         ) : submissions.length === 0 ? (
-          <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+          <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
             <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
             <h2 className="mt-3 text-xl font-bold text-white">No submitted posts yet</h2>
             <p className="mt-2 text-sm text-violet-50/60">
@@ -276,7 +368,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
           <>
             <nav
               aria-label="Submission status filters"
-              className="mb-4 flex gap-2 overflow-x-auto rounded-lg border border-violet-200/15 bg-[#100b1c]/76 p-2 shadow-lg shadow-violet-950/20 backdrop-blur-xl"
+              className="mb-4 flex gap-2 overflow-x-auto rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.76] p-2 shadow-lg shadow-violet-950/20 backdrop-blur-xl"
             >
               {statusFilters.map((filter) => {
                 const active = filter.value === activeStatus;
@@ -285,6 +377,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                   <Link
                     key={filter.value}
                     href={getFilterHref(filter.value)}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
                       "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors",
                       active
@@ -307,7 +400,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
             </nav>
 
             {filteredSubmissions.length === 0 ? (
-              <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+              <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
                 <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
                 <h2 className="mt-3 text-xl font-bold text-white">No posts in this status</h2>
                 <p className="mt-2 text-sm text-violet-50/60">
@@ -317,12 +410,16 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
             ) : (
               <div className="grid gap-4">
                 {filteredSubmissions.map((submission) => {
-              const status = getStatusCopy(submission.status);
+              const status = getSubmissionStatusCopy(submission);
               const StatusIcon = status.icon;
               const title = getSubmissionTitle(submission);
               const image = getSubmissionImage(submission);
               const createdCandidates = getCreatedCandidates(submission);
-              const candidates = getReviewCandidates(submission);
+              const pendingCandidates = getPendingCandidates(submission);
+              const canAddEvidence = Boolean(
+                userId &&
+                  (submission.clerk_user_id === userId || isAdminUser(userId)),
+              );
               const isHighlighted = submission.id === highlightedSubmissionId;
 
               return (
@@ -330,7 +427,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                   id={`submission-${submission.id}`}
                   key={submission.id}
                   className={cn(
-                    "scroll-mt-24 overflow-hidden rounded-lg border bg-[#100b1c]/86 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:grid md:grid-cols-[220px_1fr]",
+                    "scroll-mt-24 overflow-hidden rounded-lg border bg-[#100b1c]/[0.86] shadow-xl shadow-violet-950/20 backdrop-blur-xl md:grid md:grid-cols-[220px_1fr]",
                     isHighlighted
                       ? "border-violet-200/50 ring-2 ring-violet-300/35"
                       : "border-violet-200/15",
@@ -395,7 +492,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                       </p>
                     )}
 
-                    {createdCandidates.length > 0 ? (
+                    {createdCandidates.length > 0 && (
                       <div className="mt-4 grid gap-2 sm:grid-cols-2">
                         {createdCandidates.map((candidate) => (
                           <Link
@@ -418,13 +515,16 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                           </Link>
                         ))}
                       </div>
-                    ) : candidates.length > 0 ? (
+                    )}
+                    {pendingCandidates.length > 0 ? (
                       <div className="mt-4 rounded-lg border border-amber-200/20 bg-amber-400/10 p-3">
                         <p className="text-sm font-semibold text-amber-100">
-                          Candidate places still need review
+                          {createdCandidates.length > 0
+                            ? "Other places from this post still need review"
+                            : "Candidate places still need review"}
                         </p>
                         <div className="mt-2 grid gap-2">
-                          {candidates.slice(0, 3).map((candidate) => (
+                          {pendingCandidates.slice(0, 6).map((candidate) => (
                             <div
                               key={`${candidate.spotName}-${candidate.address}`}
                               className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/70"
@@ -448,8 +548,9 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                         </p>
                       </div>
                     ) : null}
-                    {createdCandidates.length === 0 &&
-                      ["needs_review", "research_pending"].includes(submission.status) && (
+                    {canAddEvidence &&
+                      (pendingCandidates.length > 0 ||
+                        ["needs_review", "research_pending"].includes(submission.status)) && (
                         <SubmissionEvidenceForm
                           submissionId={submission.id}
                           canonicalUrl={submission.canonical_url}
