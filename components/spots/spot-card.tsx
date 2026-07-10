@@ -52,6 +52,19 @@ function hasRealSpotPhoto(spot: Spot) {
   return spot.hasRealPhoto ?? hasRealDisplaySpotPhoto(spot.photos);
 }
 
+function CommunitySpotChip() {
+  return (
+    <span
+      aria-label="Community submitted spot"
+      title="Community submitted spot"
+      className="inline-flex h-6 items-center gap-1 rounded-md border border-fuchsia-200/25 bg-fuchsia-500/75 px-1.5 text-[10px] font-semibold text-white shadow-md shadow-black/20 backdrop-blur"
+    >
+      <Users className="h-3 w-3" aria-hidden="true" />
+      <span>Community</span>
+    </span>
+  );
+}
+
 function getScoreTone(score: number) {
   if (score >= 6)
     return "border-fuchsia-300/25 bg-fuchsia-400/12 text-fuchsia-100";
@@ -362,6 +375,11 @@ export function SpotCard({
           {(!hasRealPhoto || usingAreaImage) && (
             <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10" />
           )}
+          {spot.communitySubmitted && (
+            <div className="absolute left-1.5 top-1.5 z-10">
+              <CommunitySpotChip />
+            </div>
+          )}
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
@@ -465,9 +483,14 @@ export function SpotCard({
         {(!hasRealPhoto || usingAreaImage) && (
           <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
         )}
+        {spot.communitySubmitted && (
+          <div className="absolute left-1.5 top-1.5 z-10 md:left-2.5 md:top-2.5">
+            <CommunitySpotChip />
+          </div>
+        )}
       </div>
       <div className="absolute right-1.5 top-1.5 z-20 hidden md:right-2.5 md:top-2.5 md:block">
-        <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 md:opacity-0 md:group-hover:opacity-100">
+        <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 focus-within:opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
           <SaveSpotButton
             spotId={spot.id}
             className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-8 md:w-8"

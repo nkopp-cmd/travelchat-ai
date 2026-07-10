@@ -27,6 +27,7 @@ export interface Spot {
     photos: string[];
     hasRealPhoto?: boolean;
     googlePlaceId?: string | null;
+    communitySubmitted?: boolean;
     tips: string[];
     verified: boolean;
     trending: boolean;

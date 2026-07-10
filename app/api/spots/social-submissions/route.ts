@@ -31,7 +31,7 @@ import {
 import { validateBody } from "@/lib/validations";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 function isSocialSpotSubmissionsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
@@ -360,25 +360,21 @@ async function createCandidateResults({
   supabase: ReturnType<typeof createSupabaseAdmin>;
   candidates: SocialSpotResearchCandidate[];
 }) {
-  const candidateResults = [];
-
-  for (const candidate of candidates) {
+  return Promise.all(candidates.map(async (candidate) => {
     const spotResult = await createSpotFromResearch({
       supabase,
       research: candidate,
     });
 
-    candidateResults.push({
+    return {
       ...spotResult,
       spotName: candidate.spotName,
       address: candidate.address,
       city: candidate.city,
       confidence: candidate.confidence,
       summary: candidate.researchSummary,
-    });
-  }
-
-  return candidateResults;
+    };
+  }));
 }
 
 type CandidateResultRecord = Awaited<ReturnType<typeof createCandidateResults>>[number];
@@ -413,6 +409,8 @@ type StoredSubmissionRecord = {
   id: string;
   status: SocialSpotSubmissionStatus;
   spot_id: string | null;
+  clerk_user_id?: string | null;
+  updated_at?: string | null;
   research_confidence: number | null;
   research_summary: string | null;
   research?: {
@@ -428,8 +426,26 @@ type StoredSubmissionRecord = {
       city?: string | null;
       confidence?: number | null;
     }>;
+    processing?: {
+      state?: string | null;
+    };
   } | null;
 };
+
+function canResumeSubmission(
+  submission: StoredSubmissionRecord,
+  clerkUserId: string,
+): boolean {
+  const startedAt = submission.updated_at ? Date.parse(submission.updated_at) : Number.NaN;
+  const isStale = Number.isFinite(startedAt) && Date.now() - startedAt > 3 * 60 * 1000;
+  return Boolean(
+    submission.clerk_user_id === clerkUserId &&
+      submission.status === "research_pending" &&
+      !submission.spot_id &&
+      ["processing", "retryable"].includes(submission.research?.processing?.state || "") &&
+      isStale,
+  );
+}
 
 function buildDuplicateSubmissionPayload(
   submission: StoredSubmissionRecord,
@@ -485,6 +501,214 @@ function buildDuplicateSubmissionPayload(
     spotUrl: submission.spot_id ? `/spots/${submission.spot_id}` : null,
     spots,
   };
+}
+
+function isMissingOptionalSocialSchema(error: {
+  code?: string | null;
+  message?: string | null;
+} | null | undefined): boolean {
+  return Boolean(
+    error &&
+      (["42P01", "42703", "42883", "PGRST202", "PGRST204", "PGRST205"].includes(
+        error.code || "",
+      ) ||
+        /does not exist|schema cache|could not find the function|could not find the table/i.test(
+          error.message || "",
+        )),
+  );
+}
+
+async function registerSubmissionAliases({
+  supabase,
+  submissionId,
+  urls,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  submissionId: string;
+  urls: Array<string | null | undefined>;
+}): Promise<void> {
+  const aliases = Array.from(new Set(urls.filter((url): url is string => Boolean(url))));
+  if (aliases.length === 0) return;
+
+  const { error } = await supabase
+    .from("social_spot_submission_aliases")
+    .upsert(
+      aliases.map((aliasUrl) => ({ alias_url: aliasUrl, submission_id: submissionId })),
+      { onConflict: "alias_url", ignoreDuplicates: true },
+    );
+  if (error && !isMissingOptionalSocialSchema(error)) {
+    console.error("[social-submissions] Alias registration failed:", error);
+  }
+}
+
+async function findSubmissionByAlias({
+  supabase,
+  urls,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  urls: Array<string | null | undefined>;
+}): Promise<StoredSubmissionRecord | null> {
+  const aliases = Array.from(new Set(urls.filter((url): url is string => Boolean(url))));
+  if (aliases.length === 0) return null;
+
+  const aliasResult = await supabase
+    .from("social_spot_submission_aliases")
+    .select("submission_id")
+    .in("alias_url", aliases)
+    .limit(1)
+    .maybeSingle();
+  if (aliasResult.error) {
+    if (isMissingOptionalSocialSchema(aliasResult.error)) return null;
+    throw new Error(`Could not check social URL aliases: ${aliasResult.error.message}`);
+  }
+  if (!aliasResult.data?.submission_id) return null;
+
+  const { data, error } = await supabase
+    .from("social_spot_submissions")
+    .select("id, status, spot_id, clerk_user_id, updated_at, research_confidence, research_summary, research")
+    .eq("id", aliasResult.data.submission_id)
+    .maybeSingle();
+  if (error) throw new Error(`Could not load aliased submission: ${error.message}`);
+  return data as StoredSubmissionRecord | null;
+}
+
+async function syncCandidateRecords({
+  supabase,
+  submissionId,
+  candidates,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  submissionId: string;
+  candidates: CandidateResultRecord[];
+}): Promise<void> {
+  const { error } = await supabase.rpc("sync_social_submission_candidates_v1", {
+    p_submission_id: submissionId,
+    p_candidates: candidates,
+  });
+  if (error && !isMissingOptionalSocialSchema(error)) {
+    console.error("[social-submissions] Candidate checkpoint failed:", error);
+  }
+}
+
+async function incrementContributorTokensWithCas({
+  supabase,
+  contributorId,
+  currentTotal,
+  tokenAward,
+  submittedAt,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  contributorId: string;
+  currentTotal: number;
+  tokenAward: number;
+  submittedAt: string;
+}): Promise<number> {
+  let expectedTotal = currentTotal;
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const nextTotal = expectedTotal + tokenAward;
+    const { data, error } = await supabase
+      .from("spot_contributors")
+      .update({ total_tokens: nextTotal, last_submitted_at: submittedAt })
+      .eq("id", contributorId)
+      .eq("total_tokens", expectedTotal)
+      .select("total_tokens")
+      .maybeSingle();
+    if (error) {
+      console.error("[social-submissions] Contributor token balance update failed:", error);
+      return expectedTotal;
+    }
+    if (data) return Number(data.total_tokens || nextTotal);
+
+    const { data: current, error: currentError } = await supabase
+      .from("spot_contributors")
+      .select("total_tokens")
+      .eq("id", contributorId)
+      .maybeSingle();
+    if (currentError || !current) {
+      if (currentError) {
+        console.error("[social-submissions] Contributor token reload failed:", currentError);
+      }
+      return expectedTotal;
+    }
+    expectedTotal = Number(current.total_tokens || 0);
+  }
+
+  return expectedTotal;
+}
+
+async function awardSubmissionTokens({
+  supabase,
+  contributorId,
+  submissionId,
+  currentTotal,
+  tokenAward,
+  platform,
+  status,
+  submittedAt,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  contributorId: string;
+  submissionId: string;
+  currentTotal: number;
+  tokenAward: number;
+  platform: SocialLinkMetadata["sourceType"] | SocialSpotResearchResult["status"] | string;
+  status: SocialSpotSubmissionStatus;
+  submittedAt: string;
+}): Promise<{ awarded: number; totalTokens: number }> {
+  const rpcResult = await supabase.rpc("award_social_submission_tokens_v1", {
+    p_submission_id: submissionId,
+    p_contributor_id: contributorId,
+    p_delta: tokenAward,
+    p_metadata: { platform, status },
+  });
+  const rpcRow = Array.isArray(rpcResult.data) ? rpcResult.data[0] : rpcResult.data;
+  if (!rpcResult.error && rpcRow) {
+    return {
+      awarded: Number(rpcRow.awarded || 0),
+      totalTokens: Number(rpcRow.total_tokens || currentTotal),
+    };
+  }
+
+  if (rpcResult.error && !isMissingOptionalSocialSchema(rpcResult.error)) {
+    console.error("[social-submissions] Atomic token award failed:", rpcResult.error);
+    return { awarded: 0, totalTokens: currentTotal };
+  }
+
+  const ledgerResult = await supabase
+    .from("contribution_token_ledger")
+    .insert({
+      contributor_id: contributorId,
+      submission_id: submissionId,
+      delta: tokenAward,
+      reason: "social_spot_submission",
+      metadata: { platform, status },
+    });
+
+  if (ledgerResult.error) {
+    if (ledgerResult.error.code !== "23505") {
+      console.error("[social-submissions] Token ledger insert failed:", ledgerResult.error);
+    }
+    return { awarded: 0, totalTokens: currentTotal };
+  }
+
+  const totalTokens = await incrementContributorTokensWithCas({
+    supabase,
+    contributorId,
+    currentTotal,
+    tokenAward,
+    submittedAt,
+  });
+  const { error: submissionUpdateError } = await supabase
+    .from("social_spot_submissions")
+    .update({ token_awarded: tokenAward })
+    .eq("id", submissionId)
+    .select("id")
+    .single();
+  if (submissionUpdateError) {
+    console.error("[social-submissions] Submission token checkpoint failed:", submissionUpdateError);
+  }
+  return { awarded: tokenAward, totalTokens };
 }
 
 export async function POST(req: NextRequest) {
@@ -554,7 +778,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingSubmission, error: existingError } = await supabase
       .from("social_spot_submissions")
-      .select("id, status, spot_id, token_awarded, research_confidence, research_summary, research")
+      .select("id, status, spot_id, clerk_user_id, updated_at, token_awarded, research_confidence, research_summary, research")
       .eq("canonical_url", normalized.canonicalUrl)
       .maybeSingle();
 
@@ -563,7 +787,10 @@ export async function POST(req: NextRequest) {
       return Errors.databaseError("Could not check existing submission.");
     }
 
-    if (existingSubmission) {
+    let resumableSubmission: StoredSubmissionRecord | null = null;
+    if (existingSubmission && canResumeSubmission(existingSubmission, userId)) {
+      resumableSubmission = existingSubmission;
+    } else if (existingSubmission) {
       return NextResponse.json(
         buildDuplicateSubmissionPayload(existingSubmission, contributor),
       );
@@ -582,7 +809,7 @@ export async function POST(req: NextRequest) {
 
     if (metadata.finalUrl) {
       const duplicateSelect =
-        "id, status, spot_id, research_confidence, research_summary, research";
+        "id, status, spot_id, clerk_user_id, updated_at, research_confidence, research_summary, research";
       let redirectedSubmission: StoredSubmissionRecord | null = null;
       let redirectedError: { message: string } | null = null;
 
@@ -611,11 +838,110 @@ export async function POST(req: NextRequest) {
         return Errors.databaseError("Could not check the resolved social post.");
       }
       if (redirectedSubmission) {
+        if (canResumeSubmission(redirectedSubmission, userId)) {
+          resumableSubmission = redirectedSubmission;
+        } else {
+          return NextResponse.json(
+            buildDuplicateSubmissionPayload(redirectedSubmission, contributor),
+          );
+        }
+      }
+    }
+
+    const aliasedSubmission = await findSubmissionByAlias({
+      supabase,
+      urls: [normalized.canonicalUrl, resolvedCanonicalUrl, metadata.finalUrl],
+    });
+    if (aliasedSubmission) {
+      if (canResumeSubmission(aliasedSubmission, userId)) {
+        resumableSubmission = aliasedSubmission;
+      } else {
         return NextResponse.json(
-          buildDuplicateSubmissionPayload(redirectedSubmission, contributor),
+          buildDuplicateSubmissionPayload(aliasedSubmission, contributor),
         );
       }
     }
+
+    const initialResearch = {
+      candidates: [],
+      createdCandidates: [],
+      processing: {
+        state: "processing",
+        attempt: 1,
+        startedAt: now,
+      },
+    };
+    const baseSubmissionPayload = {
+      contributor_id: contributor.id,
+      clerk_user_id: userId,
+      spot_id: null,
+      source_url: validation.data.url,
+      canonical_url: resolvedCanonicalUrl,
+      platform: normalized.platform,
+      status: "research_pending" as SocialSpotSubmissionStatus,
+      contributor_credit: contributor.public_credit_name,
+      token_awarded: 0,
+      notes: validation.data.notes || null,
+      city_hint: validation.data.cityHint || null,
+      research_confidence: 0,
+      research_summary: "Analyzing the complete social post for distinct places.",
+      research: initialResearch,
+      metadata,
+    };
+    let placeholderResult = resumableSubmission
+      ? {
+          data: {
+            id: resumableSubmission.id,
+            status: resumableSubmission.status,
+            spot_id: resumableSubmission.spot_id,
+          },
+          error: null,
+        }
+      : await supabase
+        .from("social_spot_submissions")
+        .insert({
+          ...baseSubmissionPayload,
+          processing_state: "processing",
+          processing_attempt: 1,
+          processing_started_at: now,
+          last_error: null,
+        })
+        .select("id, status, spot_id")
+        .single();
+
+    if (placeholderResult.error && isMissingOptionalSocialSchema(placeholderResult.error)) {
+      placeholderResult = await supabase
+        .from("social_spot_submissions")
+        .insert(baseSubmissionPayload)
+        .select("id, status, spot_id")
+        .single();
+    }
+
+    if (placeholderResult.error || !placeholderResult.data) {
+      if (placeholderResult.error?.code === "23505") {
+        const { data: duplicateSubmission } = await supabase
+          .from("social_spot_submissions")
+          .select("id, status, spot_id, research_confidence, research_summary, research")
+          .eq("canonical_url", resolvedCanonicalUrl)
+          .maybeSingle();
+
+        if (duplicateSubmission) {
+          return NextResponse.json(
+            buildDuplicateSubmissionPayload(duplicateSubmission, contributor),
+          );
+        }
+      }
+
+      console.error("[social-submissions] Submission checkpoint failed:", placeholderResult.error);
+      return Errors.databaseError("Could not save the social spot submission.");
+    }
+
+    const placeholderSubmission = placeholderResult.data;
+    await registerSubmissionAliases({
+      supabase,
+      submissionId: placeholderSubmission.id,
+      urls: [normalized.canonicalUrl, resolvedCanonicalUrl, metadata.finalUrl],
+    });
 
     const research = await researchSocialSpotLink({
       canonicalUrl: resolvedCanonicalUrl,
@@ -626,6 +952,11 @@ export async function POST(req: NextRequest) {
     });
     const candidates = getResearchCandidates(research);
     const candidateResults = await createCandidateResults({ supabase, candidates });
+    await syncCandidateRecords({
+      supabase,
+      submissionId: placeholderSubmission.id,
+      candidates: candidateResults,
+    });
 
     const primaryResult =
       candidateResults.find((result) => result.spotId) ||
@@ -640,79 +971,60 @@ export async function POST(req: NextRequest) {
       createdCandidates: typeof candidateResults;
     };
 
-    const tokenAward = SOCIAL_SUBMISSION_TOKEN_AWARD;
-    const { data: submission, error: submissionError } = await supabase
+    const completedAt = new Date().toISOString();
+    const finalSubmissionPayload = {
+      spot_id: primaryResult.spotId,
+      status: submissionStatus,
+      extracted_name: research.spotName,
+      extracted_address: research.address,
+      extracted_city: research.city,
+      localley_score: research.localleyScore,
+      local_percentage: research.localPercentage,
+      research_confidence: Number(research.confidence.toFixed(2)),
+      research_summary: research.researchSummary,
+      research: enrichedResearch,
+      metadata,
+    };
+    let completedResult = await supabase
       .from("social_spot_submissions")
-      .insert({
-        contributor_id: contributor.id,
-        clerk_user_id: userId,
-        spot_id: primaryResult.spotId,
-        source_url: validation.data.url,
-        canonical_url: resolvedCanonicalUrl,
-        platform: normalized.platform,
-        status: submissionStatus,
-        contributor_credit: contributor.public_credit_name,
-        token_awarded: tokenAward,
-        notes: validation.data.notes || null,
-        city_hint: validation.data.cityHint || null,
-        extracted_name: research.spotName,
-        extracted_address: research.address,
-        extracted_city: research.city,
-        localley_score: research.localleyScore,
-        local_percentage: research.localPercentage,
-        research_confidence: Number(research.confidence.toFixed(2)),
-        research_summary: research.researchSummary,
-        research: enrichedResearch,
-        metadata,
+      .update({
+        ...finalSubmissionPayload,
+        processing_state: "completed",
+        completed_at: completedAt,
+        last_error: null,
       })
+      .eq("id", placeholderSubmission.id)
       .select("id, status, spot_id")
       .single();
 
-    if (submissionError || !submission) {
-      if (submissionError?.code === "23505") {
-        const { data: duplicateSubmission } = await supabase
-          .from("social_spot_submissions")
-          .select("id, status, spot_id, research_confidence, research_summary, research")
-          .eq("canonical_url", resolvedCanonicalUrl)
-          .maybeSingle();
-
-        if (duplicateSubmission) {
-          return NextResponse.json(
-            buildDuplicateSubmissionPayload(duplicateSubmission, contributor),
-          );
-        }
-      }
-
-      console.error("[social-submissions] Submission insert failed:", submissionError);
-      return Errors.databaseError("Could not save the social spot submission.");
+    if (completedResult.error && isMissingOptionalSocialSchema(completedResult.error)) {
+      completedResult = await supabase
+        .from("social_spot_submissions")
+        .update(finalSubmissionPayload)
+        .eq("id", placeholderSubmission.id)
+        .select("id, status, spot_id")
+        .single();
     }
 
-    const ledgerResult = await supabase
-      .from("contribution_token_ledger")
-      .insert({
-        contributor_id: contributor.id,
-        submission_id: submission.id,
-        delta: tokenAward,
-        reason: "social_spot_submission",
-        metadata: {
-          platform: normalized.platform,
-          status: submission.status,
-        },
-      });
-
-    let totalTokens = contributor.total_tokens || 0;
-    if (!ledgerResult.error) {
-      totalTokens += tokenAward;
-      await supabase
-        .from("spot_contributors")
-        .update({
-          total_tokens: totalTokens,
-          last_submitted_at: now,
-        })
-        .eq("id", contributor.id);
-    } else {
-      console.error("[social-submissions] Token ledger insert failed:", ledgerResult.error);
+    if (completedResult.error || !completedResult.data) {
+      console.error("[social-submissions] Submission completion failed:", completedResult.error);
+      return Errors.databaseError(
+        "The submission is saved, but processing could not finish. You can retry it from submissions.",
+      );
     }
+
+    const submission = completedResult.data;
+    const tokenAward = SOCIAL_SUBMISSION_TOKEN_AWARD;
+    const tokenResult = await awardSubmissionTokens({
+      supabase,
+      contributorId: contributor.id,
+      submissionId: submission.id,
+      currentTotal: contributor.total_tokens || 0,
+      tokenAward,
+      platform: normalized.platform,
+      status: submission.status,
+      submittedAt: now,
+    });
 
     return NextResponse.json({
       success: true,
@@ -724,8 +1036,8 @@ export async function POST(req: NextRequest) {
       },
       contributor: {
         creditName: contributor.public_credit_name,
-        tokensAwarded: ledgerResult.error ? 0 : tokenAward,
-        totalTokens,
+        tokensAwarded: tokenResult.awarded,
+        totalTokens: tokenResult.totalTokens,
       },
       research: {
         confidence: research.confidence,
@@ -848,6 +1160,11 @@ export async function PATCH(req: NextRequest) {
       existingSubmission.research,
       candidateResults,
     );
+    await syncCandidateRecords({
+      supabase,
+      submissionId: existingSubmission.id,
+      candidates: mergedCandidateResults,
+    });
     const primaryResult =
       (existingSubmission.spot_id
         ? mergedCandidateResults.find(

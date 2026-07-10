@@ -722,11 +722,15 @@ async function getSpot(id: string) {
     .eq("id", id)
     .single();
 
-  if (error || !spot) {
+  if (error && error.code !== "PGRST116") {
+    throw new Error(`Could not load spot: ${error.message}`);
+  }
+
+  if (!spot) {
     return null;
   }
 
-  const { data: primaryCommunitySubmission } = await supabase
+  const { data: primaryCommunitySubmission, error: primaryCommunityError } = await supabase
     .from("social_spot_submissions")
     .select("contributor_credit, platform, status, created_at, research_summary, canonical_url, research")
     .eq("spot_id", id)
@@ -734,15 +738,23 @@ async function getSpot(id: string) {
     .limit(1)
     .maybeSingle();
 
+  if (primaryCommunityError) {
+    console.error("[spot-detail] Primary community provenance unavailable:", primaryCommunityError.message);
+  }
+
   let communitySubmission = primaryCommunitySubmission;
   if (!communitySubmission) {
-    const { data: candidateCommunitySubmission } = await supabase
+    const { data: candidateCommunitySubmission, error: candidateCommunityError } = await supabase
       .from("social_spot_submissions")
       .select("contributor_credit, platform, status, created_at, research_summary, canonical_url, research")
       .contains("research", { createdCandidates: [{ spotId: id }] })
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
+
+    if (candidateCommunityError) {
+      console.error("[spot-detail] Candidate community provenance unavailable:", candidateCommunityError.message);
+    }
 
     communitySubmission = candidateCommunitySubmission;
   }

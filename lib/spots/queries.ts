@@ -4,7 +4,7 @@
  */
 
 import { unstable_cache } from "next/cache";
-import { createSupabaseClient } from "@/lib/supabase";
+import { createSupabaseAdmin, createSupabaseClient } from "@/lib/supabase";
 import { getCityBySlug, ENABLED_CITIES } from "@/lib/cities";
 import { transformSpot, RawSpot } from "./transform";
 import {
@@ -22,6 +22,7 @@ import {
 } from "./types";
 
 const SPOTS_QUERY_PAGE_SIZE = 1000;
+const COMMUNITY_PROVENANCE_CACHE_VERSION = "community-provenance-v1";
 export const DEFAULT_SPOTS_QUERY_TIMEOUT_MS = 8000;
 
 function getSpotTextFieldValue(
@@ -272,8 +273,75 @@ export function getScoreThresholdCount(
   return rows.filter((spot) => (spot.localley_score || 3) >= minimumScore).length;
 }
 
-function getPublicTransformedSpots(rows: RawSpot[]): SpotsResponse["spots"] {
-  return getPublicVisibleSpotRows(rows).map((spot) => transformSpot(spot));
+async function fetchCommunitySpotIds(spotIds: string[]): Promise<Set<string>> {
+  if (spotIds.length === 0) return new Set();
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return new Set();
+  const targetIds = new Set(spotIds);
+  const communityIds = new Set<string>();
+  const supabase = createSupabaseAdmin();
+
+  const { data: primaryRows, error: primaryError } = await supabase
+    .from("social_spot_submissions")
+    .select("spot_id")
+    .in("spot_id", spotIds);
+  if (primaryError) {
+    console.error("[spots/queries] Community provenance unavailable:", primaryError.message);
+    return communityIds;
+  }
+  for (const row of primaryRows || []) {
+    if (typeof row.spot_id === "string") communityIds.add(row.spot_id);
+  }
+
+  const { data: candidateRows, error: candidateError } = await supabase
+    .from("social_spot_submission_candidates")
+    .select("spot_id")
+    .in("spot_id", spotIds);
+  const candidateTableMissing = Boolean(
+    candidateError &&
+      (["42P01", "PGRST205"].includes(candidateError.code || "") ||
+        /does not exist|schema cache/i.test(candidateError.message || "")),
+  );
+  if (candidateError && !candidateTableMissing) {
+    console.error("[spots/queries] Community candidate provenance unavailable:", candidateError.message);
+    return communityIds;
+  }
+  for (const row of candidateRows || []) {
+    if (typeof row.spot_id === "string") communityIds.add(row.spot_id);
+  }
+  if (!candidateTableMissing || communityIds.size === targetIds.size) {
+    return communityIds;
+  }
+
+  for (let from = 0; ; from += SPOTS_QUERY_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("social_spot_submissions")
+      .select("spot_id, research")
+      .range(from, from + SPOTS_QUERY_PAGE_SIZE - 1);
+    if (error) {
+      console.error("[spots/queries] Legacy community provenance unavailable:", error.message);
+      return communityIds;
+    }
+
+    for (const submission of data || []) {
+      if (typeof submission.spot_id === "string" && targetIds.has(submission.spot_id)) {
+        communityIds.add(submission.spot_id);
+      }
+      const research = submission.research as {
+        createdCandidates?: Array<{ spotId?: string | null }>;
+      } | null;
+      for (const candidate of research?.createdCandidates || []) {
+        if (candidate.spotId && targetIds.has(candidate.spotId)) {
+          communityIds.add(candidate.spotId);
+        }
+      }
+    }
+
+    if (!data || data.length < SPOTS_QUERY_PAGE_SIZE || communityIds.size === targetIds.size) {
+      break;
+    }
+  }
+
+  return communityIds;
 }
 
 /**
@@ -286,25 +354,18 @@ async function fetchFilteredSpotsInternal(
 
   if (error) {
     console.error("[spots/queries] Error fetching spots:", error);
-    // Return empty result instead of throwing for graceful degradation
-    return {
-      spots: [],
-      total: 0,
-      page: filters.page,
-      pageSize: filters.limit,
-      hasMore: false,
-      filters: {
-        city: filters.city,
-        category: filters.category,
-        score: filters.score,
-      },
-    };
+    throw new Error("Spots could not be loaded. Please try again.");
   }
 
-  const publicSpots = getPublicTransformedSpots(rows);
-  const total = publicSpots.length;
+  const publicRows = getPublicVisibleSpotRows(rows);
+  const total = publicRows.length;
   const offset = (filters.page - 1) * filters.limit;
-  const spots = publicSpots.slice(offset, offset + filters.limit);
+  const pageRows = publicRows.slice(offset, offset + filters.limit);
+  const communitySpotIds = await fetchCommunitySpotIds(pageRows.map((spot) => spot.id));
+  const spots = pageRows.map((spot) => ({
+    ...transformSpot(spot),
+    communitySubmitted: communitySpotIds.has(spot.id),
+  }));
 
   return {
     spots,
@@ -330,6 +391,7 @@ export async function fetchFilteredSpots(
   // Create a cache key from filters
   const cacheKey = JSON.stringify({
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+    provenance: COMMUNITY_PROVENANCE_CACHE_VERSION,
     city: filters.city,
     category: filters.category,
     score: filters.score,
@@ -359,15 +421,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
   const { rows, error } = await fetchPublicCandidateRows();
   if (error) {
     console.error("[spots/queries] Error fetching filter options:", error);
-    return {
-      cities: [],
-      categories: [],
-      scores: [6, 5, 4, 3].map((value) => ({
-        value,
-        label: SCORE_LABELS[value] || "Unknown",
-        count: 0,
-      })),
-    };
+    throw new Error("Spot filters could not be loaded. Please try again.");
   }
 
   const publicSpots = getPublicVisibleSpotRows(rows);

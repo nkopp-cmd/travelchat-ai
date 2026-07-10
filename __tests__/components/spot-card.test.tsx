@@ -71,4 +71,10 @@ describe("SpotCard", () => {
     const trendingChip = screen.getByTitle("Trending");
     expect(trendingChip.className).toContain("max-w-[3.2rem]");
   });
+
+  it("labels community submitted spots on discovery cards", () => {
+    render(<SpotCard spot={{ ...baseSpot, communitySubmitted: true }} />);
+
+    expect(screen.getByLabelText("Community submitted spot")).toBeTruthy();
+  });
 });

@@ -51,6 +51,9 @@ const mocks = vi.hoisted(() => ({
   spotRows: [] as Array<Record<string, unknown>>,
   spotInsertErrors: [] as Array<{ code: string; message: string }>,
   ledgerRows: [] as Array<Record<string, unknown>>,
+  aliasRows: [] as Array<Record<string, unknown>>,
+  candidateRows: [] as Array<Record<string, unknown>>,
+  optionalSocialSchemaAvailable: true,
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
@@ -95,6 +98,52 @@ vi.mock("@/lib/social-spot-submissions", async (importOriginal) => {
 
 function createSupabaseMock() {
   return {
+    rpc: vi.fn(async (functionName: string, payload: Record<string, unknown>) => {
+      if (!mocks.optionalSocialSchemaAvailable) {
+        return {
+          data: null,
+          error: { code: "PGRST202", message: `Could not find the function ${functionName}` },
+        };
+      }
+
+      if (functionName === "sync_social_submission_candidates_v1") {
+        const candidates = payload.p_candidates as Array<Record<string, unknown>>;
+        mocks.candidateRows.push(...candidates.map((candidate, ordinal) => ({
+          submission_id: payload.p_submission_id,
+          ordinal,
+          ...candidate,
+        })));
+        return { data: candidates.length, error: null };
+      }
+
+      if (functionName === "award_social_submission_tokens_v1") {
+        const existing = mocks.ledgerRows.find((row) =>
+          row.submission_id === payload.p_submission_id && row.reason === "social_spot_submission",
+        );
+        const contributor = mocks.contributorRows.find((row) => row.id === payload.p_contributor_id);
+        const awarded = existing ? 0 : Number(payload.p_delta || 0);
+        if (!existing) {
+          mocks.ledgerRows.push({
+            contributor_id: payload.p_contributor_id,
+            submission_id: payload.p_submission_id,
+            delta: awarded,
+            reason: "social_spot_submission",
+            metadata: payload.p_metadata,
+          });
+          if (contributor) {
+            contributor.total_tokens = Number(contributor.total_tokens || 0) + awarded;
+          }
+          const submission = mocks.submissionRows.find((row) => row.id === payload.p_submission_id);
+          if (submission) submission.token_awarded = awarded;
+        }
+        return {
+          data: [{ awarded, total_tokens: Number(contributor?.total_tokens || 0) }],
+          error: null,
+        };
+      }
+
+      throw new Error(`Unexpected RPC ${functionName}`);
+    }),
     from: vi.fn((table: string) => {
       if (table === "spot_contributors") {
         return {
@@ -114,13 +163,41 @@ function createSupabaseMock() {
               })),
             };
           }),
-          update: vi.fn((payload: Record<string, unknown>) => ({
-            eq: vi.fn(async (_column: string, id: string) => {
-              const row = mocks.contributorRows.find((item) => item.id === id);
-              if (row) Object.assign(row, payload);
-              return { error: null };
-            }),
-          })),
+          update: vi.fn((payload: Record<string, unknown>) => {
+            const query = {
+              filters: [] as Array<[string, unknown]>,
+              eq: vi.fn((column: string, value: unknown) => {
+                query.filters.push([column, value]);
+                return query;
+              }),
+              select: vi.fn(() => ({
+                maybeSingle: vi.fn(async () => {
+                  const row = mocks.contributorRows.find((item) =>
+                    query.filters.every(([column, value]) => item[column] === value),
+                  );
+                  if (row) Object.assign(row, payload);
+                  return { data: row || null, error: null };
+                }),
+              })),
+            };
+            return query;
+          }),
+          select: vi.fn(() => {
+            const query = {
+              filters: [] as Array<[string, unknown]>,
+              eq: vi.fn((column: string, value: unknown) => {
+                query.filters.push([column, value]);
+                return query;
+              }),
+              maybeSingle: vi.fn(async () => {
+                const row = mocks.contributorRows.find((item) =>
+                  query.filters.every(([column, value]) => item[column] === value),
+                );
+                return { data: row || null, error: null };
+              }),
+            };
+            return query;
+          }),
         };
       }
 
@@ -148,14 +225,20 @@ function createSupabaseMock() {
             return query;
           }),
           insert: vi.fn((payload: Record<string, unknown>) => {
+            const schemaMissing = !mocks.optionalSocialSchemaAvailable && "processing_state" in payload;
             const row = {
               id: "submission_test",
               ...payload,
             };
-            mocks.submissionRows.push(row);
+            if (!schemaMissing) mocks.submissionRows.push(row);
             return {
               select: vi.fn(() => ({
-                single: vi.fn(async () => ({ data: row, error: null })),
+                single: vi.fn(async () => schemaMissing
+                  ? {
+                      data: null,
+                      error: { code: "PGRST204", message: "processing_state was not found" },
+                    }
+                  : { data: row, error: null }),
               })),
             };
           }),
@@ -168,6 +251,15 @@ function createSupabaseMock() {
               }),
               select: vi.fn(() => ({
                 single: vi.fn(async () => {
+                  if (
+                    !mocks.optionalSocialSchemaAvailable &&
+                    ("processing_state" in payload || "completed_at" in payload)
+                  ) {
+                    return {
+                      data: null,
+                      error: { code: "PGRST204", message: "processing_state was not found" },
+                    };
+                  }
                   const row = mocks.submissionRows.find((submission) =>
                     query.filters.every(([column, value]) => submission[column] === value),
                   );
@@ -242,6 +334,47 @@ function createSupabaseMock() {
         };
       }
 
+      if (table === "social_spot_submission_aliases") {
+        return {
+          select: vi.fn(() => {
+            const query = {
+              urls: [] as string[],
+              in: vi.fn((_column: string, values: string[]) => {
+                query.urls = values;
+                return query;
+              }),
+              limit: vi.fn(() => query),
+              maybeSingle: vi.fn(async () => {
+                if (!mocks.optionalSocialSchemaAvailable) {
+                  return {
+                    data: null,
+                    error: { code: "PGRST205", message: "table was not found in the schema cache" },
+                  };
+                }
+                const row = mocks.aliasRows.find((alias) =>
+                  query.urls.includes(String(alias.alias_url)),
+                );
+                return { data: row || null, error: null };
+              }),
+            };
+            return query;
+          }),
+          upsert: vi.fn(async (rows: Array<Record<string, unknown>>) => {
+            if (!mocks.optionalSocialSchemaAvailable) {
+              return {
+                error: { code: "PGRST205", message: "table was not found in the schema cache" },
+              };
+            }
+            for (const row of rows) {
+              if (!mocks.aliasRows.some((alias) => alias.alias_url === row.alias_url)) {
+                mocks.aliasRows.push(row);
+              }
+            }
+            return { error: null };
+          }),
+        };
+      }
+
       throw new Error(`Unexpected table ${table}`);
     }),
   };
@@ -276,6 +409,9 @@ describe("/api/spots/social-submissions", () => {
     mocks.spotRows.length = 0;
     mocks.spotInsertErrors.length = 0;
     mocks.ledgerRows.length = 0;
+    mocks.aliasRows.length = 0;
+    mocks.candidateRows.length = 0;
+    mocks.optionalSocialSchemaAvailable = true;
     mocks.createSupabaseAdmin.mockReturnValue(createSupabaseMock());
     mocks.rateLimitStrict.mockResolvedValue(null);
     mocks.auth.mockResolvedValue({ userId: "clerk_test" });
@@ -368,6 +504,30 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.ledgerRows).toHaveLength(1);
     expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
+  });
+
+  it("stays compatible while the optional reliability migration is pending", async () => {
+    mocks.optionalSocialSchemaAvailable = false;
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      id: "submission_test",
+      status: "spot_created",
+      spotId: "spot_test_1",
+    });
+    expect(body.contributor).toMatchObject({ tokensAwarded: 25, totalTokens: 25 });
+    expect(mocks.submissionRows).toHaveLength(1);
+    expect(mocks.submissionRows[0]).not.toHaveProperty("processing_state");
+    expect(mocks.submissionRows[0]).toMatchObject({ token_awarded: 25 });
+    expect(mocks.ledgerRows).toHaveLength(1);
+    expect(mocks.aliasRows).toHaveLength(0);
+    expect(mocks.candidateRows).toHaveLength(0);
   });
 
   it("creates the spot without a place ID when the production column is not migrated yet", async () => {
@@ -766,6 +926,53 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.ledgerRows).toHaveLength(0);
   });
 
+  it("resumes a stale processing checkpoint for the original contributor", async () => {
+    mocks.contributorRows.push({
+      id: "contributor_test",
+      email: "spotter@example.com",
+      public_credit_name: "sp...@example.com",
+      total_tokens: 0,
+    });
+    mocks.submissionRows.push({
+      id: "submission_stale",
+      contributor_id: "contributor_test",
+      clerk_user_id: "clerk_test",
+      canonical_url: "https://www.instagram.com/reel/ABC123",
+      status: "research_pending",
+      spot_id: null,
+      token_awarded: 0,
+      updated_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+      research_confidence: 0,
+      research_summary: "Processing interrupted.",
+      research: { processing: { state: "processing" }, createdCandidates: [] },
+    });
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Hidden Seoul Cafe",
+      description: "Small cafe",
+      imageUrl: "https://cdn.example.com/cafe.jpg",
+      finalUrl: "https://www.instagram.com/reel/ABC123",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/reel/ABC123",
+      email: "spotter@example.com",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      duplicate: false,
+      submission: {
+        id: "submission_stale",
+        status: "spot_created",
+        spotId: "spot_test_1",
+      },
+    });
+    expect(mocks.submissionRows).toHaveLength(1);
+    expect(mocks.ledgerRows).toHaveLength(1);
+  });
+
   it("does not award tokens when another contributor submits an existing canonical URL", async () => {
     mocks.contributorRows.push({
       id: "contributor_original",
@@ -1106,5 +1313,42 @@ describe("/api/spots/social-submissions", () => {
     expect(response.status).toBe(403);
     expect(body.error.code).toBe("forbidden");
     expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+  });
+
+  it("deduplicates a registered social URL alias", async () => {
+    mocks.submissionRows.push({
+      id: "submission_alias_target",
+      canonical_url: "https://www.tiktok.com/@creator/video/123456789",
+      status: "spot_created",
+      spot_id: "spot_existing",
+      token_awarded: 25,
+      research_confidence: 0.9,
+      research_summary: "Already processed.",
+      research: { createdCandidates: [] },
+    });
+    mocks.aliasRows.push({
+      alias_url: "https://vt.tiktok.com/ALIAS123",
+      submission_id: "submission_alias_target",
+    });
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Existing place",
+      description: null,
+      imageUrl: null,
+      finalUrl: "https://vt.tiktok.com/ALIAS123",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vt.tiktok.com/ALIAS123",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      duplicate: true,
+      submission: { id: "submission_alias_target", spotId: "spot_existing" },
+    });
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+    expect(mocks.ledgerRows).toHaveLength(0);
   });
 });

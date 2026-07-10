@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildPublicCreditName,
+  analyzeSocialVideo,
   buildAnonymousContributorEmail,
   extractSocialMetadataFromHtml,
   fetchSocialLinkMetadata,
@@ -11,6 +12,30 @@ import {
   socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
 } from "@/lib/social-spot-submissions";
+
+const falMocks = vi.hoisted(() => ({
+  config: vi.fn(),
+  subscribe: vi.fn(),
+  upload: vi.fn(),
+}));
+
+vi.mock("@fal-ai/client", () => ({
+  fal: {
+    config: falMocks.config,
+    subscribe: falMocks.subscribe,
+    storage: { upload: falMocks.upload },
+  },
+}));
+
+function buildTikTokHydrationHtml(itemStruct: Record<string, unknown>): string {
+  return `<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" type="application/json">${JSON.stringify({
+    __DEFAULT_SCOPE__: {
+      "webapp.video-detail": {
+        itemInfo: { itemStruct },
+      },
+    },
+  })}</script>`;
+}
 
 describe("social spot submission helpers", () => {
   afterEach(() => {
@@ -139,8 +164,64 @@ describe("social spot submission helpers", () => {
       mediaUrls: ["https://cdn.example.com/photo.jpg"],
       sourceType: "tiktok_post",
       sourceLabel: "TikTok post",
+      videoUrl: null,
+      videoDurationSeconds: null,
+      mediaAccessStatus: "cover_only",
       finalUrl: "https://vm.tiktok.com/ZMh123",
     });
+  });
+
+  it("extracts a trusted TikTok video from hydration data", () => {
+    const videoUrl = "https://www.tiktok.com/aweme/v1/play/?video_id=123456789";
+    const metadata = extractSocialMetadataFromHtml(
+      buildTikTokHydrationHtml({
+        video: {
+          duration: 27,
+          bitrateInfo: [{ PlayAddr: { UrlList: [videoUrl] } }],
+        },
+      }),
+      "https://www.tiktok.com/@localley/video/123456789",
+    );
+
+    expect(metadata).toMatchObject({
+      videoUrl,
+      videoDurationSeconds: 27,
+      mediaAccessStatus: "video_ready",
+    });
+  });
+
+  it("rejects an untrusted private TikTok video URL from hydration data", () => {
+    const metadata = extractSocialMetadataFromHtml(
+      buildTikTokHydrationHtml({
+        video: {
+          duration: 12,
+          bitrateInfo: [{
+            PlayAddr: { UrlList: ["https://127.0.0.1/private-video.mp4"] },
+          }],
+        },
+      }),
+      "https://www.tiktok.com/@localley/video/123456789",
+    );
+
+    expect(metadata.videoUrl).toBeFalsy();
+  });
+
+  it("extracts TikTok image-post slides from hydration data", () => {
+    const slideUrls = [
+      "https://p16-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/slide-one.jpeg",
+      "https://p16-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/slide-two.jpeg",
+    ];
+    const metadata = extractSocialMetadataFromHtml(
+      buildTikTokHydrationHtml({
+        imagePost: {
+          images: slideUrls.map((url) => ({ imageURL: { urlList: [url] } })),
+        },
+      }),
+      "https://www.tiktok.com/@localley/photo/987654321",
+    );
+
+    expect(metadata.mediaUrls).toEqual(slideUrls);
+    expect(metadata.mediaAccessStatus).toBe("carousel_images");
   });
 
   it("labels Instagram image posts from Open Graph metadata", () => {
@@ -292,5 +373,178 @@ describe("social spot submission helpers", () => {
         ]),
       }),
     );
+  });
+
+  it("includes injected video analysis and preserves multiple research candidates", async () => {
+    const videoAnalysis = "Frames identify Cafe Alpha in Seongsu and Bookshop Beta nearby.";
+    const videoAnalyzer = vi.fn(async () => videoAnalysis);
+    const candidate = (spotName: string, address: string) => ({
+      status: "candidate",
+      spotName,
+      description: `${spotName} appears in the TikTok video.`,
+      address,
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: [],
+      localleyScore: 4,
+      localPercentage: 80,
+      bestTime: "Afternoon",
+      tips: [],
+      confidence: 0.88,
+      researchSummary: `Verified ${spotName}.`,
+      evidenceUrls: ["https://www.tiktok.com/@localley/video/123456789"],
+      imageUrl: null,
+      visualEvidence: null,
+    });
+    const alpha = candidate("Cafe Alpha", "1 Seongsu-ro, Seoul");
+    const beta = candidate("Bookshop Beta", "2 Seongsu-ro, Seoul");
+    const create = vi.fn(async () => ({
+      output_text: JSON.stringify({
+        ...alpha,
+        candidates: [alpha, beta],
+      }),
+    }));
+
+    const result = await researchSocialSpotLink({
+      canonicalUrl: "https://www.tiktok.com/@localley/video/123456789",
+      platform: "tiktok",
+      metadata: {
+        title: "Two quiet places in Seongsu",
+        description: "A cafe and bookshop walk",
+        imageUrl: null,
+        videoUrl: "https://www.tiktok.com/aweme/v1/play/?video_id=123456789",
+        videoDurationSeconds: 27,
+        mediaAccessStatus: "video_ready",
+        finalUrl: "https://www.tiktok.com/@localley/video/123456789",
+      },
+      videoAnalyzer,
+      openai: { responses: { create } } as never,
+    });
+
+    expect(videoAnalyzer).toHaveBeenCalledWith({
+      videoUrl: "https://www.tiktok.com/aweme/v1/play/?video_id=123456789",
+      durationSeconds: 27,
+    });
+    const request = create.mock.calls[0]?.[0] as {
+      input: Array<{ role: string; content: Array<{ type: string; text?: string }> }>;
+    };
+    const promptText = request.input
+      .find((message) => message.role === "user")
+      ?.content.find((content) => content.type === "input_text")?.text;
+    expect(promptText).toContain(videoAnalysis);
+    expect(result.candidates.map((item) => item.spotName)).toEqual([
+      "Cafe Alpha",
+      "Bookshop Beta",
+    ]);
+  });
+
+  it("falls back to image and text research when video analysis fails", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const videoAnalyzer = vi.fn(async () => {
+      throw new Error("video unavailable");
+    });
+    const create = vi.fn(async () => ({
+      output_text: JSON.stringify({
+        status: "candidate",
+        spotName: "Fallback Cafe",
+        description: "Verified from the cover image and caption.",
+        address: "3 Seongsu-ro, Seoul",
+        city: "Seoul",
+        category: "Cafe",
+        subcategories: [],
+        localleyScore: 4,
+        localPercentage: 78,
+        bestTime: "Morning",
+        tips: [],
+        confidence: 0.82,
+        researchSummary: "The fallback evidence identifies the cafe.",
+        evidenceUrls: ["https://www.tiktok.com/@localley/video/123456789"],
+        imageUrl: "https://cdn.example.com/fallback-cover.jpg",
+        visualEvidence: "The cafe name is visible on the cover.",
+        candidates: [],
+      }),
+    }));
+
+    const result = await researchSocialSpotLink({
+      canonicalUrl: "https://www.tiktok.com/@localley/video/123456789",
+      platform: "tiktok",
+      metadata: {
+        title: "Fallback Cafe",
+        description: "A quiet cafe in Seongsu",
+        imageUrl: "https://cdn.example.com/fallback-cover.jpg",
+        mediaUrls: ["https://cdn.example.com/fallback-cover.jpg"],
+        videoUrl: "https://www.tiktok.com/aweme/v1/play/?video_id=123456789",
+        mediaAccessStatus: "video_ready",
+        finalUrl: "https://www.tiktok.com/@localley/video/123456789",
+      },
+      videoAnalyzer,
+      openai: { responses: { create } } as never,
+    });
+
+    expect(videoAnalyzer).toHaveBeenCalledOnce();
+    expect(create).toHaveBeenCalledOnce();
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.arrayContaining([
+          expect.objectContaining({
+            role: "user",
+            content: expect.arrayContaining([
+              {
+                type: "input_image",
+                image_url: "https://cdn.example.com/fallback-cover.jpg",
+                detail: "high",
+              },
+            ]),
+          }),
+        ]),
+      }),
+    );
+    expect(result.spotName).toBe("Fallback Cafe");
+  });
+
+  it("uploads a bounded TikTok video before FAL analysis", async () => {
+    const previousFalKey = process.env.FAL_KEY;
+    process.env.FAL_KEY = "fal_test";
+    falMocks.subscribe.mockReset();
+    falMocks.upload.mockReset();
+    falMocks.subscribe.mockResolvedValueOnce({
+      data: { output: '{"places":["Cafe Alpha"]}' },
+    });
+    falMocks.upload.mockResolvedValueOnce("https://fal.media/localley-video.mp4");
+    const fetchMock = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(null, {
+        status: 302,
+        headers: { location: "https://v19-web-newkey.tiktokcdn.com/video.mp4" },
+      }))
+      .mockResolvedValueOnce(new Response(new Uint8Array([0, 1, 2, 3]), {
+        status: 200,
+        headers: { "content-type": "video/mp4", "content-length": "4" },
+      }));
+
+    try {
+      const output = await analyzeSocialVideo({
+        videoUrl: "https://www.tiktok.com/aweme/v1/play/?video_id=123456789",
+        durationSeconds: 17,
+      });
+
+      expect(output).toBe('{"places":["Cafe Alpha"]}');
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(falMocks.upload).toHaveBeenCalledOnce();
+      const uploadedBlob = falMocks.upload.mock.calls[0]?.[0] as Blob;
+      expect(uploadedBlob.type).toBe("video/mp4");
+      expect(uploadedBlob.size).toBe(4);
+      expect(falMocks.subscribe).toHaveBeenNthCalledWith(
+        1,
+        "fal-ai/video-understanding",
+        expect.objectContaining({
+          input: expect.objectContaining({
+            video_url: "https://fal.media/localley-video.mp4",
+          }),
+        }),
+      );
+    } finally {
+      if (previousFalKey === undefined) delete process.env.FAL_KEY;
+      else process.env.FAL_KEY = previousFalKey;
+    }
   });
 });

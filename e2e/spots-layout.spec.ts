@@ -200,7 +200,7 @@ test.describe("spots responsive layout", () => {
 
     const firstSpot = page.getByTestId("spot-card").first();
     await expect(firstSpot).toBeVisible();
-    await firstSpot.getByTestId("spot-card-photo").click();
+    await firstSpot.getByTestId("spot-card-title").click();
 
     await expect(page.getByTestId("spot-detail-hero")).toBeVisible();
     await expect(

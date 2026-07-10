@@ -10,6 +10,7 @@ import {
   Images,
   Search,
   Sparkles,
+  Video,
 } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { Button } from "@/components/ui/button";
@@ -62,10 +63,16 @@ type SubmissionRow = {
     thumbnailUrl?: string | null;
     sourceLabel?: string | null;
     providerName?: string | null;
+    mediaUrls?: string[];
+    mediaAccessStatus?: "video_ready" | "carousel_images" | "cover_only" | "media_unavailable";
+    videoDurationSeconds?: number | null;
   } | null;
   research: {
     candidates?: Candidate[];
     createdCandidates?: CreatedCandidate[];
+    mediaAnalysis?: {
+      status?: "video_analyzed" | "video_unavailable" | "images_extracted" | "cover_only" | "media_unavailable";
+    };
   } | null;
 };
 
@@ -75,8 +82,12 @@ type SubmittedPostsPageProps = {
   searchParams: Promise<{
     status?: string;
     submission?: string;
+    page?: string;
   }>;
 };
+
+const SUBMISSIONS_FETCH_PAGE_SIZE = 250;
+const SUBMISSIONS_DISPLAY_PAGE_SIZE = 20;
 
 const statusFilters: Array<{
   label: string;
@@ -212,6 +223,72 @@ function getSubmissionStatusCopy(submission: SubmissionRow) {
   return getStatusCopy(submission.status);
 }
 
+function getMediaStatusCopy(submission: SubmissionRow) {
+  const analysisStatus = submission.research?.mediaAnalysis?.status;
+  const mediaStatus = submission.metadata?.mediaAccessStatus;
+
+  if (analysisStatus === "video_analyzed") {
+    return {
+      label: "Full video analyzed",
+      icon: Video,
+      className: "border-cyan-200/25 bg-cyan-400/10 text-cyan-100",
+    };
+  }
+  if (analysisStatus === "images_extracted") {
+    const imageCount = Math.min(submission.metadata?.mediaUrls?.length || 0, 5);
+    return {
+      label: imageCount > 1 ? `${imageCount} images analyzed` : "Post images analyzed",
+      icon: Images,
+      className: "border-fuchsia-200/25 bg-fuchsia-400/10 text-fuchsia-100",
+    };
+  }
+  if (mediaStatus === "carousel_images") {
+    const imageCount = submission.metadata?.mediaUrls?.length || 0;
+    return {
+      label: imageCount > 1 ? `${imageCount} images available` : "Post images available",
+      icon: Images,
+      className: "border-fuchsia-200/25 bg-fuchsia-400/10 text-fuchsia-100",
+    };
+  }
+  if (analysisStatus === "video_unavailable") {
+    const coverChecked = Boolean(
+      submission.metadata?.imageUrl || submission.metadata?.thumbnailUrl,
+    );
+    return {
+      label: coverChecked ? "Video unavailable · cover analyzed" : "Video unavailable",
+      icon: Images,
+      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+    };
+  }
+  if (analysisStatus === "cover_only" || mediaStatus === "cover_only") {
+    return {
+      label: "Cover image analyzed",
+      icon: Images,
+      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+    };
+  }
+  if (mediaStatus === "video_ready") {
+    return {
+      label: "Video ready for analysis",
+      icon: Video,
+      className: "border-cyan-200/25 bg-cyan-400/10 text-cyan-100",
+    };
+  }
+  if (submission.metadata?.imageUrl || submission.metadata?.thumbnailUrl) {
+    return {
+      label: "Cover image available",
+      icon: Images,
+      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+    };
+  }
+
+  return {
+    label: "Public media unavailable",
+    icon: Search,
+    className: "border-white/15 bg-white/[0.05] text-violet-50/70",
+  };
+}
+
 function parseStatusFilter(value: string | undefined): SubmissionStatusFilter {
   if (
     value === "spot_created" ||
@@ -227,6 +304,14 @@ function parseStatusFilter(value: string | undefined): SubmissionStatusFilter {
 
 function getFilterHref(status: SubmissionStatusFilter) {
   return status === "all" ? "/spots/submissions" : `/spots/submissions?status=${status}`;
+}
+
+function getPageHref(status: SubmissionStatusFilter, page: number) {
+  const params = new URLSearchParams();
+  if (status !== "all") params.set("status", status);
+  if (page > 1) params.set("page", String(page));
+  const query = params.toString();
+  return query ? `/spots/submissions?${query}` : "/spots/submissions";
 }
 
 function getStatusCount(submissions: SubmissionRow[], status: SubmissionStatusFilter) {
@@ -269,38 +354,31 @@ function submissionMatchesStatus(
 const SUBMISSION_SELECT =
   "id, canonical_url, platform, status, spot_id, clerk_user_id, contributor_credit, extracted_name, extracted_address, extracted_city, research_confidence, research_summary, created_at, metadata, research";
 
-async function getSubmissions(highlightedSubmissionId?: string | null): Promise<{
+async function getSubmissions(): Promise<{
   submissions: SubmissionRow[];
   error: string | null;
 }> {
   const supabase = createSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("social_spot_submissions")
-    .select(SUBMISSION_SELECT)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const submissions: SubmissionRow[] = [];
 
-  if (error) {
-    console.error("[submitted-posts] Failed to load social submissions:", error.message);
-    return {
-      submissions: [],
-      error: "Could not load submitted posts. Please refresh in a moment.",
-    };
-  }
-
-  const submissions = (data || []) as SubmissionRow[];
-  if (
-    highlightedSubmissionId &&
-    !submissions.some((submission) => submission.id === highlightedSubmissionId)
-  ) {
-    const { data: highlightedSubmission, error: highlightedError } = await supabase
+  for (let from = 0; ; from += SUBMISSIONS_FETCH_PAGE_SIZE) {
+    const { data, error } = await supabase
       .from("social_spot_submissions")
       .select(SUBMISSION_SELECT)
-      .eq("id", highlightedSubmissionId)
-      .maybeSingle();
+      .order("created_at", { ascending: false })
+      .range(from, from + SUBMISSIONS_FETCH_PAGE_SIZE - 1);
 
-    if (!highlightedError && highlightedSubmission) {
-      submissions.unshift(highlightedSubmission as SubmissionRow);
+    if (error) {
+      console.error("[submitted-posts] Failed to load social submissions:", error.message);
+      return {
+        submissions: [],
+        error: "Could not load submitted posts. Please refresh in a moment.",
+      };
+    }
+
+    submissions.push(...((data || []) as SubmissionRow[]));
+    if (!data || data.length < SUBMISSIONS_FETCH_PAGE_SIZE) {
+      break;
     }
   }
 
@@ -315,9 +393,26 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
   const { userId } = await auth();
   const activeStatus = parseStatusFilter(params.status);
   const highlightedSubmissionId = params.submission || null;
-  const { submissions, error } = await getSubmissions(highlightedSubmissionId);
-  const filteredSubmissions =
+  const requestedPage = Math.max(1, Number.parseInt(params.page || "1", 10) || 1);
+  const { submissions, error } = await getSubmissions();
+  const matchingSubmissions =
     submissions.filter((submission) => submissionMatchesStatus(submission, activeStatus));
+  const pageCount = Math.max(1, Math.ceil(matchingSubmissions.length / SUBMISSIONS_DISPLAY_PAGE_SIZE));
+  const highlightedIndex = highlightedSubmissionId
+    ? matchingSubmissions.findIndex((submission) => submission.id === highlightedSubmissionId)
+    : -1;
+  const initialPage = !params.page && highlightedIndex >= 0
+    ? Math.floor(highlightedIndex / SUBMISSIONS_DISPLAY_PAGE_SIZE) + 1
+    : requestedPage;
+  const activePage = Math.min(initialPage, pageCount);
+  const filteredSubmissions = matchingSubmissions.slice(
+    (activePage - 1) * SUBMISSIONS_DISPLAY_PAGE_SIZE,
+    activePage * SUBMISSIONS_DISPLAY_PAGE_SIZE,
+  );
+  const highlightedSubmissionMissing = Boolean(
+    highlightedSubmissionId &&
+      !submissions.some((submission) => submission.id === highlightedSubmissionId),
+  );
 
   return (
     <AppBackground ambient fitParent>
@@ -399,6 +494,12 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
               })}
             </nav>
 
+            {highlightedSubmissionMissing && (
+              <div role="status" className="mb-4 rounded-lg border border-amber-200/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                That submission could not be found. It may have been removed or the link may be incomplete.
+              </div>
+            )}
+
             {filteredSubmissions.length === 0 ? (
               <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
                 <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
@@ -412,6 +513,8 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                 {filteredSubmissions.map((submission) => {
               const status = getSubmissionStatusCopy(submission);
               const StatusIcon = status.icon;
+              const mediaStatus = getMediaStatusCopy(submission);
+              const MediaStatusIcon = mediaStatus.icon;
               const title = getSubmissionTitle(submission);
               const image = getSubmissionImage(submission);
               const createdCandidates = getCreatedCandidates(submission);
@@ -465,6 +568,10 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                           <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold", status.className)}>
                             <StatusIcon className="h-3.5 w-3.5" />
                             {status.label}
+                          </span>
+                          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold", mediaStatus.className)}>
+                            <MediaStatusIcon className="h-3.5 w-3.5" />
+                            {mediaStatus.label}
                           </span>
                           <span className="text-xs text-violet-50/45">
                             {formatDate(submission.created_at)}
@@ -562,6 +669,23 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
               );
                 })}
               </div>
+            )}
+            {pageCount > 1 && (
+              <nav aria-label="Submission pages" className="mt-5 flex items-center justify-center gap-2">
+                {activePage > 1 && (
+                  <Button asChild variant="outline" className="rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                    <Link href={getPageHref(activeStatus, activePage - 1)}>Previous</Link>
+                  </Button>
+                )}
+                <span className="px-3 text-sm text-violet-50/65">
+                  Page {activePage} of {pageCount}
+                </span>
+                {activePage < pageCount && (
+                  <Button asChild variant="outline" className="rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                    <Link href={getPageHref(activeStatus, activePage + 1)}>Next</Link>
+                  </Button>
+                )}
+              </nav>
             )}
           </>
         )}

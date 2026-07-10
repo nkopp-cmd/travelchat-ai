@@ -12,8 +12,15 @@ export const SOCIAL_SUBMISSION_TOKEN_AWARD = 25;
 export const SOCIAL_RESEARCH_CONFIDENCE_THRESHOLD = 0.56;
 
 const SOCIAL_FETCH_TIMEOUT_MS = 8000;
-const SOCIAL_METADATA_MAX_BYTES = 250_000;
+const SOCIAL_METADATA_MAX_BYTES = 850_000;
 const SOCIAL_REDIRECT_LIMIT = 3;
+const SOCIAL_VIDEO_ANALYSIS_TIMEOUT_MS = 38_000;
+const SOCIAL_VIDEO_ANALYSIS_MAX_SECONDS = 180;
+const SOCIAL_VIDEO_ANALYSIS_MAX_CHARS = 12_000;
+const SOCIAL_VIDEO_DOWNLOAD_TIMEOUT_MS = 15_000;
+const SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS = 12_000;
+const SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES = 40_000_000;
+const SOCIAL_VIDEO_REDIRECT_LIMIT = 3;
 
 const INSTAGRAM_HOSTS = new Set([
   "instagram.com",
@@ -72,8 +79,20 @@ export interface SocialLinkMetadata {
   authorName?: string | null;
   providerName?: string | null;
   embedHtml?: string | null;
+  videoUrl?: string | null;
+  videoDurationSeconds?: number | null;
+  mediaAccessStatus?:
+    | "video_ready"
+    | "carousel_images"
+    | "cover_only"
+    | "media_unavailable";
   finalUrl: string;
 }
+
+export type SocialVideoAnalyzer = (input: {
+  videoUrl: string;
+  durationSeconds?: number | null;
+}) => Promise<string | null>;
 
 export interface SocialSpotResearchCandidate {
   status: "candidate" | "needs_review" | "research_pending";
@@ -96,6 +115,10 @@ export interface SocialSpotResearchCandidate {
 
 export interface SocialSpotResearchResult extends SocialSpotResearchCandidate {
   candidates: SocialSpotResearchCandidate[];
+  mediaAnalysis?: {
+    status: "video_analyzed" | "video_unavailable" | "images_extracted" | "cover_only" | "media_unavailable";
+    output: string | null;
+  };
 }
 
 const researchCandidateSchema = z.object({
@@ -338,6 +361,144 @@ function extractEmbeddedMediaUrls(html: string, finalUrl: string): string[] {
   return urls;
 }
 
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): UnknownRecord | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as UnknownRecord
+    : null;
+}
+
+function isTrustedTikTokImageUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.toLowerCase();
+    return parsed.protocol === "https:" && (
+      host.endsWith(".tiktokcdn.com") ||
+      host.endsWith(".tiktokcdn-eu.com") ||
+      host.endsWith(".tiktokcdn-us.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function isTrustedTikTokVideoUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  try {
+    const parsed = new URL(value);
+    return (
+      parsed.protocol === "https:" &&
+      parsed.username === "" &&
+      parsed.password === "" &&
+      parsed.hostname.toLowerCase() === "www.tiktok.com" &&
+      parsed.pathname === "/aweme/v1/play/" &&
+      parsed.searchParams.has("video_id")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isTrustedTikTokDownloadUrl(value: unknown): value is string {
+  if (isTrustedTikTokVideoUrl(value)) return true;
+  if (typeof value !== "string") return false;
+
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.toLowerCase();
+    return (
+      parsed.protocol === "https:" &&
+      parsed.username === "" &&
+      parsed.password === "" &&
+      (
+        host.endsWith(".tiktokcdn.com") ||
+        host.endsWith(".tiktokcdn-eu.com") ||
+        host.endsWith(".tiktokcdn-us.com") ||
+        host.endsWith(".tiktokv.com")
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
+function collectNestedStrings(value: unknown, results: string[], limit: number): void {
+  if (results.length >= limit || value == null) return;
+  if (typeof value === "string") {
+    results.push(value);
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectNestedStrings(item, results, limit);
+      if (results.length >= limit) break;
+    }
+    return;
+  }
+
+  const record = asRecord(value);
+  if (!record) return;
+  for (const nested of Object.values(record)) {
+    collectNestedStrings(nested, results, limit);
+    if (results.length >= limit) break;
+  }
+}
+
+function extractTikTokHydrationMetadata(html: string): Partial<SocialLinkMetadata> | null {
+  const script = html.match(
+    /<script[^>]*id=["']__UNIVERSAL_DATA_FOR_REHYDRATION__["'][^>]*>([\s\S]*?)<\/script>/i,
+  )?.[1];
+  if (!script) return null;
+
+  try {
+    const root = asRecord(JSON.parse(script));
+    const defaultScope = asRecord(root?.__DEFAULT_SCOPE__);
+    const videoDetail = asRecord(defaultScope?.["webapp.video-detail"]);
+    const itemInfo = asRecord(videoDetail?.itemInfo);
+    const item = asRecord(itemInfo?.itemStruct);
+    if (!item) return null;
+
+    const video = asRecord(item.video);
+    const bitrateInfo = Array.isArray(video?.bitrateInfo) ? video.bitrateInfo : [];
+    const videoCandidates: string[] = [];
+    for (const bitrate of bitrateInfo) {
+      const playAddress = asRecord(asRecord(bitrate)?.PlayAddr);
+      if (Array.isArray(playAddress?.UrlList)) {
+        videoCandidates.push(...playAddress.UrlList.filter(
+          (value): value is string => typeof value === "string",
+        ));
+      }
+    }
+
+    const videoUrl = videoCandidates.find(isTrustedTikTokVideoUrl) || null;
+    const duration = typeof video?.duration === "number" && Number.isFinite(video.duration)
+      ? video.duration
+      : null;
+
+    const imageStrings: string[] = [];
+    collectNestedStrings(item.imagePost, imageStrings, 80);
+    const mediaUrls = Array.from(new Set(imageStrings.filter(isTrustedTikTokImageUrl))).slice(0, 8);
+
+    if (!videoUrl && mediaUrls.length === 0) return null;
+    return {
+      videoUrl,
+      videoDurationSeconds: duration,
+      mediaUrls,
+      mediaAccessStatus: videoUrl
+        ? "video_ready"
+        : mediaUrls.length > 1
+          ? "carousel_images"
+          : "cover_only",
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function extractSocialMetadataFromHtml(html: string, finalUrl: string): SocialLinkMetadata {
   const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] || null;
   const imageUrl =
@@ -348,7 +509,12 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
       finalUrl,
     );
   const source = inferSocialSource(finalUrl);
-  const mediaUrls = [imageUrl, ...extractEmbeddedMediaUrls(html, finalUrl)]
+  const hydration = extractTikTokHydrationMetadata(html);
+  const mediaUrls = [
+    imageUrl,
+    ...extractEmbeddedMediaUrls(html, finalUrl),
+    ...(hydration?.mediaUrls || []),
+  ]
     .filter((url): url is string => Boolean(url))
     .filter((url, index, all) => all.indexOf(url) === index)
     .slice(0, 8);
@@ -367,6 +533,11 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
     mediaUrls,
     sourceType: source.sourceType,
     sourceLabel: source.sourceLabel,
+    videoUrl: hydration?.videoUrl || null,
+    videoDurationSeconds: hydration?.videoDurationSeconds || null,
+    mediaAccessStatus: hydration?.mediaAccessStatus || (
+      mediaUrls.length > 1 ? "carousel_images" : mediaUrls.length === 1 ? "cover_only" : "media_unavailable"
+    ),
     finalUrl,
   };
 }
@@ -458,6 +629,9 @@ function mergeSocialMetadata(
     authorName: base.authorName || extra.authorName || null,
     providerName: base.providerName || extra.providerName || null,
     embedHtml: base.embedHtml || extra.embedHtml || null,
+    videoUrl: base.videoUrl || extra.videoUrl || null,
+    videoDurationSeconds: base.videoDurationSeconds || extra.videoDurationSeconds || null,
+    mediaAccessStatus: base.mediaAccessStatus || extra.mediaAccessStatus,
     finalUrl: base.finalUrl || extra.finalUrl || "",
   };
 }
@@ -492,6 +666,9 @@ function mergePartialSocialMetadata(
     authorName: base.authorName || extra.authorName || null,
     providerName: base.providerName || extra.providerName || null,
     embedHtml: base.embedHtml || extra.embedHtml || null,
+    videoUrl: base.videoUrl || extra.videoUrl || null,
+    videoDurationSeconds: base.videoDurationSeconds || extra.videoDurationSeconds || null,
+    mediaAccessStatus: base.mediaAccessStatus || extra.mediaAccessStatus,
     finalUrl: base.finalUrl || extra.finalUrl || "",
   };
 }
@@ -507,8 +684,14 @@ async function readResponseTextWithLimit(response: Response): Promise<string> {
   while (received < SOCIAL_METADATA_MAX_BYTES) {
     const { done, value } = await reader.read();
     if (done) break;
-    received += value.byteLength;
-    text += decoder.decode(value, { stream: true });
+    const remaining = SOCIAL_METADATA_MAX_BYTES - received;
+    const chunk = value.byteLength > remaining ? value.subarray(0, remaining) : value;
+    received += chunk.byteLength;
+    text += decoder.decode(chunk, { stream: true });
+  }
+
+  if (received >= SOCIAL_METADATA_MAX_BYTES) {
+    await reader.cancel();
   }
 
   return text + decoder.decode();
@@ -580,8 +763,152 @@ export async function fetchSocialLinkMetadata(
     authorName: oembed?.authorName || null,
     providerName: oembed?.providerName || null,
     embedHtml: oembed?.embedHtml || null,
+    videoUrl: oembed?.videoUrl || null,
+    videoDurationSeconds: oembed?.videoDurationSeconds || null,
+    mediaAccessStatus: oembed?.mediaAccessStatus || (
+      oembed?.imageUrl || oembed?.thumbnailUrl ? "cover_only" : "media_unavailable"
+    ),
     finalUrl: canonicalUrl,
   };
+}
+
+export async function analyzeSocialVideo(input: {
+  videoUrl: string;
+  durationSeconds?: number | null;
+}): Promise<string | null> {
+  if (!process.env.FAL_KEY || !isTrustedTikTokVideoUrl(input.videoUrl)) return null;
+  if (
+    input.durationSeconds &&
+    input.durationSeconds > SOCIAL_VIDEO_ANALYSIS_MAX_SECONDS
+  ) {
+    return null;
+  }
+
+  const { fal } = await import("@fal-ai/client");
+  fal.config({ credentials: process.env.FAL_KEY });
+
+  const prompt = [
+    "Inspect the complete travel video, including every scene, frame transition, on-screen label, caption, and spoken place name.",
+    "List every distinct real-world place that is explicitly named or visually identifiable.",
+    "For each place include the exact visible/spoken name, timestamps, visual or text evidence, city/country when present, and confidence.",
+    "Do not merge different places and do not guess an unnamed place from architecture alone.",
+    "Return concise JSON and include an empty places array if no exact place is supported.",
+  ].join(" ");
+
+  const runAnalysis = async (videoUrl: string) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), SOCIAL_VIDEO_ANALYSIS_TIMEOUT_MS);
+    try {
+      return await fal.subscribe("fal-ai/video-understanding", {
+        input: {
+          video_url: videoUrl,
+          detailed_analysis: true,
+          prompt,
+        },
+        abortSignal: controller.signal,
+        logs: false,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+  };
+
+  const videoBlob = await downloadTrustedTikTokVideo(input.videoUrl);
+  let uploadTimeout: ReturnType<typeof setTimeout> | undefined;
+  let uploadedUrl: string;
+  try {
+    uploadedUrl = await Promise.race([
+      fal.storage.upload(videoBlob),
+      new Promise<never>((_resolve, reject) => {
+        uploadTimeout = setTimeout(
+        () => reject(new Error("TikTok video upload timed out.")),
+        SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    if (uploadTimeout) clearTimeout(uploadTimeout);
+  }
+  const result = await runAnalysis(uploadedUrl);
+
+  const output = String(result.data?.output || "").trim();
+  return output ? output.slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS) : null;
+}
+
+async function downloadTrustedTikTokVideo(videoUrl: string): Promise<Blob> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SOCIAL_VIDEO_DOWNLOAD_TIMEOUT_MS);
+  let currentUrl = videoUrl;
+
+  try {
+    for (let redirectCount = 0; redirectCount <= SOCIAL_VIDEO_REDIRECT_LIMIT; redirectCount++) {
+      if (!isTrustedTikTokDownloadUrl(currentUrl)) {
+        throw new Error("TikTok returned an untrusted media location.");
+      }
+
+      const response = await fetch(currentUrl, {
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          accept: "video/mp4,video/*;q=0.9,*/*;q=0.1",
+          referer: "https://www.tiktok.com/",
+          "user-agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128 Safari/537.36",
+        },
+      });
+
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        const location = response.headers.get("location");
+        if (!location || redirectCount === SOCIAL_VIDEO_REDIRECT_LIMIT) {
+          throw new Error("TikTok media redirected too many times.");
+        }
+        currentUrl = new URL(location, currentUrl).toString();
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error(`TikTok media download failed with ${response.status}.`);
+      }
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.toLowerCase().startsWith("video/")) {
+        throw new Error("TikTok media did not return a video.");
+      }
+      const declaredSize = Number(response.headers.get("content-length") || 0);
+      if (declaredSize > SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES) {
+        throw new Error("TikTok video is too large to analyze safely.");
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("TikTok video response was empty.");
+      const chunks: Uint8Array[] = [];
+      let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.byteLength;
+        if (received > SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES) {
+          await reader.cancel();
+          throw new Error("TikTok video is too large to analyze safely.");
+        }
+        chunks.push(value);
+      }
+      if (received === 0) throw new Error("TikTok video response was empty.");
+
+      const videoBytes = new Uint8Array(received);
+      let offset = 0;
+      for (const chunk of chunks) {
+        videoBytes.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      return new Blob([videoBytes.buffer], {
+        type: contentType.split(";")[0] || "video/mp4",
+      });
+    }
+
+    throw new Error("TikTok media could not be downloaded.");
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function cleanSocialTitle(title: string | null): string | null {
@@ -628,6 +955,7 @@ function buildResearchPrompt(input: {
   metadata: SocialLinkMetadata;
   notes?: string;
   cityHint?: string;
+  videoAnalysis?: string | null;
 }): string {
   return JSON.stringify({
     task:
@@ -637,6 +965,7 @@ function buildResearchPrompt(input: {
     metadata: input.metadata,
     contributorNotes: input.notes || null,
     cityHint: input.cityHint || null,
+    videoAnalysis: input.videoAnalysis || null,
     requirements: [
       "Return exact JSON only.",
       "Do not invent an address or place name.",
@@ -645,7 +974,8 @@ function buildResearchPrompt(input: {
       "If the post, carousel, reel, or video appears to cover several different places, return several candidates.",
       "Use captions, titles, hashtags, contributor notes, visible cover images, thumbnails, and web evidence together.",
       "When several visual inputs are attached, inspect each one independently and return a separate candidate for every distinct verified place.",
-      "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty unless the metadata supports it.",
+      "When videoAnalysis is present, it represents full-video frame, OCR, and timestamp evidence. Account for every distinctly named place it contains, either as a verified candidate or a low-confidence review candidate.",
+      "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty without videoAnalysis.",
       "Use web search evidence when the social page is hard to read.",
       "For each candidate, set confidence below 0.56 unless the place name, city, and address are all supported.",
       "Return the best/primary candidate in the top-level fields and all candidates in candidates.",
@@ -662,12 +992,29 @@ export async function researchSocialSpotLink(input: {
   notes?: string;
   cityHint?: string;
   openai?: OpenAI;
+  videoAnalyzer?: SocialVideoAnalyzer;
 }): Promise<SocialSpotResearchResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
 
   if (!client) {
     return buildFallbackResearch(input);
+  }
+
+  let videoAnalysis: string | null = null;
+  if (input.metadata.videoUrl) {
+    const videoAnalyzer = input.videoAnalyzer || analyzeSocialVideo;
+    try {
+      videoAnalysis = await videoAnalyzer({
+        videoUrl: input.metadata.videoUrl,
+        durationSeconds: input.metadata.videoDurationSeconds,
+      });
+    } catch (error) {
+      console.warn(
+        "[social-spot-submissions] Video analysis unavailable; continuing with other evidence:",
+        error instanceof Error ? error.message : error,
+      );
+    }
   }
 
   const visualEvidenceUrls = Array.from(new Set([
@@ -681,7 +1028,7 @@ export async function researchSocialSpotLink(input: {
   > = [
     {
       type: "input_text",
-      text: buildResearchPrompt(input),
+      text: buildResearchPrompt({ ...input, videoAnalysis }),
     },
   ];
   for (const visualEvidenceUrl of visualEvidenceUrls) {
@@ -811,7 +1158,23 @@ export async function researchSocialSpotLink(input: {
       return buildFallbackResearch(input);
     }
 
-    return parsed;
+    const mediaStatus = videoAnalysis
+      ? "video_analyzed"
+      : input.metadata.videoUrl
+        ? "video_unavailable"
+        : input.metadata.mediaAccessStatus === "carousel_images"
+          ? "images_extracted"
+          : input.metadata.mediaAccessStatus === "cover_only"
+            ? "cover_only"
+            : "media_unavailable";
+
+    return {
+      ...parsed,
+      mediaAnalysis: {
+        status: mediaStatus,
+        output: videoAnalysis,
+      },
+    };
   } catch (error) {
     console.error("[social-spot-submissions] Research failed:", error);
     return buildFallbackResearch(input);
