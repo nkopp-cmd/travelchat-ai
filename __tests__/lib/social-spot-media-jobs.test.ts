@@ -7,6 +7,8 @@ import {
   claimSocialMediaJobs,
   classifySocialMediaJobError,
   listSocialMediaWork,
+  loadSocialMediaProcessingForSubmissions,
+  scheduleLegacySocialMediaBackfill,
   SOCIAL_MEDIA_MANIFEST_LIMIT,
   settleSocialMediaFinalization,
   syncSocialMediaManifest,
@@ -294,44 +296,22 @@ describe("social spot media jobs", () => {
   });
 
   it("fences aggregate finalization with a unique ownership token", async () => {
-    const claimPayloads: Array<Record<string, unknown>> = [];
-    const claimQuery = {
-      eq: vi.fn(() => claimQuery),
-      select: vi.fn(() => ({
-        maybeSingle: vi.fn(async () => ({ data: { id: "submission-1" }, error: null })),
-      })),
-    };
-    const settleFilters: Array<[string, unknown]> = [];
-    const settleQuery = {
-      eq: vi.fn((column: string, value: unknown) => {
-        settleFilters.push([column, value]);
-        return settleQuery;
-      }),
-      select: vi.fn(() => ({
-        maybeSingle: vi.fn(async () => ({ data: { id: "submission-1" }, error: null })),
-      })),
-    };
-    const from = vi.fn()
-      .mockReturnValueOnce({
-        update: vi.fn((payload: Record<string, unknown>) => {
-          claimPayloads.push(payload);
-          return claimQuery;
-        }),
-      })
-      .mockReturnValueOnce({
-        update: vi.fn(() => settleQuery),
-      });
-    const supabase = { from } as never;
+    const claimedToken = "99999999-9999-4999-8999-999999999999";
+    const rpc = vi.fn()
+      .mockResolvedValueOnce({ data: claimedToken, error: null })
+      .mockResolvedValueOnce({ data: "completed", error: null });
+    const supabase = { rpc } as never;
 
     const token = await claimReadySocialMediaFinalization({
       supabase,
       submissionId: "submission-1",
       revision: 2,
     });
-    expect(token).toMatch(/^[0-9a-f-]{36}$/);
-    expect(claimPayloads[0]).toMatchObject({
-      media_processing_state: "finalizing",
-      media_finalization_token: token,
+    expect(token).toBe(claimedToken);
+    expect(rpc).toHaveBeenNthCalledWith(1, "claim_social_spot_media_finalization_v2", {
+      p_submission_id: "submission-1",
+      p_revision: 2,
+      p_lease_seconds: 180,
     });
 
     await settleSocialMediaFinalization({
@@ -341,45 +321,111 @@ describe("social spot media jobs", () => {
       finalizationToken: token as string,
       succeeded: true,
     });
-    expect(settleFilters).toContainEqual(["media_finalization_token", token]);
+    expect(rpc).toHaveBeenNthCalledWith(2, "settle_social_spot_media_finalization_v2", {
+      p_submission_id: "submission-1",
+      p_revision: 2,
+      p_finalization_token: claimedToken,
+      p_succeeded: true,
+    });
   });
 
   it("fences provider coverage retries with an expiring ownership token", async () => {
-    const payloads: Array<Record<string, unknown>> = [];
-    const filters: Array<[string, unknown]> = [];
-    const query = {
-      eq: vi.fn((column: string, value: unknown) => {
-        filters.push([column, value]);
-        return query;
-      }),
-      lte: vi.fn((column: string, value: unknown) => {
-        filters.push([column, value]);
-        return query;
-      }),
-      select: vi.fn(() => ({
-        maybeSingle: vi.fn(async () => ({ data: { id: "submission-1" }, error: null })),
-      })),
-    };
-    const supabase = {
-      from: vi.fn(() => ({
-        update: vi.fn((payload: Record<string, unknown>) => {
-          payloads.push(payload);
-          return query;
-        }),
-      })),
-    } as never;
+    const claimedToken = "99999999-9999-4999-8999-999999999999";
+    const rpc = vi.fn(async () => ({ data: claimedToken, error: null }));
+    const supabase = { rpc } as never;
 
     const token = await claimSocialMediaCoverageRetry({
       supabase,
       submissionId: "submission-1",
     });
 
-    expect(token).toMatch(/^[0-9a-f-]{36}$/);
-    expect(payloads[0]).toMatchObject({
-      media_processing_state: "coverage_processing",
-      media_extraction_token: token,
+    expect(token).toBe(claimedToken);
+    expect(rpc).toHaveBeenCalledWith("claim_social_spot_media_coverage_v1", {
+      p_submission_id: "submission-1",
+      p_lease_seconds: 60,
     });
-    expect(filters).toContainEqual(["media_processing_state", "coverage_retry"]);
+  });
+
+  it("schedules bounded legacy work without enabling Instagram prematurely", async () => {
+    const rpc = vi.fn(async () => ({
+      data: [{ submission_id: "11111111-1111-4111-8111-111111111111" }],
+      error: null,
+    }));
+
+    const scheduled = await scheduleLegacySocialMediaBackfill({
+      supabase: { rpc } as never,
+      submissionIds: [
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+      ],
+      cutoff: "2026-07-10T09:00:00.000Z",
+      limit: 2,
+      includeInstagram: false,
+      includeResolved: true,
+    });
+
+    expect(scheduled).toEqual(["11111111-1111-4111-8111-111111111111"]);
+    expect(rpc).toHaveBeenCalledWith(
+      "schedule_legacy_social_spot_media_backfill_v1",
+      {
+        p_submission_ids: [
+          "11111111-1111-4111-8111-111111111111",
+          "22222222-2222-4222-8222-222222222222",
+        ],
+        p_cutoff: "2026-07-10T09:00:00.000Z",
+        p_limit: 2,
+        p_include_instagram: false,
+        p_include_resolved: true,
+      },
+    );
+  });
+
+  it("loads sanitized parent processing state for batched tracker polling", async () => {
+    const inFilter = vi.fn(async () => ({
+      data: [{
+        id: "submission-1",
+        media_processing_state: "coverage_retry",
+        media_processing_revision: 2,
+        media_item_count: 3,
+        media_succeeded_count: 1,
+        media_dead_letter_count: 0,
+        media_extraction_attempt_count: 2,
+        media_finalization_attempt_count: 1,
+      }],
+      error: null,
+    }));
+    const supabase = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({ in: inFilter })),
+      })),
+    } as never;
+
+    const processing = await loadSocialMediaProcessingForSubmissions({
+      supabase,
+      submissionIds: ["submission-1"],
+    });
+
+    expect(processing.get("submission-1")).toEqual({
+      state: "coverage_retry",
+      revision: 2,
+      total: 3,
+      succeeded: 1,
+      failed: 0,
+      extractionAttempts: 2,
+      finalizationAttempts: 1,
+    });
+  });
+
+  it("fails loudly when legacy scheduling returns a malformed row", async () => {
+    const rpc = vi.fn(async () => ({ data: [{}], error: null }));
+
+    await expect(scheduleLegacySocialMediaBackfill({
+      supabase: { rpc } as never,
+      submissionIds: ["11111111-1111-4111-8111-111111111111"],
+      cutoff: "2026-07-10T09:00:00.000Z",
+      includeInstagram: true,
+      includeResolved: true,
+    })).rejects.toThrow("invalid row contract");
   });
 
   it("classifies permanent and retryable failures without exposing internals", () => {

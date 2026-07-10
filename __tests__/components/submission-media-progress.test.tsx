@@ -129,6 +129,75 @@ describe("SubmissionMediaProgress", () => {
     expect(onRetry).toHaveBeenCalledWith(items[4]);
   });
 
+  it("explains provider coverage work before individual media jobs exist", () => {
+    render(<SubmissionMediaProgress
+      items={[]}
+      processing={{
+        state: "coverage_retry",
+        revision: 0,
+        total: 0,
+        succeeded: 0,
+        failed: 0,
+        extractionAttempts: 1,
+        finalizationAttempts: 0,
+      }}
+    />);
+
+    expect(screen.getByRole("status").textContent).toContain("Retrieving the full post");
+    expect(screen.getByText(/finding every image and video/i)).toBeTruthy();
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
+  it("polls parent processing state even before media jobs are created", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      submissions: { "legacy-submission": [] },
+      processing: {
+        "legacy-submission": {
+          state: "completed",
+          revision: 1,
+          total: 0,
+          succeeded: 0,
+          failed: 0,
+          extractionAttempts: 1,
+          finalizationAttempts: 0,
+        },
+      },
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const { unmount } = render(
+      <SubmissionMediaProgressProvider
+        initialProgress={{ "legacy-submission": [] }}
+        initialProcessing={{
+          "legacy-submission": {
+            state: "coverage_processing",
+            revision: 0,
+            total: 0,
+            succeeded: 0,
+            failed: 0,
+            extractionAttempts: 1,
+            finalizationAttempts: 0,
+          },
+        }}
+      >
+        <SubmissionMediaProgress
+          submissionId="legacy-submission"
+          items={[]}
+        />
+      </SubmissionMediaProgressProvider>,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("status").textContent).toContain("Media check complete");
+
+    unmount();
+    fetchMock.mockRestore();
+    vi.useRealTimers();
+  });
+
   it("batches active submission polling and stops once every item is terminal", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PATCH as finalizeSocialSubmission } from "@/app/api/spots/social-submissions/route";
 import { isCronRequestAuthorized } from "@/lib/cron-auth";
 import {
+  assessSocialMediaCoverage,
   buildSocialMediaManifest,
   claimSocialMediaCoverageRetry,
   claimReadySocialMediaFinalization,
@@ -250,6 +251,8 @@ async function finalizeReadySubmission(
       body: JSON.stringify({
         submissionId: submission.id,
         canonicalUrl: submission.canonicalUrl,
+        mediaRevision: submission.revision,
+        finalizationToken,
         notes: "Automatic final research after every queued media item completed.",
       }),
     },
@@ -316,14 +319,17 @@ async function retryIncompleteCoverage(
 ): Promise<SocialMediaWorkSubmission | null> {
   const supabase = createSupabaseAdmin();
   let metadata = submission.metadata;
-  try {
-    const baseMetadata = await fetchSocialLinkMetadata(submission.canonicalUrl, {
-      includeInstagramProvider: false,
-      deadlineAt,
-    });
-    metadata = await enrichSocialLinkMetadataWithProvider(baseMetadata, { deadlineAt });
-  } catch {
-    // Reuse the last truthful metadata snapshot to advance bounded retry state.
+  const storedCoverage = assessSocialMediaCoverage(metadata);
+  if (!storedCoverage.complete) {
+    try {
+      const baseMetadata = await fetchSocialLinkMetadata(submission.canonicalUrl, {
+        includeInstagramProvider: false,
+        deadlineAt,
+      });
+      metadata = await enrichSocialLinkMetadataWithProvider(baseMetadata, { deadlineAt });
+    } catch {
+      // Reuse the last truthful metadata snapshot to advance bounded retry state.
+    }
   }
   const queued = await syncSocialMediaManifest({
     supabase,

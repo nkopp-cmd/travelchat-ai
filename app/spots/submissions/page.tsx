@@ -18,6 +18,7 @@ import {
   SubmissionMediaProgressProvider,
   type SubmissionMediaProgressItem,
 } from "@/components/spots/submission-media-progress";
+import type { SocialMediaProcessingSummary } from "@/lib/social-spot-media-jobs";
 import { Button } from "@/components/ui/button";
 import { isAdminUser } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -93,6 +94,13 @@ type SubmissionRow = {
       totalVideoCount?: number;
     };
   } | null;
+  media_processing_state: SocialMediaProcessingSummary["state"];
+  media_processing_revision: number;
+  media_item_count: number;
+  media_succeeded_count: number;
+  media_dead_letter_count: number;
+  media_extraction_attempt_count: number;
+  media_finalization_attempt_count: number;
 };
 
 type SubmissionStatusFilter = SubmissionRow["status"] | "all";
@@ -238,11 +246,33 @@ function getSubmissionStatusCopy(submission: SubmissionRow) {
       className: "border-amber-200/30 bg-amber-400/10 text-amber-100",
     };
   }
+  if (createdCount > 1) {
+    return {
+      label: `${createdCount} spots ready`,
+      helper: "Every verified place from this post has its own community spot.",
+      icon: CheckCircle2,
+      className: "border-emerald-200/25 bg-emerald-400/10 text-emerald-100",
+    };
+  }
 
   return getStatusCopy(submission.status);
 }
 
 function getMediaStatusCopy(submission: SubmissionRow) {
+  if (submission.media_processing_state === "not_started") {
+    return {
+      label: "Awaiting full media check",
+      icon: Clock3,
+      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+    };
+  }
+  if (["review_required", "dead_letter"].includes(submission.media_processing_state)) {
+    return {
+      label: "Full media check needs review",
+      icon: Search,
+      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+    };
+  }
   const analysisStatus = submission.research?.mediaAnalysis?.status;
   const mediaStatus = submission.metadata?.mediaAccessStatus;
 
@@ -399,7 +429,7 @@ function submissionMatchesStatus(
 }
 
 const SUBMISSION_SELECT =
-  "id, canonical_url, platform, status, spot_id, clerk_user_id, contributor_credit, extracted_name, extracted_address, extracted_city, research_confidence, research_summary, created_at, metadata, research";
+  "id, canonical_url, platform, status, spot_id, clerk_user_id, contributor_credit, extracted_name, extracted_address, extracted_city, research_confidence, research_summary, created_at, metadata, research, media_processing_state, media_processing_revision, media_item_count, media_succeeded_count, media_dead_letter_count, media_extraction_attempt_count, media_finalization_attempt_count";
 
 async function getSubmissions(): Promise<{
   submissions: SubmissionRow[];
@@ -476,6 +506,17 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
         publicErrorCode: item.publicErrorCode,
       })),
     ]),
+  );
+  const initialMediaProcessing: Record<string, SocialMediaProcessingSummary> = Object.fromEntries(
+    filteredSubmissions.map((submission) => [submission.id, {
+      state: submission.media_processing_state,
+      revision: submission.media_processing_revision,
+      total: submission.media_item_count,
+      succeeded: submission.media_succeeded_count,
+      failed: submission.media_dead_letter_count,
+      extractionAttempts: submission.media_extraction_attempt_count,
+      finalizationAttempts: submission.media_finalization_attempt_count,
+    }]),
   );
   const highlightedSubmissionMissing = Boolean(
     highlightedSubmissionId &&
@@ -577,21 +618,14 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                 </p>
               </section>
             ) : (
-              <SubmissionMediaProgressProvider initialProgress={initialMediaProgress}>
+              <SubmissionMediaProgressProvider
+                initialProgress={initialMediaProgress}
+                initialProcessing={initialMediaProcessing}
+              >
               <div className="grid gap-4">
                 {filteredSubmissions.map((submission) => {
               const mediaProgress = initialMediaProgress[submission.id] || [];
-              const hasActiveMedia = mediaProgress.some((item) =>
-                ["queued", "processing", "retry_wait"].includes(item.state),
-              );
-              const status = hasActiveMedia
-                ? {
-                    label: "Processing media",
-                    helper: "Localley is checking every image and video before creating spots.",
-                    icon: Clock3,
-                    className: "border-sky-200/25 bg-sky-400/10 text-sky-100",
-                  }
-                : getSubmissionStatusCopy(submission);
+              const status = getSubmissionStatusCopy(submission);
               const StatusIcon = status.icon;
               const mediaStatus = getMediaStatusCopy(submission);
               const MediaStatusIcon = mediaStatus.icon;
@@ -679,10 +713,11 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                       </p>
                     )}
 
-                    {mediaProgress.length > 0 ? (
+                    {mediaProgress.length > 0 || submission.media_processing_state ? (
                       <SubmissionMediaProgress
                         submissionId={submission.id}
                         items={mediaProgress}
+                        processing={initialMediaProcessing[submission.id]}
                         className="mt-4 border-violet-200/15 bg-black/20"
                       />
                     ) : null}

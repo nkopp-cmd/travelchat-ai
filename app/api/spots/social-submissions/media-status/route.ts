@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadSocialMediaProgressForSubmissions } from "@/lib/social-spot-media-jobs";
+import {
+  loadSocialMediaProcessingForSubmissions,
+  loadSocialMediaProgressForSubmissions,
+} from "@/lib/social-spot-media-jobs";
 import { rateLimiters } from "@/lib/rate-limit";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
@@ -22,10 +25,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const progress = await loadSocialMediaProgressForSubmissions({
-    supabase: createSupabaseAdmin(),
-    submissionIds,
-  });
+  const supabase = createSupabaseAdmin();
+  const [progress, processing] = await Promise.all([
+    loadSocialMediaProgressForSubmissions({ supabase, submissionIds }),
+    loadSocialMediaProcessingForSubmissions({ supabase, submissionIds }),
+  ]);
   return NextResponse.json({
     submissions: Object.fromEntries(submissionIds.map((submissionId) => [
       submissionId,
@@ -41,6 +45,11 @@ export async function GET(request: NextRequest) {
           publicErrorCode: item.publicErrorCode,
         })),
     ])),
+    processing: Object.fromEntries(
+      submissionIds
+        .filter((submissionId) => processing.has(submissionId))
+        .map((submissionId) => [submissionId, processing.get(submissionId)]),
+    ),
   }, {
     headers: { "cache-control": "private, no-store" },
   });

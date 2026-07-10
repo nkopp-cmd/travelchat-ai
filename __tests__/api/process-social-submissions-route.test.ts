@@ -13,6 +13,12 @@ const mocks = vi.hoisted(() => ({
   claimReadySocialMediaFinalization: vi.fn(async () => "finalization-token"),
   settleSocialMediaFinalization: vi.fn(async () => undefined),
   syncSocialMediaManifest: vi.fn(),
+  assessSocialMediaCoverage: vi.fn(() => ({
+    complete: false,
+    expectedCount: 0,
+    extractedCount: 0,
+    reason: "no_media",
+  })),
   buildSocialMediaManifest: vi.fn(() => []),
   analyzeSocialImagesBatch: vi.fn(),
   analyzeSocialImage: vi.fn(),
@@ -27,6 +33,7 @@ vi.mock("@/lib/supabase", () => ({
 }));
 
 vi.mock("@/lib/social-spot-media-jobs", () => ({
+  assessSocialMediaCoverage: mocks.assessSocialMediaCoverage,
   buildSocialMediaManifest: mocks.buildSocialMediaManifest,
   listSocialMediaWork: mocks.listSocialMediaWork,
   loadSocialMediaProgress: mocks.loadSocialMediaProgress,
@@ -123,6 +130,7 @@ describe("social submission media worker", () => {
       })),
     });
     process.env.CRON_SECRET = "worker-secret";
+    delete process.env.APIFY_API_TOKEN;
     mocks.listSocialMediaWork.mockResolvedValue([submission]);
     mocks.claimSocialMediaJobs.mockImplementation(async ({ mediaKind }) => [
       job(mediaKind, mediaKind === "image" ? 0 : 1),
@@ -179,6 +187,10 @@ describe("social submission media worker", () => {
     expect(mocks.finalizeSocialSubmission).toHaveBeenCalledOnce();
     const internalRequest = mocks.finalizeSocialSubmission.mock.calls[0][0] as NextRequest;
     expect(internalRequest.headers.get("authorization")).toBe("Bearer worker-secret");
+    await expect(internalRequest.json()).resolves.toMatchObject({
+      mediaRevision: 1,
+      finalizationToken: "finalization-token",
+    });
     expect(mocks.settleSocialMediaFinalization).toHaveBeenCalledWith(
       expect.objectContaining({
         finalizationToken: "finalization-token",
@@ -265,6 +277,75 @@ describe("social submission media worker", () => {
     expect(mocks.updatePayloads).toEqual(expect.arrayContaining([
       expect.objectContaining({ metadata: recoveredMetadata }),
     ]));
+  });
+
+  it("admits a complete stored manifest without another provider request", async () => {
+    const storedMetadata = {
+      ...submission.metadata,
+      imageUrl: "https://scontent.cdninstagram.com/v/image/one.jpg",
+      mediaUrls: ["https://scontent.cdninstagram.com/v/image/one.jpg"],
+      mediaCompleteness: "complete" as const,
+      mediaItemCount: 1,
+      mediaExtractedCount: 1,
+    };
+    const coverageSubmission = {
+      ...submission,
+      state: "coverage_retry",
+      metadata: storedMetadata,
+    };
+    const imageJob = job("image", 0);
+    const queuedProgress = [{
+      id: imageJob.jobId,
+      submissionId: submission.id,
+      revision: 2,
+      ordinal: 0,
+      mediaKind: "image" as const,
+      previewUrl: null,
+      state: "queued",
+      attemptCount: 0,
+      maxAttempts: 5,
+      availableAt: new Date().toISOString(),
+      publicErrorCode: null,
+      result: null,
+    }];
+    mocks.listSocialMediaWork.mockResolvedValueOnce([coverageSubmission]);
+    mocks.assessSocialMediaCoverage.mockReturnValueOnce({
+      complete: true,
+      expectedCount: 1,
+      extractedCount: 1,
+      reason: "complete",
+    });
+    mocks.syncSocialMediaManifest.mockResolvedValueOnce({
+      available: true,
+      queued: true,
+      workerRequired: true,
+      coverage: { complete: true, expectedCount: 1, extractedCount: 1, reason: "complete" },
+      total: 1,
+      revision: 2,
+      state: "queued",
+    });
+    mocks.claimSocialMediaJobs.mockImplementation(async ({ mediaKind }) =>
+      mediaKind === "image" ? [imageJob] : [],
+    );
+    mocks.loadSocialMediaProgress.mockReset();
+    mocks.loadSocialMediaProgress
+      .mockResolvedValueOnce(queuedProgress)
+      .mockResolvedValueOnce(queuedProgress.map((item) => ({
+        ...item,
+        state: "succeeded",
+        result: { output: "stored image evidence" },
+      })));
+
+    const { GET } = await import("@/app/api/cron/process-social-submissions/route");
+    const response = await GET(request());
+
+    expect(response.status).toBe(200);
+    expect(mocks.fetchSocialLinkMetadata).not.toHaveBeenCalled();
+    expect(mocks.enrichSocialLinkMetadataWithProvider).not.toHaveBeenCalled();
+    expect(mocks.syncSocialMediaManifest).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: storedMetadata,
+      extractionToken: "extraction-token",
+    }));
   });
 
   it("persists refreshed signed URLs only when stable media fingerprints still match", async () => {

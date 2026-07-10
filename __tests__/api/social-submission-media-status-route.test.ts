@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   rateLimit: vi.fn(async () => null),
   createSupabaseAdmin: vi.fn(() => ({})),
   loadProgress: vi.fn(),
+  loadProcessing: vi.fn(),
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -17,6 +18,7 @@ vi.mock("@/lib/supabase", () => ({
 
 vi.mock("@/lib/social-spot-media-jobs", () => ({
   loadSocialMediaProgressForSubmissions: mocks.loadProgress,
+  loadSocialMediaProcessingForSubmissions: mocks.loadProcessing,
 }));
 
 const submissionId = "11111111-1111-4111-8111-111111111111";
@@ -47,6 +49,17 @@ describe("social submission media status API", () => {
         result: { output: "private model evidence" },
       }]],
     ]));
+    mocks.loadProcessing.mockResolvedValue(new Map([
+      [submissionId, {
+        state: "processing",
+        revision: 2,
+        total: 1,
+        succeeded: 0,
+        failed: 0,
+        extractionAttempts: 1,
+        finalizationAttempts: 0,
+      }],
+    ]));
   });
 
   it("returns only sanitized progress and maps leased work to processing", async () => {
@@ -69,6 +82,17 @@ describe("social submission media status API", () => {
           publicErrorCode: "MEDIA_TEMPORARILY_UNAVAILABLE",
         }],
       },
+      processing: {
+        [submissionId]: {
+          state: "processing",
+          revision: 2,
+          total: 1,
+          succeeded: 0,
+          failed: 0,
+          extractionAttempts: 1,
+          finalizationAttempts: 0,
+        },
+      },
     });
     expect(JSON.stringify(body)).not.toContain("signed-preview");
     expect(JSON.stringify(body)).not.toContain("private model evidence");
@@ -81,6 +105,7 @@ describe("social submission media status API", () => {
 
     expect(response.status).toBe(400);
     expect(mocks.loadProgress).not.toHaveBeenCalled();
+    expect(mocks.loadProcessing).not.toHaveBeenCalled();
   });
 
   it("honors the standard API rate limiter", async () => {
@@ -93,5 +118,6 @@ describe("social submission media status API", () => {
 
     expect(response.status).toBe(429);
     expect(mocks.loadProgress).not.toHaveBeenCalled();
+    expect(mocks.loadProcessing).not.toHaveBeenCalled();
   });
 });

@@ -437,6 +437,8 @@ function createPatchRequest(body: Record<string, unknown>, authorization?: strin
   });
 }
 
+const finalizationToken = "88888888-8888-4888-8888-888888888888";
+
 describe("/api/spots/social-submissions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -1567,6 +1569,35 @@ describe("/api/spots/social-submissions", () => {
     });
   });
 
+  it("rejects replayable cron authorization without the one-time finalization claim", async () => {
+    process.env.CRON_SECRET = "worker-secret";
+    mocks.submissionRows.push({
+      id: "33333333-3333-4333-8333-333333333333",
+      canonical_url: "https://www.instagram.com/p/FENCED123",
+      platform: "instagram",
+      status: "spot_created",
+      spot_id: "spot_existing",
+      clerk_user_id: "clerk_test",
+      media_processing_revision: 1,
+      media_processing_state: "finalizing",
+      media_finalization_token: finalizationToken,
+      media_finalization_lease_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      metadata: { finalUrl: "https://www.instagram.com/p/FENCED123" },
+      research: { createdCandidates: [] },
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "33333333-3333-4333-8333-333333333333",
+      canonicalUrl: "https://www.instagram.com/p/FENCED123",
+      notes: "Automatic final research after every queued media item completed.",
+    }, "Bearer worker-secret"));
+
+    expect(response.status).toBe(403);
+    expect(mocks.loadSocialMediaProgress).not.toHaveBeenCalled();
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+  });
+
   it("finalizes complete queued media and materializes every researched place", async () => {
     process.env.CRON_SECRET = "worker-secret";
     mocks.submissionRows.push({
@@ -1580,6 +1611,8 @@ describe("/api/spots/social-submissions", () => {
       city_hint: "Seoul",
       media_processing_revision: 1,
       media_processing_state: "finalizing",
+      media_finalization_token: finalizationToken,
+      media_finalization_lease_expires_at: new Date(Date.now() + 60_000).toISOString(),
       metadata: {
         finalUrl: "https://www.instagram.com/p/QUEUED123",
         mediaUrls: ["https://scontent.cdninstagram.com/v/image/one.jpg"],
@@ -1668,6 +1701,8 @@ describe("/api/spots/social-submissions", () => {
     const response = await PATCH(createPatchRequest({
       submissionId: "44444444-4444-4444-8444-444444444444",
       canonicalUrl: "https://www.instagram.com/p/QUEUED123",
+      mediaRevision: 1,
+      finalizationToken,
       notes: "Automatic final research after every queued media item completed.",
     }, "Bearer worker-secret"));
     const body = await response.json();
@@ -1698,7 +1733,9 @@ describe("/api/spots/social-submissions", () => {
       spot_id: null,
       clerk_user_id: "clerk_test",
       media_processing_revision: 1,
-      media_processing_state: "processing",
+      media_processing_state: "finalizing",
+      media_finalization_token: finalizationToken,
+      media_finalization_lease_expires_at: new Date(Date.now() + 60_000).toISOString(),
       metadata: { finalUrl: "https://www.instagram.com/p/WAIT123" },
       research: {},
     });
@@ -1711,6 +1748,8 @@ describe("/api/spots/social-submissions", () => {
     const response = await PATCH(createPatchRequest({
       submissionId: "55555555-5555-4555-8555-555555555555",
       canonicalUrl: "https://www.instagram.com/p/WAIT123",
+      mediaRevision: 1,
+      finalizationToken,
       notes: "Automatic final research after every queued media item completed.",
     }, "Bearer worker-secret"));
     const body = await response.json();
@@ -1719,6 +1758,70 @@ describe("/api/spots/social-submissions", () => {
     expect(body.error.message).toContain("Every media item");
     expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
     expect(mocks.spotRows).toHaveLength(0);
+  });
+
+  it("lets a fenced legacy backfill enrich an already-created submission", async () => {
+    process.env.CRON_SECRET = "worker-secret";
+    mocks.spotRows.push({
+      id: "spot_existing",
+      name: { en: "Hidden Seoul Cafe" },
+      address: { en: "1 Seoullo, Seoul, South Korea" },
+      google_place_id: "place_hidden_seoul_cafe",
+    });
+    mocks.submissionRows.push({
+      id: "77777777-7777-4777-8777-777777777777",
+      canonical_url: "https://www.instagram.com/p/LEGACY123",
+      platform: "instagram",
+      status: "spot_created",
+      spot_id: "spot_existing",
+      clerk_user_id: "clerk_test",
+      media_processing_revision: 1,
+      media_processing_state: "finalizing",
+      media_finalization_token: finalizationToken,
+      media_finalization_lease_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      metadata: {
+        finalUrl: "https://www.instagram.com/p/LEGACY123",
+        mediaUrls: ["https://scontent.cdninstagram.com/v/image/one.jpg"],
+      },
+      research: {
+        createdCandidates: [{
+          spotId: "spot_existing",
+          status: "spot_created",
+          spotName: "Hidden Seoul Cafe",
+          address: "1 Seoullo, Seoul",
+          city: "Seoul",
+          confidence: 0.84,
+        }],
+      },
+    });
+    mocks.loadSocialMediaProgress.mockResolvedValueOnce([{
+      id: "done",
+      mediaKind: "image",
+      state: "succeeded",
+      ordinal: 0,
+      result: { output: "Complete legacy image evidence." },
+    }]);
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "77777777-7777-4777-8777-777777777777",
+      canonicalUrl: "https://www.instagram.com/p/LEGACY123",
+      mediaRevision: 1,
+      finalizationToken,
+      notes: "Automatic final research after every queued media item completed.",
+    }, "Bearer worker-secret"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "spot_created",
+      spotId: "spot_existing",
+    });
+    expect(mocks.researchSocialSpotLink).toHaveBeenCalledWith(expect.objectContaining({
+      analyzeFirstVideo: false,
+      additionalMediaAnalysis: expect.stringContaining("Complete legacy image evidence"),
+    }));
+    expect(mocks.spotRows).toHaveLength(1);
   });
 
   it("keeps aggregate research retryable when the internal research provider falls back", async () => {
@@ -1732,6 +1835,8 @@ describe("/api/spots/social-submissions", () => {
       clerk_user_id: "clerk_test",
       media_processing_revision: 1,
       media_processing_state: "finalizing",
+      media_finalization_token: finalizationToken,
+      media_finalization_lease_expires_at: new Date(Date.now() + 60_000).toISOString(),
       metadata: {
         finalUrl: "https://www.instagram.com/p/RETRY123",
         mediaUrls: ["https://scontent.cdninstagram.com/v/image/one.jpg"],
@@ -1771,6 +1876,8 @@ describe("/api/spots/social-submissions", () => {
     const response = await PATCH(createPatchRequest({
       submissionId: "66666666-6666-4666-8666-666666666666",
       canonicalUrl: "https://www.instagram.com/p/RETRY123",
+      mediaRevision: 1,
+      finalizationToken,
       notes: "Automatic final research after every queued media item completed.",
     }, "Bearer worker-secret"));
 

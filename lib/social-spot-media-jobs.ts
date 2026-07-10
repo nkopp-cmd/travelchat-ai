@@ -18,6 +18,28 @@ export type SocialMediaJobState =
   | "dead_letter"
   | "cancelled";
 
+export type SocialMediaProcessingState =
+  | "not_started"
+  | "queued"
+  | "processing"
+  | "succeeded"
+  | "finalizing"
+  | "completed"
+  | "dead_letter"
+  | "coverage_retry"
+  | "coverage_processing"
+  | "review_required";
+
+export interface SocialMediaProcessingSummary {
+  state: SocialMediaProcessingState;
+  revision: number;
+  total: number;
+  succeeded: number;
+  failed: number;
+  extractionAttempts: number;
+  finalizationAttempts: number;
+}
+
 export interface SocialMediaManifestItem {
   ordinal: number;
   mediaKey: string;
@@ -422,24 +444,50 @@ export async function claimSocialMediaCoverageRetry(input: {
   supabase: SupabaseAdmin;
   submissionId: string;
 }): Promise<string | null> {
-  const token = randomUUID();
-  const now = new Date().toISOString();
-  const leaseExpiresAt = new Date(Date.now() + 60_000).toISOString();
-  const { data, error } = await input.supabase
-    .from("social_spot_submissions")
-    .update({
-      media_processing_state: "coverage_processing",
-      media_extraction_token: token,
-      media_extraction_lease_expires_at: leaseExpiresAt,
-      media_processing_updated_at: now,
-    })
-    .eq("id", input.submissionId)
-    .eq("media_processing_state", "coverage_retry")
-    .lte("media_extraction_available_at", now)
-    .select("id")
-    .maybeSingle();
+  const { data, error } = await input.supabase.rpc(
+    "claim_social_spot_media_coverage_v1",
+    { p_submission_id: input.submissionId, p_lease_seconds: 60 },
+  );
   if (error) throw new Error(`Could not claim media coverage retry: ${error.message}`);
-  return data ? token : null;
+  if (data === null) return null;
+  if (typeof data !== "string") {
+    throw new Error("Media coverage claim returned an invalid token contract.");
+  }
+  return data;
+}
+
+export async function scheduleLegacySocialMediaBackfill(input: {
+  supabase: SupabaseAdmin;
+  submissionIds: string[];
+  cutoff: string;
+  limit?: number;
+  includeInstagram: boolean;
+  includeResolved: boolean;
+}): Promise<string[]> {
+  const submissionIds = Array.from(new Set(input.submissionIds)).slice(0, 5);
+  if (submissionIds.length === 0) return [];
+  const limit = Math.min(submissionIds.length, Math.min(5, Math.max(1, input.limit || 1)));
+  const { data, error } = await input.supabase.rpc(
+    "schedule_legacy_social_spot_media_backfill_v1",
+    {
+      p_submission_ids: submissionIds,
+      p_cutoff: input.cutoff,
+      p_limit: limit,
+      p_include_instagram: input.includeInstagram,
+      p_include_resolved: input.includeResolved,
+    },
+  );
+  if (error) {
+    if (isOptionalMediaSchemaError(error)) return [];
+    throw new Error(`Could not schedule legacy social media backfill: ${error.message}`);
+  }
+  const rows = Array.isArray(data) ? data : data ? [data] : [];
+  return rows.map((row) => {
+    if (!row || typeof row.submission_id !== "string") {
+      throw new Error("Legacy social media backfill returned an invalid row contract.");
+    }
+    return row.submission_id;
+  });
 }
 
 export async function listSocialMediaWork(input: {
@@ -616,30 +664,67 @@ export async function loadSocialMediaProgressForSubmissions(input: {
   return result;
 }
 
+export async function loadSocialMediaProcessingForSubmissions(input: {
+  supabase: SupabaseAdmin;
+  submissionIds: string[];
+}): Promise<Map<string, SocialMediaProcessingSummary>> {
+  const result = new Map<string, SocialMediaProcessingSummary>();
+  const submissionIds = Array.from(new Set(input.submissionIds)).slice(0, 20);
+  if (submissionIds.length === 0) return result;
+  const { data, error } = await input.supabase
+    .from("social_spot_submissions")
+    .select("id, media_processing_state, media_processing_revision, media_item_count, media_succeeded_count, media_dead_letter_count, media_extraction_attempt_count, media_finalization_attempt_count")
+    .in("id", submissionIds);
+  if (error) {
+    if (isOptionalMediaSchemaError(error)) return result;
+    throw new Error(`Could not load social media processing state: ${error.message}`);
+  }
+  for (const row of data || []) {
+    const state = String(row.media_processing_state || "not_started");
+    if (![
+      "not_started",
+      "queued",
+      "processing",
+      "succeeded",
+      "finalizing",
+      "completed",
+      "dead_letter",
+      "coverage_retry",
+      "coverage_processing",
+      "review_required",
+    ].includes(state)) continue;
+    result.set(String(row.id), {
+      state: state as SocialMediaProcessingState,
+      revision: Number(row.media_processing_revision || 0),
+      total: Number(row.media_item_count || 0),
+      succeeded: Number(row.media_succeeded_count || 0),
+      failed: Number(row.media_dead_letter_count || 0),
+      extractionAttempts: Number(row.media_extraction_attempt_count || 0),
+      finalizationAttempts: Number(row.media_finalization_attempt_count || 0),
+    });
+  }
+  return result;
+}
+
 export async function claimReadySocialMediaFinalization(input: {
   supabase: SupabaseAdmin;
   submissionId: string;
   revision: number;
 }): Promise<string | null> {
-  const now = new Date().toISOString();
-  const token = randomUUID();
-  const leaseExpiresAt = new Date(Date.now() + 3 * 60 * 1000).toISOString();
-  const { data, error } = await input.supabase
-    .from("social_spot_submissions")
-    .update({
-      media_processing_state: "finalizing",
-      media_processing_started_at: now,
-      media_finalization_token: token,
-      media_finalization_lease_expires_at: leaseExpiresAt,
-      media_processing_updated_at: now,
-    })
-    .eq("id", input.submissionId)
-    .eq("media_processing_revision", input.revision)
-    .eq("media_processing_state", "succeeded")
-    .select("id")
-    .maybeSingle();
+  const { data, error } = await input.supabase.rpc(
+    "claim_social_spot_media_finalization_v2",
+    {
+      p_submission_id: input.submissionId,
+      p_revision: input.revision,
+      p_lease_seconds: 180,
+    },
+  );
   if (error) throw new Error(`Could not claim social media finalization: ${error.message}`);
-  return data ? token : null;
+  if (data === null) return null;
+  if (typeof data !== "string") {
+    throw new Error("Social media finalization claim returned an invalid token contract.");
+  }
+  return data;
 }
 
 export async function settleSocialMediaFinalization(input: {
@@ -649,22 +734,17 @@ export async function settleSocialMediaFinalization(input: {
   finalizationToken: string;
   succeeded: boolean;
 }): Promise<void> {
-  const now = new Date().toISOString();
-  const { data, error } = await input.supabase
-    .from("social_spot_submissions")
-    .update({
-      media_processing_state: input.succeeded ? "completed" : "succeeded",
-      media_finalization_token: null,
-      media_finalization_lease_expires_at: null,
-      media_processing_completed_at: input.succeeded ? now : null,
-      media_processing_updated_at: now,
-    })
-    .eq("id", input.submissionId)
-    .eq("media_processing_revision", input.revision)
-    .eq("media_processing_state", "finalizing")
-    .eq("media_finalization_token", input.finalizationToken)
-    .select("id")
-    .maybeSingle();
+  const { data, error } = await input.supabase.rpc(
+    "settle_social_spot_media_finalization_v2",
+    {
+      p_submission_id: input.submissionId,
+      p_revision: input.revision,
+      p_finalization_token: input.finalizationToken,
+      p_succeeded: input.succeeded,
+    },
+  );
   if (error) throw new Error(`Could not settle social media finalization: ${error.message}`);
-  if (!data) throw new Error("Social media finalization token is stale or already settled.");
+  if (!["completed", "succeeded", "review_required"].includes(String(data))) {
+    throw new Error("Social media finalization returned an invalid state contract.");
+  }
 }

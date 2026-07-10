@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -21,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { extractSocialUrl } from "@/lib/social-share-target";
 
 type SubmissionResponse = {
   success: boolean;
@@ -58,6 +60,13 @@ type SubmissionResponse = {
     city: string | null;
     confidence: number;
   }>;
+  mediaProcessing?: {
+    state: string;
+    total: number;
+    expected: number;
+    coverage: string;
+    trackerUrl: string;
+  };
   error?: {
     message: string;
   };
@@ -72,21 +81,6 @@ const statusLabel: Record<NonNullable<SubmissionResponse["submission"]>["status"
 
 const socialSpotSubmissionsEnabled =
   process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
-
-function extractSocialUrl(value: string | null): string {
-  if (!value) return "";
-
-  const candidates = value.match(/https?:\/\/[^\s"'<>]+/gi) || [value];
-
-  return candidates.find((candidate) => {
-    try {
-      const host = new URL(candidate.trim()).hostname.toLowerCase();
-      return host.endsWith("instagram.com") || host.endsWith("tiktok.com");
-    } catch {
-      return false;
-    }
-  }) || "";
-}
 
 function getSubmissionTrackerHref(result: SubmissionResponse | null): string {
   const submissionId = result?.submission?.id;
@@ -166,6 +160,8 @@ function SubmitSpotForm() {
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<SubmissionResponse | null>(null);
+  const [shareHandoff, setShareHandoff] = useState<"received" | "unsupported" | null>(null);
+  const { isLoaded, isSignedIn } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -175,7 +171,13 @@ function SubmitSpotForm() {
       extractSocialUrl(params.get("text")) ||
       extractSocialUrl(params.get("title"));
 
-    if (sharedUrl) setUrl(sharedUrl);
+    const hasSharedPayload = ["url", "text", "title"].some((key) => params.has(key));
+    if (sharedUrl) {
+      setUrl(sharedUrl);
+      setShareHandoff("received");
+    } else if (hasSharedPayload) {
+      setShareHandoff("unsupported");
+    }
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -227,6 +229,15 @@ function SubmitSpotForm() {
   }
 
   const unresolvedCandidates = getUnresolvedCandidates(result);
+  const readyCount = result?.spots?.length || 0;
+  const remainingCandidateCount = Math.max(0, unresolvedCandidates.length - 6);
+  const isMediaQueued = Boolean(
+    result?.mediaProcessing &&
+      !["completed", "not_started", "schema_unavailable"].includes(result.mediaProcessing.state),
+  );
+  const signInRedirect = `/sign-in?redirect_url=${encodeURIComponent(
+    url ? `/spots/submit?url=${encodeURIComponent(url)}` : "/spots/submit",
+  )}`;
 
   return (
     <AppBackground>
@@ -251,7 +262,7 @@ function SubmitSpotForm() {
                   Drop a social post link
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-50/65">
-                  Paste a TikTok or Instagram post, reel, carousel, or video. Localley will research the place, dedupe it, and queue the spot.
+                  Paste a TikTok or Instagram post, reel, carousel, or video. Localley checks every distinct place and queues verified spots.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -265,6 +276,15 @@ function SubmitSpotForm() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {shareHandoff === "received" ? (
+                <div role="status" className="rounded-lg border border-emerald-200/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100">
+                  Shared post received. Sign in and submit when ready.
+                </div>
+              ) : shareHandoff === "unsupported" ? (
+                <div role="alert" className="rounded-lg border border-amber-200/25 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+                  The shared item did not include a TikTok or Instagram post URL. Paste its link below.
+                </div>
+              ) : null}
               <div className="space-y-2">
                 <Label htmlFor="social-url" className="text-violet-50">
                   TikTok or Instagram post URL
@@ -343,9 +363,20 @@ function SubmitSpotForm() {
                 </div>
               </div>
 
+              {isLoaded && !isSignedIn ? (
+                <div className="flex flex-col gap-3 rounded-lg border border-violet-200/20 bg-violet-400/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm leading-6 text-violet-50/75">
+                    Sign in to save this post to the community tracker.
+                  </p>
+                  <Button asChild className="h-11 shrink-0 rounded-lg bg-white text-violet-950 hover:bg-violet-50">
+                    <Link href={signInRedirect}>Sign in to submit</Link>
+                  </Button>
+                </div>
+              ) : null}
+
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isLoaded || !isSignedIn}
                 aria-busy={isSubmitting}
                 className="h-12 w-full rounded-lg bg-violet-500 text-base font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400 sm:w-auto"
               >
@@ -368,14 +399,18 @@ function SubmitSpotForm() {
                     <p className="font-semibold text-white">
                       {result.spots?.length && unresolvedCandidates.length
                         ? "Partially processed"
+                        : readyCount > 1
+                          ? `${readyCount} spots ready`
                         : result.submission
                           ? statusLabel[result.submission.status]
                           : "Submission saved"}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-violet-50/60">
-                      {result.spots?.length
-                        ? `${result.spots.length} spot${result.spots.length === 1 ? "" : "s"} created or matched from this post.`
-                        : "Saved to community submissions. Add a place clue if the public post is blocked or missing location details."}
+                      {readyCount > 0
+                        ? `${readyCount} verified spot${readyCount === 1 ? " is" : "s are"} ready from this post.`
+                        : isMediaQueued
+                          ? "Saved. Localley is retrieving every image and video before verifying places."
+                          : "Saved to community submissions for source review."}
                     </p>
                   </div>
                 </div>
@@ -393,7 +428,7 @@ function SubmitSpotForm() {
 
                   {result.spots && result.spots.length > 0 && (
                     <div className="rounded-lg border border-emerald-200/15 bg-emerald-400/10 p-3">
-                      <span className="text-sm font-semibold text-white">Community spots created</span>
+                      <span className="text-sm font-semibold text-white">Community spots ready</span>
                       <div className="mt-2 grid gap-2">
                         {result.spots.map((spot) => (
                           <Link
@@ -438,6 +473,14 @@ function SubmitSpotForm() {
                           </div>
                         ))}
                       </div>
+                      {remainingCandidateCount > 0 ? (
+                        <Link
+                          href={getSubmissionTrackerHref(result)}
+                          className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-amber-100 underline decoration-amber-200/40 underline-offset-4"
+                        >
+                          {remainingCandidateCount} more in tracker
+                        </Link>
+                      ) : null}
                     </div>
                   )}
 
@@ -461,7 +504,7 @@ function SubmitSpotForm() {
                   )}
                 </div>
 
-                {result.spotUrl && (
+                {result.spotUrl && readyCount === 1 && (
                   <Button asChild className="w-full rounded-lg bg-white text-violet-950 hover:bg-violet-50">
                     <Link href={result.spotUrl}>
                       Open spot

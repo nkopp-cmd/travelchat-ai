@@ -12,6 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { SocialMediaProcessingSummary } from "@/lib/social-spot-media-jobs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -38,12 +39,14 @@ export type SubmissionMediaProgressItem = {
 export type SubmissionMediaProgressProps = {
   items: SubmissionMediaProgressItem[];
   submissionId?: string;
+  processing?: SocialMediaProcessingSummary;
   className?: string;
   onRetry?: (item: SubmissionMediaProgressItem) => void;
 };
 
 type SubmissionMediaProgressProviderProps = {
   initialProgress: Record<string, SubmissionMediaProgressItem[]>;
+  initialProcessing?: Record<string, SocialMediaProcessingSummary>;
   children: React.ReactNode;
 };
 
@@ -55,22 +58,40 @@ type StatePresentation = {
 };
 
 const VISIBLE_ITEM_LIMIT = 4;
-const SubmissionMediaProgressContext = React.createContext<
-  Record<string, SubmissionMediaProgressItem[]> | null
->(null);
+const EMPTY_PROCESSING: Record<string, SocialMediaProcessingSummary> = {};
+const SubmissionMediaProgressContext = React.createContext<{
+  progress: Record<string, SubmissionMediaProgressItem[]>;
+  processing: Record<string, SocialMediaProcessingSummary>;
+} | null>(null);
+
+const activeProcessingStates = new Set<SocialMediaProcessingSummary["state"]>([
+  "coverage_retry",
+  "coverage_processing",
+  "queued",
+  "processing",
+  "succeeded",
+  "finalizing",
+]);
 
 export function SubmissionMediaProgressProvider({
   initialProgress,
+  initialProcessing = EMPTY_PROCESSING,
   children,
 }: SubmissionMediaProgressProviderProps) {
   const [progress, setProgress] = React.useState(initialProgress);
+  const [processing, setProcessing] = React.useState(initialProcessing);
   React.useEffect(() => setProgress(initialProgress), [initialProgress]);
-  const activeIds = Object.entries(progress)
-    .filter(([, items]) => items.some((item) =>
-      ["queued", "processing", "retry_wait"].includes(item.state),
-    ))
-    .map(([submissionId]) => submissionId)
-    .slice(0, 20);
+  React.useEffect(() => setProcessing(initialProcessing), [initialProcessing]);
+  const activeIds = Array.from(new Set([
+    ...Object.entries(progress)
+      .filter(([, items]) => items.some((item) =>
+        ["queued", "processing", "retry_wait"].includes(item.state),
+      ))
+      .map(([submissionId]) => submissionId),
+    ...Object.entries(processing)
+      .filter(([, summary]) => activeProcessingStates.has(summary.state))
+      .map(([submissionId]) => submissionId),
+  ])).slice(0, 20);
   const activeKey = activeIds.join(",");
 
   React.useEffect(() => {
@@ -85,9 +106,13 @@ export function SubmissionMediaProgressProvider({
         if (!response.ok) return;
         const payload = await response.json() as {
           submissions?: Record<string, SubmissionMediaProgressItem[]>;
+          processing?: Record<string, SocialMediaProcessingSummary>;
         };
         if (!cancelled && payload.submissions) {
           setProgress((current) => ({ ...current, ...payload.submissions }));
+        }
+        if (!cancelled && payload.processing) {
+          setProcessing((current) => ({ ...current, ...payload.processing }));
         }
       } catch {
         // Keep the last truthful snapshot and try again on the next interval.
@@ -101,7 +126,7 @@ export function SubmissionMediaProgressProvider({
   }, [activeKey]);
 
   return (
-    <SubmissionMediaProgressContext.Provider value={progress}>
+    <SubmissionMediaProgressContext.Provider value={{ progress, processing }}>
       {children}
     </SubmissionMediaProgressContext.Provider>
   );
@@ -225,13 +250,17 @@ function MediaItemRow({
 export function SubmissionMediaProgress({
   items,
   submissionId,
+  processing,
   className,
   onRetry,
 }: SubmissionMediaProgressProps) {
   const groupedProgress = React.useContext(SubmissionMediaProgressContext);
-  const displayedItems = submissionId && groupedProgress?.[submissionId]
-    ? groupedProgress[submissionId]
+  const displayedItems = submissionId && groupedProgress?.progress[submissionId]
+    ? groupedProgress.progress[submissionId]
     : items;
+  const displayedProcessing = submissionId && groupedProgress?.processing[submissionId]
+    ? groupedProgress.processing[submissionId]
+    : processing;
   const headingId = React.useId();
   const summaryId = React.useId();
   const total = displayedItems.length;
@@ -273,6 +302,48 @@ export function SubmissionMediaProgress({
     .filter(Boolean)
     .join(" · ");
   const progressValueText = `${finished} of ${total} media items finished; ${counts.succeeded} succeeded; ${counts.dead_letter} failed; ${remaining} remaining`;
+  const parentStatus = (() => {
+    switch (displayedProcessing?.state) {
+      case "not_started":
+        return {
+          label: "Awaiting full media check",
+          helper: "This older submission is queued to enter complete image and video processing.",
+        };
+      case "coverage_retry":
+      case "coverage_processing":
+        return {
+          label: "Retrieving the full post",
+          helper: "Localley is finding every image and video before place verification begins.",
+        };
+      case "queued":
+      case "processing":
+        return {
+          label: total > 0 ? `${finished} of ${total} finished` : "Preparing media analysis",
+          helper: "Every discovered media item is checked independently.",
+        };
+      case "succeeded":
+      case "finalizing":
+        return {
+          label: "Verifying discovered places",
+          helper: displayedProcessing.finalizationAttempts > 0
+            ? `Place verification attempt ${displayedProcessing.finalizationAttempts} of 5.`
+            : "Media analysis is complete and Localley is localizing each distinct place.",
+        };
+      case "review_required":
+      case "dead_letter":
+        return {
+          label: "Full media check needs review",
+          helper: "Automatic processing stopped safely without publishing incomplete place data.",
+        };
+      case "completed":
+        return {
+          label: total > 0 ? `${finished} of ${total} finished` : "Media check complete",
+          helper: "Complete media evidence was included in place verification.",
+        };
+      default:
+        return null;
+    }
+  })();
 
   return (
     <section
@@ -294,7 +365,7 @@ export function SubmissionMediaProgress({
             aria-atomic="true"
             className="text-xs font-semibold text-slate-700 dark:text-slate-200"
           >
-            {total > 0 ? `${finished} of ${total} finished` : "No media to process"}
+            {total > 0 ? `${finished} of ${total} finished` : parentStatus?.label || "No media to process"}
             {stateSummary ? <span className="sr-only">. {stateSummary}</span> : null}
           </p>
         </div>
@@ -315,6 +386,10 @@ export function SubmissionMediaProgress({
               {stateSummary}
             </p>
           </>
+        ) : parentStatus ? (
+          <p className="mt-2 text-xs font-medium leading-5 text-slate-600 dark:text-slate-300">
+            {parentStatus.helper}
+          </p>
         ) : null}
       </div>
 

@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { after, NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
@@ -42,6 +43,12 @@ export const runtime = "nodejs";
 export const maxDuration = 120;
 const SOCIAL_SUBMISSION_PROCESSING_BUDGET_MS = 100_000;
 const SOCIAL_SUBMISSION_MIN_ENRICHMENT_BUDGET_MS = 1_000;
+
+function tokensMatch(left: string, right: string): boolean {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
+}
 
 function remainingProcessingTimeout(deadlineAt: number | undefined, maximumMs: number): number {
   if (!deadlineAt) return maximumMs;
@@ -1331,7 +1338,7 @@ export async function PATCH(req: NextRequest) {
     const supabase = createSupabaseAdmin();
     const { data: existingSubmission, error: existingError } = await supabase
       .from("social_spot_submissions")
-      .select("id, status, spot_id, clerk_user_id, canonical_url, platform, notes, city_hint, metadata, research, media_processing_revision, media_processing_state")
+      .select("id, status, spot_id, clerk_user_id, canonical_url, platform, notes, city_hint, metadata, research, media_processing_revision, media_processing_state, media_finalization_token, media_finalization_lease_expires_at")
       .eq("id", validation.data.submissionId)
       .eq("canonical_url", validatedCanonical.canonicalUrl)
       .maybeSingle();
@@ -1345,6 +1352,24 @@ export async function PATCH(req: NextRequest) {
       return Errors.notFound("Submission");
     }
 
+    if (isInternalFinalization) {
+      const leaseExpiresAt = Date.parse(
+        String(existingSubmission.media_finalization_lease_expires_at || ""),
+      );
+      if (
+        !validation.data.mediaRevision ||
+        !validation.data.finalizationToken ||
+        existingSubmission.media_processing_state !== "finalizing" ||
+        Number(existingSubmission.media_processing_revision) !== validation.data.mediaRevision ||
+        typeof existingSubmission.media_finalization_token !== "string" ||
+        !tokensMatch(existingSubmission.media_finalization_token, validation.data.finalizationToken) ||
+        !Number.isFinite(leaseExpiresAt) ||
+        leaseExpiresAt <= Date.now()
+      ) {
+        return Errors.forbidden("The media finalization claim is missing, stale, or expired.");
+      }
+    }
+
     if (
       !isInternalFinalization &&
       existingSubmission.clerk_user_id !== userId &&
@@ -1354,6 +1379,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (
+      !isInternalFinalization &&
       ["spot_created", "spot_reused"].includes(existingSubmission.status) &&
       !hasUnresolvedCandidateResults(existingSubmission.research)
     ) {
@@ -1454,7 +1480,13 @@ export async function PATCH(req: NextRequest) {
       mergedCandidateResults.find((result) => result.spotId) ||
       mergedCandidateResults[0] ||
       { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
-    const submissionStatus = summarizeSubmissionStatus(mergedCandidateResults, research);
+    const summarizedStatus = summarizeSubmissionStatus(mergedCandidateResults, research);
+    const submissionStatus =
+      existingSubmission.status === "spot_created" &&
+      Boolean(existingSubmission.spot_id) &&
+      summarizedStatus === "spot_reused"
+        ? "spot_created"
+        : summarizedStatus;
     const previousEvidence = Array.isArray(existingSubmission.research?.contributorEvidence)
       ? existingSubmission.research.contributorEvidence
       : [];

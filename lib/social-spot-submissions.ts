@@ -64,6 +64,8 @@ export type SocialSpotSubmissionInput = z.infer<typeof socialSpotSubmissionSchem
 export const socialSpotEvidenceSchema = z.object({
   submissionId: z.string().trim().uuid(),
   canonicalUrl: z.string().trim().min(12).max(2000),
+  mediaRevision: z.number().int().positive().optional(),
+  finalizationToken: z.string().trim().uuid().optional(),
   placeHint: z.string().trim().min(2).max(160).optional(),
   cityHint: z.string().trim().min(2).max(120).optional(),
   notes: z.string().trim().min(4).max(1000).optional(),
