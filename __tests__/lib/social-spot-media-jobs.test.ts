@@ -6,6 +6,7 @@ import {
   claimSocialMediaCoverageRetry,
   claimSocialMediaJobs,
   classifySocialMediaJobError,
+  failSocialMediaJob,
   listSocialMediaWork,
   loadSocialMediaProcessingForSubmissions,
   scheduleLegacySocialMediaBackfill,
@@ -82,6 +83,72 @@ describe("social spot media jobs", () => {
       mediaExtractedCount: undefined,
       mediaAccessStatus: "cover_only",
     })).toMatchObject({ complete: false, reason: "cover_only" });
+  });
+
+  it("requires explicit image-post coverage before admitting image-only TikTok media", () => {
+    const imageOne = "https://p16-sign.tiktokcdn-us.com/video/cover.jpeg";
+    const imageTwo = "https://p16-sign.tiktokcdn-us.com/video/alternate.jpeg";
+    const unverified = {
+      title: "Video thumbnails",
+      description: null,
+      imageUrl: imageOne,
+      mediaUrls: [imageOne, imageTwo],
+      mediaAccessStatus: "carousel_images" as const,
+      finalUrl: "https://www.tiktok.com/@localley/video/123456789",
+    };
+
+    expect(assessSocialMediaCoverage(unverified)).toMatchObject({
+      complete: false,
+      reason: "provider_partial",
+    });
+    expect(assessSocialMediaCoverage({
+      ...unverified,
+      mediaUrls: [imageOne],
+      mediaAccessStatus: undefined,
+    })).toMatchObject({
+      complete: false,
+      reason: "cover_only",
+    });
+  });
+
+  it("admits counted TikTok photo posts without requiring a video", () => {
+    const image = "https://p16-sign.tiktokcdn-us.com/photo/one.jpeg";
+    expect(assessSocialMediaCoverage({
+      title: "One-photo post",
+      description: null,
+      imageUrl: image,
+      mediaUrls: [image],
+      mediaAccessStatus: "carousel_images",
+      mediaCompleteness: "complete",
+      mediaItemCount: 1,
+      mediaExtractedCount: 1,
+      finalUrl: "https://www.tiktok.com/@localley/photo/987654321",
+    })).toEqual({
+      complete: true,
+      expectedCount: 1,
+      extractedCount: 1,
+      reason: "complete",
+    });
+  });
+
+  it("preserves valid legacy TikTok photo carousels without new counters", () => {
+    const images = [
+      "https://p16-sign.tiktokcdn-us.com/photo/one.jpeg",
+      "https://p16-sign.tiktokcdn-us.com/photo/two.jpeg",
+    ];
+    expect(assessSocialMediaCoverage({
+      title: "Legacy photo carousel",
+      description: null,
+      imageUrl: images[0],
+      mediaUrls: images,
+      mediaAccessStatus: "carousel_images",
+      finalUrl: "https://www.tiktok.com/@localley/photo/987654321",
+    })).toEqual({
+      complete: true,
+      expectedCount: 2,
+      extractedCount: 2,
+      reason: "complete",
+    });
   });
 
   it("does not queue a partial provider manifest", async () => {
@@ -240,6 +307,35 @@ describe("social spot media jobs", () => {
       submissionId: "submission-1",
       revision: 2,
     })).rejects.toThrow("invalid row contract");
+  });
+
+  it("returns the database settlement state for accurate worker reporting", async () => {
+    const rpc = vi.fn(async () => ({
+      data: [{ job_state: "dead_letter" }],
+      error: null,
+    }));
+
+    await expect(failSocialMediaJob({
+      supabase: { rpc } as never,
+      job: {
+        jobId: "job-1",
+        claimToken: "claim-1",
+        submissionId: "submission-1",
+        revision: 2,
+        mediaId: "media-1",
+        mediaKey: "image:0",
+        inputFingerprint: "fingerprint-1",
+        ordinal: 0,
+        mediaKind: "image",
+        sourceUrl: "https://scontent.cdninstagram.com/v/image/one.jpg",
+        attemptCount: 5,
+        maxAttempts: 5,
+      },
+      error: new Error("unsupported image"),
+    })).resolves.toBe("dead_letter");
+    expect(rpc).toHaveBeenCalledWith("fail_social_spot_media_job_v1", expect.objectContaining({
+      p_retryable: false,
+    }));
   });
 
   it("prioritizes runnable submissions before terminal dead letters", async () => {
@@ -438,6 +534,20 @@ describe("social spot media jobs", () => {
       retryable: true,
     });
     expect(classifySocialMediaJobError(new Error("Video upload timed out"))).toMatchObject({
+      code: "MEDIA_TEMPORARILY_UNAVAILABLE",
+      retryable: true,
+    });
+    expect(classifySocialMediaJobError(
+      new Error("400 Error while downloading file. Upstream status code: 403."),
+    )).toMatchObject({
+      code: "MEDIA_TEMPORARILY_UNAVAILABLE",
+      retryable: true,
+    });
+    expect(classifySocialMediaJobError(new Error("403 Forbidden"))).toMatchObject({
+      code: "MEDIA_TEMPORARILY_UNAVAILABLE",
+      retryable: true,
+    });
+    expect(classifySocialMediaJobError(new Error("invalid signed URL"))).toMatchObject({
       code: "MEDIA_TEMPORARILY_UNAVAILABLE",
       retryable: true,
     });

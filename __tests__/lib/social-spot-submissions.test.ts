@@ -253,6 +253,87 @@ describe("social spot submission helpers", () => {
 
     expect(metadata.mediaUrls).toEqual(slideUrls);
     expect(metadata.mediaAccessStatus).toBe("carousel_images");
+    expect(metadata.mediaCompleteness).toBe("complete");
+    expect(metadata.mediaItemCount).toBe(2);
+    expect(metadata.mediaExtractedCount).toBe(2);
+  });
+
+  it("accepts an explicitly identified one-image TikTok photo post", () => {
+    const imageUrl = "https://p16-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/photo.jpeg";
+    const metadata = extractSocialMetadataFromHtml(
+      buildTikTokHydrationHtml({
+        imagePost: {
+          images: [{ imageURL: { urlList: [imageUrl] } }],
+        },
+      }),
+      "https://www.tiktok.com/@localley/photo/987654321",
+    );
+
+    expect(metadata).toMatchObject({
+      mediaUrls: [imageUrl],
+      mediaAccessStatus: "carousel_images",
+      mediaCompleteness: "complete",
+      mediaItemCount: 1,
+      mediaExtractedCount: 1,
+    });
+  });
+
+  it("does not mistake multiple TikTok thumbnails for a photo carousel", () => {
+    const cover = "https://p16-sign.tiktokcdn-us.com/video/cover.jpeg";
+    const alternate = "https://p16-sign.tiktokcdn-us.com/video/alternate.jpeg";
+    const html = `
+      <meta property="og:image" content="${cover}">
+      <script>{"display_url":"${alternate}"}</script>
+    `;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.tiktok.com/@localley/video/123456789",
+    );
+
+    expect(metadata.mediaUrls).toEqual([alternate, cover]);
+    expect(metadata.mediaAccessStatus).toBe("cover_only");
+    expect(metadata.mediaCompleteness).toBeUndefined();
+  });
+
+  it("preserves hydration-less TikTok photo carousels recovered from embedded slides", () => {
+    const slideOne = "https://p16-sign.tiktokcdn-us.com/photo/one.jpeg";
+    const slideTwo = "https://p16-sign.tiktokcdn-us.com/photo/two.jpeg";
+    const html = `
+      <script>{"display_url":"${slideOne}"}</script>
+      <script>{"display_url":"${slideTwo}"}</script>
+    `;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.tiktok.com/@localley/photo/987654321",
+    );
+
+    expect(metadata.mediaUrls).toEqual([slideOne, slideTwo]);
+    expect(metadata.mediaAccessStatus).toBe("carousel_images");
+  });
+
+  it("keeps an identified TikTok video cover-only when its play URL is unavailable", () => {
+    const cover = "https://p16-sign.tiktokcdn-us.com/video/cover.jpeg";
+    const html = `
+      <meta property="og:image" content="${cover}">
+      ${buildTikTokHydrationHtml({
+        video: {
+          duration: 20,
+          bitrateInfo: [{ PlayAddr: { UrlList: ["https://127.0.0.1/private.mp4"] } }],
+        },
+      })}
+    `;
+
+    const metadata = extractSocialMetadataFromHtml(
+      html,
+      "https://www.tiktok.com/@localley/video/123456789",
+    );
+
+    expect(metadata).toMatchObject({
+      videoUrl: null,
+      mediaAccessStatus: "cover_only",
+    });
   });
 
   it("keeps one trusted image from every TikTok carousel slide", () => {

@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   claimSocialMediaJobs: vi.fn(),
   claimSocialMediaCoverageRetry: vi.fn(async () => "extraction-token"),
   completeSocialMediaJob: vi.fn(async () => true),
-  failSocialMediaJob: vi.fn(async () => undefined),
+  failSocialMediaJob: vi.fn(async () => "retry_wait" as const),
   claimReadySocialMediaFinalization: vi.fn(async () => "finalization-token"),
   settleSocialMediaFinalization: vi.fn(async () => undefined),
   syncSocialMediaManifest: vi.fn(),
@@ -415,6 +415,41 @@ describe("social submission media worker", () => {
       metadata: refreshedMetadata,
     }));
     expect(mocks.updatePayloads).toContainEqual({ metadata: refreshedMetadata });
+  });
+
+  it("preserves the original media-access failure when manifest refresh fails", async () => {
+    const videoJob = job("video", 0);
+    let claimed = false;
+    mocks.claimSocialMediaJobs.mockImplementation(async ({ mediaKind }) => {
+      if (mediaKind !== "video" || claimed) return [];
+      claimed = true;
+      return [videoJob];
+    });
+    const accessError = new Error("403 Forbidden");
+    mocks.analyzeSocialVideo.mockRejectedValueOnce(accessError);
+    mocks.fetchSocialLinkMetadata.mockRejectedValueOnce(new Error("metadata refresh failed"));
+    const retryingProgress = [{
+      ...progress({ image: "queued", video: "retry_wait" })[1],
+      ordinal: 0,
+    }];
+    mocks.loadSocialMediaProgress.mockReset();
+    mocks.loadSocialMediaProgress
+      .mockResolvedValueOnce([{
+        ...progress({ image: "queued", video: "queued" })[1],
+        ordinal: 0,
+      }])
+      .mockResolvedValueOnce(retryingProgress)
+      .mockResolvedValueOnce(retryingProgress);
+
+    const { GET } = await import("@/app/api/cron/process-social-submissions/route");
+    const response = await GET(request());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({ claimed: 1, succeeded: 0, retried: 1 });
+    expect(mocks.failSocialMediaJob).toHaveBeenCalledWith(expect.objectContaining({
+      error: accessError,
+    }));
   });
 
   it("falls back to per-image analysis so one bad carousel image does not poison the batch", async () => {

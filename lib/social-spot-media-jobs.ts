@@ -122,6 +122,17 @@ function uniqueTrustedImages(metadata: SocialLinkMetadata): string[] {
   return images;
 }
 
+function requiresTikTokVideoEvidence(metadata: SocialLinkMetadata): boolean {
+  try {
+    const parsed = new URL(metadata.finalUrl);
+    const host = parsed.hostname.toLowerCase();
+    const isTikTok = host === "tiktok.com" || host.endsWith(".tiktok.com");
+    return isTikTok && !/\/photo\/[^/]+/i.test(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function fingerprintMedia(input: {
   mediaKey: string;
   mediaKind: SocialMediaKind;
@@ -206,6 +217,14 @@ export function assessSocialMediaCoverage(
   }
   if (metadata.mediaCompleteness === "partial") {
     return { complete: false, expectedCount, extractedCount, reason: "provider_partial" };
+  }
+  if (requiresTikTokVideoEvidence(metadata) && trustedVideos.length === 0) {
+    return {
+      complete: false,
+      expectedCount,
+      extractedCount,
+      reason: extractedCount <= 1 ? "cover_only" : "provider_partial",
+    };
   }
   if (
     discoveredCount > extractedCount ||
@@ -412,11 +431,17 @@ export function classifySocialMediaJobError(error: unknown): {
 } {
   const message = error instanceof Error ? error.message : "Media analysis failed";
   const lower = message.toLowerCase();
-  if (/untrusted|unsupported|too large|did not return a video|invalid/.test(lower)) {
-    return { code: "MEDIA_UNSUPPORTED", retryable: false, message };
-  }
   if (/429|rate limit/.test(lower)) {
     return { code: "MEDIA_RATE_LIMITED", retryable: true, message };
+  }
+  if (
+    /upstream status code:\s*(?:401|403|404)|\b403 forbidden\b/.test(lower) ||
+    /signed url (?:expired|invalid)|(?:expired|invalid) signed url|(?:expired|invalid) (?:url )?signature/.test(lower)
+  ) {
+    return { code: "MEDIA_TEMPORARILY_UNAVAILABLE", retryable: true, message };
+  }
+  if (/untrusted|unsupported|too large|did not return a video|invalid/.test(lower)) {
+    return { code: "MEDIA_UNSUPPORTED", retryable: false, message };
   }
   if (/timeout|timed out|abort|5\d\d|unavailable|download failed/.test(lower)) {
     return { code: "MEDIA_TEMPORARILY_UNAVAILABLE", retryable: true, message };
@@ -428,9 +453,9 @@ export async function failSocialMediaJob(input: {
   supabase: SupabaseAdmin;
   job: ClaimedSocialMediaJob;
   error: unknown;
-}): Promise<void> {
+}): Promise<"retry_wait" | "dead_letter"> {
   const failure = classifySocialMediaJobError(input.error);
-  const { error } = await input.supabase.rpc("fail_social_spot_media_job_v1", {
+  const { data, error } = await input.supabase.rpc("fail_social_spot_media_job_v1", {
     p_job_id: input.job.jobId,
     p_claim_token: input.job.claimToken,
     p_error: `${failure.code}: ${failure.message}`.slice(0, 500),
@@ -438,6 +463,11 @@ export async function failSocialMediaJob(input: {
     p_retry_after_seconds: null,
   });
   if (error) throw new Error(`Could not fail social media job: ${error.message}`);
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row || !["retry_wait", "dead_letter"].includes(String(row.job_state))) {
+    throw new Error("Social media failure RPC returned an invalid row contract.");
+  }
+  return row.job_state as "retry_wait" | "dead_letter";
 }
 
 export async function claimSocialMediaCoverageRetry(input: {

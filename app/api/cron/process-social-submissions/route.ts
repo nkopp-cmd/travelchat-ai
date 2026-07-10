@@ -139,8 +139,8 @@ async function settleImageJobs(input: {
       await completeSocialMediaJob({ supabase: input.supabase, job, output });
       input.summary.succeeded += 1;
     } catch (error) {
-      await failSocialMediaJob({ supabase: input.supabase, job, error });
-      input.summary.retried += 1;
+      const state = await failSocialMediaJob({ supabase: input.supabase, job, error });
+      if (state === "retry_wait") input.summary.retried += 1;
     }
   }));
 }
@@ -207,7 +207,12 @@ async function processClaimedJobs(input: {
         output = await analyzeJob(job, job.sourceUrl, input.deadlineAt);
       } catch (initialError) {
         if (input.deadlineAt - Date.now() < MINIMUM_REFRESH_BUDGET_MS) throw initialError;
-        const refreshed = await getRefreshedManifest();
+        let refreshed: Awaited<ReturnType<typeof getRefreshedManifest>>;
+        try {
+          refreshed = await getRefreshedManifest();
+        } catch {
+          throw initialError;
+        }
         const refreshedItem = refreshed.find((item) => item.mediaKey === job.mediaKey);
         if (
           !refreshedItem ||
@@ -219,8 +224,8 @@ async function processClaimedJobs(input: {
       await completeSocialMediaJob({ supabase: input.supabase, job, output });
       input.summary.succeeded += 1;
     } catch (error) {
-      await failSocialMediaJob({ supabase: input.supabase, job, error });
-      input.summary.retried += 1;
+      const state = await failSocialMediaJob({ supabase: input.supabase, job, error });
+      if (state === "retry_wait") input.summary.retried += 1;
     }
   }));
 

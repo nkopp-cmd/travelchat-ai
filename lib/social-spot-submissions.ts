@@ -712,16 +712,25 @@ function extractTikTokHydrationMetadata(html: string): Partial<SocialLinkMetadat
       ...fallbackImageStrings.filter(isTrustedTikTokImageUrl),
     ]);
 
-    if (!videoUrl && mediaUrls.length === 0) return null;
+    const hasImagePostEvidence = Boolean(imagePost && images.length > 0);
+    const hasVideoPostEvidence = Boolean(video && !hasImagePostEvidence);
+    if (!videoUrl && mediaUrls.length === 0 && !hasVideoPostEvidence) return null;
+
+    const imagePostComplete = hasImagePostEvidence && mediaUrls.length >= images.length;
     return {
       videoUrl,
       videoDurationSeconds: duration,
       mediaUrls,
       mediaAccessStatus: videoUrl
         ? "video_ready"
-        : mediaUrls.length > 1
+        : hasImagePostEvidence && mediaUrls.length > 0
           ? "carousel_images"
           : "cover_only",
+      mediaCompleteness: hasImagePostEvidence
+        ? imagePostComplete ? "complete" : "partial"
+        : undefined,
+      mediaItemCount: hasImagePostEvidence ? images.length : undefined,
+      mediaExtractedCount: hasImagePostEvidence ? mediaUrls.length : undefined,
     };
   } catch {
     return null;
@@ -747,6 +756,21 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
       imageUrl,
     ])
     : uniqueMediaUrls([...embeddedMediaUrls, imageUrl]);
+  let isTikTokPhotoPost = false;
+  try {
+    const parsed = new URL(finalUrl);
+    isTikTokPhotoPost = TIKTOK_HOSTS.has(parsed.hostname.toLowerCase()) &&
+      /\/photo\/[^/]+/i.test(parsed.pathname);
+  } catch {
+    // Invalid social URLs are rejected before metadata extraction.
+  }
+  const fallbackMediaAccessStatus = source.sourceType === "tiktok_post" && !isTikTokPhotoPost
+    ? mediaUrls.length > 0 ? "cover_only" : "media_unavailable"
+    : mediaUrls.length > 1
+      ? "carousel_images"
+      : mediaUrls.length === 1
+        ? "cover_only"
+        : "media_unavailable";
 
   return {
     title:
@@ -764,9 +788,10 @@ export function extractSocialMetadataFromHtml(html: string, finalUrl: string): S
     sourceLabel: source.sourceLabel,
     videoUrl: hydration?.videoUrl || null,
     videoDurationSeconds: hydration?.videoDurationSeconds || null,
-    mediaAccessStatus: hydration?.mediaAccessStatus || (
-      mediaUrls.length > 1 ? "carousel_images" : mediaUrls.length === 1 ? "cover_only" : "media_unavailable"
-    ),
+    mediaAccessStatus: hydration?.mediaAccessStatus || fallbackMediaAccessStatus,
+    mediaCompleteness: hydration?.mediaCompleteness,
+    mediaItemCount: hydration?.mediaItemCount,
+    mediaExtractedCount: hydration?.mediaExtractedCount,
     finalUrl,
   };
 }
