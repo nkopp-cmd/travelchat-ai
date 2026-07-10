@@ -6,7 +6,20 @@ const submissionId = "11111111-1111-4111-8111-111111111111";
 const mocks = vi.hoisted(() => ({
   requireAdmin: vi.fn(async () => ({ response: null, userId: "admin_test" })),
   scheduleBackfill: vi.fn(async () => [submissionId]),
+  processWorker: vi.fn(async () => NextResponse.json({
+    success: true,
+    inspected: 1,
+    claimed: 1,
+    succeeded: 1,
+    retried: 0,
+    finalized: 1,
+    deadLettered: 0,
+  })),
   rows: [] as Array<Record<string, unknown>>,
+}));
+
+vi.mock("@/app/api/cron/process-social-submissions/route", () => ({
+  GET: mocks.processWorker,
 }));
 
 vi.mock("@/lib/admin-auth", () => ({
@@ -60,6 +73,15 @@ describe("admin social submission legacy backfill", () => {
     delete process.env.APIFY_API_TOKEN;
     mocks.requireAdmin.mockResolvedValue({ response: null, userId: "admin_test" });
     mocks.scheduleBackfill.mockResolvedValue([submissionId]);
+    mocks.processWorker.mockResolvedValue(NextResponse.json({
+      success: true,
+      inspected: 1,
+      claimed: 1,
+      succeeded: 1,
+      retried: 0,
+      finalized: 1,
+      deadLettered: 0,
+    }));
     mocks.rows.length = 0;
     mocks.rows.push({
       id: submissionId,
@@ -112,7 +134,11 @@ describe("admin social submission legacy backfill", () => {
       dryRun: false,
       claimed: [submissionId],
       skipped: [],
-      worker: "queued_for_reconciliation",
+      worker: {
+        started: true,
+        status: 200,
+        summary: expect.objectContaining({ success: true, succeeded: 1 }),
+      },
     });
     expect(mocks.scheduleBackfill).toHaveBeenCalledWith(expect.objectContaining({
       submissionIds: [submissionId],
@@ -121,6 +147,27 @@ describe("admin social submission legacy backfill", () => {
       includeInstagram: false,
       includeResolved: true,
     }));
+    expect(mocks.processWorker).toHaveBeenCalledTimes(1);
+    const workerRequest = mocks.processWorker.mock.calls[0]?.[0] as NextRequest;
+    expect(workerRequest.headers.get("authorization")).toBe("Bearer backfill-plan-secret");
+  });
+
+  it("does not invoke the worker when replay claims no new rows", async () => {
+    mocks.scheduleBackfill.mockResolvedValueOnce([]);
+    const { POST } = await import("@/app/api/admin/spots/social-submissions/backfill/route");
+    const previewResponse = await POST(request({ dryRun: true, includeResolved: true, limit: 1 }));
+    const preview = await previewResponse.json();
+
+    const response = await POST(request({
+      dryRun: false,
+      planToken: preview.planToken,
+    }, "legacy-run-replay"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.claimed).toEqual([]);
+    expect(body.worker).toEqual({ started: false, status: null, summary: null });
+    expect(mocks.processWorker).not.toHaveBeenCalled();
   });
 
   it("rejects Instagram planning until its provider is configured", async () => {

@@ -1,11 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { GET as processSocialSubmissions } from "@/app/api/cron/process-social-submissions/route";
 import { requireAdmin } from "@/lib/admin-auth";
 import { scheduleLegacySocialMediaBackfill } from "@/lib/social-spot-media-jobs";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 const ROUTE = "/api/admin/spots/social-submissions/backfill";
 const LEGACY_CUTOFF = "2026-07-10T09:00:00.000Z";
@@ -27,6 +29,12 @@ type BackfillPlan = {
   includeInstagram: boolean;
   includeResolved: boolean;
   expiresAt: string;
+};
+
+type WorkerStartResult = {
+  started: boolean;
+  status: number | null;
+  summary: Record<string, unknown> | null;
 };
 
 function planSecret(): string | null {
@@ -60,6 +68,28 @@ function decodePlan(token: string, secret: string): BackfillPlan | null {
     return parsed;
   } catch {
     return null;
+  }
+}
+
+async function startWorker(request: NextRequest, secret: string): Promise<WorkerStartResult> {
+  try {
+    const workerRequest = new NextRequest(
+      new URL("/api/cron/process-social-submissions", request.url),
+      { headers: { authorization: `Bearer ${secret}` } },
+    );
+    const response = await processSocialSubmissions(workerRequest);
+    const body = await response.json().catch(() => null);
+    return {
+      started: response.ok,
+      status: response.status,
+      summary: body && typeof body === "object" ? body as Record<string, unknown> : null,
+    };
+  } catch (error) {
+    console.error(
+      "[social-submission-backfill] Could not start the bounded worker:",
+      error instanceof Error ? error.message : "unknown_error",
+    );
+    return { started: false, status: null, summary: null };
   }
 }
 
@@ -175,12 +205,15 @@ export async function POST(request: NextRequest) {
     includeResolved: plan.includeResolved,
   });
   const claimedSet = new Set(claimed);
+  const worker = claimed.length > 0
+    ? await startWorker(request, secret)
+    : { started: false, status: null, summary: null };
   return NextResponse.json({
     dryRun: false,
     requestedBy: userId,
     requestKey: createHmac("sha256", secret).update(idempotencyKey).digest("hex").slice(0, 16),
     claimed,
     skipped: plan.submissionIds.filter((submissionId) => !claimedSet.has(submissionId)),
-    worker: "queued_for_reconciliation",
+    worker,
   }, { status: claimed.length > 0 ? 202 : 200 });
 }

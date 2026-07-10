@@ -47,11 +47,11 @@ New tables use explicit service-role grants and RLS policies. Public clients do 
 
 Submissions created before the durable media queue remain visible as legacy results until an admin explicitly reviews and admits them. The normal cron never discovers or schedules historical rows.
 
-1. Send an authenticated admin `POST` to `/api/admin/spots/social-submissions/backfill` with `{"dryRun":true,"includeResolved":true}`.
-2. Review the exact pre-cutoff IDs, platforms, names, and current spot state returned by the plan.
-3. Execute with `{"dryRun":false,"planToken":"..."}` and a unique `Idempotency-Key` header within ten minutes.
+1. Open `/admin/spots/social-submissions` as an allowlisted Clerk admin.
+2. Choose a bounded scope of one to three posts, then review the exact pre-cutoff IDs, platforms, names, and current spot state.
+3. Confirm the signed plan within ten minutes. The server adds an idempotency key, admits only the reviewed rows, and starts the bounded worker immediately.
 4. The signed plan can admit at most five exact revision-zero rows. SQL rechecks the fixed cutoff, state, platform readiness, and resolved-spot opt-in under `FOR UPDATE SKIP LOCKED`.
-5. Replaying the request cannot admit a row twice. Existing complete metadata is queued without another provider request; incomplete coverage enters the bounded provider retry path.
+5. Replaying the request cannot admit a row twice. Existing complete metadata is queued without another provider request; incomplete coverage enters the bounded provider retry path. If the immediate worker cannot start, the rows remain durable for the daily reconciliation cron.
 
 Instagram cannot appear in a plan until `APIFY_API_TOKEN` is configured. Resolved legacy spots require the explicit `includeResolved` opt-in because aggregate processing may discover additional places in the original post.
 
@@ -68,14 +68,15 @@ Each provider request is limited to one result, a 12-second deadline, a one-item
 
 ## Deployment Order
 
-1. Apply all four social-submission migrations listed above.
+1. Apply all five social-submission migrations listed above.
 2. Set `NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED=true` in Vercel.
-3. Set `APIFY_API_TOKEN` to enable public Instagram media extraction.
-4. Confirm `FAL_KEY`, `OPENAI_API_KEY`, `GOOGLE_PLACES_API_KEY`, and a strong `CRON_SECRET` are available server-side.
-5. Redeploy the app so the queue RPCs, worker route, tracker, spots CTA, and `/spots/submit` page use the same release.
-6. Submit a known Instagram carousel, Instagram reel, TikTok photo post, and TikTok video. Confirm every media item reaches a terminal tracker state and every distinct verified place becomes a separate candidate or explicit review item.
-7. Confirm `/api/cron/process-social-submissions` rejects missing/wrong bearer secrets and succeeds with `Authorization: Bearer $CRON_SECRET`.
-8. Confirm a cron bearer without the current revision and one-time finalization token cannot replay aggregate research.
+3. Set `ADMIN_USER_IDS` to a comma-separated allowlist of Clerk user IDs that may open the recovery console.
+4. Set `APIFY_API_TOKEN` to enable public Instagram media extraction.
+5. Confirm `FAL_KEY`, `OPENAI_API_KEY`, `GOOGLE_PLACES_API_KEY`, and a strong `CRON_SECRET` are available server-side.
+6. Redeploy the app so the queue RPCs, worker route, tracker, admin console, spots CTA, and `/spots/submit` page use the same release.
+7. Submit a known Instagram carousel, Instagram reel, TikTok photo post, and TikTok video. Confirm every media item reaches a terminal tracker state and every distinct verified place becomes a separate candidate or explicit review item.
+8. Confirm `/api/cron/process-social-submissions` rejects missing/wrong bearer secrets and succeeds with `Authorization: Bearer $CRON_SECRET`.
+9. Confirm a cron bearer without the current revision and one-time finalization token cannot replay aggregate research.
 
 ## Loop Checks
 
@@ -83,9 +84,9 @@ Recommended focused loop for this feature:
 
 ```bash
 cd "/Users/alleycore/Documents/CoreMachine/01 - Projects/Code/Localley"
-npx vitest run __tests__/lib/social-spot-submissions.test.ts __tests__/lib/social-spot-media-jobs.test.ts __tests__/lib/social-share-target.test.ts __tests__/api/social-spot-submissions-route.test.ts __tests__/api/social-submission-backfill-route.test.ts __tests__/api/process-social-submissions-route.test.ts __tests__/api/social-submission-media-status-route.test.ts __tests__/components/submission-media-progress.test.tsx __tests__/lib/cron-auth.test.ts
+npx vitest run __tests__/lib/social-spot-submissions.test.ts __tests__/lib/social-spot-media-jobs.test.ts __tests__/lib/social-share-target.test.ts __tests__/api/social-spot-submissions-route.test.ts __tests__/api/social-submission-backfill-route.test.ts __tests__/api/process-social-submissions-route.test.ts __tests__/api/social-submission-media-status-route.test.ts __tests__/components/social-submission-recovery.test.tsx __tests__/components/submission-media-progress.test.tsx __tests__/lib/cron-auth.test.ts
 npx tsc --noEmit
-npx eslint lib/social-spot-submissions.ts lib/social-spot-media-jobs.ts lib/cron-auth.ts app/api/spots/social-submissions/route.ts app/api/spots/social-submissions/media-status/route.ts app/api/cron/process-social-submissions/route.ts app/api/cron/cleanup-stories/route.ts app/spots/submissions/page.tsx components/spots/submission-media-progress.tsx
+npx eslint lib/social-spot-submissions.ts lib/social-spot-media-jobs.ts lib/cron-auth.ts app/api/spots/social-submissions/route.ts app/api/spots/social-submissions/media-status/route.ts app/api/admin/spots/social-submissions/backfill/route.ts app/api/cron/process-social-submissions/route.ts app/api/cron/cleanup-stories/route.ts app/admin/spots/social-submissions/page.tsx app/spots/submissions/page.tsx components/admin/social-submission-recovery.tsx components/spots/submission-media-progress.tsx
 npm run build
 ```
 

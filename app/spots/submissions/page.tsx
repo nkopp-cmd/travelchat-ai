@@ -9,6 +9,7 @@ import {
   ImagePlus,
   Images,
   Search,
+  ShieldCheck,
   Sparkles,
   Video,
 } from "lucide-react";
@@ -580,6 +581,14 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
               Submit post
             </Link>
           </Button>
+          {isAdminUser(userId) && (
+            <Button asChild variant="outline" className="rounded-lg border-emerald-200/20 bg-emerald-400/10 text-emerald-100 hover:bg-emerald-400/15 hover:text-white">
+              <Link href="/admin/spots/social-submissions">
+                <ShieldCheck className="h-4 w-4" />
+                Review recovery
+              </Link>
+            </Button>
+          )}
         </div>
 
         <section className="mb-5 rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
