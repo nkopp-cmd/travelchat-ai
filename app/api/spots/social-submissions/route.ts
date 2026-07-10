@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -11,14 +11,21 @@ import {
   type PlacePhotoSearchResult,
 } from "@/lib/place-images";
 import { rateLimiters } from "@/lib/rate-limit";
+import { isCronRequestAuthorized } from "@/lib/cron-auth";
+import {
+  loadSocialMediaProgress,
+  syncSocialMediaManifest,
+} from "@/lib/social-spot-media-jobs";
 import {
   SOCIAL_RESEARCH_CONFIDENCE_THRESHOLD,
   SOCIAL_SUBMISSION_TOKEN_AWARD,
   buildAnonymousContributorEmail,
   buildPublicCreditName,
+  buildQueuedSocialSpotResearch,
   enrichSocialLinkMetadataWithProvider,
   fetchSocialLinkMetadata,
   getResearchCandidates,
+  getTrustedSocialVideoUrls,
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
   researchSocialSpotLink,
@@ -43,6 +50,34 @@ function remainingProcessingTimeout(deadlineAt: number | undefined, maximumMs: n
 
 function isSocialSpotSubmissionsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
+}
+
+function scheduleSocialMediaWorker(request: NextRequest): void {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || process.env.NODE_ENV === "test") return;
+
+  after(async () => {
+    try {
+      const response = await fetch(
+        new URL("/api/cron/process-social-submissions", request.nextUrl.origin),
+        {
+          method: "GET",
+          headers: { authorization: `Bearer ${cronSecret}` },
+          cache: "no-store",
+        },
+      );
+      if (!response.ok) {
+        console.error(
+          `[social-submissions] Media worker returned ${response.status}.`,
+        );
+      }
+    } catch (error) {
+      console.error(
+        "[social-submissions] Media worker trigger failed:",
+        error instanceof Error ? error.message : error,
+      );
+    }
+  });
 }
 
 function formatPoint(lng: number, lat: number): string {
@@ -338,7 +373,12 @@ function summarizeSubmissionStatus(
   results: Array<{ spotId: string | null; status: SocialSpotSubmissionStatus }>,
   research: SocialSpotResearchResult,
 ): SocialSpotSubmissionStatus {
-  if (["video_partially_analyzed", "video_unavailable", "media_partially_extracted"].includes(
+  if ([
+    "video_partially_analyzed",
+    "video_unavailable",
+    "media_partially_extracted",
+    "media_unavailable",
+  ].includes(
     research.mediaAnalysis?.status || "",
   )) {
     return "needs_review";
@@ -382,17 +422,24 @@ async function createCandidateResults({
   supabase,
   candidates,
   deadlineAt,
+  allowSpotCreation = true,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
   candidates: SocialSpotResearchCandidate[];
   deadlineAt?: number;
+  allowSpotCreation?: boolean;
 }) {
   return Promise.all(candidates.map(async (candidate) => {
-    const spotResult = await createSpotFromResearch({
-      supabase,
-      research: candidate,
-      deadlineAt,
-    });
+    const spotResult = allowSpotCreation
+      ? await createSpotFromResearch({
+          supabase,
+          research: candidate,
+          deadlineAt,
+        })
+      : {
+          spotId: null,
+          status: "needs_review" as SocialSpotSubmissionStatus,
+        };
 
     return {
       ...spotResult,
@@ -403,6 +450,12 @@ async function createCandidateResults({
       summary: candidate.researchSummary,
     };
   }));
+}
+
+function hasCompleteMediaEvidence(research: SocialSpotResearchResult): boolean {
+  return ["video_analyzed", "images_extracted"].includes(
+    research.mediaAnalysis?.status || "media_unavailable",
+  );
 }
 
 type CandidateResultRecord = Awaited<ReturnType<typeof createCandidateResults>>[number];
@@ -786,6 +839,10 @@ async function awardSubmissionTokens({
 
 export async function POST(req: NextRequest) {
   const processingDeadlineAt = Date.now() + SOCIAL_SUBMISSION_PROCESSING_BUDGET_MS;
+  let failureCheckpoint: {
+    supabase: ReturnType<typeof createSupabaseAdmin>;
+    submissionId: string;
+  } | null = null;
   try {
     if (!isSocialSpotSubmissionsEnabled()) {
       return NextResponse.json(
@@ -1042,6 +1099,10 @@ export async function POST(req: NextRequest) {
     }
 
     const placeholderSubmission = placeholderResult.data;
+    failureCheckpoint = {
+      supabase,
+      submissionId: placeholderSubmission.id,
+    };
     await registerSubmissionAliases({
       supabase,
       submissionId: placeholderSubmission.id,
@@ -1051,20 +1112,33 @@ export async function POST(req: NextRequest) {
     metadata = await enrichSocialLinkMetadataWithProvider(metadata, {
       deadlineAt: processingDeadlineAt,
     });
-
-    const research = await researchSocialSpotLink({
-      canonicalUrl: resolvedCanonicalUrl,
-      platform: normalized.platform,
+    const mediaQueue = await syncSocialMediaManifest({
+      supabase,
+      submissionId: placeholderSubmission.id,
       metadata,
-      notes: validation.data.notes,
-      cityHint: validation.data.cityHint,
-      deadlineAt: processingDeadlineAt,
     });
+
+    const research = mediaQueue.queued
+      ? buildQueuedSocialSpotResearch({
+          platform: normalized.platform,
+          metadata,
+          cityHint: validation.data.cityHint,
+          mediaItemCount: mediaQueue.total,
+        })
+      : await researchSocialSpotLink({
+          canonicalUrl: resolvedCanonicalUrl,
+          platform: normalized.platform,
+          metadata,
+          notes: validation.data.notes,
+          cityHint: validation.data.cityHint,
+          deadlineAt: processingDeadlineAt,
+        });
     const candidates = getResearchCandidates(research);
     const candidateResults = await createCandidateResults({
       supabase,
       candidates,
       deadlineAt: processingDeadlineAt,
+      allowSpotCreation: mediaQueue.total === 0 && hasCompleteMediaEvidence(research),
     });
     await syncCandidateRecords({
       supabase,
@@ -1076,11 +1150,20 @@ export async function POST(req: NextRequest) {
       candidateResults.find((result) => result.spotId) ||
       candidateResults[0] ||
       { spotId: null, status: "research_pending" as SocialSpotSubmissionStatus };
-    const submissionStatus = summarizeSubmissionStatus(candidateResults, research);
+    const submissionStatus = mediaQueue.total > 0
+      ? "needs_review"
+      : summarizeSubmissionStatus(candidateResults, research);
     const enrichedResearch: SocialSpotResearchResult = {
       ...research,
       candidates,
       createdCandidates: candidateResults,
+      mediaProcessing: {
+        state: mediaQueue.state,
+        revision: mediaQueue.revision,
+        total: mediaQueue.total,
+        expected: mediaQueue.coverage.expectedCount,
+        coverage: mediaQueue.coverage.reason,
+      },
     } as SocialSpotResearchResult & {
       createdCandidates: typeof candidateResults;
     };
@@ -1139,6 +1222,9 @@ export async function POST(req: NextRequest) {
       status: submission.status,
       submittedAt: now,
     });
+    if (mediaQueue.workerRequired) {
+      scheduleSocialMediaWorker(req);
+    }
 
     return NextResponse.json({
       success: true,
@@ -1160,6 +1246,13 @@ export async function POST(req: NextRequest) {
         localPercentage: research.localPercentage,
         candidates: enrichedResearch.candidates,
       },
+      mediaProcessing: {
+        state: mediaQueue.state,
+        total: mediaQueue.total,
+        expected: mediaQueue.coverage.expectedCount,
+        coverage: mediaQueue.coverage.reason,
+        trackerUrl: "/spots/submissions",
+      },
       spotUrl: submission.spot_id ? `/spots/${submission.spot_id}` : null,
       spots: candidateResults
         .filter((result) => result.spotId)
@@ -1172,8 +1265,22 @@ export async function POST(req: NextRequest) {
           city: result.city,
           confidence: result.confidence,
         })),
-    });
+    }, { status: mediaQueue.workerRequired ? 202 : 200 });
   } catch (error) {
+    if (failureCheckpoint) {
+      const { supabase, submissionId } = failureCheckpoint;
+      const { error: checkpointError } = await supabase
+        .from("social_spot_submissions")
+        .update({
+          processing_state: "retryable",
+          last_error: "Social submission processing failed. Retry is available.",
+          research_summary: "Processing was interrupted and can be retried safely.",
+        })
+        .eq("id", submissionId);
+      if (checkpointError && !isMissingOptionalSocialSchema(checkpointError)) {
+        console.error("[social-submissions] Failure checkpoint update failed:", checkpointError);
+      }
+    }
     return handleApiError(error, "social-spot-submissions");
   }
 }
@@ -1193,8 +1300,11 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const limited = await rateLimiters.strict(req);
-    if (limited) return limited;
+    const isInternalFinalization = isCronRequestAuthorized(req);
+    if (!isInternalFinalization) {
+      const limited = await rateLimiters.strict(req);
+      if (limited) return limited;
+    }
 
     const validation = await validateBody(req, socialSpotEvidenceSchema);
     if (!validation.success) {
@@ -1210,7 +1320,10 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { userId } = await auth();
+    const { userId: clerkUserId } = isInternalFinalization
+      ? { userId: "system:media-worker" }
+      : await auth();
+    const userId = clerkUserId;
     if (!userId) {
       return Errors.unauthorized("Sign in to add evidence to a community submission.");
     }
@@ -1218,7 +1331,7 @@ export async function PATCH(req: NextRequest) {
     const supabase = createSupabaseAdmin();
     const { data: existingSubmission, error: existingError } = await supabase
       .from("social_spot_submissions")
-      .select("id, status, spot_id, clerk_user_id, canonical_url, platform, notes, city_hint, metadata, research")
+      .select("id, status, spot_id, clerk_user_id, canonical_url, platform, notes, city_hint, metadata, research, media_processing_revision, media_processing_state")
       .eq("id", validation.data.submissionId)
       .eq("canonical_url", validatedCanonical.canonicalUrl)
       .maybeSingle();
@@ -1232,7 +1345,11 @@ export async function PATCH(req: NextRequest) {
       return Errors.notFound("Submission");
     }
 
-    if (existingSubmission.clerk_user_id !== userId && !isAdminUser(userId)) {
+    if (
+      !isInternalFinalization &&
+      existingSubmission.clerk_user_id !== userId &&
+      !isAdminUser(userId)
+    ) {
       return Errors.forbidden("Only the original contributor can add evidence to this submission.");
     }
 
@@ -1258,23 +1375,63 @@ export async function PATCH(req: NextRequest) {
       notes: validation.data.notes,
     });
     const cityHint = validation.data.cityHint || existingSubmission.city_hint || undefined;
+    const mediaRevision = Number(existingSubmission.media_processing_revision || 0);
+    const mediaProgress = isInternalFinalization && mediaRevision > 0
+      ? await loadSocialMediaProgress({
+          supabase,
+          submissionId: existingSubmission.id,
+          revision: mediaRevision,
+        })
+      : [];
+    const allMediaSucceeded = mediaProgress.length > 0 &&
+      mediaProgress.every((item) => item.state === "succeeded" && Boolean(item.result?.output));
+    if (isInternalFinalization && !allMediaSucceeded) {
+      return Errors.validationError("Every media item must finish before final research.");
+    }
+
     const metadata = {
       ...(existingSubmission.metadata || {}),
       finalUrl: normalized.canonicalUrl,
+      ...(isInternalFinalization ? { mediaCompleteness: "complete" as const } : {}),
     } as SocialLinkMetadata;
+    const trustedVideoUrls = getTrustedSocialVideoUrls(metadata);
+    const videoAnalyses = mediaProgress
+      .filter((item) => item.mediaKind === "video")
+      .sort((left, right) => left.ordinal - right.ordinal)
+      .map((item, ordinal) => ({
+        ordinal,
+        videoUrl: trustedVideoUrls[ordinal] || "",
+        status: item.result?.output ? "analyzed" as const : "unavailable" as const,
+        output: item.result?.output || null,
+      }));
+    const additionalMediaAnalysis = mediaProgress
+      .filter((item) => item.mediaKind === "image" && item.result?.output)
+      .sort((left, right) => left.ordinal - right.ordinal)
+      .map((item, index) => `IMAGE ${index + 1}:\n${item.result?.output}`)
+      .join("\n\n")
+      .slice(0, 60_000);
     const research = await researchSocialSpotLink({
       canonicalUrl: normalized.canonicalUrl,
       platform: normalized.platform,
       metadata,
       notes: evidenceNotes || undefined,
       cityHint,
+      videoAnalyses,
+      analyzeFirstVideo: !isInternalFinalization,
+      additionalMediaAnalysis: additionalMediaAnalysis || undefined,
       deadlineAt: processingDeadlineAt,
     });
+    if (isInternalFinalization && research.status === "research_pending") {
+      return Errors.externalServiceError("aggregate social research");
+    }
     const candidates = getResearchCandidates(research);
     const candidateResults = await createCandidateResults({
       supabase,
       candidates,
       deadlineAt: processingDeadlineAt,
+      allowSpotCreation: isInternalFinalization
+        ? allMediaSucceeded && hasCompleteMediaEvidence(research)
+        : mediaRevision === 0 && hasCompleteMediaEvidence(research),
     });
     const mergedCandidateResults = mergePreviouslyResolvedCandidates(
       existingSubmission.research,
@@ -1301,21 +1458,32 @@ export async function PATCH(req: NextRequest) {
     const previousEvidence = Array.isArray(existingSubmission.research?.contributorEvidence)
       ? existingSubmission.research.contributorEvidence
       : [];
-    const contributorEvidence = [
-      ...previousEvidence,
-      {
-        submittedAt: new Date().toISOString(),
-        clerkUserId: userId,
-        placeHint: validation.data.placeHint || null,
-        cityHint: validation.data.cityHint || null,
-        notes: validation.data.notes || null,
-      },
-    ].slice(-10);
+    const contributorEvidence = isInternalFinalization
+      ? previousEvidence
+      : [
+          ...previousEvidence,
+          {
+            submittedAt: new Date().toISOString(),
+            clerkUserId: userId,
+            placeHint: validation.data.placeHint || null,
+            cityHint: validation.data.cityHint || null,
+            notes: validation.data.notes || null,
+          },
+        ].slice(-10);
     const enrichedResearch: SocialSpotResearchResult = {
       ...research,
       candidates,
       createdCandidates: mergedCandidateResults,
       contributorEvidence,
+      mediaProcessing: mediaProgress.length > 0
+        ? {
+            state: "complete",
+            revision: mediaRevision,
+            total: mediaProgress.length,
+            succeeded: mediaProgress.length,
+            failed: 0,
+          }
+        : existingSubmission.research?.mediaProcessing,
     } as SocialSpotResearchResult & {
       createdCandidates: typeof mergedCandidateResults;
       contributorEvidence: typeof contributorEvidence;

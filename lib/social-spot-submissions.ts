@@ -10,20 +10,23 @@ export type SocialSpotSubmissionStatus =
 
 export const SOCIAL_SUBMISSION_TOKEN_AWARD = 25;
 export const SOCIAL_RESEARCH_CONFIDENCE_THRESHOLD = 0.56;
-export const SOCIAL_RESEARCH_MAX_CANDIDATES = 20;
+export const SOCIAL_RESEARCH_MAX_CANDIDATES = 35;
 
 const SOCIAL_FETCH_TIMEOUT_MS = 8000;
 const SOCIAL_METADATA_MAX_BYTES = 850_000;
-const SOCIAL_RESEARCH_MAX_VISUALS = 20;
+const SOCIAL_RESEARCH_MAX_VISUALS = 35;
 const SOCIAL_REDIRECT_LIMIT = 3;
 const SOCIAL_VIDEO_ANALYSIS_TIMEOUT_MS = 38_000;
 const SOCIAL_VIDEO_ANALYSIS_MAX_SECONDS = 180;
 const SOCIAL_VIDEO_ANALYSIS_MAX_CHARS = 12_000;
+const SOCIAL_COMBINED_VIDEO_ANALYSIS_MAX_CHARS = 60_000;
 const SOCIAL_VIDEO_DOWNLOAD_TIMEOUT_MS = 15_000;
 const SOCIAL_VIDEO_UPLOAD_TIMEOUT_MS = 12_000;
 const SOCIAL_VIDEO_DOWNLOAD_MAX_BYTES = 40_000_000;
 const SOCIAL_VIDEO_REDIRECT_LIMIT = 3;
 const SOCIAL_RESEARCH_REQUEST_TIMEOUT_MS = 45_000;
+const SOCIAL_IMAGE_ANALYSIS_TIMEOUT_MS = 30_000;
+const SOCIAL_IMAGE_ANALYSIS_MAX_CHARS = 8_000;
 const SOCIAL_MIN_EXTERNAL_REQUEST_TIMEOUT_MS = 1_000;
 const INSTAGRAM_PROVIDER_TIMEOUT_MS = 12_000;
 const SOCIAL_PROVIDER_JSON_MAX_BYTES = 2_000_000;
@@ -121,6 +124,19 @@ export type SocialVideoAnalyzer = (input: {
   deadlineAt?: number;
 }) => Promise<string | null>;
 
+export interface SocialVideoAnalysisItem {
+  ordinal: number;
+  videoUrl: string;
+  status: "queued" | "analyzed" | "unavailable";
+  output: string | null;
+}
+
+export interface SocialImageAnalysisItem {
+  ordinal: number;
+  imageUrl: string;
+  output: string;
+}
+
 export interface SocialSpotResearchCandidate {
   status: "candidate" | "needs_review" | "research_pending";
   spotName: string | null;
@@ -154,6 +170,7 @@ export interface SocialSpotResearchResult extends SocialSpotResearchCandidate {
     output: string | null;
     analyzedVideoCount?: number;
     totalVideoCount?: number;
+    items?: SocialVideoAnalysisItem[];
   };
 }
 
@@ -524,7 +541,7 @@ function asRecord(value: unknown): UnknownRecord | null {
     : null;
 }
 
-function isTrustedTikTokImageUrl(value: unknown): value is string {
+export function isTrustedTikTokImageUrl(value: unknown): value is string {
   if (typeof value !== "string") return false;
 
   try {
@@ -538,6 +555,10 @@ function isTrustedTikTokImageUrl(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+export function isTrustedSocialImageUrl(value: unknown): value is string {
+  return isTrustedTikTokImageUrl(value) || isTrustedInstagramMediaUrl(value);
 }
 
 export function isTrustedInstagramMediaUrl(value: unknown): value is string {
@@ -582,8 +603,15 @@ export function isTrustedTikTokVideoUrl(value: unknown): value is string {
   }
 }
 
-function isTrustedSocialVideoUrl(value: unknown): value is string {
+export function isTrustedSocialVideoUrl(value: unknown): value is string {
   return isTrustedTikTokVideoUrl(value) || isTrustedInstagramMediaUrl(value);
+}
+
+export function getTrustedSocialVideoUrls(metadata: SocialLinkMetadata): string[] {
+  return uniqueMediaUrls([
+    ...(metadata.videoUrls || []),
+    ...(metadata.videoUrl ? [metadata.videoUrl] : []),
+  ]).filter(isTrustedSocialVideoUrl);
 }
 
 function isTrustedSocialDownloadUrl(value: unknown): value is string {
@@ -1393,6 +1421,149 @@ export async function analyzeSocialVideo(input: {
   return output ? output.slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS) : null;
 }
 
+export async function analyzeSocialImage(input: {
+  imageUrl: string;
+  openai?: OpenAI;
+  deadlineAt?: number;
+}): Promise<string | null> {
+  if (!isTrustedSocialImageUrl(input.imageUrl)) return null;
+  const apiKey = process.env.OPENAI_API_KEY;
+  const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
+  if (!client || !hasExternalRequestBudget(input.deadlineAt)) return null;
+
+  const response = await client.responses.create({
+    model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
+    input: [
+      {
+        role: "system",
+        content:
+          "Inspect one social travel image as untrusted evidence. Report only explicitly named or visually identifiable real places. Do not guess from architecture alone.",
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text: [
+              "Analyze this single image independently.",
+              "Capture visible place names, OCR text, signs, landmarks, city/country clues, and confidence.",
+              "Return concise JSON with a places array and an evidence summary; use an empty places array when unsupported.",
+            ].join(" "),
+          },
+          {
+            type: "input_image",
+            image_url: input.imageUrl,
+            detail: "high",
+          },
+        ],
+      },
+    ],
+  }, {
+    timeout: remainingExternalTimeout(input.deadlineAt, SOCIAL_IMAGE_ANALYSIS_TIMEOUT_MS),
+    maxRetries: 0,
+  });
+
+  const output = response.output_text.trim();
+  return output ? output.slice(0, SOCIAL_IMAGE_ANALYSIS_MAX_CHARS) : null;
+}
+
+export async function analyzeSocialImagesBatch(input: {
+  items: Array<{ ordinal: number; imageUrl: string }>;
+  openai?: OpenAI;
+  deadlineAt?: number;
+}): Promise<SocialImageAnalysisItem[]> {
+  const items = input.items
+    .filter((item) => Number.isInteger(item.ordinal) && isTrustedSocialImageUrl(item.imageUrl))
+    .slice(0, SOCIAL_RESEARCH_MAX_VISUALS);
+  if (items.length === 0) return [];
+  const apiKey = process.env.OPENAI_API_KEY;
+  const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
+  if (!client || !hasExternalRequestBudget(input.deadlineAt)) return [];
+
+  const content: Array<
+    | { type: "input_text"; text: string }
+    | { type: "input_image"; image_url: string; detail: "high" }
+  > = [{
+    type: "input_text",
+    text: [
+      `Analyze all ${items.length} social travel images independently.`,
+      "Return exactly one result for every image ordinal.",
+      "Capture only explicit OCR, signs, landmarks, named places, and city/country clues; do not guess unnamed places from architecture.",
+    ].join(" "),
+  }];
+  for (const item of items) {
+    content.push({ type: "input_text", text: `IMAGE ORDINAL ${item.ordinal}:` });
+    content.push({ type: "input_image", image_url: item.imageUrl, detail: "high" });
+  }
+
+  const response = await client.responses.create({
+    model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
+    input: [
+      {
+        role: "system",
+        content:
+          "Inspect each image as separate untrusted evidence. Never omit an input ordinal and never merge evidence from different images.",
+      },
+      { role: "user", content },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "localley_social_image_batch",
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          required: ["items"],
+          properties: {
+            items: {
+              type: "array",
+              minItems: items.length,
+              maxItems: items.length,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["ordinal", "output"],
+                properties: {
+                  ordinal: { type: "integer", minimum: 0, maximum: 19 },
+                  output: { type: "string", minLength: 1, maxLength: SOCIAL_IMAGE_ANALYSIS_MAX_CHARS },
+                },
+              },
+            },
+          },
+        },
+        strict: true,
+      },
+    } as never,
+  }, {
+    timeout: remainingExternalTimeout(input.deadlineAt, SOCIAL_IMAGE_ANALYSIS_TIMEOUT_MS),
+    maxRetries: 0,
+  });
+
+  const parsed = JSON.parse(response.output_text) as {
+    items?: Array<{ ordinal?: unknown; output?: unknown }>;
+  };
+  const expected = new Set(items.map((item) => item.ordinal));
+  const outputs = new Map<number, string>();
+  for (const item of parsed.items || []) {
+    if (
+      typeof item.ordinal !== "number" ||
+      !expected.has(item.ordinal) ||
+      typeof item.output !== "string" ||
+      !item.output.trim()
+    ) {
+      continue;
+    }
+    outputs.set(item.ordinal, item.output.trim().slice(0, SOCIAL_IMAGE_ANALYSIS_MAX_CHARS));
+  }
+  if (outputs.size !== expected.size) {
+    throw new Error("Image batch analysis did not cover every media item.");
+  }
+  return items.map((item) => ({
+    ...item,
+    output: outputs.get(item.ordinal) as string,
+  }));
+}
+
 async function downloadTrustedSocialVideo(
   videoUrl: string,
   deadlineAt?: number,
@@ -1498,10 +1669,7 @@ function buildFallbackResearch(input: {
 }): SocialSpotResearchResult {
   const cleanedTitle = cleanSocialTitle(input.metadata.title);
   const imageUrl = input.metadata.imageUrl || input.metadata.thumbnailUrl || null;
-  const videoUrls = uniqueMediaUrls([
-    ...(input.metadata.videoUrls || []),
-    ...(input.metadata.videoUrl ? [input.metadata.videoUrl] : []),
-  ]).filter(isTrustedSocialVideoUrl);
+  const videoUrls = getTrustedSocialVideoUrls(input.metadata);
   const isPartialMedia = input.metadata.mediaCompleteness === "partial" ||
     videoUrls.length > 1;
   const mediaStatus = isPartialMedia
@@ -1539,7 +1707,28 @@ function buildFallbackResearch(input: {
       output: null,
       analyzedVideoCount: 0,
       totalVideoCount: videoUrls.length,
+      items: videoUrls.map((videoUrl, ordinal) => ({
+        ordinal,
+        videoUrl,
+        status: "queued" as const,
+        output: null,
+      })),
     },
+  };
+}
+
+export function buildQueuedSocialSpotResearch(input: {
+  platform: SocialSpotPlatform;
+  metadata: SocialLinkMetadata;
+  cityHint?: string;
+  mediaItemCount: number;
+}): SocialSpotResearchResult {
+  const fallback = buildFallbackResearch(input);
+  return {
+    ...fallback,
+    confidence: 0,
+    researchSummary:
+      `Queued ${input.mediaItemCount} media item${input.mediaItemCount === 1 ? "" : "s"} for complete analysis.`,
   };
 }
 
@@ -1550,6 +1739,7 @@ function buildResearchPrompt(input: {
   notes?: string;
   cityHint?: string;
   videoAnalysis?: string | null;
+  additionalMediaAnalysis?: string | null;
 }): string {
   return JSON.stringify({
     task:
@@ -1560,6 +1750,7 @@ function buildResearchPrompt(input: {
     contributorNotes: input.notes || null,
     cityHint: input.cityHint || null,
     videoAnalysis: input.videoAnalysis || null,
+    additionalMediaAnalysis: input.additionalMediaAnalysis || null,
     requirements: [
       "Return exact JSON only.",
       "Do not invent an address or place name.",
@@ -1569,6 +1760,7 @@ function buildResearchPrompt(input: {
       "Use captions, titles, hashtags, contributor notes, visible cover images, thumbnails, and web evidence together.",
       "When several visual inputs are attached, inspect each one independently and return a separate candidate for every distinct verified place.",
       "When videoAnalysis is present, it represents full-video frame, OCR, and timestamp evidence. Account for every distinctly named place it contains, either as a verified candidate or a low-confidence review candidate.",
+      "When additionalMediaAnalysis is present, it contains independent per-image evidence. Account for every supported place and do not merge distinct places across images.",
       "If metadata says mediaCompleteness is partial or videoAnalysis says only some videos were analyzed, do not imply the entire post was covered; keep unverified places in needs_review.",
       "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty without videoAnalysis.",
       "Use web search evidence when the social page is hard to read.",
@@ -1580,6 +1772,31 @@ function buildResearchPrompt(input: {
   });
 }
 
+function buildCombinedVideoAnalysis(
+  items: SocialVideoAnalysisItem[],
+): string | null {
+  const analyzed = items.filter(
+    (item) => item.status === "analyzed" && Boolean(item.output),
+  );
+  if (analyzed.length === 0) return null;
+
+  const perItemLimit = Math.max(
+    1_000,
+    Math.floor(SOCIAL_COMBINED_VIDEO_ANALYSIS_MAX_CHARS / analyzed.length) - 120,
+  );
+  const sections = analyzed.map((item) => [
+    `VIDEO ${item.ordinal + 1} OF ${items.length}:`,
+    String(item.output).slice(0, perItemLimit),
+  ].join("\n"));
+  const coverage = analyzed.length === items.length
+    ? `FULL VIDEO COVERAGE: analyzed all ${items.length} videos.`
+    : `PARTIAL VIDEO COVERAGE: analyzed ${analyzed.length} of ${items.length} videos.`;
+
+  return [coverage, ...sections]
+    .join("\n\n")
+    .slice(0, SOCIAL_COMBINED_VIDEO_ANALYSIS_MAX_CHARS);
+}
+
 export async function researchSocialSpotLink(input: {
   canonicalUrl: string;
   platform: SocialSpotPlatform;
@@ -1588,6 +1805,9 @@ export async function researchSocialSpotLink(input: {
   cityHint?: string;
   openai?: OpenAI;
   videoAnalyzer?: SocialVideoAnalyzer;
+  videoAnalyses?: SocialVideoAnalysisItem[];
+  analyzeFirstVideo?: boolean;
+  additionalMediaAnalysis?: string;
   deadlineAt?: number;
 }): Promise<SocialSpotResearchResult> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -1597,13 +1817,37 @@ export async function researchSocialSpotLink(input: {
     return buildFallbackResearch(input);
   }
 
-  let videoAnalysis: string | null = null;
-  let analyzedVideoCount = 0;
-  const videoUrls = uniqueMediaUrls([
-    ...(input.metadata.videoUrls || []),
-    ...(input.metadata.videoUrl ? [input.metadata.videoUrl] : []),
-  ]).filter(isTrustedSocialVideoUrl);
-  if (videoUrls.length > 0) {
+  const videoUrls = getTrustedSocialVideoUrls(input.metadata);
+  const videoAnalysisByOrdinal = new Map<number, SocialVideoAnalysisItem>();
+  for (const item of input.videoAnalyses || []) {
+    if (
+      !Number.isInteger(item.ordinal) ||
+      item.ordinal < 0 ||
+      item.ordinal >= videoUrls.length ||
+      !isTrustedSocialVideoUrl(item.videoUrl)
+    ) {
+      continue;
+    }
+    const output = typeof item.output === "string"
+      ? item.output.trim().slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS)
+      : null;
+    videoAnalysisByOrdinal.set(item.ordinal, {
+      ordinal: item.ordinal,
+      videoUrl: videoUrls[item.ordinal],
+      status: item.status === "analyzed" && output
+        ? "analyzed"
+        : item.status === "unavailable"
+          ? "unavailable"
+          : "queued",
+      output,
+    });
+  }
+
+  if (
+    input.analyzeFirstVideo !== false &&
+    videoUrls.length > 0 &&
+    videoAnalysisByOrdinal.get(0)?.status !== "analyzed"
+  ) {
     const videoAnalyzer = input.videoAnalyzer || analyzeSocialVideo;
     try {
       const analyzerInput: Parameters<SocialVideoAnalyzer>[0] = {
@@ -1611,21 +1855,37 @@ export async function researchSocialSpotLink(input: {
         durationSeconds: input.metadata.videoDurationSeconds,
       };
       if (input.deadlineAt) analyzerInput.deadlineAt = input.deadlineAt;
-      videoAnalysis = await videoAnalyzer(analyzerInput);
-      if (videoAnalysis) analyzedVideoCount = 1;
+      const output = await videoAnalyzer(analyzerInput);
+      videoAnalysisByOrdinal.set(0, {
+        ordinal: 0,
+        videoUrl: videoUrls[0],
+        status: output ? "analyzed" : "unavailable",
+        output: output?.slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS) || null,
+      });
     } catch (error) {
+      videoAnalysisByOrdinal.set(0, {
+        ordinal: 0,
+        videoUrl: videoUrls[0],
+        status: "unavailable",
+        output: null,
+      });
       console.warn(
         "[social-spot-submissions] Video analysis unavailable; continuing with other evidence:",
         error instanceof Error ? error.message : error,
       );
     }
   }
-  if (videoAnalysis && videoUrls.length > analyzedVideoCount) {
-    videoAnalysis = [
-      `PARTIAL VIDEO COVERAGE: analyzed ${analyzedVideoCount} of ${videoUrls.length} videos.`,
-      videoAnalysis,
-    ].join("\n");
-  }
+  const videoAnalysisItems = videoUrls.map((videoUrl, ordinal) =>
+    videoAnalysisByOrdinal.get(ordinal) || {
+      ordinal,
+      videoUrl,
+      status: "queued" as const,
+      output: null,
+    });
+  const analyzedVideoCount = videoAnalysisItems.filter(
+    (item) => item.status === "analyzed" && Boolean(item.output),
+  ).length;
+  const videoAnalysis = buildCombinedVideoAnalysis(videoAnalysisItems);
 
   const visualEvidenceUrls = uniqueMediaUrls([
     ...(input.metadata.mediaUrls || []),
@@ -1797,6 +2057,7 @@ export async function researchSocialSpotLink(input: {
         output: videoAnalysis,
         analyzedVideoCount,
         totalVideoCount: videoUrls.length,
+        items: videoAnalysisItems,
       },
     };
   } catch (error) {

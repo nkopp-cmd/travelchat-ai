@@ -13,9 +13,15 @@ import {
   Video,
 } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
+import {
+  SubmissionMediaProgress,
+  SubmissionMediaProgressProvider,
+  type SubmissionMediaProgressItem,
+} from "@/components/spots/submission-media-progress";
 import { Button } from "@/components/ui/button";
 import { isAdminUser } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { loadSocialMediaProgressForSubmissions } from "@/lib/social-spot-media-jobs";
 import { cn } from "@/lib/utils";
 import { SubmissionEvidenceForm } from "./evidence-form";
 
@@ -450,6 +456,27 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
     (activePage - 1) * SUBMISSIONS_DISPLAY_PAGE_SIZE,
     activePage * SUBMISSIONS_DISPLAY_PAGE_SIZE,
   );
+  const mediaProgressBySubmission = await loadSocialMediaProgressForSubmissions({
+    supabase: createSupabaseAdmin(),
+    submissionIds: filteredSubmissions.map((submission) => submission.id),
+  });
+  const initialMediaProgress: Record<string, SubmissionMediaProgressItem[]> = Object.fromEntries(
+    filteredSubmissions.map((submission) => [
+    submission.id,
+    (mediaProgressBySubmission.get(submission.id) || [])
+      .filter((item) => item.state !== "cancelled")
+      .map((item) => ({
+        id: item.id,
+        state: (item.state === "leased" ? "processing" : item.state) as
+          SubmissionMediaProgressItem["state"],
+        kind: item.mediaKind,
+        ordinal: item.ordinal + 1,
+        attempts: item.attemptCount,
+        maxAttempts: item.maxAttempts,
+        publicErrorCode: item.publicErrorCode,
+      })),
+    ]),
+  );
   const highlightedSubmissionMissing = Boolean(
     highlightedSubmissionId &&
       !submissions.some((submission) => submission.id === highlightedSubmissionId),
@@ -550,9 +577,21 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                 </p>
               </section>
             ) : (
+              <SubmissionMediaProgressProvider initialProgress={initialMediaProgress}>
               <div className="grid gap-4">
                 {filteredSubmissions.map((submission) => {
-              const status = getSubmissionStatusCopy(submission);
+              const mediaProgress = initialMediaProgress[submission.id] || [];
+              const hasActiveMedia = mediaProgress.some((item) =>
+                ["queued", "processing", "retry_wait"].includes(item.state),
+              );
+              const status = hasActiveMedia
+                ? {
+                    label: "Processing media",
+                    helper: "Localley is checking every image and video before creating spots.",
+                    icon: Clock3,
+                    className: "border-sky-200/25 bg-sky-400/10 text-sky-100",
+                  }
+                : getSubmissionStatusCopy(submission);
               const StatusIcon = status.icon;
               const mediaStatus = getMediaStatusCopy(submission);
               const MediaStatusIcon = mediaStatus.icon;
@@ -614,7 +653,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                             <MediaStatusIcon className="h-3.5 w-3.5" />
                             {mediaStatus.label}
                           </span>
-                          <span className="text-xs text-violet-50/45">
+                          <span className="text-xs text-violet-50/65">
                             {formatDate(submission.created_at)}
                           </span>
                         </div>
@@ -639,6 +678,14 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                         {submission.research_summary}
                       </p>
                     )}
+
+                    {mediaProgress.length > 0 ? (
+                      <SubmissionMediaProgress
+                        submissionId={submission.id}
+                        items={mediaProgress}
+                        className="mt-4 border-violet-200/15 bg-black/20"
+                      />
+                    ) : null}
 
                     {createdCandidates.length > 0 && (
                       <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -710,6 +757,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
               );
                 })}
               </div>
+              </SubmissionMediaProgressProvider>
             )}
             {pageCount > 1 && (
               <nav aria-label="Submission pages" className="mt-5 flex items-center justify-center gap-2">

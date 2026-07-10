@@ -31,6 +31,16 @@ const mocks = vi.hoisted(() => ({
     finalUrl: "https://vm.tiktok.com/ZMh123",
   })),
   enrichSocialLinkMetadataWithProvider: vi.fn(async (metadata: Record<string, unknown>) => metadata),
+  syncSocialMediaManifest: vi.fn(async () => ({
+    available: true,
+    queued: false,
+    workerRequired: false,
+    coverage: { complete: false, expectedCount: 0, extractedCount: 0, reason: "no_media" },
+    total: 0,
+    revision: 0,
+    state: "not_started",
+  })),
+  loadSocialMediaProgress: vi.fn(async () => []),
   researchSocialSpotLink: vi.fn(async () => ({
     status: "candidate",
     spotName: "Hidden Seoul Cafe",
@@ -46,6 +56,10 @@ const mocks = vi.hoisted(() => ({
     confidence: 0.84,
     researchSummary: "Verified as a real cafe from social and web evidence.",
     evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+    mediaAnalysis: {
+      status: "images_extracted",
+      output: "The submitted image was analyzed.",
+    },
   })),
   contributorRows: [] as Array<Record<string, unknown>>,
   submissionRows: [] as Array<Record<string, unknown>>,
@@ -98,6 +112,11 @@ vi.mock("@/lib/social-spot-submissions", async (importOriginal) => {
     researchSocialSpotLink: mocks.researchSocialSpotLink,
   };
 });
+
+vi.mock("@/lib/social-spot-media-jobs", () => ({
+  syncSocialMediaManifest: mocks.syncSocialMediaManifest,
+  loadSocialMediaProgress: mocks.loadSocialMediaProgress,
+}));
 
 function createSupabaseMock() {
   return {
@@ -407,12 +426,13 @@ function createRequest(body: Record<string, unknown>) {
   });
 }
 
-function createPatchRequest(body: Record<string, unknown>) {
+function createPatchRequest(body: Record<string, unknown>, authorization?: string) {
   return new NextRequest("https://www.localley.io/api/spots/social-submissions", {
     method: "PATCH",
     body: JSON.stringify(body),
     headers: {
       "content-type": "application/json",
+      ...(authorization ? { authorization } : {}),
     },
   });
 }
@@ -434,6 +454,16 @@ describe("/api/spots/social-submissions", () => {
     mocks.rateLimitStrict.mockResolvedValue(null);
     mocks.auth.mockResolvedValue({ userId: "clerk_test" });
     mocks.enrichSocialLinkMetadataWithProvider.mockImplementation(async (metadata) => metadata);
+    mocks.syncSocialMediaManifest.mockResolvedValue({
+      available: true,
+      queued: false,
+      workerRequired: false,
+      coverage: { complete: false, expectedCount: 0, extractedCount: 0, reason: "no_media" },
+      total: 0,
+      revision: 0,
+      state: "not_started",
+    });
+    mocks.loadSocialMediaProgress.mockResolvedValue([]);
   });
 
   it("stays disabled until the feature flag is enabled", async () => {
@@ -569,7 +599,8 @@ describe("/api/spots/social-submissions", () => {
 
     expect(response.status).toBe(200);
     expect(body.submission.status).toBe("needs_review");
-    expect(body.spots).toHaveLength(1);
+    expect(body.spots).toHaveLength(0);
+    expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.submissionRows[0]).toMatchObject({ status: "needs_review" });
   });
 
@@ -605,10 +636,26 @@ describe("/api/spots/social-submissions", () => {
 
     expect(response.status).toBe(200);
     expect(body.submission.status).toBe("needs_review");
+    expect(body.spots).toHaveLength(0);
+    expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.submissionRows[0]).toMatchObject({ status: "needs_review" });
   });
 
   it("keeps provider-unavailable Instagram media in review", async () => {
+    mocks.syncSocialMediaManifest.mockResolvedValueOnce({
+      available: true,
+      queued: false,
+      workerRequired: true,
+      coverage: {
+        complete: false,
+        expectedCount: 3,
+        extractedCount: 1,
+        reason: "provider_partial",
+      },
+      total: 1,
+      revision: 0,
+      state: "coverage_retry",
+    });
     mocks.researchSocialSpotLink.mockResolvedValueOnce({
       status: "candidate",
       spotName: "Caption Cafe",
@@ -638,8 +685,16 @@ describe("/api/spots/social-submissions", () => {
     }));
     const body = await response.json();
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(202);
     expect(body.submission.status).toBe("needs_review");
+    expect(body.mediaProcessing).toMatchObject({
+      state: "coverage_retry",
+      total: 1,
+      expected: 3,
+      coverage: "provider_partial",
+    });
+    expect(body.spots).toHaveLength(0);
+    expect(mocks.spotRows).toHaveLength(0);
     expect(mocks.submissionRows[0]).toMatchObject({ status: "needs_review" });
   });
 
@@ -670,6 +725,45 @@ describe("/api/spots/social-submissions", () => {
       expect.objectContaining({ includeInstagramProvider: false }),
     );
     expect(mocks.enrichSocialLinkMetadataWithProvider).toHaveBeenCalledOnce();
+  });
+
+  it("returns accepted and defers public spot creation while media jobs are queued", async () => {
+    mocks.fetchSocialLinkMetadata.mockResolvedValueOnce({
+      title: "Two Seoul places",
+      description: "A mixed carousel",
+      imageUrl: "https://scontent.cdninstagram.com/v/image/cover.jpg",
+      mediaUrls: ["https://scontent.cdninstagram.com/v/image/cover.jpg"],
+      videoUrls: ["https://scontent.cdninstagram.com/v/video/one.mp4"],
+      finalUrl: "https://www.instagram.com/p/QUEUED123",
+    });
+    mocks.syncSocialMediaManifest.mockResolvedValueOnce({
+      available: true,
+      queued: true,
+      workerRequired: true,
+      coverage: { complete: true, expectedCount: 2, extractedCount: 2, reason: "complete" },
+      total: 2,
+      revision: 1,
+      state: "queued",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://www.instagram.com/p/QUEUED123",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(202);
+    expect(body).toMatchObject({
+      submission: { status: "needs_review", spotId: null },
+      mediaProcessing: {
+        state: "queued",
+        total: 2,
+        trackerUrl: "/spots/submissions",
+      },
+      spots: [],
+    });
+    expect(mocks.spotRows).toHaveLength(0);
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
   });
 
   it("stays compatible while the optional reliability migration is pending", async () => {
@@ -774,6 +868,10 @@ describe("/api/spots/social-submissions", () => {
       imageUrl: null,
       visualEvidence: "Instagram post image shows the storefront signage.",
       candidates: [],
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "The submitted image was analyzed.",
+      },
     });
     const { POST } = await import("@/app/api/spots/social-submissions/route");
 
@@ -855,6 +953,10 @@ describe("/api/spots/social-submissions", () => {
       imageUrl: null,
       visualEvidence: "The caption names the cafe.",
       candidates: [],
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "The submitted image was analyzed.",
+      },
     });
     mocks.findBestGooglePlaceMatch.mockResolvedValueOnce({
       place: null,
@@ -955,6 +1057,12 @@ describe("/api/spots/social-submissions", () => {
           visualEvidence: "Cover metadata and caption mention a second dessert stop.",
         },
       ],
+      mediaAnalysis: {
+        status: "video_analyzed",
+        output: "The submitted video was analyzed completely.",
+        analyzedVideoCount: 1,
+        totalVideoCount: 1,
+      },
     });
     const { POST } = await import("@/app/api/spots/social-submissions/route");
 
@@ -1348,6 +1456,10 @@ describe("/api/spots/social-submissions", () => {
       imageUrl: null,
       visualEvidence: "Contributor identified the place.",
       candidates: [],
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "The submitted image was analyzed.",
+      },
     });
     const { PATCH } = await import("@/app/api/spots/social-submissions/route");
 
@@ -1452,6 +1564,221 @@ describe("/api/spots/social-submissions", () => {
         expect.objectContaining({ spotId: "spot_existing_primary" }),
         expect.objectContaining({ spotId: "spot_test_1" }),
       ]),
+    });
+  });
+
+  it("finalizes complete queued media and materializes every researched place", async () => {
+    process.env.CRON_SECRET = "worker-secret";
+    mocks.submissionRows.push({
+      id: "44444444-4444-4444-8444-444444444444",
+      canonical_url: "https://www.instagram.com/p/QUEUED123",
+      platform: "instagram",
+      status: "needs_review",
+      spot_id: null,
+      clerk_user_id: "clerk_test",
+      notes: null,
+      city_hint: "Seoul",
+      media_processing_revision: 1,
+      media_processing_state: "finalizing",
+      metadata: {
+        finalUrl: "https://www.instagram.com/p/QUEUED123",
+        mediaUrls: ["https://scontent.cdninstagram.com/v/image/one.jpg"],
+        videoUrls: ["https://scontent.cdninstagram.com/v/video/two.mp4"],
+      },
+      research: { candidates: [], createdCandidates: [] },
+    });
+    mocks.loadSocialMediaProgress.mockResolvedValueOnce([
+      {
+        id: "image-job",
+        submissionId: "44444444-4444-4444-8444-444444444444",
+        revision: 1,
+        ordinal: 0,
+        mediaKind: "image",
+        state: "succeeded",
+        result: { output: "Image one shows the Hidden Seoul Cafe frontage." },
+      },
+      {
+        id: "video-job",
+        submissionId: "44444444-4444-4444-8444-444444444444",
+        revision: 1,
+        ordinal: 1,
+        mediaKind: "video",
+        state: "succeeded",
+        result: { output: "Video two identifies Ikseon Alley Dessert." },
+      },
+    ]);
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Hidden Seoul Cafe",
+      description: "A compact local cafe.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 5,
+      localPercentage: 82,
+      bestTime: "Weekday afternoon",
+      tips: [],
+      confidence: 0.9,
+      researchSummary: "Both distinct places were verified from complete media evidence.",
+      evidenceUrls: ["https://www.instagram.com/p/QUEUED123"],
+      candidates: [
+        {
+          status: "candidate",
+          spotName: "Hidden Seoul Cafe",
+          description: "A compact local cafe.",
+          address: "1 Seoullo, Seoul",
+          city: "Seoul",
+          category: "Cafe",
+          subcategories: ["Coffee"],
+          localleyScore: 5,
+          localPercentage: 82,
+          bestTime: "Weekday afternoon",
+          tips: [],
+          confidence: 0.9,
+          researchSummary: "Verified from image one.",
+          evidenceUrls: ["https://www.instagram.com/p/QUEUED123"],
+        },
+        {
+          status: "candidate",
+          spotName: "Ikseon Alley Dessert",
+          description: "A separate dessert stop from the same post.",
+          address: "22 Supyo-ro 28-gil, Seoul",
+          city: "Seoul",
+          category: "Dessert",
+          subcategories: ["Dessert"],
+          localleyScore: 4,
+          localPercentage: 76,
+          bestTime: "After lunch",
+          tips: [],
+          confidence: 0.86,
+          researchSummary: "Verified from video two.",
+          evidenceUrls: ["https://www.instagram.com/p/QUEUED123"],
+        },
+      ],
+      mediaAnalysis: {
+        status: "video_analyzed",
+        output: "Complete image and video evidence.",
+        analyzedVideoCount: 1,
+        totalVideoCount: 1,
+      },
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "44444444-4444-4444-8444-444444444444",
+      canonicalUrl: "https://www.instagram.com/p/QUEUED123",
+      notes: "Automatic final research after every queued media item completed.",
+    }, "Bearer worker-secret"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({ status: "spot_created", spotId: "spot_test_1" });
+    expect(body.spots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ spotId: "spot_test_1", name: "Hidden Seoul Cafe" }),
+      expect.objectContaining({ spotId: "spot_test_2", name: "Ikseon Alley Dessert" }),
+    ]));
+    expect(mocks.spotRows).toHaveLength(2);
+    expect(mocks.rateLimitStrict).not.toHaveBeenCalled();
+    expect(mocks.auth).not.toHaveBeenCalled();
+    expect(mocks.researchSocialSpotLink).toHaveBeenCalledWith(expect.objectContaining({
+      analyzeFirstVideo: false,
+      additionalMediaAnalysis: expect.stringContaining("Hidden Seoul Cafe frontage"),
+      videoAnalyses: [expect.objectContaining({ output: expect.stringContaining("Ikseon") })],
+    }));
+  });
+
+  it("refuses internal finalization while any queued media item is unfinished", async () => {
+    process.env.CRON_SECRET = "worker-secret";
+    mocks.submissionRows.push({
+      id: "55555555-5555-4555-8555-555555555555",
+      canonical_url: "https://www.instagram.com/p/WAIT123",
+      platform: "instagram",
+      status: "needs_review",
+      spot_id: null,
+      clerk_user_id: "clerk_test",
+      media_processing_revision: 1,
+      media_processing_state: "processing",
+      metadata: { finalUrl: "https://www.instagram.com/p/WAIT123" },
+      research: {},
+    });
+    mocks.loadSocialMediaProgress.mockResolvedValueOnce([
+      { id: "done", mediaKind: "image", state: "succeeded", result: { output: "done" } },
+      { id: "waiting", mediaKind: "image", state: "queued", result: null },
+    ]);
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "55555555-5555-4555-8555-555555555555",
+      canonicalUrl: "https://www.instagram.com/p/WAIT123",
+      notes: "Automatic final research after every queued media item completed.",
+    }, "Bearer worker-secret"));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error.message).toContain("Every media item");
+    expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
+    expect(mocks.spotRows).toHaveLength(0);
+  });
+
+  it("keeps aggregate research retryable when the internal research provider falls back", async () => {
+    process.env.CRON_SECRET = "worker-secret";
+    mocks.submissionRows.push({
+      id: "66666666-6666-4666-8666-666666666666",
+      canonical_url: "https://www.instagram.com/p/RETRY123",
+      platform: "instagram",
+      status: "needs_review",
+      spot_id: null,
+      clerk_user_id: "clerk_test",
+      media_processing_revision: 1,
+      media_processing_state: "finalizing",
+      metadata: {
+        finalUrl: "https://www.instagram.com/p/RETRY123",
+        mediaUrls: ["https://scontent.cdninstagram.com/v/image/one.jpg"],
+      },
+      research: {},
+    });
+    mocks.loadSocialMediaProgress.mockResolvedValueOnce([{
+      id: "done",
+      mediaKind: "image",
+      state: "succeeded",
+      ordinal: 0,
+      result: { output: "complete image evidence" },
+    }]);
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "research_pending",
+      spotName: null,
+      description: null,
+      address: null,
+      city: null,
+      category: null,
+      subcategories: [],
+      localleyScore: null,
+      localPercentage: null,
+      bestTime: null,
+      tips: [],
+      confidence: 0.1,
+      researchSummary: "Aggregate research provider was temporarily unavailable.",
+      evidenceUrls: ["https://www.instagram.com/p/RETRY123"],
+      candidates: [],
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "complete image evidence",
+      },
+    });
+    const { PATCH } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await PATCH(createPatchRequest({
+      submissionId: "66666666-6666-4666-8666-666666666666",
+      canonicalUrl: "https://www.instagram.com/p/RETRY123",
+      notes: "Automatic final research after every queued media item completed.",
+    }, "Bearer worker-secret"));
+
+    expect(response.status).toBe(502);
+    expect(mocks.spotRows).toHaveLength(0);
+    expect(mocks.submissionRows[0]).toMatchObject({
+      status: "needs_review",
+      spot_id: null,
     });
   });
 
