@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Define public routes that don't require authentication
-const isPublicRoute = createRouteMatcher([
+export const isPublicRoute = createRouteMatcher([
     '/',
     '/sign-in(.*)',
     '/sign-up(.*)',
@@ -15,7 +15,9 @@ const isPublicRoute = createRouteMatcher([
     '/api/itineraries/demo',  // Demo itinerary endpoint
     '/api/cities',  // City listing for destination picker (must work for anonymous users)
     '/api/places/photo',  // Public spot image proxy; API key stays server-side
-    '/api/spots/social-submissions',  // Public contribution intake; server route handles validation/rate limits
+    '/api/spots/social-submissions(.*)',  // Public intake/status; server routes handle validation and rate limits
+    '/api/cron/cleanup-stories',  // Vercel cron; route enforces CRON_SECRET
+    '/api/cron/process-social-submissions',  // Vercel cron; route enforces CRON_SECRET
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
