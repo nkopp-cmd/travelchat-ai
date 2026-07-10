@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { isAdminUser } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { loadSocialMediaProgressForSubmissions } from "@/lib/social-spot-media-jobs";
+import { getFirstRealDisplaySpotPhoto } from "@/lib/spots/display-images";
 import { cn } from "@/lib/utils";
 import { SubmissionEvidenceForm } from "./evidence-form";
 
@@ -178,10 +179,6 @@ function getSubmissionTitle(submission: SubmissionRow) {
   );
 }
 
-function getSubmissionImage(submission: SubmissionRow) {
-  return submission.metadata?.imageUrl || submission.metadata?.thumbnailUrl || null;
-}
-
 function getCreatedCandidates(submission: SubmissionRow): CreatedCandidate[] {
   const created = (submission.research?.createdCandidates || []).filter((candidate) =>
     Boolean(candidate.spotId),
@@ -199,6 +196,49 @@ function getCreatedCandidates(submission: SubmissionRow): CreatedCandidate[] {
       confidence: submission.research_confidence,
     },
   ];
+}
+
+function getPrimaryCreatedSpotId(submission: SubmissionRow): string | null {
+  return getCreatedCandidates(submission).find((candidate) => candidate.spotId)?.spotId || null;
+}
+
+function getSubmissionImage(
+  submission: SubmissionRow,
+  primarySpotImages: Map<string, string>,
+) {
+  const socialImage = submission.metadata?.imageUrl || submission.metadata?.thumbnailUrl;
+  if (socialImage) return socialImage;
+
+  const spotId = getPrimaryCreatedSpotId(submission);
+  return spotId ? primarySpotImages.get(spotId) || null : null;
+}
+
+async function loadPrimarySpotImages(
+  submissions: SubmissionRow[],
+): Promise<Map<string, string>> {
+  const spotIds = Array.from(new Set(
+    submissions.map(getPrimaryCreatedSpotId).filter((spotId): spotId is string => Boolean(spotId)),
+  ));
+  const images = new Map<string, string>();
+  if (spotIds.length === 0) return images;
+
+  const { data, error } = await createSupabaseAdmin()
+    .from("spots")
+    .select("id, photos")
+    .in("id", spotIds);
+  if (error) {
+    console.error("[submitted-posts] Failed to load linked spot images:", error.message);
+    return images;
+  }
+
+  for (const row of data || []) {
+    const photos = Array.isArray(row.photos)
+      ? row.photos.filter((photo): photo is string => typeof photo === "string")
+      : [];
+    const image = getFirstRealDisplaySpotPhoto(photos);
+    if (image) images.set(String(row.id), image);
+  }
+  return images;
 }
 
 function hasUsableCandidatePlace(candidate: Candidate): boolean {
@@ -486,6 +526,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
     (activePage - 1) * SUBMISSIONS_DISPLAY_PAGE_SIZE,
     activePage * SUBMISSIONS_DISPLAY_PAGE_SIZE,
   );
+  const primarySpotImages = await loadPrimarySpotImages(filteredSubmissions);
   const mediaProgressBySubmission = await loadSocialMediaProgressForSubmissions({
     supabase: createSupabaseAdmin(),
     submissionIds: filteredSubmissions.map((submission) => submission.id),
@@ -630,7 +671,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
               const mediaStatus = getMediaStatusCopy(submission);
               const MediaStatusIcon = mediaStatus.icon;
               const title = getSubmissionTitle(submission);
-              const image = getSubmissionImage(submission);
+              const image = getSubmissionImage(submission, primarySpotImages);
               const createdCandidates = getCreatedCandidates(submission);
               const pendingCandidates = getPendingCandidates(submission);
               const canAddEvidence = Boolean(
@@ -653,6 +694,8 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                   <div className="relative aspect-video bg-violet-950/60 md:aspect-auto md:min-h-full">
                     {image ? (
                       <div
+                        role="img"
+                        aria-label={`${title} preview`}
                         className="h-full w-full bg-cover bg-center"
                         style={{ backgroundImage: `url(${image})` }}
                       />
