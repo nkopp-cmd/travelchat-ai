@@ -1113,6 +1113,7 @@ function mergeSocialMetadata(
   if (!extra) return base;
   const baseTitleIsGeneric = isGenericSocialTitle(base.title);
   const preferExtraMedia = extra.extractionProvider === "apify_instagram";
+  const extraMediaIsAuthoritative = preferExtraMedia && extra.mediaCompleteness === "complete";
 
   return {
     title: baseTitleIsGeneric ? extra.title || base.title || null : base.title || extra.title || null,
@@ -1129,7 +1130,7 @@ function mergeSocialMetadata(
       ...(extra.mediaUrls || []),
       ...(extra.imageUrl ? [extra.imageUrl] : []),
       ...(extra.thumbnailUrl ? [extra.thumbnailUrl] : []),
-      ...(base.mediaUrls || []),
+      ...(extraMediaIsAuthoritative ? [] : base.mediaUrls || []),
     ] : [
       ...(base.mediaUrls || []),
       ...(extra.mediaUrls || []),

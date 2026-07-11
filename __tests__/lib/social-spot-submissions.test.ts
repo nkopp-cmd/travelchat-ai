@@ -16,6 +16,7 @@ import {
   socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
 } from "@/lib/social-spot-submissions";
+import { buildSocialMediaManifest } from "@/lib/social-spot-media-jobs";
 
 const falMocks = vi.hoisted(() => ({
   config: vi.fn(),
@@ -543,6 +544,7 @@ describe("social spot submission helpers", () => {
     const canonicalUrl = "https://www.instagram.com/p/CAROUSEL123";
     const slideOne = "https://scontent.cdninstagram.com/v/carousel/slide-one.jpg?size=large";
     const slideTwo = "https://instagram.ficn3-2.fna.fbcdn.net/v/carousel/slide-two.jpg?size=large";
+    const htmlCover = "https://scontent.cdninstagram.com/v/rendered/cover-only.jpg";
     let actorRequest: RequestInit | undefined;
     let actorUrl = "";
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
@@ -567,10 +569,13 @@ describe("social spot submission helpers", () => {
         });
       }
       if (url === canonicalUrl) {
-        return new Response("<html><head><title>Instagram</title></head></html>", {
-          status: 200,
-          headers: { "content-type": "text/html" },
-        });
+        return new Response(
+          `<html><head><title>Instagram</title><meta property="og:image" content="${htmlCover}"></head></html>`,
+          {
+            status: 200,
+            headers: { "content-type": "text/html" },
+          },
+        );
       }
       throw new Error(`Unexpected fetch ${url}`);
     });
@@ -604,6 +609,35 @@ describe("social spot submission helpers", () => {
       resultsLimit: 1,
     });
     expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(metadata.mediaUrls).not.toContain(htmlCover);
+  });
+
+  it("keeps public HTML media when the Instagram provider is partial", async () => {
+    process.env.APIFY_API_TOKEN = "apify_test_token";
+    const canonicalUrl = "https://www.instagram.com/p/PARTIAL123";
+    const htmlImage = "https://scontent.cdninstagram.com/v/public/html-image.jpg";
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.startsWith("https://api.apify.com/")) {
+        return new Response(JSON.stringify([{
+          shortCode: "PARTIAL123",
+          caption: "Caption only while media is unavailable",
+          ownerUsername: "localley_creator",
+        }]), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      if (url === canonicalUrl) {
+        return new Response(
+          `<meta property="og:image" content="${htmlImage}">`,
+          { status: 200, headers: { "content-type": "text/html" } },
+        );
+      }
+      throw new Error(`Unexpected fetch ${url}`);
+    });
+
+    const metadata = await fetchSocialLinkMetadata(canonicalUrl);
+
+    expect(metadata.mediaCompleteness).toBe("partial");
+    expect(metadata.mediaUrls).toContain(htmlImage);
   });
 
   it("extracts an Instagram reel for full-video analysis", async () => {
@@ -645,6 +679,43 @@ describe("social spot submission helpers", () => {
       extractionProvider: "apify_instagram",
     });
     expect(JSON.parse(actorBody).resultsType).toBe("reels");
+  });
+
+  it("keeps the HTML cover when complete Instagram Reel metadata is video-only", async () => {
+    process.env.APIFY_API_TOKEN = "apify_test_token";
+    const canonicalUrl = "https://www.instagram.com/reel/VIDEOONLY123";
+    const reelUrl = "https://scontent.cdninstagram.com/v/video/video-only.mp4?token=abc";
+    const htmlCover = "https://scontent.cdninstagram.com/v/image/html-cover.jpg?token=abc";
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.startsWith("https://api.apify.com/")) {
+        return new Response(JSON.stringify([{
+          shortCode: "VIDEOONLY123",
+          caption: "One travel Reel",
+          videoUrl: reelUrl,
+          videoDuration: 18,
+          ownerUsername: "localley_creator",
+        }]), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      if (url === canonicalUrl) {
+        return new Response(
+          `<meta property="og:image" content="${htmlCover}">`,
+          { status: 200, headers: { "content-type": "text/html" } },
+        );
+      }
+      throw new Error(`Unexpected fetch ${url}`);
+    });
+
+    const metadata = await fetchSocialLinkMetadata(canonicalUrl);
+    const manifest = buildSocialMediaManifest(metadata);
+
+    expect(metadata).toMatchObject({
+      imageUrl: htmlCover,
+      videoUrl: reelUrl,
+      mediaCompleteness: "complete",
+      mediaAccessStatus: "video_ready",
+    });
+    expect(manifest.map((item) => item.mediaKind)).toEqual(["image", "video"]);
   });
 
   it("resolves an Instagram share URL before invoking the provider once", async () => {
