@@ -6,6 +6,7 @@ import {
   enrichSocialLinkMetadataWithProvider,
   extractSocialMetadataFromHtml,
   fetchSocialLinkMetadata,
+  filterUnmatchedSocialPlaceIdentities,
   getResearchCandidates,
   isTrustedInstagramMediaUrl,
   maskEmailForCredit,
@@ -80,6 +81,20 @@ describe("social spot submission helpers", () => {
       spotName: null,
       address: null,
     }, resolved)).toBe(true);
+    expect(filterUnmatchedSocialPlaceIdentities([
+      {
+        spotName: "aanzee (안지)",
+        address: "19-24 Hangang-daero 15-gil",
+        city: "Seoul, South Korea",
+      },
+      {
+        spotName: "aanzee Annex",
+        address: "19-24 Hangang-daero 15-gil",
+        city: "Seoul",
+      },
+    ], [resolved])).toEqual([
+      expect.objectContaining({ spotName: "aanzee Annex" }),
+    ]);
   });
 
   afterEach(() => {

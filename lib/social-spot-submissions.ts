@@ -283,6 +283,15 @@ export function socialPlaceIdentitiesMatch(
     socialPlaceFieldsMatch(left.address, right.address, 8);
 }
 
+export function filterUnmatchedSocialPlaceIdentities<T extends SocialPlaceIdentity>(
+  candidates: T[],
+  resolved: SocialPlaceIdentity[],
+): T[] {
+  return candidates.filter((candidate) =>
+    !resolved.some((resolvedPlace) => socialPlaceIdentitiesMatch(candidate, resolvedPlace))
+  );
+}
+
 export function getResearchCandidates(
   research: SocialSpotResearchResult | SocialSpotResearchCandidate,
 ): SocialSpotResearchCandidate[] {

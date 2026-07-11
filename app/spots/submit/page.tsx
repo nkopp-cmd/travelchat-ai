@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { extractSocialUrl } from "@/lib/social-share-target";
+import { filterUnmatchedSocialPlaceIdentities } from "@/lib/social-spot-submissions";
 
 type SubmissionResponse = {
   success: boolean;
@@ -102,12 +103,13 @@ function getCandidateKey(candidate: {
 
 function getUnresolvedCandidates(result: SubmissionResponse | null) {
   const candidates = result?.research?.candidates || [];
-  const readyKeys = new Set((result?.spots || []).map(getCandidateKey));
-
-  return candidates.filter((candidate) => {
-    const needsReview = ["needs_review", "research_pending"].includes(candidate.status);
-    return needsReview || !readyKeys.has(getCandidateKey(candidate));
-  });
+  const resolved = (result?.spots || []).map((spot) => ({
+    spotId: spot.spotId,
+    spotName: spot.name,
+    address: spot.address,
+    city: spot.city,
+  }));
+  return filterUnmatchedSocialPlaceIdentities(candidates, resolved);
 }
 
 function SocialSubmissionsUnavailable() {

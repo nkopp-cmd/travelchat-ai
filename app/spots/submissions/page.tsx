@@ -23,7 +23,9 @@ import type { SocialMediaProcessingSummary } from "@/lib/social-spot-media-jobs"
 import { Button } from "@/components/ui/button";
 import { isAdminUser } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { socialPlaceIdentitiesMatch } from "@/lib/social-spot-submissions";
+import {
+  filterUnmatchedSocialPlaceIdentities,
+} from "@/lib/social-spot-submissions";
 import { loadSocialMediaProgressForSubmissions } from "@/lib/social-spot-media-jobs";
 import { getFirstRealDisplaySpotPhoto } from "@/lib/spots/display-images";
 import { cn } from "@/lib/utils";
@@ -254,17 +256,13 @@ function getReviewCandidates(submission: SubmissionRow): Candidate[] {
 function getPendingCandidates(submission: SubmissionRow): Candidate[] {
   const processed = submission.research?.createdCandidates || [];
   const resolvedResults = processed.filter((candidate) => Boolean(candidate.spotId));
-  const unresolvedResults = processed.filter(
-    (candidate) =>
-      !candidate.spotId &&
-      hasUsableCandidatePlace(candidate) &&
-      !resolvedResults.some((resolved) => socialPlaceIdentitiesMatch(candidate, resolved)),
+  const unresolvedResults = filterUnmatchedSocialPlaceIdentities(
+    processed.filter((candidate) => !candidate.spotId && hasUsableCandidatePlace(candidate)),
+    resolvedResults,
   );
   if (unresolvedResults.length > 0) return unresolvedResults;
 
-  return getReviewCandidates(submission).filter((candidate) =>
-    !resolvedResults.some((resolved) => socialPlaceIdentitiesMatch(candidate, resolved))
-  );
+  return filterUnmatchedSocialPlaceIdentities(getReviewCandidates(submission), resolvedResults);
 }
 
 function getSubmissionStatusCopy(submission: SubmissionRow) {
