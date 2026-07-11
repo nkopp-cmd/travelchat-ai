@@ -30,6 +30,7 @@ import {
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
   researchSocialSpotLink,
+  socialPlaceIdentitiesMatch,
   socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
   type SocialSpotResearchCandidate,
@@ -442,7 +443,7 @@ async function createCandidateResults({
   const previouslyResolved = getPreviouslyResolvedCandidates(previousResearch);
   return Promise.all(candidates.map(async (candidate) => {
     const resolvedMatch = previouslyResolved.find((previous) =>
-      candidatesReferToSamePlace(candidate, previous)
+      socialPlaceIdentitiesMatch(candidate, previous)
     );
     if (resolvedMatch) return resolvedMatch;
 
@@ -490,65 +491,6 @@ type CandidateResultRecord = {
   summary: string;
 };
 
-type CandidateComparable = {
-  spotId?: string | null;
-  placeId?: string | null;
-  spotName?: string | null;
-  address?: string | null;
-  city?: string | null;
-};
-
-function candidateFieldsMatch(
-  left: string | null | undefined,
-  right: string | null | undefined,
-  minimumLength: number,
-): boolean {
-  const normalizedLeft = normalizePlaceName(left);
-  const normalizedRight = normalizePlaceName(right);
-  if (
-    normalizedLeft.length < minimumLength ||
-    normalizedRight.length < minimumLength
-  ) return false;
-
-  return normalizedLeft === normalizedRight ||
-    ` ${normalizedLeft} `.includes(` ${normalizedRight} `) ||
-    ` ${normalizedRight} `.includes(` ${normalizedLeft} `);
-}
-
-function candidateNamesMatch(
-  left: string | null | undefined,
-  right: string | null | undefined,
-): boolean {
-  const normalizedLeft = normalizePlaceName(left);
-  const normalizedRight = normalizePlaceName(right);
-  if (!normalizedLeft || !normalizedRight) return false;
-  if (normalizedLeft === normalizedRight) return true;
-
-  const withoutLocalizedAlias = (value: string | null | undefined) =>
-    normalizePlaceName((value || "").replace(/[\(（][^\)）]*[\)）]/gu, " "));
-  const leftWithoutAlias = withoutLocalizedAlias(left);
-  const rightWithoutAlias = withoutLocalizedAlias(right);
-  return Boolean(
-    leftWithoutAlias &&
-    rightWithoutAlias &&
-    leftWithoutAlias === rightWithoutAlias,
-  );
-}
-
-function candidatesReferToSamePlace(
-  left: CandidateComparable,
-  right: CandidateComparable,
-): boolean {
-  if (left.spotId && right.spotId && left.spotId === right.spotId) return true;
-  if (left.placeId && right.placeId && left.placeId === right.placeId) return true;
-
-  const citiesCompatible = !left.city || !right.city ||
-    candidateFieldsMatch(left.city, right.city, 3);
-  return citiesCompatible &&
-    candidateNamesMatch(left.spotName, right.spotName) &&
-    candidateFieldsMatch(left.address, right.address, 8);
-}
-
 function getPreviouslyResolvedCandidates(previousResearch: unknown): CandidateResultRecord[] {
   if (!previousResearch || typeof previousResearch !== "object") return [];
   const previousResults = (previousResearch as { createdCandidates?: unknown }).createdCandidates;
@@ -584,7 +526,7 @@ function mergePreviouslyResolvedCandidates(
   if (previouslyResolved.length === 0) return currentResults;
   const merged = currentResults.filter((candidate) =>
     Boolean(candidate.spotId) ||
-    !previouslyResolved.some((previous) => candidatesReferToSamePlace(candidate, previous))
+    !previouslyResolved.some((previous) => socialPlaceIdentitiesMatch(candidate, previous))
   );
   const resolvedSpotIds = new Set(
     merged.map((candidate) => candidate.spotId).filter(Boolean),

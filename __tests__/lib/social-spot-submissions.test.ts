@@ -12,6 +12,7 @@ import {
   normalizeContributorEmail,
   normalizeSocialSpotUrl,
   researchSocialSpotLink,
+  socialPlaceIdentitiesMatch,
   SOCIAL_RESEARCH_MAX_CANDIDATES,
   socialSpotEvidenceSchema,
   socialSpotSubmissionSchema,
@@ -45,6 +46,42 @@ function buildTikTokHydrationHtml(itemStruct: Record<string, unknown>): string {
 }
 
 describe("social spot submission helpers", () => {
+  it("matches localized aliases without merging distinct branches or cities", () => {
+    const resolved = {
+      spotId: "spot-aanzee",
+      placeId: "place-aanzee",
+      spotName: "aanzee",
+      address: "19-24 Hangang-daero 15-gil, Yongsan District, Seoul, South Korea",
+      city: "Seoul",
+    };
+
+    expect(socialPlaceIdentitiesMatch({
+      spotName: "aanzee (안지)",
+      address: "19-24 Hangang-daero 15-gil",
+      city: "Seoul, South Korea",
+    }, resolved)).toBe(true);
+    expect(socialPlaceIdentitiesMatch({
+      spotName: "aanzee Annex",
+      address: "19-24 Hangang-daero 15-gil",
+      city: "Seoul",
+    }, resolved)).toBe(false);
+    expect(socialPlaceIdentitiesMatch({
+      spotName: "aanzee",
+      address: "119-24 Hangang-daero 15-gil",
+      city: "Seoul",
+    }, resolved)).toBe(false);
+    expect(socialPlaceIdentitiesMatch({
+      spotName: "aanzee",
+      address: "19-24 Hangang-daero 15-gil",
+      city: "Busan",
+    }, resolved)).toBe(false);
+    expect(socialPlaceIdentitiesMatch({
+      spotId: "spot-aanzee",
+      spotName: null,
+      address: null,
+    }, resolved)).toBe(true);
+  });
+
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();

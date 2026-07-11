@@ -23,6 +23,7 @@ import type { SocialMediaProcessingSummary } from "@/lib/social-spot-media-jobs"
 import { Button } from "@/components/ui/button";
 import { isAdminUser } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { socialPlaceIdentitiesMatch } from "@/lib/social-spot-submissions";
 import { loadSocialMediaProgressForSubmissions } from "@/lib/social-spot-media-jobs";
 import { getFirstRealDisplaySpotPhoto } from "@/lib/spots/display-images";
 import { cn } from "@/lib/utils";
@@ -250,29 +251,20 @@ function getReviewCandidates(submission: SubmissionRow): Candidate[] {
   return (submission.research?.candidates || []).filter(hasUsableCandidatePlace);
 }
 
-function getCandidateKey(candidate: Candidate | CreatedCandidate): string {
-  return [candidate.spotName, candidate.address, candidate.city]
-    .map((value) => value?.trim().toLowerCase() || "")
-    .join("|");
-}
-
 function getPendingCandidates(submission: SubmissionRow): Candidate[] {
   const processed = submission.research?.createdCandidates || [];
+  const resolvedResults = processed.filter((candidate) => Boolean(candidate.spotId));
   const unresolvedResults = processed.filter(
-    (candidate) => !candidate.spotId && hasUsableCandidatePlace(candidate),
+    (candidate) =>
+      !candidate.spotId &&
+      hasUsableCandidatePlace(candidate) &&
+      !resolvedResults.some((resolved) => socialPlaceIdentitiesMatch(candidate, resolved)),
   );
   if (unresolvedResults.length > 0) return unresolvedResults;
 
-  const createdKeys = new Set(
-    processed.filter((candidate) => candidate.spotId).map(getCandidateKey),
+  return getReviewCandidates(submission).filter((candidate) =>
+    !resolvedResults.some((resolved) => socialPlaceIdentitiesMatch(candidate, resolved))
   );
-
-  return getReviewCandidates(submission).filter((candidate) => {
-    const statusNeedsReview = ["needs_review", "research_pending"].includes(
-      candidate.status || "",
-    );
-    return statusNeedsReview || !createdKeys.has(getCandidateKey(candidate));
-  });
 }
 
 function getSubmissionStatusCopy(submission: SubmissionRow) {

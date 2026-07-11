@@ -215,6 +215,74 @@ function candidateKey(candidate: SocialSpotResearchCandidate): string {
   ].join("|");
 }
 
+export type SocialPlaceIdentity = {
+  spotId?: string | null;
+  placeId?: string | null;
+  spotName?: string | null;
+  address?: string | null;
+  city?: string | null;
+};
+
+function normalizeSocialPlaceIdentityField(value: unknown): string {
+  if (typeof value !== "string") return "";
+  return value
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function socialPlaceFieldsMatch(
+  left: unknown,
+  right: unknown,
+  minimumLength: number,
+): boolean {
+  const normalizedLeft = normalizeSocialPlaceIdentityField(left);
+  const normalizedRight = normalizeSocialPlaceIdentityField(right);
+  if (
+    normalizedLeft.length < minimumLength ||
+    normalizedRight.length < minimumLength
+  ) return false;
+
+  return normalizedLeft === normalizedRight ||
+    ` ${normalizedLeft} `.includes(` ${normalizedRight} `) ||
+    ` ${normalizedRight} `.includes(` ${normalizedLeft} `);
+}
+
+function socialPlaceNamesMatch(left: unknown, right: unknown): boolean {
+  const normalizedLeft = normalizeSocialPlaceIdentityField(left);
+  const normalizedRight = normalizeSocialPlaceIdentityField(right);
+  if (!normalizedLeft || !normalizedRight) return false;
+  if (normalizedLeft === normalizedRight) return true;
+
+  const withoutLocalizedAlias = (value: unknown) =>
+    normalizeSocialPlaceIdentityField(
+      typeof value === "string" ? value.replace(/[\(（][^\)）]*[\)）]/gu, " ") : "",
+    );
+  const leftWithoutAlias = withoutLocalizedAlias(left);
+  const rightWithoutAlias = withoutLocalizedAlias(right);
+  return Boolean(
+    leftWithoutAlias &&
+    rightWithoutAlias &&
+    leftWithoutAlias === rightWithoutAlias,
+  );
+}
+
+export function socialPlaceIdentitiesMatch(
+  left: SocialPlaceIdentity,
+  right: SocialPlaceIdentity,
+): boolean {
+  if (left.spotId && right.spotId && left.spotId === right.spotId) return true;
+  if (left.placeId && right.placeId && left.placeId === right.placeId) return true;
+
+  const citiesCompatible = !left.city || !right.city ||
+    socialPlaceFieldsMatch(left.city, right.city, 3);
+  return citiesCompatible &&
+    socialPlaceNamesMatch(left.spotName, right.spotName) &&
+    socialPlaceFieldsMatch(left.address, right.address, 8);
+}
+
 export function getResearchCandidates(
   research: SocialSpotResearchResult | SocialSpotResearchCandidate,
 ): SocialSpotResearchCandidate[] {
