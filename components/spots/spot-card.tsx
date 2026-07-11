@@ -404,6 +404,7 @@ export function SpotCard({
             <div className="relative z-20 flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.06] p-0.5 backdrop-blur sm:p-1">
               <SaveSpotButton
                 spotId={spot.id}
+                spotName={spot.name}
                 size="sm"
                 className="h-7 w-7 bg-white/10 p-0 hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
               />
@@ -493,6 +494,7 @@ export function SpotCard({
         <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 focus-within:opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
           <SaveSpotButton
             spotId={spot.id}
+            spotName={spot.name}
             className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-8 md:w-8"
           />
         </div>
@@ -523,6 +525,7 @@ export function SpotCard({
           <div className="relative z-20 shrink-0 md:hidden">
             <SaveSpotButton
               spotId={spot.id}
+              spotName={spot.name}
               className="h-7 w-7 bg-white/10 p-0 text-white hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
             />
           </div>

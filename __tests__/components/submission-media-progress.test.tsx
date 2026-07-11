@@ -217,6 +217,81 @@ describe("SubmissionMediaProgress", () => {
     vi.useRealTimers();
   });
 
+  it("shows a polite stale-update notice without exposing polling errors", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-11T04:05:06.000Z"));
+    const fetchMock = vi.spyOn(global, "fetch").mockRejectedValue(
+      new Error("socket token=secret-internal-detail"),
+    );
+    const { unmount } = render(
+      <SubmissionMediaProgressProvider initialProgress={{ "submission-1": [items[0]] }}>
+        <SubmissionMediaProgress items={[items[0]]} submissionId="submission-1" />
+      </SubmissionMediaProgressProvider>,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+
+    const notice = screen.getByText("Live updates are taking longer than usual")
+      .closest('[role="status"]');
+    expect(notice).toBeTruthy();
+    expect(notice?.getAttribute("aria-live")).toBe("polite");
+    expect(notice?.textContent).toContain("Your latest results are still shown.");
+    expect(notice?.textContent).toContain("Last successful update:");
+    expect(notice?.textContent).toContain("We’ll keep trying automatically.");
+    expect(notice?.textContent).not.toContain("socket");
+    expect(notice?.textContent).not.toContain("secret-internal-detail");
+    expect(screen.getByText("Queued")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again now" })).toBeTruthy();
+
+    unmount();
+    fetchMock.mockRestore();
+    vi.useRealTimers();
+  });
+
+  it("recovers after a manual polling retry and keeps terminal polling stopped", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.spyOn(global, "fetch")
+      .mockRejectedValueOnce(new Error("temporary polling failure"))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        submissions: {
+          "submission-1": [{
+            ...items[0],
+            state: "succeeded",
+            attempts: 1,
+          }],
+        },
+      }), { status: 200, headers: { "content-type": "application/json" } }));
+    const { unmount } = render(
+      <SubmissionMediaProgressProvider initialProgress={{ "submission-1": [items[0]] }}>
+        <SubmissionMediaProgress items={[items[0]]} submissionId="submission-1" />
+      </SubmissionMediaProgressProvider>,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Try again now" }));
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Complete")).toBeTruthy();
+    expect(screen.queryByText("Live updates are taking longer than usual")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Try again now" })).toBeNull();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    unmount();
+    fetchMock.mockRestore();
+    vi.useRealTimers();
+  });
+
   it("batches active submission polling and stops once every item is terminal", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({

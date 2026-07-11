@@ -10,11 +10,12 @@ import { useToast } from "@/hooks/use-toast";
 
 interface SaveSpotButtonProps {
     spotId: string;
+    spotName?: string;
     className?: string;
     size?: "sm" | "default" | "lg" | "icon";
 }
 
-export function SaveSpotButton({ spotId, className, size = "icon" }: SaveSpotButtonProps) {
+export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: SaveSpotButtonProps) {
     const [isSaved, setIsSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
@@ -84,17 +85,24 @@ export function SaveSpotButton({ spotId, className, size = "icon" }: SaveSpotBut
         }
     };
 
+    const accessibleSpotName = spotName?.trim() || spotId;
+
     return (
         <Button
+            type="button"
             variant="ghost"
             size={size}
             onClick={handleToggleSave}
             disabled={isLoading || !isLoaded}
             className={cn(
-                "rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90",
+                "relative rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 after:pointer-events-none after:absolute after:left-1/2 after:top-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']",
                 className
             )}
-            aria-label={isSaved ? "Remove from saved" : "Save spot"}
+            aria-label={isSaved
+                ? `Remove ${accessibleSpotName} from saved spots`
+                : `Save ${accessibleSpotName}`}
+            aria-pressed={isSaved}
+            aria-busy={isLoading}
         >
             <Heart
                 className={cn(

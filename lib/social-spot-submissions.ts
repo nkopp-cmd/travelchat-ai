@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { z } from "zod";
+import { getCanonicalSocialPostPath } from "@/lib/social-share-target";
 
 export type SocialSpotPlatform = "instagram" | "tiktok";
 export type SocialSpotSubmissionStatus =
@@ -160,6 +161,12 @@ export interface SocialSpotResearchCandidate {
 
 export interface SocialSpotResearchResult extends SocialSpotResearchCandidate {
   candidates: SocialSpotResearchCandidate[];
+  placeCoverage?: {
+    complete: boolean;
+    identifiedCount: number;
+    accountedForCount: number;
+    unresolvedPlaces: string[];
+  };
   mediaAnalysis?: {
     status:
       | "video_analyzed"
@@ -205,7 +212,45 @@ const researchCandidateSchema = z.object({
 
 const researchResultSchema = researchCandidateSchema.extend({
   candidates: z.array(researchCandidateSchema).max(SOCIAL_RESEARCH_MAX_CANDIDATES).default([]),
+  placeCoverage: z.object({
+    complete: z.boolean(),
+    identifiedCount: z.number().int().min(0).max(SOCIAL_RESEARCH_MAX_CANDIDATES),
+    accountedForCount: z.number().int().min(0).max(SOCIAL_RESEARCH_MAX_CANDIDATES),
+    unresolvedPlaces: z.array(z.string().min(1).max(160))
+      .max(SOCIAL_RESEARCH_MAX_CANDIDATES),
+  }).optional(),
 });
+
+function reconcilePlaceCoverage(
+  research: SocialSpotResearchResult,
+): NonNullable<SocialSpotResearchResult["placeCoverage"]> {
+  const candidateCount = getResearchCandidates(research).length;
+  const reported = research.placeCoverage;
+  if (!reported) {
+    return {
+      complete: false,
+      identifiedCount: candidateCount,
+      accountedForCount: candidateCount,
+      unresolvedPlaces: [],
+    };
+  }
+
+  const identifiedCount = Math.max(reported.identifiedCount, candidateCount);
+  const accountedForCount = Math.min(reported.accountedForCount, candidateCount);
+  const unresolvedPlaces = Array.from(new Set(
+    reported.unresolvedPlaces.map((place) => place.trim()).filter(Boolean),
+  )).slice(0, SOCIAL_RESEARCH_MAX_CANDIDATES);
+
+  return {
+    complete:
+      reported.complete &&
+      unresolvedPlaces.length === 0 &&
+      accountedForCount >= identifiedCount,
+    identifiedCount,
+    accountedForCount,
+    unresolvedPlaces,
+  };
+}
 
 function candidateKey(candidate: SocialSpotResearchCandidate): string {
   return [
@@ -510,13 +555,14 @@ export function normalizeSocialSpotUrl(rawUrl: string): CanonicalSocialSpotUrl {
     throw new Error("Only TikTok and Instagram links are supported right now.");
   }
 
-  if (!parsed.pathname || parsed.pathname === "/") {
+  const canonicalPath = getCanonicalSocialPostPath(host, parsed.pathname);
+  if (!canonicalPath) {
     throw new Error("Paste a direct TikTok or Instagram post/reel link.");
   }
 
   parsed.hash = "";
   parsed.search = "";
-  parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+  parsed.pathname = canonicalPath;
 
   return {
     canonicalUrl: parsed.toString(),
@@ -1844,6 +1890,12 @@ function buildFallbackResearch(input: {
     imageUrl,
     visualEvidence: imageUrl ? "Captured the social post cover image for review." : null,
     candidates: [],
+    placeCoverage: {
+      complete: false,
+      identifiedCount: cleanedTitle ? 1 : 0,
+      accountedForCount: 0,
+      unresolvedPlaces: cleanedTitle ? [cleanedTitle] : [],
+    },
     mediaAnalysis: {
       status: mediaStatus,
       output: videoAnalysis,
@@ -1898,6 +1950,7 @@ function buildResearchPrompt(input: {
       "When several visual inputs are attached, inspect each one independently and return a separate candidate for every distinct verified place.",
       "When videoAnalysis is present, it represents full-video frame, OCR, and timestamp evidence. Account for every distinctly named place it contains, either as a verified candidate or a low-confidence review candidate.",
       "When additionalMediaAnalysis is present, it contains independent per-image evidence. Account for every supported place and do not merge distinct places across images.",
+      "Return a placeCoverage receipt. identifiedCount is every distinct place mention or visually identifiable place; accountedForCount is how many have a candidate entry; unresolvedPlaces lists any remaining labels or descriptions. Set complete true only when every identified place has a candidate entry.",
       "If metadata says mediaCompleteness is partial or videoAnalysis says only some videos were analyzed, do not imply the entire post was covered; keep unverified places in needs_review.",
       "Use the social cover image, post image, or thumbnail as visual evidence when available, but do not claim frame-level certainty without videoAnalysis.",
       "Use web search evidence when the social page is hard to read.",
@@ -2094,6 +2147,7 @@ export async function researchSocialSpotLink(input: {
               "imageUrl",
               "visualEvidence",
               "candidates",
+              "placeCoverage",
             ],
             properties: {
               status: { type: "string", enum: ["candidate", "needs_review", "research_pending"] },
@@ -2112,6 +2166,29 @@ export async function researchSocialSpotLink(input: {
               evidenceUrls: { type: "array", items: { type: "string" }, maxItems: 8 },
               imageUrl: { type: ["string", "null"] },
               visualEvidence: { type: ["string", "null"] },
+              placeCoverage: {
+                type: "object",
+                additionalProperties: false,
+                required: ["complete", "identifiedCount", "accountedForCount", "unresolvedPlaces"],
+                properties: {
+                  complete: { type: "boolean" },
+                  identifiedCount: {
+                    type: "integer",
+                    minimum: 0,
+                    maximum: SOCIAL_RESEARCH_MAX_CANDIDATES,
+                  },
+                  accountedForCount: {
+                    type: "integer",
+                    minimum: 0,
+                    maximum: SOCIAL_RESEARCH_MAX_CANDIDATES,
+                  },
+                  unresolvedPlaces: {
+                    type: "array",
+                    maxItems: SOCIAL_RESEARCH_MAX_CANDIDATES,
+                    items: { type: "string" },
+                  },
+                },
+              },
               candidates: {
                 type: "array",
                 maxItems: SOCIAL_RESEARCH_MAX_CANDIDATES,
@@ -2187,8 +2264,10 @@ export async function researchSocialSpotLink(input: {
             ? "cover_only"
             : "media_unavailable";
 
+    const placeCoverage = reconcilePlaceCoverage(parsed);
     return {
       ...parsed,
+      placeCoverage,
       mediaAnalysis: {
         status: mediaStatus,
         output: videoAnalysis,

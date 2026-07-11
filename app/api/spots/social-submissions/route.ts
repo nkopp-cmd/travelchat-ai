@@ -9,6 +9,7 @@ import {
   buildSpotPhotoUrls,
   findBestGooglePlaceMatch,
   getGooglePlacesApiKey,
+  summarizeSpotPhotos,
   type PlacePhotoSearchResult,
 } from "@/lib/place-images";
 import { rateLimiters } from "@/lib/rate-limit";
@@ -102,17 +103,6 @@ function normalizePlaceName(value: string | null | undefined): string {
     .replace(/\s+/g, " ");
 }
 
-function isMissingGooglePlaceIdColumn(error: {
-  code?: string | null;
-  message?: string | null;
-} | null | undefined): boolean {
-  return Boolean(
-    error &&
-      (error.code === "42703" ||
-        /google_place_id.*does not exist|column.*google_place_id/i.test(error.message || "")),
-  );
-}
-
 function canUseTransliteratedPlaceMatch(
   research: SocialSpotResearchCandidate,
   place: PlacePhotoSearchResult | null | undefined,
@@ -162,7 +152,7 @@ async function enrichResearchWithGooglePlace(
     const place = match.place || (usedTransliteratedNameFallback ? match.rejectedPlace : null);
     const photos = place ? buildSpotPhotoUrls(place.photos) : [];
 
-    if (!place?.formattedAddress || !place.location || photos.length === 0) {
+    if (!place?.placeId || !place.formattedAddress || !place.location || photos.length === 0) {
       return null;
     }
 
@@ -207,48 +197,71 @@ function canCreateSpot(research: SocialSpotResearchCandidate): boolean {
   );
 }
 
-async function findExistingSpot(
-  supabase: ReturnType<typeof createSupabaseAdmin>,
-  research: SocialSpotResearchCandidate,
-): Promise<string | null> {
-  if (!research.spotName || !research.address) return null;
-
-  const addressSnippet = research.address.slice(0, 80).replace(/[%_]/g, "\\$&");
-  const { data, error } = await supabase
-    .from("spots")
-    .select("id")
-    .ilike("name->>en", research.spotName)
-    .ilike("address->>en", `%${addressSnippet}%`)
-    .limit(1);
-
-  if (error) {
-    console.warn("[social-submissions] Existing spot lookup failed:", error.message);
-    return null;
-  }
-
-  return data?.[0]?.id || null;
-}
+type ExistingGooglePlaceSpot = {
+  id: string;
+  name?: Record<string, string> | string | null;
+  address?: Record<string, string> | string | null;
+  location?: unknown;
+  photos?: string[] | null;
+  google_place_id?: string | null;
+};
 
 async function findExistingSpotByGooglePlaceId(
   supabase: ReturnType<typeof createSupabaseAdmin>,
   googlePlaceId: string | null,
-): Promise<string | null> {
+): Promise<ExistingGooglePlaceSpot | null> {
   if (!googlePlaceId) return null;
 
   const { data, error } = await supabase
     .from("spots")
-    .select("id")
+    .select("id, name, address, location, photos, google_place_id")
     .eq("google_place_id", googlePlaceId)
     .limit(1);
 
   if (error) {
-    if (!isMissingGooglePlaceIdColumn(error)) {
-      console.warn("[social-submissions] Existing Google place lookup failed:", error.message);
-    }
-    return null;
+    throw new Error(`Could not check exact Google place identity: ${error.message}`);
   }
 
-  return data?.[0]?.id || null;
+  return (data?.[0] as ExistingGooglePlaceSpot | undefined) || null;
+}
+
+function hasLocalizedValue(value: ExistingGooglePlaceSpot["address"]): boolean {
+  if (typeof value === "string") return Boolean(value.trim());
+  return Boolean(value && Object.values(value).some((entry) => entry?.trim()));
+}
+
+async function repairExactGooglePlaceSpot({
+  supabase,
+  existingSpot,
+  research,
+  placeEnrichment,
+}: {
+  supabase: ReturnType<typeof createSupabaseAdmin>;
+  existingSpot: ExistingGooglePlaceSpot;
+  research: SocialSpotResearchCandidate;
+  placeEnrichment: NonNullable<Awaited<ReturnType<typeof enrichResearchWithGooglePlace>>>;
+}): Promise<string> {
+  const updates: Record<string, unknown> = {};
+  if (!hasLocalizedValue(existingSpot.name)) updates.name = { en: research.spotName };
+  if (!hasLocalizedValue(existingSpot.address)) updates.address = { en: placeEnrichment.address };
+  if (!existingSpot.location) {
+    updates.location = formatPoint(placeEnrichment.location.lng, placeEnrichment.location.lat);
+  }
+  if (!summarizeSpotPhotos(existingSpot.photos).hasGooglePlacePhoto) {
+    updates.photos = placeEnrichment.photos;
+  }
+
+  if (Object.keys(updates).length === 0) return existingSpot.id;
+
+  const { error } = await supabase
+    .from("spots")
+    .update(updates)
+    .eq("id", existingSpot.id);
+  if (error) {
+    throw new Error(`Could not repair the existing exact Google place: ${error.message}`);
+  }
+  revalidateTag("spots", "default");
+  return existingSpot.id;
 }
 
 async function createSpotFromResearch({
@@ -276,11 +289,6 @@ async function createSpotFromResearch({
     };
   }
 
-  const existingSpotId = await findExistingSpot(supabase, research);
-  if (existingSpotId) {
-    return { spotId: existingSpotId, status: "spot_reused" };
-  }
-
   const placeEnrichment = await enrichResearchWithGooglePlace(research, deadlineAt);
   if (!placeEnrichment) {
     return {
@@ -290,11 +298,17 @@ async function createSpotFromResearch({
     };
   }
 
-  const existingGooglePlaceSpotId = await findExistingSpotByGooglePlaceId(
+  const existingGooglePlaceSpot = await findExistingSpotByGooglePlaceId(
     supabase,
     placeEnrichment.placeId,
   );
-  if (existingGooglePlaceSpotId) {
+  if (existingGooglePlaceSpot) {
+    const existingGooglePlaceSpotId = await repairExactGooglePlaceSpot({
+      supabase,
+      existingSpot: existingGooglePlaceSpot,
+      research,
+      placeEnrichment,
+    });
     return {
       spotId: existingGooglePlaceSpotId,
       status: "spot_reused",
@@ -324,36 +338,41 @@ async function createSpotFromResearch({
       verified: false,
       trending_score: Math.min(1, Math.max(0, (research.localPercentage || 50) / 100)),
     };
-  let insertResult = await supabase
+  const insertResult = await supabase
     .from("spots")
     .insert(spotPayload)
     .select("id")
     .single();
 
-  if (isMissingGooglePlaceIdColumn(insertResult.error)) {
-    const { google_place_id: _googlePlaceId, ...legacySpotPayload } = spotPayload;
-    void _googlePlaceId;
-    insertResult = await supabase
-      .from("spots")
-      .insert(legacySpotPayload)
-      .select("id")
-      .single();
-  }
-
   const { data: insertedSpot, error } = insertResult;
 
   if (error) {
     if (error.code === "23505") {
-      const retrySpotId =
-        await findExistingSpotByGooglePlaceId(supabase, placeEnrichment.placeId) ||
-        await findExistingSpot(supabase, research);
-      if (retrySpotId) {
-        return { spotId: retrySpotId, status: "spot_reused" };
+      const retrySpot = await findExistingSpotByGooglePlaceId(
+        supabase,
+        placeEnrichment.placeId,
+      );
+      if (retrySpot) {
+        const retrySpotId = await repairExactGooglePlaceSpot({
+          supabase,
+          existingSpot: retrySpot,
+          research,
+          placeEnrichment,
+        });
+        return {
+          spotId: retrySpotId,
+          status: "spot_reused",
+          enrichmentStatus: "place_photo_ready",
+          placeName: placeEnrichment.placeName,
+          placeId: placeEnrichment.placeId,
+          photoCount: placeEnrichment.photos.length,
+          placeMatchQuery: placeEnrichment.query,
+          usedTransliteratedNameFallback: placeEnrichment.usedTransliteratedNameFallback,
+        };
       }
     }
 
-    console.error("[social-submissions] Failed to create spot:", error);
-    return { spotId: null, status: "needs_review" };
+    throw new Error(`Could not create the verified community spot: ${error.message}`);
   }
 
   revalidateTag("spots", "default");
@@ -382,6 +401,9 @@ function summarizeSubmissionStatus(
   results: Array<{ spotId: string | null; status: SocialSpotSubmissionStatus }>,
   research: SocialSpotResearchResult,
 ): SocialSpotSubmissionStatus {
+  if (research.placeCoverage && !research.placeCoverage.complete) {
+    return "needs_review";
+  }
   if ([
     "video_partially_analyzed",
     "video_unavailable",
@@ -441,7 +463,7 @@ async function createCandidateResults({
   previousResearch?: unknown;
 }): Promise<CandidateResultRecord[]> {
   const previouslyResolved = getPreviouslyResolvedCandidates(previousResearch);
-  return Promise.all(candidates.map(async (candidate) => {
+  const results = await Promise.all(candidates.map(async (candidate) => {
     const resolvedMatch = previouslyResolved.find((previous) =>
       socialPlaceIdentitiesMatch(candidate, previous)
     );
@@ -467,6 +489,7 @@ async function createCandidateResults({
       summary: candidate.researchSummary,
     };
   }));
+  return dedupeResolvedCandidateResults(results);
 }
 
 function hasCompleteMediaEvidence(research: SocialSpotResearchResult): boolean {
@@ -490,6 +513,23 @@ type CandidateResultRecord = {
   confidence: number;
   summary: string;
 };
+
+function dedupeResolvedCandidateResults(
+  candidates: CandidateResultRecord[],
+): CandidateResultRecord[] {
+  const seenResolvedPlaces = new Set<string>();
+  return candidates.filter((candidate) => {
+    const identity = candidate.spotId
+      ? `spot:${candidate.spotId}`
+      : candidate.placeId
+        ? `place:${candidate.placeId}`
+        : null;
+    if (!identity) return true;
+    if (seenResolvedPlaces.has(identity)) return false;
+    seenResolvedPlaces.add(identity);
+    return true;
+  });
+}
 
 function getPreviouslyResolvedCandidates(previousResearch: unknown): CandidateResultRecord[] {
   if (!previousResearch || typeof previousResearch !== "object") return [];
@@ -539,7 +579,7 @@ function mergePreviouslyResolvedCandidates(
     resolvedSpotIds.add(candidate.spotId);
   }
 
-  return merged;
+  return dedupeResolvedCandidateResults(merged);
 }
 
 type StoredSubmissionRecord = {
@@ -616,17 +656,13 @@ async function claimResumableSubmission({
     .select("id, status, spot_id")
     .maybeSingle();
 
-  let result = await updateWithCas({
+  return updateWithCas({
     research,
     processing_state: "processing",
     processing_attempt: attempt,
     processing_started_at: startedAt,
     last_error: null,
   });
-  if (result.error && isMissingOptionalSocialSchema(result.error)) {
-    result = await updateWithCas({ research });
-  }
-  return result;
 }
 
 function buildDuplicateSubmissionPayload(
@@ -718,8 +754,8 @@ async function registerSubmissionAliases({
       aliases.map((aliasUrl) => ({ alias_url: aliasUrl, submission_id: submissionId })),
       { onConflict: "alias_url", ignoreDuplicates: true },
     );
-  if (error && !isMissingOptionalSocialSchema(error)) {
-    console.error("[social-submissions] Alias registration failed:", error);
+  if (error) {
+    throw new Error(`Could not register the social URL alias: ${error.message}`);
   }
 }
 
@@ -740,7 +776,6 @@ async function findSubmissionByAlias({
     .limit(1)
     .maybeSingle();
   if (aliasResult.error) {
-    if (isMissingOptionalSocialSchema(aliasResult.error)) return null;
     throw new Error(`Could not check social URL aliases: ${aliasResult.error.message}`);
   }
   if (!aliasResult.data?.submission_id) return null;
@@ -767,8 +802,8 @@ async function syncCandidateRecords({
     p_submission_id: submissionId,
     p_candidates: candidates,
   });
-  if (error && !isMissingOptionalSocialSchema(error)) {
-    console.error("[social-submissions] Candidate checkpoint failed:", error);
+  if (error) {
+    throw new Error(`Could not checkpoint community candidate provenance: ${error.message}`);
   }
 }
 
@@ -1127,14 +1162,6 @@ export async function POST(req: NextRequest) {
         .single();
     }
 
-    if (placeholderResult.error && isMissingOptionalSocialSchema(placeholderResult.error)) {
-      placeholderResult = await supabase
-        .from("social_spot_submissions")
-        .insert(baseSubmissionPayload)
-        .select("id, status, spot_id")
-        .single();
-    }
-
     if (placeholderResult.error || !placeholderResult.data) {
       if (placeholderResult.error?.code === "23505") {
         const { data: duplicateSubmission } = await supabase
@@ -1238,7 +1265,7 @@ export async function POST(req: NextRequest) {
       research: enrichedResearch,
       metadata,
     };
-    let completedResult = await supabase
+    const completedResult = await supabase
       .from("social_spot_submissions")
       .update({
         ...finalSubmissionPayload,
@@ -1249,15 +1276,6 @@ export async function POST(req: NextRequest) {
       .eq("id", placeholderSubmission.id)
       .select("id, status, spot_id")
       .single();
-
-    if (completedResult.error && isMissingOptionalSocialSchema(completedResult.error)) {
-      completedResult = await supabase
-        .from("social_spot_submissions")
-        .update(finalSubmissionPayload)
-        .eq("id", placeholderSubmission.id)
-        .select("id, status, spot_id")
-        .single();
-    }
 
     if (completedResult.error || !completedResult.data) {
       console.error("[social-submissions] Submission completion failed:", completedResult.error);

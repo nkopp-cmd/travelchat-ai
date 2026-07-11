@@ -57,11 +57,18 @@ type StatePresentation = {
   iconClassName?: string;
 };
 
+type PollingStatus = {
+  state: "failed" | "retrying";
+  lastSuccessfulAt: number;
+};
+
 const VISIBLE_ITEM_LIMIT = 4;
 const EMPTY_PROCESSING: Record<string, SocialMediaProcessingSummary> = {};
 const SubmissionMediaProgressContext = React.createContext<{
   progress: Record<string, SubmissionMediaProgressItem[]>;
   processing: Record<string, SocialMediaProcessingSummary>;
+  polling: Record<string, PollingStatus>;
+  retryPolling: (submissionId: string) => void;
 } | null>(null);
 
 const activeProcessingStates = new Set<SocialMediaProcessingSummary["state"]>([
@@ -80,6 +87,10 @@ export function SubmissionMediaProgressProvider({
 }: SubmissionMediaProgressProviderProps) {
   const [progress, setProgress] = React.useState(initialProgress);
   const [processing, setProcessing] = React.useState(initialProcessing);
+  const [polling, setPolling] = React.useState<Record<string, PollingStatus>>({});
+  const initialSnapshotAt = React.useRef(Date.now());
+  const lastSuccessfulAt = React.useRef<Record<string, number>>({});
+  const retryPollingRef = React.useRef<((submissionId: string) => void) | null>(null);
   React.useEffect(() => setProgress(initialProgress), [initialProgress]);
   React.useEffect(() => setProcessing(initialProcessing), [initialProcessing]);
   const activeIds = Array.from(new Set([
@@ -95,38 +106,93 @@ export function SubmissionMediaProgressProvider({
   const activeKey = activeIds.join(",");
 
   React.useEffect(() => {
-    if (!activeKey) return;
+    if (!activeKey) {
+      retryPollingRef.current = null;
+      return;
+    }
     let cancelled = false;
-    const refresh = async () => {
-      try {
-        const response = await fetch(
-          `/api/spots/social-submissions/media-status?ids=${encodeURIComponent(activeKey)}`,
-          { cache: "no-store" },
-        );
-        if (!response.ok) return;
-        const payload = await response.json() as {
-          submissions?: Record<string, SubmissionMediaProgressItem[]>;
-          processing?: Record<string, SocialMediaProcessingSummary>;
+    let inFlight: Promise<void> | null = null;
+    const requestedIds = activeKey.split(",");
+    const refresh = () => {
+      if (inFlight) return inFlight;
+
+      const request = (async () => {
+        try {
+          const response = await fetch(
+            `/api/spots/social-submissions/media-status?ids=${encodeURIComponent(activeKey)}`,
+            { cache: "no-store" },
+          );
+          if (!response.ok) throw new Error("Media status refresh failed");
+          const payload = await response.json() as {
+            submissions?: Record<string, SubmissionMediaProgressItem[]>;
+            processing?: Record<string, SocialMediaProcessingSummary>;
+          };
+          if (cancelled) return;
+
+          const successfulAt = Date.now();
+          requestedIds.forEach((submissionId) => {
+            lastSuccessfulAt.current[submissionId] = successfulAt;
+          });
+          setPolling((current) => {
+            const next = { ...current };
+            requestedIds.forEach((submissionId) => delete next[submissionId]);
+            return next;
+          });
+          if (payload.submissions) {
+            setProgress((current) => ({ ...current, ...payload.submissions }));
+          }
+          if (payload.processing) {
+            setProcessing((current) => ({ ...current, ...payload.processing }));
+          }
+        } catch {
+          if (cancelled) return;
+          setPolling((current) => {
+            const next = { ...current };
+            requestedIds.forEach((submissionId) => {
+              next[submissionId] = {
+                state: "failed",
+                lastSuccessfulAt:
+                  current[submissionId]?.lastSuccessfulAt
+                  ?? lastSuccessfulAt.current[submissionId]
+                  ?? initialSnapshotAt.current,
+              };
+            });
+            return next;
+          });
+        } finally {
+          inFlight = null;
+        }
+      })();
+      inFlight = request;
+      return request;
+    };
+    retryPollingRef.current = (submissionId) => {
+      setPolling((current) => {
+        const status = current[submissionId];
+        if (!status) return current;
+        return {
+          ...current,
+          [submissionId]: { ...status, state: "retrying" },
         };
-        if (!cancelled && payload.submissions) {
-          setProgress((current) => ({ ...current, ...payload.submissions }));
-        }
-        if (!cancelled && payload.processing) {
-          setProcessing((current) => ({ ...current, ...payload.processing }));
-        }
-      } catch {
-        // Keep the last truthful snapshot and try again on the next interval.
-      }
+      });
+      void refresh();
     };
     const interval = window.setInterval(refresh, 5_000);
     return () => {
       cancelled = true;
+      retryPollingRef.current = null;
       window.clearInterval(interval);
     };
   }, [activeKey]);
 
+  const retryPolling = React.useCallback((submissionId: string) => {
+    retryPollingRef.current?.(submissionId);
+  }, []);
+
   return (
-    <SubmissionMediaProgressContext.Provider value={{ progress, processing }}>
+    <SubmissionMediaProgressContext.Provider
+      value={{ progress, processing, polling, retryPolling }}
+    >
       {children}
     </SubmissionMediaProgressContext.Provider>
   );
@@ -176,6 +242,57 @@ const kindPresentations: Record<
 
 function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function PollingUpdateStatus({
+  status,
+  onRetry,
+}: {
+  status: PollingStatus;
+  onRetry: () => void;
+}) {
+  const retrying = status.state === "retrying";
+  const lastSuccessfulUpdate = React.useMemo(
+    () => new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+    }).format(status.lastSuccessfulAt),
+    [status.lastSuccessfulAt],
+  );
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3"
+    >
+      <div className="min-w-0">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+          {retrying ? "Checking for updates" : "Live updates are taking longer than usual"}
+        </p>
+        <p className="mt-0.5 text-xs font-medium leading-5 text-slate-600 dark:text-slate-300">
+          Your latest results are still shown. Last successful update: {lastSuccessfulUpdate}.
+          {!retrying ? " We’ll keep trying automatically." : null}
+        </p>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="min-h-11 shrink-0"
+        disabled={retrying}
+        onClick={onRetry}
+      >
+        <RotateCcw
+          aria-hidden="true"
+          className={cn("size-4", retrying && "motion-safe:animate-spin")}
+        />
+        {retrying ? "Trying again" : "Try again now"}
+      </Button>
+    </div>
+  );
 }
 
 function MediaItemRow({
@@ -261,6 +378,9 @@ export function SubmissionMediaProgress({
   const displayedProcessing = submissionId && groupedProgress?.processing[submissionId]
     ? groupedProgress.processing[submissionId]
     : processing;
+  const pollingStatus = submissionId
+    ? groupedProgress?.polling[submissionId]
+    : undefined;
   const headingId = React.useId();
   const summaryId = React.useId();
   const total = displayedItems.length;
@@ -390,6 +510,13 @@ export function SubmissionMediaProgress({
           <p className="mt-2 text-xs font-medium leading-5 text-slate-600 dark:text-slate-300">
             {parentStatus.helper}
           </p>
+        ) : null}
+
+        {pollingStatus && submissionId ? (
+          <PollingUpdateStatus
+            status={pollingStatus}
+            onRetry={() => groupedProgress?.retryPolling(submissionId)}
+          />
         ) : null}
       </div>
 

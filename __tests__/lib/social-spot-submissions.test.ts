@@ -126,6 +126,14 @@ describe("social spot submission helpers", () => {
       platform: "tiktok",
       host: "vm.tiktok.com",
     });
+
+    expect(normalizeSocialSpotUrl(
+      "https://www.tiktok.com/@creator/photo/7412345678901234567?is_from_webapp=1",
+    )).toEqual({
+      canonicalUrl: "https://www.tiktok.com/@creator/photo/7412345678901234567",
+      platform: "tiktok",
+      host: "www.tiktok.com",
+    });
   });
 
   it("rejects unsupported or deceptive URLs", () => {
@@ -136,6 +144,12 @@ describe("social spot submission helpers", () => {
       /TikTok and Instagram/i,
     );
     expect(() => normalizeSocialSpotUrl("https://www.instagram.com")).toThrow(
+      /direct TikTok or Instagram/i,
+    );
+    expect(() => normalizeSocialSpotUrl("https://www.instagram.com/localley/")).toThrow(
+      /direct TikTok or Instagram/i,
+    );
+    expect(() => normalizeSocialSpotUrl("https://www.tiktok.com/@localley")).toThrow(
       /direct TikTok or Instagram/i,
     );
     expect(() => normalizeSocialSpotUrl(
@@ -1301,6 +1315,12 @@ describe("social spot submission helpers", () => {
       output_text: JSON.stringify({
         ...alpha,
         candidates: [alpha, beta],
+        placeCoverage: {
+          complete: true,
+          identifiedCount: 2,
+          accountedForCount: 2,
+          unresolvedPlaces: [],
+        },
       }),
     }));
 
@@ -1335,6 +1355,12 @@ describe("social spot submission helpers", () => {
       "Cafe Alpha",
       "Bookshop Beta",
     ]);
+    expect(result.placeCoverage).toEqual({
+      complete: true,
+      identifiedCount: 2,
+      accountedForCount: 2,
+      unresolvedPlaces: [],
+    });
   });
 
   it("marks a multi-video carousel partial after analyzing only one retained video", async () => {

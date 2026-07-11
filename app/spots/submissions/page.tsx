@@ -19,6 +19,7 @@ import {
   SubmissionMediaProgressProvider,
   type SubmissionMediaProgressItem,
 } from "@/components/spots/submission-media-progress";
+import { SubmissionPreviewImage } from "@/components/spots/submission-preview-image";
 import type { SocialMediaProcessingSummary } from "@/lib/social-spot-media-jobs";
 import { Button } from "@/components/ui/button";
 import { isAdminUser } from "@/lib/admin-auth";
@@ -86,6 +87,12 @@ type SubmissionRow = {
   research: {
     candidates?: Candidate[];
     createdCandidates?: CreatedCandidate[];
+    placeCoverage?: {
+      complete?: boolean;
+      identifiedCount?: number;
+      accountedForCount?: number;
+      unresolvedPlaces?: string[];
+    };
     mediaAnalysis?: {
       status?:
         | "video_analyzed"
@@ -206,15 +213,17 @@ function getPrimaryCreatedSpotId(submission: SubmissionRow): string | null {
   return getCreatedCandidates(submission).find((candidate) => candidate.spotId)?.spotId || null;
 }
 
-function getSubmissionImage(
+function getSubmissionImages(
   submission: SubmissionRow,
   primarySpotImages: Map<string, string>,
 ) {
   const socialImage = submission.metadata?.imageUrl || submission.metadata?.thumbnailUrl;
-  if (socialImage) return socialImage;
-
   const spotId = getPrimaryCreatedSpotId(submission);
-  return spotId ? primarySpotImages.get(spotId) || null : null;
+  const spotImage = spotId ? primarySpotImages.get(spotId) || null : null;
+  return {
+    src: spotImage || socialImage || null,
+    fallbackSrc: spotImage && socialImage && spotImage !== socialImage ? socialImage : null,
+  };
 }
 
 async function loadPrimarySpotImages(
@@ -670,9 +679,10 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
               const mediaStatus = getMediaStatusCopy(submission);
               const MediaStatusIcon = mediaStatus.icon;
               const title = getSubmissionTitle(submission);
-              const image = getSubmissionImage(submission, primarySpotImages);
+              const images = getSubmissionImages(submission, primarySpotImages);
               const createdCandidates = getCreatedCandidates(submission);
               const pendingCandidates = getPendingCandidates(submission);
+              const placeCoverage = submission.research?.placeCoverage;
               const canAddEvidence = Boolean(
                 userId &&
                   (submission.clerk_user_id === userId || isAdminUser(userId)),
@@ -691,18 +701,11 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                   )}
                 >
                   <div className="relative aspect-video bg-violet-950/60 md:aspect-auto md:min-h-full">
-                    {image ? (
-                      <div
-                        role="img"
-                        aria-label={`${title} preview`}
-                        className="h-full w-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${image})` }}
-                      />
-                    ) : (
-                      <div className="flex h-full min-h-40 items-center justify-center">
-                        <Images className="h-10 w-10 text-violet-100/35" />
-                      </div>
-                    )}
+                    <SubmissionPreviewImage
+                      src={images.src}
+                      fallbackSrc={images.fallbackSrc}
+                      title={title}
+                    />
                     <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-2 py-1 text-xs font-semibold uppercase text-white backdrop-blur">
                       {submission.platform}
                     </div>
@@ -754,6 +757,22 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                         {submission.research_summary}
                       </p>
                     )}
+
+                    {placeCoverage && !placeCoverage.complete ? (
+                      <div
+                        role="status"
+                        className="mt-3 border-l-2 border-amber-300/60 pl-3 text-sm text-amber-50/85"
+                      >
+                        <p className="font-semibold text-amber-100">
+                          Place coverage incomplete: {placeCoverage.accountedForCount || 0} of {placeCoverage.identifiedCount || 0} accounted for
+                        </p>
+                        {placeCoverage.unresolvedPlaces?.length ? (
+                          <p className="mt-1 leading-5 text-amber-50/70">
+                            Still checking: {placeCoverage.unresolvedPlaces.slice(0, 3).join(", ")}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
 
                     {mediaProgress.length > 0 || submission.media_processing_state ? (
                       <SubmissionMediaProgress

@@ -15,6 +15,7 @@ export function MainContentShell({ children }: MainContentShellProps) {
   return (
     <main
       id="main-content"
+      data-main-scroll-host
       className={cn(
         "flex-1 min-h-0 overflow-y-auto",
         reserveBottomNavSpace && "pb-16 md:pb-0",
@@ -25,4 +26,3 @@ export function MainContentShell({ children }: MainContentShellProps) {
     </main>
   );
 }
-

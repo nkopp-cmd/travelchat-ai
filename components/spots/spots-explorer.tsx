@@ -46,10 +46,15 @@ export function SpotsExplorer({
         const target = resultsTopRef.current;
         if (!target) return;
 
-        const scrollHost = document.querySelector("main");
+        const scrollHost = target.closest<HTMLElement>("[data-main-scroll-host]");
         if (scrollHost instanceof HTMLElement) {
+            const targetTop =
+                scrollHost.scrollTop +
+                target.getBoundingClientRect().top -
+                scrollHost.getBoundingClientRect().top;
+
             scrollHost.scrollTo({
-                top: Math.max(target.offsetTop - 16, 0),
+                top: Math.max(targetTop - 16, 0),
                 behavior: "smooth",
             });
             return;

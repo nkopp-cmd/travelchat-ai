@@ -13,6 +13,22 @@ describe("social share target URL extraction", () => {
       .toBe("https://vt.tiktok.com/ZSExample/");
   });
 
+  it("supports direct TikTok photo posts and rejects profile shares", () => {
+    expect(extractSocialUrl("https://www.tiktok.com/@creator/photo/7412345678901234567"))
+      .toBe("https://www.tiktok.com/@creator/photo/7412345678901234567");
+    expect(extractSocialUrl("https://www.instagram.com/localley/")) .toBe("");
+    expect(extractSocialUrl("https://www.tiktok.com/@localley")) .toBe("");
+  });
+
+  it("accepts Instagram share redirects", () => {
+    expect(extractSocialUrl("https://www.instagram.com/share/SHARE123?igsh=abc")).toBe(
+      "https://www.instagram.com/share/SHARE123?igsh=abc",
+    );
+    expect(extractSocialUrl("https://www.instagram.com/share/reel/SHARE123")).toBe(
+      "https://www.instagram.com/share/reel/SHARE123",
+    );
+  });
+
   it("rejects deceptive suffixes, credentials, and unrelated URLs", () => {
     expect(extractSocialUrl("https://notinstagram.com/p/ABC123")).toBe("");
     expect(extractSocialUrl("https://user:pass@www.instagram.com/p/ABC123")).toBe("");

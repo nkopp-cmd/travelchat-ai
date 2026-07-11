@@ -13,7 +13,7 @@ migration has been applied in the target environment.
 3. The server fetches bounded public metadata, resolves duplicate aliases, and creates a durable processing checkpoint before any paid provider call. TikTok uses oEmbed plus trusted hydration data. Instagram can optionally use the pinned Apify Instagram Scraper provider for public post, reel, and carousel media.
 4. The server compares provider-declared media counts with every trusted image and video URL. Complete manifests support all 35 items allowed by TikTok. Partial, cover-only, unavailable, or over-limit extraction gets up to five bounded provider retries before becoming an explicit review item; it can never create a public spot.
 5. Complete manifests become revision-fenced database jobs, one per image or video. The POST returns `202`, and the submission tracker polls sanitized per-item progress. Images run in bounded batches with per-image fallback; videos run two at a time. Expiring signed URLs are refreshed once before a job is retried.
-6. Only after every current-revision media job succeeds does aggregate OpenAI web-search research extract up to 35 distinct places, Localley score, local percentage, exact address, visual evidence, and web evidence. One malformed candidate cannot discard the others. Chat and itinerary generation remain GLM-first.
+6. Only after every current-revision media job succeeds does aggregate OpenAI web-search research extract up to 35 distinct places, Localley score, local percentage, exact address, visual evidence, and web evidence. Every run returns a backend-validated coverage receipt with identified, accounted-for, and unresolved place counts. One malformed candidate cannot discard the others. Chat and itinerary generation remain GLM-first.
 7. Each high-confidence candidate is created or reused as a separate Localley spot only after Google Places confirms identity, exact address, coordinates, and real photos. No partial media result can materialize a spot.
 8. Every durable new submission receives an idempotent token ledger entry. URL-only submissions use anonymous Localley contributor attribution. Created spot cards and details expose `Community` provenance and contributor credit.
 
@@ -21,7 +21,7 @@ The immediate worker drains multiple typed batches within a 100-second soft budg
 
 Provider errors, rejected provider identity, caption-only output, and missing provider configuration remain `needs_review`; cover text alone cannot publish an Instagram spot. Stale retries use an atomic timestamp claim before paid enrichment so only one request can resume the same submission.
 
-Installed PWA users can share into Localley on platforms that support Web Share Target. The manifest sends shared `title`, `text`, and `url` data to `/spots/submit`, and the form auto-fills the first TikTok or Instagram URL it finds.
+Installed PWA users can share into Localley on platforms that support Web Share Target. The manifest sends shared `title`, `text`, and `url` data to `/spots/submit`, and the form auto-fills the first direct TikTok or Instagram post URL it finds. This works for installed Android PWAs. iOS does not currently expose Web Share Target to installed web apps, so iPhone users should use Copy Link and paste it into Localley.
 
 ## Database
 
@@ -32,6 +32,7 @@ Apply all social-submission migrations in order:
 3. `supabase/migrations/20260710085431_social_submission_media_jobs.sql`
 4. `supabase/migrations/20260710105520_social_submission_legacy_backfill.sql`
 5. `supabase/migrations/20260710105752_index_social_submission_media_jobs_fk.sql`
+6. `supabase/migrations/20260710120236_reconcile_social_submission_candidates.sql`
 
 Tables:
 
@@ -68,7 +69,7 @@ Each provider request is limited to one result, a 12-second deadline, a one-item
 
 ## Deployment Order
 
-1. Apply all five social-submission migrations listed above.
+1. Apply all six social-submission migrations listed above.
 2. Set `NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED=true` in Vercel.
 3. Set `ADMIN_USER_IDS` to a comma-separated allowlist of Clerk user IDs that may open the recovery console.
 4. Set `APIFY_API_TOKEN` to enable public Instagram media extraction.
@@ -98,6 +99,6 @@ curl --fail --show-error --silent \
   https://www.localley.io/api/cron/process-social-submissions
 ```
 
-If the queue migration is not present, the API stays compatible but does not publish media-backed spots. If `OPENAI_API_KEY` is absent, jobs retry and eventually become explicit review items; they never create a spot from incomplete evidence.
+If the reliability, queue, candidate, or Google Place ID migrations are not present, the API fails closed and does not publish a community spot. If `OPENAI_API_KEY` is absent, jobs retry and eventually become explicit review items; they never create a spot from incomplete evidence.
 
 Set `SOCIAL_SPOT_RESEARCH_MODEL` to override the default `gpt-5.4-mini` OpenAI web-search research model.

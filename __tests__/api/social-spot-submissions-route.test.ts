@@ -358,6 +358,24 @@ function createSupabaseMock() {
               })),
             };
           }),
+          update: vi.fn((payload: Record<string, unknown>) => {
+            const query = {
+              id: "",
+              eq: vi.fn((column: string, value: string) => {
+                if (column === "id") query.id = value;
+                return query;
+              }),
+              then: (
+                resolve: (value: { data: null; error: null | { message: string } }) => unknown,
+              ) => {
+                const row = mocks.spotRows.find((spot) => spot.id === query.id);
+                if (!row) return resolve({ data: null, error: { message: "not found" } });
+                Object.assign(row, payload);
+                return resolve({ data: null, error: null });
+              },
+            };
+            return query;
+          }),
         };
       }
 
@@ -555,6 +573,52 @@ describe("/api/spots/social-submissions", () => {
     });
     expect(mocks.ledgerRows).toHaveLength(1);
     expect(mocks.revalidateTag).toHaveBeenCalledWith("spots", "default");
+  });
+
+  it("keeps a submission in review when aggregate place coverage is incomplete", async () => {
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "candidate",
+      spotName: "Hidden Seoul Cafe",
+      description: "A small cafe with strong local signal.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 5,
+      localPercentage: 82,
+      bestTime: "Weekday afternoon",
+      tips: ["Go before dinner"],
+      confidence: 0.84,
+      researchSummary: "One exact cafe was verified; another place remains unresolved.",
+      evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+      candidates: [],
+      placeCoverage: {
+        complete: false,
+        identifiedCount: 2,
+        accountedForCount: 1,
+        unresolvedPlaces: ["Second venue shown at 00:18"],
+      },
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "The submitted images were analyzed.",
+      },
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({ url: "https://vm.tiktok.com/ZMh123" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "needs_review",
+      spotId: "spot_test_1",
+    });
+    expect(mocks.submissionRows[0].research).toMatchObject({
+      placeCoverage: {
+        complete: false,
+        unresolvedPlaces: ["Second venue shown at 00:18"],
+      },
+    });
   });
 
   it("keeps a partially analyzed multi-video submission in review", async () => {
@@ -768,7 +832,7 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.researchSocialSpotLink).not.toHaveBeenCalled();
   });
 
-  it("stays compatible while the optional reliability migration is pending", async () => {
+  it("fails closed when the required reliability migration is missing", async () => {
     mocks.optionalSocialSchemaAvailable = false;
     const { POST } = await import("@/app/api/spots/social-submissions/route");
 
@@ -777,22 +841,16 @@ describe("/api/spots/social-submissions", () => {
     }));
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body.submission).toMatchObject({
-      id: "submission_test",
-      status: "spot_created",
-      spotId: "spot_test_1",
-    });
-    expect(body.contributor).toMatchObject({ tokensAwarded: 25, totalTokens: 25 });
-    expect(mocks.submissionRows).toHaveLength(1);
-    expect(mocks.submissionRows[0]).not.toHaveProperty("processing_state");
-    expect(mocks.submissionRows[0]).toMatchObject({ token_awarded: 25 });
-    expect(mocks.ledgerRows).toHaveLength(1);
+    expect(response.status).toBe(500);
+    expect(body.error).toBeTruthy();
+    expect(mocks.submissionRows).toHaveLength(0);
+    expect(mocks.spotRows).toHaveLength(0);
+    expect(mocks.ledgerRows).toHaveLength(0);
     expect(mocks.aliasRows).toHaveLength(0);
     expect(mocks.candidateRows).toHaveLength(0);
   });
 
-  it("creates the spot without a place ID when the production column is not migrated yet", async () => {
+  it("fails closed instead of creating a spot without a Google place ID", async () => {
     mocks.spotInsertErrors.push({
       code: "42703",
       message: "column spots.google_place_id does not exist",
@@ -804,13 +862,9 @@ describe("/api/spots/social-submissions", () => {
     }));
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body.submission).toMatchObject({
-      status: "spot_created",
-      spotId: "spot_test_1",
-    });
-    expect(mocks.spotRows).toHaveLength(1);
-    expect(mocks.spotRows[0]).not.toHaveProperty("google_place_id");
+    expect(response.status).toBe(500);
+    expect(body.error).toBeTruthy();
+    expect(mocks.spotRows).toHaveLength(0);
   });
 
   it("accepts a URL-only submission with anonymous attribution", async () => {
@@ -1139,6 +1193,10 @@ describe("/api/spots/social-submissions", () => {
       }),
     ]);
     expect(mocks.spotRows).toEqual([existingSpot]);
+    expect(existingSpot).toMatchObject({
+      location: "POINT(126.9780000 37.5665000)",
+      photos: [expect.stringMatching(/^\/api\/places\/photo\?/)],
+    });
     expect(mocks.submissionRows[0].research).toMatchObject({
       createdCandidates: [
         expect.objectContaining({
@@ -1150,6 +1208,104 @@ describe("/api/spots/social-submissions", () => {
         }),
       ],
     });
+  });
+
+  it("does not reuse a text-similar spot with a different Google place identity", async () => {
+    mocks.spotRows.push({
+      id: "spot_same_text_different_place",
+      name: { en: "Hidden Seoul Cafe" },
+      address: { en: "1 Seoullo, Seoul" },
+      location: "POINT(127.0000000 37.5000000)",
+      photos: ["/api/places/photo?name=places%2Fother%2Fphotos%2F1&w=1200&v=2"],
+      google_place_id: "place_different_business",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({
+      url: "https://vm.tiktok.com/ZMh123?utm_source=copy",
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.submission).toMatchObject({
+      status: "spot_created",
+      spotId: "spot_test_2",
+    });
+    expect(mocks.spotRows).toHaveLength(2);
+    expect(mocks.spotRows[1]).toMatchObject({
+      google_place_id: "place_hidden_seoul_cafe",
+    });
+  });
+
+  it("returns one candidate when multiple research names resolve to the same place", async () => {
+    const baseCandidate = {
+      status: "candidate" as const,
+      spotName: "Hidden Seoul Cafe",
+      description: "A small cafe with strong local signal.",
+      address: "1 Seoullo, Seoul",
+      city: "Seoul",
+      category: "Cafe",
+      subcategories: ["Coffee"],
+      localleyScore: 5,
+      localPercentage: 82,
+      bestTime: "Weekday afternoon",
+      tips: ["Go before dinner"],
+      confidence: 0.84,
+      researchSummary: "Verified as a real cafe.",
+      evidenceUrls: ["https://vm.tiktok.com/ZMh123"],
+    };
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      ...baseCandidate,
+      candidates: [
+        baseCandidate,
+        {
+          ...baseCandidate,
+          spotName: "Hidden Cafe Seoul",
+          address: "1 Seoul-ro, Jung-gu, Seoul",
+          confidence: 0.78,
+        },
+      ],
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "Both references show the same storefront.",
+      },
+    });
+    const exactPlaceMatch = {
+      place: {
+        placeId: "place_one_exact_business",
+        displayName: "Hidden Seoul Cafe",
+        formattedAddress: "1 Seoul-ro, Jung-gu, Seoul, South Korea",
+        location: { latitude: 37.5665, longitude: 126.978 },
+        types: ["cafe"],
+        photos: [{ name: "places/place_one_exact_business/photos/photo_1" }],
+      },
+      quality: { acceptable: true, reason: "accepted", nameScore: 1, addressScore: 1 },
+      query: "Hidden Seoul Cafe, Seoul",
+    };
+    mocks.findBestGooglePlaceMatch
+      .mockResolvedValueOnce(exactPlaceMatch)
+      .mockResolvedValueOnce(exactPlaceMatch);
+    mocks.spotRows.push({
+      id: "spot_one_exact_business",
+      name: { en: "Hidden Seoul Cafe" },
+      address: { en: "1 Seoul-ro, Jung-gu, Seoul, South Korea" },
+      location: "POINT(126.9780000 37.5665000)",
+      photos: [
+        "/api/places/photo?name=places%2Fplace_one_exact_business%2Fphotos%2Fphoto_1&w=1200&v=2",
+      ],
+      google_place_id: "place_one_exact_business",
+    });
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({ url: "https://vm.tiktok.com/ZMh123" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.spots).toHaveLength(1);
+    expect(body.spots[0]).toMatchObject({ spotId: "spot_one_exact_business" });
+    expect(mocks.candidateRows).toHaveLength(1);
+    expect((mocks.submissionRows[0].research as { createdCandidates: unknown[] })
+      .createdCandidates).toHaveLength(1);
   });
 
   it("is idempotent for the same contributor and canonical URL", async () => {
