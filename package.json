@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 100.124.34.110 -p 3003",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
