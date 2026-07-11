@@ -1786,6 +1786,11 @@ describe("/api/spots/social-submissions", () => {
       },
       research: {
         createdCandidates: [{
+          spotId: 42,
+          status: "spot_created",
+          spotName: { malformed: true },
+          address: 123,
+        }, {
           spotId: "spot_existing",
           status: "spot_created",
           spotName: "Hidden Seoul Cafe",
@@ -1802,6 +1807,57 @@ describe("/api/spots/social-submissions", () => {
       ordinal: 0,
       result: { output: "Complete legacy image evidence." },
     }]);
+    mocks.researchSocialSpotLink.mockResolvedValueOnce({
+      status: "needs_review",
+      spotName: "Hidden Seoul Cafe (히든)",
+      description: "A cafe in central Seoul.",
+      address: "1 Seoullo",
+      city: "Seoul, South Korea",
+      category: "Cafe",
+      subcategories: ["Cafe"],
+      localleyScore: 4,
+      localPercentage: 70,
+      bestTime: "Afternoon",
+      tips: [],
+      confidence: 0.55,
+      researchSummary: "The complete carousel supports the existing cafe but not a second place.",
+      evidenceUrls: ["https://www.instagram.com/p/LEGACY123"],
+      candidates: [{
+        status: "needs_review",
+        spotName: "Hidden Seoul Cafe Annex",
+        description: "A possibly separate venue at the same street address.",
+        address: "1 Seoullo",
+        city: "Seoul, South Korea",
+        category: "Cafe",
+        subcategories: ["Cafe"],
+        localleyScore: 3,
+        localPercentage: 50,
+        bestTime: null,
+        tips: [],
+        confidence: 0.42,
+        researchSummary: "The annex name is distinct and remains unresolved.",
+        evidenceUrls: ["https://www.instagram.com/p/LEGACY123"],
+      }, {
+        status: "needs_review",
+        spotName: "Hidden Seoul Cafe",
+        description: "A different branch on a neighboring street number.",
+        address: "11 Seoullo",
+        city: "Seoul, South Korea",
+        category: "Cafe",
+        subcategories: ["Cafe"],
+        localleyScore: 3,
+        localPercentage: 50,
+        bestTime: null,
+        tips: [],
+        confidence: 0.4,
+        researchSummary: "The neighboring address must remain separate.",
+        evidenceUrls: ["https://www.instagram.com/p/LEGACY123"],
+      }],
+      mediaAnalysis: {
+        status: "images_extracted",
+        output: "Complete legacy image evidence.",
+      },
+    });
     const { PATCH } = await import("@/app/api/spots/social-submissions/route");
 
     const response = await PATCH(createPatchRequest({
@@ -1823,6 +1879,24 @@ describe("/api/spots/social-submissions", () => {
       additionalMediaAnalysis: expect.stringContaining("Complete legacy image evidence"),
     }));
     expect(mocks.spotRows).toHaveLength(1);
+    expect(mocks.candidateRows).toEqual([
+      expect.objectContaining({
+        spotId: "spot_existing",
+        spotName: "Hidden Seoul Cafe",
+        status: "spot_created",
+      }),
+      expect.objectContaining({
+        spotId: null,
+        spotName: "Hidden Seoul Cafe Annex",
+        status: "needs_review",
+      }),
+      expect.objectContaining({
+        spotId: null,
+        spotName: "Hidden Seoul Cafe",
+        address: "11 Seoullo",
+        status: "needs_review",
+      }),
+    ]);
   });
 
   it("keeps aggregate research retryable when the internal research provider falls back", async () => {

@@ -92,7 +92,8 @@ function formatPoint(lng: number, lat: number): string {
 }
 
 function normalizePlaceName(value: string | null | undefined): string {
-  return (value || "")
+  if (typeof value !== "string") return "";
+  return value
     .normalize("NFKD")
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
@@ -430,13 +431,21 @@ async function createCandidateResults({
   candidates,
   deadlineAt,
   allowSpotCreation = true,
+  previousResearch,
 }: {
   supabase: ReturnType<typeof createSupabaseAdmin>;
   candidates: SocialSpotResearchCandidate[];
   deadlineAt?: number;
   allowSpotCreation?: boolean;
-}) {
+  previousResearch?: unknown;
+}): Promise<CandidateResultRecord[]> {
+  const previouslyResolved = getPreviouslyResolvedCandidates(previousResearch);
   return Promise.all(candidates.map(async (candidate) => {
+    const resolvedMatch = previouslyResolved.find((previous) =>
+      candidatesReferToSamePlace(candidate, previous)
+    );
+    if (resolvedMatch) return resolvedMatch;
+
     const spotResult = allowSpotCreation
       ? await createSpotFromResearch({
           supabase,
@@ -465,26 +474,124 @@ function hasCompleteMediaEvidence(research: SocialSpotResearchResult): boolean {
   );
 }
 
-type CandidateResultRecord = Awaited<ReturnType<typeof createCandidateResults>>[number];
+type CandidateResultRecord = {
+  spotId: string | null;
+  status: SocialSpotSubmissionStatus;
+  enrichmentStatus?: "place_photo_ready" | "place_photo_missing";
+  placeName?: string | null;
+  placeId?: string | null;
+  photoCount?: number;
+  placeMatchQuery?: string | null;
+  usedTransliteratedNameFallback?: boolean;
+  spotName: string | null;
+  address: string | null;
+  city: string | null;
+  confidence: number;
+  summary: string;
+};
+
+type CandidateComparable = {
+  spotId?: string | null;
+  placeId?: string | null;
+  spotName?: string | null;
+  address?: string | null;
+  city?: string | null;
+};
+
+function candidateFieldsMatch(
+  left: string | null | undefined,
+  right: string | null | undefined,
+  minimumLength: number,
+): boolean {
+  const normalizedLeft = normalizePlaceName(left);
+  const normalizedRight = normalizePlaceName(right);
+  if (
+    normalizedLeft.length < minimumLength ||
+    normalizedRight.length < minimumLength
+  ) return false;
+
+  return normalizedLeft === normalizedRight ||
+    ` ${normalizedLeft} `.includes(` ${normalizedRight} `) ||
+    ` ${normalizedRight} `.includes(` ${normalizedLeft} `);
+}
+
+function candidateNamesMatch(
+  left: string | null | undefined,
+  right: string | null | undefined,
+): boolean {
+  const normalizedLeft = normalizePlaceName(left);
+  const normalizedRight = normalizePlaceName(right);
+  if (!normalizedLeft || !normalizedRight) return false;
+  if (normalizedLeft === normalizedRight) return true;
+
+  const withoutLocalizedAlias = (value: string | null | undefined) =>
+    normalizePlaceName((value || "").replace(/[\(（][^\)）]*[\)）]/gu, " "));
+  const leftWithoutAlias = withoutLocalizedAlias(left);
+  const rightWithoutAlias = withoutLocalizedAlias(right);
+  return Boolean(
+    leftWithoutAlias &&
+    rightWithoutAlias &&
+    leftWithoutAlias === rightWithoutAlias,
+  );
+}
+
+function candidatesReferToSamePlace(
+  left: CandidateComparable,
+  right: CandidateComparable,
+): boolean {
+  if (left.spotId && right.spotId && left.spotId === right.spotId) return true;
+  if (left.placeId && right.placeId && left.placeId === right.placeId) return true;
+
+  const citiesCompatible = !left.city || !right.city ||
+    candidateFieldsMatch(left.city, right.city, 3);
+  return citiesCompatible &&
+    candidateNamesMatch(left.spotName, right.spotName) &&
+    candidateFieldsMatch(left.address, right.address, 8);
+}
+
+function getPreviouslyResolvedCandidates(previousResearch: unknown): CandidateResultRecord[] {
+  if (!previousResearch || typeof previousResearch !== "object") return [];
+  const previousResults = (previousResearch as { createdCandidates?: unknown }).createdCandidates;
+  if (!Array.isArray(previousResults)) return [];
+
+  return previousResults.flatMap((previous): CandidateResultRecord[] => {
+    if (!previous || typeof previous !== "object") return [];
+    const candidate = previous as Record<string, unknown>;
+    const status = String(candidate.status || "");
+    if (
+      typeof candidate.spotId !== "string" ||
+      !["spot_created", "spot_reused"].includes(status)
+    ) return [];
+
+    return [{
+      ...candidate,
+      spotId: candidate.spotId,
+      status: status as SocialSpotSubmissionStatus,
+      spotName: typeof candidate.spotName === "string" ? candidate.spotName : null,
+      address: typeof candidate.address === "string" ? candidate.address : null,
+      city: typeof candidate.city === "string" ? candidate.city : null,
+      confidence: typeof candidate.confidence === "number" ? candidate.confidence : 0,
+      summary: typeof candidate.summary === "string" ? candidate.summary : "Previously resolved.",
+    }];
+  });
+}
 
 function mergePreviouslyResolvedCandidates(
   previousResearch: unknown,
   currentResults: CandidateResultRecord[],
 ): CandidateResultRecord[] {
-  if (!previousResearch || typeof previousResearch !== "object") return currentResults;
-  const previousResults = (previousResearch as { createdCandidates?: unknown }).createdCandidates;
-  if (!Array.isArray(previousResults)) return currentResults;
-
-  const merged = [...currentResults];
+  const previouslyResolved = getPreviouslyResolvedCandidates(previousResearch);
+  if (previouslyResolved.length === 0) return currentResults;
+  const merged = currentResults.filter((candidate) =>
+    Boolean(candidate.spotId) ||
+    !previouslyResolved.some((previous) => candidatesReferToSamePlace(candidate, previous))
+  );
   const resolvedSpotIds = new Set(
-    currentResults.map((candidate) => candidate.spotId).filter(Boolean),
+    merged.map((candidate) => candidate.spotId).filter(Boolean),
   );
 
-  for (const previous of previousResults) {
-    if (!previous || typeof previous !== "object") continue;
-    const candidate = previous as Partial<CandidateResultRecord>;
+  for (const candidate of previouslyResolved) {
     if (!candidate.spotId || resolvedSpotIds.has(candidate.spotId)) continue;
-    if (!candidate.status || !["spot_created", "spot_reused"].includes(candidate.status)) continue;
 
     merged.push(candidate as CandidateResultRecord);
     resolvedSpotIds.add(candidate.spotId);
@@ -1455,6 +1562,7 @@ export async function PATCH(req: NextRequest) {
       supabase,
       candidates,
       deadlineAt: processingDeadlineAt,
+      previousResearch: existingSubmission.research,
       allowSpotCreation: isInternalFinalization
         ? allMediaSucceeded && hasCompleteMediaEvidence(research)
         : mediaRevision === 0 && hasCompleteMediaEvidence(research),
