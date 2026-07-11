@@ -219,7 +219,9 @@ describe("social submission media worker", () => {
       ],
       mediaCompleteness: "complete" as const,
       mediaExtractedCount: 2,
+      extractionProvider: "apify_instagram",
     };
+    process.env.APIFY_API_TOKEN = "apify_test_token";
     mocks.listSocialMediaWork.mockResolvedValueOnce([coverageSubmission]);
     mocks.fetchSocialLinkMetadata.mockResolvedValueOnce(recoveredMetadata);
     mocks.enrichSocialLinkMetadataWithProvider.mockResolvedValueOnce(recoveredMetadata);
@@ -268,7 +270,19 @@ describe("social submission media worker", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toMatchObject({ claimed: 2, succeeded: 2, finalized: 1 });
+    expect(body).toMatchObject({
+      claimed: 2,
+      succeeded: 2,
+      finalized: 1,
+      providers: {
+        instagram: {
+          configured: true,
+          attempts: 1,
+          resolved: 1,
+          lastCoverageReason: "complete",
+        },
+      },
+    });
     expect(mocks.syncSocialMediaManifest).toHaveBeenCalledWith(expect.objectContaining({
       submissionId: submission.id,
       metadata: recoveredMetadata,

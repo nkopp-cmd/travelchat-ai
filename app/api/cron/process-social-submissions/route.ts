@@ -42,6 +42,14 @@ type WorkerSummary = {
   retried: number;
   finalized: number;
   deadLettered: number;
+  providers: {
+    instagram: {
+      configured: boolean;
+      attempts: number;
+      resolved: number;
+      lastCoverageReason: string | null;
+    };
+  };
 };
 
 async function analyzeJob(
@@ -321,11 +329,15 @@ async function retryIncompleteCoverage(
   submission: SocialMediaWorkSubmission,
   deadlineAt: number,
   extractionToken: string,
+  summary: WorkerSummary,
 ): Promise<SocialMediaWorkSubmission | null> {
   const supabase = createSupabaseAdmin();
   let metadata = submission.metadata;
   const storedCoverage = assessSocialMediaCoverage(metadata);
   if (!storedCoverage.complete) {
+    if (submission.platform === "instagram") {
+      summary.providers.instagram.attempts += 1;
+    }
     try {
       const baseMetadata = await fetchSocialLinkMetadata(submission.canonicalUrl, {
         includeInstagramProvider: false,
@@ -342,6 +354,12 @@ async function retryIncompleteCoverage(
     metadata,
     extractionToken,
   });
+  if (submission.platform === "instagram") {
+    if (metadata.extractionProvider === "apify_instagram") {
+      summary.providers.instagram.resolved += 1;
+    }
+    summary.providers.instagram.lastCoverageReason = queued.coverage.reason;
+  }
   const research = {
     ...submission.research,
     mediaProcessing: {
@@ -389,6 +407,14 @@ export async function GET(request: NextRequest) {
     retried: 0,
     finalized: 0,
     deadLettered: 0,
+    providers: {
+      instagram: {
+        configured: Boolean(process.env.APIFY_API_TOKEN?.trim()),
+        attempts: 0,
+        resolved: 0,
+        lastCoverageReason: null,
+      },
+    },
   };
 
   for (let submission of submissions) {
@@ -403,6 +429,7 @@ export async function GET(request: NextRequest) {
         submission,
         deadlineAt,
         extractionToken,
+        summary,
       );
       summary.retried += 1;
       if (!retriedSubmission) continue;
