@@ -1683,6 +1683,7 @@ async function downloadTrustedSocialVideo(
 
 function cleanSocialTitle(title: string | null): string | null {
   if (!title) return null;
+  if (/\bon Instagram\s*:/i.test(title)) return null;
   return title
     .replace(/\s*\|\s*TikTok\s*$/i, "")
     .replace(/\s*on Instagram\s*:\s*.*$/i, "")
@@ -1694,17 +1695,53 @@ function buildFallbackResearch(input: {
   platform: SocialSpotPlatform;
   metadata: SocialLinkMetadata;
   cityHint?: string;
+  videoAnalyses?: SocialVideoAnalysisItem[];
 }): SocialSpotResearchResult {
   const cleanedTitle = cleanSocialTitle(input.metadata.title);
   const imageUrl = input.metadata.imageUrl || input.metadata.thumbnailUrl || null;
   const videoUrls = getTrustedSocialVideoUrls(input.metadata);
+  const suppliedVideoAnalyses = new Map<number, SocialVideoAnalysisItem>();
+  for (const item of input.videoAnalyses || []) {
+    if (
+      !Number.isInteger(item.ordinal) ||
+      item.ordinal < 0 ||
+      item.ordinal >= videoUrls.length ||
+      !isTrustedSocialVideoUrl(item.videoUrl)
+    ) continue;
+    const output = typeof item.output === "string"
+      ? item.output.trim().slice(0, SOCIAL_VIDEO_ANALYSIS_MAX_CHARS)
+      : null;
+    suppliedVideoAnalyses.set(item.ordinal, {
+      ordinal: item.ordinal,
+      videoUrl: videoUrls[item.ordinal],
+      status: item.status === "analyzed" && output
+        ? "analyzed"
+        : item.status === "unavailable"
+          ? "unavailable"
+          : "queued",
+      output,
+    });
+  }
+  const videoAnalysisItems = videoUrls.map((videoUrl, ordinal) =>
+    suppliedVideoAnalyses.get(ordinal) || {
+      ordinal,
+      videoUrl,
+      status: "queued" as const,
+      output: null,
+    });
+  const analyzedVideoCount = videoAnalysisItems.filter(
+    (item) => item.status === "analyzed" && Boolean(item.output),
+  ).length;
+  const videoAnalysis = buildCombinedVideoAnalysis(videoAnalysisItems);
   const isPartialMedia = input.metadata.mediaCompleteness === "partial" ||
-    videoUrls.length > 1;
+    videoUrls.length > 1 && analyzedVideoCount < videoUrls.length;
   const mediaStatus = isPartialMedia
     ? videoUrls.length > 1
       ? "video_partially_analyzed"
       : "media_partially_extracted"
-    : videoUrls.length > 0
+    : videoAnalysis
+      ? "video_analyzed"
+      : videoUrls.length > 0
       ? "video_unavailable"
       : input.metadata.mediaAccessStatus === "carousel_images"
         ? "images_extracted"
@@ -1732,15 +1769,10 @@ function buildFallbackResearch(input: {
     candidates: [],
     mediaAnalysis: {
       status: mediaStatus,
-      output: null,
-      analyzedVideoCount: 0,
+      output: videoAnalysis,
+      analyzedVideoCount,
       totalVideoCount: videoUrls.length,
-      items: videoUrls.map((videoUrl, ordinal) => ({
-        ordinal,
-        videoUrl,
-        status: "queued" as const,
-        output: null,
-      })),
+      items: videoAnalysisItems,
     },
   };
 }

@@ -1021,6 +1021,49 @@ describe("social spot submission helpers", () => {
     }
   });
 
+  it("preserves completed Reel analysis without turning a multiline caption into a place", async () => {
+    const previousOpenAiKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const videoUrl = "https://scontent.cdninstagram.com/v/video/temple.mp4";
+
+    try {
+      const result = await researchSocialSpotLink({
+        canonicalUrl: "https://www.instagram.com/reel/TEMPLE123",
+        platform: "instagram",
+        metadata: {
+          title: "Visit Seoul on Instagram: \"Temples in the city\nFull caption follows\"",
+          description: "A temple stay experience in Seoul.",
+          imageUrl: "https://scontent.cdninstagram.com/v/image/temple.jpg",
+          videoUrl,
+          videoUrls: [videoUrl],
+          mediaAccessStatus: "video_ready",
+          mediaCompleteness: "complete",
+          finalUrl: "https://www.instagram.com/reel/TEMPLE123",
+        },
+        videoAnalyses: [{
+          ordinal: 0,
+          videoUrl,
+          status: "analyzed",
+          output: "Visible temple signage and a guided meditation activity in central Seoul.",
+        }],
+        analyzeFirstVideo: false,
+      });
+
+      expect(result.status).toBe("research_pending");
+      expect(result.spotName).toBeNull();
+      expect(result.mediaAnalysis).toMatchObject({
+        status: "video_analyzed",
+        analyzedVideoCount: 1,
+        totalVideoCount: 1,
+        items: [expect.objectContaining({ status: "analyzed" })],
+      });
+      expect(result.mediaAnalysis?.output).toContain("FULL VIDEO COVERAGE");
+    } finally {
+      if (previousOpenAiKey === undefined) delete process.env.OPENAI_API_KEY;
+      else process.env.OPENAI_API_KEY = previousOpenAiKey;
+    }
+  });
+
   it.each([401, 429, 500])(
     "falls back safely when the Instagram provider returns %s",
     async (status) => {
