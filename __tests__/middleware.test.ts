@@ -8,6 +8,7 @@ describe("Clerk public route allowlist", () => {
     "/api/spots/social-submissions/media-status?ids=invalid",
     "/api/cron/cleanup-stories",
     "/api/cron/process-social-submissions",
+    "/api/cron/refresh-weekly-social-trends",
   ])("lets route-level security handle %s", (pathname) => {
     expect(isPublicRoute(new NextRequest(`https://www.localley.io${pathname}`))).toBe(true);
   });

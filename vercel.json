@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/process-social-submissions",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-weekly-social-trends",
+      "schedule": "0 5 * * *"
     }
   ]
 }

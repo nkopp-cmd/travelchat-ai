@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
+import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
 import { Images, MapPin, Plus } from "lucide-react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
@@ -15,6 +16,7 @@ import {
     SpotsFilterParams,
 } from "@/lib/spots";
 import type { Metadata } from "next";
+import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 
 export const metadata: Metadata = {
     title: "Discover Hidden Gems",
@@ -82,21 +84,25 @@ async function SpotsContent({
 }) {
     const filters = parseFilterParams(searchParams);
 
-    const [spotsData, filterOptions] = await Promise.all([
+    const [spotsData, filterOptions, weeklyTrending] = await Promise.all([
         fetchFilteredSpots(filters),
         fetchFilterOptions(),
+        fetchWeeklyTrendingSpots(filters.city),
     ]);
 
     return (
-        <SpotsExplorer
-            initialSpots={spotsData.spots}
-            totalCount={spotsData.total}
-            currentPage={spotsData.page}
-            pageSize={spotsData.pageSize}
-            hasMore={spotsData.hasMore}
-            filterOptions={filterOptions}
-            currentFilters={filters}
-        />
+        <>
+            <WeeklyTrendingSpots items={weeklyTrending} />
+            <SpotsExplorer
+                initialSpots={spotsData.spots}
+                totalCount={spotsData.total}
+                currentPage={spotsData.page}
+                pageSize={spotsData.pageSize}
+                hasMore={spotsData.hasMore}
+                filterOptions={filterOptions}
+                currentFilters={filters}
+            />
+        </>
     );
 }
 
