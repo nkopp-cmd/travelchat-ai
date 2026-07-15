@@ -8,27 +8,12 @@ CREATE TABLE public.weekly_social_trend_runs (
   state TEXT NOT NULL DEFAULT 'starting'
     CHECK (state IN ('starting', 'running', 'succeeded', 'failed')),
   error_message TEXT,
-  attempt_count SMALLINT NOT NULL DEFAULT 1 CHECK (attempt_count BETWEEN 1 AND 3),
   started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   completed_at TIMESTAMPTZ,
   processed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (week_start, platform)
-);
-
-CREATE TABLE public.weekly_social_trend_city_builds (
-  week_start DATE NOT NULL,
-  city_slug TEXT NOT NULL,
-  state TEXT NOT NULL DEFAULT 'running'
-    CHECK (state IN ('running', 'succeeded', 'failed')),
-  attempt_count SMALLINT NOT NULL DEFAULT 1 CHECK (attempt_count BETWEEN 1 AND 3),
-  error_message TEXT,
-  lease_expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '10 minutes'),
-  completed_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (week_start, city_slug)
 );
 
 CREATE TABLE public.weekly_social_content (
@@ -68,59 +53,8 @@ CREATE TABLE public.weekly_city_spot_rankings (
   UNIQUE (week_start, city_slug, rank)
 );
 
-CREATE OR REPLACE FUNCTION public.replace_weekly_city_spot_rankings(
-  p_week_start DATE,
-  p_city_slug TEXT,
-  p_rankings JSONB
-)
-RETURNS INTEGER
-LANGUAGE plpgsql
-SECURITY INVOKER
-SET search_path = public
-AS $$
-DECLARE
-  inserted_count INTEGER;
-BEGIN
-  DELETE FROM public.weekly_city_spot_rankings
-  WHERE week_start = p_week_start AND city_slug = p_city_slug;
-
-  INSERT INTO public.weekly_city_spot_rankings (
-    week_start,
-    city_slug,
-    spot_id,
-    rank,
-    score,
-    post_count,
-    platform_count,
-    signal_summary
-  )
-  SELECT
-    p_week_start,
-    p_city_slug,
-    ranking.spot_id,
-    ranking.rank,
-    ranking.score,
-    ranking.post_count,
-    ranking.platform_count,
-    ranking.signal_summary
-  FROM jsonb_to_recordset(COALESCE(p_rankings, '[]'::jsonb)) AS ranking(
-    spot_id UUID,
-    rank SMALLINT,
-    score NUMERIC,
-    post_count INTEGER,
-    platform_count SMALLINT,
-    signal_summary JSONB
-  );
-
-  GET DIAGNOSTICS inserted_count = ROW_COUNT;
-  RETURN inserted_count;
-END;
-$$;
-
 CREATE INDEX weekly_social_trend_runs_state_idx
   ON public.weekly_social_trend_runs (week_start, state, processed_at);
-CREATE INDEX weekly_social_trend_city_builds_state_idx
-  ON public.weekly_social_trend_city_builds (week_start, state, lease_expires_at);
 CREATE INDEX weekly_social_content_city_week_idx
   ON public.weekly_social_content (city_slug, week_start DESC);
 CREATE INDEX weekly_social_content_expiry_idx
@@ -129,28 +63,19 @@ CREATE INDEX weekly_city_spot_rankings_lookup_idx
   ON public.weekly_city_spot_rankings (city_slug, week_start DESC, rank);
 
 ALTER TABLE public.weekly_social_trend_runs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.weekly_social_trend_city_builds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.weekly_social_content ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.weekly_city_spot_rankings ENABLE ROW LEVEL SECURITY;
 
 REVOKE ALL ON public.weekly_social_trend_runs FROM anon, authenticated;
-REVOKE ALL ON public.weekly_social_trend_city_builds FROM anon, authenticated;
 REVOKE ALL ON public.weekly_social_content FROM anon, authenticated;
 REVOKE ALL ON public.weekly_city_spot_rankings FROM anon, authenticated;
 
 GRANT ALL ON public.weekly_social_trend_runs TO service_role;
-GRANT ALL ON public.weekly_social_trend_city_builds TO service_role;
 GRANT ALL ON public.weekly_social_content TO service_role;
 GRANT ALL ON public.weekly_city_spot_rankings TO service_role;
-REVOKE ALL ON FUNCTION public.replace_weekly_city_spot_rankings(DATE, TEXT, JSONB)
-  FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.replace_weekly_city_spot_rankings(DATE, TEXT, JSONB)
-  TO service_role;
 
 COMMENT ON TABLE public.weekly_social_trend_runs IS
   'Private Apify orchestration state for bounded weekly social trend discovery.';
-COMMENT ON TABLE public.weekly_social_trend_city_builds IS
-  'Private retry and lease state for bounded, one-city-at-a-time weekly ranking builds.';
 COMMENT ON TABLE public.weekly_social_content IS
   'Private minimal social engagement observations; creator identities and raw payloads are intentionally not retained.';
 COMMENT ON COLUMN public.weekly_social_content.content_text IS
