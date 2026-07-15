@@ -15,7 +15,7 @@
     },
     {
       "path": "/api/cron/refresh-weekly-social-trends",
-      "schedule": "0 5 * * *"
+      "schedule": "17 * * * *"
     }
   ]
 }
