@@ -54,6 +54,6 @@ describe("deterministic corridor planner", () => {
   it("turns international flight days into conservative light days", () => {
     const plan = planCorridorTrip(corridorGoldenTrips[15].request);
     const transferDay = plan.days.find((day) => day.type === "transfer");
-    expect(transferDay?.activeMinutesBudget).toBeLessThanOrEqual(230);
+    expect(transferDay?.activeMinutesBudget).toBe(0);
   });
 });

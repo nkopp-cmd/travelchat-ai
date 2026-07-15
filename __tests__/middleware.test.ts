@@ -16,4 +16,8 @@ describe("Clerk public route allowlist", () => {
   it("continues to protect private application routes", () => {
     expect(isPublicRoute(new NextRequest("https://www.localley.io/dashboard"))).toBe(false);
   });
+
+  it("keeps the default-off multi-city preview behind Clerk", () => {
+    expect(isPublicRoute(new NextRequest("https://www.localley.io/api/v2/trips/preview"))).toBe(false);
+  });
 });
