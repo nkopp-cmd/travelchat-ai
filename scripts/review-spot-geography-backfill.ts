@@ -7,6 +7,7 @@ import * as dotenv from "dotenv";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { assignSpotGeography } from "../lib/geography/spot-assignment";
+import { SPOT_REVIEW_DISPOSITION_BY_ID } from "../lib/geography/spot-review-dispositions";
 import { parseSpotCoordinates } from "../lib/spots/coordinates";
 import { applyPublicSpotVisibilityFilters, shouldShowPublicSpot } from "../lib/spots/public-quality";
 
@@ -81,6 +82,13 @@ async function main(): Promise<void> {
     });
   const assigned = assignments.filter((row) => row.destinationSlug !== null);
   const needsReview = assignments.filter((row) => row.needsReview);
+  const reviewedQuarantines = needsReview.flatMap((row) => {
+    const disposition = SPOT_REVIEW_DISPOSITION_BY_ID.get(row.spotId);
+    return disposition ? [{ ...row, disposition }] : [];
+  });
+  const unresolvedReviewQueue = needsReview.filter(
+    (row) => !SPOT_REVIEW_DISPOSITION_BY_ID.has(row.spotId),
+  );
   const localAreaAssigned = assignments.filter((row) => row.localAreaSlug !== null);
   const summary = {
     generatedAt: new Date().toISOString(),
@@ -92,11 +100,18 @@ async function main(): Promise<void> {
       : Number((assigned.length / assignments.length * 100).toFixed(2)),
     assignedLocalAreas: localAreaAssigned.length,
     reviewCount: needsReview.length,
+    reviewedQuarantineCount: reviewedQuarantines.length,
+    unresolvedReviewCount: unresolvedReviewQueue.length,
     reviewPercent: assignments.length === 0
       ? 0
       : Number((needsReview.length / assignments.length * 100).toFixed(2)),
   };
-  const report = { summary, reviewQueue: needsReview, assignments };
+  const report = {
+    summary,
+    unresolvedReviewQueue,
+    reviewedQuarantines,
+    assignments,
+  };
   const absoluteOut = path.resolve(process.cwd(), outPath);
   fs.mkdirSync(path.dirname(absoluteOut), { recursive: true });
   fs.writeFileSync(absoluteOut, `${JSON.stringify(report, null, 2)}\n`);

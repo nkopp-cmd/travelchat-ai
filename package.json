@@ -25,6 +25,7 @@
     "geo:snapshot": "tsx scripts/generate-geography-snapshot.ts",
     "geo:snapshot:check": "npm run geo:snapshot -- --check",
     "geo:backfill:review": "tsx scripts/review-spot-geography-backfill.ts",
+    "trip:seed-edges": "tsx scripts/seed-transport-edges.ts",
     "seed:spots": "ts-node --project tsconfig.json scripts/seed-spots.ts",
     "seed:more": "ts-node --project tsconfig.json scripts/seed-additional-spots.ts"
   },
