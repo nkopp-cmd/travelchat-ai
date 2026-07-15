@@ -41,7 +41,19 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // Rate limiting
 const RATE_LIMIT_MS = 150; // ~6-7 requests per second
 const BATCH_SIZE = 25;
-const MAX_PHOTOS_PER_SPOT = 3;
+// One real venue photo per spot keeps cost down (each photo fetch is billed).
+const MAX_PHOTOS_PER_SPOT = 1;
+
+// --- COST GUARD ---
+// Google Places (New) smart flow cost per spot with our field masks:
+//   Text Search IDs-only ($0) + Place Details Pro ($17/1k) + 1 Photo ($7/1k)
+//   = ~$0.024 per spot. A $20/month budget = ~800 spots.
+// Per-run hard cap so a single run can never blow the budget. The TRUE monthly
+// ceiling is the Google Cloud daily quota cap (set that in the console too).
+const COST_PER_SPOT_USD = 0.024;
+const MAX_SPOTS_PER_RUN = Number(process.env.ENRICH_MAX_SPOTS_PER_RUN || 800);
+// Supabase Storage bucket for permanently cached spot photos (never re-fetch).
+const SPOT_IMAGE_BUCKET = 'generated-images';
 
 interface SpotRow {
     id: string;
@@ -91,7 +103,9 @@ async function searchGooglePlace(name: string, address: string): Promise<string 
             headers: {
                 'Content-Type': 'application/json',
                 'X-Goog-Api-Key': googleApiKey!,
-                'X-Goog-FieldMask': 'places.id,places.displayName,places.photos',
+                // IDs-only field mask = the FREE Text Search Essentials SKU.
+                // We only need the place id here; photos come from Place Details.
+                'X-Goog-FieldMask': 'places.id',
             },
             body: JSON.stringify({
                 textQuery: `${name} ${address}`,
@@ -143,6 +157,38 @@ async function getGooglePlaceDetails(placeId: string): Promise<GooglePlacePhoto[
 function getGooglePhotoUrl(photoName: string, maxWidth: number = 800): string {
     // New Places API photo URL format
     return `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=${maxWidth}&key=${googleApiKey}`;
+}
+
+/**
+ * Download a source image ONCE and cache it in Supabase Storage, returning a
+ * permanent public URL. This is the "save it smart" step:
+ *   - stops per-view billing (the raw Google media URL bills every render),
+ *   - keeps the API key out of stored/public URLs (the key was in the media URL),
+ *   - means we never re-fetch this image again.
+ */
+async function cacheImageToStorage(sourceUrl: string, storageKey: string): Promise<string | null> {
+    try {
+        const res = await fetch(sourceUrl);
+        if (!res.ok) {
+            console.error(`   Image download failed (${res.status}) for ${storageKey}`);
+            return null;
+        }
+        const contentType = res.headers.get('content-type') || 'image/jpeg';
+        if (!contentType.startsWith('image/')) return null;
+        const buffer = Buffer.from(await res.arrayBuffer());
+        const { error: uploadError } = await supabase.storage
+            .from(SPOT_IMAGE_BUCKET)
+            .upload(storageKey, buffer, { contentType, upsert: true });
+        if (uploadError) {
+            console.error(`   Storage upload failed for ${storageKey}:`, uploadError.message);
+            return null;
+        }
+        const { data } = supabase.storage.from(SPOT_IMAGE_BUCKET).getPublicUrl(storageKey);
+        return data?.publicUrl || null;
+    } catch (error) {
+        console.error(`   Error caching image ${storageKey}:`, error);
+        return null;
+    }
 }
 
 /**
@@ -258,8 +304,8 @@ async function enrichSpotImages() {
         return;
     }
 
-    // Filter spots that need images
-    const spotsNeedingImages = allSpots.filter((spot: SpotRow) => {
+    // Filter spots that need images (never re-enrich ones that already have a real photo)
+    const allNeeding = allSpots.filter((spot: SpotRow) => {
         // Has no photos or empty array
         if (!spot.photos || spot.photos.length === 0) return true;
         // Only has placeholder
@@ -267,8 +313,15 @@ async function enrichSpotImages() {
         return false;
     });
 
+    // COST GUARD: cap how many spots one run may enrich so it can never blow budget.
+    const spotsNeedingImages = allNeeding.slice(0, MAX_SPOTS_PER_RUN);
+    const capped = allNeeding.length - spotsNeedingImages.length;
+
     console.log(`📊 Total spots: ${allSpots.length}`);
-    console.log(`🖼️  Spots needing images: ${spotsNeedingImages.length}`);
+    console.log(`🖼️  Spots needing images: ${allNeeding.length}`);
+    console.log(`💵 This run will process up to ${spotsNeedingImages.length} spots ` +
+        `(~$${(spotsNeedingImages.length * COST_PER_SPOT_USD).toFixed(2)} max Google spend)` +
+        `${capped > 0 ? ` — ${capped} deferred to a later run (ENRICH_MAX_SPOTS_PER_RUN=${MAX_SPOTS_PER_RUN})` : ''}`);
     console.log(`🔑 Google Places API: ${googleApiKey ? 'Available' : 'Not configured'}`);
     console.log(`🔑 TripAdvisor API: ${tripAdvisorApiKey ? 'Available' : 'Not configured (fallback disabled)'}`);
 
@@ -336,7 +389,20 @@ async function enrichSpotImages() {
             }
         }
 
-        // Update database if we found photos
+        // Cache the fetched photos into Supabase Storage ONCE, then store the
+        // permanent Supabase URLs (never the raw Google media URL, which bills
+        // per view and leaks the API key). Applies to Google + TripAdvisor.
+        if (photos.length > 0) {
+            const cached: string[] = [];
+            for (let n = 0; n < photos.length; n++) {
+                const storageKey = `spots/${spot.id}/${n}.jpg`;
+                const publicUrl = await cacheImageToStorage(photos[n], storageKey);
+                if (publicUrl) cached.push(publicUrl);
+            }
+            photos = cached;
+        }
+
+        // Update database if we found (and cached) photos
         if (photos.length > 0) {
             const updated = await updateSpotPhotos(spot.id, photos, placeId);
             if (!updated) {
