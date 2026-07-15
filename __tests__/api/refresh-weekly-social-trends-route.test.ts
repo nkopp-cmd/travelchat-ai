@@ -27,6 +27,7 @@ describe("weekly social trend cron route", () => {
       failed: [],
       contentItems: 0,
       rankings: 0,
+      builtCities: [],
     });
   });
 

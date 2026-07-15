@@ -1,6 +1,5 @@
 import "server-only";
 import { createHash, randomUUID } from "node:crypto";
-import OpenAI from "openai";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { ENABLED_CITIES, inferCityFromAddress } from "@/lib/cities";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
@@ -21,6 +20,7 @@ type TrendRunRow = {
   actor_run_id: string;
   dataset_id: string | null;
   state: "starting" | "running" | "succeeded" | "failed";
+  attempt_count: number;
   processed_at: string | null;
 };
 
@@ -47,6 +47,7 @@ export type WeeklyTrendRefreshSummary = {
   failed: SocialTrendPlatform[];
   contentItems: number;
   rankings: number;
+  builtCities: string[];
 };
 
 const APIFY_API_BASE = "https://api.apify.com/v2";
@@ -57,31 +58,33 @@ const MAX_ACTOR_CHARGE_USD = "2";
 const MAX_CONTENT_TEXT_LENGTH = 4_000;
 const MAX_LINKER_SIGNALS_PER_CITY = 16;
 const MAX_LINKER_SPOTS_PER_CITY = 160;
-const LINKER_CONCURRENCY = 4;
 const MAX_NEW_RUNS_PER_INVOCATION = 1;
+const MAX_RUN_ATTEMPTS = 3;
+const MAX_CITY_BUILD_ATTEMPTS = 3;
 const DERIVED_DATA_RETENTION_DAYS = 16 * 7;
 const STALE_STARTING_MINUTES = 30;
+const STALE_RUNNING_HOURS = 6;
 
-const SOCIAL_SCOUT_CITY_SLUGS = new Set([
-  "seoul",
-  "tokyo",
-  "bangkok",
-  "singapore",
-  "taipei",
-  "osaka",
-  "kyoto",
-  "hong-kong",
-]);
-
-export const SOCIAL_SCOUT_CITIES = ENABLED_CITIES.filter((city) =>
-  SOCIAL_SCOUT_CITY_SLUGS.has(city.slug),
-);
+export const SOCIAL_SCOUT_CITIES = ENABLED_CITIES;
 
 const PLATFORM_HOSTS: Record<SocialTrendPlatform, string[]> = {
   instagram: ["instagram.com"],
   tiktok: ["tiktok.com"],
   youtube: ["youtube.com", "youtu.be"],
 };
+
+type TrendRunReadiness = Pick<TrendRunRow, "state" | "attempt_count" | "processed_at">;
+
+export function canRetryTrendRun(run: TrendRunReadiness): boolean {
+  return run.state === "failed" && run.attempt_count < MAX_RUN_ATTEMPTS;
+}
+
+export function areTrendRunsReadyForBuild(runs: TrendRunReadiness[]): boolean {
+  if (runs.length !== Object.keys(actorConfigs()).length) return false;
+  return runs.some((run) => Boolean(run.processed_at)) && runs.every((run) =>
+    Boolean(run.processed_at) || (run.state === "failed" && run.attempt_count >= MAX_RUN_ATTEMPTS),
+  );
+}
 
 function cityQueries(): string[] {
   return SOCIAL_SCOUT_CITIES.map((city) => `${city.name} hidden gems travel`);
@@ -317,6 +320,38 @@ async function claimRunSlot(input: {
   actorId: string;
 }): Promise<TrendRunRow | null> {
   const supabase = createSupabaseAdmin();
+  const { data: existing, error: existingError } = await supabase
+    .from("weekly_social_trend_runs")
+    .select("*")
+    .eq("week_start", input.weekStart)
+    .eq("platform", input.platform)
+    .maybeSingle();
+  if (existingError) throw new Error(`Could not inspect weekly social run: ${existingError.message}`);
+  if (existing) {
+    const run = existing as TrendRunRow;
+    if (!canRetryTrendRun(run)) return null;
+    const placeholder = `starting:${randomUUID()}`;
+    const { data, error } = await supabase
+      .from("weekly_social_trend_runs")
+      .update({
+        actor_id: input.actorId,
+        actor_run_id: placeholder,
+        dataset_id: null,
+        state: "starting",
+        error_message: null,
+        attempt_count: run.attempt_count + 1,
+        started_at: new Date().toISOString(),
+        completed_at: null,
+        processed_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", run.id)
+      .eq("state", "failed")
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error(`Could not retry weekly social run: ${error.message}`);
+    return data as TrendRunRow | null;
+  }
   const placeholder = `starting:${randomUUID()}`;
   const { data, error } = await supabase
     .from("weekly_social_trend_runs")
@@ -411,7 +446,7 @@ function spotCitySlug(spot: RawSpot): string | null {
   return inferCityFromAddress(getLocalizedText(spot.address))?.slug || null;
 }
 
-function mentionsSpot(content: string, spot: RawSpot): boolean {
+export function mentionsSpot(content: string, spot: Pick<RawSpot, "name">): boolean {
   const name = normalizeSearchText(getLocalizedText(spot.name));
   if (name.length < 5) return false;
   return normalizeSearchText(content).includes(name);
@@ -427,11 +462,10 @@ type SpotSignalLink = {
   signalIds: string[];
 };
 
-async function linkSignalsToSpots(input: {
-  cityName: string;
+function linkSignalsToSpots(input: {
   signals: NormalizedSocialTrendItem[];
   spots: RawSpot[];
-}): Promise<SpotSignalLink[]> {
+}): SpotSignalLink[] {
   const eligibleSignals = input.signals
     .filter((signal) => engagementValue(signal) > 0 && signal.contentText.trim())
     .sort((left, right) => engagementValue(right) - engagementValue(left))
@@ -451,123 +485,13 @@ async function linkSignalsToSpots(input: {
     }
   }
 
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
-    return [...hardLinks].map(([spotId, signalIds]) => ({
-      spotId,
-      signalIds: [...signalIds],
-    }));
-  }
-
-  const hardLinkedSignalIds = new Set(
-    [...hardLinks.values()].flatMap((signalIds) => [...signalIds]),
-  );
-  const semanticSignals = eligibleSignals.filter(
-    (signal) => !hardLinkedSignalIds.has(signal.externalId),
-  );
-  if (semanticSignals.length === 0) {
-    return [...hardLinks].map(([spotId, signalIds]) => ({
-      spotId,
-      signalIds: [...signalIds],
-    }));
-  }
-
-  try {
-    const client = new OpenAI({ apiKey, timeout: 12_000, maxRetries: 0 });
-    const response = await client.responses.create({
-      model: process.env.SOCIAL_TREND_LINKER_MODEL || "gpt-5.4-mini",
-      max_output_tokens: 2_000,
-      input: [
-        {
-          role: "system",
-          content:
-            "Link social travel snippets to an allowlisted Localley place only when the snippet explicitly names that same real-world place or an unmistakable alias. Never guess from category, neighborhood, or vibe alone.",
-        },
-        {
-          role: "user",
-          content: JSON.stringify({
-            city: input.cityName,
-            signals: semanticSignals.map((signal) => ({
-              id: signal.externalId,
-              text: signal.contentText,
-            })),
-            allowedSpots: eligibleSpots.map((spot) => ({
-              id: spot.id,
-              name: getLocalizedText(spot.name),
-              address: getLocalizedText(spot.address),
-            })),
-          }),
-        },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "weekly_social_spot_links",
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            required: ["matches"],
-            properties: {
-              matches: {
-                type: "array",
-                maxItems: 40,
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  required: ["spotId", "signalIds"],
-                  properties: {
-                    spotId: { type: "string" },
-                    signalIds: {
-                      type: "array",
-                      items: { type: "string" },
-                      minItems: 1,
-                      maxItems: MAX_LINKER_SIGNALS_PER_CITY,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-    const parsed = JSON.parse(response.output_text) as { matches?: SpotSignalLink[] };
-    const allowedSpotIds = new Set(eligibleSpots.map((spot) => spot.id));
-    const allowedSignalIds = new Set(semanticSignals.map((signal) => signal.externalId));
-    for (const match of parsed.matches || []) {
-      if (!allowedSpotIds.has(match.spotId)) continue;
-      const linked = hardLinks.get(match.spotId) || new Set<string>();
-      for (const signalId of match.signalIds || []) {
-        if (allowedSignalIds.has(signalId)) linked.add(signalId);
-      }
-      if (linked.size > 0) hardLinks.set(match.spotId, linked);
-    }
-  } catch (error) {
-    console.warn(
-      `[weekly-social-trends] Semantic linking unavailable for ${input.cityName}:`,
-      error instanceof Error ? error.message : "Unknown error",
-    );
-  }
-
   return [...hardLinks].map(([spotId, signalIds]) => ({
     spotId,
     signalIds: [...signalIds],
   }));
 }
 
-async function mapWithConcurrency<TInput, TOutput>(
-  values: TInput[],
-  concurrency: number,
-  mapper: (value: TInput) => Promise<TOutput>,
-): Promise<TOutput[]> {
-  const output: TOutput[] = [];
-  for (let index = 0; index < values.length; index += concurrency) {
-    output.push(...await Promise.all(values.slice(index, index + concurrency).map(mapper)));
-  }
-  return output;
-}
-
-async function rebuildRankings(weekStart: string): Promise<number> {
+async function rebuildCityRankings(weekStart: string, citySlug: string): Promise<number> {
   const supabase = createSupabaseAdmin();
   const [{ data: contentRows, error: contentError }, { data: spotRows, error: spotError }] = await Promise.all([
     supabase.from("weekly_social_content").select("*").eq("week_start", weekStart),
@@ -597,16 +521,13 @@ async function rebuildRankings(weekStart: string): Promise<number> {
     );
   });
 
-  const rankingRows = (await mapWithConcurrency(
-    SOCIAL_SCOUT_CITIES,
-    LINKER_CONCURRENCY,
-    async (city): Promise<Array<Record<string, unknown>>> => {
+  const city = SOCIAL_SCOUT_CITIES.find((candidate) => candidate.slug === citySlug);
+  if (!city) throw new Error(`Unsupported social trend city: ${citySlug}`);
     const cityContent = content.filter(
       (item) => item.citySlug === city.slug && engagementValue(item) > 0,
     );
     const citySpots = spots.filter((spot) => spotCitySlug(spot) === city.slug);
-    const links = await linkSignalsToSpots({
-      cityName: city.name,
+    const links = linkSignalsToSpots({
       signals: cityContent,
       spots: citySpots,
     });
@@ -646,39 +567,32 @@ async function rebuildRankings(weekStart: string): Promise<number> {
       .sort((left, right) => right.score - left.score)
       .slice(0, 5);
 
-    return candidates.map((candidate, index) => ({
-        week_start: weekStart,
-        city_slug: city.slug,
-        spot_id: candidate.spot.id,
-        rank: index + 1,
-        score: candidate.score.toFixed(3),
-        post_count: candidate.signals.length,
-        platform_count: candidate.platforms.size,
-        signal_summary: {
-          label: "Trending on social this week",
-          recentPublicPosts: candidate.signals.length,
-          socialChannels: candidate.platforms.size,
-        },
-        updated_at: new Date().toISOString(),
-      }));
+  const rankingRows = candidates.map((candidate, index) => ({
+    spot_id: candidate.spot.id,
+    rank: index + 1,
+    score: candidate.score.toFixed(3),
+    post_count: candidate.signals.length,
+    platform_count: candidate.platforms.size,
+    signal_summary: {
+      label: "Trending on social this week",
+      recentPublicPosts: candidate.signals.length,
+      socialChannels: candidate.platforms.size,
     },
-  )).flat();
+  }));
 
-  const { error: deleteError } = await supabase
-    .from("weekly_city_spot_rankings")
-    .delete()
-    .eq("week_start", weekStart);
-  if (deleteError) throw new Error(`Could not refresh weekly rankings: ${deleteError.message}`);
-  if (rankingRows.length > 0) {
-    const { error } = await supabase.from("weekly_city_spot_rankings").insert(rankingRows);
-    if (error) throw new Error(`Could not publish weekly rankings: ${error.message}`);
-  }
+  const { error } = await supabase.rpc("replace_weekly_city_spot_rankings", {
+    p_week_start: weekStart,
+    p_city_slug: city.slug,
+    p_rankings: rankingRows,
+  });
+  if (error) throw new Error(`Could not publish weekly rankings: ${error.message}`);
   return rankingRows.length;
 }
 
 export function getSocialTrendRetentionCutoffs(now: Date = new Date()): {
   derivedBeforeWeek: string;
   staleStartingBefore: string;
+  staleRunningBefore: string;
 } {
   return {
     derivedBeforeWeek: new Date(
@@ -687,12 +601,16 @@ export function getSocialTrendRetentionCutoffs(now: Date = new Date()): {
     staleStartingBefore: new Date(
       now.getTime() - STALE_STARTING_MINUTES * 60 * 1_000,
     ).toISOString(),
+    staleRunningBefore: new Date(
+      now.getTime() - STALE_RUNNING_HOURS * 60 * 60 * 1_000,
+    ).toISOString(),
   };
 }
 
 async function cleanupSocialTrendData(now: Date): Promise<void> {
   const supabase = createSupabaseAdmin();
-  const { derivedBeforeWeek, staleStartingBefore } = getSocialTrendRetentionCutoffs(now);
+  const { derivedBeforeWeek, staleStartingBefore, staleRunningBefore } =
+    getSocialTrendRetentionCutoffs(now);
   const cleanupResults = await Promise.all([
     supabase
       .from("weekly_social_content")
@@ -711,7 +629,31 @@ async function cleanupSocialTrendData(now: Date): Promise<void> {
         updated_at: now.toISOString(),
       })
       .eq("state", "starting")
-      .lt("created_at", staleStartingBefore),
+      .lt("started_at", staleStartingBefore),
+    supabase
+      .from("weekly_social_trend_runs")
+      .update({
+        state: "failed",
+        error_message: "Actor run exceeded the six-hour safety window.",
+        completed_at: now.toISOString(),
+        updated_at: now.toISOString(),
+      })
+      .eq("state", "running")
+      .lt("started_at", staleRunningBefore),
+    supabase
+      .from("weekly_social_trend_city_builds")
+      .update({
+        state: "failed",
+        error_message: "City ranking build lease expired.",
+        completed_at: now.toISOString(),
+        updated_at: now.toISOString(),
+      })
+      .eq("state", "running")
+      .lt("lease_expires_at", now.toISOString()),
+    supabase
+      .from("weekly_social_trend_city_builds")
+      .delete()
+      .lt("week_start", derivedBeforeWeek),
     supabase
       .from("weekly_social_trend_runs")
       .delete()
@@ -723,93 +665,164 @@ async function cleanupSocialTrendData(now: Date): Promise<void> {
   }
 }
 
-async function processRuns(
+async function processNextRun(
   token: string,
   weekStart: string,
   summary: WeeklyTrendRefreshSummary,
-): Promise<void> {
+): Promise<"none" | "pending" | "handled"> {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("weekly_social_trend_runs")
     .select("*")
     .eq("week_start", weekStart)
-    .is("processed_at", null);
+    .is("processed_at", null)
+    .in("state", ["starting", "running", "succeeded"])
+    .order("started_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
   if (error) throw new Error(`Could not load weekly social runs: ${error.message}`);
+  if (!data) return "none";
 
-  const runs = (data || []) as TrendRunRow[];
-  const checkedRuns = await Promise.all(runs.map(async (run) => {
-    if (run.state === "failed") return { run, status: "FAILED" };
-    if (run.actor_run_id.startsWith("starting:")) return { run, status: "STARTING" };
-    const response = await apifyRequest<{
-      data: { status: string; defaultDatasetId?: string; statusMessage?: string };
-    }>(`/actor-runs/${run.actor_run_id}`, token);
-    return {
-      run,
-      status: response.data.status,
-      datasetId: response.data.defaultDatasetId || run.dataset_id,
-    };
-  }));
-
-  const failedRuns = checkedRuns.filter(({ status }) =>
-    ["FAILED", "ABORTED", "TIMED-OUT"].includes(status),
-  );
-  await Promise.all(failedRuns.map(async ({ run, status }) => {
-    if (run.state !== "failed") {
-      const { error: updateError } = await supabase
-        .from("weekly_social_trend_runs")
-        .update({
-          state: "failed",
-          error_message: `Actor ended with ${status}.`,
-          completed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", run.id);
-      if (updateError) throw new Error(`Could not record failed social run: ${updateError.message}`);
-    }
+  const run = data as TrendRunRow;
+  if (run.actor_run_id.startsWith("starting:")) {
+    summary.pending.push(run.platform);
+    return "pending";
+  }
+  const response = await apifyRequest<{
+    data: { status: string; defaultDatasetId?: string };
+  }>(`/actor-runs/${run.actor_run_id}`, token);
+  const status = response.data.status;
+  if (["FAILED", "ABORTED", "TIMED-OUT"].includes(status)) {
+    const { error: updateError } = await supabase
+      .from("weekly_social_trend_runs")
+      .update({
+        state: "failed",
+        error_message: `Actor ended with ${status}.`,
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", run.id);
+    if (updateError) throw new Error(`Could not record failed social run: ${updateError.message}`);
     summary.failed.push(run.platform);
-  }));
-
-  for (const { run, status } of checkedRuns) {
-    if (!["FAILED", "ABORTED", "TIMED-OUT", "SUCCEEDED"].includes(status)) {
-      summary.pending.push(run.platform);
-    }
+    return "handled";
+  }
+  if (status !== "SUCCEEDED") {
+    summary.pending.push(run.platform);
+    return "pending";
   }
 
-  const completed = await Promise.all(
-    checkedRuns
-      .filter(({ status }) => status === "SUCCEEDED")
-      .map(async ({ run, datasetId }) => {
-        if (!datasetId) throw new Error(`Completed ${run.platform} run has no dataset.`);
-        const items = await apifyRequest<Record<string, unknown>[]>(
-          `/datasets/${datasetId}/items?clean=true&limit=${APIFY_DATASET_LIMIT}`,
-          token,
-        );
-        const normalized = items
-          .map((item) => normalizeSocialTrendItem({ item, platform: run.platform, weekStart }))
-          .filter((item): item is NormalizedSocialTrendItem => Boolean(item));
-        await upsertContentItems(normalized);
-        const { error: updateError } = await supabase
-          .from("weekly_social_trend_runs")
-          .update({
-            dataset_id: datasetId,
-            state: "succeeded",
-            completed_at: new Date().toISOString(),
-            processed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", run.id);
-        if (updateError) throw new Error(`Could not mark social run processed: ${updateError.message}`);
-        return { platform: run.platform, contentItems: normalized.length };
-      }),
+  const datasetId = response.data.defaultDatasetId || run.dataset_id;
+  if (!datasetId) throw new Error(`Completed ${run.platform} run has no dataset.`);
+  const items = await apifyRequest<Record<string, unknown>[]>(
+    `/datasets/${datasetId}/items?clean=true&limit=${APIFY_DATASET_LIMIT}`,
+    token,
   );
-  for (const result of completed) {
-    summary.contentItems += result.contentItems;
-    summary.processed.push(result.platform);
-  }
+  const normalized = items
+    .map((item) => normalizeSocialTrendItem({ item, platform: run.platform, weekStart }))
+    .filter((item): item is NormalizedSocialTrendItem => Boolean(item));
+  await upsertContentItems(normalized);
+  const { error: updateError } = await supabase
+    .from("weekly_social_trend_runs")
+    .update({
+      dataset_id: datasetId,
+      state: "succeeded",
+      completed_at: new Date().toISOString(),
+      processed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", run.id);
+  if (updateError) throw new Error(`Could not mark social run processed: ${updateError.message}`);
+  summary.contentItems = normalized.length;
+  summary.processed.push(run.platform);
+  return "handled";
+}
 
-  if (summary.processed.length > 0) {
-    summary.rankings = await rebuildRankings(weekStart);
+async function runsReadyForBuild(weekStart: string): Promise<boolean> {
+  const supabase = createSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("weekly_social_trend_runs")
+    .select("state,attempt_count,processed_at")
+    .eq("week_start", weekStart);
+  if (error) throw new Error(`Could not inspect weekly social run readiness: ${error.message}`);
+  return areTrendRunsReadyForBuild(data || []);
+}
+
+async function claimNextCityBuild(weekStart: string): Promise<string | null> {
+  const supabase = createSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("weekly_social_trend_city_builds")
+    .select("city_slug,state,attempt_count")
+    .eq("week_start", weekStart);
+  if (error) throw new Error(`Could not inspect city ranking builds: ${error.message}`);
+  const builds = new Map((data || []).map((build) => [build.city_slug, build]));
+  const city = SOCIAL_SCOUT_CITIES.find((candidate) => {
+    const build = builds.get(candidate.slug);
+    return !build || (build.state === "failed" && build.attempt_count < MAX_CITY_BUILD_ATTEMPTS);
+  });
+  if (!city) return null;
+
+  const existing = builds.get(city.slug);
+  const timestamp = new Date();
+  const claim = {
+      week_start: weekStart,
+      city_slug: city.slug,
+      state: "running",
+      attempt_count: existing ? existing.attempt_count + 1 : 1,
+      error_message: null,
+      lease_expires_at: new Date(timestamp.getTime() + 10 * 60 * 1_000).toISOString(),
+      completed_at: null,
+      updated_at: timestamp.toISOString(),
+  };
+  const query = existing
+    ? supabase
+        .from("weekly_social_trend_city_builds")
+        .update(claim)
+        .eq("week_start", weekStart)
+        .eq("city_slug", city.slug)
+        .eq("state", "failed")
+        .eq("attempt_count", existing.attempt_count)
+    : supabase.from("weekly_social_trend_city_builds").insert(claim);
+  const { data: claimed, error: claimError } = await query.select("city_slug").maybeSingle();
+  if (claimError?.code === "23505") return null;
+  if (claimError) throw new Error(`Could not claim city ranking build: ${claimError.message}`);
+  return claimed?.city_slug || null;
+}
+
+async function buildNextCity(
+  weekStart: string,
+  summary: WeeklyTrendRefreshSummary,
+): Promise<boolean> {
+  if (!await runsReadyForBuild(weekStart)) return false;
+  const citySlug = await claimNextCityBuild(weekStart);
+  if (!citySlug) return false;
+  const supabase = createSupabaseAdmin();
+  try {
+    summary.rankings = await rebuildCityRankings(weekStart, citySlug);
+    const { error } = await supabase
+      .from("weekly_social_trend_city_builds")
+      .update({
+        state: "succeeded",
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("week_start", weekStart)
+      .eq("city_slug", citySlug);
+    if (error) throw new Error(`Could not complete city ranking build: ${error.message}`);
+    summary.builtCities.push(citySlug);
+  } catch (error) {
+    await supabase
+      .from("weekly_social_trend_city_builds")
+      .update({
+        state: "failed",
+        error_message: error instanceof Error ? error.message.slice(0, 500) : "City build failed",
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("week_start", weekStart)
+      .eq("city_slug", citySlug);
+    throw error;
   }
+  return true;
 }
 
 export async function refreshWeeklySocialTrends(
@@ -830,9 +843,13 @@ export async function refreshWeeklySocialTrends(
     failed: [],
     contentItems: 0,
     rankings: 0,
+    builtCities: [],
   };
   await cleanupSocialTrendData(now);
+  const processResult = await processNextRun(token, weekStart, summary);
+  if (processResult === "handled") return summary;
   summary.started = await startMissingRuns(token, weekStart);
-  await processRuns(token, weekStart, summary);
+  if (summary.started.length > 0) return summary;
+  await buildNextCity(weekStart, summary);
   return summary;
 }
