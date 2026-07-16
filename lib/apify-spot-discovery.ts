@@ -30,6 +30,8 @@ type DiscoveryRun = {
   dataset_id: string | null;
   state: "starting" | "running" | "succeeded" | "failed";
   started_at: string;
+  run_kind: "broad" | "social_backfill";
+  social_week_start: string | null;
 };
 
 export type ApifySpotDiscoverySummary = {
@@ -38,13 +40,22 @@ export type ApifySpotDiscoverySummary = {
   state: "started" | "pending" | "processed" | "failed" | "already_processed";
   candidates: number;
   skippedExisting: number;
+  runs?: Array<{
+    citySlug: string | null;
+    state: "started" | "pending" | "processed" | "failed" | "already_processed";
+    candidates: number;
+    skippedExisting: number;
+  }>;
 };
 
 const APIFY_API_BASE = "https://api.apify.com/v2";
 const APIFY_MAPS_ACTOR_ID = "compass~crawler-google-places";
 const APIFY_REQUEST_TIMEOUT_MS = 20_000;
 const MAX_TOTAL_CHARGE_USD = "1";
+const SOCIAL_BACKFILL_MAX_CHARGE_USD = "0.20";
 const MAX_PLACES_PER_RUN = 60;
+const SOCIAL_BACKFILL_MAX_PLACES = 15;
+const MAX_SOCIAL_RUNS_PER_DAY = 4;
 const DATASET_LIMIT = 100;
 const STALE_RUN_HOURS = 12;
 const PENDING_CANDIDATE_RETENTION_DAYS = 90;
@@ -73,12 +84,13 @@ export const APIFY_SPOT_DISCOVERY_QUERIES = [
   "scenic viewpoint",
 ] as const;
 
-type SocialSpotLead = {
-  id: string;
-  week_start: string;
+type ClaimedSocialRun = {
+  run_id: string;
+  discovery_date: string;
   city_slug: string;
-  place_hint: string;
-  canonical_url: string;
+  social_week_start: string;
+  daily_slot: number;
+  place_hints: string[];
 };
 
 export function buildApifyDiscoveryQueries(placeHints: string[]): {
@@ -92,6 +104,29 @@ export function buildApifyDiscoveryQueries(placeHints: string[]): {
     queries,
     resultsPerQuery: Math.max(5, Math.floor(MAX_PLACES_PER_RUN / queries.length)),
   };
+}
+
+export function buildSocialBackfillQueries(placeHints: string[]): {
+  queries: string[];
+  resultsPerQuery: number;
+  maximumChargeUsd: number;
+} {
+  const queries = [...new Set(placeHints.map((hint) => hint.trim()).filter(Boolean))]
+    .slice(0, MAX_SOCIAL_LEADS_PER_RUN);
+  return {
+    queries,
+    resultsPerQuery: Math.max(1, Math.floor(SOCIAL_BACKFILL_MAX_PLACES / Math.max(1, queries.length))),
+    maximumChargeUsd: Number(SOCIAL_BACKFILL_MAX_CHARGE_USD),
+  };
+}
+
+function normalizeIdentityText(value: string): string {
+  return value.normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+export function isExactSocialPlaceMatch(placeHint: string, candidateName: string): boolean {
+  const normalizedHint = normalizeIdentityText(placeHint);
+  return normalizedHint.length >= 3 && normalizedHint === normalizeIdentityText(candidateName);
 }
 
 function compactText(value: unknown): string {
@@ -261,43 +296,69 @@ async function apifyRequest<T>(path: string, token: string, init: RequestInit = 
   return response.json() as Promise<T>;
 }
 
-async function loadPendingSocialLeads(citySlug?: string): Promise<SocialSpotLead[]> {
+async function hasSocialLeadBacklog(): Promise<boolean> {
   const supabase = createSupabaseAdmin();
-  let query = supabase
+  const { count, error } = await supabase
     .from("weekly_social_spot_leads")
-    .select("id,week_start,city_slug,place_hint,canonical_url")
-    .eq("status", "pending")
-    .order("engagement_score", { ascending: false })
-    .order("created_at", { ascending: true })
-    .limit(citySlug ? MAX_SOCIAL_LEADS_PER_RUN : 100);
-  if (citySlug) query = query.eq("city_slug", citySlug);
-  const { data, error } = await query;
-  if (error) {
-    if (["42P01", "PGRST205"].includes(error.code || "")) return [];
-    throw new Error(`Could not load social spot leads: ${error.message}`);
+    .select("id", { count: "exact", head: true })
+    .in("status", ["pending", "searching"])
+    .lt("attempt_count", 2);
+  if (error && !["42P01", "PGRST205"].includes(error.code || "")) {
+    throw new Error(`Could not inspect social spot lead backlog: ${error.message}`);
   }
-  return (data || []) as SocialSpotLead[];
+  return (count || 0) > 0;
 }
 
-async function releaseSocialLeads(runId: string): Promise<void> {
+async function finishUnmatchedSocialLeads(runId: string, message: string): Promise<void> {
   const supabase = createSupabaseAdmin();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("weekly_social_spot_leads")
-    .update({ status: "pending", discovery_run_id: null, updated_at: new Date().toISOString() })
+    .select("id,attempt_count")
     .eq("discovery_run_id", runId)
     .eq("status", "searching");
   if (error && !["42P01", "PGRST205"].includes(error.code || "")) {
-    throw new Error(`Could not release social spot leads: ${error.message}`);
+    throw new Error(`Could not load unmatched social spot leads: ${error.message}`);
   }
+  const timestamp = new Date();
+  const results = await Promise.all((data || []).map((lead) => {
+    const exhausted = Number(lead.attempt_count) >= 2;
+    return supabase
+      .from("weekly_social_spot_leads")
+      .update({
+        status: exhausted ? "no_match" : "pending",
+        discovery_run_id: null,
+        next_attempt_at: exhausted
+          ? null
+          : new Date(timestamp.getTime() + 12 * 60 * 60 * 1_000).toISOString(),
+        last_error: message.slice(0, 500),
+        searched_at: exhausted ? timestamp.toISOString() : null,
+        updated_at: timestamp.toISOString(),
+      })
+      .eq("id", lead.id)
+      .eq("status", "searching");
+  }));
+  const updateError = results.find((result) => result.error)?.error;
+  if (updateError) throw new Error(`Could not release social spot leads: ${updateError.message}`);
+}
+
+async function quarantineSocialLeads(runId: string, message: string): Promise<void> {
+  const supabase = createSupabaseAdmin();
+  const { error } = await supabase
+    .from("weekly_social_spot_leads")
+    .update({
+      status: "ignored",
+      discovery_run_id: null,
+      last_error: message.slice(0, 500),
+      searched_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("discovery_run_id", runId)
+    .eq("status", "searching");
+  if (error) throw new Error(`Could not quarantine uncertain social spot leads: ${error.message}`);
 }
 
 async function chooseNextCity(): Promise<(typeof ENABLED_CITIES)[number]> {
   const supabase = createSupabaseAdmin();
-  const socialLeads = await loadPendingSocialLeads();
-  const leadCity = socialLeads
-    .map((lead) => ENABLED_CITIES.find((city) => city.slug === lead.city_slug))
-    .find(Boolean);
-  if (leadCity) return leadCity;
   const { data, error } = await supabase
     .from("apify_spot_discovery_runs")
     .select("city_slug,discovery_date")
@@ -318,9 +379,8 @@ async function chooseNextCity(): Promise<(typeof ENABLED_CITIES)[number]> {
 async function startDailyRun(token: string, date: string): Promise<ApifySpotDiscoverySummary> {
   const supabase = createSupabaseAdmin();
   const city = await chooseNextCity();
-  const socialLeads = await loadPendingSocialLeads(city.slug);
   const { queries: searchStringsArray, resultsPerQuery } = buildApifyDiscoveryQueries(
-    socialLeads.map((lead) => lead.place_hint),
+    [],
   );
   const placeholder = `starting:${randomUUID()}`;
   const { data: claimed, error: claimError } = await supabase
@@ -332,6 +392,9 @@ async function startDailyRun(token: string, date: string): Promise<ApifySpotDisc
       actor_run_id: placeholder,
       state: "starting",
       max_places: MAX_PLACES_PER_RUN,
+      run_kind: "broad",
+      daily_slot: 1,
+      max_charge_usd: Number(MAX_TOTAL_CHARGE_USD),
     })
     .select("*")
     .maybeSingle();
@@ -339,19 +402,6 @@ async function startDailyRun(token: string, date: string): Promise<ApifySpotDisc
     return { date, citySlug: null, state: "already_processed", candidates: 0, skippedExisting: 0 };
   }
   if (claimError || !claimed) throw new Error(`Could not claim Apify discovery run: ${claimError?.message || "missing row"}`);
-
-  if (socialLeads.length > 0) {
-    const { error: leadClaimError } = await supabase
-      .from("weekly_social_spot_leads")
-      .update({
-        status: "searching",
-        discovery_run_id: claimed.id,
-        updated_at: new Date().toISOString(),
-      })
-      .in("id", socialLeads.map((lead) => lead.id))
-      .eq("status", "pending");
-    if (leadClaimError) throw new Error(`Could not claim social spot leads: ${leadClaimError.message}`);
-  }
 
   try {
     const response = await apifyRequest<{
@@ -382,13 +432,6 @@ async function startDailyRun(token: string, date: string): Promise<ApifySpotDisc
     if (error) throw new Error(error.message);
     return { date, citySlug: city.slug, state: "started", candidates: 0, skippedExisting: 0 };
   } catch (error) {
-    if (socialLeads.length > 0) {
-      await supabase
-        .from("weekly_social_spot_leads")
-        .update({ status: "pending", discovery_run_id: null, updated_at: new Date().toISOString() })
-        .in("id", socialLeads.map((lead) => lead.id))
-        .eq("status", "searching");
-    }
     await supabase
       .from("apify_spot_discovery_runs")
       .update({
@@ -402,30 +445,129 @@ async function startDailyRun(token: string, date: string): Promise<ApifySpotDisc
   }
 }
 
+async function claimSocialBackfillRun(date: string): Promise<ClaimedSocialRun | null> {
+  const supabase = createSupabaseAdmin();
+  const { data, error } = await supabase.rpc("claim_social_spot_discovery_run", {
+    p_discovery_date: date,
+    p_actor_id: APIFY_MAPS_ACTOR_ID,
+    p_actor_run_placeholder: `starting:${randomUUID()}`,
+    p_max_places: SOCIAL_BACKFILL_MAX_PLACES,
+    p_max_charge_usd: Number(SOCIAL_BACKFILL_MAX_CHARGE_USD),
+  });
+  if (error) throw new Error(`Could not claim social spot discovery run: ${error.message}`);
+  return (data?.[0] as ClaimedSocialRun | undefined) || null;
+}
+
+async function startSocialBackfillRun(
+  token: string,
+  claim: ClaimedSocialRun,
+): Promise<ApifySpotDiscoverySummary> {
+  const supabase = createSupabaseAdmin();
+  const city = ENABLED_CITIES.find((candidate) => candidate.slug === claim.city_slug);
+  if (!city) throw new Error(`Unsupported social discovery city: ${claim.city_slug}`);
+  const { queries: searchStringsArray, resultsPerQuery } = buildSocialBackfillQueries(
+    claim.place_hints,
+  );
+  if (searchStringsArray.length === 0) {
+    await finishUnmatchedSocialLeads(claim.run_id, "No valid structured place hints were available.");
+    await supabase.from("apify_spot_discovery_runs").update({
+      state: "failed",
+      error_message: "No valid structured place hints were available.",
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }).eq("id", claim.run_id);
+    return { date: claim.discovery_date, citySlug: claim.city_slug, state: "failed", candidates: 0, skippedExisting: 0 };
+  }
+
+  let actorRunId: string | null = null;
+  try {
+    const response = await apifyRequest<{
+      data: { id: string; defaultDatasetId?: string };
+    }>(`/acts/${APIFY_MAPS_ACTOR_ID}/runs?waitForFinish=0&maxTotalChargeUsd=${SOCIAL_BACKFILL_MAX_CHARGE_USD}`, token, {
+      method: "POST",
+      body: JSON.stringify({
+        searchStringsArray,
+        locationQuery: `${city.name}, ${city.country}`,
+        maxCrawledPlacesPerSearch: resultsPerQuery,
+        searchMatching: "only_exact",
+        language: "en",
+        skipClosedPlaces: true,
+        scrapePlaceDetailPage: false,
+        maxImages: 0,
+        scrapeContacts: false,
+        scrapeReviewsPersonalData: false,
+      }),
+    });
+    actorRunId = response.data.id;
+    const { error } = await supabase
+      .from("apify_spot_discovery_runs")
+      .update({
+        actor_run_id: actorRunId,
+        dataset_id: response.data.defaultDatasetId || null,
+        state: "running",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", claim.run_id)
+      .eq("state", "starting");
+    if (error) throw new Error(error.message);
+    return { date: claim.discovery_date, citySlug: claim.city_slug, state: "started", candidates: 0, skippedExisting: 0 };
+  } catch (error) {
+    let safelyStopped = actorRunId === null;
+    if (actorRunId) {
+      try {
+        await apifyRequest(`/actor-runs/${actorRunId}/abort`, token, { method: "POST" });
+        safelyStopped = true;
+      } catch {
+        safelyStopped = false;
+      }
+    }
+    const message = error instanceof Error ? error.message : "Actor start failed";
+    if (safelyStopped) await finishUnmatchedSocialLeads(claim.run_id, message);
+    else await quarantineSocialLeads(claim.run_id, "Actor state became uncertain after start; manual review required.");
+    await supabase.from("apify_spot_discovery_runs").update({
+      actor_run_id: actorRunId || undefined,
+      state: "failed",
+      error_message: message.slice(0, 500),
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }).eq("id", claim.run_id);
+    return { date: claim.discovery_date, citySlug: claim.city_slug, state: "failed", candidates: 0, skippedExisting: 0 };
+  }
+}
+
 async function storeCandidates(run: DiscoveryRun, items: Record<string, unknown>[]): Promise<{
   candidates: number;
   skippedExisting: number;
+  matched: Array<{ leadId: string; candidateId: string | null; spotId: string | null }>;
 }> {
   const supabase = createSupabaseAdmin();
   const { data: socialLeadRows, error: socialLeadError } = await supabase
     .from("weekly_social_spot_leads")
-    .select("week_start,place_hint,canonical_url")
+    .select("id,week_start,place_hint,canonical_url,attempt_count")
     .eq("discovery_run_id", run.id);
   if (socialLeadError && !["42P01", "PGRST205"].includes(socialLeadError.code || "")) {
     throw new Error(`Could not load discovery social context: ${socialLeadError.message}`);
   }
   const socialLeadsByQuery = new Map((socialLeadRows || []).map((lead) => [
-    compactText(lead.place_hint).toLowerCase(),
+    normalizeIdentityText(compactText(lead.place_hint)),
     lead,
   ]));
-  const normalized = [...new Map(items
+  const normalizedResults = [...new Map(items
     .map((item) => normalizeApifySpotCandidate({ item, citySlug: run.city_slug, runId: run.id }))
     .filter((item): item is ApifySpotCandidate => Boolean(item))
     .map((item) => [item.placeId, item] as const)).values()];
+  const socialLeadForCandidate = (candidate: ApifySpotCandidate) => {
+    if (!candidate.discoveryQuery) return undefined;
+    const lead = socialLeadsByQuery.get(normalizeIdentityText(candidate.discoveryQuery));
+    return lead && isExactSocialPlaceMatch(lead.place_hint, candidate.name) ? lead : undefined;
+  };
+  const normalized = run.run_kind === "social_backfill"
+    ? normalizedResults.filter((candidate) => Boolean(socialLeadForCandidate(candidate)))
+    : normalizedResults;
   const placeIds = [...new Set(normalized.map((item) => item.placeId))];
-  if (placeIds.length === 0) return { candidates: 0, skippedExisting: 0 };
+  if (placeIds.length === 0) return { candidates: 0, skippedExisting: 0, matched: [] };
   const [{ data: spots, error: spotsError }, { data: candidates, error: candidatesError }] = await Promise.all([
-    supabase.from("spots").select("google_place_id").in("google_place_id", placeIds),
+    supabase.from("spots").select("id,google_place_id").in("google_place_id", placeIds),
     supabase.from("apify_spot_candidates").select("id,place_id,status").in("place_id", placeIds),
   ]);
   if (spotsError) throw new Error(`Could not dedupe discovered spots: ${spotsError.message}`);
@@ -437,9 +579,7 @@ async function storeCandidates(run: DiscoveryRun, items: Record<string, unknown>
   const existingCandidates = new Map((candidates || []).map((candidate) => [candidate.place_id, candidate]));
   const socialCandidateUpdates = normalized.flatMap((candidate) => {
     const existingCandidate = existingCandidates.get(candidate.placeId);
-    const socialLead = candidate.discoveryQuery
-      ? socialLeadsByQuery.get(candidate.discoveryQuery.toLowerCase())
-      : undefined;
+    const socialLead = socialLeadForCandidate(candidate);
     if (!existingCandidate || !socialLead || existingCandidate.status === "imported") return [];
     return [supabase
       .from("apify_spot_candidates")
@@ -458,10 +598,8 @@ async function storeCandidates(run: DiscoveryRun, items: Record<string, unknown>
   }
   const fresh = normalized.filter((candidate) => !existing.has(candidate.placeId));
   if (fresh.length > 0) {
-    const { error } = await supabase.from("apify_spot_candidates").insert(fresh.map((candidate) => {
-      const socialLead = candidate.discoveryQuery
-        ? socialLeadsByQuery.get(candidate.discoveryQuery.toLowerCase())
-        : undefined;
+    const { error } = await supabase.from("apify_spot_candidates").upsert(fresh.map((candidate) => {
+      const socialLead = socialLeadForCandidate(candidate);
       return {
       run_id: candidate.runId,
       city_slug: candidate.citySlug,
@@ -483,10 +621,30 @@ async function storeCandidates(run: DiscoveryRun, items: Record<string, unknown>
       social_source_url: socialLead?.canonical_url || null,
       social_week_start: socialLead?.week_start || null,
     };
-    }));
+    }), { onConflict: "place_id", ignoreDuplicates: true });
     if (error) throw new Error(`Could not store Apify spot candidates: ${error.message}`);
   }
-  return { candidates: fresh.length, skippedExisting: normalized.length - fresh.length };
+  const { data: storedCandidates, error: storedCandidatesError } = await supabase
+    .from("apify_spot_candidates")
+    .select("id,place_id")
+    .in("place_id", placeIds);
+  if (storedCandidatesError) throw new Error(`Could not resolve stored Apify candidates: ${storedCandidatesError.message}`);
+  const candidateIds = new Map((storedCandidates || []).map((candidate) => [candidate.place_id, candidate.id]));
+  const spotIds = new Map((spots || []).map((spot) => [spot.google_place_id, spot.id]));
+  const matched = normalized.flatMap((candidate) => {
+    const socialLead = socialLeadForCandidate(candidate);
+    if (!socialLead) return [];
+    return [{
+      leadId: socialLead.id,
+      candidateId: candidateIds.get(candidate.placeId) || null,
+      spotId: spotIds.get(candidate.placeId) || null,
+    }];
+  });
+  return {
+    candidates: fresh.length,
+    skippedExisting: normalized.length - fresh.length,
+    matched,
+  };
 }
 
 async function processDailyRun(token: string, run: DiscoveryRun): Promise<ApifySpotDiscoverySummary> {
@@ -505,7 +663,7 @@ async function processDailyRun(token: string, run: DiscoveryRun): Promise<ApifyS
   }>(`/actor-runs/${run.actor_run_id}`, token);
   const status = response.data.status;
   if (["FAILED", "ABORTED", "TIMED-OUT"].includes(status)) {
-    await releaseSocialLeads(run.id);
+    await finishUnmatchedSocialLeads(run.id, `Actor ended with ${status}.`);
     await supabase
       .from("apify_spot_discovery_runs")
       .update({
@@ -527,18 +685,26 @@ async function processDailyRun(token: string, run: DiscoveryRun): Promise<ApifyS
     token,
   );
   const stored = await storeCandidates(run, items);
-  const { error: leadUpdateError } = await supabase
-    .from("weekly_social_spot_leads")
-    .update({
-      status: "searched",
-      searched_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("discovery_run_id", run.id)
-    .eq("status", "searching");
-  if (leadUpdateError && !["42P01", "PGRST205"].includes(leadUpdateError.code || "")) {
-    throw new Error(`Could not complete social spot leads: ${leadUpdateError.message}`);
+  if (stored.matched.length > 0) {
+    const timestamp = new Date().toISOString();
+    const matchResults = await Promise.all(stored.matched.map((match) => supabase
+      .from("weekly_social_spot_leads")
+      .update({
+        status: "searched",
+        matched_candidate_id: match.candidateId,
+        matched_spot_id: match.spotId,
+        discovery_run_id: run.id,
+        searched_at: timestamp,
+        next_attempt_at: null,
+        last_error: null,
+        updated_at: timestamp,
+      })
+      .eq("id", match.leadId)
+      .eq("status", "searching")));
+    const matchError = matchResults.find((result) => result.error)?.error;
+    if (matchError) throw new Error(`Could not complete matched social spot leads: ${matchError.message}`);
   }
+  await finishUnmatchedSocialLeads(run.id, "No exact Google Maps title match was found in the requested city.");
   const { error } = await supabase
     .from("apify_spot_discovery_runs")
     .update({
@@ -549,7 +715,38 @@ async function processDailyRun(token: string, run: DiscoveryRun): Promise<ApifyS
     })
     .eq("id", run.id);
   if (error) throw new Error(`Could not complete Apify discovery run: ${error.message}`);
-  return { date: run.discovery_date, citySlug: run.city_slug, state: "processed", ...stored };
+  return {
+    date: run.discovery_date,
+    citySlug: run.city_slug,
+    state: "processed",
+    candidates: stored.candidates,
+    skippedExisting: stored.skippedExisting,
+  };
+}
+
+function combineDiscoverySummaries(
+  date: string,
+  summaries: ApifySpotDiscoverySummary[],
+): ApifySpotDiscoverySummary {
+  if (summaries.length === 0) {
+    return { date, citySlug: null, state: "already_processed", candidates: 0, skippedExisting: 0, runs: [] };
+  }
+  const state = (["started", "pending", "processed", "failed", "already_processed"] as const)
+    .find((candidate) => summaries.some((summary) => summary.state === candidate)) || "already_processed";
+  const cities = [...new Set(summaries.map((summary) => summary.citySlug).filter(Boolean))];
+  return {
+    date,
+    citySlug: cities.length === 1 ? cities[0] || null : null,
+    state,
+    candidates: summaries.reduce((sum, summary) => sum + summary.candidates, 0),
+    skippedExisting: summaries.reduce((sum, summary) => sum + summary.skippedExisting, 0),
+    runs: summaries.map((summary) => ({
+      citySlug: summary.citySlug,
+      state: summary.state,
+      candidates: summary.candidates,
+      skippedExisting: summary.skippedExisting,
+    })),
+  };
 }
 
 export async function refreshApifySpotDiscovery(now: Date = new Date()): Promise<ApifySpotDiscoverySummary> {
@@ -583,46 +780,73 @@ export async function refreshApifySpotDiscovery(now: Date = new Date()): Promise
     .lt("discovery_date", runBefore);
   if (runRetentionError) throw new Error(`Could not enforce Apify run retention: ${runRetentionError.message}`);
 
-  const { data: activeRun, error: activeRunError } = await supabase
+  const { data: activeRuns, error: activeRunError } = await supabase
     .from("apify_spot_discovery_runs")
     .select("*")
     .in("state", ["starting", "running"])
     .order("started_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .limit(8);
   if (activeRunError) throw new Error(`Could not load active Apify discovery run: ${activeRunError.message}`);
-  if (activeRun) {
-    const run = activeRun as DiscoveryRun;
-    if (run.started_at < staleBefore) {
-      if (!run.actor_run_id.startsWith("starting:")) {
+  const processedResults = await Promise.allSettled(((activeRuns || []) as DiscoveryRun[]).map(async (run) => {
+    if (run.started_at >= staleBefore) return processDailyRun(token, run);
+    let safelyStopped = run.actor_run_id.startsWith("starting:");
+    if (!safelyStopped) {
+      try {
         await apifyRequest(`/actor-runs/${run.actor_run_id}/abort`, token, { method: "POST" });
+        safelyStopped = true;
+      } catch {
+        safelyStopped = false;
       }
-      const { error: staleError } = await supabase
-        .from("apify_spot_discovery_runs")
-        .update({
-          state: "failed",
-          error_message: "Discovery run exceeded the twelve-hour safety window and was aborted.",
-          completed_at: now.toISOString(),
-          updated_at: now.toISOString(),
-        })
-        .eq("id", run.id)
-        .in("state", ["starting", "running"]);
-      if (staleError) throw new Error(`Could not recover stale Apify discovery run: ${staleError.message}`);
-      await releaseSocialLeads(run.id);
-      if (run.discovery_date === date) {
-        return { date: run.discovery_date, citySlug: run.city_slug, state: "failed", candidates: 0, skippedExisting: 0 };
-      }
-    } else {
-      const rollover = await processDailyRun(token, run);
-      if (run.discovery_date === date || rollover.state === "pending") return rollover;
     }
+    if (safelyStopped) {
+      await finishUnmatchedSocialLeads(run.id, "Discovery run exceeded the twelve-hour safety window.");
+    } else {
+      await quarantineSocialLeads(run.id, "Stale actor could not be safely aborted; manual review required.");
+    }
+    const { error: staleError } = await supabase
+      .from("apify_spot_discovery_runs")
+      .update({
+        state: "failed",
+        error_message: "Discovery run exceeded the twelve-hour safety window.",
+        completed_at: now.toISOString(),
+        updated_at: now.toISOString(),
+      })
+      .eq("id", run.id)
+      .in("state", ["starting", "running"]);
+    if (staleError) throw new Error(`Could not recover stale Apify discovery run: ${staleError.message}`);
+    return { date: run.discovery_date, citySlug: run.city_slug, state: "failed", candidates: 0, skippedExisting: 0 } as ApifySpotDiscoverySummary;
+  }));
+  const summaries = processedResults.map((result, index) => result.status === "fulfilled"
+    ? result.value
+    : {
+        date: (activeRuns?.[index] as DiscoveryRun | undefined)?.discovery_date || date,
+        citySlug: (activeRuns?.[index] as DiscoveryRun | undefined)?.city_slug || null,
+        state: "failed" as const,
+        candidates: 0,
+        skippedExisting: 0,
+      });
+
+  if (await hasSocialLeadBacklog()) {
+    const claims: ClaimedSocialRun[] = [];
+    for (let index = 0; index < MAX_SOCIAL_RUNS_PER_DAY; index += 1) {
+      const claim = await claimSocialBackfillRun(date);
+      if (!claim) break;
+      claims.push(claim);
+    }
+    const starts = await Promise.all(claims.map((claim) => startSocialBackfillRun(token, claim)));
+    return combineDiscoverySummaries(date, [...summaries, ...starts]);
   }
 
-  const { data, error } = await supabase
+  if (summaries.some((summary) => summary.state === "pending")) {
+    return combineDiscoverySummaries(date, summaries);
+  }
+
+  const { data: todayRuns, error } = await supabase
     .from("apify_spot_discovery_runs")
     .select("*")
     .eq("discovery_date", date)
-    .maybeSingle();
+    .limit(1);
   if (error) throw new Error(`Could not load today's Apify discovery run: ${error.message}`);
-  return data ? processDailyRun(token, data as DiscoveryRun) : startDailyRun(token, date);
+  if ((todayRuns || []).length > 0) return combineDiscoverySummaries(date, summaries);
+  return combineDiscoverySummaries(date, [...summaries, await startDailyRun(token, date)]);
 }

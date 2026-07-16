@@ -189,6 +189,23 @@ export async function PATCH(request: NextRequest) {
     .maybeSingle();
   if (updateError) return NextResponse.json({ error: "Spot created but candidate status update failed" }, { status: 500 });
   if (!imported) return NextResponse.json({ error: "Spot created but candidate claim was lost" }, { status: 409 });
+  if (candidate.source_type === "social_trend" && candidate.social_week_start) {
+    const [leadUpdate, buildReset] = await Promise.all([
+      supabase
+        .from("weekly_social_spot_leads")
+        .update({ matched_spot_id: spotId, updated_at: new Date().toISOString() })
+        .eq("matched_candidate_id", candidate.id),
+      supabase
+        .from("weekly_social_trend_city_builds")
+        .delete()
+        .eq("week_start", candidate.social_week_start)
+        .eq("city_slug", candidate.city_slug),
+    ]);
+    if (leadUpdate.error || buildReset.error) {
+      return NextResponse.json({ error: "Spot imported but trend rebuild could not be queued" }, { status: 500 });
+    }
+  }
   revalidateTag("spots", "default");
+  revalidateTag("weekly-social-trends", "default");
   return NextResponse.json({ success: true, status: "imported", spotId });
 }

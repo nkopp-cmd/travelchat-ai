@@ -15,7 +15,7 @@
     },
     {
       "path": "/api/cron/discover-spots-with-apify",
-      "schedule": "23 2 * * *"
+      "schedule": "23 2,8,14,20 * * *"
     },
     {
       "path": "/api/cron/refresh-weekly-social-trends",

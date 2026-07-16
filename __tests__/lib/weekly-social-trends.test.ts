@@ -21,6 +21,7 @@ import {
   normalizeSocialTrendItem,
   refreshWeeklySocialTrends,
   SOCIAL_SCOUT_CITIES,
+  structuredPlaceHintMatchesSpot,
 } from "@/lib/weekly-social-trends";
 
 describe("weekly social trend normalization", () => {
@@ -332,5 +333,12 @@ describe("weekly social trend normalization", () => {
       spot,
     )).toBe(false);
     expect(mentionsSpot("Locals queue at Tiny Noodle House every Friday.", spot)).toBe(true);
+  });
+
+  it("matches authoritative structured place hints across localized spot names", () => {
+    const spot = { name: { en: "Tiny Noodle House", ko: "작은 국수집" } };
+    expect(structuredPlaceHintMatchesSpot("Tiny Noodle House", spot)).toBe(true);
+    expect(structuredPlaceHintMatchesSpot("작은 국수집", spot)).toBe(true);
+    expect(structuredPlaceHintMatchesSpot("Tiny Noodle House Gangnam", spot)).toBe(false);
   });
 });

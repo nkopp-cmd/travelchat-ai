@@ -536,6 +536,19 @@ export function mentionsSpot(content: string, spot: Pick<RawSpot, "name">): bool
   return normalizeSearchText(content).includes(name);
 }
 
+export function structuredPlaceHintMatchesSpot(
+  placeHint: string | null,
+  spot: Pick<RawSpot, "name">,
+): boolean {
+  if (!placeHint) return false;
+  const normalizedHint = normalizeSearchText(placeHint);
+  if (normalizedHint.length < 3) return false;
+  const names = typeof spot.name === "string"
+    ? [spot.name]
+    : Object.values(spot.name || {}).filter((value): value is string => typeof value === "string");
+  return names.some((name) => normalizeSearchText(name) === normalizedHint);
+}
+
 function engagementValue(item: NormalizedSocialTrendItem): number {
   return item.viewCount + item.likeCount * 8 + item.commentCount * 12 +
     item.shareCount * 20 + item.saveCount * 16;
@@ -636,7 +649,7 @@ function linkSignalsToSpots(input: {
   spots: RawSpot[];
 }): SpotSignalLink[] {
   const eligibleSignals = input.signals
-    .filter((signal) => engagementValue(signal) > 0 && signal.contentText.trim())
+    .filter((signal) => engagementValue(signal) > 0 && (signal.contentText.trim() || signal.placeHint))
     .sort((left, right) => engagementValue(right) - engagementValue(left))
     .slice(0, MAX_LINKER_SIGNALS_PER_CITY);
   const eligibleSpots = input.spots
@@ -647,7 +660,8 @@ function linkSignalsToSpots(input: {
   const hardLinks = new Map<string, Set<string>>();
   for (const spot of eligibleSpots) {
     for (const signal of eligibleSignals) {
-      if (!mentionsSpot(signal.contentText, spot)) continue;
+      if (!structuredPlaceHintMatchesSpot(signal.placeHint, spot) &&
+        !mentionsSpot(signal.contentText, spot)) continue;
       const linked = hardLinks.get(spot.id) || new Set<string>();
       linked.add(signalKey(signal));
       hardLinks.set(spot.id, linked);

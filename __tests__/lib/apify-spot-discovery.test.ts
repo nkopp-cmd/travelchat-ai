@@ -8,6 +8,8 @@ vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.createSupabaseAdmi
 import {
   APIFY_SPOT_DISCOVERY_QUERIES,
   buildApifyDiscoveryQueries,
+  buildSocialBackfillQueries,
+  isExactSocialPlaceMatch,
   mapApifyCategory,
   normalizeApifySpotCandidate,
   recommendLocalleyScore,
@@ -202,6 +204,25 @@ describe("Apify spot discovery", () => {
     expect(discovery.queries).toContain("Tiny Noodle House");
     expect(discovery.queries).not.toContain("Ignored Fourth Lead");
     expect(discovery.queries.length * discovery.resultsPerQuery).toBeLessThanOrEqual(60);
+  });
+
+  it("keeps targeted social completion below the aggregate daily budget", () => {
+    const discovery = buildSocialBackfillQueries([
+      "Tiny Noodle House",
+      "Late Bar",
+      "Local Gallery",
+      "Ignored Fourth Lead",
+    ]);
+    expect(discovery.queries).toEqual(["Tiny Noodle House", "Late Bar", "Local Gallery"]);
+    expect(discovery.queries.length * discovery.resultsPerQuery).toBeLessThanOrEqual(15);
+    expect(discovery.maximumChargeUsd * 4).toBeLessThanOrEqual(0.8);
+  });
+
+  it("attributes social provenance only to an exact normalized Google title", () => {
+    expect(isExactSocialPlaceMatch("Tiny Noodle House", "Tiny Noodle House")).toBe(true);
+    expect(isExactSocialPlaceMatch("Ｔｉｎｙ Noodle House", "Tiny Noodle House")).toBe(true);
+    expect(isExactSocialPlaceMatch("Tiny Noodle House", "Tiny Noodle House Gangnam")).toBe(false);
+    expect(isExactSocialPlaceMatch("Tiny Noodle House", "Nearby Noodle Bar")).toBe(false);
   });
 
   it("does no database or provider work while disabled", async () => {
