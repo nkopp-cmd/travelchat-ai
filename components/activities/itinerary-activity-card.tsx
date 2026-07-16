@@ -213,7 +213,7 @@ export function ItineraryActivityCard({
         </div>
       </div>
 
-      <div className="group overflow-hidden rounded-lg border border-white/10 bg-[#130b22]/78 shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/35 hover:bg-white/[0.075] sm:rounded-xl">
+      <div className="group overflow-hidden rounded-lg border border-white/15 bg-[#1b1030]/92 shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:border-violet-300/40 hover:bg-[#21143a] sm:rounded-xl">
         <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
@@ -325,7 +325,7 @@ export function ItineraryActivityCard({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] leading-4 text-violet-50/48 sm:text-xs">
+                <p className="text-[11px] leading-4 text-violet-50/70 sm:text-xs">
                   {mapConfidence.helper}
                 </p>
               </div>
@@ -343,7 +343,7 @@ export function ItineraryActivityCard({
 
             {/* Activity Description */}
             {activity.description && (
-              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground min-[420px]:text-sm sm:line-clamp-3">
+              <p className="text-xs leading-relaxed text-violet-50/78 min-[420px]:text-sm">
                 {activity.description}
               </p>
             )}

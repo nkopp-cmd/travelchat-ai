@@ -5,7 +5,7 @@ import { createSupabaseAdmin } from '@/lib/supabase';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
 import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateItinerarySchema, validateBody } from '@/lib/validations';
-import { checkAndIncrementUsage } from '@/lib/usage-tracking';
+import { checkAndIncrementUsage, checkUsageLimit, getUserTier } from '@/lib/usage-tracking';
 import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
@@ -20,6 +20,14 @@ import {
   normalizeDailyPlansForDisplay,
 } from '@/lib/itineraries/normalize-daily-plans';
 import { generateItineraryTextWithFallback } from './provider-fallback';
+import {
+  buildItinerarySpotContext,
+  getPaceStopRange,
+  groundGeneratedDailyPlans,
+  hasItineraryGroundingCoverage,
+  rankItineraryGroundingSpots,
+  type ItineraryGroundingSpot,
+} from '@/lib/itineraries/grounded-generation';
 
 // Anonymous usage tracking via cookies
 const ANON_COOKIE_NAME = 'localley_anon_usage';
@@ -51,11 +59,13 @@ ACTIVITY STRUCTURE RULES (VERY IMPORTANT):
 2. The "name" field MUST be the actual business/place name (e.g., "Din Tai Fung", "Elephant Mountain", "Shilin Night Market")
 3. NEVER use generic names like "Location", "What to Order", "Local Tip", "Breakfast", "Lunch", or "Dinner"
 4. Include recommendations (what to order, what to see) INSIDE the "description" field
-5. Keep activities to 3-5 per day maximum for a realistic, enjoyable pace
+5. Follow the requested pace exactly: relaxed = 2-3 places/day, moderate = 3-4, active = 4-5, packed = 5-6
 6. Each activity should be a distinct location - don't split one location into multiple activities
 7. Tips, advice, notes, transit guidance, "what to order", and "things to know" are NOT activities and do NOT belong inside day objects. Put them in the top-level "insights" array only.
 8. Never create an activity whose only purpose is a tip, route note, what-to-order note, or general advice. Every activity must be a mappable place.
 9. Never attach tip fields to activities. Do NOT add activity fields like "tips", "notes", "whatToOrder", "gettingAround", "bookingNote", "routeNote", or "localTip".
+10. When a verified candidate list is provided, use ONLY those candidates, copy each spotId exactly, and never substitute a famous tourist attraction.
+11. Do not schedule two markets consecutively or more than one market in the same day unless the user explicitly requests a market-focused trip.
 
 Generate detailed itineraries that emphasize:
 - Hidden gems and local favorites over tourist traps
@@ -85,6 +95,7 @@ You MUST return ONLY this valid JSON structure (no markdown formatting, no backt
       "theme": "string (e.g., 'Vintage Alleys & Coffee Culture')",
       "activities": [
         {
+          "spotId": "string (exact ID from the verified candidate list)",
           "time": "string (e.g., '09:00 AM')",
           "type": "morning" | "afternoon" | "evening",
           "name": "string (REAL spot/business name - NEVER generic like 'Location' or 'Lunch')",
@@ -214,17 +225,16 @@ export async function POST(req: NextRequest) {
       return Errors.validationError(validation.error || "Invalid request body");
     }
 
-    // For authenticated users, use atomic check and increment
+    // Load tier without consuming quota while candidate coverage is validated.
     if (!isAnonymous) {
-      const { allowed, usage, tier: userTier } = await checkAndIncrementUsage(userId!, "itineraries_created");
-      tier = userTier;
-
-      if (!allowed) {
+      tier = await getUserTier(userId!);
+      const allowance = await checkUsageLimit(userId!, "itineraries_created", tier);
+      if (!allowance.allowed) {
         return Errors.limitExceeded(
           "itineraries",
-          usage.currentUsage,
-          usage.limit,
-          usage.periodResetAt
+          allowance.currentUsage,
+          allowance.limit,
+          allowance.periodResetAt,
         );
       }
     }
@@ -245,22 +255,53 @@ export async function POST(req: NextRequest) {
       .from('spots')
       .select('*')
       .ilike('address->>en', `%${normalizedCity}%`)
-      .gte('localley_score', localnessLevel || 3);
+      .gte('localley_score', 3);
 
     spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
-      .limit(15);
+      .order('localley_score', { ascending: false })
+      .order('local_percentage', { ascending: false })
+      .limit(80);
 
-    const { data: spots } = await spotsQuery;
+    const { data: spots, error: spotsError } = await spotsQuery;
+    if (spotsError) {
+      throw new Error(`Could not load verified itinerary spots: ${spotsError.message}`);
+    }
     const visibleSpots = (spots || []).filter((spot) => shouldShowPublicSpot(spot));
+    const groundingSpots = rankItineraryGroundingSpots(
+      visibleSpots as ItineraryGroundingSpot[],
+      { days, interests, localnessLevel, pace },
+    );
+    const hasGroundingCoverage = hasItineraryGroundingCoverage(
+      groundingSpots,
+      { days, interests, localnessLevel, pace },
+    );
 
-    const spotsContext = visibleSpots.length > 0
-      ? `\n\nHere are some verified local spots in ${normalizedCity} that you SHOULD include:
-${visibleSpots.map(spot => {
-        const name = typeof spot.name === 'object' ? spot.name.en : spot.name;
-        const desc = typeof spot.description === 'object' ? spot.description.en : spot.description;
-        const addr = typeof spot.address === 'object' ? spot.address.en : spot.address;
-        return `- ${name} (Score: ${spot.localley_score}/6, ${addr}): ${desc}`;
-      }).join('\n')}`
+    if (!hasGroundingCoverage) {
+      return NextResponse.json({
+        error: "insufficient_verified_spots",
+        message: `Localley does not yet have enough verified, photographed ${normalizedCity} spots for this exact pace and interest mix. Try fewer days, a slower pace, or broader interests.`,
+      }, { status: 422 });
+    }
+
+    const groundedCandidateSpots = groundingSpots;
+
+    // Consume quota only after the request can be fulfilled with grounded spots.
+    if (!isAnonymous) {
+      const { allowed, usage, tier: userTier } = await checkAndIncrementUsage(userId!, "itineraries_created");
+      tier = userTier;
+
+      if (!allowed) {
+        return Errors.limitExceeded(
+          "itineraries",
+          usage.currentUsage,
+          usage.limit,
+          usage.periodResetAt
+        );
+      }
+    }
+
+    const spotsContext = groundedCandidateSpots.length > 0
+      ? `\n\nVERIFIED CANDIDATES — choose ONLY from this list and return the exact spotId for every activity:\n${buildItinerarySpotContext(groundedCandidateSpots)}`
       : '';
 
     const userPrompt = `
@@ -274,7 +315,7 @@ ${spotsContext}
 
 ${templatePrompt ? `\nIMPORTANT: Follow this template style:\n${templatePrompt}` : ''}
 
-Make it exciting, authentic, and full of hidden gems!
+Respect the pace, keep each day geographically coherent, avoid repeated categories, and prioritize the requested interests.
     `;
 
     const aiResponse = await generateItineraryTextWithFallback(
@@ -312,6 +353,22 @@ Make it exciting, authentic, and full of hidden gems!
         console.error("Failed to parse OpenAI response:", rawContent);
         throw new Error("AI generated invalid response format. Please try again.");
       }
+    }
+
+    itineraryData.dailyPlans = groundGeneratedDailyPlans(
+      itineraryData.dailyPlans,
+      groundedCandidateSpots,
+      { days, interests, localnessLevel, pace },
+    );
+
+    const paceStops = getPaceStopRange(pace);
+    if (
+      itineraryData.dailyPlans.length !== days ||
+      itineraryData.dailyPlans.some((day: { activities?: unknown[] }) =>
+        !day.activities || day.activities.length < paceStops.min || day.activities.length > paceStops.max
+      )
+    ) {
+      throw new Error("Not enough verified photographed spots matched this itinerary. Please try another preference mix.");
     }
 
     // Geocode activities to store lat/lng for instant map rendering

@@ -311,7 +311,7 @@ export default async function ItineraryViewPage({
               insights={itineraryInsights}
               title="Trip notes"
               description="Useful local context, transport notes, and practical details for the whole trip."
-              className="border-violet-300/15 bg-[#160d29]/82"
+              className="border-violet-200/20 bg-[#1a102e]/92"
             />
           </aside>
 
