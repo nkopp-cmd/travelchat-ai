@@ -51,6 +51,19 @@ const STALE_RUN_HOURS = 12;
 const PENDING_CANDIDATE_RETENTION_DAYS = 90;
 const IMPORTED_CANDIDATE_RETENTION_DAYS = 30;
 const RUN_RETENTION_DAYS = 120;
+const TRAVELER_CATEGORIES = new Set([
+  "amusement park", "antique store", "aquarium", "art center", "art gallery", "bakery",
+  "bazaar", "beach", "beer hall", "bistro", "book store", "bookshop", "botanical garden",
+  "castle", "cathedral", "church", "cinema", "coffee shop", "cultural center", "day spa",
+  "dessert shop", "farmers' market", "farmers market", "flea market", "food court", "food market",
+  "gift shop", "hiking area", "hiking trail", "historic site", "historical landmark", "library",
+  "market", "monument", "mosque", "mountain peak", "movie theater", "nature preserve",
+  "night club", "nightclub", "observation deck", "park", "performing arts theater", "public garden",
+  "record store", "sauna", "scenic spot", "shopping mall", "shrine", "spa", "stadium", "tea house",
+  "temple", "thrift store", "tourist attraction", "viewpoint", "vintage clothing store", "zoo",
+]);
+const TRAVELER_CATEGORY_FAMILY_PATTERN = /^(?:.+ )?(?:bar|cafe|museum|pub|restaurant)$/;
+const OPERATIONAL_CATEGORY_PATTERN = /(?:^medical spa$|\b(?:equipment supplier|manufacturer|repair shop|service center|supplier|supply store|warehouse|wholesaler)$)/;
 
 export const APIFY_SPOT_DISCOVERY_QUERIES = [
   "hidden gem restaurant",
@@ -106,6 +119,14 @@ function normalizeCategories(item: Record<string, unknown>): string[] {
     ...(Array.isArray(item.categories) ? item.categories.map(compactText) : []),
   ].filter(Boolean);
   return [...new Set(values)].slice(0, 12);
+}
+
+function isTravelerFacingCategory(categoryName: string | null, categories: string[]): boolean {
+  return [categoryName || "", ...categories]
+    .filter(Boolean)
+    .map((category) => category.toLowerCase().replace(/[’]/g, "'").replace(/\s+/g, " ").trim())
+    .some((category) => !OPERATIONAL_CATEGORY_PATTERN.test(category) &&
+      (TRAVELER_CATEGORIES.has(category) || TRAVELER_CATEGORY_FAMILY_PATTERN.test(category)));
 }
 
 function distanceKilometers(
@@ -182,6 +203,7 @@ export function normalizeApifySpotCandidate(input: {
   if (reviewsCount !== null && reviewsCount < 5) return null;
   const categories = normalizeCategories(input.item);
   const categoryName = compactText(input.item.categoryName) || categories[0] || null;
+  if (!isTravelerFacingCategory(categoryName, categories)) return null;
 
   return {
     runId: input.runId,

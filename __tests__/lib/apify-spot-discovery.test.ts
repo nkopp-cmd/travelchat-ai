@@ -101,6 +101,92 @@ describe("Apify spot discovery", () => {
     expect(recommendLocalleyScore(4.9, 8_000)).toBe(3);
   });
 
+  it("rejects operational businesses that are not traveler-facing spots", () => {
+    const base = {
+      placeId: "ChIJ-operational-business",
+      title: "Operational Business",
+      address: "12 Eulji-ro, Seoul",
+      location: { lat: 37.5665, lng: 126.978 },
+      countryCode: "KR",
+      url: "https://www.google.com/maps/place/Operational+Business",
+      imageUrl: "https://lh5.googleusercontent.com/p/photo",
+      totalScore: 4.9,
+      reviewsCount: 50,
+    };
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Auto repair shop" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Medical supply store" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Coffee shop" },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Scenic spot" },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Historical landmark" },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Mountain peak" },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "University", categories: ["University", "Museum"] },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Pawn shop" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Tobacco store" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Adult entertainment store" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Restaurant supply store" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Medical spa" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Museum equipment supplier" },
+    })).toBeNull();
+    for (const categoryName of ["Church", "Mosque", "Cathedral", "Monument", "Library", "Stadium"]) {
+      expect(normalizeApifySpotCandidate({
+        citySlug: "seoul",
+        runId: "run-1",
+        item: { ...base, categoryName },
+      })).not.toBeNull();
+    }
+  });
+
   it("keeps the paid query corpus and maximum result count bounded", () => {
     expect(APIFY_SPOT_DISCOVERY_QUERIES).toHaveLength(5);
     expect(new Set(APIFY_SPOT_DISCOVERY_QUERIES).size).toBe(5);
