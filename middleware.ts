@@ -18,6 +18,7 @@ export const isPublicRoute = createRouteMatcher([
     '/api/spots/social-submissions(.*)',  // Public intake/status; server routes handle validation and rate limits
     '/api/cron/cleanup-stories',  // Vercel cron; route enforces CRON_SECRET
     '/api/cron/process-social-submissions',  // Vercel cron; route enforces CRON_SECRET
+    '/api/cron/discover-spots-with-apify',  // Vercel cron; route enforces CRON_SECRET
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page

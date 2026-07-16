@@ -21,6 +21,11 @@
     "spots:locations:apply": "npx tsx scripts/review-spot-location-backfill.ts --apply",
     "spots:quality:action-plan": "npx tsx scripts/export-spot-quality-action-plan.ts",
     "spots:readiness": "npx tsx scripts/export-spot-readiness-packet.ts",
+    "geo:seed": "tsx scripts/seed-geography.ts",
+    "geo:snapshot": "tsx scripts/generate-geography-snapshot.ts",
+    "geo:snapshot:check": "npm run geo:snapshot -- --check",
+    "geo:backfill:review": "tsx scripts/review-spot-geography-backfill.ts",
+    "trip:seed-edges": "tsx scripts/seed-transport-edges.ts",
     "seed:spots": "ts-node --project tsconfig.json scripts/seed-spots.ts",
     "seed:more": "ts-node --project tsconfig.json scripts/seed-additional-spots.ts"
   },
@@ -98,6 +103,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
     "typescript": "5.9.3",
     "vitest": "^4.0.15"
   }

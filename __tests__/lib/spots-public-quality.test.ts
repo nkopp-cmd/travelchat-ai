@@ -85,6 +85,17 @@ describe("public spot quality", () => {
         ).toBe("missing_real_photo");
     });
 
+    it("accepts allowlisted Google-hosted discovery photos", () => {
+        expect(
+            shouldShowPublicSpot({
+                name: "Tiny Noodle House",
+                address: { en: "12 Eulji-ro, Seoul" },
+                location: { type: "Point", coordinates: [126.978, 37.5665] },
+                photos: ["https://lh5.googleusercontent.com/p/photo"],
+            })
+        ).toBe(true);
+    });
+
     it("hides placeholder and invalid image references from public spot surfaces", () => {
         expect(
             getPublicSpotQualityIssue({

@@ -7,6 +7,7 @@ import {
   PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
   shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
+import { runCityGeographyShadowComparison } from "@/lib/geography/city-shadow";
 
 // Thresholds for city status
 const THRESHOLDS = {
@@ -62,6 +63,10 @@ async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
   if (visibleCount === 0 && ENABLED_CITIES.length > 0) {
     console.warn("[api/cities] WARNING: 0 visible cities! Possible Supabase connection issue or empty spots table.");
   }
+
+  await runCityGeographyShadowComparison(
+    results.map((city) => ({ slug: city.slug, spotCount: city.spotCount })),
+  );
 
   return results;
 }

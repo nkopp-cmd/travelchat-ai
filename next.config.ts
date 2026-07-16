@@ -93,6 +93,18 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.ggpht.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ggpht.com',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     qualities: [75, 90],

@@ -142,7 +142,12 @@ const COMMERCIAL_NAME_WORDS = new Set([
 const BROAD_SPOT_QUALIFIER_WORDS = new Set(["district", "office", "residential"]);
 
 function isTrustedRemoteSpotPhotoHost(host: string): boolean {
-    return host === "localley.io" || host.endsWith(".localley.io");
+    return host === "localley.io" ||
+        host.endsWith(".localley.io") ||
+        host === "googleusercontent.com" ||
+        host.endsWith(".googleusercontent.com") ||
+        host === "ggpht.com" ||
+        host.endsWith(".ggpht.com");
 }
 
 export function getGooglePlacesApiKey(): string | null {
