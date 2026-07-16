@@ -122,8 +122,8 @@ export function DayRouteSection({
   const hiddenStopCount = Math.max(activities.length - stopPreview.length, 0);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0f091b]/82 shadow-xl shadow-violet-950/12 backdrop-blur-xl">
-      <div className="border-b border-white/10 bg-white/[0.045] px-3.5 py-3 text-white sm:px-5 sm:py-4">
+    <section className="overflow-hidden rounded-xl border border-white/15 bg-[#151025]/92 shadow-xl shadow-violet-950/12 backdrop-blur-xl">
+      <div className="border-b border-white/15 bg-white/[0.07] px-3.5 py-3 text-white sm:px-5 sm:py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 space-y-2.5">
             <div className="flex flex-wrap items-center gap-2">
@@ -142,7 +142,7 @@ export function DayRouteSection({
                 {dayPlan.theme}
               </h2>
             )}
-            <div className="grid gap-1.5 text-sm text-violet-50/70 sm:grid-cols-2 md:grid-cols-1">
+            <div className="grid gap-1.5 text-sm text-violet-50/82 sm:grid-cols-2 md:grid-cols-1">
               <p className="flex min-w-0 items-start gap-2">
                 <Route className="mt-0.5 h-4 w-4 shrink-0 text-violet-200" />
                 <span className="min-w-0 break-words">
@@ -156,7 +156,7 @@ export function DayRouteSection({
                 </p>
               )}
             </div>
-            <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-white/10 bg-black/12 px-3 py-2 text-xs text-violet-50/72 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-white/15 bg-black/18 px-3 py-2 text-xs text-violet-50/82 sm:flex-row sm:items-center">
               <span
                 className={[
                   "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 font-semibold",
