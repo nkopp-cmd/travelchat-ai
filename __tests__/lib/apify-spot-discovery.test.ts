@@ -133,6 +133,36 @@ describe("Apify spot discovery", () => {
       runId: "run-1",
       item: { ...base, categoryName: "Scenic spot" },
     })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Historical landmark" },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Mountain peak" },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "University", categories: ["University", "Museum"] },
+    })).not.toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Pawn shop" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Tobacco store" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Adult entertainment store" },
+    })).toBeNull();
   });
 
   it("keeps the paid query corpus and maximum result count bounded", () => {

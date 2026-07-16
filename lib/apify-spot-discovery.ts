@@ -51,8 +51,15 @@ const STALE_RUN_HOURS = 12;
 const PENDING_CANDIDATE_RETENTION_DAYS = 90;
 const IMPORTED_CANDIDATE_RETENTION_DAYS = 30;
 const RUN_RETENTION_DAYS = 120;
-const TRAVELER_CATEGORY_PATTERN = /\b(?:restaurant|bistro|cafe|coffee|tea|bar|pub|beer hall|night club|market|bazaar|shop|store|boutique|mall|vintage|thrift|book|record|bakery|dessert|food|park|garden|viewpoint|scenic spot|observation deck|beach|trail|museum|gallery|temple|shrine|historic|culture|art center|tourist attraction|entertainment|performing arts|theater|cinema|spa|sauna)\b/i;
-const NON_TRAVELER_CATEGORY_PATTERN = /\b(?:auto|automotive|car dealer|repair|medical|hospital|clinic|pharmacy|dentist|manufacturer|warehouse|wholesale|supplier|corporate office|business center|construction|real estate|school|university|government|bank|insurance|law firm|accountant|logistics|courier|software company|marketing agency)\b/i;
+const TRAVELER_CATEGORY_PATTERNS = [
+  /\b(?:restaurant|bistro|cafe|coffee shop|tea house|bar|pub|beer hall|night club|nightclub)\b/i,
+  /\b(?:bakery|dessert shop|food court|food market)\b/i,
+  /\b(?:market|bazaar|flea market|farmers(?:'|’) market)\b/i,
+  /\b(?:boutique|antique store|book store|bookshop|record store|vintage clothing store|thrift store|gift shop|shopping mall)\b/i,
+  /\b(?:park|botanical garden|public garden|viewpoint|scenic spot|observation deck|beach|hiking area|hiking trail|nature preserve|mountain peak)\b/i,
+  /\b(?:museum|art gallery|temple|shrine|historical landmark|historic site|cultural center|art center|castle)\b/i,
+  /\b(?:tourist attraction|performing arts theater|movie theater|cinema|zoo|aquarium|amusement park|spa|sauna)\b/i,
+] as const;
 
 export const APIFY_SPOT_DISCOVERY_QUERIES = [
   "hidden gem restaurant",
@@ -111,8 +118,9 @@ function normalizeCategories(item: Record<string, unknown>): string[] {
 }
 
 function isTravelerFacingCategory(categoryName: string | null, categories: string[]): boolean {
-  const value = [categoryName || "", ...categories].join(" ");
-  return TRAVELER_CATEGORY_PATTERN.test(value) && !NON_TRAVELER_CATEGORY_PATTERN.test(value);
+  return [categoryName || "", ...categories]
+    .filter(Boolean)
+    .some((category) => TRAVELER_CATEGORY_PATTERNS.some((pattern) => pattern.test(category)));
 }
 
 function distanceKilometers(
