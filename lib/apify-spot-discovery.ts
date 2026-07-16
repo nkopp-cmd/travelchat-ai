@@ -51,6 +51,8 @@ const STALE_RUN_HOURS = 12;
 const PENDING_CANDIDATE_RETENTION_DAYS = 90;
 const IMPORTED_CANDIDATE_RETENTION_DAYS = 30;
 const RUN_RETENTION_DAYS = 120;
+const TRAVELER_CATEGORY_PATTERN = /\b(?:restaurant|bistro|cafe|coffee|tea|bar|pub|beer hall|night club|market|bazaar|shop|store|boutique|mall|vintage|thrift|book|record|bakery|dessert|food|park|garden|viewpoint|scenic spot|observation deck|beach|trail|museum|gallery|temple|shrine|historic|culture|art center|tourist attraction|entertainment|performing arts|theater|cinema|spa|sauna)\b/i;
+const NON_TRAVELER_CATEGORY_PATTERN = /\b(?:auto|automotive|car dealer|repair|medical|hospital|clinic|pharmacy|dentist|manufacturer|warehouse|wholesale|supplier|corporate office|business center|construction|real estate|school|university|government|bank|insurance|law firm|accountant|logistics|courier|software company|marketing agency)\b/i;
 
 export const APIFY_SPOT_DISCOVERY_QUERIES = [
   "hidden gem restaurant",
@@ -106,6 +108,11 @@ function normalizeCategories(item: Record<string, unknown>): string[] {
     ...(Array.isArray(item.categories) ? item.categories.map(compactText) : []),
   ].filter(Boolean);
   return [...new Set(values)].slice(0, 12);
+}
+
+function isTravelerFacingCategory(categoryName: string | null, categories: string[]): boolean {
+  const value = [categoryName || "", ...categories].join(" ");
+  return TRAVELER_CATEGORY_PATTERN.test(value) && !NON_TRAVELER_CATEGORY_PATTERN.test(value);
 }
 
 function distanceKilometers(
@@ -182,6 +189,7 @@ export function normalizeApifySpotCandidate(input: {
   if (reviewsCount !== null && reviewsCount < 5) return null;
   const categories = normalizeCategories(input.item);
   const categoryName = compactText(input.item.categoryName) || categories[0] || null;
+  if (!isTravelerFacingCategory(categoryName, categories)) return null;
 
   return {
     runId: input.runId,
