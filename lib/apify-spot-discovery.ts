@@ -51,15 +51,19 @@ const STALE_RUN_HOURS = 12;
 const PENDING_CANDIDATE_RETENTION_DAYS = 90;
 const IMPORTED_CANDIDATE_RETENTION_DAYS = 30;
 const RUN_RETENTION_DAYS = 120;
-const TRAVELER_CATEGORY_PATTERNS = [
-  /\b(?:restaurant|bistro|cafe|coffee shop|tea house|bar|pub|beer hall|night club|nightclub)\b/i,
-  /\b(?:bakery|dessert shop|food court|food market)\b/i,
-  /\b(?:market|bazaar|flea market|farmers(?:'|’) market)\b/i,
-  /\b(?:boutique|antique store|book store|bookshop|record store|vintage clothing store|thrift store|gift shop|shopping mall)\b/i,
-  /\b(?:park|botanical garden|public garden|viewpoint|scenic spot|observation deck|beach|hiking area|hiking trail|nature preserve|mountain peak)\b/i,
-  /\b(?:museum|art gallery|temple|shrine|historical landmark|historic site|cultural center|art center|castle)\b/i,
-  /\b(?:tourist attraction|performing arts theater|movie theater|cinema|zoo|aquarium|amusement park|spa|sauna)\b/i,
-] as const;
+const TRAVELER_CATEGORIES = new Set([
+  "amusement park", "antique store", "aquarium", "art center", "art gallery", "bakery",
+  "bazaar", "beach", "beer hall", "bistro", "book store", "bookshop", "botanical garden",
+  "castle", "cathedral", "church", "cinema", "coffee shop", "cultural center", "day spa",
+  "dessert shop", "farmers' market", "farmers market", "flea market", "food court", "food market",
+  "gift shop", "hiking area", "hiking trail", "historic site", "historical landmark", "library",
+  "market", "monument", "mosque", "mountain peak", "movie theater", "nature preserve",
+  "night club", "nightclub", "observation deck", "park", "performing arts theater", "public garden",
+  "record store", "sauna", "scenic spot", "shopping mall", "shrine", "spa", "stadium", "tea house",
+  "temple", "thrift store", "tourist attraction", "viewpoint", "vintage clothing store", "zoo",
+]);
+const TRAVELER_CATEGORY_FAMILY_PATTERN = /^(?:.+ )?(?:bar|cafe|museum|pub|restaurant)$/;
+const OPERATIONAL_CATEGORY_PATTERN = /(?:^medical spa$|\b(?:equipment supplier|manufacturer|repair shop|service center|supplier|supply store|warehouse|wholesaler)$)/;
 
 export const APIFY_SPOT_DISCOVERY_QUERIES = [
   "hidden gem restaurant",
@@ -120,7 +124,9 @@ function normalizeCategories(item: Record<string, unknown>): string[] {
 function isTravelerFacingCategory(categoryName: string | null, categories: string[]): boolean {
   return [categoryName || "", ...categories]
     .filter(Boolean)
-    .some((category) => TRAVELER_CATEGORY_PATTERNS.some((pattern) => pattern.test(category)));
+    .map((category) => category.toLowerCase().replace(/[’]/g, "'").replace(/\s+/g, " ").trim())
+    .some((category) => !OPERATIONAL_CATEGORY_PATTERN.test(category) &&
+      (TRAVELER_CATEGORIES.has(category) || TRAVELER_CATEGORY_FAMILY_PATTERN.test(category)));
 }
 
 function distanceKilometers(

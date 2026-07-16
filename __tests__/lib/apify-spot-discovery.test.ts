@@ -163,6 +163,28 @@ describe("Apify spot discovery", () => {
       runId: "run-1",
       item: { ...base, categoryName: "Adult entertainment store" },
     })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Restaurant supply store" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Medical spa" },
+    })).toBeNull();
+    expect(normalizeApifySpotCandidate({
+      citySlug: "seoul",
+      runId: "run-1",
+      item: { ...base, categoryName: "Museum equipment supplier" },
+    })).toBeNull();
+    for (const categoryName of ["Church", "Mosque", "Cathedral", "Monument", "Library", "Stadium"]) {
+      expect(normalizeApifySpotCandidate({
+        citySlug: "seoul",
+        runId: "run-1",
+        item: { ...base, categoryName },
+      })).not.toBeNull();
+    }
   });
 
   it("keeps the paid query corpus and maximum result count bounded", () => {
