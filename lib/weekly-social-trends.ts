@@ -460,8 +460,9 @@ async function startMissingRuns(
 async function upsertContentItems(items: NormalizedSocialTrendItem[]): Promise<void> {
   if (items.length === 0) return;
   const supabase = createSupabaseAdmin();
+  const contentItems = dedupeSocialTrendContentItems(items);
   const { error } = await supabase.from("weekly_social_content").upsert(
-    items.map((item) => ({
+    contentItems.map((item) => ({
       week_start: item.weekStart,
       city_slug: item.citySlug,
       platform: item.platform,
@@ -483,7 +484,9 @@ async function upsertContentItems(items: NormalizedSocialTrendItem[]): Promise<v
   );
   if (error) throw new Error(`Could not store weekly social content: ${error.message}`);
 
-  const leads = items.filter((item) => item.placeHint && engagementValue(item) > 0);
+  const leads = dedupeSocialTrendLeadItems(
+    contentItems.filter((item) => item.placeHint && engagementValue(item) > 0),
+  );
   if (leads.length === 0) return;
   const { error: leadsError } = await supabase.from("weekly_social_spot_leads").upsert(
     leads.map((item) => ({
@@ -536,6 +539,87 @@ export function mentionsSpot(content: string, spot: Pick<RawSpot, "name">): bool
 function engagementValue(item: NormalizedSocialTrendItem): number {
   return item.viewCount + item.likeCount * 8 + item.commentCount * 12 +
     item.shareCount * 20 + item.saveCount * 16;
+}
+
+function mergeDuplicateTrendItems(
+  existing: NormalizedSocialTrendItem,
+  incoming: NormalizedSocialTrendItem,
+): NormalizedSocialTrendItem {
+  const preferred = strongerTrendItem(existing, incoming);
+  const alternate = preferred === incoming ? existing : incoming;
+  return {
+    ...preferred,
+    contentText: preferred.contentText.length >= alternate.contentText.length
+      ? preferred.contentText
+      : alternate.contentText,
+    placeHint: preferred.placeHint || alternate.placeHint,
+    publishedAt: preferred.publishedAt || alternate.publishedAt,
+    viewCount: Math.max(existing.viewCount, incoming.viewCount),
+    likeCount: Math.max(existing.likeCount, incoming.likeCount),
+    commentCount: Math.max(existing.commentCount, incoming.commentCount),
+    shareCount: Math.max(existing.shareCount, incoming.shareCount),
+    saveCount: Math.max(existing.saveCount, incoming.saveCount),
+  };
+}
+
+function strongerTrendItem(
+  existing: NormalizedSocialTrendItem,
+  incoming: NormalizedSocialTrendItem,
+): NormalizedSocialTrendItem {
+  const scoreDifference = engagementValue(incoming) - engagementValue(existing);
+  if (scoreDifference !== 0) return scoreDifference > 0 ? incoming : existing;
+  const existingKey = JSON.stringify([
+    existing.platform,
+    existing.externalId,
+    existing.canonicalUrl,
+  ]);
+  const incomingKey = JSON.stringify([
+    incoming.platform,
+    incoming.externalId,
+    incoming.canonicalUrl,
+  ]);
+  return incomingKey.localeCompare(existingKey) < 0 ? incoming : existing;
+}
+
+function dedupeTrendItems(
+  items: NormalizedSocialTrendItem[],
+  keyForItem: (item: NormalizedSocialTrendItem) => string,
+  mergeItems: (
+    existing: NormalizedSocialTrendItem,
+    incoming: NormalizedSocialTrendItem,
+  ) => NormalizedSocialTrendItem,
+): NormalizedSocialTrendItem[] {
+  const deduped = new Map<string, NormalizedSocialTrendItem>();
+  for (const item of items) {
+    const key = keyForItem(item);
+    const existing = deduped.get(key);
+    deduped.set(key, existing ? mergeItems(existing, item) : item);
+  }
+  return [...deduped.values()];
+}
+
+export function dedupeSocialTrendContentItems(
+  items: NormalizedSocialTrendItem[],
+): NormalizedSocialTrendItem[] {
+  return dedupeTrendItems(
+    items,
+    (item) => JSON.stringify([item.weekStart, item.platform, item.externalId, item.citySlug]),
+    mergeDuplicateTrendItems,
+  );
+}
+
+export function dedupeSocialTrendLeadItems(
+  items: NormalizedSocialTrendItem[],
+): NormalizedSocialTrendItem[] {
+  return dedupeTrendItems(
+    items,
+    (item) => JSON.stringify([
+      item.weekStart,
+      item.citySlug,
+      normalizeSearchText(item.placeHint || ""),
+    ]),
+    strongerTrendItem,
+  );
 }
 
 type SpotSignalLink = {

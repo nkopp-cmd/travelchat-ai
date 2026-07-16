@@ -13,6 +13,8 @@ vi.mock("@/lib/supabase", () => ({
 import {
   areTrendRunsReadyForBuild,
   canRetryTrendRun,
+  dedupeSocialTrendContentItems,
+  dedupeSocialTrendLeadItems,
   getSocialTrendRetentionCutoffs,
   getWeekStart,
   mentionsSpot,
@@ -181,6 +183,83 @@ describe("weekly social trend normalization", () => {
   it("uses Monday UTC as the weekly boundary", () => {
     expect(getWeekStart(new Date("2026-07-19T23:59:59Z"))).toBe("2026-07-13");
     expect(getWeekStart(new Date("2026-07-20T00:00:00Z"))).toBe("2026-07-20");
+  });
+
+  it("merges duplicate content rows before a single upsert", () => {
+    const base = {
+      weekStart: "2026-07-13",
+      citySlug: "seoul",
+      platform: "instagram" as const,
+      externalId: "duplicate-post",
+      canonicalUrl: "https://www.instagram.com/reel/DUPLICATE/",
+      contentText: "Short caption",
+      placeHint: null,
+      publishedAt: "2026-07-14T12:00:00Z",
+      viewCount: 1_000,
+      likeCount: 100,
+      commentCount: 10,
+      shareCount: 0,
+      saveCount: 0,
+    };
+
+    expect(dedupeSocialTrendContentItems([
+      base,
+      {
+        ...base,
+        contentText: "A longer caption with useful matching context",
+        placeHint: "Tiny Noodle House",
+        viewCount: 2_000,
+        likeCount: 90,
+      },
+    ])).toEqual([expect.objectContaining({
+      externalId: "duplicate-post",
+      contentText: "A longer caption with useful matching context",
+      placeHint: "Tiny Noodle House",
+      viewCount: 2_000,
+      likeCount: 100,
+    })]);
+  });
+
+  it("keeps only the strongest duplicate place lead per conflict key", () => {
+    const base = {
+      weekStart: "2026-07-13",
+      citySlug: "seoul",
+      platform: "instagram" as const,
+      externalId: "post-1",
+      canonicalUrl: "https://www.instagram.com/reel/ONE/",
+      contentText: "Tiny Noodle House",
+      placeHint: "Tiny Noodle House",
+      publishedAt: "2026-07-14T12:00:00Z",
+      viewCount: 1_000,
+      likeCount: 100,
+      commentCount: 10,
+      shareCount: 0,
+      saveCount: 0,
+    };
+
+    const strongest = {
+      ...base,
+      platform: "tiktok" as const,
+      externalId: "post-2",
+      canonicalUrl: "https://www.tiktok.com/@local/video/2",
+      placeHint: "tiny noodle house",
+      viewCount: 5_000,
+    };
+    const result = dedupeSocialTrendLeadItems([
+      base,
+      strongest,
+      {
+        ...base,
+        platform: "youtube",
+        externalId: "post-3",
+        canonicalUrl: "https://www.youtube.com/watch?v=post3",
+        viewCount: 1_000,
+        likeCount: 400,
+      },
+    ]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBe(strongest);
   });
 
   it("covers every enabled Localley city", () => {
