@@ -452,9 +452,13 @@ export async function refreshApifySpotDiscovery(now: Date = new Date()): Promise
         .eq("id", run.id)
         .in("state", ["starting", "running"]);
       if (staleError) throw new Error(`Could not recover stale Apify discovery run: ${staleError.message}`);
-      return { date: run.discovery_date, citySlug: run.city_slug, state: "failed", candidates: 0, skippedExisting: 0 };
+      if (run.discovery_date === date) {
+        return { date: run.discovery_date, citySlug: run.city_slug, state: "failed", candidates: 0, skippedExisting: 0 };
+      }
+    } else {
+      const rollover = await processDailyRun(token, run);
+      if (run.discovery_date === date || rollover.state === "pending") return rollover;
     }
-    return processDailyRun(token, run);
   }
 
   const { data, error } = await supabase
