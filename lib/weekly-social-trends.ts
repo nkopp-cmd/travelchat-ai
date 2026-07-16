@@ -31,6 +31,7 @@ export type NormalizedSocialTrendItem = {
   externalId: string;
   canonicalUrl: string;
   contentText: string;
+  placeHint: string | null;
   publishedAt: string | null;
   viewCount: number;
   likeCount: number;
@@ -58,12 +59,13 @@ const MAX_ACTOR_CHARGE_USD = "2";
 const MAX_CONTENT_TEXT_LENGTH = 4_000;
 const MAX_LINKER_SIGNALS_PER_CITY = 16;
 const MAX_LINKER_SPOTS_PER_CITY = 160;
-const MAX_NEW_RUNS_PER_INVOCATION = 1;
+const MAX_NEW_RUNS_PER_INVOCATION = 3;
 const MAX_RUN_ATTEMPTS = 3;
 const MAX_CITY_BUILD_ATTEMPTS = 3;
 const DERIVED_DATA_RETENTION_DAYS = 16 * 7;
 const STALE_STARTING_MINUTES = 30;
 const STALE_RUNNING_HOURS = 6;
+const MAX_PENDING_SOCIAL_LEADS_PER_CITY = 3;
 
 export const SOCIAL_SCOUT_CITIES = ENABLED_CITIES;
 
@@ -205,7 +207,6 @@ function canonicalSocialUrl(
     "videoUrl",
     "webVideoUrl",
     "webVideoUrlNoWatermark",
-    "inputUrl",
   ]);
   if (!value) return null;
   try {
@@ -214,6 +215,16 @@ function canonicalSocialUrl(
     if (!PLATFORM_HOSTS[platform].some((allowed) => host === allowed || host.endsWith(`.${allowed}`))) {
       return null;
     }
+    const validContentPath = platform === "instagram"
+      ? /^\/(?:p|reel|tv)\/[^/]+\/?$/i.test(url.pathname)
+      : platform === "tiktok"
+        ? (/^\/@[^/]+\/video\/\d+\/?$/i.test(url.pathname) ||
+          (/^(?:vm|vt)\.tiktok\.com$/.test(host) && /^\/[A-Za-z0-9]+\/?$/.test(url.pathname)))
+        : host === "youtu.be"
+          ? /^\/[A-Za-z0-9_-]+\/?$/.test(url.pathname)
+          : (/^\/shorts\/[A-Za-z0-9_-]+\/?$/.test(url.pathname) ||
+            (url.pathname === "/watch" && Boolean(url.searchParams.get("v"))));
+    if (!validContentPath) return null;
     url.hash = "";
     for (const key of [...url.searchParams.keys()]) {
       if (key.startsWith("utm_") || ["igsh", "si", "feature"].includes(key)) {
@@ -242,6 +253,24 @@ function normalizePublishedAt(item: Record<string, unknown>): string | null {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+function normalizePlaceHint(item: Record<string, unknown>, citySlug: string): string | null {
+  const value = firstText(item, [
+    "locationName",
+    "location.name",
+    "placeName",
+    "place.name",
+    "poi.name",
+  ]).replace(/\s+/g, " ").trim().slice(0, 160);
+  if (value.length < 3) return null;
+  const city = SOCIAL_SCOUT_CITIES.find((candidate) => candidate.slug === citySlug);
+  const normalized = normalizeSearchText(value);
+  if (!city || normalized === normalizeSearchText(city.name) || normalized === normalizeSearchText(city.slug)) {
+    return null;
+  }
+  if (/^(travel|tourism|hidden gems?|food|nightlife|things to do)$/i.test(value)) return null;
+  return value;
+}
+
 export function normalizeSocialTrendItem(input: {
   item: Record<string, unknown>;
   platform: SocialTrendPlatform;
@@ -250,6 +279,15 @@ export function normalizeSocialTrendItem(input: {
   const citySlug = detectCitySlug(input.item);
   const canonicalUrl = canonicalSocialUrl(input.item, input.platform);
   if (!citySlug || !canonicalUrl) return null;
+  const publishedAt = normalizePublishedAt(input.item);
+  if (input.platform === "instagram" && !publishedAt) return null;
+  if (publishedAt) {
+    const publishedTime = new Date(publishedAt).getTime();
+    const weekStartTime = new Date(`${input.weekStart}T00:00:00.000Z`).getTime();
+    if (publishedTime < weekStartTime || publishedTime >= weekStartTime + 7 * 24 * 60 * 60 * 1_000) {
+      return null;
+    }
+  }
 
   const externalId = firstText(input.item, [
     "id",
@@ -258,7 +296,9 @@ export function normalizeSocialTrendItem(input: {
     "videoId",
     "video_id",
   ]) || createHash("sha256").update(canonicalUrl).digest("hex").slice(0, 32);
+  const placeHint = normalizePlaceHint(input.item, citySlug);
   const contentText = [
+    placeHint,
     firstText(input.item, ["caption", "text", "title"]),
     firstText(input.item, ["description"]),
     compactText(nestedValue(input.item, "hashtags")),
@@ -271,7 +311,8 @@ export function normalizeSocialTrendItem(input: {
     externalId: externalId.slice(0, 200),
     canonicalUrl,
     contentText,
-    publishedAt: normalizePublishedAt(input.item),
+    placeHint,
+    publishedAt,
     viewCount: firstCount(input.item, [
       "videoPlayCount", "playCount", "viewCount", "views", "stats.playCount", "stats.views",
     ]),
@@ -427,6 +468,7 @@ async function upsertContentItems(items: NormalizedSocialTrendItem[]): Promise<v
       external_id: item.externalId,
       canonical_url: item.canonicalUrl,
       content_text: item.contentText,
+      place_hint: item.placeHint,
       published_at: item.publishedAt,
       view_count: item.viewCount,
       like_count: item.likeCount,
@@ -440,6 +482,45 @@ async function upsertContentItems(items: NormalizedSocialTrendItem[]): Promise<v
     { onConflict: "week_start,platform,external_id,city_slug" },
   );
   if (error) throw new Error(`Could not store weekly social content: ${error.message}`);
+
+  const leads = items.filter((item) => item.placeHint && engagementValue(item) > 0);
+  if (leads.length === 0) return;
+  const { error: leadsError } = await supabase.from("weekly_social_spot_leads").upsert(
+    leads.map((item) => ({
+      week_start: item.weekStart,
+      city_slug: item.citySlug,
+      platform: item.platform,
+      external_id: item.externalId,
+      place_hint: item.placeHint,
+      normalized_hint: normalizeSearchText(item.placeHint || "").slice(0, 160),
+      canonical_url: item.canonicalUrl,
+      engagement_score: engagementValue(item),
+      updated_at: new Date().toISOString(),
+    })),
+    { onConflict: "week_start,city_slug,normalized_hint" },
+  );
+  if (leadsError) throw new Error(`Could not store weekly social place leads: ${leadsError.message}`);
+
+  for (const citySlug of [...new Set(leads.map((item) => item.citySlug))]) {
+    const { data: overflow, error: overflowError } = await supabase
+      .from("weekly_social_spot_leads")
+      .select("id")
+      .eq("city_slug", citySlug)
+      .eq("status", "pending")
+      .order("engagement_score", { ascending: false })
+      .order("created_at", { ascending: true })
+      .range(MAX_PENDING_SOCIAL_LEADS_PER_CITY, 99);
+    if (overflowError) throw new Error(`Could not bound social spot leads: ${overflowError.message}`);
+    const overflowIds = (overflow || []).map((lead) => lead.id);
+    if (overflowIds.length > 0) {
+      const { error: deleteError } = await supabase
+        .from("weekly_social_spot_leads")
+        .delete()
+        .in("id", overflowIds)
+        .eq("status", "pending");
+      if (deleteError) throw new Error(`Could not prune social spot leads: ${deleteError.message}`);
+    }
+  }
 }
 
 function spotCitySlug(spot: RawSpot): string | null {
@@ -462,6 +543,10 @@ type SpotSignalLink = {
   signalIds: string[];
 };
 
+function signalKey(item: Pick<NormalizedSocialTrendItem, "platform" | "externalId">): string {
+  return `${item.platform}:${item.externalId}`;
+}
+
 function linkSignalsToSpots(input: {
   signals: NormalizedSocialTrendItem[];
   spots: RawSpot[];
@@ -480,7 +565,7 @@ function linkSignalsToSpots(input: {
     for (const signal of eligibleSignals) {
       if (!mentionsSpot(signal.contentText, spot)) continue;
       const linked = hardLinks.get(spot.id) || new Set<string>();
-      linked.add(signal.externalId);
+      linked.add(signalKey(signal));
       hardLinks.set(spot.id, linked);
     }
   }
@@ -507,6 +592,7 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
     externalId: row.external_id,
     canonicalUrl: row.canonical_url,
     contentText: row.content_text,
+    placeHint: row.place_hint || null,
     publishedAt: row.published_at,
     viewCount: Number(row.view_count) || 0,
     likeCount: Number(row.like_count) || 0,
@@ -531,7 +617,7 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
       signals: cityContent,
       spots: citySpots,
     });
-    const signalsById = new Map(cityContent.map((signal) => [signal.externalId, signal]));
+    const signalsById = new Map(cityContent.map((signal) => [signalKey(signal), signal]));
     const maxByPlatform = new Map<SocialTrendPlatform, number>();
     for (const item of cityContent) {
       maxByPlatform.set(
@@ -658,6 +744,10 @@ async function cleanupSocialTrendData(now: Date): Promise<void> {
       .from("weekly_social_trend_runs")
       .delete()
       .lt("week_start", derivedBeforeWeek),
+    supabase
+      .from("weekly_social_spot_leads")
+      .delete()
+      .lt("expires_at", now.toISOString()),
   ]);
   const cleanupError = cleanupResults.find((result) => result.error)?.error;
   if (cleanupError) {
@@ -665,11 +755,11 @@ async function cleanupSocialTrendData(now: Date): Promise<void> {
   }
 }
 
-async function processNextRun(
+async function processAvailableRuns(
   token: string,
   weekStart: string,
   summary: WeeklyTrendRefreshSummary,
-): Promise<"none" | "pending" | "handled"> {
+): Promise<{ handled: boolean; pending: boolean }> {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("weekly_social_trend_runs")
@@ -678,63 +768,70 @@ async function processNextRun(
     .is("processed_at", null)
     .in("state", ["starting", "running", "succeeded"])
     .order("started_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .limit(3);
   if (error) throw new Error(`Could not load weekly social runs: ${error.message}`);
-  if (!data) return "none";
+  let handled = false;
+  let pending = false;
 
-  const run = data as TrendRunRow;
-  if (run.actor_run_id.startsWith("starting:")) {
-    summary.pending.push(run.platform);
-    return "pending";
-  }
-  const response = await apifyRequest<{
-    data: { status: string; defaultDatasetId?: string };
-  }>(`/actor-runs/${run.actor_run_id}`, token);
-  const status = response.data.status;
-  if (["FAILED", "ABORTED", "TIMED-OUT"].includes(status)) {
+  for (const row of data || []) {
+    const run = row as TrendRunRow;
+    if (run.actor_run_id.startsWith("starting:")) {
+      summary.pending.push(run.platform);
+      pending = true;
+      continue;
+    }
+    const response = await apifyRequest<{
+      data: { status: string; defaultDatasetId?: string };
+    }>(`/actor-runs/${run.actor_run_id}`, token);
+    const status = response.data.status;
+    if (["FAILED", "ABORTED", "TIMED-OUT"].includes(status)) {
+      const { error: updateError } = await supabase
+        .from("weekly_social_trend_runs")
+        .update({
+          state: "failed",
+          error_message: `Actor ended with ${status}.`,
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", run.id);
+      if (updateError) throw new Error(`Could not record failed social run: ${updateError.message}`);
+      summary.failed.push(run.platform);
+      handled = true;
+      continue;
+    }
+    if (status !== "SUCCEEDED") {
+      summary.pending.push(run.platform);
+      pending = true;
+      continue;
+    }
+
+    const datasetId = response.data.defaultDatasetId || run.dataset_id;
+    if (!datasetId) throw new Error(`Completed ${run.platform} run has no dataset.`);
+    const items = await apifyRequest<Record<string, unknown>[]>(
+      `/datasets/${datasetId}/items?clean=true&limit=${APIFY_DATASET_LIMIT}`,
+      token,
+    );
+    const normalized = items
+      .map((item) => normalizeSocialTrendItem({ item, platform: run.platform, weekStart }))
+      .filter((item): item is NormalizedSocialTrendItem => Boolean(item));
+    await upsertContentItems(normalized);
     const { error: updateError } = await supabase
       .from("weekly_social_trend_runs")
       .update({
-        state: "failed",
-        error_message: `Actor ended with ${status}.`,
+        dataset_id: datasetId,
+        state: "succeeded",
         completed_at: new Date().toISOString(),
+        processed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq("id", run.id);
-    if (updateError) throw new Error(`Could not record failed social run: ${updateError.message}`);
-    summary.failed.push(run.platform);
-    return "handled";
-  }
-  if (status !== "SUCCEEDED") {
-    summary.pending.push(run.platform);
-    return "pending";
+    if (updateError) throw new Error(`Could not mark social run processed: ${updateError.message}`);
+    summary.contentItems += normalized.length;
+    summary.processed.push(run.platform);
+    handled = true;
   }
 
-  const datasetId = response.data.defaultDatasetId || run.dataset_id;
-  if (!datasetId) throw new Error(`Completed ${run.platform} run has no dataset.`);
-  const items = await apifyRequest<Record<string, unknown>[]>(
-    `/datasets/${datasetId}/items?clean=true&limit=${APIFY_DATASET_LIMIT}`,
-    token,
-  );
-  const normalized = items
-    .map((item) => normalizeSocialTrendItem({ item, platform: run.platform, weekStart }))
-    .filter((item): item is NormalizedSocialTrendItem => Boolean(item));
-  await upsertContentItems(normalized);
-  const { error: updateError } = await supabase
-    .from("weekly_social_trend_runs")
-    .update({
-      dataset_id: datasetId,
-      state: "succeeded",
-      completed_at: new Date().toISOString(),
-      processed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", run.id);
-  if (updateError) throw new Error(`Could not mark social run processed: ${updateError.message}`);
-  summary.contentItems = normalized.length;
-  summary.processed.push(run.platform);
-  return "handled";
+  return { handled, pending };
 }
 
 async function runsReadyForBuild(weekStart: string): Promise<boolean> {
@@ -797,7 +894,7 @@ async function buildNextCity(
   if (!citySlug) return false;
   const supabase = createSupabaseAdmin();
   try {
-    summary.rankings = await rebuildCityRankings(weekStart, citySlug);
+    summary.rankings += await rebuildCityRankings(weekStart, citySlug);
     const { error } = await supabase
       .from("weekly_social_trend_city_builds")
       .update({
@@ -825,6 +922,15 @@ async function buildNextCity(
   return true;
 }
 
+async function buildRemainingCities(
+  weekStart: string,
+  summary: WeeklyTrendRefreshSummary,
+): Promise<void> {
+  for (let index = 0; index < SOCIAL_SCOUT_CITIES.length; index += 1) {
+    if (!await buildNextCity(weekStart, summary)) break;
+  }
+}
+
 export async function refreshWeeklySocialTrends(
   now: Date = new Date(),
 ): Promise<WeeklyTrendRefreshSummary> {
@@ -846,10 +952,10 @@ export async function refreshWeeklySocialTrends(
     builtCities: [],
   };
   await cleanupSocialTrendData(now);
-  const processResult = await processNextRun(token, weekStart, summary);
-  if (processResult === "handled") return summary;
+  const processResult = await processAvailableRuns(token, weekStart, summary);
   summary.started = await startMissingRuns(token, weekStart);
   if (summary.started.length > 0) return summary;
-  await buildNextCity(weekStart, summary);
+  if (processResult.pending) return summary;
+  await buildRemainingCities(weekStart, summary);
   return summary;
 }

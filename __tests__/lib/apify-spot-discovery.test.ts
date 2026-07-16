@@ -7,6 +7,7 @@ vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.createSupabaseAdmi
 
 import {
   APIFY_SPOT_DISCOVERY_QUERIES,
+  buildApifyDiscoveryQueries,
   mapApifyCategory,
   normalizeApifySpotCandidate,
   recommendLocalleyScore,
@@ -190,6 +191,17 @@ describe("Apify spot discovery", () => {
   it("keeps the paid query corpus and maximum result count bounded", () => {
     expect(APIFY_SPOT_DISCOVERY_QUERIES).toHaveLength(5);
     expect(new Set(APIFY_SPOT_DISCOVERY_QUERIES).size).toBe(5);
+    const discovery = buildApifyDiscoveryQueries([
+      "Tiny Noodle House",
+      "Late Bar",
+      "Tiny Noodle House",
+      "Local Gallery",
+      "Ignored Fourth Lead",
+    ]);
+    expect(discovery.queries).toHaveLength(8);
+    expect(discovery.queries).toContain("Tiny Noodle House");
+    expect(discovery.queries).not.toContain("Ignored Fourth Lead");
+    expect(discovery.queries.length * discovery.resultsPerQuery).toBeLessThanOrEqual(60);
   });
 
   it("does no database or provider work while disabled", async () => {

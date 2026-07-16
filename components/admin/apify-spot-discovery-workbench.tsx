@@ -21,6 +21,8 @@ type DiscoveryCandidate = {
   primary_image_url: string;
   discovery_query: string | null;
   recommended_localley_score: 3 | 4 | 5;
+  source_type?: "map_discovery" | "social_trend";
+  social_source_url?: string | null;
 };
 
 type CandidateResponse = {
@@ -102,7 +104,7 @@ export function ApifySpotDiscoveryWorkbench() {
             </Badge>
             <h1 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">Apify spot discovery</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-100/65">
-              One cost-capped city scrape per day. Map results remain private until an admin approves the place and its Localley score.
+              One cost-capped city scrape per day, prioritizing structured leads from this week&apos;s viral posts. Results remain private until an admin approves the place and its Localley score.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -167,6 +169,11 @@ export function ApifySpotDiscoveryWorkbench() {
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm text-violet-100/55">{item.address}</p>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                    {item.source_type === "social_trend" && (
+                      <Badge className="border-fuchsia-300/20 bg-fuchsia-400/10 text-fuchsia-100">
+                        Viral social lead
+                      </Badge>
+                    )}
                     {item.category_name && <Badge className="border-white/10 bg-white/5 text-violet-100">{item.category_name}</Badge>}
                     {item.total_score !== null && (
                       <Badge className="border-amber-300/20 bg-amber-400/10 text-amber-100">
@@ -175,6 +182,16 @@ export function ApifySpotDiscoveryWorkbench() {
                     )}
                     {item.reviews_count !== null && <Badge className="border-white/10 bg-white/5 text-violet-100">{item.reviews_count.toLocaleString()} reviews</Badge>}
                   </div>
+                  {item.source_type === "social_trend" && item.social_source_url && (
+                    <a
+                      href={item.social_source_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 text-xs text-fuchsia-200/80 hover:text-fuchsia-100"
+                    >
+                      Review private source evidence <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                   <div className="mt-4 flex items-center gap-2">
                     <Select value={scores[item.id]} onValueChange={(value) => setScores((current) => ({ ...current, [item.id]: value }))}>
                       <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>

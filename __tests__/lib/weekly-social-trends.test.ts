@@ -37,10 +37,11 @@ describe("weekly social trend normalization", () => {
         searchTerm: "Seoul hidden gems travel",
         url: "https://www.instagram.com/reel/ABC123/?utm_source=test&igsh=secret",
         caption: "Seoul locals keep returning to Tiny Noodle House.",
+        locationName: "Tiny Noodle House",
         videoPlayCount: 12_000,
         likesCount: 900,
         commentsCount: 45,
-        timestamp: "2026-07-12T12:00:00Z",
+        timestamp: "2026-07-14T12:00:00Z",
       },
     });
 
@@ -51,8 +52,38 @@ describe("weekly social trend normalization", () => {
       viewCount: 12_000,
       likeCount: 900,
       commentCount: 45,
+      placeHint: "Tiny Noodle House",
     });
     expect(item?.canonicalUrl).toBe("https://www.instagram.com/reel/ABC123/");
+  });
+
+  it("does not infer place leads from captions or city-only location labels", () => {
+    const captionOnly = normalizeSocialTrendItem({
+      platform: "instagram",
+      weekStart: "2026-07-13",
+      item: {
+        id: "caption-only",
+        searchTerm: "Seoul hidden gems travel",
+        url: "https://www.instagram.com/reel/CAPTION/",
+        caption: "Tiny Noodle House is going viral.",
+        timestamp: "2026-07-14T12:00:00Z",
+      },
+    });
+    const cityOnly = normalizeSocialTrendItem({
+      platform: "instagram",
+      weekStart: "2026-07-13",
+      item: {
+        id: "city-only",
+        searchTerm: "Seoul hidden gems travel",
+        url: "https://www.instagram.com/reel/CITY/",
+        caption: "A city guide.",
+        locationName: "Seoul",
+        timestamp: "2026-07-14T12:00:00Z",
+      },
+    });
+
+    expect(captionOnly?.placeHint).toBeNull();
+    expect(cityOnly?.placeHint).toBeNull();
   });
 
   it("normalizes nested TikTok engagement metrics", () => {
@@ -97,6 +128,20 @@ describe("weekly social trend normalization", () => {
     expect(item).toBeNull();
   });
 
+  it("rejects platform-hosted search pages as source evidence", () => {
+    expect(normalizeSocialTrendItem({
+      platform: "instagram",
+      weekStart: "2026-07-13",
+      item: {
+        id: "hashtag-page",
+        searchTerm: "Seoul hidden gems travel",
+        url: "https://www.instagram.com/explore/tags/seoulfood/",
+        caption: "Search results",
+        timestamp: "2026-07-14T12:00:00Z",
+      },
+    })).toBeNull();
+  });
+
   it("maps compact Instagram hashtags to hyphenated city slugs", () => {
     const item = normalizeSocialTrendItem({
       platform: "instagram",
@@ -108,6 +153,7 @@ describe("weekly social trend normalization", () => {
         caption: "A quiet Hong Kong neighborhood cafe.",
         likesCount: 700,
         commentsCount: 20,
+        timestamp: "2026-07-14T12:00:00Z",
       },
     });
 
@@ -116,6 +162,20 @@ describe("weekly social trend normalization", () => {
       likeCount: 700,
       commentCount: 20,
     });
+  });
+
+  it("rejects stale Instagram posts outside the requested week", () => {
+    expect(normalizeSocialTrendItem({
+      platform: "instagram",
+      weekStart: "2026-07-13",
+      item: {
+        id: "old-post",
+        searchTerm: "Seoul hidden gems travel",
+        url: "https://www.instagram.com/reel/OLD/",
+        caption: "An old viral post.",
+        timestamp: "2026-06-01T12:00:00Z",
+      },
+    })).toBeNull();
   });
 
   it("uses Monday UTC as the weekly boundary", () => {
