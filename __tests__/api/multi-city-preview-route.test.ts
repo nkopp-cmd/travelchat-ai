@@ -1,9 +1,18 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { NextRequest, NextResponse } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/v2/trips/preview/route";
 import { corridorGoldenTrips } from "@/__tests__/fixtures/corridor-golden-trips";
 
+const mocks = vi.hoisted(() => ({
+  rateLimit: vi.fn(async () => null as NextResponse | null),
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  rateLimiters: { strict: mocks.rateLimit },
+}));
+
 function request(body: unknown) {
-  return new Request("https://www.localley.io/api/v2/trips/preview", {
+  return new NextRequest("https://www.localley.io/api/v2/trips/preview", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
@@ -11,7 +20,7 @@ function request(body: unknown) {
 }
 
 function rawRequest(body: string, headers: Record<string, string> = {}) {
-  return new Request("https://www.localley.io/api/v2/trips/preview", {
+  return new NextRequest("https://www.localley.io/api/v2/trips/preview", {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
     body,
@@ -23,6 +32,8 @@ describe("POST /api/v2/trips/preview", () => {
 
   beforeEach(() => {
     process.env.MULTI_CITY_PREVIEW_API = "on";
+    mocks.rateLimit.mockClear();
+    mocks.rateLimit.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -36,6 +47,22 @@ describe("POST /api/v2/trips/preview", () => {
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ error: "Not found" });
     expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("is rate limited when the strict limiter blocks the request", async () => {
+    mocks.rateLimit.mockResolvedValue(
+      NextResponse.json({ error: "Too many requests" }, { status: 429 }),
+    );
+    const response = await POST(request(corridorGoldenTrips[0].request));
+    expect(mocks.rateLimit).toHaveBeenCalledOnce();
+    expect(response.status).toBe(429);
+  });
+
+  it("does not consume rate limit budget while the flag is off", async () => {
+    delete process.env.MULTI_CITY_PREVIEW_API;
+    const response = await POST(request(corridorGoldenTrips[0].request));
+    expect(response.status).toBe(404);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
   });
 
   it("returns a deterministic, slug-only corridor preview", async () => {
