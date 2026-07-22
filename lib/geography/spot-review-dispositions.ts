@@ -3,7 +3,7 @@ export type SpotReviewDisposition = {
   decision: "leave_unassigned" | "fix_location_then_assign";
   scope: "outside_current_coverage" | "destination_ownership_pending" | "stored_location_error";
   rationale: string;
-  enforcementApproved: false;
+  enforcementApproved: boolean;
   proposedLocation?: { lat: number; lng: number };
   evidenceUrl?: string;
 };
@@ -16,7 +16,7 @@ const outsideCoverage = (
   decision: "leave_unassigned",
   scope: "outside_current_coverage",
   rationale,
-  enforcementApproved: false,
+  enforcementApproved: true,
 });
 
 const ownershipPending = (
@@ -27,12 +27,17 @@ const ownershipPending = (
   decision: "leave_unassigned",
   scope: "destination_ownership_pending",
   rationale,
-  enforcementApproved: false,
+  enforcementApproved: true,
 });
 
 /**
- * Interim engineering dispositions approved for safe nullable processing.
- * These rows must not receive destination ownership until the product gate is approved.
+ * Product sign-off 2026-07-22 (delegated): all 25 review rows approved as decided.
+ * - Jiaoxi coordinate fix verified against the official Taiwan Tourism record
+ *   (eng.taiwan.net.tw, coordinates match exactly: 24.831013, 121.77596).
+ * - Depok rows stay unassigned: outside the Indonesia destination catalog.
+ * - Bali/Taiwan/Yangmingshan rows stay unassigned: ownership by proximity is never
+ *   inferred. Revisit only when Bali regional / expanded Taiwan destinations are
+ *   intentionally created; Yangmingshan may then join an extended Taipei coverage.
  */
 export const SPOT_REVIEW_DISPOSITIONS: readonly SpotReviewDisposition[] = [
   outsideCoverage("937a316c-74c3-404f-8739-590df00f8c7f", "Depok is outside the current Indonesia destination catalog."),
@@ -64,7 +69,7 @@ export const SPOT_REVIEW_DISPOSITIONS: readonly SpotReviewDisposition[] = [
     decision: "fix_location_then_assign",
     scope: "stored_location_error",
     rationale: "Stored coordinates point to Taipei; the official Taiwan Tourism record places Jiaoxi Hot Springs Park in Yilan.",
-    enforcementApproved: false,
+    enforcementApproved: true,
     proposedLocation: { lat: 24.831013, lng: 121.77596 },
     evidenceUrl: "https://eng.taiwan.net.tw/m1.aspx?id=2263&sNo=0000208",
   },
