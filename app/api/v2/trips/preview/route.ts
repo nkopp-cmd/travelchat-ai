@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { rateLimiters } from "@/lib/rate-limit";
 import {
   MultiCityTripRequestSchema,
   PlannerValidationError,
@@ -106,10 +107,13 @@ function classifyPlannerError(error: PlannerValidationError): { code: Exclude<Er
   return { code: "UNSATISFIABLE_TRIP", message };
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   if (process.env.MULTI_CITY_PREVIEW_API !== "on") {
     return NextResponse.json({ error: "Not found" }, { status: 404, headers: noStoreHeaders });
   }
+
+  const limited = await rateLimiters.strict(request);
+  if (limited) return limited;
 
   const contentType = request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
   if (contentType !== "application/json") {
