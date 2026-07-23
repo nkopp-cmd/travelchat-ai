@@ -8,10 +8,10 @@ const destinationSlugs = new Set(
 
 export const MultiCityTripRequestSchema = z.object({
   destinations: z.array(z.object({
-    destinationSlug: z.string(),
+    destinationSlug: z.string().min(1).max(64).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     nights: z.number().int().min(2).max(20).optional(),
     locked: z.boolean().default(false),
-  })).min(1).max(5),
+  }).strict()).min(1).max(5),
   orderMode: z.enum(["user", "optimize"]),
   startDate: z.iso.date().optional(),
   totalDays: z.number().int().min(3).max(21),
@@ -20,14 +20,28 @@ export const MultiCityTripRequestSchema = z.object({
   group: z.object({
     type: z.enum(["solo", "couple", "friends", "family", "business"]),
     adults: z.number().int().min(1).max(20),
-    children: z.array(z.object({ age: z.number().int().min(0).max(17) })).default([]),
-    mobility: z.array(z.string().min(1).max(100)).default([]),
+    children: z.array(z.object({ age: z.number().int().min(0).max(17) }).strict()).max(10).default([]),
+    mobility: z.array(z.string().min(1).max(100)).max(10).default([]),
+  }).strict().superRefine((group, ctx) => {
+    if (group.adults + group.children.length > 20) {
+      ctx.addIssue({ code: "custom", message: "Group size cannot exceed 20 travelers." });
+    }
   }),
   interests: z.array(z.string().min(1).max(80)).max(30).default([]),
+}).strict().superRefine((request, ctx) => {
+  const maxStops = Math.min(5, Math.floor(request.totalDays / 2.5));
+  if (request.destinations.length > maxStops) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["destinations"],
+      message: `${request.totalDays} days supports at most ${maxStops} overnight stops.`,
+    });
+  }
 });
 
 export type MultiCityTripRequest = z.input<typeof MultiCityTripRequestSchema>;
-type ParsedRequest = z.output<typeof MultiCityTripRequestSchema>;
+export type ParsedMultiCityTripRequest = z.output<typeof MultiCityTripRequestSchema>;
+type ParsedRequest = ParsedMultiCityTripRequest;
 
 export type PlannedStop = {
   destinationSlug: string;
@@ -44,6 +58,8 @@ export type PlannedTransfer = {
   mode: DirectedTransportEdge["mode"];
   durationMinutes: { min: number; max: number };
   occupiedMinutes: number;
+  terminalBufferMinutes: number;
+  costBand: DirectedTransportEdge["costBand"];
   confidence: number;
 };
 
@@ -66,9 +82,14 @@ export type CorridorPlan = {
   hardViolations: [];
 };
 
+export type PlannerIssue = {
+  code: "UNKNOWN_DESTINATION" | "UNSUPPORTED_ROUTE" | "UNSATISFIABLE_TRIP";
+  message: string;
+};
+
 export class PlannerValidationError extends Error {
-  constructor(public readonly issues: string[]) {
-    super(issues.join(" "));
+  constructor(public readonly issues: PlannerIssue[]) {
+    super(issues.map((issue) => issue.message).join(" "));
     this.name = "PlannerValidationError";
   }
 }
@@ -131,7 +152,10 @@ function orderStops(request: ParsedRequest): ParsedRequest["destinations"] {
       left.stops.map((stop) => stop.destinationSlug).join(",")
         .localeCompare(right.stops.map((stop) => stop.destinationSlug).join(",")));
   if (!feasible[0]) {
-    throw new PlannerValidationError(["No supported transfer order connects every requested destination."]);
+    throw new PlannerValidationError([{
+      code: "UNSUPPORTED_ROUTE",
+      message: "No supported transfer order connects every requested destination.",
+    }]);
   }
   return feasible[0].stops;
 }
@@ -144,9 +168,10 @@ function allocateNights(
   const nights = ordered.map((stop) => stop.nights ?? 2);
   const minimum = nights.reduce((sum, value) => sum + value, 0);
   if (minimum > availableNights) {
-    throw new PlannerValidationError([
-      `Requested/required nights (${minimum}) exceed the trip's ${availableNights} nights.`,
-    ]);
+    throw new PlannerValidationError([{
+      code: "UNSATISFIABLE_TRIP",
+      message: `Requested/required nights (${minimum}) exceed the trip's ${availableNights} nights.`,
+    }]);
   }
   let remaining = availableNights - minimum;
   while (remaining > 0) {
@@ -155,7 +180,10 @@ function allocateNights(
       .filter(({ stop }) => !stop.locked)
       .sort((left, right) => left.nights - right.nights || left.index - right.index);
     if (candidates.length === 0) {
-      throw new PlannerValidationError(["Locked night allocations do not account for every trip night."]);
+      throw new PlannerValidationError([{
+        code: "UNSATISFIABLE_TRIP",
+        message: "Locked night allocations do not account for every trip night.",
+      }]);
     }
     nights[candidates[0].index] += 1;
     remaining -= 1;
@@ -180,9 +208,10 @@ function buildTransfers(stops: PlannedStop[], budget: ParsedRequest["budget"]): 
     const to = stops[position + 1];
     const edge = selectEdge(stop.destinationSlug, to.destinationSlug, budget);
     if (!edge) {
-      throw new PlannerValidationError([
-        `No reviewed transfer edge connects ${stop.destinationSlug} to ${to.destinationSlug}.`,
-      ]);
+      throw new PlannerValidationError([{
+        code: "UNSUPPORTED_ROUTE",
+        message: `No reviewed transfer edge connects ${stop.destinationSlug} to ${to.destinationSlug}.`,
+      }]);
     }
     return {
       position,
@@ -192,6 +221,8 @@ function buildTransfers(stops: PlannedStop[], budget: ParsedRequest["budget"]): 
       mode: edge.mode,
       durationMinutes: edge.durationMinutes,
       occupiedMinutes: edgeOccupancy(edge),
+      terminalBufferMinutes: edge.departureBufferMinutes + edge.arrivalBufferMinutes,
+      costBand: edge.costBand,
       confidence: edge.confidence,
     };
   });
@@ -224,9 +255,10 @@ function buildDays(request: ParsedRequest, stops: PlannedStop[], transfers: Plan
       stopPosition = transferPosition + 1;
       const transfer = transfers[transferPosition];
       type = "transfer";
+      const remainingMinutes = Math.max(0, fillBudget - transfer.occupiedMinutes);
       activeMinutesBudget = transfer.durationMinutes.max > 180
-        ? Math.max(120, Math.min(Math.floor(fillBudget * 0.5), fillBudget - transfer.occupiedMinutes))
-        : Math.max(120, fillBudget - transfer.occupiedMinutes);
+        ? Math.min(Math.floor(fillBudget * 0.5), remainingMinutes)
+        : remainingMinutes;
       activeFullDays = 0;
     } else {
       activeFullDays += 1;
@@ -249,16 +281,28 @@ function buildDays(request: ParsedRequest, stops: PlannedStop[], transfers: Plan
 }
 
 function validateRequest(request: ParsedRequest): void {
-  const issues: string[] = [];
+  const issues: PlannerIssue[] = [];
   const maxStops = Math.min(5, Math.floor(request.totalDays / 2.5));
   if (request.destinations.length > maxStops) {
-    issues.push(`${request.totalDays} days supports at most ${maxStops} overnight stops.`);
+    issues.push({
+      code: "UNSATISFIABLE_TRIP",
+      message: `${request.totalDays} days supports at most ${maxStops} overnight stops.`,
+    });
   }
   const seen = new Set<string>();
   for (const stop of request.destinations) {
-    if (!destinationSlugs.has(stop.destinationSlug)) issues.push(`Unknown destination: ${stop.destinationSlug}.`);
-    if (seen.has(stop.destinationSlug)) issues.push(`Duplicate destination: ${stop.destinationSlug}.`);
-    if (stop.locked && stop.nights === undefined) issues.push(`Locked stop ${stop.destinationSlug} requires nights.`);
+    if (!destinationSlugs.has(stop.destinationSlug)) {
+      issues.push({ code: "UNKNOWN_DESTINATION", message: `Unknown destination: ${stop.destinationSlug}.` });
+    }
+    if (seen.has(stop.destinationSlug)) {
+      issues.push({ code: "UNSATISFIABLE_TRIP", message: `Duplicate destination: ${stop.destinationSlug}.` });
+    }
+    if (stop.locked && stop.nights === undefined) {
+      issues.push({
+        code: "UNSATISFIABLE_TRIP",
+        message: `Locked stop ${stop.destinationSlug} requires nights.`,
+      });
+    }
     seen.add(stop.destinationSlug);
   }
   if (issues.length > 0) throw new PlannerValidationError(issues);
@@ -267,7 +311,10 @@ function validateRequest(request: ParsedRequest): void {
 export function planCorridorTrip(input: MultiCityTripRequest): CorridorPlan {
   const parsed = MultiCityTripRequestSchema.safeParse(input);
   if (!parsed.success) {
-    throw new PlannerValidationError(parsed.error.issues.map((issue) => issue.message));
+    throw new PlannerValidationError(parsed.error.issues.map((issue) => ({
+      code: "UNSATISFIABLE_TRIP",
+      message: issue.message,
+    })));
   }
   validateRequest(parsed.data);
   const ordered = orderStops(parsed.data);
