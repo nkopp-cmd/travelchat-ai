@@ -23,6 +23,21 @@ export const generateItinerarySchema = z.object({
     templatePrompt: z.string().max(2000).optional(),
 });
 
+// Multi-city (corridor) itinerary generation validation
+export const generateCorridorItinerarySchema = z.object({
+    corridor: z.object({
+        destinations: z.array(z.object({
+            destinationSlug: z.string().min(1).max(64).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        }).strict()).min(2).max(5),
+        totalDays: z.number().int().min(3).max(21),
+    }).strict(),
+    interests: z.array(z.string().max(50)).max(10).optional(),
+    budget: z.enum(["budget", "cheap", "moderate", "luxury", "splurge"]).optional(),
+    localnessLevel: z.number().int().min(1).max(5).optional(),
+    pace: z.enum(["relaxed", "moderate", "active", "packed"]).optional(),
+    groupType: z.enum(["solo", "couple", "family", "friends", "business"]).optional(),
+}).strict();
+
 // Itinerary save validation
 export const saveItinerarySchema = z.object({
     title: z.string().min(1).max(200),
