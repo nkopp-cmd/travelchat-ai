@@ -7,7 +7,7 @@ const root = process.cwd();
 describe("itinerary address prompts", () => {
   it("asks new itinerary generation for exact routable addresses", () => {
     const source = readFileSync(
-      join(root, "app/api/itineraries/generate/route.ts"),
+      join(root, "app/api/itineraries/generate/shared.ts"),
       "utf8",
     );
 

@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
 import { Calendar, DollarSign } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { RoutePreview } from "./route-preview";
+import { MAX_CORRIDOR_DAYS, MIN_CORRIDOR_DAYS } from "@/lib/trips/wizard-corridor";
 
 const BUDGET_OPTIONS = [
   {
@@ -29,11 +31,21 @@ const BUDGET_OPTIONS = [
 
 export function StepDuration() {
   const { data, setData, setCanProceed } = useWizard();
+  const multiMode = data.tripMode === "multi";
+  const minDays = multiMode ? MIN_CORRIDOR_DAYS : 1;
+  const maxDays = multiMode ? MAX_CORRIDOR_DAYS : 7;
 
   useEffect(() => {
     // Always can proceed since we have defaults
     setCanProceed(true);
   }, [setCanProceed]);
+
+  useEffect(() => {
+    if (multiMode && data.days < MIN_CORRIDOR_DAYS) {
+      setData({ days: MIN_CORRIDOR_DAYS });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [multiMode]);
 
   return (
     <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
@@ -58,17 +70,28 @@ export function StepDuration() {
         <Slider
           value={[data.days]}
           onValueChange={(value) => setData({ days: value[0] })}
-          min={1}
-          max={7}
+          min={minDays}
+          max={maxDays}
           step={1}
           aria-label="Trip duration in days"
           className="w-full"
         />
         <div className="flex justify-between text-xs text-gray-500 mt-2">
-          <span>1 day</span>
-          <span>7 days</span>
+          <span>{minDays} {minDays === 1 ? "day" : "days"}</span>
+          <span>{maxDays} days</span>
         </div>
+        {multiMode && (
+          <p className="mt-2 text-center text-xs text-gray-500">
+            Multi-city trips work best with at least 3 days per city.
+          </p>
+        )}
       </div>
+
+      {multiMode && (
+        <div className="mb-7 sm:mb-10">
+          <RoutePreview />
+        </div>
+      )}
 
       {/* Budget Options */}
       <div className="flex-1">

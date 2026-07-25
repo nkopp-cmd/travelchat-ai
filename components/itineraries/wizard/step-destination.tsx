@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { MapPin, Check, RefreshCw } from "lucide-react";
+import { MapPin, Check, RefreshCw, Route } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 
 interface CityOption {
   slug: string;
@@ -28,6 +29,7 @@ export function StepDestination() {
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [multiCityAvailable, setMultiCityAvailable] = useState(false);
 
   const loadCities = useCallback(async () => {
     setIsLoading(true);
@@ -50,17 +52,65 @@ export function StepDestination() {
   }, [loadCities]);
 
   useEffect(() => {
-    setCanProceed(!!data.city);
-  }, [data.city, setCanProceed]);
+    let cancelled = false;
+    fetch("/api/v2/trips/preview", { method: "GET", cache: "no-store" })
+      .then((response) => {
+        if (!cancelled) setMultiCityAvailable(response.ok);
+      })
+      .catch(() => {
+        if (!cancelled) setMultiCityAvailable(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!citiesData?.cities?.length) return;
+    const nameBySlug = Object.fromEntries(
+      citiesData.cities.map((city) => [city.slug, city.name]),
+    );
+    setData({ cityNameBySlug: nameBySlug });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [citiesData]);
+
+  useEffect(() => {
+    setCanProceed(
+      data.tripMode === "multi" ? data.citySlugs.length >= 2 : !!data.city,
+    );
+  }, [data.city, data.tripMode, data.citySlugs, setCanProceed]);
 
   const hasError = citiesError || (citiesData && !citiesData.success);
   const cities = citiesData?.cities || [];
   const templateMode = Boolean(data.templateName);
+  const multiMode = data.tripMode === "multi" && !templateMode;
+  const showModeToggle = multiCityAvailable && !templateMode;
+
   const handleSelectCity = useCallback(
     (cityName: string) => {
       setData({ city: cityName });
     },
     [setData]
+  );
+
+  const handleToggleSlug = useCallback(
+    (slug: string) => {
+      const current = data.citySlugs;
+      if (current.includes(slug)) {
+        setData({ citySlugs: current.filter((value) => value !== slug) });
+      } else if (current.length < MAX_CORRIDOR_DESTINATIONS) {
+        setData({ citySlugs: [...current, slug] });
+      }
+    },
+    [data.citySlugs, setData]
+  );
+
+  const handleModeChange = useCallback(
+    (mode: "single" | "multi") => {
+      if (mode === data.tripMode) return;
+      setData(mode === "multi" ? { tripMode: mode, city: "" } : { tripMode: mode, citySlugs: [] });
+    },
+    [data.tripMode, setData]
   );
 
   if (isLoading) {
@@ -81,11 +131,65 @@ export function StepDestination() {
         <p className="text-sm text-gray-400 sm:text-base">
           {data.templateName
             ? "Confirm the suggested city or switch it before generating"
-            : "Pick a city to explore like a local"}
+            : multiMode
+              ? "Pick 2 or more cities — we optimize the route for you"
+              : "Pick a city to explore like a local"}
         </p>
       </div>
 
-      {data.city && !templateMode && (
+      {showModeToggle && (
+        <div className="mb-3 flex justify-center sm:mb-4">
+          <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+            <button
+              type="button"
+              onClick={() => handleModeChange("single")}
+              aria-pressed={!multiMode}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
+                !multiMode ? "bg-violet-600 text-white" : "text-gray-400 hover:text-white",
+              )}
+            >
+              One city
+            </button>
+            <button
+              type="button"
+              onClick={() => handleModeChange("multi")}
+              aria-pressed={multiMode}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
+                multiMode ? "bg-violet-600 text-white" : "text-gray-400 hover:text-white",
+              )}
+            >
+              <Route className="h-3.5 w-3.5" />
+              Multi-city
+            </button>
+          </div>
+        </div>
+      )}
+
+      {multiMode && data.citySlugs.length > 0 && (
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
+              <Route className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight text-white">
+                {data.citySlugs.length} {data.citySlugs.length === 1 ? "city" : "cities"} selected
+              </p>
+              <p className="truncate text-[11px] leading-tight text-violet-100/65">
+                {data.citySlugs.length < 2
+                  ? "Pick at least one more city."
+                  : data.citySlugs
+                      .map((slug) => data.cityNameBySlug[slug] || slug)
+                      .join(" · ")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.city && !templateMode && !multiMode && (
         <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
@@ -113,8 +217,8 @@ export function StepDestination() {
             <CityCard
               key={city.slug}
               city={city}
-              isSelected={data.city === city.name}
-              onSelect={() => handleSelectCity(city.name)}
+              isSelected={multiMode ? data.citySlugs.includes(city.slug) : data.city === city.name}
+              onSelect={() => (multiMode ? handleToggleSlug(city.slug) : handleSelectCity(city.name))}
               compact={templateMode}
             />
           ))}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { POST } from "@/app/api/v2/trips/preview/route";
+import { GET, POST } from "@/app/api/v2/trips/preview/route";
 import { corridorGoldenTrips } from "@/__tests__/fixtures/corridor-golden-trips";
 
 const mocks = vi.hoisted(() => ({
@@ -39,6 +39,16 @@ describe("POST /api/v2/trips/preview", () => {
   afterEach(() => {
     if (previousFlag === undefined) delete process.env.MULTI_CITY_PREVIEW_API;
     else process.env.MULTI_CITY_PREVIEW_API = previousFlag;
+  });
+
+  it("reports enabled on GET while the flag is on and 404s when off", async () => {
+    const enabled = await GET();
+    expect(enabled.status).toBe(200);
+    expect(await enabled.json()).toEqual({ enabled: true });
+
+    delete process.env.MULTI_CITY_PREVIEW_API;
+    const disabled = await GET();
+    expect(disabled.status).toBe(404);
   });
 
   it("is undiscoverable when the server-only flag is off", async () => {

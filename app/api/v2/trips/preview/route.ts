@@ -107,6 +107,13 @@ function classifyPlannerError(error: PlannerValidationError): { code: Exclude<Er
   return { code: "UNSATISFIABLE_TRIP", message };
 }
 
+export async function GET() {
+  if (process.env.MULTI_CITY_PREVIEW_API !== "on") {
+    return NextResponse.json({ error: "Not found" }, { status: 404, headers: noStoreHeaders });
+  }
+  return NextResponse.json({ enabled: true }, { headers: noStoreHeaders });
+}
+
 export async function POST(request: NextRequest) {
   if (process.env.MULTI_CITY_PREVIEW_API !== "on") {
     return NextResponse.json({ error: "Not found" }, { status: 404, headers: noStoreHeaders });

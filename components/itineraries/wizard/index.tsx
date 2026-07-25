@@ -264,19 +264,34 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   const handleGenerate = async (data: WizardData) => {
     try {
+      const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
       const response = await fetch("/api/itineraries/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          city: data.city,
-          days: data.days,
-          interests: data.interests,
-          budget: data.budget,
-          localnessLevel: data.localnessLevel,
-          pace: data.pace,
-          groupType: data.groupType,
-          templatePrompt: data.templatePrompt,
-        }),
+        body: JSON.stringify(
+          isMultiCity
+            ? {
+                corridor: {
+                  destinations: data.citySlugs.map((destinationSlug) => ({ destinationSlug })),
+                  totalDays: data.days,
+                },
+                interests: data.interests,
+                budget: data.budget,
+                localnessLevel: data.localnessLevel,
+                pace: data.pace,
+                groupType: data.groupType,
+              }
+            : {
+                city: data.city,
+                days: data.days,
+                interests: data.interests,
+                budget: data.budget,
+                localnessLevel: data.localnessLevel,
+                pace: data.pace,
+                groupType: data.groupType,
+                templatePrompt: data.templatePrompt,
+              },
+        ),
       });
 
       const result = await response.json();

@@ -12,6 +12,9 @@ export interface WizardData {
   groupType: string;
   templatePrompt?: string;
   templateName?: string;
+  tripMode: "single" | "multi";
+  citySlugs: string[];
+  cityNameBySlug: Record<string, string>;
 }
 
 interface WizardContextType {
@@ -34,6 +37,9 @@ const defaultData: WizardData = {
   localnessLevel: 3,
   pace: "moderate",
   groupType: "solo",
+  tripMode: "single",
+  citySlugs: [],
+  cityNameBySlug: {},
 };
 
 const WizardContext = createContext<WizardContextType | undefined>(undefined);
