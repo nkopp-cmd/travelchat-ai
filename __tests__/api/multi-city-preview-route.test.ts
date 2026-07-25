@@ -41,10 +41,15 @@ describe("POST /api/v2/trips/preview", () => {
     else process.env.MULTI_CITY_PREVIEW_API = previousFlag;
   });
 
-  it("reports enabled on GET while the flag is on and 404s when off", async () => {
+  it("reports enabled plus the supported network on GET while the flag is on, and 404s when off", async () => {
     const enabled = await GET();
     expect(enabled.status).toBe(200);
-    expect(await enabled.json()).toEqual({ enabled: true });
+    const body = await enabled.json();
+    expect(body.enabled).toBe(true);
+    expect(body.network.slugs).toContain("seoul");
+    expect(body.network.adjacency.seoul).toContain("busan");
+    expect(body.network.countryBySlug.seoul).toBe("KR");
+    expect(body.network.countryBySlug.tokyo).toBe("JP");
 
     delete process.env.MULTI_CITY_PREVIEW_API;
     const disabled = await GET();

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimiters } from "@/lib/rate-limit";
+import { supportedCorridorNetwork } from "@/lib/trips/corridor-network";
 import {
   MultiCityTripRequestSchema,
   PlannerValidationError,
@@ -111,7 +112,10 @@ export async function GET() {
   if (process.env.MULTI_CITY_PREVIEW_API !== "on") {
     return NextResponse.json({ error: "Not found" }, { status: 404, headers: noStoreHeaders });
   }
-  return NextResponse.json({ enabled: true }, { headers: noStoreHeaders });
+  return NextResponse.json(
+    { enabled: true, network: supportedCorridorNetwork() },
+    { headers: noStoreHeaders },
+  );
 }
 
 export async function POST(request: NextRequest) {

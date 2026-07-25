@@ -7,6 +7,7 @@ import { useWizard } from "./wizard-context";
 import { MapPin, Check, RefreshCw, Route } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
+import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
 
 interface CityOption {
   slug: string;
@@ -30,6 +31,7 @@ export function StepDestination() {
   const [citiesError, setCitiesError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [multiCityAvailable, setMultiCityAvailable] = useState(false);
+  const [corridorNetwork, setCorridorNetwork] = useState<CorridorNetwork | null>(null);
 
   const loadCities = useCallback(async () => {
     setIsLoading(true);
@@ -54,8 +56,13 @@ export function StepDestination() {
   useEffect(() => {
     let cancelled = false;
     fetch("/api/v2/trips/preview", { method: "GET", cache: "no-store" })
-      .then((response) => {
-        if (!cancelled) setMultiCityAvailable(response.ok);
+      .then(async (response) => {
+        if (cancelled) return;
+        setMultiCityAvailable(response.ok);
+        if (response.ok) {
+          const body = await response.json();
+          setCorridorNetwork(body.network || null);
+        }
       })
       .catch(() => {
         if (!cancelled) setMultiCityAvailable(false);
@@ -97,12 +104,24 @@ export function StepDestination() {
     (slug: string) => {
       const current = data.citySlugs;
       if (current.includes(slug)) {
-        setData({ citySlugs: current.filter((value) => value !== slug) });
+        const remaining = current.filter((value) => value !== slug);
+        if (!corridorNetwork) {
+          setData({ citySlugs: remaining });
+          return;
+        }
+        const pruned: string[] = [];
+        for (const picked of remaining) {
+          if (pruned.length === 0 || selectableSlugs(corridorNetwork, pruned).has(picked)) {
+            pruned.push(picked);
+          }
+        }
+        setData({ citySlugs: pruned });
       } else if (current.length < MAX_CORRIDOR_DESTINATIONS) {
+        if (corridorNetwork && !selectableSlugs(corridorNetwork, current).has(slug)) return;
         setData({ citySlugs: [...current, slug] });
       }
     },
-    [data.citySlugs, setData]
+    [data.citySlugs, corridorNetwork, setData]
   );
 
   const handleModeChange = useCallback(
@@ -179,7 +198,7 @@ export function StepDestination() {
               </p>
               <p className="truncate text-[11px] leading-tight text-violet-100/65">
                 {data.citySlugs.length < 2
-                  ? "Pick at least one more city."
+                  ? "Connected cities in the same country stay available."
                   : data.citySlugs
                       .map((slug) => data.cityNameBySlug[slug] || slug)
                       .join(" · ")}
@@ -187,6 +206,12 @@ export function StepDestination() {
             </div>
           </div>
         </div>
+      )}
+
+      {multiMode && data.citySlugs.length === 0 && (
+        <p className="mb-2 text-center text-[11px] text-gray-500 sm:mb-3">
+          Multi-city currently covers connected cities within Korea and within Japan.
+        </p>
       )}
 
       {data.city && !templateMode && !multiMode && (
@@ -213,15 +238,25 @@ export function StepDestination() {
           "grid grid-cols-2 gap-1.5 min-[390px]:grid-cols-3 sm:grid-cols-4 md:gap-2 lg:grid-cols-5",
           templateMode && "min-[360px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
         )}>
-          {cities.map((city) => (
-            <CityCard
-              key={city.slug}
-              city={city}
-              isSelected={multiMode ? data.citySlugs.includes(city.slug) : data.city === city.name}
-              onSelect={() => (multiMode ? handleToggleSlug(city.slug) : handleSelectCity(city.name))}
-              compact={templateMode}
-            />
-          ))}
+          {cities.map((city) => {
+            const isPicked = multiMode && data.citySlugs.includes(city.slug);
+            const enabledSlugs = multiMode && corridorNetwork
+              ? selectableSlugs(corridorNetwork, data.citySlugs)
+              : null;
+            const isDisabled = Boolean(
+              multiMode && !isPicked && (!enabledSlugs || !enabledSlugs.has(city.slug)),
+            );
+            return (
+              <CityCard
+                key={city.slug}
+                city={city}
+                isSelected={multiMode ? isPicked : data.city === city.name}
+                isDisabled={isDisabled}
+                onSelect={() => (multiMode ? handleToggleSlug(city.slug) : handleSelectCity(city.name))}
+                compact={templateMode}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -259,22 +294,27 @@ export function StepDestination() {
 function CityCard({
   city,
   isSelected,
+  isDisabled = false,
   onSelect,
   compact = false,
 }: {
   city: CityOption;
   isSelected: boolean;
+  isDisabled?: boolean;
   onSelect: () => void;
   compact?: boolean;
 }) {
   return (
     <button
       onClick={onSelect}
+      disabled={isDisabled}
+      aria-disabled={isDisabled}
       className={cn(
         "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
         compact ? "aspect-[2.9/1] sm:aspect-[2.6/1]" : "aspect-[2.18/1] sm:aspect-[2.35/1]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
-        isSelected && "ring-2 ring-violet-500"
+        isSelected && "ring-2 ring-violet-500",
+        isDisabled && "cursor-not-allowed opacity-35 saturate-50"
       )}
     >
       {/* Background image */}
