@@ -118,18 +118,24 @@ export function StepDestination() {
         setData({ citySlugs: pruned });
       } else if (current.length < MAX_CORRIDOR_DESTINATIONS) {
         if (corridorNetwork && !selectableSlugs(corridorNetwork, current).has(slug)) return;
-        setData({ citySlugs: [...current, slug] });
+        const next = [...current, slug];
+        const minViableDays = Math.max(5, Math.ceil(next.length * 2.5));
+        setData({ citySlugs: next, days: Math.max(data.days, minViableDays) });
       }
     },
-    [data.citySlugs, corridorNetwork, setData]
+    [data.citySlugs, data.days, corridorNetwork, setData]
   );
 
   const handleModeChange = useCallback(
     (mode: "single" | "multi") => {
       if (mode === data.tripMode) return;
-      setData(mode === "multi" ? { tripMode: mode, city: "" } : { tripMode: mode, citySlugs: [] });
+      setData(
+        mode === "multi"
+          ? { tripMode: mode, city: "", days: Math.max(data.days, 5) }
+          : { tripMode: mode, citySlugs: [] },
+      );
     },
-    [data.tripMode, setData]
+    [data.tripMode, data.days, setData]
   );
 
   if (isLoading) {

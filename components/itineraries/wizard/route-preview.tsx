@@ -65,7 +65,10 @@ export function RoutePreview() {
       }),
     [data.citySlugs, data.days, data.budget, data.pace, data.groupType, data.interests],
   );
-  const requestKey = JSON.stringify(requestBody);
+  const requestKey = JSON.stringify({
+    destinations: requestBody.destinations,
+    totalDays: requestBody.totalDays,
+  });
 
   const selectionError = corridorSelectionError(data.citySlugs.length, data.days);
 
@@ -81,9 +84,15 @@ export function RoutePreview() {
       fetch("/api/v2/trips/preview", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: requestKey,
+        body: JSON.stringify(requestBody),
       })
         .then(async (response) => {
+          if (response.status === 429) {
+            if (!cancelled) {
+              setResult({ ok: false, error: { code: "rate_limited", message: "Too many changes — wait a moment and the route will refresh." } });
+            }
+            return;
+          }
           const body = (await response.json()) as PreviewResponse;
           if (!cancelled) setResult(body);
         })

@@ -12,6 +12,7 @@ export const isPublicRoute = createRouteMatcher([
     '/pricing(.*)',  // Allow anonymous users to see pricing
     '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
     '/api/itineraries/generate',  // Allow anonymous generation API
+    '/api/v2/trips/preview',  // Multi-city route preview probe; route enforces flag + rate limit
     '/api/itineraries/demo',  // Demo itinerary endpoint
     '/api/cities',  // City listing for destination picker (must work for anonymous users)
     '/api/places/photo',  // Public spot image proxy; API key stays server-side

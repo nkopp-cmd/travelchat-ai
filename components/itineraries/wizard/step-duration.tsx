@@ -6,7 +6,11 @@ import { useWizard } from "./wizard-context";
 import { Calendar, DollarSign } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { RoutePreview } from "./route-preview";
-import { MAX_CORRIDOR_DAYS, MIN_CORRIDOR_DAYS } from "@/lib/trips/wizard-corridor";
+import {
+  MAX_CORRIDOR_DAYS,
+  MIN_CORRIDOR_DAYS,
+  corridorSelectionError,
+} from "@/lib/trips/wizard-corridor";
 
 const BUDGET_OPTIONS = [
   {
@@ -36,9 +40,12 @@ export function StepDuration() {
   const maxDays = multiMode ? MAX_CORRIDOR_DAYS : 7;
 
   useEffect(() => {
-    // Always can proceed since we have defaults
-    setCanProceed(true);
-  }, [setCanProceed]);
+    setCanProceed(
+      multiMode
+        ? corridorSelectionError(data.citySlugs.length, data.days) === null
+        : true,
+    );
+  }, [multiMode, data.citySlugs.length, data.days, setCanProceed]);
 
   useEffect(() => {
     if (multiMode && data.days < MIN_CORRIDOR_DAYS) {
@@ -82,7 +89,7 @@ export function StepDuration() {
         </div>
         {multiMode && (
           <p className="mt-2 text-center text-xs text-gray-500">
-            Multi-city trips work best with at least 3 days per city.
+            Multi-city trips work best with at least 2-3 days per city.
           </p>
         )}
       </div>
