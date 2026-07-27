@@ -318,7 +318,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
           return;
         }
 
-        throw new Error(result.error || result.message || "Failed to generate itinerary");
+        throw new Error(result.message || result.error || "Failed to generate itinerary");
       }
 
       // Handle anonymous user - show itinerary with signup prompt
