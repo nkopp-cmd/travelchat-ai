@@ -64,3 +64,10 @@ reports/
 
 # junk / temp files
 nul
+
+# agent scratch + tool artifacts (hygiene sweep 2026-08-04)
+.agents/
+.codex-*/
+supabase/.temp/
+test-results/
+skills-lock.json
