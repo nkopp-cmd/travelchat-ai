@@ -44,8 +44,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
             if (!isSupported || !isSignedIn) return;
 
             try {
-                const registration = await navigator.serviceWorker.ready;
-                const subscription = await registration.pushManager.getSubscription();
+                const registration = await navigator.serviceWorker.getRegistration("/");
+                const subscription = await registration?.pushManager.getSubscription();
                 setIsSubscribed(!!subscription);
             } catch (err) {
                 console.error("Error checking push subscription:", err);
@@ -146,8 +146,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         setError(null);
 
         try {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
+            const registration = await navigator.serviceWorker.getRegistration("/");
+            const subscription = await registration?.pushManager.getSubscription();
 
             if (!subscription) {
                 setIsSubscribed(false);

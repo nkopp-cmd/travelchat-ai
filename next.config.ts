@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import bundleAnalyzer from "@next/bundle-analyzer";
-import withPWAInit from "next-pwa";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,37 +8,6 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
-});
-
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "supabase-cache",
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60, // 1 hour
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "image-cache",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-      },
-    },
-  ],
 });
 
 const nextConfig: NextConfig = {
@@ -156,9 +124,8 @@ const sentryWebpackPluginOptions = {
 
 // Build the config with all wrappers
 const configWithAnalyzer = withBundleAnalyzer(nextConfig);
-const configWithPWA = withPWA(configWithAnalyzer);
 
 // Export with Sentry wrapper only in production
 export default process.env.NODE_ENV === 'production'
-  ? withSentryConfig(configWithPWA, sentryWebpackPluginOptions)
-  : configWithPWA;
+  ? withSentryConfig(configWithAnalyzer, sentryWebpackPluginOptions)
+  : configWithAnalyzer;

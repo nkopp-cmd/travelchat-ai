@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,8 @@ export function ReviewList({ spotId }: ReviewListProps) {
     const { toast } = useToast();
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
+    const reviewRequest = useRef<AbortController | null>(null);
     const [sortBy, setSortBy] = useState("recent");
     const [total, setTotal] = useState(0);
     const [averageRating, setAverageRating] = useState(0);
@@ -61,31 +63,40 @@ export function ReviewList({ spotId }: ReviewListProps) {
     const [votingId, setVotingId] = useState<string | null>(null);
 
     const fetchReviews = useCallback(async () => {
+        reviewRequest.current?.abort();
+        const controller = new AbortController();
+        reviewRequest.current = controller;
         setLoading(true);
+        setLoadError(false);
+        setReviews([]);
+        setTotal(0);
+        setAverageRating(0);
+        setRatingDistribution([0, 0, 0, 0, 0]);
         try {
-            const response = await fetch(`/api/spots/${spotId}/reviews?sort=${sortBy}`);
-            if (response.ok) {
-                const data = await response.json();
+            const response = await fetch(`/api/spots/${spotId}/reviews?sort=${sortBy}`, {
+                signal: controller.signal,
+            });
+            if (!response.ok) throw new Error(`Review request failed: ${response.status}`);
+            const data = await response.json();
+            if (!controller.signal.aborted) {
                 setReviews(data.reviews);
                 setTotal(data.total);
                 setAverageRating(data.averageRating);
                 setRatingDistribution(data.ratingDistribution);
             }
         } catch (error) {
+            if (controller.signal.aborted) return;
             console.error("Error fetching reviews:", error);
-            toast({
-                title: "Failed to load reviews",
-                description: "Please try refreshing the page",
-                variant: "destructive",
-            });
+            setLoadError(true);
         } finally {
-            setLoading(false);
+            if (!controller.signal.aborted) setLoading(false);
         }
-    }, [spotId, sortBy, toast]);
+    }, [spotId, sortBy]);
 
     useEffect(() => {
         fetchReviews();
-    }, [fetchReviews]);
+        return () => reviewRequest.current?.abort();
+    }, [fetchReviews, userId]);
 
     const handleVote = async (reviewId: string, currentlyVoted: boolean) => {
         if (!userId) {
@@ -193,7 +204,7 @@ export function ReviewList({ spotId }: ReviewListProps) {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>Reviews ({total})</span>
+                        <span>{loading || loadError ? "Reviews" : `Reviews (${total})`}</span>
                         {total > 0 && (
                             <div className="flex items-center gap-2">
                                 <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
@@ -243,7 +254,7 @@ export function ReviewList({ spotId }: ReviewListProps) {
                         }}
                     />
                 </div>
-            ) : !userReview ? (
+            ) : !loading && !loadError && !userReview ? (
                 <ReviewForm spotId={spotId} onSuccess={fetchReviews} />
             ) : null}
 
@@ -269,9 +280,16 @@ export function ReviewList({ spotId }: ReviewListProps) {
 
             {/* Reviews List */}
             {loading ? (
-                <div className="flex justify-center py-8">
+                <div role="status" aria-label="Loading reviews" className="flex justify-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
+            ) : loadError ? (
+                <Card>
+                    <CardContent className="py-8 text-center space-y-4">
+                        <p role="alert">Failed to load reviews. Please try again.</p>
+                        <Button variant="outline" onClick={fetchReviews}>Retry</Button>
+                    </CardContent>
+                </Card>
             ) : reviews.length > 0 ? (
                 <div className="space-y-4">
                     {reviews.map((review) => {
