@@ -7,11 +7,13 @@ for (const width of [390, 900, 1440]) {
   test(`real hosted anonymous Seoul ${width}`, async ({ browser, baseURL }, info) => {
     test.skip(!process.env.PLAYWRIGHT_BASE_URL, "Requires an explicit hosted candidate and official access file");
     test.setTimeout(240_000);
-    const access = JSON.parse(await readFile(".vercel/browser-access.json", "utf8"));
     const origin = new URL(baseURL!).origin;
+    const publicMode = process.env.PLAYWRIGHT_PUBLIC_SMOKE === "1";
+    if (publicMode && origin !== "https://www.localley.io") throw new Error("Public smoke mode only permits https://www.localley.io");
+    const access = publicMode ? { origin, headers: {} } : JSON.parse(await readFile(".vercel/browser-access.json", "utf8"));
     if (access.origin !== origin) throw new Error("Authorized access origin does not match test origin");
     const headers: Record<string, string> = access.headers;
-    if (!headers || Object.keys(headers).length !== 1 || !Object.entries(headers).every(([key, value]) => key.toLowerCase() === "x-vercel-protection-bypass" && typeof value === "string" && value.length > 0)) {
+    if (!publicMode && (!headers || Object.keys(headers).length !== 1 || !Object.entries(headers).every(([key, value]) => key.toLowerCase() === "x-vercel-protection-bypass" && typeof value === "string" && value.length > 0))) {
       throw new Error(`Unexpected access schema; field names only: ${Object.keys(access).join(",")}`);
     }
     const safe = (value: string) => {
@@ -38,7 +40,7 @@ for (const width of [390, 900, 1440]) {
         blocked.add(safe(url.href));
         return route.abort("blockedbyclient");
       }
-      if (url.origin === access.origin) {
+      if (!publicMode && url.origin === access.origin) {
         // Real upstream responses only. Disable automatic redirects so the secret cannot follow an off-origin redirect.
         try {
           const response = await route.fetch({ headers: { ...request.headers(), ...headers }, maxRedirects: 0, timeout: 45_000 });
@@ -63,6 +65,10 @@ for (const width of [390, 900, 1440]) {
     });
     page.on("response", async response => {
       const url = new URL(response.url());
+      if (publicMode && url.origin === origin && (response.request().isNavigationRequest() || response.request().method() !== "GET")) upstream.push({
+        path: safe(url.href), method: response.request().method(), status: response.status(),
+        location: response.headers().location ? safe(new URL(response.headers().location, origin).href) : undefined,
+      });
       if (url.origin === origin || /clerk/.test(url.hostname)) network.push({ path: safe(response.url()), status: response.status(), type: response.request().resourceType() });
       if (url.hostname === "clerk.localley.io" && response.status() >= 400) {
         const body = await response.json().catch(() => null);
@@ -71,10 +77,18 @@ for (const width of [390, 900, 1440]) {
     });
     const check = async (name: string, action: () => Promise<unknown>) => {
       try { results.push({ check: name, passed: true, detail: await action() }); }
-      catch (error) { results.push({ check: name, passed: false, detail: safe(error instanceof Error ? error.message : String(error)) }); }
+      catch (error) {
+        results.push({ check: name, passed: false, detail: safe(error instanceof Error ? error.message : String(error)) });
+        if (publicMode && /widget|save UI/.test(name)) console.error(`URGENT: live authentication check failed at ${width}: ${name}. Parent must assess rollback.`);
+      }
     };
     const navigate = async (path: string) => {
-      const response = await page.goto(origin + path, { waitUntil: "domcontentloaded", timeout: 45_000 });
+      const response = await page.goto(origin + path, { waitUntil: "domcontentloaded", timeout: 45_000 }).catch(async () => {
+        // One bounded retry for transient DNS or connection propagation only.
+        await page.waitForTimeout(3000);
+        return page.goto(origin + path, { waitUntil: "domcontentloaded", timeout: 45_000 });
+      });
+      if (publicMode && response && response.status() >= 500) console.error(`URGENT: live document ${path} returned ${response.status()}. Parent must assess rollback.`);
       return { status: response?.status(), path: safe(page.url()) };
     };
     const shot = async (name: string) => {
@@ -102,6 +116,7 @@ for (const width of [390, 900, 1440]) {
         await expect(discovery.getByRole("button", { name: /^Pin \d+:/ })).toHaveCount(24);
         await expect(discovery.locator(".leaflet-marker-icon")).toHaveCount(24);
         await expect(discovery.locator(".leaflet-tile-loaded").first()).toBeVisible();
+        await discovery.getByRole("region", { name: "Map of this page's spots" }).evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
         return { ...response, pins: 24, ...await shot("map") };
       });
       await check("keyboard selection matches real mapped card", async () => {
@@ -118,7 +133,7 @@ for (const width of [390, 900, 1440]) {
         await expect(discovery.getByTestId("spot-card-title")).toHaveText(selectedName);
         selectedPath = await discovery.getByTestId("spot-card-title").locator("..").getAttribute("href") || "";
         expect(selectedPath).toMatch(/^\/spots\/[0-9a-f-]{36}$/i);
-        await discovery.getByTestId("spot-card").scrollIntoViewIfNeeded();
+        await discovery.getByTestId("spot-card").evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
         return { selectedName, selectedPath, ...await shot("selected-card") };
       });
       await check("mouse map selection matches card", async () => {
@@ -158,6 +173,7 @@ for (const width of [390, 900, 1440]) {
         expect(searchedPins).toBeGreaterThan(0);
         const names = await pins.locator("span:first-child").allTextContents();
         expect(names.every(label => label.includes(name))).toBe(true);
+        await discovery.getByRole("region", { name: "Map of this page's spots" }).evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
         return { filteredPins: count, searchedPins, names, search: name, ...await shot("filtered-search") };
       });
       await check("service worker scope and second map load", async () => {
@@ -169,13 +185,16 @@ for (const width of [390, 900, 1440]) {
         await expect(page.locator(".leaflet-tile-loaded").first()).toBeVisible();
         expect(registrations.length).toBeGreaterThan(0);
         expect(registrations.every(r => r.scope === origin + "/")).toBe(true);
+        await page.getByRole("region", { name: "Map of this page's spots" }).evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
         return { registrations, ...await shot("second-load") };
       });
       await check("selected real spot detail", async () => {
         expect(selectedPath).not.toBe("");
         const response = await navigate(selectedPath);
         expect(response.status).toBe(200);
-        await expect(page.getByTestId("spot-detail-hero")).toBeVisible();
+        const hero = page.getByTestId("spot-detail-hero").filter({ visible: true });
+        await expect(hero).toHaveCount(1);
+        await expect(hero).toBeVisible();
         await expect(page.getByTestId("spot-detail-address").filter({ visible: true }).first()).toBeVisible();
         return { ...response, ...await shot("detail") };
       });
@@ -205,8 +224,12 @@ for (const width of [390, 900, 1440]) {
         return result;
       });
       await check("anonymous save UI requires sign-in", async () => {
-        await page.getByRole("button", { name: `Save ${selectedName}`, exact: true }).filter({ visible: true }).first().click();
-        await expect(page).toHaveURL(url => url.pathname.startsWith("/sign-in"));
+        const save = page.getByRole("button", { name: `Save ${selectedName}`, exact: true }).filter({ visible: true }).first();
+        await expect(save).toBeEnabled();
+        await save.click();
+        await expect(page).toHaveURL(url => url.origin === origin && url.pathname.startsWith("/sign-in"));
+        await expect(page.locator(".cl-card").first()).toBeVisible({ timeout: 20_000 });
+        await expect(page.locator("input").filter({ visible: true }).first()).toBeVisible();
         return { path: safe(page.url()), ...await shot("save-rejected") };
       });
       for (const path of ["/sign-in", "/sign-up", "/dashboard"]) {
@@ -222,13 +245,18 @@ for (const width of [390, 900, 1440]) {
           }
           if (path === "/dashboard") {
             expect(new URL(page.url()).hostname, "Protected route must reach app authentication, not Vercel login").not.toBe("vercel.com");
+            if (publicMode) {
+              expect(new URL(page.url()).origin).toBe(origin);
+              expect(new URL(page.url()).pathname).toMatch(/^\/sign-in/);
+              await expect(page.locator(".cl-card").first()).toBeVisible({ timeout: 20_000 });
+            }
           }
           return { ...response, ...await shot(path.slice(1)) };
         });
       }
     } finally {
       await page.screenshot({ path: info.outputPath(`final-${width}.png`), fullPage: true }).catch(() => {});
-      await writeFile(info.outputPath("evidence.json"), JSON.stringify({ width, results, errors, clerkErrors, upstream, network, blocked: [...blocked] }, null, 2));
+      await writeFile(info.outputPath("evidence.json"), JSON.stringify({ origin, publicMode, accessHeaderCount: Object.keys(headers).length, freshContext: true, width, results, errors, clerkErrors, upstream, network, blocked: [...blocked] }, null, 2));
       await context.close();
     }
     expect(results.filter(result => !result.passed).map(result => result.check)).toEqual([]);

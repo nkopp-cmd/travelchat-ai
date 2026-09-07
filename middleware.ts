@@ -23,7 +23,7 @@ const matchesPublicRoute = createRouteMatcher([
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
-    '/api/itineraries/:id/story',  // Story render (PNG) — no auth needed, used by save route internally
+    '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.
 ]);
 
 export const isPublicRoute = (request: Parameters<typeof matchesPublicRoute>[0]) =>
@@ -32,7 +32,13 @@ export const isPublicRoute = (request: Parameters<typeof matchesPublicRoute>[0])
 
 export default clerkMiddleware(async (auth, request) => {
     if (!isPublicRoute(request)) {
-        await auth.protect();
+        if (/^\/(?:api|trpc)(?:\/|$)/.test(request.nextUrl.pathname)) {
+            await auth.protect();
+        } else {
+            const signIn = new URL('/sign-in', request.url);
+            signIn.searchParams.set('redirect_url', request.nextUrl.pathname + request.nextUrl.search);
+            await auth.protect({ unauthenticatedUrl: signIn.toString() });
+        }
     }
 });
 
