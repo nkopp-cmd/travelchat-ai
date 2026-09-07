@@ -72,15 +72,15 @@ export function handleApiError(
  * @param context - Context string for error tracking
  * @returns Wrapped handler with error handling
  */
-export function withErrorHandling<T extends (...args: any[]) => Promise<Response>>(
-  handler: T,
+export function withErrorHandling<Args extends unknown[]>(
+  handler: (...args: Args) => Promise<Response>,
   context: string
-): T {
-  return (async (...args: Parameters<T>) => {
+): (...args: Args) => Promise<Response> {
+  return async (...args: Args) => {
     try {
       return await handler(...args);
     } catch (error) {
       return handleApiError(error, { context });
     }
-  }) as T;
+  };
 }

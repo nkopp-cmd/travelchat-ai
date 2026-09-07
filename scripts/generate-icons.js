@@ -8,15 +8,16 @@
  * npm install sharp --save-dev
  */
 
-const fs = require('fs');
-const path = require('path');
+async function generateIcons() {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
 
-// Check if sharp is available
-let sharp;
-try {
-    sharp = require('sharp');
-} catch {
-    console.log(`
+    // Check if sharp is available
+    let sharp;
+    try {
+        sharp = (await import('sharp')).default;
+    } catch {
+        console.log(`
 ╔════════════════════════════════════════════════════════════════╗
 ║                   PWA Icon Generation                          ║
 ╠════════════════════════════════════════════════════════════════╣
@@ -38,14 +39,13 @@ try {
 ║                                                                ║
 ╚════════════════════════════════════════════════════════════════╝
 `);
-    process.exit(0);
-}
+        return process.exit(0);
+    }
 
-const sizes = [192, 512];
-const inputSvg = path.join(__dirname, '../public/icons/icon.svg');
-const outputDir = path.join(__dirname, '../public/icons');
+    const sizes = [192, 512];
+    const inputSvg = path.join(__dirname, '../public/icons/icon.svg');
+    const outputDir = path.join(__dirname, '../public/icons');
 
-async function generateIcons() {
     console.log('Generating PWA icons...\n');
 
     // Ensure output directory exists

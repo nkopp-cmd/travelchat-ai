@@ -233,17 +233,27 @@ function createMarkerContent(day?: number, index?: number): string {
 }
 
 // Create info window content with bilingual support for Korean cities
-function createInfoWindowContent(marker: Location): string {
-    const titleLine = marker.titleKo
-        ? `${marker.title || "Location"} <span style="color: #888; font-size: 12px;">(${marker.titleKo})</span>`
-        : marker.title || "Location";
-
-    return `
-        <div style="padding: 12px; min-width: 150px; max-width: 280px;">
-            <strong style="font-size: 14px; color: #333;">${titleLine}</strong>
-            ${marker.description ? `<p style="margin: 8px 0 0; font-size: 12px; color: #666; line-height: 1.4;">${marker.description}</p>` : ""}
-        </div>
-    `;
+export function createInfoWindowContent(marker: Location): string {
+    const content = document.createElement("div");
+    content.style.cssText = "padding: 12px; min-width: 150px; max-width: 280px;";
+    const title = document.createElement("strong");
+    title.style.cssText = "font-size: 14px; color: #333;";
+    title.textContent = marker.title || "Location";
+    if (marker.titleKo) {
+        const koreanTitle = document.createElement("span");
+        koreanTitle.style.cssText = "color: #888; font-size: 12px;";
+        koreanTitle.textContent = `(${marker.titleKo})`;
+        title.append(" ", koreanTitle);
+    }
+    content.appendChild(title);
+    if (marker.description) {
+        const description = document.createElement("p");
+        description.style.cssText = "margin: 8px 0 0; font-size: 12px; color: #666; line-height: 1.4;";
+        description.textContent = marker.description;
+        content.appendChild(description);
+    }
+    // Serialize text nodes safely for the SDK's HTML content option.
+    return content.outerHTML;
 }
 
 export default function KakaoMap({

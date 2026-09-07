@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Define public routes that don't require authentication
-export const isPublicRoute = createRouteMatcher([
+const matchesPublicRoute = createRouteMatcher([
     '/',
     '/sign-in(.*)',
     '/sign-up(.*)',
@@ -25,6 +25,10 @@ export const isPublicRoute = createRouteMatcher([
     '/itineraries/:id/stories',  // Public stories download page
     '/api/itineraries/:id/story',  // Story render (PNG) — no auth needed, used by save route internally
 ]);
+
+export const isPublicRoute = (request: Parameters<typeof matchesPublicRoute>[0]) =>
+    matchesPublicRoute(request) ||
+    (request.method === 'GET' && /^\/api\/spots\/[^/]+\/reviews\/?$/.test(request.nextUrl.pathname));
 
 export default clerkMiddleware(async (auth, request) => {
     if (!isPublicRoute(request)) {

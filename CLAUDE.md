@@ -209,3 +209,12 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore
 - Ring 2-3: Other cities exist but `isEnabled: false`
 - Config in `lib/cities.ts`
+
+### Release Workflow
+- The user authorized committing and deploying to production after successful release checks on 2026-09-07.
+- Do not ask for routine commit/deploy approval again. Verify the target, credentials, migrations, and release gates first.
+- Never bypass access restrictions or deploy when required schema changes would break existing features.
+- Commit only intended source, tests, migrations, and licensed assets. Exclude credentials, database files, and generated artifacts.
+- The user explicitly authorized GPT Image 2 and MiniMax H3 story changes. Existing rendering safety constraints still apply.
+- Keep new paid generation disabled until its documented activation gates pass. The shared initial media test ceiling is $20.
+- See `docs/RELEASE.md` for the current release status and `docs/story-studio.md` for media activation requirements.

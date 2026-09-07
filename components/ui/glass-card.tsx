@@ -37,7 +37,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
 );
 GlassCard.displayName = "GlassCard";
 
-interface GlassCardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+type GlassCardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
 
 const GlassCardHeader = React.forwardRef<HTMLDivElement, GlassCardHeaderProps>(
   ({ className, ...props }, ref) => (
@@ -50,7 +50,7 @@ const GlassCardHeader = React.forwardRef<HTMLDivElement, GlassCardHeaderProps>(
 );
 GlassCardHeader.displayName = "GlassCardHeader";
 
-interface GlassCardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
+type GlassCardTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
 
 const GlassCardTitle = React.forwardRef<HTMLParagraphElement, GlassCardTitleProps>(
   ({ className, ...props }, ref) => (
@@ -63,7 +63,7 @@ const GlassCardTitle = React.forwardRef<HTMLParagraphElement, GlassCardTitleProp
 );
 GlassCardTitle.displayName = "GlassCardTitle";
 
-interface GlassCardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+type GlassCardDescriptionProps = React.HTMLAttributes<HTMLParagraphElement>;
 
 const GlassCardDescription = React.forwardRef<HTMLParagraphElement, GlassCardDescriptionProps>(
   ({ className, ...props }, ref) => (
@@ -76,7 +76,7 @@ const GlassCardDescription = React.forwardRef<HTMLParagraphElement, GlassCardDes
 );
 GlassCardDescription.displayName = "GlassCardDescription";
 
-interface GlassCardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+type GlassCardContentProps = React.HTMLAttributes<HTMLDivElement>;
 
 const GlassCardContent = React.forwardRef<HTMLDivElement, GlassCardContentProps>(
   ({ className, ...props }, ref) => (
@@ -85,7 +85,7 @@ const GlassCardContent = React.forwardRef<HTMLDivElement, GlassCardContentProps>
 );
 GlassCardContent.displayName = "GlassCardContent";
 
-interface GlassCardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+type GlassCardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
 const GlassCardFooter = React.forwardRef<HTMLDivElement, GlassCardFooterProps>(
   ({ className, ...props }, ref) => (

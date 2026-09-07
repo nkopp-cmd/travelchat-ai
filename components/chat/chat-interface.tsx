@@ -55,7 +55,11 @@ interface ChatInterfaceProps {
 // Helper to generate stable IDs
 const generateMessageId = () => crypto.randomUUID();
 
-export function ChatInterface({ className, itineraryContext, selectedTemplate, conversationId: initialConversationId }: ChatInterfaceProps) {
+export function ChatInterface(props: ChatInterfaceProps) {
+  return <ChatSession key={props.conversationId || ""} {...props} />;
+}
+
+function ChatSession({ className, itineraryContext, selectedTemplate, conversationId: initialConversationId }: ChatInterfaceProps) {
   const getInitialMessage = () => {
     if (itineraryContext) {
       return `Hey! I can see you're working on "${itineraryContext.title}". What would you like to change? I can help you add activities, change the order, or adjust anything else!`;
@@ -66,7 +70,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
     return "Hey there! I'm Alley, your local guide. Looking for some hidden gems or tasty eats? Let me know what you're in the mood for!";
   };
 
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<Message[]>(() => [
     {
       id: generateMessageId(),
       role: "assistant",
@@ -101,20 +105,18 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
   const currentConversation = conversations?.find((c: { id: string }) => c.id === currentConversationId);
   const linkedItineraryId = (currentConversation as { linked_itinerary_id?: string } | undefined)?.linked_itinerary_id;
 
-  // Populate messages from DB when conversation loads
-  useEffect(() => {
-    if (initialConversationId && loadedMessages && loadedMessages.length > 0 && !historyLoaded) {
-      setCurrentConversationId(initialConversationId);
-      setMessages(
-        loadedMessages.map((msg: { id?: string; role: string; content: string }) => ({
-          id: msg.id || generateMessageId(),
-          role: msg.role as "user" | "assistant",
-          content: msg.content,
-        }))
-      );
-      setHistoryLoaded(true);
-    }
-  }, [initialConversationId, loadedMessages, historyLoaded]);
+  // Bootstrap once before rendering children; later query updates must not replace local messages.
+  if (initialConversationId && loadedMessages && loadedMessages.length > 0 && !historyLoaded) {
+    setCurrentConversationId(initialConversationId);
+    setMessages(
+      loadedMessages.map((msg: { id?: string; role: string; content: string }) => ({
+        id: msg.id || generateMessageId(),
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      }))
+    );
+    setHistoryLoaded(true);
+  }
 
   const isLoading = sendChatMutation.isPending || reviseItineraryMutation.isPending;
 
@@ -126,6 +128,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
 
   const createNewConversation = () => {
+    setHistoryLoaded(true);
     setCurrentConversationId(null);
     setChatError(null);
     setMessages([
@@ -343,7 +346,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
       {/* Messages container - Native overflow for proper flex constraints (replaces Radix ScrollArea) */}
       <div className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
         <div className="space-y-6">
-          {isLoadingHistory && (
+          {isLoadingHistory && !historyLoaded && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <span className="h-4 w-4 border-2 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />

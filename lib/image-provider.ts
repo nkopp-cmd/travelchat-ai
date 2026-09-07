@@ -9,25 +9,28 @@ import type { SubscriptionTier } from "@/lib/subscription";
 import * as gemini from "@/lib/imagen";
 import * as seedream from "@/lib/seedream";
 import * as flux from "@/lib/flux";
+import * as gptImage from "@/lib/gpt-image";
+import { canUseTierModel } from "@/lib/model-credits";
 
-export type ImageProvider = "flux" | "seedream" | "gemini";
+export type ImageProvider = "flux" | "seedream" | "gemini" | "gpt-image-2";
 
 /**
  * Determine which image provider to use.
  * Priority: FLUX (cheapest) → Seedream → Gemini (fallback).
  */
-export function getImageProvider(tier: SubscriptionTier): ImageProvider {
-    if (flux.isFluxAvailable()) return "flux";
-    if (seedream.isSeedreamAvailable()) return "seedream";
-    if (gemini.isImagenAvailable()) return "gemini";
-    return "gemini"; // Will fail with appropriate error if none available
+export function getImageProvider(tier: SubscriptionTier): ImageProvider | null {
+    if (canUseTierModel(tier, "flux") && flux.isFluxAvailable()) return "flux";
+    if (canUseTierModel(tier, "seedream") && seedream.isSeedreamAvailable()) return "seedream";
+    if (canUseTierModel(tier, "gemini") && gemini.isImagenAvailable()) return "gemini";
+    // The new model requires explicit selection, never an automatic paid fallback.
+    return null;
 }
 
 /**
  * Check if any AI image provider is available
  */
 export function isAnyProviderAvailable(): boolean {
-    return flux.isFluxAvailable() || seedream.isSeedreamAvailable() || gemini.isImagenAvailable();
+    return flux.isFluxAvailable() || seedream.isSeedreamAvailable() || gemini.isImagenAvailable() || gptImage.isGptImageAvailable();
 }
 
 /**
@@ -44,7 +47,9 @@ export async function generateStoryBackground(
 
     try {
         let result: string;
-        if (provider === "flux") {
+        if (provider === "gpt-image-2") {
+            result = await gptImage.generateStoryBackground(city, theme, style);
+        } else if (provider === "flux") {
             result = await flux.generateStoryBackground(city, theme, style);
         } else if (provider === "seedream") {
             result = await seedream.generateStoryBackground(city, theme, style);
@@ -74,7 +79,9 @@ export async function generateDayBackground(
 
     try {
         let result: string;
-        if (provider === "flux") {
+        if (provider === "gpt-image-2") {
+            result = await gptImage.generateDayBackground(city, dayNumber, theme, activities);
+        } else if (provider === "flux") {
             result = await flux.generateDayBackground(city, dayNumber, theme, activities);
         } else if (provider === "seedream") {
             result = await seedream.generateDayBackground(city, dayNumber, theme, activities);

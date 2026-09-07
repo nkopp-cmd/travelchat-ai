@@ -1,5 +1,6 @@
 // Localley Service Worker for Push Notifications
-const CACHE_NAME = "localley-v1";
+// Push-only: never intercept fetches or cache private responses.
+const LEGACY_CACHE_NAMES = ["supabase-cache", "start-url", "next-data", "localley-v1"];
 
 // Handle push events
 self.addEventListener("push", (event) => {
@@ -91,11 +92,11 @@ self.addEventListener("activate", (event) => {
         Promise.all([
             // Claim all clients
             clients.claim(),
-            // Clean up old caches
+            // Remove only known legacy app caches; preserve unrelated origin caches.
             caches.keys().then((cacheNames) => {
                 return Promise.all(
                     cacheNames
-                        .filter((name) => name !== CACHE_NAME)
+                        .filter((name) => LEGACY_CACHE_NAMES.includes(name))
                         .map((name) => caches.delete(name))
                 );
             }),

@@ -94,30 +94,51 @@ export async function POST(req: NextRequest) {
     }
 }
 
+// Replay ordering, concurrency serialization, and email deduplication remain unresolved.
+// A retry after a successful write can still send duplicate emails.
+function referenceId(reference: string | { id: string } | null | undefined) {
+    return typeof reference === "string" ? reference : reference?.id;
+}
+
+function subscriptionStatus(status: Stripe.Subscription.Status) {
+    // Only active/trialing grant access in get_user_tier and lib/usage-tracking.ts.
+    switch (status) {
+        case "active":
+        case "trialing":
+        case "past_due":
+            return status;
+        case "canceled":
+        case "unpaid":
+        case "incomplete":
+        case "incomplete_expired":
+        case "paused":
+        default:
+            return "canceled";
+    }
+}
+
 // Handle checkout completion
 async function handleCheckoutComplete(
     supabase: ReturnType<typeof createSupabaseAdmin>,
     session: Stripe.Checkout.Session
 ) {
     const clerkUserId = session.metadata?.clerk_user_id;
-    if (!clerkUserId) {
-        console.error("No clerk_user_id in session metadata");
-        return;
+    if (session.mode !== "subscription") return;
+    const customerId = referenceId(session.customer);
+    const subscriptionId = referenceId(session.subscription);
+    if (!clerkUserId || !customerId || !subscriptionId || !stripe) {
+        throw new Error("Missing checkout ownership identifiers");
     }
-
-    // Update subscription record
-    await supabase.from("subscriptions").upsert(
-        {
-            clerk_user_id: clerkUserId,
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
-            status: "active",
-            updated_at: new Date().toISOString(),
-        },
-        {
-            onConflict: "clerk_user_id",
-        }
-    );
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const customer = await stripe.customers.retrieve(customerId);
+    if (subscription.id !== subscriptionId ||
+        referenceId(subscription.customer) !== customerId ||
+        subscription.metadata.clerk_user_id !== clerkUserId ||
+        customer.deleted || customer.id !== customerId ||
+        customer.metadata.clerk_user_id !== clerkUserId) {
+        throw new Error("Checkout ownership mismatch");
+    }
+    await handleSubscriptionUpdate(supabase, subscription);
 
     console.log(`Checkout completed for user ${clerkUserId}`);
 }
@@ -146,35 +167,26 @@ async function handleSubscriptionUpdate(
     }
 
     const priceId = subscription.items.data[0]?.price.id || "";
-    const tier = getTierFromPriceId(priceId);
+    const tier = priceId ? getTierFromPriceId(priceId) : "free";
 
     // Cast to extended type for period properties
     const sub = subscription as SubscriptionWithPeriods;
 
-    // Map Stripe status to our status
-    let status: string;
-    switch (subscription.status) {
-        case "active":
-            status = "active";
-            break;
-        case "trialing":
-            status = "trialing";
-            break;
-        case "past_due":
-            status = "past_due";
-            break;
-        case "canceled":
-        case "unpaid":
-            status = "canceled";
-            break;
-        default:
-            status = subscription.status;
+    if (subscription.status === "canceled") {
+        await handleSubscriptionDeleted(supabase, subscription);
+        return;
     }
+    const status = subscriptionStatus(subscription.status);
+    const customerId = referenceId(subscription.customer);
+    if (!customerId) throw new Error("Missing subscription customer");
+    const item = subscription.items.data[0];
+    const periodStart = item?.current_period_start ?? sub.current_period_start;
+    const periodEnd = item?.current_period_end ?? sub.current_period_end;
 
-    await supabase.from("subscriptions").upsert(
+    const { error } = await supabase.from("subscriptions").upsert(
         {
             clerk_user_id: clerkUserId,
-            stripe_customer_id: subscription.customer as string,
+            stripe_customer_id: customerId,
             stripe_subscription_id: subscription.id,
             stripe_price_id: priceId,
             tier,
@@ -182,11 +194,11 @@ async function handleSubscriptionUpdate(
             billing_cycle: subscription.items.data[0]?.price.recurring?.interval === "year"
                 ? "yearly"
                 : "monthly",
-            current_period_start: sub.current_period_start
-                ? new Date(sub.current_period_start * 1000).toISOString()
+            current_period_start: periodStart != null
+                ? new Date(periodStart * 1000).toISOString()
                 : null,
-            current_period_end: sub.current_period_end
-                ? new Date(sub.current_period_end * 1000).toISOString()
+            current_period_end: periodEnd != null
+                ? new Date(periodEnd * 1000).toISOString()
                 : null,
             cancel_at_period_end: subscription.cancel_at_period_end,
             trial_start: sub.trial_start
@@ -202,6 +214,7 @@ async function handleSubscriptionUpdate(
         }
     );
 
+    if (error) throw error;
     console.log(`Subscription updated for user ${clerkUserId}: ${tier} (${status})`);
 
     // Invalidate user tier cache so changes take effect immediately
@@ -225,19 +238,22 @@ async function handleSubscriptionDeleted(
         return;
     }
 
-    // Downgrade to free tier
-    await supabase.from("subscriptions").upsert(
+    const customerId = referenceId(subscription.customer);
+    if (!customerId) throw new Error("Missing subscription customer");
+    // Never insert a deleted subscription or overwrite its replacement.
+    const { data, error } = await supabase.from("subscriptions").update(
         {
-            clerk_user_id: clerkUserId,
             tier: "free",
             status: "canceled",
             cancel_at_period_end: false,
             updated_at: new Date().toISOString(),
-        },
-        {
-            onConflict: "clerk_user_id",
         }
-    );
+    ).eq("clerk_user_id", clerkUserId)
+        .eq("stripe_subscription_id", subscription.id)
+        .eq("stripe_customer_id", customerId)
+        .select("clerk_user_id");
+    if (error) throw error;
+    if (!data?.length) return;
 
     console.log(`Subscription deleted for user ${clerkUserId}`);
 
@@ -255,9 +271,7 @@ async function handlePaymentSucceeded(
     invoice: Stripe.Invoice
 ) {
     const inv = invoice as InvoiceWithSubscription;
-    const subscriptionId = typeof inv.subscription === "string"
-        ? inv.subscription
-        : inv.subscription?.id;
+    const subscriptionId = referenceId(inv.parent?.subscription_details?.subscription ?? inv.subscription);
     if (!subscriptionId) return;
 
     // Get the subscription to find the user
@@ -267,11 +281,19 @@ async function handlePaymentSucceeded(
     const clerkUserId = subscription.metadata?.clerk_user_id;
     if (!clerkUserId) return;
 
-    // Update status to active
-    await supabase.from("subscriptions").update({
-        status: "active",
+    const customerId = referenceId(subscription.customer);
+    if (!customerId || referenceId(invoice.customer) !== customerId || subscription.id !== subscriptionId) {
+        throw new Error("Invoice ownership mismatch");
+    }
+    const { data, error } = await supabase.from("subscriptions").update({
+        status: subscriptionStatus(subscription.status),
         updated_at: new Date().toISOString(),
-    }).eq("clerk_user_id", clerkUserId);
+    }).eq("clerk_user_id", clerkUserId)
+        .eq("stripe_subscription_id", subscriptionId)
+        .eq("stripe_customer_id", customerId)
+        .select("clerk_user_id");
+    if (error) throw error;
+    if (!data?.length) return;
 
     // Invalidate user tier cache
     invalidateUserCache(clerkUserId, "user-tier");
@@ -286,9 +308,7 @@ async function handlePaymentFailed(
     invoice: Stripe.Invoice
 ) {
     const inv = invoice as InvoiceWithSubscription;
-    const subscriptionId = typeof inv.subscription === "string"
-        ? inv.subscription
-        : inv.subscription?.id;
+    const subscriptionId = referenceId(inv.parent?.subscription_details?.subscription ?? inv.subscription);
     if (!subscriptionId) return;
 
     // Get the subscription to find the user
@@ -298,11 +318,19 @@ async function handlePaymentFailed(
     const clerkUserId = subscription.metadata?.clerk_user_id;
     if (!clerkUserId) return;
 
-    // Update status to past_due
-    await supabase.from("subscriptions").update({
-        status: "past_due",
+    const customerId = referenceId(subscription.customer);
+    if (!customerId || referenceId(invoice.customer) !== customerId || subscription.id !== subscriptionId) {
+        throw new Error("Invoice ownership mismatch");
+    }
+    const { data, error } = await supabase.from("subscriptions").update({
+        status: subscriptionStatus(subscription.status),
         updated_at: new Date().toISOString(),
-    }).eq("clerk_user_id", clerkUserId);
+    }).eq("clerk_user_id", clerkUserId)
+        .eq("stripe_subscription_id", subscriptionId)
+        .eq("stripe_customer_id", customerId)
+        .select("clerk_user_id");
+    if (error) throw error;
+    if (!data?.length) return;
 
     // Invalidate user tier cache
     invalidateUserCache(clerkUserId, "user-tier");
@@ -311,7 +339,9 @@ async function handlePaymentFailed(
     console.log(`Payment failed for user ${clerkUserId}`);
 
     // Send payment failed email
-    await sendSubscriptionEmail(supabase, clerkUserId, "payment_failed");
+    if (subscription.status === "past_due" || subscription.status === "unpaid") {
+        await sendSubscriptionEmail(supabase, clerkUserId, "payment_failed");
+    }
 }
 
 // Helper function to send subscription emails
@@ -327,28 +357,20 @@ async function sendSubscriptionEmail(
     }
 
     try {
-        // Get user email from database
-        const { data: user } = await supabase
+        // Optional email data must not prevent acknowledgment of a persisted payment.
+        const { data: user, error } = await supabase
             .from("users")
-            .select("email, name")
+            .select("email, username, email_preferences")
             .eq("clerk_id", clerkUserId)
-            .single();
+            .maybeSingle();
+        if (error) throw error;
 
         if (!user?.email) {
-            console.error("No email found for user:", clerkUserId);
             return;
         }
 
-        // Check email preferences
-        const { data: preferences } = await supabase
-            .from("users")
-            .select("email_preferences")
-            .eq("clerk_id", clerkUserId)
-            .single();
-
-        const emailPrefs = preferences?.email_preferences as Record<string, boolean> | null;
-        if (emailPrefs && emailPrefs.product_updates === false) {
-            console.log("User has disabled product update emails");
+        const emailPrefs = user.email_preferences as Record<string, boolean> | null;
+        if (emailPrefs?.product_updates !== true) {
             return;
         }
 
@@ -358,21 +380,22 @@ async function sendSubscriptionEmail(
 
         const tierName = tier === "pro" ? "Pro" : tier === "premium" ? "Premium" : "Free";
 
-        await resend.emails.send({
+        const { error: sendError } = await resend.emails.send({
             from: FROM_EMAIL,
             to: user.email,
             subject: getSubscriptionEmailSubject(eventType, tierName),
             react: SubscriptionEmail({
-                userName: user.name || undefined,
+                userName: user.username || undefined,
                 eventType,
                 newTier: tierName,
                 manageUrl,
             }),
         });
+        if (sendError) throw sendError;
 
-        console.log(`Subscription email (${eventType}) sent to ${user.email}`);
-    } catch (error) {
-        console.error("Error sending subscription email:", error);
+        console.log("Subscription email sent");
+    } catch {
+        console.error("Optional subscription email failed");
     }
 }
 

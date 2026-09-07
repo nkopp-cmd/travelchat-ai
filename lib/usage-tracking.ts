@@ -387,7 +387,7 @@ export async function checkAndIncrementUsage(
  * Increments by `amount` credits instead of always 1.
  * Used for AI image generation where different models cost different credits.
  *
- * Falls back to the non-weighted RPC if the weighted version isn't deployed yet.
+ * Throws when usage tracking is unavailable; callers must deny paid generation.
  */
 export async function checkAndIncrementUsageWeighted(
     clerkUserId: string,
@@ -398,50 +398,46 @@ export async function checkAndIncrementUsageWeighted(
     usage: UsageCheckResult;
     tier: SubscriptionTier;
 }> {
-    const tier = await getUserTier(clerkUserId);
-    const config = usageTypeConfig[usageType];
-    const limit = TIER_CONFIGS[tier].limits[config.limitKey];
-
-    const supabase = createSupabaseAdmin();
-
-    const { data, error } = await supabase.rpc("check_and_increment_usage_weighted", {
-        p_clerk_user_id: clerkUserId,
-        p_usage_type: usageType,
-        p_period_type: config.periodType,
-        p_limit: limit,
-        p_amount: amount,
-    });
-
-    let result: AtomicUsageResult;
-
-    if (error) {
-        // PGRST202 = function not found — fall back to non-weighted version
-        if (error.code === "PGRST202") {
-            console.warn("[usage-tracking] Weighted RPC missing, falling back to standard");
-            result = await atomicCheckAndIncrement(clerkUserId, usageType, limit);
-        } else {
-            console.error("[usage-tracking] Weighted increment failed:", error);
-            result = { allowed: false, newCount: 0, wasAtLimit: true };
-        }
-    } else {
-        const row = Array.isArray(data) ? data[0] : data;
-        result = {
-            allowed: row?.allowed ?? false,
-            newCount: row?.new_count ?? 0,
-            wasAtLimit: row?.was_at_limit ?? true,
-        };
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+        throw new RangeError("Usage amount must be a positive safe integer");
     }
 
-    const usage: UsageCheckResult = {
-        allowed: result.allowed,
-        currentUsage: result.newCount,
-        limit,
-        remaining: Math.max(0, limit - result.newCount),
-        periodType: config.periodType,
-        periodResetAt: getPeriodEnd(config.periodType),
-    };
+    try {
+        const tier = await getUserTier(clerkUserId);
+        const config = usageTypeConfig[usageType];
+        const limit = TIER_CONFIGS[tier].limits[config.limitKey];
+        const supabase = createSupabaseAdmin();
 
-    return { allowed: result.allowed, usage, tier };
+        const { data, error } = await supabase.rpc("check_and_increment_usage_weighted", {
+            p_clerk_user_id: clerkUserId,
+            p_usage_type: usageType,
+            p_period_type: config.periodType,
+            p_limit: limit,
+            p_amount: amount,
+        });
+
+        // Never retry with a single-credit increment: it would undercharge.
+        if (error) throw error;
+
+        const row = Array.isArray(data) ? data[0] : data;
+        if (typeof row?.allowed !== "boolean" ||
+            !Number.isSafeInteger(row?.new_count) || row.new_count < 0) {
+            throw new Error("Invalid weighted usage response");
+        }
+
+        const usage: UsageCheckResult = {
+            allowed: row.allowed,
+            currentUsage: row.new_count,
+            limit,
+            remaining: Math.max(0, limit - row.new_count),
+            periodType: config.periodType,
+            periodResetAt: getPeriodEnd(config.periodType),
+        };
+
+        return { allowed: row.allowed, usage, tier };
+    } catch (cause) {
+        throw new Error("Usage tracking unavailable", { cause });
+    }
 }
 
 /**

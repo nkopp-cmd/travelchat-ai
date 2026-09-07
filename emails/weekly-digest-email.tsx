@@ -83,8 +83,8 @@ export function WeeklyDigestEmail({
                             {userName ? `Hey ${userName}!` : "Hey Explorer!"} 👋
                         </Heading>
                         <Text style={paragraph}>
-                            Here's your weekly roundup of discoveries, achievements, and
-                            trending spots. Let's see what you've been up to!
+                            Here&apos;s your weekly roundup of discoveries, achievements, and
+                            trending spots. Let&apos;s see what you&apos;ve been up to!
                         </Text>
                     </Section>
 

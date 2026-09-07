@@ -143,7 +143,7 @@ export function SubscriptionEmail(props: SubscriptionEmailProps) {
                     {/* Features for upgrades */}
                     {eventType === "upgrade" && (
                         <Section style={featuresSection}>
-                            <Text style={featuresTitle}>What's included:</Text>
+                            <Text style={featuresTitle}>What&apos;s included:</Text>
                             {newTier === "Pro" ? (
                                 <>
                                     <Text style={featureItem}>✓ Unlimited itineraries</Text>

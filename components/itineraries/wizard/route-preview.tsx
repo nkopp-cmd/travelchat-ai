@@ -50,9 +50,6 @@ function TransferIcon({ mode }: { mode: string }) {
 
 export function RoutePreview() {
   const { data } = useWizard();
-  const [result, setResult] = useState<PreviewResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const requestBody = useMemo(
     () =>
       buildCorridorRequest({
@@ -69,14 +66,17 @@ export function RoutePreview() {
 
   const selectionError = corridorSelectionError(data.citySlugs.length, data.days);
 
+  return <RoutePreviewRequest key={JSON.stringify([requestKey, selectionError])} requestKey={requestKey} selectionError={selectionError} />;
+}
+
+function RoutePreviewRequest({ requestKey, selectionError }: { requestKey: string; selectionError: string | null }) {
+  const { data } = useWizard();
+  const [result, setResult] = useState<PreviewResponse | null>(null);
+  const isLoading = !selectionError && result === null;
+
   useEffect(() => {
-    if (selectionError) {
-      setResult(null);
-      setIsLoading(false);
-      return;
-    }
+    if (selectionError) return;
     let cancelled = false;
-    setIsLoading(true);
     const timer = setTimeout(() => {
       fetch("/api/v2/trips/preview", {
         method: "POST",
@@ -89,9 +89,6 @@ export function RoutePreview() {
         })
         .catch(() => {
           if (!cancelled) setResult({ ok: false, error: { message: "Could not load the route preview." } });
-        })
-        .finally(() => {
-          if (!cancelled) setIsLoading(false);
         });
     }, 400);
     return () => {

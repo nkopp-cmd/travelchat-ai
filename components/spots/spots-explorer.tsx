@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, useCallback, useTransition } from "react";
+import { useRef, useCallback, useTransition } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SpotCard } from "@/components/spots/spot-card";
 import { SpotsFilterBar } from "./spots-filter-bar";
@@ -9,8 +10,13 @@ import { Spot } from "@/types";
 import { SpotsFilterState, FilterOptions } from "@/lib/spots/types";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Grid3X3, List } from "lucide-react";
+import { Loader2, Search, Grid3X3, List, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const SpotsMap = dynamic(() => import("./spots-map"), {
+    ssr: false,
+    loading: () => <p role="status" className="py-12 text-center text-muted-foreground">Loading map view...</p>,
+});
 
 interface SpotsExplorerProps {
     initialSpots: Spot[];
@@ -39,7 +45,16 @@ export function SpotsExplorer({
     const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
 
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    const requestedView = searchParams.get("view");
+    const viewMode = requestedView === "map" || requestedView === "list" ? requestedView : "grid";
+    const setViewMode = (view: "grid" | "list" | "map") => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (view === "grid") params.delete("view");
+        else params.set("view", view);
+        startTransition(() => {
+            router.push(params.size ? `${pathname}?${params}` : pathname, { scroll: false });
+        });
+    };
     const resultsTopRef = useRef<HTMLDivElement | null>(null);
 
     const scrollResultsIntoView = useCallback(() => {
@@ -128,9 +143,9 @@ export function SpotsExplorer({
      */
     const clearFilters = useCallback(() => {
         startTransition(() => {
-            router.push(pathname);
+            router.push(viewMode === "grid" ? pathname : `${pathname}?view=${viewMode}`);
         });
-    }, [router, pathname]);
+    }, [router, pathname, viewMode]);
 
     const hasActiveFilters =
         currentFilters.city ||
@@ -199,6 +214,16 @@ export function SpotsExplorer({
                     >
                         <List className="h-4 w-4" />
                     </Button>
+                    <Button
+                        variant={viewMode === "map" ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-9 w-9 rounded-none"
+                        onClick={() => setViewMode("map")}
+                        aria-label="Map view"
+                        aria-pressed={viewMode === "map"}
+                    >
+                        <Map className="h-4 w-4" aria-hidden="true" />
+                    </Button>
                 </div>
             </div>
 
@@ -207,7 +232,14 @@ export function SpotsExplorer({
                 <div className="pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-0">
                 {initialSpots.length > 0 ? (
                     <>
-                        {viewMode === "grid" ? (
+                        {viewMode === "map" ? (
+                            <SpotsMap
+                                key={searchParams.toString()}
+                                spots={initialSpots}
+                                city={currentFilters.city || undefined}
+                                currentPage={currentPage}
+                            />
+                        ) : viewMode === "grid" ? (
                             <div
                                 className={cn(
                                     "grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5",
