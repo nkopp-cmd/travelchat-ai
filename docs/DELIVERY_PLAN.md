@@ -7,6 +7,7 @@ This plan replaces the earlier approach of combining discovery, media, payments,
 
 The Seoul map is now live: `https://www.localley.io/spots?city=seoul&view=map`.
 Deployment `dpl_FcHJtVkCz5n92uYPhQJxZ8FLqh9u` serves application commit `0a503c6`.
+The tested release branch is pushed to GitHub as `release/seoul-discovery`; it has not been merged into `main`.
 All 39 public browser checks passed across three widths, and 34 authenticated live checks passed.
 The final release suite passed 745 tests. A narrow redirect follow-up keeps dashboard sign-in on Localley.
 

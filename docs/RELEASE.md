@@ -10,6 +10,9 @@ The smaller Seoul discovery release is live and verified on Vercel.
 Final application commit: `0a503c63a93d151f0be81080e3f01a705f4bea30` on `release/seoul-discovery`.
 Final deployment: `dpl_FcHJtVkCz5n92uYPhQJxZ8FLqh9u`.
 Live map: `https://www.localley.io/spots?city=seoul&view=map`.
+Release source is pushed to `origin/release/seoul-discovery` at `acce260`.
+The final source commit adds release evidence after deployed application commit `0a503c6`; it changes no application code.
+No pull request or merge into `main` was performed.
 
 The combined story and Cloudflare work remains separate and is not live.
 Before deploying the feature branch or an older main branch, integrate the release's security fixes.
@@ -27,7 +30,10 @@ The earlier missing-login blockers are resolved. Do not report them as current b
 - Two existing filter-cache refresh timeouts were logged with HTTP 200; visible filter checks passed. Performance follow-up remains.
 - Photo appearance, stale-worker upgrades, and automatic signup-profile synchronization remain unverified.
 
-Detailed release evidence is in the release worktree's `docs/releases/seoul-discovery.md`.
+Detailed release evidence is in `docs/releases/seoul-discovery.md` on the pushed release branch.
+The temporary worktree and test artifacts were removed after verification; the exact cleanup origin was not established.
+Git preserved all release commits, and the branch was pushed successfully from the main workspace.
+Future release worktrees must not live under a test runner's disposable output directory.
 Do not restore the old PUBLIC saved-place policies during application rollback.
 
 ## Earlier Production Check
@@ -107,7 +113,7 @@ Webhook ordering and duplicate-email handling remain documented limitations.
 
 ## Resume Sequence
 
-1. Synchronize release commits with the repository and integrate security fixes before resuming feature work.
+1. Integrate the pushed release's security fixes into future branches before resuming feature deployment.
 2. Address signup-profile synchronization, sign-in return context from saved places, and filter-cache performance as bounded follow-ups.
 3. Follow the separate billing, media, content, and Cloudflare gates in `DELIVERY_PLAN.md`.
 
