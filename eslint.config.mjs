@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "test-results/**",
     "playwright-report/**",
+    ".cloudflare-preview/**",
     "next-env.d.ts",
   ]),
 ]);

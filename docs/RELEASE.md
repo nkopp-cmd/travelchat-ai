@@ -6,9 +6,22 @@ That instruction does not override missing access, failed checks, or known compa
 
 ## Current Decision
 
-Commit the tested source on a separate branch. Hold production deployment.
-Do not trigger a Git-connected production deploy as a workaround for missing CLI access.
-The advisor did not approve release while the target and schema gates remain open.
+The combined feature commit is local and is not a safe single release without additional gates.
+Use the staged plan in `DELIVERY_PLAN.md`: release Seoul discovery on Vercel independently from new media and Cloudflare.
+The earlier missing-login blockers are resolved. Do not keep reporting them as current blockers.
+Hold the combined media release until its schema and runtime gates pass.
+
+## Production Check
+
+Checked on 2026-09-07 through authenticated Vercel inspection and its deployment API.
+
+- Live deployment: `dpl_8GLWuch2zYWyFEJHt9SCNmyDPTJw`, created 2026-07-27.
+- Live source: `98ccd6d00e11002326b8b7926e845414f675a7ef`.
+- Live branch: `fix/multi-city-network-narrowing`; deployment source is `redeploy`.
+- Domains: `localley.io` and `www.localley.io`.
+- New feature commit `073b11e` has not been pushed or deployed.
+- The live source has the same file tree as local `main` baseline `9aff78d`.
+- The public Seoul URL returns HTTP 200, but it is still the older application.
 
 ## Local Verification
 
@@ -26,12 +39,14 @@ The advisor did not approve release while the target and schema gates remain ope
 
 - GitHub repository: `nkopp-cmd/travelchat-ai`, default branch `main`.
 - Starting branch: `fix/social-trends-triple-billing`, with no existing staged changes.
-- Local Vercel repository metadata names `travelchat-ai`, but no `project.json` exists.
-- `vercel whoami` and `vercel project ls` both report no existing credentials.
-- `VERCEL_TOKEN` is absent from the allowed local environment.
-- The configured Supabase endpoint responds to authorized read-only REST schema checks.
-- That endpoint has not been matched against authenticated Vercel production configuration.
-- No Supabase management token or database connection credentials are available in the permitted environment.
+- Vercel is authenticated as `nkopp-cmd`; project `travelchat-ai` and its production aliases are confirmed.
+- The project uses repository-link metadata; absence of a standalone `project.json` is not evidence of missing access.
+- Supabase login is complete, with access to `travel-ai` (`llehrhqeolfprutcaopi`).
+- Authenticated read-only SQL now works through the Supabase management path.
+- A physical backup completed on 2026-09-07 at 06:46:38 UTC; this is not a tested restore.
+- Production environment variables were retrieved into ignored local storage without logging their values.
+- Confirm the deployment's database match again before any write or migration.
+- Cloudflare access is available. The user approved the isolated `.cloudflare-preview/` directory inside this workspace.
 - The shared team rules file remains blocked by workspace permissions. No alternate read was attempted.
 
 ## Schema Findings
@@ -45,8 +60,9 @@ Read-only checks returned no user rows and called no RPCs.
 - The weighted usage RPC exists with its expected argument signature; its body and grants remain unverified.
 - The older atomic usage RPCs from `001_atomic_usage_tracking.sql` are also absent from OpenAPI.
 
-REST absence establishes a compatibility gap, not definitive migration history.
-SQL access is required to verify actual objects, constraints, policies, grants, and migration history.
+Earlier REST absence established a compatibility gap, not definitive migration history.
+Later read-only SQL confirmed that the new media tables were absent.
+SQL access is now available for detailed checks before the media release.
 
 The updated image route requires `20260907060610_story_image_jobs.sql` for every uncached AI image.
 Disabling GPT Image 2 does not remove this dependency for FLUX, Seedream, or Gemini.
@@ -72,14 +88,10 @@ Webhook ordering and duplicate-email handling remain documented limitations.
 
 ## Resume Sequence
 
-1. Authenticate the approved Vercel account through its secure login flow.
-2. Verify the project and `localley.io` production alias against the authenticated account.
-3. Provide approved SQL or Supabase management access without putting secrets in chat or source.
-4. Verify the target database and recovery backup before applying any required migrations.
-5. Apply only reviewed missing migrations and verify grants and existing-provider compatibility.
-6. Audit existing Stripe customer mappings without making billing changes.
-7. Confirm new model flags remain disabled and video budgets remain zero until activation checks pass.
-8. Deploy a preview, test it, then promote the verified build and check the live routes.
+1. Prepare the smaller discovery release from the verified live baseline without disturbing the feature branch.
+2. Verify its exact dependencies, existing schema, authenticated flows, and current-story compatibility.
+3. Deploy a preview, test it, then promote and record the live commit and URL.
+4. Follow the separate billing, media, content, and Cloudflare gates in `DELIVERY_PLAN.md`.
 
 No migration, backup, provider generation, or production deployment occurred during this release assessment.
 The approved media test budget remains unspent.

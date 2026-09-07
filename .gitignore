@@ -15,6 +15,7 @@
 /test-results/
 /playwright-report/
 /supabase/.temp/
+/.cloudflare-preview/
 
 # next.js
 /.next/
