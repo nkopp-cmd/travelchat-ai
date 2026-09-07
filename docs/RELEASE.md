@@ -6,12 +6,31 @@ That instruction does not override missing access, failed checks, or known compa
 
 ## Current Decision
 
-The combined feature commit is local and is not a safe single release without additional gates.
-Use the staged plan in `DELIVERY_PLAN.md`: release Seoul discovery on Vercel independently from new media and Cloudflare.
-The earlier missing-login blockers are resolved. Do not keep reporting them as current blockers.
-Hold the combined media release until its schema and runtime gates pass.
+The smaller Seoul discovery release is live and verified on Vercel.
+Final application commit: `0a503c63a93d151f0be81080e3f01a705f4bea30` on `release/seoul-discovery`.
+Final deployment: `dpl_FcHJtVkCz5n92uYPhQJxZ8FLqh9u`.
+Live map: `https://www.localley.io/spots?city=seoul&view=map`.
 
-## Production Check
+The combined story and Cloudflare work remains separate and is not live.
+Before deploying the feature branch or an older main branch, integrate the release's security fixes.
+The earlier missing-login blockers are resolved. Do not report them as current blockers.
+
+## Latest Verification
+
+- 745 release tests pass across 97 files; TypeScript and the hosted build pass.
+- All 39 public browser workflow checks pass at 390, 900, and 1440 pixels without preview access headers.
+- Thirty-four real authenticated production checks passed, including persisted save/unsave and all three existing PNG templates.
+- The final redirect-only follow-up preserves API protection and fixes dashboard continuation through local sign-in.
+- All temporary QA accounts, sessions, and fixture rows were cleaned up.
+- Applied and verified `20260907161457_harden_saved_spots_owner_rls.sql`; its migration history is recorded.
+- The new media migrations were not applied and no new media generation was enabled.
+- Two existing filter-cache refresh timeouts were logged with HTTP 200; visible filter checks passed. Performance follow-up remains.
+- Photo appearance, stale-worker upgrades, and automatic signup-profile synchronization remain unverified.
+
+Detailed release evidence is in the release worktree's `docs/releases/seoul-discovery.md`.
+Do not restore the old PUBLIC saved-place policies during application rollback.
+
+## Earlier Production Check
 
 Checked on 2026-09-07 through authenticated Vercel inspection and its deployment API.
 
@@ -88,10 +107,9 @@ Webhook ordering and duplicate-email handling remain documented limitations.
 
 ## Resume Sequence
 
-1. Prepare the smaller discovery release from the verified live baseline without disturbing the feature branch.
-2. Verify its exact dependencies, existing schema, authenticated flows, and current-story compatibility.
-3. Deploy a preview, test it, then promote and record the live commit and URL.
-4. Follow the separate billing, media, content, and Cloudflare gates in `DELIVERY_PLAN.md`.
+1. Synchronize release commits with the repository and integrate security fixes before resuming feature work.
+2. Address signup-profile synchronization, sign-in return context from saved places, and filter-cache performance as bounded follow-ups.
+3. Follow the separate billing, media, content, and Cloudflare gates in `DELIVERY_PLAN.md`.
 
-No migration, backup, provider generation, or production deployment occurred during this release assessment.
-The approved media test budget remains unspent.
+The earlier assessment stopped before deployment. The latest verification above supersedes that status.
+No new AI-provider generation was used during release verification.

@@ -3,7 +3,22 @@
 Date: 2026-09-07.
 This plan replaces the earlier approach of combining discovery, media, payments, and hosting into one release.
 
-## Verified State
+## Release 1 Completed
+
+The Seoul map is now live: `https://www.localley.io/spots?city=seoul&view=map`.
+Deployment `dpl_FcHJtVkCz5n92uYPhQJxZ8FLqh9u` serves application commit `0a503c6`.
+All 39 public browser checks passed across three widths, and 34 authenticated live checks passed.
+The final release suite passed 745 tests. A narrow redirect follow-up keeps dashboard sign-in on Localley.
+
+Hosted QA exposed two existing privacy gaps and a summary-render defect, which were fixed before completion.
+The saved-place owner policy was applied and recorded. New media migrations remain unapplied.
+All QA accounts, sessions, and fixture data were removed.
+
+Next: integrate release security fixes into future branches, then address signup synchronization and the saved-place planning journey.
+Investigate the two nonfatal filter-cache refresh timeout logs without expanding that work into another hosting migration.
+The historical assessment below explains why release work was split; it no longer describes the current live version.
+
+## Initial Baseline
 
 | Area | Actual state |
 | --- | --- |
@@ -130,6 +145,5 @@ Keep the old origin available for rollback.
 
 ## Immediate Next Action
 
-Prepare Release 1 from the verified production baseline in a separate workspace.
-Validate the extracted changes and deploy them through the existing Vercel release path.
-This is the next implementation stage; this reassessment itself changed no application code or hosted resources.
+Preserve and synchronize the deployed release, including its security migration.
+Resume Release 2 as a bounded user-journey task. Do not make it wait for new media or Cloudflare.
