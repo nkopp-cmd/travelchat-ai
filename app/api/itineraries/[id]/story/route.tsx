@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 
@@ -784,6 +785,7 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                     >
                         <div
                             style={{
+                                display: "flex",
                                 backgroundColor: "rgba(255,255,255,0.95)",
                                 padding: "14px 36px",
                                 borderRadius: 100,
@@ -822,8 +824,11 @@ export async function GET(
 ) {
     const debugMode = new URL(req.url).searchParams.get("debug") === "true";
     const diagnostics: Record<string, unknown> = { timestamp: new Date().toISOString(), runtime: "nodejs" };
+    let authorized = false;
+    const responseHeaders = { "Cache-Control": "private, no-store" };
 
     try {
+        const { userId } = await auth();
         const { id } = await params;
         const { searchParams } = new URL(req.url);
         const slide = searchParams.get("slide") || "cover";
@@ -844,32 +849,19 @@ export async function GET(
 
         diagnostics.queryResult = { hasData: !!itinerary, error: error?.message || null };
 
-        if (debugMode && (error || !itinerary)) {
-            return NextResponse.json({ ...diagnostics, step: "query_failed" });
+        if (error && error.code !== "PGRST116") {
+            throw error;
         }
 
-        if (error || !itinerary) {
-            console.error("[STORY_ROUTE] Itinerary query failed:", error?.message || "not found", { id });
-            // Return a valid PNG error slide instead of text 404
-            const errOg = new ImageResponse(
-                (
-                    <div style={{
-                        width: STORY_WIDTH, height: STORY_HEIGHT, display: "flex",
-                        justifyContent: "center", alignItems: "center",
-                        background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)",
-                    }}>
-                        <span style={{ fontSize: 48, color: "white", fontWeight: "bold" }}>Localley</span>
-                    </div>
-                ),
-                { width: STORY_WIDTH, height: STORY_HEIGHT }
-            );
-            const errBuf = await errOg.arrayBuffer();
-            return new Response(errBuf, {
-                headers: {
-                    'Content-Type': 'image/png',
-                    'Cache-Control': 'no-store, no-cache, must-revalidate',
-                },
-            });
+        // Admin reads bypass RLS; deny before image downloads, rendering, or diagnostics.
+        if (error || !itinerary || (itinerary.is_public !== true &&
+            (!userId || itinerary.clerk_user_id !== userId))) {
+            return NextResponse.json({ error: "Itinerary not found" }, { status: 404, headers: responseHeaders });
+        }
+        authorized = true;
+        if (itinerary.is_public === true) {
+            // The paid flag is a URL option, not viewer-specific tier data. Keep existing no-store behavior.
+            responseHeaders["Cache-Control"] = "no-store, no-cache, must-revalidate";
         }
 
         // ai_backgrounds may or may not exist depending on migration status
@@ -1015,7 +1007,7 @@ export async function GET(
                 break;
 
             default:
-                return new Response("Invalid slide type", { status: 400 });
+                return new Response("Invalid slide type", { status: 400, headers: responseHeaders });
         }
 
         // Render the slide as PNG.
@@ -1038,13 +1030,13 @@ export async function GET(
                     ...diagnostics,
                     step: "render_success",
                     pngBytes: pngBuffer.byteLength,
-                });
+                }, { headers: responseHeaders });
             }
 
             return new Response(pngBuffer, {
                 headers: {
                     'Content-Type': 'image/png',
-                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    ...responseHeaders,
                 },
             });
         } catch (renderError) {
@@ -1057,7 +1049,7 @@ export async function GET(
                     error: renderError instanceof Error
                         ? { message: renderError.message, stack: renderError.stack }
                         : String(renderError),
-                });
+                }, { headers: responseHeaders });
             }
 
             // Try a SIMPLE gradient fallback (no background image — that might be what crashed)
@@ -1096,21 +1088,24 @@ export async function GET(
                 return new Response(fallbackBuf, {
                     headers: {
                         'Content-Type': 'image/png',
-                        'Cache-Control': 'no-store, no-cache, must-revalidate',
+                        ...responseHeaders,
                     },
                 });
             } catch {
-                return new Response("Failed to generate story", { status: 500 });
+                return new Response("Failed to generate story", { status: 500, headers: responseHeaders });
             }
         }
     } catch (error) {
         console.error("[STORY_ROUTE] Fatal error:", error);
+        if (!authorized) {
+            return NextResponse.json({ error: "Failed to load story" }, { status: 500, headers: responseHeaders });
+        }
         if (debugMode) {
             return NextResponse.json({
                 ...diagnostics,
                 step: "fatal_error",
                 error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
-            });
+            }, { headers: responseHeaders });
         }
         // Even the outermost catch should try to return a PNG, not text
         try {
@@ -1133,11 +1128,11 @@ export async function GET(
             return new Response(fatalBuf, {
                 headers: {
                     'Content-Type': 'image/png',
-                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    ...responseHeaders,
                 },
             });
         } catch {
-            return new Response("Failed to generate story", { status: 500 });
+            return new Response("Failed to generate story", { status: 500, headers: responseHeaders });
         }
     }
 }
