@@ -64,7 +64,13 @@ const MAX_RUN_ATTEMPTS = 3;
 const MAX_CITY_BUILD_ATTEMPTS = 3;
 const DERIVED_DATA_RETENTION_DAYS = 16 * 7;
 const STALE_STARTING_MINUTES = 30;
-const STALE_RUNNING_HOURS = 6;
+// Must stay ABOVE the interval of the cron that reads these runs, or a finished
+// run is failed before anything ever processes it. The reader is the daily
+// /api/cron/refresh-weekly-social-trends, so six hours could never hold: a run
+// started yesterday is always older than six hours by the time today's
+// invocation looks at it. 30h keeps a margin over a 24h cron and still catches
+// a genuinely hung run.
+const STALE_RUNNING_HOURS = 30;
 const MAX_PENDING_SOCIAL_LEADS_PER_CITY = 3;
 
 export const SOCIAL_SCOUT_CITIES = ENABLED_CITIES;
@@ -1035,8 +1041,13 @@ export async function refreshWeeklySocialTrends(
     rankings: 0,
     builtCities: [],
   };
-  await cleanupSocialTrendData(now);
+  // Process BEFORE cleaning. Cleanup fails any run still marked `running` past
+  // the safety window. With cleanup first, a run that finished since the last
+  // invocation is failed and its results are thrown away unread; the slot then
+  // frees and startMissingRuns pays the actor for the same week again, up to
+  // MAX_RUN_ATTEMPTS times. That billed each platform three times per week.
   const processResult = await processAvailableRuns(token, weekStart, summary);
+  await cleanupSocialTrendData(now);
   summary.started = await startMissingRuns(token, weekStart);
   if (summary.started.length > 0) return summary;
   if (processResult.pending) return summary;

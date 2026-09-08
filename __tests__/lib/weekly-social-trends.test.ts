@@ -272,8 +272,20 @@ describe("weekly social trend normalization", () => {
     expect(getSocialTrendRetentionCutoffs(new Date("2026-07-14T12:00:00Z"))).toEqual({
       derivedBeforeWeek: "2026-03-24",
       staleStartingBefore: "2026-07-14T11:30:00.000Z",
-      staleRunningBefore: "2026-07-14T06:00:00.000Z",
+      // 30h, not 6h: the only reader is a daily cron, so a six-hour window
+      // failed every finished run before it could be processed.
+      staleRunningBefore: "2026-07-13T06:00:00.000Z",
     });
+  });
+
+  it("keeps the running window wider than the daily cron that reads it", () => {
+    // Regression guard for the triple-billing bug: a run started one cron
+    // interval ago must still be inside the window when the next invocation
+    // processes it, or its slot frees and the actor is paid for it again.
+    const now = new Date("2026-07-14T12:00:00Z");
+    const oneCronIntervalAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const { staleRunningBefore } = getSocialTrendRetentionCutoffs(now);
+    expect(new Date(staleRunningBefore).getTime()).toBeLessThan(oneCronIntervalAgo.getTime());
   });
 
   it("rejects cities outside the enabled city catalog", () => {
