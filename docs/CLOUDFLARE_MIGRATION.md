@@ -34,6 +34,38 @@ Rewrite and verify spatial queries, transaction behavior, and authorization inst
 
 ## Auth Proof
 
+### Frontend Integration
+
+The local proof now serves a React frontend through native Workers Static Assets.
+It uses Better Auth's official client and the D1-backed application session and saved-place routes.
+No successful authentication or save response is fabricated in the browser tests.
+
+The UI covers signup, verification notices, sign-in, explicit account setup, saved places, logout, and password reset.
+Email remains in the private local test outbox. Only the trusted test harness can read verification and reset links.
+The page clearly labels its accounts and catalog as synthetic test data.
+
+Private data is scoped to auth user, application owner, and session.
+Account changes clear private views and cancel stale requests.
+Mutations carry an expected session identifier, which the server compares with the actual authenticated session.
+That header is a stale-client precondition, not an authentication credential.
+A changed session rejects the mutation instead of applying the old page's action to a new account.
+
+Guest place selection survives sign-in, but saving still requires explicit confirmation.
+Failed reads do not appear as empty collections, and failed logout does not falsely claim that the session ended.
+The UI does not claim XP or engagement completion from queued save events.
+
+Browser verification covers 19 reviewed screenshots across nine states.
+Public views were checked at 390, 900, and 1440 pixels.
+Authenticated and recovery screens were checked at mobile and desktop sizes.
+All measured controls meet 44x44 pixels. Text contrast, focus, overflow, and reduced-motion checks pass in the reviewed scope.
+Screen-reader speech, zoom, other browser engines, and full WCAG conformance remain unverified.
+Detailed evidence is in `cloudflare/auth-proof/docs/browser-evidence.md`.
+
+`npm run check` now includes both Worker and frontend TypeScript checks and lint.
+`npm run test:browser` runs the separate real-browser flow.
+The local TLS bridge is test infrastructure, not a proposed production Node server.
+No live accounts, real email, database imports, domain changes, or hosted deployment occurred in this slice.
+
 ### First Application Port
 
 The local Worker now implements Localley's saved-place API with native D1 queries.
@@ -61,8 +93,8 @@ Type generation, TypeScript, lint, bundling, and package validation pass.
 These results do not establish production CPU costs or distributed performance.
 
 Events remain in a local outbox. No XP award, guide engagement, billing action, or queue consumption is claimed.
-The application frontend still uses the current live backend; it has not switched to these Worker routes.
-Frontend session integration, production imports, quota synchronization, and event consumers are subsequent migration stages.
+The production frontend still uses the current live backend; only the local migration frontend uses these Worker routes.
+Production imports, quota synchronization, real email delivery, and event consumers remain migration stages.
 No live provider, account, email, database, or DNS changes occurred in this application slice.
 
 ### Authentication Foundation
@@ -136,6 +168,7 @@ Do not solve partial writes by weakening email verification or account linking.
 - Prevent concurrent writes from producing divergent records during final synchronization.
 - Switch schedules and webhooks once, with idempotency and rollback checks.
 - Switch the domain only after the target passes the complete acceptance journey.
+- Disable Vercel's Git deployment for main before merging the final migration branch into main.
 - Retire Clerk sessions, SDKs, widgets, and bridge credentials after the migration window closes.
 - Retire Supabase and Vercel only after all live dependencies and recovery needs are accounted for.
 

@@ -1,4 +1,10 @@
 # Local Auth And Application Proof
+
+The package now includes a browser frontend. `npm run check` validates Worker and frontend types and lint.
+Run `npm run test:browser` separately for the real browser journey over local Workers assets and D1.
+Use `npm run preview:local` only to inspect the local UI; it does not send real email or import customer accounts.
+Current frontend evidence is in `docs/browser-evidence.md`. Earlier checkpoint counts below remain historical.
+
 This package proves Better Auth on native workerd with local D1 bindings.
 It does not change the parent application or its dependencies.
 Better Auth, Workers, and D1 form the intended final authentication platform.

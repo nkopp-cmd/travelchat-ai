@@ -3,12 +3,13 @@ import { redeemClaim } from "./claim";
 import { trustedAppSession } from "./app-session";
 import { savedSpots } from "./saved-spots";
 import { appError } from "./app-error";
+import { catalog } from "./catalog";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
 export default {
   async fetch(request, env, ctx) {
-    const savedRoute = new URL(request.url).pathname === "/api/spots/save";
+    const savedRoute = ["/api/spots/save", "/api/spots"].includes(new URL(request.url).pathname);
     const fail = (code: string, message: string, status: number, legacyMessage = message) =>
       savedRoute ? appError(code, message, status) : json({ error: legacyMessage }, status);
     try {
@@ -17,6 +18,10 @@ export default {
       const local = base.hostname === "localhost" || base.hostname.endsWith(".test");
       if (env.LOCAL_PROOF !== "true" || !local || base.protocol !== "https:" || base.origin !== env.AUTH_BASE_URL
         || url.origin !== base.origin || env.BETTER_AUTH_SECRET.length < 32 || env.CLAIM_SECRET.length < 32) return fail("forbidden", "Local proof only", 403);
+      if (request.method === "GET" && url.pathname === "/api/spots") return await catalog(url, env);
+      if (["GET", "HEAD"].includes(request.method) && !url.pathname.startsWith("/api/") && url.pathname !== "/api") {
+        return await env.ASSETS.fetch(request);
+      }
       // Never trust caller-provided proxy IPs in this local-only harness.
       const headers = new Headers(request.headers);
       headers.set("x-local-proof-ip", "127.0.0.1");
@@ -65,6 +70,11 @@ export default {
       const session = await trustedAppSession(env, request.headers);
       if (session.state === "signedout") return fail("unauthorized", "Please sign in to continue.", 401, "Unauthorized");
       if (session.state === "unverified") return fail("forbidden", "Verify email", 403);
+      // This is a stale-client guard, never an authentication credential.
+      const expectedSession = request.headers.get("x-localley-session-id");
+      if (!["GET", "HEAD"].includes(request.method) && expectedSession !== null && expectedSession !== session.sessionId) {
+        return appError("session_changed", "Your session changed. Refresh before trying again.", 409);
+      }
       if (path === "/api/session" && request.method === "GET") {
         return json(session);
       }

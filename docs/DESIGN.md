@@ -2,6 +2,20 @@
 
 ## Scope
 
+Latest migration frontend: `cloudflare/auth-proof/web` connects real local Workers assets, Better Auth, and D1.
+It preserves Localley's neutral surfaces, violet accents, named controls, and existing font asset.
+This is an isolated migration UI, not a replacement of the live website yet.
+The source and design selection record is `cloudflare/auth-proof/web/README.md`.
+The final browser evidence is `cloudflare/auth-proof/docs/browser-evidence.md`.
+
+Reviewed 19 screenshots across public, authenticated, recovery, empty, error, and long-content states.
+All 212 measured control instances met the 44x44 pixel target.
+Measured text contrast was 6.48:1 or greater; control boundaries measured 4.83:1.
+Keyboard focus, reduced motion, Korean wrapping, and overflow checks passed.
+The signed-in reset heading and the focused skip-link placement were corrected during review.
+Zoom, screen-reader speech, other browser engines, and a complete WCAG audit remain outstanding.
+Screenshots live under `test-results/cloudflare-frontend/` and contain synthetic data only.
+
 Latest story addition preserves the existing identity and Radix interaction foundation.
 Image carousel and Video now share the existing story dialog, with actual availability and job states.
 The full browser report is `story-studio-browser-review.md`, including five-source selection and measured accessibility checks.

@@ -7,4 +7,9 @@ export default tseslint.config(
     languageOptions: { parserOptions: { project: "./tsconfig.json", tsconfigRootDir: import.meta.dirname } },
     rules: { "@typescript-eslint/no-floating-promises": "error" },
   },
+  {
+    files: ["web/**/*.ts", "web/**/*.tsx"],
+    languageOptions: { parserOptions: { project: "./tsconfig.web.json", tsconfigRootDir: import.meta.dirname } },
+    rules: { "@typescript-eslint/no-floating-promises": "error" },
+  },
 );
