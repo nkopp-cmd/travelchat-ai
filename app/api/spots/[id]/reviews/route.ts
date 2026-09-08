@@ -44,11 +44,7 @@ export async function GET(
                 visit_date,
                 helpful_count,
                 created_at,
-                clerk_user_id,
-                users!spot_reviews_clerk_user_id_fkey (
-                    name,
-                    avatar_url
-                )
+                clerk_user_id
             `)
             .eq("spot_id", spotId);
 
@@ -78,30 +74,58 @@ export async function GET(
             return Errors.databaseError();
         }
 
+        // Reviews store Clerk IDs without a users FK; resolve public names separately.
+        const authors = new Map<string, string | null>();
+        if (reviews && reviews.length > 0) {
+            const { data: users, error: usersError } = await supabase
+                .from("users")
+                .select("clerk_id, username")
+                .in("clerk_id", [...new Set(reviews.map((r) => r.clerk_user_id))]);
+            if (usersError) {
+                console.error("Error fetching review authors:", usersError);
+                return Errors.databaseError();
+            }
+            for (const user of users || []) authors.set(user.clerk_id, user.username);
+        }
+
         // Get user's votes if authenticated
         let userVotes: string[] = [];
         if (userId && reviews && reviews.length > 0) {
             const reviewIds = reviews.map((r) => r.id);
-            const { data: votes } = await supabase
+            const { data: votes, error: votesError } = await supabase
                 .from("review_helpful_votes")
                 .select("review_id")
                 .eq("clerk_user_id", userId)
                 .in("review_id", reviewIds);
 
+            if (votesError) {
+                console.error("Error fetching review votes:", votesError);
+                return Errors.databaseError();
+            }
             userVotes = (votes || []).map((v) => v.review_id);
         }
 
         // Get total count for pagination
-        const { count } = await supabase
+        const { count, error: countError } = await supabase
             .from("spot_reviews")
             .select("*", { count: "exact", head: true })
             .eq("spot_id", spotId);
 
+        if (countError) {
+            console.error("Error counting reviews:", countError);
+            return Errors.databaseError();
+        }
+
         // Get spot rating stats
-        const { data: stats } = await supabase
+        const { data: stats, error: statsError } = await supabase
             .from("spot_reviews")
             .select("rating")
             .eq("spot_id", spotId);
+
+        if (statsError) {
+            console.error("Error fetching review ratings:", statsError);
+            return Errors.databaseError();
+        }
 
         const ratingDistribution = [0, 0, 0, 0, 0];
         let totalRating = 0;
@@ -116,10 +140,6 @@ export async function GET(
 
         // Format response
         const formattedReviews: ReviewWithUser[] = (reviews || []).map((review) => {
-            const usersData = review.users;
-            const user = Array.isArray(usersData)
-                ? usersData[0]
-                : usersData;
             return {
                 id: review.id,
                 rating: review.rating,
@@ -128,9 +148,9 @@ export async function GET(
                 helpful_count: review.helpful_count,
                 created_at: review.created_at,
                 clerk_user_id: review.clerk_user_id,
-                user: user ? {
-                    name: user.name,
-                    avatar_url: user.avatar_url,
+                user: authors.has(review.clerk_user_id) ? {
+                    name: authors.get(review.clerk_user_id) ?? null,
+                    avatar_url: null,
                 } : null,
                 user_voted: userVotes.includes(review.id),
             };

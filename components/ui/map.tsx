@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useSyncExternalStore, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useMapProvider, type MapProvider } from "@/hooks/use-map-provider";
 import type { SubscriptionTier } from "@/lib/subscription";
@@ -67,6 +67,10 @@ const GoogleMap = dynamic(() => import("./google-map"), {
     loading: MapLoading,
 });
 
+const subscribeToClient = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export default function MapComponent({
     initialViewState,
     markers = [],
@@ -76,7 +80,7 @@ export default function MapComponent({
     forceProvider,
     userTier,
 }: MapComponentProps) {
-    const [mounted, setMounted] = useState(false);
+    const mounted = useSyncExternalStore(subscribeToClient, getClientSnapshot, getServerSnapshot);
     const [kakaoFailed, setKakaoFailed] = useState(false);
     const [googleFailed, setGoogleFailed] = useState(false);
 
@@ -94,17 +98,13 @@ export default function MapComponent({
     }, [initialViewState, markers]);
 
     // Detect map provider based on city, coordinates, and tier
-    const { provider, isKorea } = useMapProvider({
+    const { provider } = useMapProvider({
         city,
         lat: center.lat,
         lng: center.lng,
         forceProvider,
         userTier,
     });
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Handle Kakao map error - fallback to OpenStreetMap
     const handleKakaoError = useCallback((error: string) => {

@@ -209,3 +209,12 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Ring 1 (enabled): Seoul, Tokyo, Bangkok, Singapore
 - Ring 2-3: Other cities exist but `isEnabled: false`
 - Config in `lib/cities.ts`
+
+### Release Workflow
+- The user authorizes routine commits and production deployment after successful release checks.
+- Verify the target, credentials, required migrations, and release gates before deployment.
+- Keep main aligned with the verified release. Do not merge unfinished media or hosting experiments merely to clear branches.
+- Preserve unmerged source and credentials during cleanup. Remove only verified obsolete metadata and rebuildable artifacts.
+- Do not create release worktrees under disposable test-output directories.
+- Keep new paid generation disabled until its activation gates pass. The initial shared media test ceiling is $20.
+- Current release evidence is in `docs/releases/seoul-discovery.md`.

@@ -6,6 +6,8 @@ import { checkUsageLimit, getUserTier } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
 
+const spotIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -13,13 +15,41 @@ export async function POST(req: NextRequest) {
       return Errors.unauthorized();
     }
 
-    const { spotId } = await req.json();
+    const body = await req.json().catch(() => null);
+    const spotId = body?.spotId;
 
     if (!spotId) {
       return Errors.validationError("Spot ID is required");
     }
 
-    // Check saved spots limit
+    if (typeof spotId !== "string" || !spotIdPattern.test(spotId)) {
+      return Errors.validationError("Spot ID must be a valid UUID");
+    }
+
+    const supabase = await createSupabaseServerClient();
+
+    // Check if already saved
+    const { data: existing, error: lookupError } = await supabase
+      .from("saved_spots")
+      .select("id")
+      .eq("clerk_user_id", userId)
+      .eq("spot_id", spotId)
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error("Error checking saved spot:", lookupError);
+      return Errors.databaseError();
+    }
+
+    if (existing) {
+      return NextResponse.json({
+        success: true,
+        saved: true,
+        message: "Spot already saved"
+      });
+    }
+
+    // Check the limit only for a new save, not an idempotent retry.
     const tier = await getUserTier(userId);
     const usage = await checkUsageLimit(userId, "spots_saved", tier);
 
@@ -30,24 +60,6 @@ export async function POST(req: NextRequest) {
         usage.limit,
         usage.periodResetAt
       );
-    }
-
-    const supabase = await createSupabaseServerClient();
-
-    // Check if already saved
-    const { data: existing } = await supabase
-      .from("saved_spots")
-      .select("id")
-      .eq("clerk_user_id", userId)
-      .eq("spot_id", spotId)
-      .single();
-
-    if (existing) {
-      return NextResponse.json({
-        success: true,
-        saved: true,
-        message: "Spot already saved"
-      });
     }
 
     // Save the spot
@@ -119,10 +131,15 @@ export async function DELETE(req: NextRequest) {
       return Errors.unauthorized();
     }
 
-    const { spotId } = await req.json();
+    const body = await req.json().catch(() => null);
+    const spotId = body?.spotId;
 
     if (!spotId) {
       return Errors.validationError("Spot ID is required");
+    }
+
+    if (typeof spotId !== "string" || !spotIdPattern.test(spotId)) {
+      return Errors.validationError("Spot ID must be a valid UUID");
     }
 
     const supabase = await createSupabaseServerClient();
@@ -158,16 +175,25 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const spotId = searchParams.get("spotId");
 
+    if (spotId !== null && !spotIdPattern.test(spotId)) {
+      return Errors.validationError("Spot ID must be a valid UUID");
+    }
+
     const supabase = await createSupabaseServerClient();
 
     // If spotId provided, check if specific spot is saved
     if (spotId) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("saved_spots")
         .select("id")
         .eq("clerk_user_id", userId)
         .eq("spot_id", spotId)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking saved spot:", error);
+        return Errors.databaseError();
+      }
 
       return NextResponse.json({
         saved: !!data

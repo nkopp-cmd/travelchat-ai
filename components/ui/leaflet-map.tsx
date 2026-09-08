@@ -155,12 +155,18 @@ export default function LeafletMap({
 
             // Add popup
             if (marker.title) {
-                const popupContent = `
-                    <div style="min-width: 150px;">
-                        <strong style="font-size: 14px;">${marker.title}</strong>
-                        ${marker.description ? `<p style="margin: 4px 0 0; font-size: 12px; color: #666;">${marker.description}</p>` : ""}
-                    </div>
-                `;
+                const popupContent = document.createElement("div");
+                popupContent.style.minWidth = "150px";
+                const title = document.createElement("strong");
+                title.style.fontSize = "14px";
+                title.textContent = marker.title;
+                popupContent.appendChild(title);
+                if (marker.description) {
+                    const description = document.createElement("p");
+                    description.style.cssText = "margin: 4px 0 0; font-size: 12px; color: #666;";
+                    description.textContent = marker.description;
+                    popupContent.appendChild(description);
+                }
                 leafletMarker.bindPopup(popupContent);
             }
 

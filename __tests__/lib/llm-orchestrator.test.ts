@@ -6,6 +6,14 @@ import type {
   OrchestrationRequest,
 } from "@/lib/llm";
 
+// Isolate provider construction before each test installs its routing stubs.
+vi.mock("@/lib/llm/providers", () => ({
+  GLMProvider: vi.fn(),
+  OpenAIProvider: vi.fn(),
+  GeminiProvider: vi.fn(),
+  ClaudeProvider: vi.fn(),
+}));
+
 const itinerary: GeneratedItinerary = {
   title: "Tokyo Food Trail",
   subtitle: "Local counters and market lanes",
