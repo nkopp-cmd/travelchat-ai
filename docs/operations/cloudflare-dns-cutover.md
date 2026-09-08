@@ -63,12 +63,28 @@ These checks do not prove inbox delivery or complete an application authenticati
 
 ## Next Gate
 
-Onboard `localley.io` in Cloudflare Email Sending through authorized access.
-The current token still receives HTTP 403 and code `10000` from this zone's Email Sending endpoint.
-Review proposed sender, SPF, DKIM, and DMARC records before confirming them.
+The user completed Email Sending onboarding, which added Cloudflare bounce MX, SPF, DKIM, and DMARC records.
+The generated DMARC policy was `p=reject`, while the supplied source inventory had no Google SPF or DKIM records.
+The user explicitly approved temporarily changing only that policy to `p=none`.
+Verify Google Workspace sender authentication and received headers before restoring enforcement.
+The five Google Workspace MX records remain unchanged.
+
+The user approved one test message to their existing account address.
+Exactly one native Workers Email binding call was made, and Cloudflare returned an accepted message ID.
+No login link, customer data, attachment, or tracking pixel was included.
+Delivery is not yet confirmed by the recipient. The receipt remains in ignored private release metadata.
+Temporary test code and local processes were removed; no public send endpoint or lasting test Worker remains.
+No billing configuration was changed.
+
+The API token still cannot read the Email Sending management endpoint.
+That limitation did not prevent the authorized native Workers binding from accepting the test message.
+Do not confuse management API access with the verified sending path.
+
+Next, confirm receipt and inspect authentication results before connecting real signup and recovery email.
+A successful send to one approved address does not prove general sending eligibility for all future recipients.
+Verify the account plan and sender limits before activating public authentication email.
 Keep Google Workspace MX records unchanged. Do not enable Email Routing as a substitute for Email Sending.
 If onboarding requires a new paid plan, obtain approval for that recurring charge first.
-No Email Sending configuration, message delivery, or new subscription was created in this DNS step.
 
 Changing nameservers moves DNS management only.
 Vercel, Supabase, and Clerk remain temporary application dependencies until the separate application cutover passes.

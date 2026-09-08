@@ -213,6 +213,8 @@ User triggers story → POST /api/images/story-background (generate + store)
 ### Release Workflow
 - Final infrastructure target: Cloudflare Workers, D1, R2, and Cloudflare background services, with Better Auth replacing Clerk.
 - Follow `docs/CLOUDFLARE_MIGRATION.md` for the full migration. Do not deploy the local auth proof or trigger Vercel builds from migration branches.
+- Follow `docs/AUTHENTIC_DISCOVERY.md` for the primary product improvements: genuine photos, useful spot facts, interactive maps, and spot-to-itinerary actions.
+- Never present generic stock or AI-generated media as evidence of a real venue. Keep cinematic media distinct from practical navigation.
 - Vercel, Supabase, and Clerk remain temporary live dependencies until a verified migration; do not treat them as the final platform.
 - The user authorizes routine commits and production deployment after successful release checks.
 - Verify the target, credentials, required migrations, and release gates before deployment.

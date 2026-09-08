@@ -1,6 +1,10 @@
 # Full Cloudflare Migration
 
 Final target: no Vercel, Supabase, or Clerk runtime dependency.
+
+The migration must also deliver the authentic discovery improvements in `AUTHENTIC_DISCOVERY.md`.
+Photo truthfulness, useful spot facts, real map behavior, and spot-to-itinerary actions are primary product requirements.
+Do not import the existing misleading fallback and photo-reference behavior unchanged into the Cloudflare implementation.
 The current services stay online only until a verified replacement and rollback procedure are ready.
 Stripe, OpenAI, and MiniMax remain external product providers, not hosting or authentication platforms.
 

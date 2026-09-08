@@ -2,6 +2,15 @@
 
 ## Scope
 
+Primary product direction now includes `AUTHENTIC_DISCOVERY.md`.
+The user requested an order-of-magnitude improvement in genuine imagery, useful spot information, maps, and itinerary integration.
+Choose the neighborhood field-guide direction before an optional cinematic atlas.
+Preserve the existing identity while changing information hierarchy and task completion.
+Do not use stock substitution or AI artwork as evidence of a real venue.
+Do not count authentication fixtures or synthetic preview content as a reviewed travel product.
+Build and review one real Seoul spot page with its linked map before extending the new composition.
+The detailed audit, measurable gates, media rules, and phased implementation order are in the new brief.
+
 Latest migration frontend: `cloudflare/auth-proof/web` connects real local Workers assets, Better Auth, and D1.
 It preserves Localley's neutral surfaces, violet accents, named controls, and existing font asset.
 This is an isolated migration UI, not a replacement of the live website yet.
