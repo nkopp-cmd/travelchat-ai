@@ -34,6 +34,39 @@ Rewrite and verify spatial queries, transaction behavior, and authorization inst
 
 ## Auth Proof
 
+### First Application Port
+
+The local Worker now implements Localley's saved-place API with native D1 queries.
+A shared application session boundary separates auth IDs, owner IDs, profile UUIDs, and session IDs.
+Private access requires a current verified session and a complete identity mapping.
+New account provisioning creates the owner, profile, default quota, and mapping in one atomic batch.
+Legacy fixtures preserve their existing owner strings, profile UUIDs, save IDs, and millisecond timestamps.
+No real account or catalog import has run.
+
+`/api/spots/save` supports the existing POST, GET, and DELETE response shapes.
+Quota errors retain the existing structured format and HTTP 429 status.
+Limits of 10, 100, and 999 are server-controlled; absent quota configuration blocks new saves with HTTP 503.
+Concurrent saves cannot exceed the quota or create duplicate save events.
+The save and its event share one transaction, so a failed event write rolls back the save.
+Duplicate retries remain successful at the limit, and over-limit owners can still read and remove existing saves.
+
+Unavailable catalog entries expose no hidden metadata. Owned saves can return a read-time tombstone.
+Multilingual JSON, null photos, and unrated scores remain intact. Rated scores use integers from 1 through 6.
+Lists preserve history through 1000 rows. Larger lists fail explicitly rather than silently truncating.
+Pagination and lossless handling of finer timestamp precision remain import-design decisions before production use.
+
+The latest check passes 26 native runtime tests plus one environment-isolation test.
+It issued 266 local Worker requests, including 119 saved-place requests.
+Type generation, TypeScript, lint, bundling, and package validation pass.
+These results do not establish production CPU costs or distributed performance.
+
+Events remain in a local outbox. No XP award, guide engagement, billing action, or queue consumption is claimed.
+The application frontend still uses the current live backend; it has not switched to these Worker routes.
+Frontend session integration, production imports, quota synchronization, and event consumers are subsequent migration stages.
+No live provider, account, email, database, or DNS changes occurred in this application slice.
+
+### Authentication Foundation
+
 `cloudflare/auth-proof` is an independent package with pinned dependencies and its own lockfile.
 It runs Better Auth 1.7.3 and Drizzle 0.45.2 in native workerd with real local D1 bindings.
 It contains no Clerk, Supabase, or Vercel integration and imports no production customers or credentials.
@@ -49,7 +82,7 @@ The proof verifies:
 - Six concurrent claims produce one mapping, with unique constraints in both directions.
 - Database and outbox failures do not grant a session or owner identity.
 
-The current test run passes 14 tests and makes 109 local Worker requests.
+The initial authentication checkpoint passed 14 tests and made 109 local Worker requests.
 The production dependency audit for the isolated proof reports zero advisories at this checkpoint.
 This does not establish the security status of the parent application's dependencies.
 Email is captured in a private, disposable D1 outbox, not sent to real addresses.

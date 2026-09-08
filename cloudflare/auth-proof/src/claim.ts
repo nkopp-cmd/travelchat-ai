@@ -19,6 +19,7 @@ export async function redeemClaim(env: Env, token: string, userId: string): Prom
     const result = await env.DB.batch([
       env.DB.prepare(`INSERT INTO identity_links (authUserId, ownerId)
         SELECT g.authUserId, g.legacyOwnerId FROM claim_grants g JOIN owners o ON o.id = g.legacyOwnerId
+        JOIN profiles p ON p.ownerId = o.id JOIN owner_limits q ON q.ownerId = o.id
         WHERE g.tokenHash = ? AND g.authUserId = ? AND g.legacyOwnerId = ? AND g.expiresAt = ?
         AND g.nonce = ? AND g.expiresAt > CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER)
         AND g.consumedAt IS NULL AND o.source = 'legacy-fixture'

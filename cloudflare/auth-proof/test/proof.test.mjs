@@ -1,10 +1,11 @@
 import "./host-environment.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { randomBytes, createHmac } from "node:crypto";
+import { randomBytes, randomUUID, createHmac } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import { issueFixtureGrant } from "./fixture-issuer.mjs";
+import { applicationTests } from "./application.test.mjs";
 
 await mkdir(process.env.TMPDIR, { recursive: true });
 const { getAuthTables } = await import("better-auth/db");
@@ -46,7 +47,8 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
       headers: { Origin: origin, ...(body === undefined && raw === undefined ? {} : { "Content-Type": "application/json" }), ...(cookie ? { Cookie: cookie } : {}), ...headers },
       ...(body === undefined && raw === undefined ? {} : { body: raw ?? JSON.stringify(body) }),
     });
-    metrics.push({ operation: path.includes("?") ? "token-callback" : path.startsWith("https:") ? "callback" : path, status: response.status, wallMs: Math.round(performance.now() - before) });
+    metrics.push({ operation: path.startsWith("/api/spots/save") ? "/api/spots/save" : path.includes("?") ? "token-callback" : path.startsWith("https:") ? "callback" : path, status: response.status, wallMs: Math.round(performance.now() - before) });
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
     return response;
   };
   const post = (path, body, cookie, extra = {}) => call(path, { method: "POST", body, cookie, ...extra });
@@ -82,6 +84,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
   try {
     db = await mf.getD1Database("DB");
     await db.exec(await readFile("migrations/0001_local.sql", "utf8"));
+    await db.exec(await readFile("migrations/0002_application.sql", "utf8"));
     await t.test("real D1 migration and schema", async () => {
       assert.equal((await db.prepare("PRAGMA foreign_keys").first()).foreign_keys, 1);
       assert.equal((await db.prepare("SELECT count(*) AS n FROM user").first()).n, 0);
@@ -110,7 +113,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
       const provision = await post("/api/account/new", {}, aliceCookie);
       assert.equal(provision.status, 201);
       assert.match((await provision.json()).ownerId, /^[0-9a-f-]{36}$/);
-      assert.equal((await post("/api/account/new", {}, aliceCookie)).status, 409);
+      assert.equal((await post("/api/account/new", {}, aliceCookie)).status, 200);
       assert.equal((await post("/api/private-notes", { body: "hello", ownerId: "forged" }, aliceCookie)).status, 400);
       const created = await post("/api/private-notes", { body: "Alice private note" }, aliceCookie);
       assert.equal(created.status, 201);
@@ -144,7 +147,15 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
       claimCookie = await login("claimant@example.test");
       const legacy = "user_ordinary-legacy_owner/string";
       const otherLegacy = "ordinary-legacy-owner-two";
-      for (const id of [legacy, otherLegacy]) await db.prepare("INSERT INTO owners VALUES (?, 'legacy-fixture')").bind(id).run();
+      const historicalProfile = "12345678-1234-1234-1234-123456789abc";
+      const historicalSave = "23456789-1234-1234-1234-123456789abc";
+      const historicalSpot = "34567890-1234-1234-1234-123456789abc";
+      for (const id of [legacy, otherLegacy]) {
+        await db.prepare("INSERT INTO owners VALUES (?, 'legacy-fixture')").bind(id).run();
+        await db.prepare("INSERT INTO profiles VALUES (?, ?)").bind(id === legacy ? historicalProfile : randomUUID(), id).run();
+        await db.prepare("INSERT INTO owner_limits VALUES (?, 100)").bind(id).run();
+      }
+      await db.prepare("INSERT INTO saved_spots VALUES (?, ?, ?, ?)").bind(historicalSave, legacy, historicalSpot, 1234567890123).run();
       await db.prepare("INSERT INTO private_notes VALUES (?, ?, ?)").bind("legacy-note", legacy, "Synthetic legacy content").run();
       const grant = await issueFixtureGrant(db, claimSecret, claimant, legacy);
       await db.prepare("UPDATE user SET emailVerified = 0 WHERE id = ?").bind(claimant).run();
@@ -161,6 +172,11 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
       const results = await Promise.all(Array.from({ length: 6 }, () => post("/api/account/claim", { token: grant }, claimCookie)));
       assert.deepEqual(results.map((r) => r.status).sort(), [200, 409, 409, 409, 409, 409]);
       assert.equal((await call("/api/session", { cookie: claimCookie }).then((r) => r.json())).ownerId, legacy);
+      assert.equal((await call("/api/session", { cookie: claimCookie }).then((r) => r.json())).userRecordId, historicalProfile);
+      assert.deepEqual((await call("/api/spots/save", { cookie: claimCookie }).then((r) => r.json())).spots,
+        [{ id: historicalSave, spot_id: historicalSpot, created_at: new Date(1234567890123).toISOString(), spots: null }]);
+      assert.deepEqual(await db.prepare("SELECT * FROM saved_spots WHERE id = ?").bind(historicalSave).first(),
+        { id: historicalSave, ownerId: legacy, spotId: historicalSpot, createdAtMs: 1234567890123 });
       assert.equal((await call("/api/private-notes/legacy-note", { cookie: claimCookie })).status, 200);
       const overwrite = await issueFixtureGrant(db, claimSecret, claimant, otherLegacy);
       assert.equal((await post("/api/account/claim", { token: overwrite }, claimCookie)).status, 409);
@@ -261,9 +277,13 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
       }
       assert.equal(workerLogCount, 0, "failure paths must not log SQL, credentials, or callback errors");
     });
+    await applicationTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bob, bobCookie, claimSecret });
+    assert.equal(workerLogCount, 0, "application failure paths must not log private data");
     await t.test("logout invalidates old cookie and session expiry", async () => {
       assert.equal((await post("/api/auth/sign-out", {}, bobCookie)).status, 200);
       assert.equal((await call("/api/session", { cookie: bobCookie })).status, 401);
+      for (const method of ["GET", "POST", "DELETE"]) assert.equal((await call("/api/spots/save", { method, cookie: bobCookie,
+        ...(method === "GET" ? {} : { body: { spotId: randomUUID() } }) })).status, 401);
       bobCookie = await login("bob@example.test");
       await db.prepare("UPDATE session SET expiresAt = 1 WHERE userId = ?").bind(bob).run();
       assert.equal((await call("/api/session", { cookie: bobCookie })).status, 401);
@@ -327,6 +347,9 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
   } finally {
     await mf.dispose();
     await rm(state, { recursive: true, force: true });
-    t.diagnostic(JSON.stringify({ runtime: "native workerd 1.20260907.1 / Miniflare 5.20260907.0-alpha / D1 binding", totalWallMs: Math.round(performance.now() - started), requests: metrics.length, kdfRequests: metrics.filter((m) => ["/api/auth/sign-up/email", "/api/auth/sign-in/email", "/api/auth/reset-password"].includes(m.operation)), cpu: "NOT MEASURED; wall time is not CPU time" }));
+    t.diagnostic(JSON.stringify({ runtime: "native workerd 1.20260907.1 / Miniflare 5.20260907.0-alpha / D1 binding", totalWallMs: Math.round(performance.now() - started), requests: metrics.length,
+      applicationRequests: metrics.filter((m) => m.operation === "/api/spots/save").length,
+      statuses: Object.fromEntries([...new Set(metrics.map((m) => m.status))].sort().map((status) => [status, metrics.filter((m) => m.status === status).length])),
+      kdfRequests: metrics.filter((m) => ["/api/auth/sign-up/email", "/api/auth/sign-in/email", "/api/auth/reset-password"].includes(m.operation)), cpu: "NOT MEASURED; wall time is not CPU time" }));
   }
 });

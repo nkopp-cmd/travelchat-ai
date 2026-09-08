@@ -1,5 +1,4 @@
-# Local Auth Proof
-
+# Local Auth And Application Proof
 This package proves Better Auth on native workerd with local D1 bindings.
 It does not change the parent application or its dependencies.
 Better Auth, Workers, and D1 form the intended final authentication platform.
@@ -170,8 +169,8 @@ Only the explicit D1 batches described below have the atomic guarantees tested h
 | Route | Purpose |
 | --- | --- |
 | `/api/auth/*` | Better Auth's built-in HTTP handlers |
-| `GET /api/session` | Verified user ID and trusted owner mapping, without session credentials |
-| `POST /api/account/new` | Explicitly create a server-owned UUID owner; requires an empty JSON object |
+| `GET /api/session` | Neutral identity DTO, without credential tokens |
+| `POST /api/account/new` | Atomically create owner, profile, free quota, and identity; accepts an empty object |
 | `POST /api/account/claim` | Redeem one signed legacy fixture grant; accepts only `token` |
 | `GET /api/private-notes` | List up to 100 notes for the trusted owner |
 | `POST /api/private-notes` | Create a note; accepts only `body` |
@@ -183,6 +182,126 @@ Private data requires a valid database session and current verified email.
 Unlinked users receive 409 until they explicitly create or claim an owner.
 `identity_links` has unique constraints on both `authUserId` and `ownerId`.
 Client owner fields are rejected. Every note query derives ownership from the trusted mapping.
+
+### Shared Session Boundary
+
+`src/app-session.ts` exports `trustedAppSession` and the `TrustedAppSession` interface.
+The interface contains `authUserId`, `ownerId`, `userRecordId`, and `sessionId`.
+`userRecordId` is the existing profile UUID, not the auth ID or owner string.
+Each request verifies the Better Auth database session and reads current email verification and identity mapping.
+There are no global sessions or cached mappings.
+Notes, account routes, session responses, and saved spots use this boundary.
+
+Signed-out requests return 401. Unverified requests return 403.
+Verified session responses contain `state`, `authUserId`, and `sessionId`.
+The `state` is `unlinked`, `incomplete`, or `ready`.
+Only `ready` includes `ownerId` and `userRecordId`.
+Incomplete means an identity link has no validated profile.
+Unlinked and incomplete identities cannot access private data; these requests return 409.
+No session DTO contains passwords, email tokens, cookie credentials, access tokens, or refresh tokens.
+`sessionId` identifies the session row; it is not its bearer token.
+This unshipped proof does not preserve the old `userId` response field.
+
+New-account provisioning uses one D1 batch for owner, profile UUID, free limit 10, and identity link.
+The initial request returns 201 with `{ownerId,userRecordId}`.
+Retries return 200 with the unchanged identity. Concurrent requests create exactly one complete account.
+This batch does not assume Better Auth hooks are transactional.
+Existing links cannot change owners. Incomplete identities cannot generate replacement profiles.
+Missing quota rows do not remove read access; they block new saves with 503.
+Legacy claims require an existing unique profile and a validated limit for the exact unchanged owner string.
+The trusted fixture issuer also checks these requirements. It never generates a legacy profile UUID.
+
+### Saved Spots Contract
+
+`/api/spots/save` mirrors the parent route's successful response shapes without importing its providers.
+All queries use the session owner. Clients cannot provide ownership or quota settings.
+POST and DELETE accept exactly `{ "spotId": "UUID" }`.
+GET accepts no query fields or exactly one `spotId` query field.
+Unknown fields, duplicate query fields, invalid UUIDs, null IDs, and malformed bodies return 400.
+UUID input becomes lowercase, matching PostgreSQL UUID behavior.
+
+| Request | Response |
+| --- | --- |
+| POST, new save | 200 `{success:true,saved:true,message:"Spot saved successfully"}` |
+| POST, existing own save | 200 `{success:true,saved:true,message:"Spot already saved"}` |
+| DELETE | 200 `{success:true,saved:false,message:"Spot removed from saved"}` |
+| GET with `spotId` | 200 `{saved:boolean}` |
+| GET without `spotId` | 200 `{success:true,spots:[...]}` |
+
+Each list entry contains `id`, `spot_id`, `created_at`, and `spots`.
+`created_at` is an ISO timestamp representing the unchanged integer milliseconds.
+Visible `spots` contains `id`, `name`, `description`, `category`, `localley_score`, and `photos`.
+Name and description remain multilingual JSON objects. Photos remain a JSON array or null.
+Scores remain integers from 1 through 6, or null. The DTO never supplies replacement values for null fields.
+Missing or hidden catalog entries produce `spots:null`, without hidden metadata.
+Existing hidden saves still return `{saved:true}` and permit deletion or duplicate POST.
+New saves of hidden and unknown spots return identical 404 responses: `{error:{code:"not_found",message:"Spot not found."}}`.
+
+Lists sort newest first by timestamp, then descending save UUID for stable ties.
+Normal server limits are 10 free, 100 pro, and 999 premium.
+Only trusted local fixtures set limits in this proof. Email addresses never select a paid quota.
+There is no public quota setter or payment integration.
+Over-limit imports retain their history. Reads return every row through an absolute limit of 1000.
+The query reads at most 1001 rows to detect overflow.
+More than 1000 rows returns 409 with code `conflict` and message `Saved spot list exceeds absolute limit of 1000`.
+It never reports a silently truncated successful list. State reads and deletion still work above this bound.
+
+POST uses one atomic D1 batch, with prepared bindings only.
+The conditional INSERT checks visibility, quota, and absence of the owner's existing save.
+It uses targeted `ON CONFLICT(ownerId,spotId) DO NOTHING`, not broad `INSERT OR IGNORE`.
+The next statement inserts an event only when `changes() = 1`.
+Subsequent SELECTs inside that same batch distinguish duplicates, unavailable catalog, missing quota, and full quota.
+There is no post-transaction decision query. Duplicate saves succeed even when quota is missing or exhausted.
+The same batch also selects the current saved count for the quota response.
+Exhausted limits return HTTP 429 with the root `Errors.limitExceeded` contract:
+
+```json
+{"error":{"code":"limit_exceeded","message":"You've reached your saved spots limit.","details":{"limitType":"saved spots","current":10,"limit":10}}}
+```
+
+`current` and `limit` come from that batch, not a later query. Lifetime quotas omit `resetAt` entirely.
+There is no invented `periodResetAt` field.
+New visible saves without a limit return 503 with code `database_error`.
+The message is `Database operation failed. Please try again.` No quota details are returned.
+This intentional 503 differs from the root database helper's default 500 because trusted quota configuration is unavailable.
+It does not indicate quota exhaustion. Duplicates still return 200 and deletion remains available.
+Unexpected database failures return safe HTTP 500 with code `internal_error`, matching the root catch handler.
+The message is `An unexpected error occurred. Please try again.` Failed event inserts roll back the new save.
+
+Saved-route errors use `{error:{code,message,details?}}`, including failures in the shared session and body checks.
+Validation returns 400 with code `validation_error`. Signed-out requests return 401 with code `unauthorized`.
+The unauthorized message is `Please sign in to continue.` Unverified sessions and invalid origins return 403 with code `forbidden`.
+Unlinked and incomplete identities retain HTTP 409 with code `conflict`.
+The small `src/app-error.ts` helper stays inside this proof. Better Auth's native endpoint JSON remains unchanged.
+
+DELETE removes only the owner's save, without a quota check. Repeated deletion remains successful.
+There is no unsave event. Save events survive deletion and use the unique key `saveId:save`.
+Saving again creates a new save UUID and event. No consumer runs in this proof.
+The event does not claim completed XP or engagement processing.
+Origin checks, body limits, auth rate limits, cookie protections, and no-store headers remain in place.
+
+### Application Schema
+
+`0001_local.sql` remains unchanged. The harness applies it before `0002_application.sql`, only to fresh local D1.
+The second migration adds profiles, minimal spots, owner limits, saved spots, and the application outbox.
+Profile IDs and save IDs use canonical UUID checks. Profiles and limits have unique owner foreign keys.
+Quota values must be integers from 0 through 999. Name and description require non-null JSON objects.
+Scores require SQL NULL or SQLite integer storage from 1 through 6. Photos accept SQL NULL or a JSON array.
+The synthetic catalog uses score 4. Tests reject 42, fractional scores, and other invalid scores.
+Saved spots have a unique owner/spot pair, an owner/order index, and a spot index.
+Catalog references deliberately lack foreign keys, so removed catalog rows can remain as history tombstones.
+Events deliberately lack a save foreign key, so deletion cannot cascade into the outbox.
+Tests seed only clearly labeled synthetic Korean and English catalog content.
+No production data or remote migration enters this package.
+
+### Lifecycle Gates
+
+Before integration, the parent must validate legacy profile IDs, owner mappings, quotas, and timestamp imports.
+Incomplete legacy data requires trusted repair, not generated substitute IDs or email-only ownership proof.
+Consumers need reviewed deduplication, delivery, retry, and engagement semantics.
+Outbox retention, account deletion, orphan cleanup, abuse limits, and list pagination remain future gates.
+No live provider, email delivery, account creation, remote database write, or deployment occurred.
+All created accounts and database writes exist only in disposable local tests.
 
 ## Claim Proof
 
@@ -222,9 +341,48 @@ Dates use integer milliseconds through Drizzle's `timestamp_ms` mode.
 The test exercises real inserts, updates, session reads, token consumption, foreign keys, uniqueness, and D1 batches.
 This is not a Node SQLite substitute or an in-memory JavaScript database.
 
-## Verification Evidence
+## Application Verification
 
-The final 2026-09-08 check passed type generation, TypeScript, ESLint, bundle generation, tests, and the package check.
+The 2026-09-08 `npm run check` passed types, TypeScript, ESLint, build, native tests, and package validation.
+The original 14 reported auth passes remain covered. Twelve application groups bring the runtime total to 26 passes.
+The separate host-isolation test also passed, giving 27 reported passes overall. No tests were skipped.
+The runtime suite issued 266 Worker requests, including 119 requests to `/api/spots/save`.
+The native harness measured 48,670 ms total wall time. The host-isolation test measured 580 ms wall time.
+
+| HTTP Status | Request Count |
+| --- | ---: |
+| 200 | 109 |
+| 201 | 5 |
+| 302 | 7 |
+| 400 | 35 |
+| 401 | 26 |
+| 403 | 19 |
+| 404 | 12 |
+| 408 | 2 |
+| 409 | 26 |
+| 413 | 1 |
+| 429 | 15 |
+| 500 | 8 |
+| 503 | 1 |
+
+These counts include intentional validation errors, revoked sessions, quota failures, and trigger-induced database failures.
+Eight simultaneous saves returned 200 with exactly one row and one event.
+Two different saves contested the last slot: one returned 200 and one returned 429.
+Six concurrent account requests returned one 201 and five 200 responses with the same identity.
+Native triggers proved rollback for save, event, profile, limit, and identity inserts.
+Tests preserved historical profile UUIDs, save UUIDs, owner strings, and timestamps after claims.
+The list test checked 999 and 1000 rows, plus explicit rejection of 1001 rows.
+Tests checked exact structured errors, omitted reset fields, nullable list values, and score constraints.
+All 266 responses had `Cache-Control: no-store`. Forced application failures emitted zero Worker log events.
+The bundle measured about 899.1 kB. The dry-run package measured about 361.5 kB compressed before this evidence update.
+
+**Wall time is not CPU time.** CPU usage, peak memory, production latency, and plan suitability remain unmeasured.
+No KDF settings, library checks, Wrangler configuration, generated Env, dependency files, or root files changed.
+The unchanged cleanup command removes disposable `.local`, `.wrangler`, and `.npm-cache` state.
+
+## Previous Auth Evidence
+
+The earlier auth-only 2026-09-08 check passed type generation, TypeScript, ESLint, builds, tests, and the package check.
 The isolated host preflight also passed its poison-marker and directory-cleanup test in 501 ms wall time.
 Together, the preflight and runtime suites reported 15 passing tests.
 All 12 scenario groups, the delayed-claim subtest, and their parent test passed: 14 reported passes.
