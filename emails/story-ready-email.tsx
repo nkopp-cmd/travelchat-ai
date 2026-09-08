@@ -42,7 +42,7 @@ export function StoryReadyEmail({
                         </Heading>
                         <Text style={paragraph}>
                             Your story slides for <strong>{city}</strong> are ready!
-                            We've generated beautiful AI backgrounds for each day of your
+                            We&apos;ve generated beautiful AI backgrounds for each day of your
                             trip. Head over to download and share them directly.
                         </Text>
                     </Section>

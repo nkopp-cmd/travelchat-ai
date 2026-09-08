@@ -1,0 +1,6 @@
+@font-face { font-family: "Preview Noto KR"; src: url("/preview-font.otf") format("opentype"); font-weight: 400; font-display: swap; }
+body { font-family: "Preview Noto KR", sans-serif; }
+.preview-banner { position: fixed; z-index: 2147483647; inset: 0 0 auto; padding: 8px 12px; background: #fef08a; color: #171717; font: 600 12px/18px sans-serif; pointer-events: none; }
+.preview-controls { padding: 76px 24px 24px; max-width: 900px; margin: auto; }
+.preview-controls section { margin: 24px 0; }
+.preview-controls select { border: 1px solid; padding: 8px; max-width: 100%; }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { DraggableProvided } from "@hello-pangea/dnd";
 import { Input } from "@/components/ui/input";
 import { PlaceAutocomplete } from "@/components/ui/place-autocomplete";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,7 +27,7 @@ interface ActivityEditorProps {
     onUpdate: (index: number, activity: Activity) => void;
     onDelete: (index: number) => void;
     onDuplicate: (index: number) => void;
-    dragHandleProps?: any;
+    dragHandleProps?: DraggableProvided["dragHandleProps"];
 }
 
 export function ActivityEditor({

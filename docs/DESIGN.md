@@ -1,0 +1,127 @@
+# Localley Design
+
+## Scope
+
+Latest story addition preserves the existing identity and Radix interaction foundation.
+Image carousel and Video now share the existing story dialog, with actual availability and job states.
+The full browser report is `story-studio-browser-review.md`, including five-source selection and measured accessibility checks.
+No alternate dialog, toast library, or decorative AI activity component was added.
+Story notices now stay inside the dialog rather than covering its heading.
+
+The export renderer adds local Noto Sans KR Regular, weight 400, under OFL 1.1.
+Its source revision, asset checksum, supported glyphs, and redistribution duties are recorded in `lib/fonts/README.md`.
+Production page typography was not globally replaced; the browser harness loads that font for its Korean fixtures.
+The test-only harness is reachable at `http://127.0.0.1:4174/?scenario=ready`.
+It uses simulated API data and explicitly states that it cannot create generation charges.
+
+All seven browser tests passed at 390, 900, and 1440 pixels after fixing four observed defects.
+Measured targets and contrast pass the stated checks; this is not a complete WCAG audit.
+The final production build and 1,560 normal tests passed. One opt-in encoder integration remains skipped in that normal run.
+
+This records the existing discovery identity and the map addition dated 2026-09-07.
+It does not establish a new app-wide visual direction.
+Audience: visitors who want useful local places, clear facts, and simple planning.
+Primary task: filter places, inspect the map, then open one place.
+Traits: real place imagery, compact filters, and restrained violet accents.
+
+Reuse the existing tokens in `app/globals.css` and existing typography from the application layout.
+New map surfaces use `border-border`, `text-muted-foreground`, and existing button variants.
+Keep the existing grid and list composition. Add the map as a third view, not another dashboard.
+Numbered pins correspond to named buttons. This keeps map content accessible without precise pointer use.
+The detail card retains the established score and photo design.
+No new fonts, packages, custom dialogs, motion effects, or copied external components were added.
+
+## Existing Sources
+
+| Source | Use in this slice |
+| --- | --- |
+| Local `components/ui/button.tsx` | Existing accessible button variants; no new implementation |
+| Local `components/ui/map.tsx` | Existing lazy provider selection and map rendering |
+| Leaflet 1.9.4, https://leafletjs.com/ | Existing dependency; interactive numbered markers |
+| Local `components/spots/spot-card.tsx` | Existing real content and detail navigation |
+| Local `docs/ui-ux-loop.md` | Existing responsive and accessibility review process |
+
+These are reused components, not newly sourced or copied code.
+The new composition does not require specialist AI or animation components.
+OSM tile attribution stays visible through the existing Leaflet layer.
+An attempted fetch of the current OSM tile policy timed out. Terms verification remains a release gate.
+
+## Evidence
+
+TypeScript check passed with `npx tsc --noEmit --incremental false`.
+Focused unit tests cover coordinate rejection, selection, scope, URL preservation, and loading boundaries.
+The final focused run passed 61 tests across eight files.
+ESLint passed for all changed TypeScript files. `git diff --check` also passed.
+The full unit suite and production build were not run.
+Browser tests use `/spots?city=seoul&view=map` with real configured content.
+The tested response contained 390 Seoul spots and 24 pins on its first page.
+This count is test evidence, not a marketing claim or editorial quality assessment.
+
+Playwright passed at 390x844, 900x1000, and 1440x1000.
+Checks cover ordinary marker clicks, keyboard list selection, view changes, filter retention, and document overflow.
+Screenshots were captured and opened for review.
+
+Evidence directory: `test-results/spots-map-safe-selection/`.
+Each viewport contains `selected-pin.png`, `keyboard-selection.png`, and `filtered-map.png`.
+The directory is a local test artifact, not a required production asset.
+
+## Remaining Limits
+
+### Maintenance Verification
+
+Latest video proof uses the actual isolated encoder through the processing service.
+The service integration uses synthetic media and mocked provider/storage boundaries, not a live generated scene.
+Reviewed `test-results/story-video-delivery/frame.png`; the local video is `test-results/story-video-delivery/sample.mp4`.
+Output is four seconds of portrait H.264 with captions included in the frames.
+Normal overlay output no longer contains proof-only labels; tests must request those explicitly.
+Long titles wrap and abridge visibly. Long captions preserve the AI disclosure.
+Korean font support remains blocked; the submission API rejects unsupported text before charging.
+This backend integration adds no new video screen. Browser review of the full creator remains pending.
+
+Story export proof: a separate transparent text overlay was composited into a four-second portrait H.264 MP4.
+The reviewed extracted frame is `test-results/story-video-overlay/frame.png`.
+It clearly labels the visual as synthetic test input, not real travel footage.
+The frame preserves the 180px top and 320px bottom safe zones.
+Pixel and encoding checks are recorded in `test-results/story-video-overlay/evidence.json`.
+This is a technical export proof, not a finished video design or a reviewed Korean-language template.
+Pending-image polling and explicit retry behavior have component coverage; browser visual review remains outstanding.
+
+Latest destination follow-up: fixed badge overlap and compact name clipping in `step-destination.tsx`.
+Noncompact badges and labels use separate normal-flow rows with minimum card heights.
+Compact cards retain their density but grow for wrapped names, with selection inside the Ready tag.
+The existing image, gradient, font, and color system remains unchanged.
+
+`e2e/destination-cards.spec.ts` passed at 390, 900, and 1440 pixels.
+Checks cover Popular and Beta badges, keyboard selection, card containment, and long compact names.
+Captured and opened screenshots under `test-results/destination-cards/`.
+The selected `Ho Chi Minh City` name fits without footer or Ready-tag overlap at all three widths.
+Paid photo and generation requests were blocked. No trip was generated during these checks.
+The earlier destination-overlap follow-up is resolved; full accessibility measurement remains open.
+
+The latest production build and all 733 tests passed after worker and destination fixes.
+
+After maintenance, strict map checks passed at 390, 900, and 1440 pixels on Next `16.3.4`.
+The flag `PLAYWRIGHT_REQUIRE_SEOUL_PINS=1` requires actual pins instead of allowing an annotated empty result.
+New evidence is under `test-results/map-next16.3.4/`.
+The real review API returned HTTP 200 and the reviewed place genuinely had no reviews.
+Screenshot: `test-results/reviews-next16.3.4-real.png`.
+Error and retry screenshots used clearly identified response fixtures at all three widths.
+Actual database failure recovery was not fabricated or claimed.
+Paid photo proxies remained blocked in browser tests.
+
+The final regular production build and 725 unit tests passed.
+Authenticated chat and route-preview browser checks were blocked at sign-in.
+Their lifecycle changes have focused unit coverage, not completed end-to-end coverage.
+A destination-screen badge overlap was observed and remains a follow-up defect.
+Existing map pin overlap and full accessibility review remain open.
+
+### Earlier Limits
+
+- Pins overlap at mobile overview zoom. Users can zoom or select the named list.
+- The first mobile test targeted an obscured pin. Later tests verify visible pins and keyboard selection separately.
+- Photo proxies were blocked in the final browser tests. Photo appearance remains unverified.
+- Full WCAG contrast measurement, 200% zoom, reduced motion, and provider-outage browser tests remain incomplete.
+- Existing scores retain existing semantics. This slice does not establish score provenance.
+- The complete event, guide-story, and comparison screens have not been built or visually reviewed.
+
+Do not call this a finished visual redesign or a production-ready Seoul guide.

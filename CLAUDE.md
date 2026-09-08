@@ -211,10 +211,15 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Config in `lib/cities.ts`
 
 ### Release Workflow
+- Final infrastructure target: Cloudflare Workers, D1, R2, and Cloudflare background services, with Better Auth replacing Clerk.
+- Vercel, Supabase, and Clerk remain temporary live dependencies until a verified migration; do not treat them as the final platform.
 - The user authorizes routine commits and production deployment after successful release checks.
 - Verify the target, credentials, required migrations, and release gates before deployment.
 - Keep main aligned with the verified release. Do not merge unfinished media or hosting experiments merely to clear branches.
 - Preserve unmerged source and credentials during cleanup. Remove only verified obsolete metadata and rebuildable artifacts.
 - Do not create release worktrees under disposable test-output directories.
+- The user explicitly authorized GPT Image 2 and MiniMax H3 story changes. Existing rendering safety constraints still apply.
 - Keep new paid generation disabled until its activation gates pass. The initial shared media test ceiling is $20.
 - Current release evidence is in `docs/releases/seoul-discovery.md`.
+- The remaining story-code merge contract is in `docs/releases/story-studio-merge.md`.
+- See `docs/story-studio.md` for media activation requirements. A code merge does not authorize enabling paid generation.

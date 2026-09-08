@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useSyncExternalStore, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -21,55 +21,65 @@ interface PlaceAutocompleteProps {
     disabled?: boolean;
 }
 
+const scriptSelector = 'script[src*="maps.googleapis.com"]';
+const defaultTypes = ["(cities)"];
+
+function getPlacesSnapshot() {
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) return "unavailable";
+    if (window.google?.maps?.places) return "ready";
+    const script = document.querySelector<HTMLScriptElement>(scriptSelector);
+    return script?.dataset.placesStatus === "unavailable" ? "unavailable" : "loading";
+}
+
+function subscribeToPlaces(onChange: () => void) {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        console.warn("Google Maps API key not configured");
+        return () => {};
+    }
+    if (window.google?.maps?.places) return () => {};
+
+    let script = document.querySelector<HTMLScriptElement>(scriptSelector);
+    const isNew = !script;
+    if (!script) {
+        script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.async = true;
+        script.defer = true;
+    }
+    const handleLoad = () => {
+        if (!window.google?.maps?.places) script.dataset.placesStatus = "unavailable";
+        onChange();
+    };
+    const handleError = () => {
+        script.dataset.placesStatus = "unavailable";
+        console.error("Failed to load Google Maps script");
+        onChange();
+    };
+    script.addEventListener("load", handleLoad);
+    script.addEventListener("error", handleError);
+    if (isNew) document.head.appendChild(script);
+    return () => {
+        script.removeEventListener("load", handleLoad);
+        script.removeEventListener("error", handleError);
+    };
+}
+
+const getServerPlacesSnapshot = () => "unavailable";
+
 export function PlaceAutocomplete({
     value,
     onChange,
-    types = ["(cities)"],
+    types = defaultTypes,
     placeholder = "Search for a place...",
     className,
     disabled = false,
 }: PlaceAutocompleteProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoaded, setIsLoaded] = useState(false);
-
-    // Load Google Maps script
-    useEffect(() => {
-        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-        if (!apiKey) {
-            console.warn("Google Maps API key not configured");
-            return;
-        }
-
-        if (window.google?.maps?.places) {
-            setIsLoaded(true);
-            return;
-        }
-
-        // Check if script is already loading
-        const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-        if (existingScript) {
-            existingScript.addEventListener("load", () => setIsLoaded(true));
-            return;
-        }
-
-        setIsLoading(true);
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-            setIsLoaded(true);
-            setIsLoading(false);
-        };
-        script.onerror = () => {
-            console.error("Failed to load Google Maps script");
-            setIsLoading(false);
-        };
-        document.head.appendChild(script);
-    }, []);
+    const status = useSyncExternalStore(subscribeToPlaces, getPlacesSnapshot, getServerPlacesSnapshot);
+    const isLoading = status === "loading";
+    const isLoaded = status === "ready";
 
     // Memoize the onChange handler
     const handlePlaceChanged = useCallback(() => {

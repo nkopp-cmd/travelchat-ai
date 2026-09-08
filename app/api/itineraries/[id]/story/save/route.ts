@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { GET as renderStory } from "../route";
 
 export const maxDuration = 60;
 
@@ -21,18 +22,12 @@ export async function POST(
         }
 
         const { id } = await params;
-        const { totalDays, paid } = await req.json();
-
-        if (!totalDays || typeof totalDays !== "number" || totalDays < 1) {
-            return Errors.validationError("totalDays must be a positive number");
-        }
-
         const supabase = createSupabaseAdmin();
 
         // Verify ownership
         const { data: itinerary, error: fetchError } = await supabase
             .from("itineraries")
-            .select("clerk_user_id")
+            .select("*")
             .eq("id", id)
             .single();
 
@@ -44,12 +39,16 @@ export async function POST(
             return Errors.forbidden();
         }
 
-        // Build the base URL for internal story route calls
-        const baseUrl = process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : process.env.NODE_ENV === "production"
-                ? "https://localley.io"
-                : `http://localhost:${process.env.PORT || 3000}`;
+        let body;
+        try {
+            body = await req.json();
+        } catch {
+            return Errors.validationError("Invalid JSON body");
+        }
+        const { totalDays, paid } = body ?? {};
+        if (typeof totalDays !== "number" || !Number.isInteger(totalDays) || totalDays < 1 || totalDays > 30) {
+            return Errors.validationError("totalDays must be an integer between 1 and 30");
+        }
 
         const paidParam = paid ? "&paid=true" : "";
 
@@ -68,10 +67,11 @@ export async function POST(
         // Render all slides in parallel
         const results = await Promise.allSettled(
             slideSpecs.map(async (spec) => {
-                const url = `${baseUrl}/api/itineraries/${id}/story?${spec.params}`;
-                const res = await fetch(url, {
-                    signal: AbortSignal.timeout(20000),
-                });
+                const url = new URL(req.url);
+                url.pathname = `/api/itineraries/${encodeURIComponent(id)}/story`;
+                url.search = spec.params;
+                // Direct invocation retains the outer Clerk request context without self-HTTP or forwarded credentials.
+                const res = await renderStory(new NextRequest(url), { params: Promise.resolve({ id }) });
                 if (!res.ok) {
                     throw new Error(`Render failed HTTP ${res.status} for ${spec.key}`);
                 }
@@ -82,6 +82,9 @@ export async function POST(
                 }
 
                 const buffer = Buffer.from(await res.arrayBuffer());
+                if (!buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+                    throw new Error(`Expected PNG bytes for ${spec.key}`);
+                }
                 console.log(`[STORY_SAVE] Rendered ${spec.key}: ${buffer.byteLength} bytes`);
 
                 // Upload to Supabase Storage
@@ -124,7 +127,8 @@ export async function POST(
             const { error: updateError } = await supabase
                 .from("itineraries")
                 .update({ story_slides: slides })
-                .eq("id", id);
+                .eq("id", id)
+                .eq("clerk_user_id", userId);
 
             if (updateError) {
                 console.error("[STORY_SAVE] DB update failed:", updateError);

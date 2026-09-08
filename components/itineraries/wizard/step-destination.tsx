@@ -309,9 +309,10 @@ function CityCard({
       onClick={onSelect}
       disabled={isDisabled}
       aria-disabled={isDisabled}
+      aria-pressed={isSelected}
       className={cn(
         "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
-        compact ? "aspect-[2.9/1] sm:aspect-[2.6/1]" : "aspect-[2.18/1] sm:aspect-[2.35/1]",
+        compact ? "flex min-h-20 flex-col justify-end p-1.5 sm:p-2" : "flex min-h-32 flex-col justify-between gap-2 p-2 sm:min-h-36 sm:p-3",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
         isSelected && "ring-2 ring-violet-500",
         isDisabled && "cursor-not-allowed opacity-35 saturate-50"
@@ -343,47 +344,50 @@ function CityCard({
         )}
       />
 
-      {/* Status badge */}
+      {/* Keep noncompact badges above the city info, even when text grows. */}
+      <div className={compact ? "contents" : "relative flex min-h-6 items-start justify-between gap-1 sm:min-h-7"}>
       {!compact && city.status === "recommended" && (
         <div className={cn(
-          "absolute rounded-full bg-violet-600/90 font-semibold text-white backdrop-blur-sm",
-          "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
+          "rounded-full bg-violet-600/90 font-semibold text-white backdrop-blur-sm",
+          "px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px]"
         )}>
           Popular
         </div>
       )}
       {!compact && city.status === "beta" && (
         <div className={cn(
-          "absolute rounded-full border border-white/10 bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
-          "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
+          "rounded-full border border-white/10 bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
+          "px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px]"
         )}>
           Beta
         </div>
       )}
 
       {/* Selected checkmark */}
-      {isSelected && (
+      {isSelected && !compact && (
         <div className={cn(
-          "absolute right-1.5 top-1.5 flex items-center justify-center rounded-full bg-violet-600 sm:right-2 sm:top-2",
-          compact ? "h-5 w-5 sm:h-6 sm:w-6" : "h-6 w-6 sm:h-7 sm:w-7"
+          "flex shrink-0 items-center justify-center rounded-full bg-violet-600",
+          "ml-auto h-6 w-6 sm:h-7 sm:w-7"
         )}>
           <Check className="h-3.5 w-3.5 text-white sm:h-4 sm:w-4" />
         </div>
       )}
+      </div>
 
       {/* City info */}
-      <div className={cn("absolute bottom-0 left-0 right-0", compact ? "p-1.5 sm:p-2" : "p-2 sm:p-3")}>
-        <div className="mb-0.5 flex min-w-0 items-center gap-1.5">
-          <span className={cn("leading-none", compact ? "text-sm sm:text-base" : "text-base sm:text-lg")}>{city.emoji}</span>
-          <span className={cn("min-w-0 truncate font-bold leading-tight text-white", compact ? "text-xs sm:text-sm" : "text-sm")}>{city.name}</span>
+      <div className="relative w-full min-w-0">
+        <div className={cn("mb-0.5 flex min-w-0 items-center", compact ? "gap-1 sm:gap-1.5" : "gap-1.5")}>
+          <span className={cn("shrink-0 leading-none", compact ? "text-sm sm:text-base" : "text-base sm:text-lg")}>{city.emoji}</span>
+          <span className={cn("min-w-0 font-bold leading-tight text-white", compact ? "break-words text-left text-xs sm:text-sm" : "truncate text-sm")}>{city.name}</span>
         </div>
         {city.vibe && !compact && (
           <p className="line-clamp-1 text-[10px] leading-tight text-gray-300 sm:text-[11px]">{city.vibe}</p>
         )}
-        <div className="mt-0.5 flex items-center justify-between gap-1">
+        <div className={cn("flex items-center justify-between gap-1", compact ? "mt-1 flex-wrap" : "mt-0.5")}>
           <p className={cn("min-w-0 truncate text-gray-300/85", compact ? "text-[9px]" : "text-[10px] text-gray-400")}>{city.spotCount} spots</p>
           {isSelected && (
-            <span className="shrink-0 rounded-full bg-violet-600/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-violet-600/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+              {compact && <Check className="h-3 w-3" aria-hidden="true" />}
               Ready
             </span>
           )}

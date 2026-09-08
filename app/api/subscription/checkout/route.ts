@@ -55,24 +55,34 @@ export async function POST(req: NextRequest) {
             return Errors.validationError("User email not found");
         }
 
+        const supabase = createSupabaseAdmin();
+        const { data: subscription, error: lookupError } = await supabase
+            .from("subscriptions")
+            .select("stripe_customer_id")
+            .eq("clerk_user_id", userId)
+            .maybeSingle();
+
+        if (lookupError) {
+            console.error("Error reading subscription customer before checkout:", lookupError);
+            return Errors.databaseError();
+        }
+
         const customerId = await getOrCreateStripeCustomer(
             userId,
             email,
-            `${user.firstName || ""} ${user.lastName || ""}`.trim() || undefined
+            `${user.firstName || ""} ${user.lastName || ""}`.trim() || undefined,
+            subscription?.stripe_customer_id
         );
 
         if (!customerId) {
             return Errors.externalServiceError("Stripe");
         }
 
-        // Update or create subscription record in Supabase
-        const supabase = createSupabaseAdmin();
+        // Link billing identity only; existing entitlements belong to the webhook.
         const { error: subscriptionError } = await supabase.from("subscriptions").upsert(
             {
                 clerk_user_id: userId,
                 stripe_customer_id: customerId,
-                tier: "free",
-                status: "active",
                 updated_at: new Date().toISOString(),
             },
             {

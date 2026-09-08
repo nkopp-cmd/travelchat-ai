@@ -23,9 +23,14 @@ export async function POST(req: NextRequest) {
             .from("subscriptions")
             .select("stripe_customer_id")
             .eq("clerk_user_id", userId)
-            .single();
+            .maybeSingle();
 
-        if (error || !subscription?.stripe_customer_id) {
+        if (error) {
+            console.error("Error reading subscription customer before portal:", error);
+            return Errors.databaseError();
+        }
+
+        if (!subscription?.stripe_customer_id) {
             return Errors.validationError("No Stripe billing account is linked to this plan.");
         }
 
@@ -36,7 +41,8 @@ export async function POST(req: NextRequest) {
         // Create billing portal session
         const session = await createBillingPortalSession(
             subscription.stripe_customer_id,
-            returnUrl
+            returnUrl,
+            userId
         );
 
         if (!session) {

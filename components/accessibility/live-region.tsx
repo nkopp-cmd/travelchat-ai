@@ -15,7 +15,7 @@ interface LiveRegionProps {
     politeness?: "polite" | "assertive";
     /**
      * Clear the message after announcement to allow re-announcement of same message.
-     * Defaults to true.
+     * Defaults to 1000 milliseconds. Use zero to keep the message.
      */
     clearAfter?: number;
 }
@@ -40,43 +40,30 @@ export function LiveRegion({
     politeness = "polite",
     clearAfter = 1000,
 }: LiveRegionProps) {
-    const [currentMessage, setCurrentMessage] = useState("");
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const regionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (message) {
-            // Clear any pending timeout
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
+        const region = regionRef.current;
+        if (!message || !region) return;
 
-            // Set the message
-            setCurrentMessage(message);
-
-            // Clear after delay to allow re-announcement of same message
-            if (clearAfter > 0) {
-                timeoutRef.current = setTimeout(() => {
-                    setCurrentMessage("");
-                }, clearAfter);
-            }
+        // Populate the already-mounted live region so assistive technology sees a change.
+        region.textContent = message;
+        if (clearAfter > 0) {
+            const timeout = setTimeout(() => {
+                region.textContent = "";
+            }, clearAfter);
+            return () => clearTimeout(timeout);
         }
-
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
     }, [message, clearAfter]);
 
     return (
         <div
+            ref={regionRef}
             role="status"
             aria-live={politeness}
             aria-atomic="true"
             className="sr-only"
-        >
-            {currentMessage}
-        </div>
+        />
     );
 }
 

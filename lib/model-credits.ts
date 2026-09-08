@@ -10,6 +10,7 @@ import type { SubscriptionTier } from "@/lib/subscription";
 import { isFluxAvailable } from "@/lib/flux";
 import { isSeedreamAvailable } from "@/lib/seedream";
 import { isImagenAvailable } from "@/lib/imagen";
+import { isGptImageAvailable } from "@/lib/gpt-image";
 
 export interface ModelInfo {
     credits: number;
@@ -21,13 +22,18 @@ export const MODEL_CREDITS: Record<ImageProvider, ModelInfo> = {
     flux: { credits: 1, label: "FLUX", description: "Fast, high-quality" },
     seedream: { credits: 2, label: "Seedream", description: "Rich detail, vivid colors" },
     gemini: { credits: 3, label: "Gemini", description: "Best quality, most realistic" },
+    "gpt-image-2": {
+        get credits() { return isGptImageAvailable() ? Number(process.env.GPT_IMAGE_2_CREDITS) : 0; },
+        label: "GPT Image 2",
+        description: "AI-generated story artwork",
+    },
 };
 
 /** Which models each tier can access */
 export const TIER_MODELS: Record<SubscriptionTier, ImageProvider[]> = {
     free: [],
     pro: ["flux"],
-    premium: ["flux", "seedream", "gemini"],
+    premium: ["flux", "seedream", "gemini", "gpt-image-2"],
 };
 
 /** Get models available to a tier (filtered by API key availability) */
@@ -41,12 +47,14 @@ export function getAvailableModels(tier: SubscriptionTier): Array<{
 }> {
     const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
     const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
+    if (isGptImageAvailable()) allProviders.push("gpt-image-2");
     const tierModels = bypassTierCheck ? allProviders : TIER_MODELS[tier];
 
     const apiAvailability: Record<ImageProvider, boolean> = {
         flux: isFluxAvailable(),
         seedream: isSeedreamAvailable(),
         gemini: isImagenAvailable(),
+        "gpt-image-2": isGptImageAvailable(),
     };
 
     return allProviders.map((provider) => {

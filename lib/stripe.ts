@@ -29,6 +29,7 @@ export const STRIPE_PRICE_IDS = {
 
 // Map Stripe price IDs to tiers
 export function getTierFromPriceId(priceId: string): SubscriptionTier {
+    if (!priceId.trim()) return "free";
     if (
         priceId === STRIPE_PRICE_IDS.premium.monthly ||
         priceId === STRIPE_PRICE_IDS.premium.yearly
@@ -57,29 +58,41 @@ export function isStripeConfigured(): boolean {
     return !!stripeSecretKey;
 }
 
+async function validateCustomerOwnership(customerId: string, clerkUserId: string): Promise<void> {
+    if (!stripe) throw new Error("Stripe is not configured");
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted || !clerkUserId || customer.metadata.clerk_user_id !== clerkUserId) {
+        throw new Error("Stripe customer ownership could not be verified");
+    }
+}
+
 // Create or retrieve a Stripe customer for a user
 export async function getOrCreateStripeCustomer(
     clerkUserId: string,
     email: string,
-    name?: string
+    name?: string,
+    mappedCustomerId?: string | null
 ): Promise<string | null> {
     if (!stripe) return null;
 
-    // First, try to find existing customer by metadata
+    if (mappedCustomerId) {
+        await validateCustomerOwnership(mappedCustomerId, clerkUserId);
+        return mappedCustomerId;
+    }
+
+    if (!clerkUserId) throw new Error("A customer owner is required");
+
+    // Email is only a search hint, never proof of ownership.
     const existingCustomers = await stripe.customers.list({
-        limit: 1,
+        limit: 100,
         email,
     });
 
-    if (existingCustomers.data.length > 0) {
-        const customer = existingCustomers.data[0];
-        // Update metadata if needed
-        if (customer.metadata.clerk_user_id !== clerkUserId) {
-            await stripe.customers.update(customer.id, {
-                metadata: { clerk_user_id: clerkUserId },
-            });
-        }
-        return customer.id;
+    const customerMatch = existingCustomers.data.find(
+        customer => !customer.deleted && customer.metadata.clerk_user_id === clerkUserId
+    );
+    if (customerMatch) {
+        return customerMatch.id;
     }
 
     // Create new customer
@@ -149,10 +162,12 @@ export async function createCheckoutSession({
 // Create a billing portal session
 export async function createBillingPortalSession(
     customerId: string,
-    returnUrl: string
+    returnUrl: string,
+    clerkUserId: string
 ): Promise<Stripe.BillingPortal.Session | null> {
     if (!stripe) return null;
 
+    await validateCustomerOwnership(customerId, clerkUserId);
     return await stripe.billingPortal.sessions.create({
         customer: customerId,
         return_url: returnUrl,

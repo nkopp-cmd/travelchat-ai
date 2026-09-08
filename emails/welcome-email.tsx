@@ -6,7 +6,6 @@ import {
     Heading,
     Hr,
     Html,
-    Img,
     Link,
     Preview,
     Section,
@@ -39,8 +38,8 @@ export function WelcomeEmail({ userName, verifyUrl }: WelcomeEmailProps) {
                             Welcome{userName ? `, ${userName}` : ""}! 🎉
                         </Heading>
                         <Text style={heroParagraph}>
-                            You've just joined a community of travelers who prefer authentic
-                            experiences over tourist traps. We're excited to help you discover
+                            You&apos;ve just joined a community of travelers who prefer authentic
+                            experiences over tourist traps. We&apos;re excited to help you discover
                             the hidden gems that locals love.
                         </Text>
                     </Section>
@@ -49,14 +48,14 @@ export function WelcomeEmail({ userName, verifyUrl }: WelcomeEmailProps) {
 
                     {/* What You Can Do */}
                     <Section style={featuresSection}>
-                        <Heading style={h2}>Here's what you can do:</Heading>
+                        <Heading style={h2}>Here&apos;s what you can do:</Heading>
 
                         <Section style={featureItem}>
                             <Text style={featureIcon}>🗺️</Text>
                             <div>
                                 <Text style={featureTitle}>Create AI Itineraries</Text>
                                 <Text style={featureDescription}>
-                                    Tell us where you're going and let our AI craft the perfect
+                                    Tell us where you&apos;re going and let our AI craft the perfect
                                     local-approved itinerary just for you.
                                 </Text>
                             </div>
@@ -128,7 +127,7 @@ export function WelcomeEmail({ userName, verifyUrl }: WelcomeEmailProps) {
                             <Link href="https://localley.io/templates" style={footerLink}>Itinerary Templates</Link>
                         </Text>
                         <Text style={footerSubtext}>
-                            You're receiving this because you signed up for Localley.
+                            You&apos;re receiving this because you signed up for Localley.
                         </Text>
                     </Section>
                 </Container>

@@ -1,9 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useUser } from "@clerk/nextjs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StoryVideoPanel } from "@/components/itineraries/story-video-panel";
+import { setStoryVideoOwner, useStoryVideo } from "@/lib/story-video-client";
+import { requestStoryBackground, StoryBackgroundPendingError } from "@/lib/story-background-client";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogHeader,
@@ -21,7 +27,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, Lock, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
 interface ModelOption {
@@ -112,6 +117,14 @@ async function shareOrDownload(blob: Blob, filename: string): Promise<"shared" |
 }
 
 export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dailyPlans }: StoryDialogProps) {
+    const { user } = useUser();
+    const userId = user?.id ?? null;
+    useEffect(() => { setStoryVideoOwner(userId); }, [userId]);
+    const [format, setFormat] = useState("carousel");
+    const [videoUiEnabled, setVideoUiEnabled] = useState(false);
+    // Observe shared attempts without starting eligibility requests or polling.
+    const { attempt: videoAttempt } = useStoryVideo(userId, itineraryId, false);
+    const showVideo = videoUiEnabled || !!videoAttempt;
     const [open, setOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [slides, setSlides] = useState<StorySlide[]>([]);
@@ -135,7 +148,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [availableModels, setAvailableModels] = useState<ModelOption[]>([]);
     const [savedSlides, setSavedSlides] = useState<Record<string, string> | null>(null);
     const [usedProviders, setUsedProviders] = useState<string[]>([]);
-    const { toast } = useToast();
+    const [generationNotice, setGenerationNotice] = useState("");
+    const [noticeIsError, setNoticeIsError] = useState(false);
+    const generationController = useRef<AbortController | null>(null);
+    const backgroundAttempts = useRef(new Map<string, { body: string; failed: boolean }>());
+    useEffect(() => () => generationController.current?.abort(), []);
+    const notifyStory = ({ title, description, variant }: { title: string; description: string; variant?: "destructive" }) => {
+        setGenerationNotice(`${title} ${description}`);
+        setNoticeIsError(variant === "destructive");
+    };
 
     const handleImageError = (index: number) => {
         setBrokenSlides(prev => new Set(prev).add(index));
@@ -149,6 +170,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 return res.json();
             })
             .then((data) => {
+                setVideoUiEnabled(data.videoUiEnabled === true);
                 setAiAvailable(data.sources?.ai ?? false);
                 // Load model options from the API
                 if (data.models && Array.isArray(data.models)) {
@@ -163,6 +185,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             .catch((err) => {
                 console.error("[STORY_DIALOG] Failed to check sources:", err);
                 setAiAvailable(false);
+                setVideoUiEnabled(false);
             });
 
         fetch("/api/user/tier")
@@ -249,15 +272,17 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         slidesToPersist: StorySlide[],
         itnId: string,
         onProgress?: (msg: string) => void,
+        signal?: AbortSignal,
     ): Promise<{ slides: Record<string, string>; retentionDays?: number } | null> => {
         const formData = new FormData();
 
         // Render each slide sequentially to avoid overwhelming the server
         for (let i = 0; i < slidesToPersist.length; i++) {
+            signal?.throwIfAborted();
             const slide = slidesToPersist[i];
             onProgress?.(`Rendering slide ${i + 1}/${slidesToPersist.length}...`);
             try {
-                const res = await fetch(slide.url);
+                const res = await fetch(slide.url, { signal });
                 if (!res.ok) {
                     console.error(`[STORY] Failed to render slide ${slide.label}:`, res.status);
                     continue;
@@ -266,17 +291,21 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const key = slide.type === "day" ? `day${slide.day}` : slide.type;
                 formData.append(key, blob, `${key}.png`);
             } catch (err) {
+                signal?.throwIfAborted();
                 console.error(`[STORY] Error rendering slide ${slide.label}:`, err);
             }
         }
 
+        signal?.throwIfAborted();
         onProgress?.("Uploading to cloud...");
         const response = await fetch(`/api/itineraries/${itnId}/story/persist`, {
             method: "POST",
             body: formData,
+            signal,
         });
 
         const data = await response.json();
+        signal?.throwIfAborted();
         if (!response.ok || !data.success) {
             console.error("[STORY] Persist API failed:", data);
             return null;
@@ -287,74 +316,58 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     const generateBackground = async (
         slideType: "cover" | "day" | "summary",
-        options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[]; slotIndex?: number }
+        options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[]; slotIndex?: number },
+        signal: AbortSignal,
+        deadline: number,
     ): Promise<{ image: string; source: string; provider?: string } | undefined> => {
         if (!city) return undefined;
         console.log("[STORY] Generating background for:", { city, slideType, ...options });
 
-        try {
-            const requestBody = {
-                type: slideType,
-                city,
-                theme: options.theme,
-                dayNumber: options.dayNumber,
-                activities: options.activities || [],
-                preferAI: useAiBackgrounds,
-                provider: useAiBackgrounds && selectedModel ? selectedModel : undefined,
-                cacheKey: slideType === "day"
-                    ? `${itineraryId}-day-${options.dayNumber}`
-                    : `${itineraryId}-${slideType}`,
-                excludeUrls: options.excludeUrls || [],
-                slotIndex: options.slotIndex,
-            };
+        const baseKey = slideType === "day"
+            ? `${itineraryId}-day-${options.dayNumber}`
+            : `${itineraryId}-${slideType}`;
+        const requestBody = {
+            type: slideType,
+            city,
+            theme: options.theme,
+            dayNumber: options.dayNumber,
+            activities: options.activities || [],
+            preferAI: useAiBackgrounds,
+            provider: useAiBackgrounds && selectedModel ? selectedModel : undefined,
+            cacheKey: baseKey,
+            excludeUrls: options.excludeUrls || [],
+            slotIndex: options.slotIndex,
+        };
 
-            const response = await fetch("/api/images/story-background", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(requestBody),
-            });
-
-            if (!response.ok) {
-                console.error("[STORY] Background API returned HTTP", response.status);
-                return undefined;
-            }
-
-            const data = await response.json();
-            console.log("[STORY] Response:", {
-                success: data.success,
-                hasImage: !!data.image,
-                source: data.source,
-                provider: data.provider,
-                failedProviders: data.failedProviders,
-                error: data.error,
-            });
-
-            if (data.success && data.image) {
-                // Track which AI provider was actually used
-                if (data.provider) {
-                    setUsedProviders(prev => {
-                        const next = [...new Set([...prev, data.provider])];
-                        return next;
-                    });
-                }
-                return { image: data.image, source: data.source, provider: data.provider };
-            } else if (data.error) {
-                console.error("[STORY] API returned error:", data.error, data.failedProviders);
-                // Surface AI failures to the user
-                if (data.failedProviders?.length > 0) {
-                    const providerErrors = data.failedProviders
-                        .map((fp: { provider: string; error: string }) => `${fp.provider}: ${fp.error}`)
-                        .join(", ");
-                    console.error("[STORY] Provider failures:", providerErrors);
-                }
-            }
-        } catch (error) {
-            console.error("[STORY] Background generation failed:", error);
+        // Exclusions also identify the ledger job. Preserve the entire attempt body,
+        // including when another slot's explicit retry produces a different image.
+        let attempt = backgroundAttempts.current.get(baseKey);
+        if (!attempt) {
+            attempt = { body: JSON.stringify(requestBody), failed: false };
+            backgroundAttempts.current.set(baseKey, attempt);
         }
-        return undefined;
+        const data = await requestStoryBackground(attempt.body, signal, deadline);
+        signal.throwIfAborted();
+        if (data?.state === "failed") {
+            attempt.failed = true;
+            return undefined;
+        }
+        const provider = data?.provider;
+        if (provider) {
+            setUsedProviders(prev => [...new Set([...prev, provider])]);
+        }
+        return data;
     };
 
     const handleGenerate = async () => {
+        generationController.current?.abort();
+        const controller = new AbortController();
+        generationController.current = controller;
+        const { signal } = controller;
+        const deadline = Date.now() + 90_000;
+        setGenerationNotice("");
+        setNoticeIsError(false);
+        setSavedSlides(null);
         setIsGenerating(true);
         setBrokenSlides(new Set());
         setCloudSaved(false);
@@ -364,6 +377,17 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         const imageSources: string[] = [];
 
         try {
+            // Rotate only on this explicit user action, never on polling or reopen.
+            // Replace the suffix from the base key so repeated failures cannot grow it.
+            for (const [baseKey, attempt] of backgroundAttempts.current) {
+                if (attempt.failed) {
+                    attempt.body = JSON.stringify({
+                        ...JSON.parse(attempt.body),
+                        cacheKey: `${baseKey}-attempt-${crypto.randomUUID()}`,
+                    });
+                    attempt.failed = false;
+                }
+            }
             if (city) {
                 setGeneratingAi(true);
 
@@ -373,21 +397,18 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const usedUrls: string[] = [];
 
                 setGenerationProgress(`Generating backgrounds (0/${totalSlides})...`);
-                toast({
-                    title: "Generating backgrounds...",
-                    description: `Creating ${totalSlides} images`,
-                });
 
                 // --- Phase 1: Generate cover first (await) so we get its URL for dedup ---
                 const coverResult = await generateBackground("cover", {
                     theme: "iconic landmarks and stunning cityscape view",
                     excludeUrls: [],
                     slotIndex: 0,
-                });
+                }, signal, deadline);
+                signal.throwIfAborted();
                 completedCount++;
                 const coverProvider = coverResult?.provider;
                 const providerHint = coverProvider ? ` via ${coverProvider === "flux" ? "FLUX" : coverProvider === "seedream" ? "Seedream" : coverProvider === "gemini" ? "Gemini" : coverProvider}` : "";
-                setGenerationProgress(`Generated ${completedCount}/${totalSlides}${providerHint}...`);
+                setGenerationProgress(`Checked ${completedCount}/${totalSlides}${providerHint}. Waiting for backgrounds...`);
                 if (coverResult) {
                     backgrounds.cover = coverResult.image;
                     usedUrls.push(coverResult.image);
@@ -410,10 +431,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             activities,
                             excludeUrls: [...usedUrls],
                             slotIndex: dayNumber,
-                        }).then(result => {
+                        }, signal, deadline).then(result => {
+                            signal.throwIfAborted();
                             completedCount++;
                             const hint = result?.provider ? ` via ${result.provider === "flux" ? "FLUX" : result.provider === "seedream" ? "Seedream" : result.provider === "gemini" ? "Gemini" : result.provider}` : "";
-                            setGenerationProgress(`Generated ${completedCount}/${totalSlides}${hint || providerHint}...`);
+                            setGenerationProgress(`Checked ${completedCount}/${totalSlides}${hint || providerHint}. Waiting for backgrounds...`);
                             if (result) {
                                 backgrounds[`day${dayNumber}`] = result.image;
                                 usedUrls.push(result.image);
@@ -428,10 +450,11 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         theme: "beautiful panoramic travel scenery at sunset",
                         excludeUrls: [...usedUrls],
                         slotIndex: totalDays + 1,
-                    }).then(result => {
+                    }, signal, deadline).then(result => {
+                        signal.throwIfAborted();
                         completedCount++;
                         const hint = result?.provider ? ` via ${result.provider === "flux" ? "FLUX" : result.provider === "seedream" ? "Seedream" : result.provider === "gemini" ? "Gemini" : result.provider}` : "";
-                        setGenerationProgress(`Generated ${completedCount}/${totalSlides}${hint || providerHint}...`);
+                        setGenerationProgress(`Checked ${completedCount}/${totalSlides}${hint || providerHint}. Waiting for backgrounds...`);
                         if (result) {
                             backgrounds.summary = result.image;
                             usedUrls.push(result.image);
@@ -440,7 +463,10 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     })
                 );
 
-                await Promise.allSettled(phase2Promises);
+                const results = await Promise.allSettled(phase2Promises);
+                signal.throwIfAborted();
+                const rejected = results.find(result => result.status === "rejected");
+                if (rejected?.status === "rejected") throw rejected.reason;
 
                 // --- Save backgrounds to database ---
                 setGenerationProgress("Saving backgrounds...");
@@ -461,6 +487,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(bgToSave),
+                            signal,
                         });
                         if (!saveRes.ok) {
                             const errText = await saveRes.text().catch(() => "unknown");
@@ -470,11 +497,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             console.log("[STORY] Backgrounds saved successfully");
                         }
                     } catch (err) {
+                        signal.throwIfAborted();
                         console.error("[STORY] Save request failed:", err);
                         saveFailed = true;
                     }
                 }
 
+                signal.throwIfAborted();
                 setGeneratingAi(false);
 
                 // Generate slides (so user can see them while save happens)
@@ -488,7 +517,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 try {
                     const persistResult = await persistSlidesToCloud(generatedSlides, itineraryId, (progress) => {
                         setGenerationProgress(progress);
-                    });
+                    }, signal);
+                    signal.throwIfAborted();
                     if (persistResult) {
                         setSavedSlides(persistResult.slides);
                         setCloudSaved(true);
@@ -511,16 +541,18 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ city }),
+                                signal,
                             }).catch(err => console.log("[STORY] Email notification skipped:", err));
                         }
                     }
                 } catch (err) {
+                    signal.throwIfAborted();
                     console.error("[STORY] Auto-persist failed:", err);
                 }
 
                 setGenerationProgress("");
 
-                // Show accurate toast based on actual results
+                // Show an inline notice based on actual results.
                 const bgCount = Object.keys(bgToSave).length;
                 const uniqueSources = [...new Set(imageSources)];
                 // Build a descriptive source text: prefer showing provider name (e.g. "FLUX") over generic "ai"
@@ -531,19 +563,19 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const sourceText = sourceDisplay ? ` (${sourceDisplay})` : "";
 
                 if (bgCount === 0) {
-                    toast({
+                    notifyStory({
                         title: "Stories ready (gradient fallback)",
                         description: "Background generation failed — slides use branded gradients",
                         variant: "destructive",
                     });
                 } else if (saveFailed) {
-                    toast({
+                    notifyStory({
                         title: "Stories generated",
                         description: `${bgCount} backgrounds created but failed to save${sourceText}`,
                         variant: "destructive",
                     });
                 } else {
-                    toast({
+                    notifyStory({
                         title: "Stories generated!",
                         description: `${generatedSlides.length} slides ready${sourceText}`,
                     });
@@ -553,22 +585,29 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 const generatedSlides = generateSlides();
                 setSlides(generatedSlides);
                 setSelectedSlide(0);
-                toast({
+                notifyStory({
                     title: "Stories generated!",
                     description: `${generatedSlides.length} slides ready (gradient backgrounds)`,
                 });
             }
         } catch (error) {
+            if (signal.aborted) return;
+            if (error instanceof StoryBackgroundPendingError) {
+                setGenerationNotice(error.message);
+                return;
+            }
             console.error("Error generating stories:", error);
-            toast({
+            notifyStory({
                 title: "Generation failed",
                 description: "Please try again",
                 variant: "destructive",
             });
         } finally {
-            setIsGenerating(false);
-            setGeneratingAi(false);
-            setGenerationProgress("");
+            if (generationController.current === controller && !signal.aborted) {
+                setIsGenerating(false);
+                setGeneratingAi(false);
+                setGenerationProgress("");
+            }
         }
     };
 
@@ -597,13 +636,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             const filename = getSlideFilename(slide, city, totalDays);
             downloadViaAnchor(blob, filename);
 
-            toast({
+            notifyStory({
                 title: "Image saved!",
                 description: "Check your Downloads folder",
             });
         } catch (error) {
             console.error("Download error:", error);
-            toast({
+            notifyStory({
                 title: "Download failed",
                 description: "Please try again",
                 variant: "destructive",
@@ -629,15 +668,15 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             const shared = await shareViaShareSheet(blob, filename);
 
             if (shared) {
-                toast({ title: "Shared!", description: `${slide.label} sent to share sheet` });
+                notifyStory({ title: "Shared!", description: `${slide.label} sent to share sheet` });
             } else {
                 // Fallback to download if share not available
                 downloadViaAnchor(blob, filename);
-                toast({ title: "Image saved!", description: "Check your Downloads folder" });
+                notifyStory({ title: "Image saved!", description: "Check your Downloads folder" });
             }
         } catch (error) {
             console.error("Share error:", error);
-            toast({ title: "Share failed", description: "Please try again", variant: "destructive" });
+            notifyStory({ title: "Share failed", description: "Please try again", variant: "destructive" });
         } finally {
             setDownloadingIndex(null);
         }
@@ -694,13 +733,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
 
-            toast({
+            notifyStory({
                 title: "Downloaded!",
                 description: `All ${slides.length} slides saved as ZIP`,
             });
         } catch (error) {
             console.error("ZIP download error:", error);
-            toast({
+            notifyStory({
                 title: "Download failed",
                 description: "Please try again",
                 variant: "destructive",
@@ -726,13 +765,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             setSavedSlides(result.slides);
             if (result.retentionDays) setRetentionDays(result.retentionDays);
 
-            toast({
+            notifyStory({
                 title: "Saved to Localley!",
                 description: `Your story slides are saved for ${result.retentionDays} days`,
             });
         } catch (error) {
             console.error("[STORY] Cloud save error:", error);
-            toast({
+            notifyStory({
                 title: "Save failed",
                 description: "Could not save to cloud. Try downloading instead.",
                 variant: "destructive",
@@ -745,7 +784,16 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
     return (
         <>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(nextOpen) => {
+            if (!nextOpen) {
+                setFullscreenSlide(null);
+                generationController.current?.abort();
+                setIsGenerating(false);
+                setGeneratingAi(false);
+                setGenerationProgress("");
+            }
+            setOpen(nextOpen);
+        }}>
             <DialogTrigger asChild>
                 <Button className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0">
                     <Sparkles className="h-4 w-4" />
@@ -753,24 +801,43 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     Stories
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
-                <DialogHeader>
+            <DialogContent showCloseButton={false} className="sm:max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+                <DialogClose asChild>
+                    <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-11 w-11" aria-label="Close">
+                        <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                </DialogClose>
+                <DialogHeader className="pr-10">
                     <DialogTitle className="flex items-center gap-2">
                         <Camera className="h-5 w-5" />
-                        Generate Story Slides
+                        Create Story
                     </DialogTitle>
                     <DialogDescription>
-                        Create Instagram/TikTok-ready story slides for &quot;{itineraryTitle}&quot;
+                        Create a story for &quot;{itineraryTitle}&quot;
                     </DialogDescription>
                 </DialogHeader>
+                <Tabs value={showVideo ? format : "carousel"} onValueChange={value => {
+                    if (isGenerating || isSavingToCloud || downloadingIndex !== null) return;
+                    setFullscreenSlide(null);
+                    setFormat(value);
+                }}>
+                    <TabsList aria-label="Story format" className="h-11 w-full">
+                        <TabsTrigger value="carousel">Image carousel</TabsTrigger>
+                        {showVideo && <TabsTrigger value="video" disabled={isGenerating || isSavingToCloud || downloadingIndex !== null}>Video</TabsTrigger>}
+                    </TabsList>
+                    {showVideo && <TabsContent value="video">
+                        <StoryVideoPanel key={`${userId}:${itineraryId}`} userId={userId} itineraryId={itineraryId} active={open && format === "video"} />
+                    </TabsContent>}
+                    <TabsContent value="carousel">
+                {generationNotice && <p role={noticeIsError ? "alert" : "status"} className="text-sm text-muted-foreground">{generationNotice}</p>}
 
                 {slides.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-6 sm:py-12">
-                        <div className="w-32 h-56 sm:w-48 sm:h-80 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-4 sm:mb-6 shadow-xl">
+                        <div className="w-32 h-56 sm:w-48 sm:h-80 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center mb-4 sm:mb-6 shadow-xl">
                             <div className="text-white text-center px-4">
                                 <Instagram className="h-12 w-12 mx-auto mb-4 opacity-80" />
-                                <p className="text-sm opacity-80">1080 × 1920</p>
-                                <p className="text-xs opacity-60">Story Format</p>
+                                <p className="text-sm">1080 × 1920</p>
+                                <p className="text-xs">Story Format</p>
                             </div>
                         </div>
                         <p className="text-muted-foreground text-center mb-4 max-w-sm">
@@ -811,6 +878,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                                     } ${!model.available ? "opacity-50 cursor-not-allowed" : ""}`}
                                                 >
                                                     <RadioGroupItem
+                                                        className="border-muted-foreground"
                                                         value={model.provider}
                                                         disabled={!model.available}
                                                     />
@@ -967,6 +1035,9 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                         {/* Actions */}
                         <div className="flex flex-wrap gap-2 items-center justify-between border-t pt-4">
+                            <Button variant="outline" onClick={handleGenerate} disabled={isGenerating || isSavingToCloud || downloadingIndex !== null}>
+                                Generate again
+                            </Button>
                             {/* Cloud Save (primary) */}
                             <div className="flex items-center gap-2">
                                 <Button
@@ -1050,11 +1121,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         </div>
                     </div>
                 )}
+                    </TabsContent>
+                </Tabs>
             </DialogContent>
         </Dialog>
 
         {/* Fullscreen lightbox — plain <img> enables iOS long-press "Save Image" */}
-        {fullscreenSlide !== null && slides[fullscreenSlide] && (
+        {open && format === "carousel" && fullscreenSlide !== null && slides[fullscreenSlide] && (
             <div
                 className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-4"
                 onClick={() => setFullscreenSlide(null)}
