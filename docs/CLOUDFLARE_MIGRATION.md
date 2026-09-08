@@ -6,6 +6,12 @@ Stripe, OpenAI, and MiniMax remain external product providers, not hosting or au
 
 ## Current Checkpoint
 
+Cloudflare DNS is active for `localley.io` as of 2026-09-08.
+The 14 existing DNS records were compared and preserved before the user changed nameservers.
+Website and Clerk endpoint checks passed afterward; application hosting and authentication have not switched yet.
+Email Sending onboarding remains blocked by the current token's access.
+See `operations/cloudflare-dns-cutover.md` for the verified DNS state and next approval gate.
+
 The tested story integration is preserved in local commit `b5a1fbc`.
 It was not deployed after the user clarified the full migration target.
 Its image ledger migration was already applied before that clarification; no data was removed to reverse it.

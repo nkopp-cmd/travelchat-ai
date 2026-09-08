@@ -5,7 +5,7 @@ Checked on 2026-09-08. No nameserver change has been made by the assistant.
 ## Current State
 
 The user added `localley.io` to the intended Cloudflare account.
-Zone `34780b243d4a2f10a300f5586d229c8b` is pending activation.
+Zone `34780b243d4a2f10a300f5586d229c8b` became active on 2026-09-08 at 19:56:50 UTC.
 The existing API token can read and edit this zone's DNS records.
 Email Sending management still returns authentication error `10000` for this specific zone.
 Do not report DNS access itself as blocked.
@@ -15,7 +15,11 @@ Assigned Cloudflare nameservers:
 - `igor.ns.cloudflare.com`
 - `norah.ns.cloudflare.com`
 
-Current authoritative nameservers remain:
+The user supplied the full Name.com inventory. All 14 destinations and mail priorities matched the prepared zone.
+The user then saved the assigned Cloudflare nameservers at Name.com.
+Cloudflare and Google resolvers confirmed the new delegation before Cloudflare marked the zone active.
+
+Previous nameservers, retained here only as historical reference:
 
 - `ns1jsv.name.com`
 - `ns2clp.name.com`
@@ -49,15 +53,22 @@ Direct queries to `igor.ns.cloudflare.com` confirmed the website, Clerk frontend
 Cloudflare DNSSEC is disabled, and the public DS lookup returned no DS record.
 Recheck both immediately before changing nameservers.
 
-## Remaining Gate
+## Completed DNS Gate
 
-Compare the full Name.com DNS record list or zone export before approving the nameserver change.
-Targeted public lookups cannot establish that no other subdomains or verification records exist.
-Do not rely on the automatic scan alone.
+The full source inventory was compared before the nameserver change.
+Targeted checks alone were not treated as a complete inventory.
+After activation, the live Seoul map and sign-in page returned HTTP 200.
+Clerk's HTTPS signing-key endpoint also returned HTTP 200.
+These checks do not prove inbox delivery or complete an application authentication migration.
 
-After that comparison, the user can replace the four Name.com nameservers with the two assigned Cloudflare nameservers.
-Then verify delegation, website access, sign-in, incoming mail, and sender records from multiple resolvers.
-Do not enable proxy changes, alter mail routing, or retire services during that DNS-only step.
+## Next Gate
+
+Onboard `localley.io` in Cloudflare Email Sending through authorized access.
+The current token still receives HTTP 403 and code `10000` from this zone's Email Sending endpoint.
+Review proposed sender, SPF, DKIM, and DMARC records before confirming them.
+Keep Google Workspace MX records unchanged. Do not enable Email Routing as a substitute for Email Sending.
+If onboarding requires a new paid plan, obtain approval for that recurring charge first.
+No Email Sending configuration, message delivery, or new subscription was created in this DNS step.
 
 Changing nameservers moves DNS management only.
 Vercel, Supabase, and Clerk remain temporary application dependencies until the separate application cutover passes.
