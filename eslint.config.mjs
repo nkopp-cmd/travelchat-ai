@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     ".cloudflare-preview/**",
     ".vercel/**",
+    "cloudflare/**",
     "next-env.d.ts",
   ]),
 ]);

@@ -1,0 +1,7 @@
+node_modules/
+.npm-cache/
+.local/
+.wrangler/
+.dev.vars*
+dist/
+*.tgz

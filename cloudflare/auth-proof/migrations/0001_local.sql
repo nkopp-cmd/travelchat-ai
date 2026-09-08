@@ -1,0 +1,15 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE user (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, emailVerified INTEGER NOT NULL DEFAULT 0, image TEXT, createdAt INTEGER NOT NULL, updatedAt INTEGER NOT NULL);
+CREATE TABLE session (id TEXT PRIMARY KEY NOT NULL, token TEXT NOT NULL UNIQUE, userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE, expiresAt INTEGER NOT NULL, createdAt INTEGER NOT NULL, updatedAt INTEGER NOT NULL, ipAddress TEXT, userAgent TEXT);
+CREATE INDEX session_user ON session(userId);
+CREATE TABLE account (id TEXT PRIMARY KEY NOT NULL, accountId TEXT NOT NULL, providerId TEXT NOT NULL, userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE, accessToken TEXT, refreshToken TEXT, idToken TEXT, accessTokenExpiresAt INTEGER, refreshTokenExpiresAt INTEGER, scope TEXT, password TEXT, createdAt INTEGER NOT NULL, updatedAt INTEGER NOT NULL);
+CREATE INDEX account_user ON account(userId);
+CREATE TABLE verification (id TEXT PRIMARY KEY NOT NULL, identifier TEXT NOT NULL, value TEXT NOT NULL, expiresAt INTEGER NOT NULL, createdAt INTEGER NOT NULL, updatedAt INTEGER NOT NULL);
+CREATE INDEX verification_identifier ON verification(identifier);
+CREATE TABLE rateLimit (id TEXT PRIMARY KEY NOT NULL, key TEXT NOT NULL UNIQUE, count INTEGER NOT NULL, lastRequest INTEGER NOT NULL);
+CREATE TABLE local_outbox (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL CHECK(kind IN ('verify','reset')), authUserId TEXT NOT NULL REFERENCES user(id), url TEXT NOT NULL, token TEXT NOT NULL);
+CREATE TABLE owners (id TEXT PRIMARY KEY NOT NULL, source TEXT NOT NULL CHECK(source IN ('legacy-fixture','new')));
+CREATE TABLE identity_links (authUserId TEXT PRIMARY KEY NOT NULL REFERENCES user(id), ownerId TEXT NOT NULL UNIQUE REFERENCES owners(id));
+CREATE TABLE private_notes (id TEXT PRIMARY KEY NOT NULL, ownerId TEXT NOT NULL REFERENCES owners(id), body TEXT NOT NULL);
+CREATE INDEX notes_owner ON private_notes(ownerId, id);
+CREATE TABLE claim_grants (tokenHash TEXT PRIMARY KEY NOT NULL, authUserId TEXT NOT NULL REFERENCES user(id), legacyOwnerId TEXT NOT NULL REFERENCES owners(id), expiresAt INTEGER NOT NULL, nonce TEXT NOT NULL UNIQUE, consumedAt INTEGER);

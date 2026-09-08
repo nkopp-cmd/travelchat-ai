@@ -1,0 +1,32 @@
+{
+  "name": "@localley/auth-proof",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "files": ["dist", "src", "migrations", "wrangler.jsonc", "worker-configuration.d.ts", "README.md"],
+  "scripts": {
+    "types": "node scripts/types.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "clean:local": "node scripts/clean-local.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test --test-concurrency=1 test/proof.test.mjs",
+    "check": "node scripts/check.mjs",
+    "check:inner": "npm run types && npm run typecheck && npm run lint && npm test && npm pack --dry-run"
+  },
+  "dependencies": {
+    "better-auth": "1.7.3",
+    "@better-auth/drizzle-adapter": "1.7.3",
+    "drizzle-orm": "0.45.2"
+  },
+  "devDependencies": {
+    "wrangler": "4.129.1",
+    "miniflare": "5.20260907.0-alpha",
+    "typescript": "6.0.3",
+    "esbuild": "0.28.2",
+    "eslint": "10.10.0",
+    "typescript-eslint": "8.70.0",
+    "@types/node": "22.20.1"
+  }
+}
