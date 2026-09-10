@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { VenueCardPhoto } from "./spot-photo-image";
 import Link from "next/link";
 import { Spot } from "@/types";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
 import {
-  ImageIcon,
   MapPin,
   Navigation,
   Sparkles,
@@ -15,41 +13,13 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getCityGradient } from "@/lib/city-images";
-import { inferSpotContextCity } from "@/lib/spots/city-context";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
-import {
-  getRealDisplaySpotPhotos,
-  hasRealDisplaySpotPhoto,
-} from "@/lib/spots/display-images";
-
-const PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
 interface SpotCardProps {
   spot: Spot;
   compact?: boolean;
   /** Set to true for above-the-fold images (first 6 cards) */
   priority?: boolean;
-}
-
-function inferSpotCity(spot: Spot): string | null {
-  return inferSpotContextCity({
-    name: spot.name,
-    address: spot.location.address,
-    lat: spot.location.lat,
-    lng: spot.location.lng,
-  });
-}
-
-function getInitialImage(spot: Spot) {
-  const realPhoto = getRealDisplaySpotPhotos(spot.photos)[0];
-  if (realPhoto) return { src: realPhoto, isAreaFallback: false, realPhotoIndex: 0 };
-
-  return { src: PLACEHOLDER_IMAGE, isAreaFallback: true, realPhotoIndex: -1 };
-}
-
-function hasRealSpotPhoto(spot: Spot) {
-  return spot.hasRealPhoto ?? hasRealDisplaySpotPhoto(spot.photos);
 }
 
 function CommunitySpotChip() {
@@ -102,29 +72,6 @@ function SpotScoreChip({
   );
 }
 
-function LocalCrowdChip({
-  percentage,
-  className,
-}: {
-  percentage: number;
-  className?: string;
-}) {
-  return (
-    <span
-      data-layout-chip
-      data-testid="spot-local-crowd-chip"
-      className={cn(
-        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border border-emerald-200/15 bg-emerald-400/10 px-1.5 text-[10px] font-semibold leading-none text-emerald-100 sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
-        className,
-      )}
-      title={`${percentage}% local crowd signal`}
-    >
-      <Users className="h-3 w-3" aria-hidden="true" />
-      {percentage}%
-    </span>
-  );
-}
-
 function LocationConfidenceChip({
   spot,
   className,
@@ -161,34 +108,13 @@ function LocationConfidenceChip({
       <Navigation className="h-3 w-3" aria-hidden="true" />
       <span className="truncate">
         {hasPlaceMatch
-          ? "Verified"
+           ? "Place matched"
           : confidence.tone === "exact"
             ? "Exact"
             : confidence.tone === "pinned"
               ? "Check pin"
               : "Area only"}
       </span>
-    </span>
-  );
-}
-
-function PhotoBackfillChip({ className }: { className?: string }) {
-  return (
-    <span
-      data-layout-chip
-      data-testid="spot-photo-backfill-chip"
-      className={cn(
-        "inline-flex max-w-[calc(100%-0.5rem)] items-center gap-0.5 rounded-md border border-amber-200/25 bg-black/60 px-1 py-0.5 text-[9px] font-medium leading-none text-amber-50/90 shadow-lg shadow-black/15 backdrop-blur min-[360px]:gap-1 min-[360px]:rounded-full min-[360px]:px-1.5 min-[360px]:text-[10px]",
-        className,
-      )}
-      title="This spot needs a verified real photo before it is public-ready"
-    >
-      <ImageIcon
-        className="h-2.5 w-2.5 flex-shrink-0 min-[360px]:h-3 min-[360px]:w-3"
-        aria-hidden="true"
-      />
-      <span className="truncate min-[430px]:hidden">Photo</span>
-      <span className="hidden truncate min-[430px]:inline">Photo needed</span>
     </span>
   );
 }
@@ -279,73 +205,6 @@ export function SpotCard({
   compact = false,
   priority = false,
 }: SpotCardProps) {
-  const initialImage = getInitialImage(spot);
-  const realPhotoCandidates = getRealDisplaySpotPhotos(spot.photos);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [usingAreaImage, setUsingAreaImage] = useState(
-    initialImage.isAreaFallback,
-  );
-  const [realPhotoIndex, setRealPhotoIndex] = useState(
-    initialImage.realPhotoIndex,
-  );
-  const [showGradientFallback, setShowGradientFallback] = useState(false);
-  const hasRealPhoto = hasRealSpotPhoto(spot);
-  const inferredCity = inferSpotCity(spot);
-  const [imageSrc, setImageSrc] = useState(initialImage.src);
-  const fallbackLabel = inferredCity ? `${inferredCity} area` : spot.category;
-  const fallbackGradient = getCityGradient(fallbackLabel);
-
-  const handleImageError = () => {
-    const nextRealPhotoIndex = realPhotoIndex + 1;
-    const nextRealPhoto = realPhotoCandidates[nextRealPhotoIndex];
-    if (nextRealPhoto) {
-      setRealPhotoIndex(nextRealPhotoIndex);
-      setImageSrc(nextRealPhoto);
-      setUsingAreaImage(false);
-      setImageLoaded(false);
-      return;
-    }
-
-    setShowGradientFallback(true);
-    setUsingAreaImage(true);
-    setImageLoaded(true);
-  };
-
-  const renderImage = (sizes: string) => {
-    if (!hasRealPhoto || showGradientFallback) {
-      return (
-        <div
-          className={cn(
-            "flex h-full w-full items-end bg-gradient-to-br p-2",
-            fallbackGradient,
-          )}
-        >
-          <span className="rounded-full border border-amber-200/25 bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-amber-50 backdrop-blur">
-            Photo needed
-          </span>
-        </div>
-      );
-    }
-
-    return (
-      <Image
-        src={imageSrc}
-        alt={spot.name}
-        fill
-        sizes={sizes}
-        quality={90}
-        priority={priority}
-        className={cn(
-          "object-cover transition-all duration-500 ease-out",
-          "group-hover:scale-110",
-          imageLoaded ? "opacity-100" : "opacity-0",
-        )}
-        onLoad={() => setImageLoaded(true)}
-        onError={handleImageError}
-      />
-    );
-  };
-
   if (compact) {
     // Premium compact horizontal card for list view
     return (
@@ -365,21 +224,8 @@ export function SpotCard({
         <div
           data-testid="spot-card-photo"
           className="relative aspect-[4/3] w-[4.75rem] flex-shrink-0 overflow-hidden bg-violet-950/60 min-[390px]:w-24 sm:w-32 md:w-36"
-          aria-hidden="true"
         >
-          {!showGradientFallback && !imageLoaded && (
-            <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-violet-950 via-violet-900/80 to-violet-950" />
-          )}
-          {renderImage("(max-width: 640px) 112px, 160px")}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-          {(!hasRealPhoto || usingAreaImage) && (
-            <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10" />
-          )}
-          {spot.communitySubmitted && (
-            <div className="absolute left-1.5 top-1.5 z-10">
-              <CommunitySpotChip />
-            </div>
-          )}
+          <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority} directPhotos={spot.googlePlaceId ? [] : spot.photos} />
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
@@ -418,6 +264,7 @@ export function SpotCard({
               data-spot-card-meta
               className="grid min-w-0 grid-cols-1 gap-1 overflow-hidden min-[430px]:grid-cols-[minmax(0,1fr)_auto] sm:flex sm:flex-wrap sm:items-center sm:overflow-visible"
             >
+              {spot.communitySubmitted && <CommunitySpotChip />}
               <CategoryTrendRow
                 category={spot.category}
                 trending={spot.trending}
@@ -432,10 +279,6 @@ export function SpotCard({
                 <SpotScoreChip
                   score={spot.localleyScore}
                   className="max-w-[3.75rem]"
-                />
-                <LocalCrowdChip
-                  percentage={spot.localPercentage}
-                  className="hidden min-[520px]:inline-flex"
                 />
               </div>
             </div>
@@ -464,31 +307,8 @@ export function SpotCard({
       <div
         data-testid="spot-card-photo"
         className="relative w-[4.75rem] shrink-0 overflow-hidden bg-violet-950/60 min-[390px]:w-24 md:aspect-[2/1] md:w-full"
-        aria-hidden="true"
       >
-        {!showGradientFallback && !imageLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-950 via-violet-900/80 to-violet-950">
-            <div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
-              style={{ backgroundSize: "200% 100%" }}
-            />
-          </div>
-        )}
-
-        {renderImage(
-          "(max-width: 640px) 128px, (max-width: 1024px) 50vw, 33vw",
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/12 to-black/10 transition-opacity duration-300 group-hover:opacity-85" />
-
-        {(!hasRealPhoto || usingAreaImage) && (
-          <PhotoBackfillChip className="absolute bottom-1.5 left-1.5 z-10 md:bottom-2.5 md:left-2.5 md:max-w-[calc(100%-5.5rem)] md:px-2.5 md:py-1 md:text-[11px]" />
-        )}
-        {spot.communitySubmitted && (
-          <div className="absolute left-1.5 top-1.5 z-10 md:left-2.5 md:top-2.5">
-            <CommunitySpotChip />
-          </div>
-        )}
+        <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority} directPhotos={spot.googlePlaceId ? [] : spot.photos} />
       </div>
       <div className="absolute right-1.5 top-1.5 z-20 hidden md:right-2.5 md:top-2.5 md:block">
         <div className="flex-shrink-0 rounded-full border border-white/20 bg-black/42 p-1 shadow-lg shadow-black/15 backdrop-blur-md transition-all duration-300 hover:scale-105 focus-within:opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
@@ -543,8 +363,9 @@ export function SpotCard({
         <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5">
           <div
             data-spot-card-meta
-            className="grid min-w-0 grid-cols-1 gap-1 overflow-hidden md:flex md:flex-wrap md:items-center md:overflow-visible"
-          >
+              className="grid min-w-0 grid-cols-1 gap-1 overflow-hidden md:flex md:flex-wrap md:items-center md:overflow-visible"
+            >
+            {spot.communitySubmitted && <CommunitySpotChip />}
             <CategoryTrendRow
               category={spot.category}
               trending={spot.trending}
@@ -561,10 +382,6 @@ export function SpotCard({
                 score={spot.localleyScore}
                 showLabel
                 className="justify-self-end"
-              />
-              <LocalCrowdChip
-                percentage={spot.localPercentage}
-                className="hidden md:inline-flex"
               />
             </div>
           </div>

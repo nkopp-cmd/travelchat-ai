@@ -36,7 +36,9 @@ describe("spot detail normalization", () => {
             "Weekday evenings"
         );
         expect(getSpotBestTime(null, "Late night")).toBe("Late night");
-        expect(getSpotBestTime(null, null)).toBe("Anytime");
+        expect(getSpotBestTime(null, null)).toBe("Not verified");
+        expect(getSpotBestTime("Anytime")).toBe("Not verified");
+        expect(getSpotBestTime({ en: "Any time" })).toBe("Not verified");
     });
 
     it("keeps score and local percentage inside presentable ranges", () => {
@@ -68,28 +70,28 @@ describe("spot detail normalization", () => {
                 realPhotoCount: 2,
                 googlePlaceId: "ChIJ123",
             })
-        ).toBe("2 place photo sources");
+        ).toBe("2 stored photo references");
         expect(
             getSpotPhotoEvidenceHelper({
                 hasRealPhoto: true,
                 realPhotoCount: 1,
                 googlePlaceId: null,
             })
-        ).toBe("Uses stored real imagery rather than a category placeholder.");
+        ).toContain("Stored references only.");
         expect(
             getSpotPhotoEvidenceLabel({
                 hasRealPhoto: false,
                 realPhotoCount: 0,
                 googlePlaceId: null,
             })
-        ).toBe("Image fallback");
+        ).toBe("No stored photo references");
         expect(
             getSpotPhotoEvidenceHelper({
                 hasRealPhoto: false,
                 realPhotoCount: 0,
                 googlePlaceId: null,
             })
-        ).toBe("Showing a city fallback until a verified spot photo is backfilled.");
+        ).toContain("no stock substitute is shown");
     });
 
     it("labels Korean coordinates as saved Kakao route pins", () => {
@@ -258,13 +260,13 @@ describe("spot detail normalization", () => {
                 verified: true,
             })
         ).toMatchObject({
-            label: "Verified route-ready record",
+            label: "Stored references and map target",
             actionLabel: "Plan with confidence",
             tone: "emerald",
             checks: [
-                { label: "Image", value: "3 real photos", ready: true },
+                { label: "References", value: "3 stored references", ready: true },
                 { label: "Map target", value: "Place matched", ready: true },
-                { label: "Curation", value: "Verified", ready: true },
+                { label: "Curation", value: "Curated record", ready: true },
             ],
         });
 
@@ -277,13 +279,13 @@ describe("spot detail normalization", () => {
                 verified: false,
             })
         ).toMatchObject({
-            label: "Image-ready, route needs review",
+            label: "Stored references, route needs review",
             actionLabel: "Search before routing",
             tone: "amber",
             checks: [
-                { label: "Image", value: "1 real photo", ready: true },
+                { label: "References", value: "1 stored reference", ready: true },
                 { label: "Map target", value: "Pinned area", ready: false },
-                { label: "Curation", value: "Curated", ready: true },
+                { label: "Curation", value: "Curated record", ready: true },
             ],
         });
 
@@ -300,9 +302,9 @@ describe("spot detail normalization", () => {
             actionLabel: "Keep as research lead",
             tone: "amber",
             checks: [
-                { label: "Image", value: "Needs photo", ready: false },
+                { label: "References", value: "No stored references", ready: false },
                 { label: "Map target", value: "Area search", ready: false },
-                { label: "Curation", value: "Curated", ready: true },
+                { label: "Curation", value: "Curated record", ready: true },
             ],
         });
     });

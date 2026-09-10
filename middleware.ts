@@ -28,7 +28,7 @@ const matchesPublicRoute = createRouteMatcher([
 
 export const isPublicRoute = (request: Parameters<typeof matchesPublicRoute>[0]) =>
     matchesPublicRoute(request) ||
-    (request.method === 'GET' && /^\/api\/spots\/[^/]+\/reviews\/?$/.test(request.nextUrl.pathname));
+    (request.method === 'GET' && /^\/api\/spots\/[^/]+\/(?:reviews|photos)\/?$/.test(request.nextUrl.pathname));
 
 export default clerkMiddleware(async (auth, request) => {
     if (!isPublicRoute(request)) {
