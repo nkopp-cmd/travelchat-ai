@@ -1,30 +1,5 @@
 {
   "git": {
-    "deploymentEnabled": {
-      "cloudflare/**": false
-    }
-  },
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "outputDirectory": ".next",
-  "crons": [
-    {
-      "path": "/api/cron/cleanup-stories",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/cron/process-social-submissions",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/cron/discover-spots-with-apify",
-      "schedule": "23 2 1 * *"
-    },
-    {
-      "path": "/api/cron/refresh-weekly-social-trends",
-      "schedule": "0 5 * * *"
-    }
-  ]
+    "deploymentEnabled": false
+  }
 }

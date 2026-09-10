@@ -25,14 +25,12 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
-import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
+import { VenueHeroPhoto, VenuePhotoThumbnails, VenueCardPhoto } from "@/components/spots/spot-photo-image";
+import { VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
+import { SpotDetailMap } from "@/components/spots/spot-detail-map";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
-import {
-  addFallbackToPlacePhotoUrl,
-  getDisplayPlacePhotoUrl,
-  summarizeSpotPhotos,
-} from "@/lib/place-images";
+import { summarizeSpotPhotos } from "@/lib/place-images";
 import {
   inferSpotContextCity,
   inferSpotContextCitySlug,
@@ -44,12 +42,7 @@ import {
   getSpotDirectionsSearchText,
   isKoreanLocation,
 } from "@/lib/spots/map-links";
-import { getSpotFallbackImageUrl } from "@/lib/spots/spot-fallback-images";
-import {
-  countRealDisplaySpotPhotos,
-  getFirstRealDisplaySpotPhoto,
-  isRealDisplaySpotPhoto,
-} from "@/lib/spots/display-images";
+import { countRealDisplaySpotPhotos } from "@/lib/spots/display-images";
 import {
   compareRelatedSpotCandidates,
   formatRelatedSpotDistance,
@@ -87,12 +80,9 @@ interface RelatedSpot {
   category: string;
   localleyScore: LocalleyScale;
   localPercentage: number;
-  photo: string;
-  fallbackImage: string;
-  hasRealPhoto: boolean;
-  realPhotoCount: number;
   distanceKm: number | null;
   distanceLabel: string;
+  directPhotos: string[];
 }
 
 // Helper to parse multi-language fields
@@ -226,58 +216,6 @@ function inferSpotCitySlug(
     lat: spot.location.lat,
     lng: spot.location.lng,
   });
-}
-
-function getSpotHeroImage(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-) {
-  const photos = spot.photos as string[];
-  const realPhoto = getFirstRealDisplaySpotPhoto(photos);
-  if (realPhoto) return realPhoto;
-
-  const city = inferSpotCity(spot);
-  if (!city) return "/placeholder-spot.svg";
-
-  return getSpotFallbackImageUrl({
-    name: spot.name,
-    category: spot.category,
-    city,
-    address: spot.location.address,
-    width: 1600,
-    height: 900,
-    quality: 90,
-  });
-}
-
-function getSpotFallbackImage(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-) {
-  const city = inferSpotCity(spot);
-  if (!city) return "/placeholder-spot.svg";
-
-  return getSpotFallbackImageUrl({
-    name: spot.name,
-    category: spot.category,
-    city,
-    address: spot.location.address,
-    width: 1600,
-    height: 900,
-    quality: 90,
-  });
-}
-
-function getSpotGalleryImages(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-) {
-  const photos = (spot.photos as string[]).filter(isRealDisplaySpotPhoto);
-  return photos.length > 1 ? photos.slice(1, 4) : [];
-}
-
-function getDisplaySpotImage(src: string, fallbackImage: string, width = 1600) {
-  return addFallbackToPlacePhotoUrl(
-    getDisplayPlacePhotoUrl(src, width),
-    fallbackImage,
-  );
 }
 
 function getLocationConfidence(
@@ -433,7 +371,6 @@ function DetailSignal({
 function PlanningSnapshot({
   primaryUse,
   bestTime,
-  localPercentage,
   routeTitle,
   routeHelper,
   photoLabel,
@@ -443,7 +380,6 @@ function PlanningSnapshot({
 }: {
   primaryUse: { value: string; helper: string };
   bestTime: string;
-  localPercentage: number;
   routeTitle: string;
   routeHelper: string;
   photoLabel: string;
@@ -466,9 +402,6 @@ function PlanningSnapshot({
               What this spot is good for
             </h2>
           </div>
-          <span className="w-fit rounded-full border border-violet-200/20 bg-violet-400/10 px-2.5 py-1 text-[11px] font-semibold text-violet-100">
-            {localPercentage}% local signal
-          </span>
         </div>
       </div>
       <div className="grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4">
@@ -482,7 +415,7 @@ function PlanningSnapshot({
           icon={Clock}
           label="Best window"
           value={bestTime}
-          helper="Put this stop where the timing makes the route feel natural."
+          helper="Visit advice, not opening hours. Confirm hours with the venue."
           tone="sky"
         />
         <DetailSignal
@@ -494,7 +427,7 @@ function PlanningSnapshot({
         />
         <DetailSignal
           icon={Camera}
-          label="Image proof"
+          label="Stored photo references"
           value={photoLabel}
           helper={photoHelper}
           tone={hasRealPhoto ? "violet" : "amber"}
@@ -878,40 +811,15 @@ async function getRelatedSpots(
           localPercentage: normalizeLocalPercentage(spot.local_percentage),
         },
       );
-      const normalizedPhotos = normalizeSpotPhotos(spot.photos, category, 900);
-      const photoSummary = summarizeSpotPhotos(normalizedPhotos);
-      const cityContext =
-        inferSpotContextCity({
-          name,
-          address,
-          lat: 0,
-          lng: 0,
-        }) || city;
-      const fallbackImage = getSpotFallbackImageUrl({
-        name,
-        category,
-        city: cityContext,
-        address,
-        width: 900,
-        height: 675,
-        quality: 90,
-      });
-      const realPhoto = getFirstRealDisplaySpotPhoto(normalizedPhotos);
 
       return {
         id: spot.id,
+        directPhotos: spot.google_place_id ? [] : normalizeSpotPhotos(spot.photos, category, 900).filter((photo) => !photo.includes("/api/places/photo")),
         name,
         address,
         category,
         localleyScore: normalizeLocalleyScore(spot.localley_score),
         localPercentage: normalizeLocalPercentage(spot.local_percentage),
-        photo: addFallbackToPlacePhotoUrl(
-          realPhoto || fallbackImage,
-          fallbackImage,
-        ),
-        fallbackImage,
-        hasRealPhoto: photoSummary.hasRealPhoto,
-        realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
         distanceKm,
         distanceLabel: formatRelatedSpotDistance(distanceKm),
         lat,
@@ -939,12 +847,9 @@ async function getRelatedSpots(
       category: spot.category,
       localleyScore: spot.localleyScore,
       localPercentage: spot.localPercentage,
-      photo: spot.photo,
-      fallbackImage: spot.fallbackImage,
-      hasRealPhoto: spot.hasRealPhoto,
-      realPhotoCount: spot.realPhotoCount,
       distanceKm: spot.distanceKm,
       distanceLabel: spot.distanceLabel,
+      directPhotos: spot.directPhotos,
     }));
 }
 
@@ -975,7 +880,6 @@ export async function generateMetadata({
   const scoreLabel = getScoreLabel(spot.localleyScore);
   const title = `${spot.name} - ${scoreLabel} | Localley`;
   const description = `${spot.description.slice(0, 160)}... Localley Score: ${spot.localleyScore}/6 • ${spot.location.address}`;
-  const imageUrl = getSpotHeroImage(spot);
 
   const keywords = [
     spot.name,
@@ -996,20 +900,13 @@ export async function generateMetadata({
       description: `${scoreLabel} - ${spot.description.slice(0, 100)}`,
       type: "website",
       siteName: "Localley",
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: spot.name,
-        },
-      ],
+      images: [],
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: spot.name,
       description: `${scoreLabel} - ${spot.description.slice(0, 150)}`,
-      images: [imageUrl],
+      images: [],
     },
   };
 }
@@ -1029,9 +926,6 @@ export default async function SpotPage({
   // Use city-level context for related activities; the first address segment is often a district.
   const city = getSpotContextCity(spot);
   const citySlug = inferSpotCitySlug(spot);
-  const heroImage = getSpotHeroImage(spot);
-  const fallbackImage = getSpotFallbackImage(spot);
-  const galleryImages = getSpotGalleryImages(spot);
   const locationConfidence = getLocationConfidence(spot);
   const isKorea = isKoreanLocation(spot.location.address);
   const hasMatchedGooglePlace = Boolean(spot.googlePlaceId) && !isKorea;
@@ -1077,7 +971,7 @@ export default async function SpotPage({
   });
 
   return (
-    <>
+    <VenuePhotoProvider key={spot.id} spotId={spot.id} directPhotos={spot.googlePlaceId ? [] : spot.photos.filter((photo: string) => !photo.includes("/api/places/photo"))}>
       {/* JSON-LD Structured Data */}
       <SpotJsonLd
         name={spot.name}
@@ -1086,7 +980,6 @@ export default async function SpotPage({
         address={spot.location.address}
         lat={spot.location.lat}
         lng={spot.location.lng}
-        imageUrl={heroImage}
         url={`/spots/${id}`}
         localleyScore={spot.localleyScore}
       />
@@ -1111,18 +1004,8 @@ export default async function SpotPage({
           data-testid="spot-detail-hero"
           className="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]"
         >
-          <SpotPhotoImage
-            src={getDisplaySpotImage(heroImage, fallbackImage)}
-            fallbackSrc={fallbackImage}
-            alt={spot.name}
-            className="object-cover"
-            priority
-            quality={90}
-            sizes="(max-width: 768px) 100vw, 1024px"
-            fallbackBadgeLabel="Image fallback"
-            showFallbackBadgeInitially={!spot.hasRealPhoto || heroImage === fallbackImage}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
+          <VenueHeroPhoto name={spot.name} />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
             <SpotInteractions spotId={spot.id} spotName={spot.name} />
           </div>
@@ -1138,7 +1021,7 @@ export default async function SpotPage({
                     variant="outline"
                     className="border-emerald-300/40 bg-emerald-400/10 text-emerald-200 backdrop-blur-sm"
                   >
-                    Verified
+                    Curated record
                   </Badge>
                 )}
                 {spot.communitySubmission && (
@@ -1241,6 +1124,7 @@ export default async function SpotPage({
               <span className="mt-1 block truncate text-xs text-violet-50/50">
                 {spot.bestTime}
               </span>
+              <p className="mt-1 text-xs text-violet-100">Visit advice, not opening hours.</p>
             </div>
           </div>
         </section>
@@ -1248,7 +1132,6 @@ export default async function SpotPage({
         <PlanningSnapshot
           primaryUse={spotPrimaryUse}
           bestTime={spot.bestTime}
-          localPercentage={spot.localPercentage}
           routeTitle={locationPlanningCopy.routeTitle}
           routeHelper={getDirectionsHelperText(spot)}
           photoLabel={getSpotPhotoEvidenceLabel(spot)}
@@ -1295,27 +1178,7 @@ export default async function SpotPage({
           </section>
         )}
 
-        {galleryImages.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {galleryImages.map((photo, index) => (
-              <div
-                key={photo}
-                className="relative aspect-[4/3] overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40"
-              >
-                <SpotPhotoImage
-                  src={getDisplaySpotImage(photo, fallbackImage)}
-                  fallbackSrc={fallbackImage}
-                  alt={`${spot.name} photo ${index + 2}`}
-                  className="object-cover"
-                  quality={90}
-                  sizes="(max-width: 768px) 33vw, 320px"
-                  fallbackBadgeLabel="Fallback"
-                  fallbackBadgeClassName="absolute bottom-1.5 left-1.5 z-10 rounded-full border border-amber-200/30 bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-amber-100 shadow-lg shadow-black/15 backdrop-blur"
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        <VenuePhotoThumbnails name={spot.name} />
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-8">
           <div className="space-y-5 lg:col-span-2 lg:space-y-8">
@@ -1361,9 +1224,9 @@ export default async function SpotPage({
                 />
                 <DetailSignal
                   icon={Users}
-                  label="Local texture"
+                  label="Editorial estimate"
                   value={`${spot.localPercentage}% local`}
-                  helper={visitPlan.localReason}
+                  helper="Editorial estimate, not visitor count."
                   tone="emerald"
                 />
                 <DetailSignal
@@ -1375,7 +1238,7 @@ export default async function SpotPage({
                 />
                 <DetailSignal
                   icon={Camera}
-                  label="Visual proof"
+                  label="Stored photo references"
                   value={getSpotPhotoEvidenceLabel(spot)}
                   helper={getSpotPhotoEvidenceHelper(spot)}
                   tone={spot.hasRealPhoto ? "violet" : "amber"}
@@ -1440,7 +1303,7 @@ export default async function SpotPage({
                       Why locals go
                     </div>
                     <h2 className="text-2xl font-bold leading-tight text-white">
-                      {spot.verified ? "A verified stop" : "A local-first stop"}{" "}
+                      A curated stop{" "}
                       in {primaryArea}
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-violet-50/65">
@@ -1459,19 +1322,19 @@ export default async function SpotPage({
                       icon={Users}
                       label="Crowd signal"
                       value={`${spot.localPercentage}% local`}
-                      helper="Estimated from Localley scoring inputs and curation signals."
+                      helper="Editorial estimate, not visitor count."
                       tone="emerald"
                     />
                     <DetailSignal
                       icon={Clock}
                       label="Best window"
                       value={spot.bestTime}
-                      helper="Use this to anchor the stop inside a realistic day route."
+                      helper="Visit advice, not opening hours. Confirm hours with the venue."
                       tone="sky"
                     />
                     <DetailSignal
                       icon={Camera}
-                      label="Photo proof"
+                      label="Stored photo references"
                       value={getSpotPhotoEvidenceLabel(spot)}
                       helper={getSpotPhotoEvidenceHelper(spot)}
                       tone={spot.hasRealPhoto ? "violet" : "amber"}
@@ -1589,24 +1452,8 @@ export default async function SpotPage({
               </div>
 
               <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.055]">
-                <div className="relative h-36 border-b border-white/10 bg-[#171128]">
-                  <div
-                    className="absolute inset-0 opacity-35"
-                    style={{
-                      backgroundImage:
-                        "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
-                      backgroundSize: "24px 24px",
-                    }}
-                  />
-                  <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-violet-200/30 bg-violet-500/25 text-violet-100 shadow-lg shadow-violet-950/40 backdrop-blur">
-                      <MapPin className="h-6 w-6" />
-                    </div>
-                    <span className="max-w-[13rem] truncate rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-medium text-white backdrop-blur">
-                      {primaryArea}
-                    </span>
-                  </div>
-                </div>
+                <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name}
+                  searchUrl={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(exactMapQuery)}`} />
                 <div className="p-4">
                   <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
                     {locationConfidence.tone === "area" ? (
@@ -1684,27 +1531,13 @@ export default async function SpotPage({
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               {relatedSpots.map((related) => (
-                <Link
+                <div
                   key={related.id}
-                  href={`/spots/${related.id}`}
-                  className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/35 hover:bg-white/[0.075]"
+                  className="group relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/35 hover:bg-white/[0.075]"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-violet-950/50">
-                    <SpotPhotoImage
-                      src={related.photo}
-                      fallbackSrc={related.fallbackImage}
-                      alt={related.name}
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      quality={90}
-                      sizes="(max-width: 768px) 100vw, 320px"
-                      fallbackBadgeLabel="Fallback"
-                      showFallbackBadgeInitially={
-                        !related.hasRealPhoto || related.photo === related.fallbackImage
-                      }
-                      fallbackBadgeClassName="absolute bottom-2 left-2 z-10 rounded-full border border-amber-200/30 bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-amber-100 shadow-lg shadow-black/15 backdrop-blur"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-                    <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/45 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                    <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} />
+                    <span className="absolute left-2 bottom-2 rounded-full border border-white/15 bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
                       {related.category}
                     </span>
                     <span className="absolute bottom-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
@@ -1714,7 +1547,7 @@ export default async function SpotPage({
                   <div className="space-y-2 p-3">
                     <div>
                       <h3 className="line-clamp-1 font-semibold text-white group-hover:text-violet-100">
-                        {related.name}
+                        <Link href={`/spots/${related.id}`} className="after:absolute after:inset-0 after:z-[1] focus-visible:outline focus-visible:outline-2">{related.name}</Link>
                       </h3>
                       <p className="mt-1 line-clamp-1 text-xs text-violet-50/55">
                         {related.address}
@@ -1724,28 +1557,14 @@ export default async function SpotPage({
                       <span className="rounded-md border border-sky-200/20 bg-sky-400/10 px-2 py-1 text-sky-100">
                         {related.distanceLabel}
                       </span>
-                      <span className="rounded-md border border-emerald-200/20 bg-emerald-400/10 px-2 py-1 text-emerald-100">
-                        {related.localPercentage}% local
-                      </span>
-                      <span
-                        className={
-                          related.hasRealPhoto
-                            ? "rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-1 text-violet-100"
-                            : "rounded-md border border-amber-200/25 bg-amber-400/10 px-2 py-1 text-amber-100"
-                        }
-                      >
-                        {related.hasRealPhoto
-                          ? `${related.realPhotoCount} photo${related.realPhotoCount === 1 ? "" : "s"}`
-                          : "Area image"}
-                      </span>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </section>
         )}
       </div>
-    </>
+    </VenuePhotoProvider>
   );
 }

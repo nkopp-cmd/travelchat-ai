@@ -1,0 +1,10 @@
+{
+  "purpose": "Inventory for Cloudflare migration, not an active scheduler configuration",
+  "remoteSchedulesChanged": false,
+  "schedules": [
+    { "path": "/api/cron/cleanup-stories", "cron": "0 3 * * *", "migrationStatus": "pending" },
+    { "path": "/api/cron/process-social-submissions", "cron": "0 4 * * *", "migrationStatus": "pending" },
+    { "path": "/api/cron/discover-spots-with-apify", "cron": "23 2 1 * *", "migrationStatus": "pending" },
+    { "path": "/api/cron/refresh-weekly-social-trends", "cron": "0 5 * * *", "migrationStatus": "pending" }
+  ]
+}

@@ -2,6 +2,13 @@
 
 Final target: no Vercel, Supabase, or Clerk runtime dependency.
 
+No new Vercel deployments are permitted, including narrow fixes to the existing website.
+An attempted unpromoted photo-repair candidate was removed after the user reiterated this requirement.
+Vercel Git integration is disconnected, and this branch retains only an explicit deployment-disable guard.
+Legacy schedules are inventoried in `cloudflare/legacy-cron-inventory.json`; they have not been replaced remotely yet.
+DNS is on Cloudflare, but the current application origin remains Vercel until a verified replacement is deployed.
+Do not describe DNS activation as completion of the application migration.
+
 The migration must also deliver the authentic discovery improvements in `AUTHENTIC_DISCOVERY.md`.
 Photo truthfulness, useful spot facts, real map behavior, and spot-to-itinerary actions are primary product requirements.
 Do not import the existing misleading fallback and photo-reference behavior unchanged into the Cloudflare implementation.

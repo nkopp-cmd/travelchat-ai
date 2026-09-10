@@ -18,12 +18,12 @@ describe("spot visit plan", () => {
 
     expect(plan).toEqual({
       localReason:
-        "94% local signal makes this one of the strongest Localley stops in Jongno-gu.",
+        "Editorial curation highlights this stop in Jongno-gu; this is not a measured visitor count.",
       bestUse:
-        "Anchor a meal here, then keep the route light before and after it. Best window: Early morning.",
+        "Anchor a meal here, then keep the route light before and after it. Best window: Early morning. Visit advice, not opening hours. Confirm hours with the venue.",
       routePairing:
         "Build a compact food route around Jongno-gu, then add one quiet recovery stop.",
-      evidence: "3 real photos plus exact address context.",
+      evidence: "3 stored photo references plus exact address context. References do not prove current image availability.",
     });
   });
 
@@ -41,14 +41,14 @@ describe("spot visit plan", () => {
     });
 
     expect(plan.localReason).toBe(
-      "72% local signal makes it a useful neighborhood anchor.",
+      "Editorial curation suggests a neighborhood stop; this is not a measured visitor count.",
     );
     expect(plan.bestUse).toContain("Give it breathing room");
     expect(plan.routePairing).toBe(
       "Keep the route around Gion simple and weather-aware.",
     );
     expect(plan.evidence).toBe(
-      "area fallback imagery plus area-level address context.",
+      "no stored photo references plus area-level address context. References do not prove current image availability.",
     );
   });
 });

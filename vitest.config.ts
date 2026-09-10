@@ -8,7 +8,8 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
-        include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+        // The Worker packages and release worktrees run their own isolated checks.
+        include: ['__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
         exclude: ['node_modules', '.next', 'dist', 'e2e/**', '.codex-*/**'],
         coverage: {
             provider: 'v8',

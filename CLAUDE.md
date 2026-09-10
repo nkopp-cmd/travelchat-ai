@@ -212,6 +212,8 @@ User triggers story → POST /api/images/story-background (generate + store)
 
 ### Release Workflow
 - Final infrastructure target: Cloudflare Workers, D1, R2, and Cloudflare background services, with Better Auth replacing Clerk.
+- Do not create, promote, or reconnect Vercel deployments, including urgent UI fixes. Deployments must target Cloudflare.
+- Vercel cleanup and read-only retirement checks are permitted. Do not delete the remaining live origin before a verified Cloudflare replacement.
 - Follow `docs/CLOUDFLARE_MIGRATION.md` for the full migration. Do not deploy the local auth proof or trigger Vercel builds from migration branches.
 - Follow `docs/AUTHENTIC_DISCOVERY.md` for the primary product improvements: genuine photos, useful spot facts, interactive maps, and spot-to-itinerary actions.
 - Never present generic stock or AI-generated media as evidence of a real venue. Keep cinematic media distinct from practical navigation.
