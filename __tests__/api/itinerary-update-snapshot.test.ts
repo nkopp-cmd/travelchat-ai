@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest } from "next/server";
 import { PATCH } from "@/app/api/itineraries/[id]/update/route";
+import { isEditableItineraryPlan, mergeItineraryPlanPayload } from "@/lib/itineraries/plan-contract";
 
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), client: vi.fn() }));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
@@ -73,6 +74,7 @@ describe("itinerary update snapshots", () => {
     });
     it("sends snapshot nulls without defaulting them", async () => {
         const snapshot = { title: null, city: null, activities: null, highlights: null, estimated_cost: null };
+        fetchedRow = snapshot;
         expect((await save({ ...body, expected: snapshot })).status).toBe(200);
         expect(requests[1].body).toMatchObject({ p_expected: snapshot });
     });
@@ -84,7 +86,7 @@ describe("itinerary update snapshots", () => {
         fetchedRow = { ...expected, [field]: field === "activities" || field === "highlights" ? [] : "Changed elsewhere" };
         updateResult = [];
         expect((await save()).status).toBe(409);
-        expect(requests[1].body).toMatchObject({ p_expected: expected });
+        expect(requests.map((request) => request.method)).toEqual(["GET"]);
     });
     it("returns 500 for update database errors", async () => {
         updateStatus = 400;
@@ -123,11 +125,97 @@ describe("itinerary update snapshots", () => {
         }));
         const days = [{ day: 1, activities }];
         const snapshot = { ...expected, activities: { dailyPlans: days, insights: body.insights } };
+        fetchedRow = snapshot;
         expect(encodeURIComponent(JSON.stringify(snapshot.activities)).length).toBeGreaterThan(20_000);
         expect((await save({ ...body, days, expected: snapshot })).status).toBe(200);
         expect(requests[1].url.href).toBe("https://test.invalid/rest/v1/rpc/save_itinerary_snapshot");
         expect(requests[1].url.href.length).toBeLessThan(100);
         expect(requests[1].method).toBe("POST");
         expect(requests[1].body).toMatchObject({ p_expected: snapshot, p_replacement: { activities: snapshot.activities } });
+    });
+
+    it.each([false, true])("preserves owned wrapper metadata through title and insight edits (legacy string: %s)", async (legacy) => {
+        const metadata = JSON.parse('{"provenance":{"source":"import"},"custom":[null,{"keep":true}],"__proto__":{"polluted":true},"constructor":{"prototype":{"polluted":true}}}');
+        const wrapper = { ...metadata, dailyPlans: body.days, insights: body.insights };
+        for (const insights of [body.insights, [{ text: "Changed" }], [], undefined]) {
+            requests.length = 0;
+            const activities = legacy ? JSON.stringify(wrapper) : wrapper;
+            const snapshot = { ...expected, activities };
+            fetchedRow = snapshot;
+            const before = JSON.stringify(snapshot);
+            expect((await save({ ...body, insights, expected: snapshot, provenance: { source: "forged" }, injected: true })).status).toBe(200);
+            expect(requests[1].body).toEqual({
+                p_itinerary_id: "trip", p_expected: snapshot,
+                p_replacement: { title: body.title, city: body.city, activities: { ...wrapper, insights: insights ?? [] }, highlights: [], estimated_cost: null },
+            });
+            expect(JSON.stringify(snapshot)).toBe(before);
+            const posted = requests[1].body as { p_replacement: { activities: Record<string, unknown> } };
+            expect(Object.hasOwn(posted.p_replacement.activities, "__proto__")).toBe(true);
+            expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+        }
+    });
+
+    it.each([false, true])("rejects stale wrapper metadata without merging or sending an RPC (legacy string: %s)", async (legacy) => {
+        const wrapper = { dailyPlans: body.days, provenance: { source: "import" }, custom: [1] };
+        const snapshot = { ...expected, activities: legacy ? JSON.stringify(wrapper) : wrapper };
+        const changed = { ...wrapper, custom: [2] };
+        fetchedRow = { ...snapshot, activities: legacy ? JSON.stringify(changed) : changed };
+        expect((await save({ ...body, expected: snapshot })).status).toBe(409);
+        expect(requests.map((request) => request.method)).toEqual(["GET"]);
+    });
+
+    it("leaves metadata protected by RPC CAS when the row changes after the ownership read", async () => {
+        const snapshot = { ...expected, activities: { dailyPlans: body.days, provenance: { source: "import" }, custom: [1] } };
+        fetchedRow = snapshot;
+        updateResult = [];
+        expect((await save({ ...body, expected: snapshot })).status).toBe(409);
+        expect(requests[1].body).toMatchObject({ p_expected: snapshot, p_replacement: { activities: { ...snapshot.activities, insights: body.insights } } });
+        expect(requests.map((request) => request.method)).toEqual(["GET", "POST"]);
+    });
+
+    it("merges only recognized wrappers and keeps the array policy without mutating inputs", () => {
+        const wrapper = { dailyPlans: body.days, insights: body.insights, provenance: { source: "import" }, custom: [1] };
+        const invalid = [null, {}, "{", { dailyPlans: "wrong", custom: [1] }, JSON.stringify(JSON.stringify(wrapper))];
+        for (const observed of [body.days, { dailyPlans: body.days, insights: body.insights }, ...invalid]) {
+            for (const value of [observed, JSON.stringify(observed)]) {
+                expect(mergeItineraryPlanPayload(value, body.days)).toEqual(body.days);
+                expect(mergeItineraryPlanPayload(value, body.days, [])).toEqual(body.days);
+                expect(mergeItineraryPlanPayload(value, body.days, body.insights)).toEqual({ dailyPlans: body.days, insights: body.insights });
+            }
+        }
+        const before = JSON.stringify(wrapper);
+        for (const value of [wrapper, before]) {
+            const merged = mergeItineraryPlanPayload(value, [], []);
+            expect(merged).toEqual({ ...wrapper, dailyPlans: [], insights: [] });
+            expect(isEditableItineraryPlan(merged)).toBe(true);
+        }
+        expect(JSON.stringify(wrapper)).toBe(before);
+    });
+
+    it("preserves prototype-named metadata as own JSON data in the pure merge", () => {
+        const metadata = JSON.parse('{"__proto__":{"polluted":true},"constructor":{"prototype":{"polluted":true}}}');
+        const wrapper = { ...metadata, dailyPlans: body.days };
+        for (const observed of [wrapper, JSON.stringify(wrapper)]) {
+            const merged = mergeItineraryPlanPayload(observed, [], []);
+            expect(merged).toEqual({ ...metadata, dailyPlans: [], insights: [] });
+            expect(Object.getPrototypeOf(merged)).toBe(Object.prototype);
+            expect(Object.hasOwn(merged, "__proto__")).toBe(true);
+            expect(Object.hasOwn(merged, "constructor")).toBe(true);
+            expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+            expect(isEditableItineraryPlan(merged)).toBe(true);
+        }
+    });
+
+    it("keeps wrapper metadata when replacing unsupported old editable fields", () => {
+        const original = { dailyPlans: [{}], insights: "old format", provenance: { source: "import" } };
+        expect(mergeItineraryPlanPayload(original, body.days, body.insights)).toEqual({
+            provenance: original.provenance, dailyPlans: body.days, insights: body.insights,
+        });
+        expect(original.insights).toBe("old format");
+    });
+
+    it("refuses oversized metadata depth instead of silently dropping it", () => {
+        const deep = Array.from({ length: 66 }).reduce<unknown>((value) => ({ nested: value }), null);
+        expect(() => mergeItineraryPlanPayload({ dailyPlans: [], provenance: deep }, body.days, [])).toThrow("Unsupported plan metadata");
     });
 });

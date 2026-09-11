@@ -9,6 +9,8 @@ Verified on 2026-09-11. This section supersedes the historical Vercel release id
 - Preserved Vercel deployment: `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`.
 - Read-only Vercel API verification confirmed no Git connection. No Vercel deployment was created or reconnected.
 - Current increment: `feature/native-collection-delivery`, based on `b5b4cc30de15178a54caccaabb8eaee3edf57a2c`.
+- Source checkpoint committed and pushed: `2732900dfe0ae5933aedb226ea5699bc869cffe9`.
+- Stacked draft PR: https://github.com/nkopp-cmd/travelchat-ai/pull/123.
 - The increment will be reviewed against `cloudflare/full-migration`, not merged into `main` with unfinished migration history.
 - Authorized migration target: `localley-discovery-preview` at `https://preview.localley.io`, protected by Cloudflare Access.
 - Current preview version and code rollback: `88de0da0-0e10-4e4e-9cf7-1f12b4be1c04` at 100%.
@@ -27,6 +29,7 @@ Local acceptance covers cancellation, pagination, owner isolation, account chang
 The latest actual-component journey passed 35 checkpoints with no product issues or external requests.
 Independent review found three P2 issues; saved-read fencing, request deadlines, and shared plan validation were implemented afterward.
 Final combined checks and reviewed publication remain pending behind PostLabz's first-priority release.
+The source checkpoint preserves the tested implementation and review fixes. It is not a production release or final combined-check attestation.
 
 Full production migration is not complete. Native creation, generation, sharing, billing, remaining server routes, and customer identity import remain unfinished.
 Hosted human authentication, recovery, migration rehearsal, and complete application acceptance remain cutover gates.

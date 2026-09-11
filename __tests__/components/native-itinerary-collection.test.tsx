@@ -44,7 +44,7 @@ describe("native collection using the existing cards", () => {
             { ...row, id: id2, title: "Busan-Seoul weekend" },
         ])));
         render(native());
-        expect(await screen.findByRole("heading", { name: "Tokyo-Seoul weekend" })).toBeTruthy();
+        expect(await screen.findAllByRole("heading", { name: "Tokyo-Seoul weekend" })).toHaveLength(2);
         expect(screen.getByRole("heading", { name: "Busan-Seoul weekend" })).toBeTruthy();
         await menu("Tokyo-Seoul weekend");
         fireEvent.click(screen.getByRole("menuitem", { name: "Delete" }));

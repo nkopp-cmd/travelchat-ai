@@ -28,3 +28,25 @@ export function isEditableItineraryPlan(value: unknown): boolean {
         && payload.insights.every((insight) => record(insight) && typeof insight.text === "string"
             && optionalStrings(insight, ["id", "label", "kind"])));
 }
+
+/** Update only: retain owned wrapper metadata, never normalize the raw CAS snapshot. */
+export function mergeItineraryPlanPayload<T, I>(
+    observed: unknown,
+    dailyPlans: T[],
+    insights: I[] = [],
+): T[] | ({ dailyPlans: T[]; insights: I[] } & Record<string, unknown>) {
+    let payload = observed;
+    if (typeof payload === "string") {
+        try { payload = JSON.parse(payload); } catch { payload = null; }
+    }
+    if (payload && typeof payload === "object" && !Array.isArray(payload)
+        && Object.hasOwn(payload, "dailyPlans") && Array.isArray((payload as Record<string, unknown>).dailyPlans)) {
+        const metadata = Object.fromEntries(Object.entries(payload).filter(([key]) => key !== "dailyPlans" && key !== "insights"));
+        if (Object.keys(metadata).length) {
+            if (!isBoundedJSON(metadata)) throw new Error("Unsupported plan metadata");
+            // Spread creates own data properties, including __proto__; editable fields win.
+            return { ...metadata, dailyPlans, insights };
+        }
+    }
+    return insights.length ? { dailyPlans, insights } : dailyPlans;
+}

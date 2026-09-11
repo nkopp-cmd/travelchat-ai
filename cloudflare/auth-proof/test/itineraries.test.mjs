@@ -288,9 +288,78 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     assert.equal((await patch(id, { ...input, expected: { ...input.expected, activities: plan } })).status, 409);
     assert.deepEqual(await raw(id), before);
     assert.equal((await patch(id, input)).status, 200);
-    assert.deepEqual((await detail(id)).activities, { dailyPlans: days, insights: plan.insights });
+    assert.deepEqual((await detail(id)).activities, plan);
     assert.equal((await patch(id, await body(id, { days: [] }))).status, 200);
-    assert.deepEqual((await detail(id)).activities, []);
+    assert.deepEqual((await detail(id)).activities, { ...plan, dailyPlans: [], insights: [] });
+  });
+
+  await t.test("PATCH keeps owned outer metadata for structured and single legacy wrappers, including own prototype keys", async () => {
+    const days = [{ day: 1, activities: [{ name: "Imported stop" }] }];
+    const metadata = JSON.parse('{"provenance":{"source":"import"},"custom":[null,{"keep":true}],"__proto__":{"polluted":true},"constructor":{"prototype":{"polluted":true}}}');
+    const wrapper = { ...metadata, dailyPlans: days, insights: [{ text: "Original" }] };
+    for (const legacy of [false, true]) {
+      for (const insights of [wrapper.insights, [{ text: "Changed" }], [], undefined]) {
+        const stored = legacy ? JSON.stringify(wrapper) : wrapper;
+        const id = await seed({ activities: JSON.stringify(stored) });
+        const input = await body(id, { days, ...(insights === undefined ? {} : { insights }) });
+        const expectedBefore = JSON.stringify(input.expected);
+        assert.deepEqual(input.expected.activities, stored);
+        const before = await raw(id);
+        const forged = { ...input, provenance: { source: "forged" } };
+        assert.equal((await patch(id, forged)).status, 400);
+        assert.deepEqual(await raw(id), before);
+        assert.equal((await patch(id, input)).status, 200);
+        const saved = (await detail(id)).activities;
+        assert.deepEqual(saved, { ...wrapper, insights: insights ?? [] });
+        assert.equal(Object.hasOwn(saved, "__proto__"), true);
+        assert.equal(Object.hasOwn(saved, "constructor"), true);
+        assert.equal(Object.getPrototypeOf(saved), Object.prototype);
+        assert.equal({}.polluted, undefined);
+        assert.equal(JSON.stringify(input.expected), expectedBefore);
+      }
+    }
+  });
+
+  await t.test("PATCH stale metadata snapshots never replace current extras or normalize expected strings", async () => {
+    const days = [{ day: 1, activities: [] }];
+    const wrapper = { dailyPlans: days, provenance: { source: "import" }, custom: [1] };
+    for (const legacy of [false, true]) {
+      const stored = legacy ? JSON.stringify(wrapper) : wrapper;
+      const id = await seed({ activities: JSON.stringify(stored) });
+      const input = await body(id, { days });
+      const changed = { ...wrapper, custom: [2] };
+      await db.prepare("UPDATE itineraries SET activities = ? WHERE id = ? AND ownerId = ?")
+        .bind(JSON.stringify(legacy ? JSON.stringify(changed) : changed), id, owner).run();
+      const before = await raw(id);
+      assert.equal((await patch(id, input)).status, 409);
+      assert.deepEqual(await raw(id), before);
+      assert.deepEqual(input.expected.activities, stored);
+    }
+  });
+
+  await t.test("PATCH keeps the array policy and does not invent metadata from unrecognized legacy shapes", async () => {
+    const days = [{ day: 1, activities: [] }], insights = [{ text: "New" }];
+    const wrapper = { dailyPlans: days, insights };
+    for (const stored of [days, wrapper, JSON.stringify(wrapper), null, { custom: [1] },
+      { dailyPlans: "wrong", custom: [1] }, { ...wrapper, insights: "wrong", custom: [1] },
+      "{", JSON.stringify(JSON.stringify({ ...wrapper, custom: [1] }))]) {
+      for (const tips of [[], insights]) {
+        const id = await seed({ activities: JSON.stringify(stored) });
+        assert.equal((await patch(id, await body(id, { days, insights: tips }))).status, 200);
+        assert.deepEqual((await detail(id)).activities, tips.length ? { dailyPlans: days, insights: tips } : days);
+      }
+    }
+  });
+
+  await t.test("concurrent wrapper edits retain metadata with one CAS winner", async () => {
+    const days = [{ day: 1, activities: [] }];
+    const wrapper = { dailyPlans: days, provenance: { source: "import" }, custom: [1] };
+    const id = await seed({ activities: JSON.stringify(wrapper) });
+    const input = await body(id, { days });
+    const responses = await Promise.all([patch(id, input), patch(id, { ...input, title: "Other edit" })]);
+    assert.deepEqual(responses.map((response) => response.status).sort(), [200, 409]);
+    assert.deepEqual((await detail(id)).activities, { ...wrapper, insights: [] });
+    assert.deepEqual(input.expected.activities, wrapper);
   });
 
   await t.test("invalid immutable day metadata requires repair, not an uneditable successful write", async () => {

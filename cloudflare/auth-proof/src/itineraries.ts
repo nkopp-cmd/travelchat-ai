@@ -1,5 +1,5 @@
 import type { TrustedAppSession } from "./app-session";
-import { isBoundedJSON as validJSON, isEditableItineraryPlan } from "../../../lib/itineraries/plan-contract";
+import { isBoundedJSON as validJSON, isEditableItineraryPlan, mergeItineraryPlanPayload } from "../../../lib/itineraries/plan-contract";
 
 export const itineraryDetailPath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i;
 export const itineraryUpdatePath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/update$/i;
@@ -108,7 +108,8 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
     || (Object.hasOwn(data, "highlights") && (!Array.isArray(data.highlights) || data.highlights.some((item) => typeof item !== "string")))
     || (Object.hasOwn(data, "estimated_cost") && data.estimated_cost !== null && typeof data.estimated_cost !== "string")) return json({ error: "Invalid itinerary fields" }, 400);
   if (fields.some((key) => !equivalent(snapshot[key], current[key]))) return json({ error: "Itinerary changed" }, 409);
-  const activities = Array.isArray(data.insights) && data.insights.length ? { dailyPlans: data.days, insights: data.insights } : data.days;
+  const activities = mergeItineraryPlanPayload(current.activities, data.days, Array.isArray(data.insights) ? data.insights : []);
+  if (!isEditableItineraryPlan(activities)) return json({ error: "Invalid itinerary fields" }, 400);
   // Atomic raw-value CAS after semantic comparison with the CLIENT snapshot.
   // Concurrent raw key-order rewrites may conservatively conflict. ABA is snapshot-based:
   // a value changed and restored before this UPDATE is indistinguishable from no change.

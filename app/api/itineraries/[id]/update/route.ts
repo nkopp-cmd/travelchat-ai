@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import {
-    buildItineraryPlanPayload,
-} from "@/lib/itineraries/normalize-daily-plans";
-import { isItinerarySnapshot } from "@/lib/itineraries/spot-planning";
+import { isDeepStrictEqual } from "node:util";
+import { mergeItineraryPlanPayload } from "@/lib/itineraries/plan-contract";
+import { isItinerarySnapshot, itinerarySnapshotFields } from "@/lib/itineraries/spot-planning";
 
 export async function PATCH(
     request: NextRequest,
@@ -61,7 +60,13 @@ export async function PATCH(
             return Errors.forbidden("You don't own this itinerary.");
         }
 
-        const activitiesPayload = buildItineraryPlanPayload(
+        // Metadata comes from this owned read. Fence it against the client snapshot
+        // before the RPC atomically compares those same five raw values again.
+        if (itinerarySnapshotFields.some((field) => !isDeepStrictEqual(existingItinerary[field], expected[field]))) {
+            return NextResponse.json({ error: "This itinerary changed elsewhere. Your draft was not saved. Reload after preserving your draft." }, { status: 409 });
+        }
+        const activitiesPayload = mergeItineraryPlanPayload(
+            existingItinerary.activities,
             days,
             insights
         );
