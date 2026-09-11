@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-11",
+  "metadataRequestCount": 15,
+  "imageRequestCount": 3,
+  "userAgent": "LocalleyCatalogPilot/1.0 (https://localley.io; public preview research)",
+  "identityUpdate": {
+    "date": "2026-09-11",
+    "source": "Parent supplied exact IDs from an authenticated read-only SELECT id/name. This task made no database request.",
+    "confirmed": [
+      {"name": "Seodaemun Independence Park", "id": "0041a575-c6fd-4a7e-b9c3-56cc50e201d6"},
+      {"name": "Gyeongbokgung Palace", "id": "cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5", "localPhotoUrl": "/pilot/cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5.jpg"}
+    ],
+    "pending": {"name": "Cheonggyecheon Stream", "pilotId": "f0fcf98e-76d7-4673-b8c3-6baf519a1551", "candidateName": "Cheonggyecheon Stream Night Walk", "candidateId": "11107241-dfb3-4cfc-a0c5-d243630f07b8", "note": "Experience association pending; not treated as a canonical venue ID."},
+    "newPublicRequests": 0,
+    "imageBytesChanged": false
+  },
+  "requests": [
+    {"n": 1, "host": "commons.wikimedia.org", "action": "query generator=search: Seodaemun Independence Park; imageinfo url and extmetadata", "result": "MonasteryInwang, own work, CC BY-SA 4.0, 2023-04-08"},
+    {"n": 2, "url": "https://localley.io/explore", "result": "redirect"},
+    {"n": 3, "host": "www.wikidata.org", "action": "wbgetentities sites=enwiki titles=Seodaemun Independence Park|Gyeongbokgung|Deoksugung|Cheonggyecheon|Namsangol Hanok Village; labels and claims", "result": "Q623629, Q482485, Q482631, Q495437, Q496420; P625 and P18 inspected"},
+    {"n": 4, "url": "https://www.localley.io/explore", "result": "redirect"},
+    {"n": 5, "host": "commons.wikimedia.org", "action": "query imageinfo for Cheonggyecheon evening 2.jpg and Gwanghwamun Woldae.jpg", "result": "Stream candidate: NoFoP-South Korea, rejected. Palace: Seoul Tourism Archive, KOGL Type 1, 2023-10-16."},
+    {"n": 6, "url": "https://english.visitseoul.net/attractions/Gyeongbokgung-Palace_/72", "result": "Matched palace history and address. Edited 2026-09-09."},
+    {"n": 7, "url": "https://english.visitseoul.net/attractions/Cheonggyecheon-Stream_/35", "result": "Matched stream restoration, rain access warning, and address. Edited 2026-09-10."},
+    {"n": 8, "url": "https://localley.io/explore", "method": "HEAD", "result": "307 to www"},
+    {"n": 9, "host": "commons.wikimedia.org", "action": "query generator=search: Cheonggyecheon excluding evening and NoFoP-South Korea; imageinfo for two results", "result": "Cheonggyecheon in Korea: Pauloleong2002, own work, CC BY-SA 4.0. Sunset candidate: over 10 MB, rejected."},
+    {"n": 10, "url": "https://english.visitseoul.net/attractions/Seodaemun-Independence-Park_/183", "result": "Wrong article: Traditional Sports. Excluded from factual sources."},
+    {"n": 11, "url": "https://www.kogl.or.kr/info/licenseType1.do", "result": "Retrieved license terms: attribution, commercial reuse and changes permitted; no implied endorsement."},
+    {"n": 12, "url": "https://www.localley.io/explore", "method": "HEAD", "result": "307 to sign-in. No canonical UUID obtained."},
+    {"n": 13, "url": "https://english.visitseoul.net/search?searchTerm=Seodaemun%20Independence%20Park", "result": "Found matched official page ENP001753."},
+    {"n": 14, "url": "https://creativecommons.org/licenses/by-sa/4.0/", "result": "Retrieved license deed: attribution, changes notice, ShareAlike, no added restrictions."},
+    {"n": 15, "url": "https://english.visitseoul.net/attractions/Seodaemun-Independence-Park/ENP001753", "result": "Matched Independence Gate, memorials, history hall, and address. Edited 2026-07-08."}
+  ],
+  "downloads": [
+    {"url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Mountain_Inwang_and_Seodaemun_Independence_Park.jpg", "opened": true, "included": false, "reason": "Prison dominates the scene; unsuitable for a general park card."},
+    {"url": "https://upload.wikimedia.org/wikipedia/commons/6/63/%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg", "opened": true, "included": true, "reason": "Gwanghwamun and palace grounds match the place.", "originalArtist": "\uc11c\uc6b8\uad00\uad11 \uc544\uce74\uc774\ube0c", "originalTitle": "\uad11\ud654\ubb38 \uc6d4\ub300", "outputBytes": 383957, "outputWidth": 1600, "outputHeight": 1066, "outputSha256": "8493388a6de06bc8a1e340fa22a69748e2deeed09a6794c0c0a1b77761685936"},
+    {"url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Cheonggyecheon_in_Korea.jpg", "opened": true, "included": true, "reason": "Stream and below-street walkway match the place; old portrait image, bright highlights.", "outputBytes": 364976, "outputWidth": 960, "outputHeight": 1600, "outputSha256": "3407643c5d6c443d7583a3477a888da02333058c7804484d382839181d7fd6f7"}
+  ]
+}

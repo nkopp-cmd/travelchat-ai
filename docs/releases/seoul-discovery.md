@@ -1,5 +1,40 @@
 # Seoul Discovery Release
 
+## Current Delivery Status
+
+Verified on 2026-09-11. This section supersedes the historical Vercel release identities below.
+
+- Repository: `nkopp-cmd/travelchat-ai`.
+- Production remains on commit `e96b00356d955ed6b777f5fd139ce1652accf09d`.
+- Preserved Vercel deployment: `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`.
+- Read-only Vercel API verification confirmed no Git connection. No Vercel deployment was created or reconnected.
+- Current increment: `feature/native-collection-delivery`, based on `b5b4cc30de15178a54caccaabb8eaee3edf57a2c`.
+- The increment will be reviewed against `cloudflare/full-migration`, not merged into `main` with unfinished migration history.
+- Authorized migration target: `localley-discovery-preview` at `https://preview.localley.io`, protected by Cloudflare Access.
+- Current preview version and code rollback: `88de0da0-0e10-4e4e-9cf7-1f12b4be1c04` at 100%.
+- Persistent preview data: EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
+
+Remote preview verification found three public places and zero users, sessions, owners, saved places, or mail jobs.
+Migration 0005 remains unapplied there.
+The private SQL backup is `.preview-private/pre-collection-delivery.sql` under `cloudflare/auth-proof`.
+Its SHA-256 is `557946b171e742ca498cc6783dfee457d2dc6c2d8da86af378cf3adf787f68f4`.
+An in-memory restore and migration rehearsal preserved all existing counts and passed foreign-key checks.
+This is preview restoration evidence, not a production customer-data restore rehearsal.
+Prefer Worker rollback while retaining additive schema and data; do not overwrite records created after a backup.
+
+Native collection/deletion now uses the existing cards, confirmation dialog, and editor.
+Local acceptance covers cancellation, pagination, owner isolation, account changes, and deletion focus restoration.
+The latest actual-component journey passed 35 checkpoints with no product issues or external requests.
+Independent review found three P2 issues; saved-read fencing, request deadlines, and shared plan validation were implemented afterward.
+Final combined checks and reviewed publication remain pending behind PostLabz's first-priority release.
+
+Full production migration is not complete. Native creation, generation, sharing, billing, remaining server routes, and customer identity import remain unfinished.
+Hosted human authentication, recovery, migration rehearsal, and complete application acceptance remain cutover gates.
+Necessary validated configuration and migration work is authorized by the updated delivery contract; repeated routine approval is not a blocker.
+Preview success must not be reported as completion of production migration.
+
+## Historical Release
+
 Date: 2026-09-07. Target: Vercel `travelchat-ai`, serving `www.localley.io`.
 Baseline: `98ccd6d00e11002326b8b7926e845414f675a7ef`.
 Rollback deployment: `dpl_8GLWuch2zYWyFEJHt9SCNmyDPTJw`.

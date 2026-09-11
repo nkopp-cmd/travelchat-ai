@@ -8,7 +8,8 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "types": ["react", "react-dom"]
+    "types": ["react", "react-dom", "google.maps", "node"],
+    "paths": { "@/*": ["../../*"] }
   },
   "include": ["web/**/*.ts", "web/**/*.tsx"]
 }

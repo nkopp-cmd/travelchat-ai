@@ -21,7 +21,7 @@
     "logs": { "enabled": true, "invocation_logs": false, "persist": false },
     "traces": { "enabled": false }
   },
-  "vars": { "LOCAL_PROOF": "true", "AUTH_BASE_URL": "https://localhost" },
+  "vars": { "APP_MODE": "local", "LOCAL_PROOF": "true", "AUTH_BASE_URL": "https://localhost" },
   "d1_databases": [{
     "binding": "DB",
     "database_name": "auth-proof-local-only",

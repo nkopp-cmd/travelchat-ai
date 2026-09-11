@@ -1,5 +1,96 @@
 # Local Frontend
 
+## Hosted Preview Handoff, 2026-09-11
+
+Changes remain inside `web/` and `scripts/build-web.mjs`.
+The local layout and auth flows remain in place.
+The preview uses the existing violet and neutral colors.
+Its account row opens a native account panel without hiding discovery.
+The hero uses one credited pilot photo. Its card links back rather than duplicating that image.
+The map appears above the two-column list. Mobile uses one column.
+
+`GET /api/app-config` must return this exact supported combination:
+
+```json
+{"mode":"preview","catalogSource":"seoul-pilot","registration":"restricted-preview","emailDelivery":"cloudflare"}
+```
+
+Preview runs at `https://preview.localley.io` or an explicit loopback test origin.
+Local mode requires loopback and the `local/synthetic/local-test/captured` combination.
+Only a loopback 404 permits the known local fallback.
+Errors, invalid combinations, and other origins block mounting the auth client and application.
+The server still owns Access checks and invitation enforcement.
+No issuer, claim controls, import promise, or paid-access transfer appears in preview.
+Preview email notices direct eligible users to email. They never claim capture or successful delivery.
+
+Photo rendering requires a UUID JPEG URL under the current origin's `/pilot/` path.
+The URL must match an entry in `photoCredits` with an author, license, and safe source links.
+Synthetic mode never renders photos, even when unexpected photo fields exist.
+Failed images show an unavailable message without replacement media.
+Source links accept HTTP and HTTPS without URL credentials. React escapes visible source text.
+Saved rows use matching public catalog metadata when available. Null saved rows remain unavailable.
+
+Leaflet 1.9.4 supplies the imperative map and its CSS.
+Reference and source review: https://leafletjs.com/reference.html, retrieved 2026-09-11.
+Reviewed installed `src/layer/vector/SVG.js` and the BSD-2-Clause license.
+`catalog.tsx` contains original integration code, not a copied UI component.
+Canvas circle markers avoid missing default icon files and global SVG sizing conflicts.
+Popups use DOM `textContent` and native buttons, never catalog HTML.
+Valid coordinates fit the map bounds. Missing coordinates produce no pin.
+The map labels positions as catalog locations, not verified entrances.
+Only visible OSM tiles generate external requests. Tile failures remain visible.
+No route estimates, 3D controls, geolocation, prefetch, or paid map provider was added.
+Tile requests send only the origin as referrer, not account or reset URL parameters.
+
+### Asset Contract
+
+The build reads only UUID JPEG files from the trusted local `pilot/images/` folder.
+It copies them to `dist/public/pilot/` and copies `pilot/licenses.md` as `pilot/licenses.txt`.
+The build rejects symlink sources, non-JPEG bytes, and invalid checksum manifests.
+It removes old generated pilot files before copying. It never copies catalog exports or credentials.
+Missing pilot images do not block the build. Existing images require public license notes.
+The optional checksum file is `pilot/manifest.json`:
+
+```json
+{"files":[{"file":"cb33c68c-e87c-4c0d-af2b-a15d3a40cc90.jpg","sha256":"<64 hexadecimal characters>"}]}
+```
+
+When present, the manifest must cover every copied JPEG without duplicate or missing entries.
+The build preserves the existing font checksum checks and OFL copy.
+It also copies the Leaflet license. Esbuild handles Leaflet's CSS PNG references.
+
+### Current Checks
+
+`npm run typecheck:web`, `npx eslint web`, and `npm run build:web` passed during this task.
+Package lint reported a backend triple-slash reference error in `src/runtime.ts` during concurrent work.
+No backend file was changed to fix it.
+
+`web/preview-check.mjs --pilot` is an explicit component check, not hosted release evidence.
+It serves built assets with public pilot fixtures and signed-out auth stubs.
+It never imports a database, sends email, or contacts the hosted preview.
+Set `PREVIEW_SCREENSHOTS` to an approved evidence directory before running it.
+It deliberately blocks OSM tiles to check failure copy without substituting imagery.
+Use the installed browser directory through `PLAYWRIGHT_BROWSERS_PATH` when needed.
+
+The component check passed at 1440, 900, and 390 pixels with no page errors or horizontal overflow.
+It checked selection, duplicate-image prevention, photo failure, unsafe URLs, missing coordinates, and configuration failure.
+It confirmed that a local 404 preserves the local layout without photos or maps.
+Screenshots were opened from `/home/dev/projects/CyberLink/codex-work/tmp/opencode/localley-preview-ui/`.
+The first review found that a landscape crop hid the stream photo's context.
+Images now use `object-fit: contain` to preserve the full source frame.
+These screenshots show deliberately missing tiles. They do not prove the successful hosted map state.
+
+The parent must check real preview responses and open hosted screenshots at 1440, 900, and 390 pixels.
+Check OSM tiles, map pan and zoom, marker selection, keyboard focus, touch controls, contrast, and zoom.
+Check broken photos, missing credits, unsafe URLs, null coordinates, empty results, and public source parity.
+Check config 404 and failure on the hosted origin. Neither may mount account controls.
+Check invitation-only signup, native email verification, reset, profile creation, and failed sign-out.
+Rerun local auth tests, session preconditions, pending-save confirmation, and cross-tab privacy races.
+Verify Access separately for Nils and GET-only CI. This frontend does not establish Access policy.
+No hosted review, production deployment, or Git command occurred in this task.
+
+The remaining sections record the earlier local-only implementation and its historical evidence.
+
 This frontend preserves Localley's existing identity. It does not redesign the parent app.
 It uses React and React DOM 19.2.8, Better Auth 1.7.3, and Lucide React 1.42.0.
 No widget library, Vite, Next.js, Tailwind runtime, or root dependency changes are required.

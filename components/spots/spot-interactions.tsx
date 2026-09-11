@@ -2,10 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Share2, Heart, Check, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSavedSpot } from "@/hooks/use-saved-spot";
+import { useAppSession } from "@/providers/app-session-provider";
 
 interface SpotInteractionsProps {
     spotId: string;
@@ -13,37 +13,13 @@ interface SpotInteractionsProps {
 }
 
 export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
-    const [isLiked, setIsLiked] = useState(false);
+    const { isSaved: isLiked, isLoading, disabled, message, toggle } = useSavedSpot(spotId);
     const [isSharing, setIsSharing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
-    const router = useRouter();
-    const { isLoaded, isSignedIn } = useUser();
-
-    // Check if spot is already saved on mount
-    useEffect(() => {
-        if (!isLoaded || !isSignedIn) {
-            setIsLoading(false);
-            return;
-        }
-
-        const checkSavedStatus = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch(`/api/spots/save?spotId=${spotId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsLiked(data.saved);
-                }
-            } catch {
-                // Silently fail - user just won't see saved state
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        checkSavedStatus();
-    }, [isLoaded, isSignedIn, spotId]);
+    const session = useAppSession();
+    const shareScope = JSON.stringify([session.status, session.provider, session.accountKey, session.sessionId, spotId]);
+    const currentShareScope = useRef(shareScope);
+    currentShareScope.current = shareScope;
 
     const handleShare = async () => {
         setIsSharing(true);
@@ -57,16 +33,29 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                     url: window.location.href,
                 });
 
-                // Award XP for sharing
-                await fetch("/api/gamification/award", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "share", spotId }),
-                });
-
+                let description = "Spot link shared";
+                if (currentShareScope.current !== shareScope) return;
+                if (session.provider === "clerk" && session.status === "ready") {
+                    try {
+                        const response = await fetch("/api/gamification/award", {
+                            method: "POST",
+                            credentials: "same-origin",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ action: "share", spotId }),
+                        });
+                        const award = response.ok ? await response.json() : null;
+                        if (award?.success === true && typeof award.xpAwarded === "number"
+                            && Number.isFinite(award.xpAwarded) && award.xpAwarded > 0) {
+                            description = `+${award.xpAwarded} XP earned for sharing`;
+                        }
+                    } catch {
+                        // Sharing succeeded even when the optional reward request failed.
+                    }
+                }
+                if (currentShareScope.current !== shareScope) return;
                 toast({
                     title: "Shared successfully!",
-                    description: "+10 XP earned for sharing",
+                    description,
                 });
             } else {
                 // Fallback: copy to clipboard
@@ -86,54 +75,6 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
             }
         } finally {
             setIsSharing(false);
-        }
-    };
-
-    const handleLike = async () => {
-        if (!isSignedIn) {
-            toast({
-                title: "Sign in to save spots",
-                description: `Save ${spotName} to your trip list.`,
-            });
-            router.push("/sign-in");
-            return;
-        }
-
-        const newLikedState = !isLiked;
-        setIsSaving(true);
-
-        try {
-            const response = await fetch("/api/spots/save", {
-                method: newLikedState ? "POST" : "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ spotId }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to update saved status");
-            }
-
-            setIsLiked(newLikedState);
-
-            if (newLikedState) {
-                toast({
-                    title: "Spot saved!",
-                    description: `${spotName} added to your saved spots`,
-                });
-            } else {
-                toast({
-                    title: "Spot removed",
-                    description: `${spotName} removed from saved spots`,
-                });
-            }
-        } catch {
-            toast({
-                title: "Error",
-                description: "Could not update saved status. Please try again.",
-                variant: "destructive",
-            });
-        } finally {
-            setIsSaving(false);
         }
     };
 
@@ -161,13 +102,14 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                         ? "bg-red-500/80 text-white hover:bg-red-600/80"
                         : "bg-white/10 hover:bg-white/20 text-white"
                     }`}
-                onClick={handleLike}
-                disabled={isSaving || isLoading || !isLoaded}
+                onClick={() => { void toggle(); }}
+                disabled={disabled}
+                title={message ?? undefined}
                 aria-label={isLiked ? `Remove ${spotName} from saved spots` : `Save ${spotName}`}
                 aria-pressed={isLiked}
-                aria-busy={isSaving || isLoading}
+                aria-busy={isLoading}
             >
-                {isSaving || isLoading ? (
+                {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                     <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />

@@ -23,26 +23,31 @@ export function WizardProgress() {
             key={index}
             onClick={() => index < currentStep && goToStep(index)}
             disabled={index > currentStep}
-            className={cn(
-              "w-2.5 h-2.5 rounded-full transition-all",
+            className="flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400"
+            aria-label={`Step ${index + 1}: ${steps[index].label}`}
+            aria-current={index === currentStep ? "step" : undefined}
+          >
+            <span aria-hidden="true" className={cn(
+              "h-2.5 w-2.5 rounded-full transition-all",
               index === currentStep && "w-8 bg-violet-500",
               index < currentStep && "bg-violet-500/60",
               index > currentStep && "bg-white/20"
-            )}
-            aria-label={`Step ${index + 1}: ${steps[index].label}`}
-          />
+            )} />
+          </button>
         ))}
       </div>
 
       {/* Desktop: Full progress bar */}
       <div className="hidden md:flex items-center justify-between">
         {steps.map((step, index) => (
-          <div key={index} className="flex items-center flex-1 last:flex-none">
+          <div key={index} className="flex min-w-0 items-center flex-1 last:flex-none">
             <button
               onClick={() => index < currentStep && goToStep(index)}
               disabled={index > currentStep}
+              aria-label={`Step ${index + 1}: ${step.label}`}
+              aria-current={index === currentStep ? "step" : undefined}
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-full transition-all",
+                "flex shrink-0 items-center justify-center w-11 h-11 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400",
                 "text-sm font-semibold",
                 index === currentStep && "bg-violet-600 text-white ring-4 ring-violet-600/20",
                 index < currentStep && "bg-violet-600 text-white cursor-pointer",
@@ -57,7 +62,7 @@ export function WizardProgress() {
             </button>
             <span
               className={cn(
-                "ml-3 text-sm font-medium",
+                "hidden xl:inline ml-3 text-sm font-medium",
                 index === currentStep && "text-white",
                 index < currentStep && "text-violet-400",
                 index > currentStep && "text-white/40"

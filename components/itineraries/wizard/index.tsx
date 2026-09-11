@@ -13,6 +13,7 @@ import { StepDuration } from "./step-duration";
 import { StepInterests } from "./step-interests";
 import { StepPreferences } from "./step-preferences";
 import { getErrorMessage } from "@/lib/error-utils";
+import { isPlanningSpotId, planningCitiesMatch, type PlanningSpot } from "@/lib/itineraries/spot-planning";
 
 const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
@@ -45,12 +46,23 @@ export function getTemplateFooterControlsClass(compactTemplateFooter: boolean): 
 
 function WizardContent({
   onGenerate,
+  selectedSpot,
+  onRemoveSpot,
+  spotError,
 }: {
   onGenerate: (data: WizardData) => Promise<void>;
+  selectedSpot?: PlanningSpot | null;
+  onRemoveSpot: () => void;
+  spotError?: string | null;
 }) {
   const { currentStep, totalSteps, data, canProceed, nextStep, prevStep, goToStep } = useWizard();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const stepScrollRef = useRef<HTMLDivElement | null>(null);
   const isLastStep = currentStep === totalSteps - 1;
   const templateApplied = Boolean(data.templateName);
@@ -85,7 +97,7 @@ function WizardContent({
       try {
         await onGenerate(data);
       } finally {
-        setIsGenerating(false);
+        if (mounted.current) setIsGenerating(false);
       }
     } else {
       nextStep();
@@ -164,6 +176,17 @@ function WizardContent({
         ref={stepScrollRef}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-32"
       >
+        {spotError && <p role="alert" className="m-4 rounded-lg border border-border bg-background p-4">{spotError}</p>}
+        {selectedSpot && (
+          <section aria-label="Selected place" className="m-4 space-y-2 rounded-lg border border-border bg-background p-4 text-foreground">
+            <p className="break-words font-semibold">{selectedSpot.name} / {selectedSpot.city}</p>
+            <p>Choose its day and position after creating your trip.</p>
+            {(data.tripMode === "multi" || !planningCitiesMatch(data.city, selectedSpot.city)) && (
+              <p>The editor can add this place only to a trip in {selectedSpot.city}. Your selection stays until you remove it.</p>
+            )}
+            <Button variant="outline" onClick={onRemoveSpot}>Remove selected place</Button>
+          </section>
+        )}
         {steps[currentStep]}
       </div>
 
@@ -256,13 +279,39 @@ function WizardContent({
 interface ItineraryWizardProps {
   initialData?: Partial<WizardData>;
   initialStep?: number;
+  selectedSpot?: PlanningSpot | null;
+  spotError?: string | null;
 }
 
-export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardProps) {
+export function ItineraryWizard({ initialData, initialStep, selectedSpot: initialSpot, spotError }: ItineraryWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const [selectedSpot, setSelectedSpot] = useState(initialSpot);
+  const [draft, setDraft] = useState<{ itinerary: unknown; signupUrl: string; anonymous: boolean } | null>(null);
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+
+  const removeSpot = () => {
+    setSelectedSpot(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("spotId");
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}`);
+  };
 
   const handleGenerate = async (data: WizardData) => {
+    if (draft || !mounted.current) return;
+    const query = new URLSearchParams({
+      city: data.city, days: String(data.days), interests: data.interests.join(","),
+      budget: data.budget, pace: data.pace, group: data.groupType, localness: String(data.localnessLevel),
+    });
+    const template = new URLSearchParams(window.location.search).get("template");
+    if (template) query.set("template", template);
+    if (data.tripMode === "multi") query.set("cities", data.citySlugs.join(","));
+    if (selectedSpot) query.set("spotId", selectedSpot.id);
+    const signupUrl = `/sign-up?${new URLSearchParams({ redirect_url: `/itineraries/new?${query}` })}`;
     try {
       const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
       const response = await fetch("/api/itineraries/generate", {
@@ -294,23 +343,33 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
         ),
       });
 
+      if (!mounted.current) return;
       const result = await response.json();
+      if (!mounted.current) return;
+
+      // A generated draft is recoverable even when persistence returned an error status.
+      if (result.itinerary && (!response.ok || result.success === false || result.isAnonymous || result.stored === false || !isPlanningSpotId(result.itinerary.id))) {
+        setDraft({ itinerary: result.itinerary, signupUrl, anonymous: Boolean(result.isAnonymous) });
+        return;
+      }
 
       if (!response.ok) {
+        const errorCode = typeof result.error === "string" ? result.error : result.error?.code;
+        const errorMessage = result.message || result.error?.message;
         // Handle specific error types
-        if (result.error === "signup_required") {
+        if (errorCode === "signup_required" || errorCode === "unauthorized") {
           toast({
             title: "Sign up to continue",
-            description: result.message,
+            description: errorMessage,
           });
-          router.push("/sign-up?redirect=/itineraries/new");
+          router.push(signupUrl);
           return;
         }
 
-        if (result.error === "limit_exceeded") {
+        if (errorCode === "limit_exceeded") {
           toast({
             title: "Limit reached",
-            description: result.message,
+            description: errorMessage,
           });
           if (result.upgrade) {
             router.push("/pricing");
@@ -318,32 +377,20 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
           return;
         }
 
-        throw new Error(result.message || result.error || "Failed to generate itinerary");
+        throw new Error(errorMessage || errorCode || "Failed to generate itinerary");
       }
 
-      // Handle anonymous user - show itinerary with signup prompt
-      if (result.isAnonymous) {
-        toast({
-          title: "Itinerary created!",
-          description: "Sign up to save it and create more",
-        });
-        // Store in localStorage for retrieval after signup
-        localStorage.setItem("pendingItinerary", JSON.stringify(result.itinerary));
-        router.push("/sign-up?redirect=/itineraries/claim");
-      } else {
-        // Authenticated user - redirect to saved itinerary
-        toast({
-          title: "Itinerary created!",
-          description: `${result.itinerary.title} is ready to explore`,
-        });
+      if (!isPlanningSpotId(result.itinerary?.id)) throw new Error("No saved itinerary was returned.");
+      toast({
+        title: "Itinerary created!",
+        description: `${result.itinerary.title} is ready to explore`,
+      });
 
-        if (result.itinerary.id) {
-          router.push(`/itineraries/${result.itinerary.id}`);
-        } else {
-          router.push("/itineraries");
-        }
-      }
+      router.push(selectedSpot
+        ? `/itineraries/${result.itinerary.id}/edit?${new URLSearchParams({ spotId: selectedSpot.id })}`
+        : `/itineraries/${result.itinerary.id}`);
     } catch (error) {
+      if (!mounted.current) return;
       toast({
         title: "Generation failed",
         description: getErrorMessage(error),
@@ -355,7 +402,23 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background sm:rounded-2xl md:max-h-none md:rounded-none">
-        <WizardContent onGenerate={handleGenerate} />
+        {draft ? (
+          <section aria-label="Generated draft" className="space-y-4 overflow-y-auto p-6 text-foreground">
+            <h1 className="text-xl font-semibold">Your trip was generated, but not saved</h1>
+            <p>This draft stays in this tab only. Download it before leaving or refreshing.</p>
+            {selectedSpot && <p>Selected place: {selectedSpot.name}. It has not been added.</p>}
+            <p>We cannot safely retry this save here. Keep the download for manual recovery. No new generation will start.</p>
+            <Button onClick={() => {
+              const url = URL.createObjectURL(new Blob([JSON.stringify({ itinerary: draft.itinerary, selectedSpot }, null, 2)], { type: "application/json" }));
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "localley-trip-draft.json";
+              link.click();
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }}>Download draft</Button>
+            {draft.anonymous && <p><a className="underline" href={draft.signupUrl}>Sign up after downloading</a>. Your settings and selected place will return, but the draft will not transfer.</p>}
+          </section>
+        ) : <WizardContent onGenerate={handleGenerate} selectedSpot={selectedSpot} onRemoveSpot={removeSpot} spotError={spotError} />}
       </div>
     </WizardProvider>
   );

@@ -1,4 +1,5 @@
 import "./host-environment.mjs";
+import "./preview.test.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { randomBytes, randomUUID, createHmac } from "node:crypto";
@@ -6,6 +7,7 @@ import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import { issueFixtureGrant } from "./fixture-issuer.mjs";
 import { applicationTests } from "./application.test.mjs";
+import { itineraryTests } from "./itineraries.test.mjs";
 
 await mkdir(process.env.TMPDIR, { recursive: true });
 const { getAuthTables } = await import("better-auth/db");
@@ -19,6 +21,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
   const state = await mkdtemp(resolve(".local/run-"));
   const secret = randomBytes(48).toString("hex");
   const claimSecret = randomBytes(48).toString("hex");
+  let outboundRequests = 0;
   const worker = {
     config: {
       name: config.name, type: "worker", compatibilityDate: config.compatibility_date,
@@ -29,7 +32,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
         DB: { type: "d1", id: config.d1_databases[0].database_id, dev: { remote: false } },
       },
     },
-    dev: { outboundService: { type: "fetcher", handler: () => new Response("Outbound network disabled", { status: 502 }) } },
+    dev: { outboundService: { type: "fetcher", handler: () => { outboundRequests++; return new Response("Outbound network disabled", { status: 502 }); } } },
   };
   let workerLogCount = 0;
   const options = { workers: [worker], resourcePersistencePath: state, resourceTmpPath: state,
@@ -85,6 +88,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     db = await mf.getD1Database("DB");
     await db.exec(await readFile("migrations/0001_local.sql", "utf8"));
     await db.exec(await readFile("migrations/0002_application.sql", "utf8"));
+    await db.exec(await readFile("migrations/0005_itineraries.sql", "utf8"));
     await t.test("real D1 migration and schema", async () => {
       assert.equal((await db.prepare("PRAGMA foreign_keys").first()).foreign_keys, 1);
       assert.equal((await db.prepare("SELECT count(*) AS n FROM user").first()).n, 0);
@@ -278,6 +282,8 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
       assert.equal(workerLogCount, 0, "failure paths must not log SQL, credentials, or callback errors");
     });
     await applicationTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bob, bobCookie, claimSecret });
+    await itineraryTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bobCookie });
+    assert.equal(outboundRequests, 0, "native application APIs never forward requests");
     assert.equal(workerLogCount, 0, "application failure paths must not log private data");
     await t.test("logout invalidates old cookie and session expiry", async () => {
       assert.equal((await post("/api/auth/sign-out", {}, bobCookie)).status, 200);

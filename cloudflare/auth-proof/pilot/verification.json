@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-11",
+  "command": "node pilot/verify-import.mjs --import-sql",
+  "result": "passed",
+  "engine": "Installed Miniflare with native workerd D1 binding",
+  "remote": false,
+  "migrations": ["0001_local.sql", "0002_application.sql", "0003_preview_mail.sql", "0004_pilot_catalog.sql"],
+  "counts": {"before": 0, "imported": 3, "distinctIds": 3, "canonicalIds": 2, "pendingPilotIds": 1, "nullScores": 3, "photos": 2, "missingPhotos": 1, "freshAfterTeardown": 0},
+  "checks": {
+    "manifestMatchesSql": true,
+    "canonicalIdsMatchParentEvidence": true,
+    "nightWalkCandidateNotImported": true,
+    "duplicateImportRejected": true,
+    "coordinateBoundsEnforced": true,
+    "reviewedImageHashesUnchanged": true,
+    "oldImageFilenameAbsent": true,
+    "firstDatabaseFilesRemoved": true,
+    "recreatedDatabaseInitiallyHasNoSpotsTable": true,
+    "bothRuntimesDisposedAndStateRemoved": true
+  },
+  "images": [
+    {"url": "/pilot/cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5.jpg", "bytes": 383957, "sha256": "8493388a6de06bc8a1e340fa22a69748e2deeed09a6794c0c0a1b77761685936"},
+    {"url": "/pilot/f0fcf98e-76d7-4673-b8c3-6baf519a1551.jpg", "bytes": 364976, "sha256": "3407643c5d6c443d7583a3477a888da02333058c7804484d382839181d7fd6f7"}
+  ],
+  "outboundRequests": 0,
+  "sqlRollbackClaimed": false,
+  "limitation": "Local native D1 proof only. Parent owns reviewed import into a NEW protected preview database and integrated checks."
+}

@@ -1,6 +1,7 @@
 node_modules/
 .npm-cache/
 .local/
+.preview-private/
 .wrangler/
 .dev.vars*
 dist/
