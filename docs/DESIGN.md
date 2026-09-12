@@ -2,6 +2,18 @@
 
 ## Scope
 
+The native email preference panel reuses the existing settings component, Radix Switch, buttons, labels, icons, and root tokens.
+It follows the existing restrained settings layout, rather than introducing a separate account dashboard.
+New native accounts start off; legacy consent requires import. Unknown state never appears as a checked switch.
+The four toggles use 44px targets and explicit focus. Save confirmation reflects the actual server response.
+The first screenshot review found centered off-state thumbs and crowded checked thumbs. Explicit alignment corrected both.
+The pending-place prompt stays hidden in this panel without clearing the pending choice.
+Local browser evidence covers off, persisted, and error states at mobile, tablet, and desktop widths.
+All nine final screenshots were opened. Preference text measured at least 4.83:1 contrast; targets measured at least 44px.
+Keyboard operation, visible focus, reduced motion, switch alignment, and no overflow passed at 390/900/1440 pixels.
+See `releases/native-email-preferences.md` for the verification record and hosted acceptance limits.
+No new component library, copied source, font, or paid asset was added.
+
 The native-source expansion reuses the existing preview cards, photo credits, and map for four additional reviewed venues.
 Archive and historical photographs remain explicitly dated or marked date-unavailable. No market image stands in for an unverified stall.
 Map popup placement now uses non-animated public Leaflet methods and measured padding to avoid the mobile zoom controls.

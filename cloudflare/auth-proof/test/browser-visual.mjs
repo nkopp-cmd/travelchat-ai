@@ -10,7 +10,7 @@ export async function captureBrowserState(page, results, state, evidence, widths
       assert.equal(await page.locator("#account-title").textContent(), "Reset password",
         `Signed-in reset heading must identify the reset form at ${width}px`);
     }
-    const measured = await page.evaluate(() => {
+    const measured = await page.evaluate((state) => {
       const root = getComputedStyle(document.documentElement);
       const rgb = (color) => {
         if (color.startsWith("#")) {
@@ -39,6 +39,19 @@ export async function captureBrowserState(page, results, state, evidence, widths
         ["control boundary", "--control", "--background", 3],
         ["focus indicator", "--accent", "--background", 3],
       ].map(([role, foreground, background, minimum]) => ({ role, minimum, ratio: contrast(token(foreground), token(background)) }));
+      if (state.startsWith("preferences-")) {
+        for (const [index, element] of [...document.querySelectorAll('.native-trips p, .native-trips label')].entries()) {
+          pairs.push({ role: `preference text ${index}`, minimum: 4.5,
+            ratio: contrast(getComputedStyle(element).color, token('--background')) });
+        }
+        for (const element of document.querySelectorAll('.native-trips [role="switch"]')) {
+          const track = element.getBoundingClientRect();
+          const thumb = element.querySelector('[data-slot="switch-thumb"]').getBoundingClientRect();
+          if (thumb.left < track.left || thumb.right > track.right) throw new Error('Preference thumb clips outside track');
+          const checked = element.getAttribute('aria-checked') === 'true';
+          if (checked ? thumb.left <= track.left + track.width / 2 : thumb.right >= track.left + track.width / 2) throw new Error('Preference thumb does not show the selected side');
+        }
+      }
       const controls = [...document.querySelectorAll("a[href],button,input,select,textarea,[tabindex='0']")].filter((element) => {
         const box = element.getBoundingClientRect();
         const css = getComputedStyle(element);
@@ -54,7 +67,7 @@ export async function captureBrowserState(page, results, state, evidence, widths
       return { pairs, controls, reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches && !moving,
         overflow: document.documentElement.scrollWidth > innerWidth,
         korean: [...document.querySelectorAll("article h3")].some((element) => /[\uac00-\ud7a3]{2}/.test(element.textContent)) };
-    });
+    }, state);
     assert.equal(measured.overflow, false);
     assert.equal(measured.reducedMotion, true);
     assert.ok(measured.controls.length > 0);
