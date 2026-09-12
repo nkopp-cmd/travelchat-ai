@@ -42,7 +42,7 @@ if(args[0]==='--apply') {
     const file=dir+'/import.sql';writeFileSync(file,sql,{mode:0o600});
     const result=spawnSync(process.execPath,[fileURLToPath(new URL('node_modules/wrangler/bin/wrangler.js',root)),
       'd1','execute','localley-migration-preview','--config',fileURLToPath(new URL('wrangler.preview.jsonc',root)),
-      '--remote','--file',file,'--yes','--json'],{cwd:fileURLToPath(root),env:process.env,encoding:'utf8',timeout:120000,maxBuffer:1024*1024});
+      '--remote','--file',file,'--yes','--json'],{cwd:fileURLToPath(root),env:{...process.env,CLOUDFLARE_ACCOUNT_ID:config.account_id},encoding:'utf8',timeout:120000,maxBuffer:1024*1024});
     // Do not print Wrangler output: export/import output can contain temporary signed URLs.
     if(result.error || result.status!==0) throw new Error(`Native preview import failed (${result.error?.code || result.status}); retry is safe`);
   } finally { rmSync(dir,{recursive:true,force:true}); }
