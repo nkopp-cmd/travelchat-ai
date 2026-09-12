@@ -2,6 +2,9 @@
 
 ## Current Gate
 
+Operator decision, 2026-09-12: defer the six rights-gated images. No outreach sender or image reuse is approved.
+The rejected question did not grant permission. Retain this draft as evidence only; do not send it or repeat the same question.
+
 Task `usable-native-discovery` remains incomplete. The existing eight published venues have reviewed images, but six additional business images lack exact-site reuse evidence.
 No new permission, asset, or rights-holder response arrived with the repeated continuation instruction.
 This document prepares the next external step; it is not a license grant or publication approval.
@@ -39,7 +42,7 @@ Private evidence: `cloudflare/auth-proof/.preview-private/phoko-metadata-review.
 
 ## Ready Request
 
-Status: DRAFT, NOT SENT.
+Status: DEFERRED, NOT AUTHORIZED, NOT SENT.
 Intended contact: Seoul Tourism Organization's public contact, `staff@visitseoul.net`, asking for referral to the appropriate photo-rights team.
 Contact source: the footer of the matched official Visit Seoul venue pages.
 Sender and sending channel must be approved for rights outreach. The preview auth mail binding permits only `auth@localley.io` to the allowlisted reviewer; it must not be repurposed or widened for this request.

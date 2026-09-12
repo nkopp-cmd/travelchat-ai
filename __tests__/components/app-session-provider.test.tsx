@@ -128,6 +128,31 @@ describe("explicit app session adapters", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it.each([undefined, null, "false", 0])("blocks malformed verification instead of inventing unverified status: %j", async emailVerified => {
+    mocks.getSession.mockResolvedValue({ data: { ...identity(), user: { id: "auth-a", emailVerified } }, error: null });
+    const fetchMock = vi.spyOn(global, "fetch");
+    render(<BetterAuthSessionProvider><Consumer /></BetterAuthSessionProvider>);
+    await waitFor(() => expect(value().status).toBe("blocked"));
+    expect(value()).toMatchObject({ authUserId: null, sessionId: null, canBookmark: false });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("bounds a stalled observer refresh without starting another mapping request", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(Response.json(mapping));
+    render(<BetterAuthSessionProvider><Consumer /></BetterAuthSessionProvider>);
+    await waitFor(() => expect(value().status).toBe("ready"));
+    mocks.refetch.mockImplementation(() => new Promise(() => {}));
+    vi.useFakeTimers();
+    try {
+      await act(async () => { fireEvent.click(screen.getByText("Refresh")); });
+      expect(value().status).toBe("loading");
+      await act(async () => { await vi.advanceTimersByTimeAsync(20001); });
+      expect(value()).toMatchObject({ status: "blocked", ownerId: null, canBookmark: false });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(mocks.getSession).toHaveBeenCalledTimes(1);
+    } finally { vi.useRealTimers(); }
+  });
+
   it("discards a pending mapping when the observed session changes", async () => {
     let finish!: (response: Response) => void;
     const fetchMock = vi.spyOn(global, "fetch")

@@ -70,9 +70,10 @@ export async function refreshContext() {
 export const message = (error: unknown) => error instanceof Error ? error.message : "Request failed. Please retry.";
 async function privateFailure(error: unknown) {
   if (error instanceof ApiError && error.code === "session_changed") {
-    clearPrivate();
-    await refreshContext();
-    publish({ ...snapshot, error: "Account changed. Review the current account before trying again." });
+    const recovery = refreshContext();
+    const ticket = epoch;
+    await recovery;
+    if (ticket === epoch) publish({ ...snapshot, error: "Account changed. Review the current account before trying again." });
   } else if (error instanceof ApiError && [401, 403].includes(error.status)) {
     clearPrivate(error.status === 401 ? "signedout" : "error", error.status === 401
       ? "Sign in with a verified test account to continue."
