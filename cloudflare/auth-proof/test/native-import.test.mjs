@@ -338,9 +338,15 @@ for (const collision of ['non-preview target','missing candidate','UUID','source
   } finally {db.close();}
 });
 
-test('all staged assets match manifest, JPEG magic, and exact approved research bytes',()=>{
+test('all staged assets match manifest, JPEG magic, and independently recorded source hashes',()=>{
   const manifest=JSON.parse(readFileSync(new URL('../pilot/manifest.json',import.meta.url)));
-  const research=['ddp-ARP007nc1.jpg','sewoon-ARP007ev1.jpg','gwangjang-bgag-20220926.jpg','jongmyo-cha-20130813.jpg'];
+  // Public source hashes preserve the byte-identity check without requiring private research copies in CI.
+  const researchHashes = [
+    '7ff2a91b9e2d9210be3dd6f57c17e8fb4e9758ac4d4eb0269ef763080b6178b1',
+    'd4ef7a67b4ee58d382c03832316021b0de964287a1c495b192108cfe850bff34',
+    '3954787c0f1877a8eda6d4e6a93e4667aba45cb98a37d33764c248331a08df94',
+    'b568f3917e1fe0963ecdcb1be4e13781805f2918c321fab9481e52289f456e68',
+  ];
   assert.equal(manifest.files.length,7);
   for (const asset of manifest.files) {
     const bytes=readFileSync(new URL(`../pilot/images/${asset.file}`,import.meta.url));
@@ -349,7 +355,7 @@ test('all staged assets match manifest, JPEG magic, and exact approved research 
   }
   for (const [index,review] of publicReviews.slice(1).entries()) {
     const bytes=readFileSync(new URL(`../pilot/images/${review.id}.jpg`,import.meta.url));
-    assert.deepEqual(bytes,readFileSync(new URL(`../pilot/new-native-review-20260912/${research[index]}`,import.meta.url)));
+    assert.equal(createHash('sha256').update(bytes).digest('hex'),researchHashes[index]);
     assert.equal(createHash('sha256').update(bytes).digest('hex'),review.imageSha256);
   }
 });
