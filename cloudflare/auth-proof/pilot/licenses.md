@@ -67,3 +67,60 @@ Source page photos, ratings, prices, opening hours, and visitor counts were not 
 
 Venue identity, address, and coordinates come from the native Scrapelet observation.
 Category and short factual description were reviewed separately. No score, rating, opening hours, or trend claim was invented.
+
+## Dongdaemun Design Plaza
+
+- Local file: `images/c6a455dc-4b18-4e29-a36b-7430f2ba8f3b.jpg`.
+- Source institution: Seoul Tourism Organization / Seoul Tourism Archive. Individual photographer unspecified.
+- Item: https://archive.visitseoul.net/en/contents/ARP007nc1
+- License: KOGL Type 1, https://www.kogl.or.kr/info/licenseType1.do
+- Archive reuse policy: https://archive.visitseoul.net/en/page/copyright?_ID=200100
+- SHA-256: `7ff2a91b9e2d9210be3dd6f57c17e8fb4e9758ac4d4eb0269ef763080b6178b1`.
+- Changes: none. This is the Archive's publicly linked encoded preview, not its separate full-resolution download.
+- Capture date: unavailable. The storage path date is not a photograph date.
+- The aerial view identifies the DDP complex. It does not establish current entrances or access conditions.
+
+## Sewoon Shopping Center
+
+- Local file: `images/8f3807c5-cc7d-49fe-9c09-ac1bc11a143c.jpg`.
+- Source institution: Seoul Tourism Organization / Seoul Tourism Archive. Individual photographer unspecified.
+- Item: https://archive.visitseoul.net/en/contents/ARP007ev1
+- License: KOGL Type 1, https://www.kogl.or.kr/info/licenseType1.do
+- Archive reuse policy: https://archive.visitseoul.net/en/page/copyright?_ID=200100
+- SHA-256: `d4ef7a67b4ee58d382c03832316021b0de964287a1c495b192108cfe850bff34`.
+- Changes: none. This is the Archive's publicly linked encoded preview.
+- Capture date: unavailable. The signed facade identifies Sewoon, but does not establish present shops or accessibility.
+
+For both Archive items, the specific KOGL Type 1 notice permits commercial and non-commercial reuse and derivative work with source credit.
+Preserve the institution, item, license, and Archive policy links. No endorsement is claimed.
+The Archive's general footer reserves rights; the specific Type 1 marking supplies the reuse grant for these two images.
+
+## Gwangjang Market
+
+- Local file: `images/7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67.jpg`.
+- Author: Bgag. Title: Gwangjang Market, Seoul 02.
+- Source: https://commons.wikimedia.org/wiki/File:Gwangjang_Market,_Seoul_02.jpg
+- License: CC0 1.0 Universal, https://creativecommons.org/publicdomain/zero/1.0/deed.en
+- Photograph date: 2022-09-26. Visible prices, crowds, signs, and stalls are historical.
+- SHA-256: `3954787c0f1877a8eda6d4e6a93e4667aba45cb98a37d33764c248331a08df94`.
+- Changes: none. The original Commons JPEG is retained.
+- This photograph represents the whole market, not a separately approved stall or branch.
+
+CC0 permits reuse without a copyright attribution requirement. Localley retains the author, source, and date for provenance.
+CC0 does not waive unrelated privacy, publicity, or trademark rights. No personal endorsement is implied.
+
+## Jongmyo Shrine
+
+- Local file: `images/0ec5db76-1250-482b-b780-33009930854b.jpg`.
+- Required attribution: 문화재청 / Cultural Heritage Administration.
+- Title: Jeongjeon, Jongmyo (Summer, 2013).
+- Source: https://commons.wikimedia.org/wiki/File:Jeongjeon,_Jongmyo_(Summer,_2013).jpg
+- Original source: https://www.heritage.go.kr/heri/cul/imgHeritage.do?ccimId=6405753&ccbaKdcd=11&ccbaAsno=02270000&ccbaCtcd=11
+- License: KOGL Type 1, https://www.kogl.or.kr/info/licenseType1.do
+- Photograph date: 2013-08-13. Later restoration may have changed surfaces and access.
+- SHA-256: `b568f3917e1fe0963ecdcb1be4e13781805f2918c321fab9481e52289f456e68`.
+- Changes: none. The original Commons JPEG is retained.
+
+The specific Commons file notice identifies KOGL Type 1 and requires the attribution above.
+The upstream Heritage page returned a metadata shell during review; the license was verified on the file page, not inferred from that shell.
+This historical image does not establish current opening conditions. No endorsement is claimed.

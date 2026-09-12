@@ -4,38 +4,194 @@
       "id": "052a314e-4aff-42c5-87f5-afa085efad0e",
       "providerPlaceId": "visit-seoul:1537",
       "sourceUrl": "https://english.visitseoul.net/attractions/Seoul%20Museum%20of%20Art%20%28Seosomun%20Main%20Building%29_/1537",
-      "name": {
-        "en": "Seoul Museum of Art (Seosomun Main Building)"
-      },
-      "description": {
-        "en": "An art museum at 61 Deoksugung-gil in central Seoul. The photo shows the Seosomun main building in 2011; exhibition banners are historical."
-      },
+      "name": {"en": "Seoul Museum of Art (Seosomun Main Building)"},
+      "description": {"en": "An art museum at 61 Deoksugung-gil in central Seoul. The photo shows the Seosomun main building in 2011; exhibition banners are historical."},
       "category": "culture",
       "address": "04515 61, Deoksugung-gil, Jung-gu, Seoul",
       "latitude": 37.564245062699776,
       "longitude": 126.97609950366385,
-      "photos": [
-        "/pilot/052a314e-4aff-42c5-87f5-afa085efad0e.jpg"
-      ],
-      "photoCredits": [
-        {
-          "url": "/pilot/052a314e-4aff-42c5-87f5-afa085efad0e.jpg",
-          "author": "Gapo",
-          "license": "CC BY-SA 3.0",
-          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Seoul_Museum_of_Art-1.jpg"
-        }
-      ],
-      "sourceUrls": [
-        "https://english.visitseoul.net/attractions/Seoul%20Museum%20of%20Art%20%28Seosomun%20Main%20Building%29_/1537"
-      ],
+      "photos": ["/pilot/052a314e-4aff-42c5-87f5-afa085efad0e.jpg"],
+      "photoCredits": [{
+        "url": "/pilot/052a314e-4aff-42c5-87f5-afa085efad0e.jpg",
+        "author": "Gapo",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Seoul_Museum_of_Art-1.jpg"
+      }],
+      "sourceUrls": ["https://english.visitseoul.net/attractions/Seoul%20Museum%20of%20Art%20%28Seosomun%20Main%20Building%29_/1537"],
       "legacyMapping": {
         "status": "new_preview_only",
         "legacyId": null,
         "evidence": "Authenticated production name/address searches found no matching Seosomun museum on 2026-09-12. Do not merge other Seoul art museums."
       },
       "reviewedAt": "2026-09-12",
-      "imageSha256": "2e4e24467d447bb7c1adcd3a2f80c24d3676e27790dd45771135e0a6f1d8ab71"
+      "imageSha256": "2e4e24467d447bb7c1adcd3a2f80c24d3676e27790dd45771135e0a6f1d8ab71",
+      "actualCandidate": {
+        "recordId": "422d28a971217612bfc9311d2e71d8434447a15ff5b10a03ac624fa86f451366",
+        "payloadSha256": "537bed9a1d5530f23b6489a4076df63f9caa3c63a881560817139f8da7c57884",
+        "observedAt": "2026-09-12T02:22:53.409Z",
+        "sourceNameEn": "Seoul Museum of Art (Seosomun Main Building)"
+      }
+    },
+    {
+      "id": "c6a455dc-4b18-4e29-a36b-7430f2ba8f3b",
+      "providerPlaceId": "visit-seoul:24680",
+      "sourceUrl": "https://english.visitseoul.net/attractions/Dongdaemun-Design-Plaza-en_/24680",
+      "name": {"en": "Dongdaemun Design Plaza (DDP)"},
+      "description": {"en": "A multi-purpose design and cultural complex at 281 Euljiro. The archive photograph shows DDP from above; its capture date is unavailable. It is not entrance guidance."},
+      "category": "culture",
+      "address": "04566 281, Euljiro, Jung-gu, Seoul (Euljiro 7-ga)",
+      "latitude": 37.5668131264,
+      "longitude": 127.0096257245,
+      "photos": ["/pilot/c6a455dc-4b18-4e29-a36b-7430f2ba8f3b.jpg"],
+      "photoCredits": [{
+        "url": "/pilot/c6a455dc-4b18-4e29-a36b-7430f2ba8f3b.jpg",
+        "author": "Seoul Tourism Organization / Seoul Tourism Archive",
+        "license": "KOGL Type 1",
+        "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do",
+        "sourceUrl": "https://archive.visitseoul.net/en/contents/ARP007nc1",
+        "caption": "Dongdaemun Design Plaza from above. Archive photograph; capture date unavailable."
+      }],
+      "sourceUrls": [
+        "https://english.visitseoul.net/attractions/Dongdaemun-Design-Plaza-en_/24680",
+        "https://archive.visitseoul.net/en/contents/ARP007nc1",
+        "https://archive.visitseoul.net/en/page/copyright?_ID=200100",
+        "https://www.kogl.or.kr/info/licenseType1.do"
+      ],
+      "legacyMapping": {
+        "status": "reviewed_existing_uuid",
+        "legacyId": "c6a455dc-4b18-4e29-a36b-7430f2ba8f3b",
+        "identityReviewReference": "pilot/new-native-review-20260912/README.md#parent-identity-decision",
+        "evidence": "Parent approved DDP B, 48m from the official source pin. DDP A (ccca...; 1.249km away despite its address) remains conflict_pending_separate_quality_review. Preserve both production rows and all relationships; no merge, deletion, or remapping. This binds only the preview ID."
+      },
+      "reviewedAt": "2026-09-12",
+      "imageSha256": "7ff2a91b9e2d9210be3dd6f57c17e8fb4e9758ac4d4eb0269ef763080b6178b1",
+      "actualCandidate": {
+        "recordId": "302df41badfb17b3b943a9a31172c92c8c841dfbcccbeb13e377dcb9d1017e27",
+        "payloadSha256": "64162be08484985378dda972d5ff288f551944b3f8fd1d21e4eb233f9fad8a7f",
+        "observedAt": "2026-09-12T03:35:47.075Z",
+        "sourceNameEn": "Dongdaemun Design Plaza (DDP)"
+      }
+    },
+    {
+      "id": "8f3807c5-cc7d-49fe-9c09-ac1bc11a143c",
+      "providerPlaceId": "visit-seoul:24707",
+      "sourceUrl": "https://english.visitseoul.net/attractions/Sewoon-Shopping-Center_/24707",
+      "name": {"en": "Sewoon Shopping Center"},
+      "description": {"en": "An electronics shopping and maker complex at 159 Cheonggyecheon-ro. The archive photograph shows the signed Makercity Sewoon facade. Its capture date is unavailable; it does not establish current shops or accessibility."},
+      "category": "shopping",
+      "address": "03194 159, Cheonggyecheon-ro, Jongno-gu, Seoul",
+      "latitude": 37.5692821511,
+      "longitude": 126.9952413121,
+      "photos": ["/pilot/8f3807c5-cc7d-49fe-9c09-ac1bc11a143c.jpg"],
+      "photoCredits": [{
+        "url": "/pilot/8f3807c5-cc7d-49fe-9c09-ac1bc11a143c.jpg",
+        "author": "Seoul Tourism Organization / Seoul Tourism Archive",
+        "license": "KOGL Type 1",
+        "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do",
+        "sourceUrl": "https://archive.visitseoul.net/en/contents/ARP007ev1",
+        "caption": "The signed Sewoon Shopping Center facade. Archive photograph; capture date unavailable."
+      }],
+      "sourceUrls": [
+        "https://english.visitseoul.net/attractions/Sewoon-Shopping-Center_/24707",
+        "https://archive.visitseoul.net/en/contents/ARP007ev1",
+        "https://archive.visitseoul.net/en/page/copyright?_ID=200100",
+        "https://www.kogl.or.kr/info/licenseType1.do"
+      ],
+      "legacyMapping": {
+        "status": "new_preview_only",
+        "legacyId": null,
+        "evidence": "Parent approved a fixed preview-only UUID. Production identity remains unresolved; exact-name queries do not prove absence. Do not merge neighboring Cheonggye or Daerim blocks."
+      },
+      "reviewedAt": "2026-09-12",
+      "imageSha256": "d4ef7a67b4ee58d382c03832316021b0de964287a1c495b192108cfe850bff34",
+      "actualCandidate": {
+        "recordId": "87a16aa947740c3a6dced8beb55e36cff732807e7dcefadbf228be4c25455e88",
+        "payloadSha256": "a29b67c1606c67d6f42d8eef0110a2627b7fda9a93b3b5dab143e8019842ff18",
+        "observedAt": "2026-09-12T03:33:45.207Z",
+        "sourceNameEn": "Sewoon Shopping Center"
+      }
+    },
+    {
+      "id": "7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67",
+      "providerPlaceId": "visit-seoul:287",
+      "sourceUrl": "https://english.visitseoul.net/Tourist-Attractions-list1/Gwangjang-Market/ENP000286",
+      "name": {"en": "Gwangjang Market"},
+      "description": {"en": "A traditional market with food stalls, hanbok, and clothing at 88 Changgyeonggung-ro. Bgag photographed this market interior on September 26, 2022. Stalls, signs, crowds, and visible prices are historical, not current business information."},
+      "category": "market",
+      "address": "03195 88 Changgyeonggung-ro, Jongno-gu, Seoul",
+      "latitude": 37.57005709848657,
+      "longitude": 126.9989495461201,
+      "photos": ["/pilot/7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67.jpg"],
+      "photoCredits": [{
+        "url": "/pilot/7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67.jpg",
+        "author": "Bgag",
+        "license": "CC0 1.0 Universal",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gwangjang_Market,_Seoul_02.jpg",
+        "takenAt": "2022-09-26",
+        "caption": "Gwangjang Market interior, photographed by Bgag on 2022-09-26. Historical stalls, signs, and prices."
+      }],
+      "sourceUrls": [
+        "https://english.visitseoul.net/Tourist-Attractions-list1/Gwangjang-Market/ENP000286",
+        "https://commons.wikimedia.org/wiki/File:Gwangjang_Market,_Seoul_02.jpg",
+        "https://creativecommons.org/publicdomain/zero/1.0/deed.en"
+      ],
+      "legacyMapping": {
+        "status": "reviewed_existing_uuid",
+        "legacyId": "7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67",
+        "identityReviewReference": "pilot/new-native-review-20260912/README.md#parent-identity-decision",
+        "evidence": "Parent verified the whole-market name, exact address, and 33m pin separation. Preview category market is approved. Preserve production category Food and all production fields and relationships. Not an individual market business."
+      },
+      "reviewedAt": "2026-09-12",
+      "imageSha256": "3954787c0f1877a8eda6d4e6a93e4667aba45cb98a37d33764c248331a08df94",
+      "actualCandidate": {
+        "recordId": "9f658001e60ac890cf98c11c5b51e803e380d574abc2c04f0a7fa64e595fb593",
+        "payloadSha256": "e4bc5c4e1e67741d61689f7cfc5821055dd54ed0282841099732c2b7990c4da2",
+        "observedAt": "2026-09-12T03:33:14.177Z",
+        "sourceNameEn": "Gwangjang Market"
+      }
+    },
+    {
+      "id": "0ec5db76-1250-482b-b780-33009930854b",
+      "providerPlaceId": "visit-seoul:549",
+      "sourceUrl": "https://english.visitseoul.net/attractions/Jongmyo_/549",
+      "name": {"en": "Jongmyo Shrine"},
+      "description": {"en": "A royal ancestral shrine with Jeongjeon and Yeongnyeongjeon halls at 157 Jong-ro. The photograph shows Jeongjeon in August 2013, before later restoration. It does not establish current surfaces, opening conditions, or access."},
+      "category": "culture",
+      "address": "03135 157, Jong-ro, Jongno-gu, Seoul",
+      "latitude": 37.573382,
+      "longitude": 126.99303,
+      "photos": ["/pilot/0ec5db76-1250-482b-b780-33009930854b.jpg"],
+      "photoCredits": [{
+        "url": "/pilot/0ec5db76-1250-482b-b780-33009930854b.jpg",
+        "author": "\ubb38\ud654\uc7ac\uccad / Cultural Heritage Administration",
+        "license": "KOGL Type 1",
+        "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jeongjeon,_Jongmyo_(Summer,_2013).jpg",
+        "takenAt": "2013-08-13",
+        "caption": "Jeongjeon at Jongmyo Shrine on 2013-08-13, before later restoration. Historical view, not current access advice."
+      }],
+      "sourceUrls": [
+        "https://english.visitseoul.net/attractions/Jongmyo_/549",
+        "https://royal.khs.go.kr/ENG/contents/E105010000.do",
+        "https://commons.wikimedia.org/wiki/File:Jeongjeon,_Jongmyo_(Summer,_2013).jpg",
+        "https://www.heritage.go.kr/heri/cul/imgHeritage.do?ccimId=6405753&ccbaKdcd=11&ccbaAsno=02270000&ccbaCtcd=11",
+        "https://www.kogl.or.kr/info/licenseType1.do"
+      ],
+      "legacyMapping": {
+        "status": "new_preview_only",
+        "legacyId": null,
+        "evidence": "Parent approved a fixed preview-only UUID. Production identity remains unresolved; exact-name queries do not prove absence. Do not merge Jongmyo Square Park or nearby palaces."
+      },
+      "reviewedAt": "2026-09-12",
+      "imageSha256": "b568f3917e1fe0963ecdcb1be4e13781805f2918c321fab9481e52289f456e68",
+      "actualCandidate": {
+        "recordId": "559f0d2b4029f1c4023f261bac060d7f00cf5ddfc4711f6a9f61d9c02c826de3",
+        "payloadSha256": "44c8fbf3d5190021c8a006b35f7cbfbd6381e517974f54acff7f30be3bf59b19",
+        "observedAt": "2026-09-12T03:30:42.795Z",
+        "sourceNameEn": "Jongmyo Shrine"
+      }
     }
   ]
 }

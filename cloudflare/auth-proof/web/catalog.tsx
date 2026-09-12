@@ -75,7 +75,20 @@ export function CatalogMap({ spots, selected, onSelect }: { spots: Spot[]; selec
       button.textContent = "View place in list";
       button.addEventListener("click", () => selectRef.current(spot.id));
       content.append(title, note, button);
-      const marker = L.circleMarker(point, { radius: 12, color: "#6d28d9", weight: 3, fillColor: "#ffffff", fillOpacity: 1 }).addTo(map).bindPopup(content);
+      const marker = L.circleMarker(point, { radius: 12, color: "#6d28d9", weight: 3, fillColor: "#ffffff", fillOpacity: 1 }).addTo(map).bindPopup(content, {
+        maxWidth: 236, autoPan: false,
+      });
+      marker.on("popupopen", () => {
+        const popup = marker.getPopup()?.getElement();
+        if (!popup) return;
+        const box = popup.getBoundingClientRect();
+        const frame = map.getContainer().getBoundingClientRect();
+        // Leaflet auto-pan always animates. Place the measured popup without motion,
+        // reserving the existing top-left zoom controls and the map's edge padding.
+        const dx = Math.min(Math.max(0, box.right - frame.right + 12), box.left - frame.left - 56);
+        const dy = Math.min(Math.max(0, box.bottom - frame.bottom + 12), box.top - frame.top - 72);
+        if (dx || dy) map.panBy([dx, dy], { animate: false });
+      });
       marker.on("click", () => selectRef.current(spot.id));
       markers.current.set(spot.id, marker);
     }

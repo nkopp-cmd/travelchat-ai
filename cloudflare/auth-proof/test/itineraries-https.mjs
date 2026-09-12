@@ -5,6 +5,18 @@ import { isEditableItineraryPlan } from "./plan-contract.mjs";
 export async function itineraryHTTPSChecks({ db, page, call }) {
   const session = (await call("/api/session")).data;
   assert.equal(session.state, "ready");
+  const sourceSpot = randomUUID();
+  const policy = "https://archive.visitseoul.net/en/page/copyright?_ID=200100";
+  const heritage = "https://www.heritage.go.kr/heri/cul/imgHeritage.do?ccimId=6405753&ccbaKdcd=11&ccbaAsno=02270000&ccbaCtcd=11";
+  const sources = [policy, heritage, "https://example.test/?token=private", `${policy}&token=private`,
+    `${policy}&_ID=200100`, heritage.replace("6405753", "not-a-number"), `${heritage}&ccimId=6405753`];
+  await db.prepare("INSERT INTO spots(id,name,description,category,localley_score,photos,visible,source_urls) VALUES (?, ?, ?, 'culture', NULL, '[]', 1, ?)")
+    .bind(sourceSpot, JSON.stringify({ en: "Synthetic source validation" }), JSON.stringify({ en: "Fixture only" }), JSON.stringify(sources)).run();
+  try {
+    const result = await call("/api/spots?limit=100");
+    assert.equal(result.status, 200);
+    assert.deepEqual(result.data.spots.find((spot) => spot.id === sourceSpot).sourceUrls, [policy, heritage]);
+  } finally { await db.prepare("DELETE FROM spots WHERE id = ?").bind(sourceSpot).run(); }
   for (const stops of [42, 56]) {
     const id = randomUUID();
     const days = [{ day: 1, activities: Array.from({ length: stops }, () => ({ name: "\uc11c\uc6b8", title: "Unknown title", notes: "\ud55c\uad6d\uc5b4 ".repeat(100), spotId: randomUUID() })) }];

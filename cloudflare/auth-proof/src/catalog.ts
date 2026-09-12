@@ -11,8 +11,16 @@ function safeUrl(value: unknown): string | null {
   if (/^\/pilot\/[a-z0-9-]+\.(jpg|png)$/.test(value)) return value;
   try {
     const url = new URL(value);
-    // Public provenance never needs credentials or query parameters.
-    return url.protocol === "https:" && !url.username && !url.password && !url.search && !url.hash ? url.href : null;
+    if (url.protocol !== "https:" || url.username || url.password || url.hash) return null;
+    if (!url.search) return url.href;
+    // These public identifiers are required by the reviewed source and reuse-policy pages.
+    if (url.hostname === "archive.visitseoul.net" && url.pathname === "/en/page/copyright"
+      && url.search === "?_ID=200100") return url.href;
+    const heritageKeys = ["ccimId", "ccbaKdcd", "ccbaAsno", "ccbaCtcd"];
+    if (url.hostname === "www.heritage.go.kr" && url.pathname === "/heri/cul/imgHeritage.do"
+      && [...url.searchParams.keys()].length === heritageKeys.length
+      && heritageKeys.every((key) => url.searchParams.getAll(key).length === 1 && /^\d{1,12}$/.test(url.searchParams.get(key)!))) return url.href;
+    return null;
   } catch { return null; }
 }
 

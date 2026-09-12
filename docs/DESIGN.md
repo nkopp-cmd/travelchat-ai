@@ -2,6 +2,12 @@
 
 ## Scope
 
+The native-source expansion reuses the existing preview cards, photo credits, and map for four additional reviewed venues.
+Archive and historical photographs remain explicitly dated or marked date-unavailable. No market image stands in for an unverified stall.
+Map popup placement now uses non-animated public Leaflet methods and measured padding to avoid the mobile zoom controls.
+Fixture review covered eight places and fifteen native map selections at 390, 900, and 1440 pixels.
+Public license notices and source-policy links are part of the acceptance checks, not optional decoration.
+
 Discovery remains an addition to the existing Localley application, not a separate replacement site.
 The integrated flow connects a spot page to owned trip selection and the existing editor.
 It uses current buttons, cards, typography, and city data without a new UI library.
