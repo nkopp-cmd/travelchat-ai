@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Localley native venue evidence hourly
+
+[Timer]
+OnActiveSec=10s
+OnCalendar=hourly
+RandomizedDelaySec=30
+Persistent=true
+
+[Install]
+WantedBy=timers.target
