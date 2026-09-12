@@ -81,6 +81,10 @@ Prior exact-site and license reviews for the other three venues remain retained 
 No license request was sent, no photo was purchased, and no new paid fallback was used.
 None of these six candidates is approved by this park review.
 
+A subsequent bounded check of PHOTO KOREA returned no items for twelve exact venue-name queries; a positive control returned 35.
+The registration/purpose requirements, actual search-response evidence, and an unsent rights-clearance request are in `../native-image-permissions.md`.
+No additional photo was approved, and no permission request was sent through the auth-only email binding.
+
 ## Release And Verification Plan
 
 Deploy the exact reviewed JPEG and its attribution before changing the existing park row.
