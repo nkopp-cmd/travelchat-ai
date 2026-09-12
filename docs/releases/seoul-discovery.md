@@ -1,5 +1,18 @@
 # Seoul Discovery Release
 
+## Native Provider Update — 2026-09-12
+
+The latest protected-preview source is PR https://github.com/nkopp-cmd/travelchat-ai/pull/127, merge `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
+Worker version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` serves that tag at 100%.
+Four reviewed native venues were added without changing the original four rows; eight places are visible.
+The preview holds thirteen candidates, seven exact source matches, six unmatched candidates, and no foreign-key violations.
+All image, notice, source, map, and live browser checks passed. The working hourly transfer timer remains unchanged.
+Scrapelet PR4 is live on its designated server, with both browser-worker PIDs preserved and zero paid budgets unchanged.
+Full evidence, backup hashes, conditional rollback, and exact remaining provider-replacement gates are in `../native-scrapelet.md`.
+Production Supabase installation remains blocked by missing SQL access. Six image-rights gaps and current-week social acceptance remain open.
+Paid Apify schedules and the existing Vercel production application were not replaced.
+The earlier collection/editor checkpoint below remains historical evidence, not the latest preview version.
+
 ## Current Delivery Status
 
 Verified on 2026-09-11. This section supersedes the historical Vercel release identities below.

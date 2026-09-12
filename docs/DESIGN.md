@@ -7,6 +7,9 @@ Archive and historical photographs remain explicitly dated or marked date-unavai
 Map popup placement now uses non-animated public Leaflet methods and measured padding to avoid the mobile zoom controls.
 Fixture review covered eight places and fifteen native map selections at 390, 900, and 1440 pixels.
 Public license notices and source-policy links are part of the acceptance checks, not optional decoration.
+The expansion is now live in protected preview: eight cards and map pins, seven reviewed images, and explicit historical/photo-rights context.
+All fifteen native map selections passed at three widths with real tiles and no overlapping popup controls.
+The six unsupported image/branch cases remain unpublished rather than receiving substitute city or market imagery.
 
 Discovery remains an addition to the existing Localley application, not a separate replacement site.
 The integrated flow connects a spot page to owned trip selection and the existing editor.

@@ -1,5 +1,33 @@
 # Native Scrapelet → Localley
 
+## Current Delivered Scope — 2026-09-12
+
+Localley PR https://github.com/nkopp-cmd/travelchat-ai/pull/127 merged as `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
+Protected preview version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` serves that tag at 100%.
+Cloudflare deployment ID: `a455a2cb-07ac-4216-9c1c-68918c286a64`.
+
+Four reviewed records were inserted: DDP, Sewoon Shopping Center, Gwangjang Market, and Jongmyo Shrine.
+The actual INSERT returned four IDs; a repeated application returned zero insertions and zero mapping changes.
+Preview now has eight visible places, thirteen candidates, seven exact matches, and six unmatched candidates.
+All four original public rows, accounts, saves, itineraries, and unrelated tables remained unchanged. Foreign-key checks passed.
+All seven JPEGs, public license notices, and all eighteen build files matched live bytes.
+Live verification passed at 390, 900, and 1440 pixels, including fifteen native map selections and opened screenshots.
+Credits, archive policies, exact addresses, uncropped photos, historical caveats, and map-control clearance passed.
+
+The unique private backup and exact hide-only rollback remain under `.preview-private/pr127-activation-REK9Ws/database-VXDR3n/` in the proof package.
+Backup SHA-256: `f6c2f73137056a385152eab923ba70df20bc4e8cb27dc302a1649d2f467100f4`.
+Public asset snapshot SHA-256: `78f9f8c56f00e9c18bd31fe1201c1ac93c72e41f588542811e007999b6c6f63e`.
+Rollback conditionally hides only the four new reviewed rows. Preserve their UUIDs, relationships, mappings, and assets.
+Previous code version is `741d8fd5-b254-447d-9347-5d5869143219`. Code rollback alone is insufficient when rows reference new assets.
+
+The production Supabase adapter is implemented, generated as a migration, and tested on real PostGIS. It is not installed in production.
+Missing SQL/Management credentials prevent live catalog validation, backup, installation, and activation. Service-role REST access cannot replace these gates.
+That adapter currently implements private ingestion and reviewed identity bindings only. Production public publication and attribution-renderer acceptance remain separate work.
+Six venues still lack suitable image rights; one also has unresolved branch evidence. They remain private.
+The native social reader accepts the deployed feed but returns zero accepted posts and ranks. Public rankings and paid schedules remain unchanged.
+This provider-replacement work does not complete the broader Cloudflare application migration.
+The historical foundation and operating contracts follow below.
+
 The native collector runs on the designated Scrapelet host. Localley imports source evidence without calling Apify, Google Places, or an AI provider.
 The current target is the existing protected Cloudflare preview. Production Supabase and its public feed remain separate acceptance work.
 
@@ -122,3 +150,18 @@ The Localley native-social diagnostic now reads the deployed additive feed succe
 Its live result is zero social observations, zero accepted posts, and zero ranks; public rankings remain unchanged.
 Bounded source probes found YouTube challenges, a missing official RSS feed, Bluesky denial, and stale or unrelated Mastodon results.
 No paid Apify schedule has been replaced. Provider replacement and the broad Cloudflare application migration remain separate acceptance scopes.
+
+## Final Verification
+
+- Localley root suite: 2,161 passed, five opt-in checks skipped.
+- Native package: 200 checks plus environment isolation passed; both HTTPS browser suites passed.
+- Root production build, TypeScript, and scoped lint passed.
+- Production adapter: 33 final unit/PostGIS checks passed without skips using the pinned Docker image.
+- Social intake: 135 native/weekly/quality checks passed, including latest-unknown metric handling.
+- Scrapelet: 234 tests, typecheck, lint, webpack build, reviewed merge, deployment, and live source parity passed.
+- Independent reviews closed deterministic timestamp, UUID case, stale metrics, private evidence, and publication guard findings.
+- The existing hourly timer remained enabled and active, with last service result `success` and exit status 0.
+
+The first full-Chromium regression run hit a Unix socket path limit in its long private test directory.
+The existing shared headless-shell binary resolved the tooling issue; no assertion was skipped and no browser was installed.
+The map review found initial auto-pan interference. Non-animated measured placement resolved it at all tested widths.
