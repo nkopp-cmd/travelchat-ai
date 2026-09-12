@@ -2,6 +2,14 @@
 
 ## Scope
 
+The park photo improvement reuses the existing image, attribution, and map components without changing the layout.
+The selected 2018 photograph shows the actual park landscape. It must remain uncropped and explicitly historical in the card description.
+It replaces only the existing park's missing-image state, not any unresolved business image.
+Source and copyright evidence are recorded in `releases/park-photo.md` and the pilot license notice.
+The source JPEG was opened before approval. Local and hosted card/map screenshots remain required before this increment is delivered.
+The local real-catalog rehearsal passed across 390/900/1440 pixels. The park becomes the hero under the existing first-photo rule.
+The wide park landscape and mobile map were opened in `test-results/native-catalog/run-O5QwXL/`; no unrelated venue image is substituted.
+
 The native account timeout state reuses the existing error surface and explicit retry control; no new layout or component was added.
 The current identity stays hidden after a failed mapping check. Public catalog browsing remains available without assuming private access.
 Local mobile and desktop timeout screenshots were opened in `test-results/cloudflare-frontend/run-kHpMFL/`.

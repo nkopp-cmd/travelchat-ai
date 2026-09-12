@@ -347,7 +347,7 @@ test('all staged assets match manifest, JPEG magic, and independently recorded s
     '3954787c0f1877a8eda6d4e6a93e4667aba45cb98a37d33764c248331a08df94',
     'b568f3917e1fe0963ecdcb1be4e13781805f2918c321fab9481e52289f456e68',
   ];
-  assert.equal(manifest.files.length,7);
+  assert.equal(manifest.files.length,8);
   for (const asset of manifest.files) {
     const bytes=readFileSync(new URL(`../pilot/images/${asset.file}`,import.meta.url));
     assert.equal(bytes.subarray(0,3).toString('hex'),'ffd8ff');

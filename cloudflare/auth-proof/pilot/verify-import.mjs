@@ -56,7 +56,13 @@ try {
   const migrations = (await readdir(new URL("migrations/", root))).filter(file => /^\d+.*\.sql$/.test(file)).sort();
   assert.ok(migrations.includes("0004_pilot_catalog.sql"));
   const migrate = async db => {
-    for (const file of migrations) await db.exec(await readFile(new URL(`migrations/${file}`, root), "utf8"));
+    for (const file of migrations) {
+      // Use the checked-in schema statement boundaries; D1 prepare accepts multiline DDL unlike exec.
+      const sql = await readFile(new URL(`migrations/${file}`, root), "utf8");
+      for (const statement of sql.replace(/^--.*$/gm, "").split(/;\s*(?:\n|$)/).filter(value => value.trim())) {
+        await db.prepare(statement).run();
+      }
+    }
   };
   mf = new Miniflare(options);
   const db = await mf.getD1Database("DB");
@@ -98,7 +104,8 @@ try {
       assert.ok(bytes.length < 10000000 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255);
       assert.equal(spot.photoCredits.filter(c => c.url === url).length, 1);
       const hash = createHash("sha256").update(bytes).digest("hex");
-      const evidence = research.downloads.find(item => item.included && item.outputSha256 === hash);
+      const evidence = [...research.downloads, ...research.followups.flatMap(review => review.downloads)]
+        .find(item => item.included && item.outputSha256 === hash);
       assert.ok(evidence, "Image bytes must retain their reviewed hash");
       assert.equal(bytes.length, evidence.outputBytes);
       assert.ok(!hashes.has(hash));
@@ -106,7 +113,7 @@ try {
       console.log(`${spot.id}: ${bytes.length} bytes; SHA-256 ${hash}`);
     }
   }
-  assert.equal(hashes.size, 2);
+  assert.equal(hashes.size, 3);
   assert.equal((await db.prepare("SELECT count(*) AS n FROM spots WHERE localley_score IS NULL").first()).n, 3);
   for (const [field, value] of [["latitude", 91], ["longitude", -181]]) {
     await assert.rejects(db.prepare(`UPDATE spots SET ${field} = ?`).bind(value).run(), /CHECK|constraint/i);
@@ -123,7 +130,7 @@ try {
   assert.equal((await fresh.prepare("SELECT count(*) AS n FROM spots").first()).n, 0);
   assert.equal(outbound, 0);
   console.log(`Native workerd/D1: migrations=${migrations.join(",")}; before=0, imported=3, fresh after teardown=0; no SQL rollback claimed.`);
-  console.log("Canonical IDs=2; pending pilot ID=1; unique IDs=3; photos=2 distinct with unchanged hashes; missing=1; scores=NULL; outbound requests=0.");
+  console.log("Canonical IDs=2; pending pilot ID=1; unique IDs=3; photos=3 distinct with reviewed hashes; missing=0; scores=NULL; outbound requests=0.");
 } finally {
   try { await mf?.dispose(); }
   finally { await rm(state, { recursive: true, force: true }); }

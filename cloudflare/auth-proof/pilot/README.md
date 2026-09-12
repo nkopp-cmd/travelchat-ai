@@ -57,7 +57,7 @@ Hours and cost remain unknown. All scores remain NULL.
 
 - Palace: accepted. Gwanghwamun and the palace grounds appear together. This is a daytime overview, not night-opening evidence.
 - Stream: accepted with limits. The stream and lower walkway are visible. The older portrait photo has bright highlights.
-- Park: rejected. The downloaded view mainly shows Seodaemun Prison History Hall, not the general park.
+- Park: the original prison-dominated candidate remains rejected. A separate 2018 park landscape was reviewed on 2026-09-12; see `licenses.md` and `research.json` followups.
 - `Cheonggyecheon evening 2.jpg`: rejected before download due to the `NoFoP-South Korea` category.
 - `Cheonggyecheon Stream in sunset.jpg`: rejected before download because its original exceeds 10 MB.
 

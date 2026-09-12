@@ -7,7 +7,7 @@
     {
       "id": "0041a575-c6fd-4a7e-b9c3-56cc50e201d6",
       "name": {"en": "Seodaemun Independence Park"},
-      "description": {"en": "This historic park contains Independence Gate and memorials to Korean independence activists. Seodaemun Prison History Hall explains the site's colonial history."},
+      "description": {"en": "This historic park contains Independence Gate and memorials to Korean independence activists. Seodaemun Prison History Hall explains the site's colonial history. The historical photograph shows park pathways and memorials on June 16, 2018, not current conditions or an entrance."},
       "category": "park",
       "city": "Seoul",
       "address": "251, Tongil-ro, Seodaemun-gu, Seoul",
@@ -16,9 +16,9 @@
       "localley_score": null,
       "hours": null,
       "cost": null,
-      "photos": [],
-      "photoCredits": [],
-      "photoStatus": "missing: reviewed candidate mainly depicts the prison, not the park",
+      "photos": ["/pilot/0041a575-c6fd-4a7e-b9c3-56cc50e201d6.jpg"],
+      "photoCredits": [{"url": "/pilot/0041a575-c6fd-4a7e-b9c3-56cc50e201d6.jpg", "author": "\uc720\uc790\ucc28", "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/", "sourceUrl": "https://commons.wikimedia.org/wiki/File:%EC%84%9C%EB%8C%80%EB%AC%B8%EB%8F%85%EB%A6%BD%EA%B3%B5%EC%9B%90%EC%9D%98_%EB%AA%A8%EC%8A%B5.jpg", "takenAt": "2018-06-16"}],
+      "photoStatus": "reviewed: historical park landscape, original Commons JPEG, no local changes",
       "sourceUrls": ["https://english.visitseoul.net/attractions/Seodaemun-Independence-Park/ENP001753", "https://www.wikidata.org/wiki/Q623629"],
       "legacyMapping": {"status": "confirmed", "legacyId": "0041a575-c6fd-4a7e-b9c3-56cc50e201d6", "existingName": "Seodaemun Independence Park", "source": "Parent-reported authenticated read-only SELECT id/name", "verifiedAt": "2026-09-11"}
     },

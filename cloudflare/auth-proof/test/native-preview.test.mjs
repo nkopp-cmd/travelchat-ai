@@ -8,10 +8,10 @@ const expected = await loadPreviewExpectations();
 const payload = () => ({spots:expected.spots.map(spot => ({...structuredClone(spot),city:'Seoul',localley_score:null,
   photoCredits:spot.photoCredits.map(({url,author,license,licenseUrl,sourceUrl}) => ({url,author,license,licenseUrl,sourceUrl}))})),nextOffset:null});
 
-test('preview acceptance derives eight unique places and seven images from current manifests',()=>{
+test('preview acceptance derives eight unique places and eight images from current manifests',()=>{
   assert.equal(expected.spots.length,8);
   assert.equal(expected.native.length,5);
-  assert.equal(expected.assets.length,7);
+  assert.equal(expected.assets.length,8);
   assertPreviewCatalog(payload(),expected);
 });
 
@@ -54,9 +54,9 @@ test('assets-only verifies exact JPEG bytes and deployed public notices without 
     return new Response(await readFile(new URL(path==='/pilot/licenses.txt'?'pilot/licenses.md':path.replace('/pilot/','pilot/images/'),root)),
       {headers:{'content-type':path.endsWith('.jpg')?'image/jpeg':'text/plain'}});
   });
-  assert.equal(assets.assets.length,7);
+  assert.equal(assets.assets.length,8);
   assert.equal(assets.publicNotices,'exact_match');
-  assert.equal(paths.length,8);
+  assert.equal(paths.length,9);
   assert.ok(paths.every(path=>path.startsWith('/pilot/')));
 });
 
