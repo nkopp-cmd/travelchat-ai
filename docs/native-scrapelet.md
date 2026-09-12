@@ -2,9 +2,9 @@
 
 ## Current Delivered Scope — 2026-09-12
 
-The active preview now includes native email preferences from merge `b2cabd6c75a7e1b055c7537a3553ab2a4c95fc26`.
-Worker version `5bf95956-8bba-4158-9c8a-c2e8a81f6b51` supersedes the PR127 Worker while preserving all eight public records.
-See `releases/native-email-preferences.md` for the deployment, checked migration, backup, and live evidence.
+The active preview now includes native account safeguards from merge `18f43472126bc5260ed51db3ae76ec4a02de4733`.
+Worker version `b4b364de-1721-402b-8fd3-4b342267baef` supersedes earlier application checkpoints while preserving all eight public records.
+See `releases/native-account-boundaries.md` for the deployment, backup, and independent preview evidence.
 Native ingestion and the working hourly timer were not changed or repeated during this release.
 
 ### Production Continuation Source Check

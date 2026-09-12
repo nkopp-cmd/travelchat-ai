@@ -1,5 +1,21 @@
 # Seoul Discovery Release
 
+## Native Account Release - 2026-09-12
+
+PRs [132](https://github.com/nkopp-cmd/travelchat-ai/pull/132) and [133](https://github.com/nkopp-cmd/travelchat-ai/pull/133) delivered bounded native auth and ownership safeguards.
+Final deployed merge: `18f43472126bc5260ed51db3ae76ec4a02de4733`; exact merge verify run `34707616147.1` passed.
+Active preview Worker version: `b4b364de-1721-402b-8fd3-4b342267baef`, serving 100% at `https://preview.localley.io`.
+Cloudflare deployment ID: `c5ef3681-60de-4fcb-9e86-3a79371fbdbc`.
+No schema migration ran. All eight public records and the checked private tables stayed unchanged; the hourly transfer remains active.
+The native checks cover session preconditions, expiry/revocation races, stable legacy ownership, consent, and local password recovery.
+Live asset, catalog, map, and private-denial checks passed. The generic-denial email notice was corrected after screenshot review.
+Gravity accepted both the native coding evidence and the registered restricted-preview release evidence.
+See `native-account-boundaries.md` for exact commits, checks, backup, rollback, and retained private receipts.
+Production SQL credentials remain unavailable. The production website returns HTTP 200, but its metadata API currently returns 403.
+The preserved production identity remains the last verified `e96b003` / `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`, not a fresh provider verification.
+Hosted human recovery/email, customer import, remaining native routes, and full production cutover remain open.
+Older Worker identities below are historical checkpoints.
+
 ## Social Evidence Integrity - 2026-09-12
 
 PR [131](https://github.com/nkopp-cmd/travelchat-ai/pull/131) delivered strict UTF-8 handling and retained new source-review decisions.

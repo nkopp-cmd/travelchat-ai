@@ -7,6 +7,9 @@ The current identity stays hidden after a failed mapping check. Public catalog b
 Local mobile and desktop timeout screenshots were opened in `test-results/cloudflare-frontend/run-kHpMFL/`.
 The real browser checks retain visible focus, reduced motion, measured contrast, and no overflow in the affected state.
 Browser evidence now uses unique run directories rather than overwriting prior release screenshots.
+Hosted review found that a generic 403 was incorrectly shown as unverified email. The corrected consumer distinguishes those states.
+Final read-only account screenshots were opened at 390/900/1440 pixels under `.preview-private/account-release-RRVkBe/browser/`.
+Private identity stays hidden, and the panel makes no unsupported verification claim. Hosted human recovery remains unverified.
 
 The native email preference panel reuses the existing settings component, Radix Switch, buttons, labels, icons, and root tokens.
 It follows the existing restrained settings layout, rather than introducing a separate account dashboard.

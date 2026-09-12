@@ -2,6 +2,9 @@
 
 ## Current Live Check
 
+The application Worker subsequently advanced through the native account release in `releases/native-account-boundaries.md`.
+The host-reader check below retains its original time and Worker identity; it is not the current application deployment identity.
+
 ### Delivered Integrity Check
 
 PR https://github.com/nkopp-cmd/travelchat-ai/pull/131 merged into `cloudflare/full-migration` as `4293c5d2c8af90414cb1a915a3301098d81cce34`.
