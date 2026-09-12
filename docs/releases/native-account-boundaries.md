@@ -1,5 +1,20 @@
 # Native Account Boundaries
 
+## Independent Account Recovery
+
+After the image-rights question was rejected and cleared, the original session continued with independently eligible account work.
+`usable-native-discovery` remains deferred on six image grants. No outreach, image reuse, or new source search is authorized by this recovery.
+
+New regression tests reproduced a stalled shared-provider observer refresh, malformed verification flags labeled as unverified, and stale recovery feedback reaching a newer account check.
+The shared provider now bounds the observer wait using the existing client deadline and rejects non-boolean verification flags.
+The native shell tags recovery feedback with its context generation. A superseded recovery cannot write feedback into a newer account.
+The duplicate private-context reset before recovery was removed; no automatic network retry was added.
+Current, non-superseded recovery still asks the user to review the recovered account.
+Fifty focused account tests and root TypeScript passed. Six new cases failed against the prior code before the fix; the positive recovery case also passes.
+No database, deployment, schema, or schedule change is implied by this local check. Exact delivery evidence follows after release verification.
+The native package also passed all 229 checks, types, lint and bundle validation. All three HTTPS browser suites passed.
+Current local account evidence is retained in `test-results/cloudflare-frontend/run-TSC4x7/`; the reviewed real-catalog journey is in `test-results/native-catalog/run-sS8EZT/`.
+
 ## Delivered Preview - 2026-09-12
 
 - Repository: `nkopp-cmd/travelchat-ai`; release branch: `cloudflare/full-migration`.

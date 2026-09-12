@@ -93,3 +93,35 @@ it("a private-operation 403 clears identity without claiming email verification 
   expect(consumer.getSnapshot()).toMatchObject({ phase: "error", error: "Account access could not be confirmed. Check your session before continuing." });
   expect(consumer.getSnapshot().session).toBeUndefined();
 });
+
+it("superseded session recovery cannot attach its warning to a newer account check", async () => {
+  let finishOld!: (response: Response) => void;
+  const fetch = vi.fn().mockResolvedValueOnce(Response.json(identity("a")))
+    .mockResolvedValueOnce(Response.json(mapping("a")))
+    .mockResolvedValueOnce(Response.json({ error: { code: "session_changed", message: "Changed" } }, { status: 409 }))
+    .mockImplementationOnce(() => new Promise<Response>(resolve => { finishOld = resolve; }))
+    .mockResolvedValueOnce(Response.json(identity("b"))).mockResolvedValueOnce(Response.json(mapping("b")));
+  vi.stubGlobal("fetch", fetch);
+  const consumer = await import("../../cloudflare/auth-proof/web/session"); await consumer.refreshContext();
+  const old = consumer.mutate("/api/account/new", "POST");
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(4));
+  const messages: Array<string | undefined> = [];
+  const unsubscribe = consumer.subscribe(() => messages.push(consumer.getSnapshot().error));
+  try {
+    await consumer.refreshContext(); finishOld(Response.json(identity("a"))); await old;
+    expect(consumer.getSnapshot()).toMatchObject({ phase: "unlinked", session: mapping("b") });
+    expect(messages).not.toContain("Account changed. Review the current account before trying again.");
+    expect(fetch).toHaveBeenCalledTimes(6);
+  } finally { unsubscribe(); }
+});
+
+it("a current session-change recovery still asks the user to review the recovered account", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(Response.json(identity("a")))
+    .mockResolvedValueOnce(Response.json(mapping("a")))
+    .mockResolvedValueOnce(Response.json({ error: { code: "session_changed", message: "Changed" } }, { status: 409 }))
+    .mockResolvedValueOnce(Response.json(identity("b"))).mockResolvedValueOnce(Response.json(mapping("b"))));
+  const consumer = await import("../../cloudflare/auth-proof/web/session"); await consumer.refreshContext();
+  expect(await consumer.mutate("/api/account/new", "POST")).toBe(false);
+  expect(consumer.getSnapshot()).toMatchObject({ phase: "unlinked", session: mapping("b"),
+    error: "Account changed. Review the current account before trying again." });
+});

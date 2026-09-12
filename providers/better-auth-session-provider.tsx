@@ -4,7 +4,7 @@ import { createAuthClient } from "better-auth/react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { localReturnTo, type AppSessionValue } from "@/lib/auth/session-contract";
 import { AppSessionProvider } from "./app-session-provider";
-import { boundedFetch } from "@/lib/auth/bounded-fetch";
+import { boundedFetch, withClientDeadline } from "@/lib/auth/bounded-fetch";
 
 const authClient = createAuthClient({
   baseURL: typeof window === "undefined" ? "https://localley.io" : window.location.origin,
@@ -43,7 +43,7 @@ export function BetterAuthSessionProvider({ children, onSignIn }: {
     publish(empty);
     try {
       if (refetch) {
-        await refetchSession({ query: { disableCookieCache: true } });
+        await withClientDeadline(() => refetchSession({ query: { disableCookieCache: true } }), request.signal);
         if (!current()) return;
       }
       if (pending) return;
@@ -60,7 +60,7 @@ export function BetterAuthSessionProvider({ children, onSignIn }: {
         return;
       }
       const { user, session } = identity.data;
-      if (!validId(user.id) || !validId(session.id) || session.userId !== user.id
+      if (!validId(user.id) || !validId(session.id) || typeof user.emailVerified !== "boolean" || session.userId !== user.id
         || user.id !== authUserId || session.id !== sessionId) throw new Error("Session changed");
       const ids = { authUserId: user.id, sessionId: session.id };
       if (user.emailVerified !== true) {
