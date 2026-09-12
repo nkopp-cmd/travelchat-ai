@@ -98,10 +98,13 @@ export default {
       if (session.state === "unverified") return fail("forbidden", "Verify email", 403);
       // This is a stale-client guard, never an authentication credential.
       const expectedSession = request.headers.get("x-localley-session-id");
-      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || path === "/api/spots/save" || preferencesRoute;
+      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || path === "/api/spots/save" || preferencesRoute || path === "/api/session";
       // Refresh a stale account before the client interprets the new account's setup state.
       if (checksSession && expectedSession && expectedSession !== session.sessionId) {
         return appError("session_changed", "Your session changed. Refresh before trying again.", 409);
+      }
+      if (["/api/account/new", "/api/account/claim"].includes(path) && request.method === "POST" && !expectedSession) {
+        return appError("session_required", "Refresh your session before trying again.", 428);
       }
       if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
         if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
@@ -125,19 +128,30 @@ export default {
       }
       if (path === "/api/account/claim" && request.method === "POST") {
         if (Object.keys(data).length !== 1 || typeof data.token !== "string") return json({ error: "Invalid body" }, 400);
-        return await redeemClaim(env, data.token, session.authUserId) ? json({ linked: true }) : json({ error: "Claim rejected" }, 409);
+        return await redeemClaim(env, data.token, session) ? json({ linked: true }) : json({ error: "Claim rejected" }, 409);
       }
       if (path === "/api/account/new" && request.method === "POST") {
         if (Object.keys(data).length) return json({ error: "Server-owned identity" }, 400);
         if (session.state === "incomplete") return json({ error: "Incomplete identity" }, 409);
         const ownerId = crypto.randomUUID();
         const userRecordId = crypto.randomUUID();
+        // A ready-account retry may return its owner, but must not fork one after concurrent unlinking.
         const result = await env.DB.batch<{ ownerId: string; userRecordId: string | null }>([
-          env.DB.prepare("INSERT INTO owners (id, source) SELECT ?, 'new' WHERE NOT EXISTS (SELECT 1 FROM identity_links WHERE authUserId = ?)").bind(ownerId, session.authUserId),
+          env.DB.prepare(`INSERT INTO owners (id, source) SELECT ?, 'new'
+            WHERE ? = 1 AND NOT EXISTS (SELECT 1 FROM identity_links WHERE authUserId = ?)
+            AND EXISTS (SELECT 1 FROM user u JOIN session s ON s.userId = u.id
+              WHERE u.id = ? AND u.emailVerified = 1 AND s.id = ?
+              AND s.expiresAt > CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER))`)
+            .bind(ownerId, session.state === "unlinked" ? 1 : 0, session.authUserId, session.authUserId, session.sessionId),
           env.DB.prepare("INSERT INTO profiles (id, ownerId) SELECT ?, ? WHERE changes() = 1").bind(userRecordId, ownerId),
           env.DB.prepare("INSERT INTO owner_limits (ownerId, savedSpotLimit) SELECT ?, 10 WHERE changes() = 1").bind(ownerId),
           env.DB.prepare("INSERT INTO identity_links (authUserId, ownerId) SELECT ?, ? WHERE changes() = 1").bind(session.authUserId, ownerId),
-          env.DB.prepare("SELECT l.ownerId, p.id AS userRecordId FROM identity_links l LEFT JOIN profiles p ON p.ownerId = l.ownerId WHERE l.authUserId = ?").bind(session.authUserId),
+          env.DB.prepare(`SELECT l.ownerId, p.id AS userRecordId FROM identity_links l
+            LEFT JOIN profiles p ON p.ownerId = l.ownerId
+            JOIN user u ON u.id = l.authUserId JOIN session s ON s.userId = u.id
+            WHERE l.authUserId = ? AND u.emailVerified = 1 AND s.id = ?
+            AND s.expiresAt > CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER)`)
+            .bind(session.authUserId, session.sessionId),
         ]);
         const identity = result[4].results[0];
         return identity?.userRecordId ? json(identity, result[3].meta.changes === 1 ? 201 : 200) : json({ error: "Incomplete identity" }, 409);

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { randomBytes } from "node:crypto";
-import { mkdir, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { startLocalServer } from "../scripts/local-server.mjs";
 import { browserUiChecks } from "./browser-ui.mjs";
@@ -62,9 +62,11 @@ test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }
   const started = performance.now();
   const metrics = [];
   const evidence = [];
-  const results = resolve("../../test-results/cloudflare-frontend");
+  const resultsRoot = resolve("../../test-results/cloudflare-frontend");
   assert.ok((await stat(resolve("../.."))).isDirectory());
-  await mkdir(results, { recursive: true });
+  await mkdir(resultsRoot, { recursive: true });
+  const results = await mkdtemp(resolve(resultsRoot, "run-"));
+  t.diagnostic(JSON.stringify({ evidenceDirectory: results }));
   let page;
   try {
     server = await startLocalServer();

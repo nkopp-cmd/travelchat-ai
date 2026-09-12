@@ -185,6 +185,9 @@ Only the explicit D1 batches described below have the atomic guarantees tested h
 | `DELETE /api/private-notes/:id` | Delete an owner-scoped note |
 
 Private data requires a valid database session and current verified email.
+Account creation and claim POSTs require the current `x-localley-session-id`; missing or empty values return 428.
+The header is a stale-client precondition, not an authentication credential. Session GET compares it when provided.
+Identity-write batches recheck the verified user and active session before creating an owner or consuming a grant.
 Unlinked users receive 409 until they explicitly create or claim an owner.
 `identity_links` has unique constraints on both `authUserId` and `ownerId`.
 Client owner fields are rejected. Every note query derives ownership from the trusted mapping.

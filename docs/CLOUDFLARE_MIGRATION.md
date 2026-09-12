@@ -22,6 +22,11 @@ Stripe, OpenAI, and MiniMax remain external product providers, not hosting or au
 
 ## Current Checkpoint
 
+The native shell now bounds auth requests and fences mapping reads with the observed session ID.
+Account mutations require session preconditions and recheck active verification/session state within identity-write batches.
+A synthetic ownership rehearsal preserves saved places, itineraries, quota, profile UUIDs, and consent across claim and password recovery.
+See `releases/native-account-boundaries.md` for exact checks, delivery evidence, and remaining hosted/customer-import gates.
+
 Native email preferences now have a guarded D1 route and reuse the actual settings controls through the application session boundary.
 New accounts start off. Legacy preferences require explicit import; missing import data never becomes implicit consent.
 This does not activate an email sender or change live Clerk settings. See `releases/native-email-preferences.md` for delivery evidence.

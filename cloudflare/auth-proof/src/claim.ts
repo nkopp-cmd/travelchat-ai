@@ -1,7 +1,9 @@
 import { Buffer } from "node:buffer";
+import type { TrustedAppSession } from "./app-session";
 
-export async function redeemClaim(env: Env, token: string, userId: string): Promise<boolean> {
+export async function redeemClaim(env: Env, token: string, session: Pick<TrustedAppSession, "authUserId" | "sessionId">): Promise<boolean> {
   try {
+    const userId = session.authUserId;
     const parts = token.split(".");
     if (parts.length !== 2) return false;
     const [encoded, signature] = parts;
@@ -23,8 +25,11 @@ export async function redeemClaim(env: Env, token: string, userId: string): Prom
         WHERE g.tokenHash = ? AND g.authUserId = ? AND g.legacyOwnerId = ? AND g.expiresAt = ?
         AND g.nonce = ? AND g.expiresAt > CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER)
         AND g.consumedAt IS NULL AND o.source = 'legacy-fixture'
+        AND EXISTS (SELECT 1 FROM user u JOIN session s ON s.userId = u.id
+          WHERE u.id = g.authUserId AND u.emailVerified = 1 AND s.id = ?
+          AND s.expiresAt > CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER))
         AND NOT EXISTS (SELECT 1 FROM identity_links WHERE authUserId = g.authUserId OR ownerId = g.legacyOwnerId)`)
-        .bind(hash, userId, legacyOwnerId, expiresAt, nonce),
+        .bind(hash, userId, legacyOwnerId, expiresAt, nonce, session.sessionId),
       env.DB.prepare("UPDATE claim_grants SET consumedAt = CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER) WHERE tokenHash = ? AND consumedAt IS NULL AND changes() = 1")
         .bind(hash),
     ]);

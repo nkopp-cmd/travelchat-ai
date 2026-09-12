@@ -1,6 +1,8 @@
 import { createAuthClient } from "better-auth/react";
+import { boundedFetch } from "@/lib/auth/bounded-fetch";
 
-export const authClient = createAuthClient({ basePath: "/api/auth" });
+export const authClient = createAuthClient({ basePath: "/api/auth",
+  fetchOptions: { customFetchImpl: boundedFetch, credentials: "same-origin", redirect: "error", retry: 0 } });
 export type Spot = { id: string; name: string | Record<string, string>; description: string | Record<string, string>; category: string; localley_score: number | null; photos: unknown;
   city?: string | null; address?: string | Record<string, string> | null; latitude?: number | null; longitude?: number | null;
   photoCredits?: { url: string; author: string; license: string; licenseUrl: string; sourceUrl: string }[] | null;
@@ -21,7 +23,7 @@ export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) { super(message); }
 }
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(path, { ...init, credentials: "same-origin", cache: "no-store" });
+  const response = await boundedFetch(path, { ...init, cache: "no-store" });
   const body = await response.json();
   if (!response.ok) {
     const error = body.error;
@@ -41,12 +43,12 @@ export async function refreshContext() {
   const ticket = epoch;
   const signal = controller.signal;
   try {
-    const identity = await authClient.getSession({ query: { disableCookieCache: true } });
+    const identity = await authClient.getSession({ query: { disableCookieCache: true }, fetchOptions: { signal } });
     if (ticket !== epoch) return;
     if (identity.error) throw new ApiError(identity.error.status, "auth_error", "Cannot check sign-in. Please retry.");
     if (!identity.data) { publish({ phase: "signedout" }); return; }
     if (!identity.data.user.emailVerified) { publish({ phase: "unverified" }); return; }
-    const session = await api<AppSession>("/api/session", { signal });
+    const session = await api<AppSession>("/api/session", { signal, headers: { "x-localley-session-id": identity.data.session.id } });
     if (ticket !== epoch) return;
     if (session.authUserId !== identity.data.user.id || session.sessionId !== identity.data.session.id) {
       throw new ApiError(409, "session_changed", "Account changed. Check your sign-in before continuing.");

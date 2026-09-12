@@ -9,6 +9,7 @@ import { issueFixtureGrant } from "./fixture-issuer.mjs";
 import { applicationTests } from "./application.test.mjs";
 import { itineraryTests } from "./itineraries.test.mjs";
 import { emailPreferenceTests } from "./email-preferences.test.mjs";
+import { ownershipRehearsal } from "./ownership-rehearsal.mjs";
 
 await mkdir(process.env.TMPDIR, { recursive: true });
 const { getAuthTables } = await import("better-auth/db");
@@ -55,7 +56,13 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     assert.equal(response.headers.get("Cache-Control"), "no-store");
     return response;
   };
-  const post = (path, body, cookie, extra = {}) => call(path, { method: "POST", body, cookie, ...extra });
+  const post = async (path, body, cookie, extra = {}) => {
+    if (cookie && ["/api/account/new", "/api/account/claim"].includes(path)) {
+      const observed = await (await call("/api/session", { cookie })).json();
+      extra = { ...extra, headers: { ...(observed.sessionId ? { "x-localley-session-id": observed.sessionId } : {}), ...extra.headers } };
+    }
+    return call(path, { method: "POST", body, cookie, ...extra });
+  };
   let db;
   const mail = async (userId, kind) => {
     const row = await db.prepare("SELECT url, token FROM local_outbox WHERE authUserId = ? AND kind = ? ORDER BY id DESC LIMIT 1").bind(userId, kind).first();
@@ -286,6 +293,52 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     await applicationTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bob, bobCookie, claimSecret });
     await itineraryTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bobCookie });
     await emailPreferenceTests(t, { db, call, post, signup, login, mail, aliceCookie, bobCookie });
+    await ownershipRehearsal(t, { db, call, post, signup, login, mail, bobCookie, claimSecret });
+    await t.test("identity batches recheck revocation, expiry and verification after HTTP authentication", async () => {
+      await mf.setOptions({ ...options, workers: [fixtureWorker] });
+      db = await mf.getD1Database("DB");
+      try {
+        for (const path of ["/api/account/new", "/api/account/claim"]) for (const mode of ["expire", "revoke", "unverify"]) {
+          const email = `race-${mode}-${path.endsWith("new") ? "new" : "claim"}@example.test`;
+          const userId = await signup(email); await call((await mail(userId, "verify")).url);
+          const cookie = await login(email);
+          const session = await (await call("/api/session", { cookie })).json();
+          let body = {}, token;
+          if (path.endsWith("claim")) {
+            const ownerId = `synthetic-race-${mode}`;
+            await db.prepare("INSERT INTO owners VALUES (?, 'legacy-fixture')").bind(ownerId).run();
+            await db.prepare("INSERT INTO profiles VALUES (?, ?)").bind(randomUUID(), ownerId).run();
+            await db.prepare("INSERT INTO owner_limits VALUES (?, 100)").bind(ownerId).run();
+            token = await issueFixtureGrant(db, claimSecret, userId, ownerId); body = { token };
+          }
+          const before = await Promise.all(["owners", "profiles", "owner_limits", "identity_links", "claim_grants"].map(async table =>
+            (await db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results));
+          const response = await call(path, { method: "POST", body, cookie, headers: {
+            "x-localley-session-id": session.sessionId, "x-fixture-account-session": session.sessionId, "x-fixture-account-mode": mode,
+          } });
+          assert.equal(response.status, 409);
+          assert.deepEqual(await Promise.all(["owners", "profiles", "owner_limits", "identity_links", "claim_grants"].map(async table =>
+            (await db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results)), before);
+        }
+      } finally { await mf.setOptions(options); db = await mf.getD1Database("DB"); }
+    });
+    await t.test("a ready account cannot silently fork a new owner if its mapping disappears before the batch", async () => {
+      const email = "no-fork@example.test";
+      const userId = await signup(email); await call((await mail(userId, "verify")).url);
+      const cookie = await login(email); assert.equal((await post("/api/account/new", {}, cookie)).status, 201);
+      const session = await (await call("/api/session", { cookie })).json(); assert.equal(session.state, "ready");
+      const snapshot = async () => Promise.all(["owners", "profiles", "owner_limits"].map(async table =>
+        (await db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results));
+      const before = await snapshot();
+      await mf.setOptions({ ...options, workers: [fixtureWorker] }); db = await mf.getD1Database("DB");
+      try {
+        const response = await call("/api/account/new", { method: "POST", body: {}, cookie, headers: {
+          "x-localley-session-id": session.sessionId, "x-fixture-account-session": session.sessionId, "x-fixture-account-mode": "unlink",
+        } });
+        assert.equal(response.status, 409); assert.deepEqual(await snapshot(), before);
+        assert.equal((await (await call("/api/session", { cookie })).json()).state, "unlinked");
+      } finally { await mf.setOptions(options); db = await mf.getD1Database("DB"); }
+    });
     assert.equal(outboundRequests, 0, "native application APIs never forward requests");
     assert.equal(workerLogCount, 0, "application failure paths must not log private data");
     await t.test("logout invalidates old cookie and session expiry", async () => {

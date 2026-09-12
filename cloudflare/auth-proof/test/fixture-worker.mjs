@@ -6,6 +6,8 @@ export default {
   async fetch(request, env, ctx) {
     const mode = request.headers.get("x-fixture-body");
     const batchExpiry = Number(request.headers.get("x-fixture-batch-expiry"));
+    const accountSession = request.headers.get("x-fixture-account-session");
+    const accountMode = request.headers.get("x-fixture-account-mode");
     let cancelled = false;
     let chunks = 0;
     let beforeBatch;
@@ -28,13 +30,19 @@ export default {
       });
       request = new Request(request.url, { method: "POST", headers: request.headers, body });
     }
-    if (batchExpiry) {
+    if (batchExpiry || accountSession) {
       const native = env.DB;
       env = { ...env, DB: new Proxy(native, {
         get(target, property) {
           if (property === "batch") return async (statements) => {
+            if (accountSession) {
+              if (accountMode === "expire") await native.prepare("UPDATE session SET expiresAt = 0 WHERE id = ?").bind(accountSession).run();
+              if (accountMode === "revoke") await native.prepare("DELETE FROM session WHERE id = ?").bind(accountSession).run();
+              if (accountMode === "unverify") await native.prepare("UPDATE user SET emailVerified = 0 WHERE id = (SELECT userId FROM session WHERE id = ?)").bind(accountSession).run();
+              if (accountMode === "unlink") await native.prepare("DELETE FROM identity_links WHERE authUserId = (SELECT userId FROM session WHERE id = ?)").bind(accountSession).run();
+            }
             beforeBatch = (await native.prepare("SELECT CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER) AS ms").first()).ms;
-            await new Promise((resolve) => setTimeout(resolve, Math.max(0, batchExpiry - Date.now() + 200)));
+            if (batchExpiry) await new Promise((resolve) => setTimeout(resolve, Math.max(0, batchExpiry - Date.now() + 200)));
             afterDelay = (await native.prepare("SELECT CAST(unixepoch('now', 'subsec') * 1000 AS INTEGER) AS ms").first()).ms;
             return native.batch(statements);
           };
