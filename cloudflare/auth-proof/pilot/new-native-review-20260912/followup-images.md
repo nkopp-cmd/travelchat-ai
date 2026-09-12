@@ -142,3 +142,32 @@ No exact new license or author is claimed for any of these six venues.
 The four existing recommendations remain outside this follow-up's modification scope.
 No root manifest, existing candidate manifest, importer, database, scheduler, deployment, or Git state was modified by the image follow-up.
 The subsequent privacy correction removed only private references from this public report, not its identity or rights decisions.
+
+## Authorized Korean-Name Follow-Up
+
+The later `venue-social-next` task authorized another bounded review in the same Localley session.
+This is separate from the two-service bound above. Existing approvals, assets, UUIDs, and publication controls remain unchanged.
+The new source was Wikimedia Commons file search, with exact quoted Korean names and at most five results per query.
+Each valid query returned HTTP 200 with an empty search result. This does not prove no suitable image exists elsewhere.
+
+| Provider | Exact Query | Commons Result | Decision |
+| --- | --- | --- | --- |
+| visit-seoul:51933 | 형제육회 | 0 files | Main-branch image rights remain unverified |
+| visit-seoul:24725 | 국선옻칠 | 0 files | No exact shop image or reusable license established |
+| visit-seoul:508 | 종오지하쇼핑센터 | 0 files | No exact underground arcade image established |
+| visit-seoul:47532 | 퍼블릭가든 | 0 files | No exact cafe image established |
+| visit-seoul:26253 | 순희네 반찬 | 0 files | No exact banchan shop image established |
+| visit-seoul:14618 | 모녀김밥 | 0 files | Rights and the earlier exact-branch mismatch remain unresolved |
+
+Source endpoint: `https://commons.wikimedia.org/w/api.php`.
+Parameters: `action=query`, `format=json`, `list=search`, `srnamespace=6`, `srlimit=5`, and the quoted query in `srsearch`.
+The first request pass could not parse the source responses. It established no search result or license decision.
+A compliant identifying User-Agent and explicit response diagnostics corrected that probe without authentication or challenge bypass.
+One escaped Gukseon query contained a spelling error. That result was discarded, not treated as evidence for the actual shop.
+The corrected source is https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srnamespace=6&srlimit=5&srsearch=%22%EA%B5%AD%EC%84%A0%EC%98%BB%EC%B9%A0%22 .
+Its response was `{"batchcomplete":"","query":{"searchinfo":{"totalhits":0},"search":[]}}`.
+The other five queries and source diagnostics remain in ignored `.preview-private/venue-social-next-probe-v2.json`.
+The original failed pass remains separately retained as `venue-social-next-probe.json`.
+
+No new photo was downloaded or cropped. No author or license was inferred from search snippets or general site ownership.
+All six publication decisions remain blocked on exact venue/branch evidence plus a legitimate asset-specific reuse grant.

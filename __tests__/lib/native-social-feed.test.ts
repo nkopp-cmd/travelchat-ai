@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 // The CLI uses the same pure TS module through node --import tsx outside Vitest.
@@ -44,6 +44,36 @@ describe("native social bounded private feed", () => {
   });
   it("bounds bytes before JSON parsing", async () => {
     await expect(readNativeSocialFeed(vi.fn().mockResolvedValue(new Response("x".repeat(8 * 1024 * 1024 + 1))))).rejects.toThrow("byte bound");
+  });
+  it("rejects invalid UTF-8 before changing source evidence or reading another page", async () => {
+    const raw = Buffer.from(JSON.stringify(page({ nextOffset: 100, records: [{ kind: "social", contentText: "SYNTHETIC" }] })));
+    raw[raw.indexOf("SYNTHETIC")] = 255;
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response(raw));
+    await expect(readNativeSocialFeed(fetcher)).rejects.toThrow();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it("preserves Korean and explicit replacement characters across split UTF-8 chunks", async () => {
+    const lead = { contentText: "\uBAA8\uB140\uAE40\uBC25 \uFFFD", provenance: { jobId: "synthetic-unicode" } };
+    const raw = Buffer.from(JSON.stringify(page({ discoveryLeads: [lead] })));
+    const stream = new ReadableStream({ start(controller) { for (const byte of raw) controller.enqueue(new Uint8Array([byte])); controller.close(); } });
+    const feed = await readNativeSocialFeed(vi.fn().mockResolvedValueOnce(new Response(stream)));
+    expect(feed.discoveryLeads).toEqual([lead]);
+    expect(feed.sourceBytes).toBe(raw.length);
+  });
+  it.each(["--input", "--spots", "--manifest"])("invalid UTF-8 in %s cannot produce a report or success log", async field => {
+    const dir = mkdtempSync(join(tmpdir(), "native-social-encoding-"));
+    const input = join(dir, "feed.json"), invalid = join(dir, "invalid.json"), out = join(dir, "report.json");
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      writeFileSync(input, JSON.stringify(page()));
+      const raw = Buffer.from(JSON.stringify(field === "--input" ? page({ diagnostic: "SYNTHETIC" }) : { diagnostic: "SYNTHETIC" }));
+      raw[raw.indexOf("SYNTHETIC")] = 255; writeFileSync(invalid, raw);
+      const args = ["--dry-run", "--input", field === "--input" ? invalid : input, "--out", out,
+        ...(field === "--input" ? [] : [field, invalid])];
+      await expect(main(args)).rejects.toThrow();
+      expect(existsSync(out)).toBe(false);
+      expect(log).not.toHaveBeenCalled();
+    } finally { log.mockRestore(); rmSync(dir, { recursive: true, force: true }); }
   });
   it.each([["--apply"], ["--dry-run", "--live", "--apply"], ["--live"], ["--dry-run", "--live", "--input", "file"],
     ["--dry-run", "--live", "--target", "production-supabase"], ["--dry-run", "--live", "--live"]])("has no apply, publication, or database switch: %j", args => {
