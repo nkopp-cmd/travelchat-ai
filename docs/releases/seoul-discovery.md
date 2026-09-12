@@ -1,5 +1,14 @@
 # Seoul Discovery Release
 
+## Social Evidence Integrity - 2026-09-12
+
+PR [131](https://github.com/nkopp-cmd/travelchat-ai/pull/131) delivered strict UTF-8 handling and retained new source-review decisions.
+Host command source: `4293c5d2c8af90414cb1a915a3301098d81cce34`; exact merge verify run `34701338235` passed.
+The installed command processed the actual private feed without publication, invented metrics, or paid calls.
+Gravity accepted coding evidence for `venue-social-next`. Exact private receipts and rollback references are in `../native-social-review.md`.
+The Worker identity below remains active. All eight public records and the hourly transfer stayed unchanged.
+Six image-rights gaps and real current-week social acceptance remain open; they do not block independent native migration work.
+
 ## Native Preferences - 2026-09-12
 
 PRs [129](https://github.com/nkopp-cmd/travelchat-ai/pull/129) and [130](https://github.com/nkopp-cmd/travelchat-ai/pull/130) delivered native email preferences.

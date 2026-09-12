@@ -2,6 +2,28 @@
 
 ## Current Live Check
 
+### Delivered Integrity Check
+
+PR https://github.com/nkopp-cmd/travelchat-ai/pull/131 merged into `cloudflare/full-migration` as `4293c5d2c8af90414cb1a915a3301098d81cce34`.
+Source commit: `b5a8e31df73c5d92657fd3dada3084805959d1cc`; source and merge trees match.
+GitHub verify passed on the PR (`34701039542`) and the exact merge (`34701338235`).
+The host checkout installed `scripts/native-social-review.mjs`, Git blob `6874cbdfec1855727a3d711b4700f3e16859757c`.
+This is host command delivery, not a new Worker deployment.
+
+The installed command read the actual native feed: one page, 58,588 bytes, 25 venue observations, and zero accepted social posts or ranks.
+It kept `publicationReady=false`, `applied=false`, and `publicRankingsAction=unchanged`. It made zero paid-provider calls.
+The private report is `cloudflare/auth-proof/.preview-private/social-review-4293c5d.json`.
+Report SHA-256: `953c16ce8169002ae4a01ec6e0c1a26cc6ee92a88f3ba19ea4f4574fc405bb61`.
+The accompanying host/preview receipt is `.preview-private/social-release-131.json`; live identity verification ran at `2026-09-12T15:10:29.491Z`.
+All eight public catalog records matched their existing manifests. The user-manager interface reported the unchanged transfer timer active.
+Preview version remains `5bf95956-8bba-4158-9c8a-c2e8a81f6b51`, deployment `f521bb8d-553b-4c31-9429-86bb08fe9b04`, tagged `b2cabd6c75a7e1b055c7537a3553ab2a4c95fc26`.
+No database write, asset update, schedule change, or ingestion operation ran for this increment.
+Host CLI rollback reference: `eb43077c904a4fde55adf3bb64e775442af3b9bc`. Preserve all private reports; no database rollback is needed.
+
+Gravity accepted `verify-commit Localley venue-social-next 4293c5d2c8af90414cb1a915a3301098d81cce34`.
+That establishes coding evidence, not six new licensed images or real current-week ranking coverage.
+Those publication gates remain blocked on exact asset rights and accessible supported-platform post evidence.
+
 ### Venue-Social Continuation
 
 The authorized `venue-social-next` task retained the existing owner, published UUIDs, and hourly transfer.
