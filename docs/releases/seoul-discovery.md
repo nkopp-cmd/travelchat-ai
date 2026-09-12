@@ -17,7 +17,9 @@ Verified on 2026-09-11. This section supersedes the historical Vercel release id
 - Persistent preview data: EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
 
 Remote preview verification found three public places and zero users, sessions, owners, saved places, or mail jobs.
-Migration 0005 remains unapplied there.
+Migration 0005 was applied to the isolated preview after backup restoration and rehearsal.
+Post-migration checks preserved the three spots and all zero account/session/save/mail counts; the new itinerary table is empty.
+The deployment remains on the previous Worker version until final combined checks and reviewed merge complete.
 The private SQL backup is `.preview-private/pre-collection-delivery.sql` under `cloudflare/auth-proof`.
 Its SHA-256 is `557946b171e742ca498cc6783dfee457d2dc6c2d8da86af378cf3adf787f68f4`.
 An in-memory restore and migration rehearsal preserved all existing counts and passed foreign-key checks.
@@ -26,10 +28,13 @@ Prefer Worker rollback while retaining additive schema and data; do not overwrit
 
 Native collection/deletion now uses the existing cards, confirmation dialog, and editor.
 Local acceptance covers cancellation, pagination, owner isolation, account changes, and deletion focus restoration.
-The latest actual-component journey passed 35 checkpoints with no product issues or external requests.
-Independent review found three P2 issues; saved-read fencing, request deadlines, and shared plan validation were implemented afterward.
-Final combined checks and reviewed publication remain pending behind PostLabz's first-priority release.
-The source checkpoint preserves the tested implementation and review fixes. It is not a production release or final combined-check attestation.
+The final actual-component journey passed 35 checkpoints with no product issues or external requests.
+Independent review findings were resolved, including wrapper metadata preservation.
+Final combined checks passed on 2026-09-12: 2,081 root tests, 93 native tests, both browser suites, and 57 PostgreSQL checks.
+The production build and TypeScript passed. Full root lint reports zero errors and 63 warnings.
+PostLabz's priority jobs were allowed to complete before these checks continued through the shared runner.
+See `native-collection-delivery.md` for exact scope, limits, review disposition, and remaining production gates.
+The increment is awaiting its reviewed migration-branch merge and protected-preview deployment, not a production cutover.
 
 Full production migration is not complete. Native creation, generation, sharing, billing, remaining server routes, and customer identity import remain unfinished.
 Hosted human authentication, recovery, migration rehearsal, and complete application acceptance remain cutover gates.

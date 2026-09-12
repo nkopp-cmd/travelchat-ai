@@ -341,13 +341,25 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     const days = [{ day: 1, activities: [] }], insights = [{ text: "New" }];
     const wrapper = { dailyPlans: days, insights };
     for (const stored of [days, wrapper, JSON.stringify(wrapper), null, { custom: [1] },
-      { dailyPlans: "wrong", custom: [1] }, { ...wrapper, insights: "wrong", custom: [1] },
+      { dailyPlans: "wrong", custom: [1] },
       "{", JSON.stringify(JSON.stringify({ ...wrapper, custom: [1] }))]) {
       for (const tips of [[], insights]) {
         const id = await seed({ activities: JSON.stringify(stored) });
         assert.equal((await patch(id, await body(id, { days, insights: tips }))).status, 200);
         assert.deepEqual((await detail(id)).activities, tips.length ? { dailyPlans: days, insights: tips } : days);
       }
+    }
+  });
+
+  await t.test("PATCH repairs old editable fields without dropping recognized wrapper metadata", async () => {
+    const days = [{ day: 1, activities: [] }];
+    const wrapper = { dailyPlans: [{}], insights: "old format", provenance: { source: "import" }, custom: [1] };
+    for (const stored of [wrapper, JSON.stringify(wrapper)]) {
+      const id = await seed({ activities: JSON.stringify(stored) });
+      const input = await body(id, { days, insights: [] });
+      assert.equal((await patch(id, input)).status, 200);
+      assert.deepEqual((await detail(id)).activities, { provenance: wrapper.provenance, custom: [1], dailyPlans: days, insights: [] });
+      assert.deepEqual(input.expected.activities, stored);
     }
   });
 

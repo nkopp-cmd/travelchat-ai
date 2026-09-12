@@ -19,6 +19,10 @@ Native review covered loaded, staged, saved, conflicted, revoked, and cross-acco
 The review found a false draft-retention message after access loss; the corrected editor now closes without that claim.
 Stable activity identities also preserve pending edits when insertion changes array positions.
 See `releases/native-itinerary-editor.md` for evidence and remaining migration limits.
+Native collection deletion now restores focus to its persistent collection region after reloading or entering the empty state.
+Confirmation names the selected itinerary. Hyphenated route titles remain distinguishable instead of losing their first city.
+The same collection and editor also run in the actual protected-preview entry, with unsupported actions hidden.
+Save-state text has explicit light and dark colors. Verification and limits are recorded in `releases/native-collection-delivery.md`.
 
 The restricted Cloudflare preview is hosted at `https://preview.localley.io` as of 2026-09-11.
 Hosted review covered 390, 900, and 1440 pixels with real photos and map tiles.
