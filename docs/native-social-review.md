@@ -2,6 +2,22 @@
 
 ## Current Live Check
 
+### Venue-Social Continuation
+
+The authorized `venue-social-next` task retained the existing owner, published UUIDs, and hourly transfer.
+Two additional tourism-channel candidates were probed: `https://www.youtube.com/@VisitSeoulTV` and `https://www.youtube.com/@ImagineYourKorea`.
+Both returned HTTP 302 to `consent.youtube.com`. The collector did not follow the consent flow or synthesize a consent cookie.
+No channel ownership, channel ID, exact post, publication timestamp, or engagement count was established by these responses.
+No RSS request, collection job, paid fallback, or public ranking write followed those redirects.
+These are blocked discovery attempts, not accepted social coverage. Earlier sampled Mastodon posts also remain outside the supported three-platform intake.
+
+The native review CLI now rejects invalid UTF-8 in feed bytes and selected input, spot, or manifest files.
+Previously, Node's replacement decoding could change corrupted evidence text before review. The new decoder fails before producing a report.
+Valid Korean text, an explicitly encoded replacement character, and multibyte characters split across network chunks remain unchanged.
+Six added cases cover invalid encoding and a full wire-to-ranking synthetic journey with Unicode, exact timestamps, nulls, zero, and provenance.
+The focused regression set contains 141 tests, including existing manual-match and ranking protections.
+The decoder change belongs to the host review command, not the deployed preview Worker. It does not change publication or scheduling.
+
 After Scrapelet PR4 deployment on 2026-09-12, the actual additive feed read succeeded.
 One page returned 58,588 bytes and 25 venue observations, with zero social records, discovery leads, or source diagnostics.
 The result was `unready`, with zero accepted posts and zero ranks. `publicationReady` and `applied` stayed false.

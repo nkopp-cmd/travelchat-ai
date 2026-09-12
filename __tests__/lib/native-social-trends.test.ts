@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readNativeSocialFeed } from "../../scripts/native-social-review.mjs";
 import { exactNativeSocialTime, nativeContentDigest, nativeSocialDigest, nativeSocialIdentity,
   nativeSocialWeek, nativeVenueIdentity, reviewNativeSocial, validateNativeSocialPost, validateNativeSocialManifest,
   type NativeSocialPost } from "../../lib/native-social-trends";
@@ -52,6 +53,22 @@ function rehash(m: ReturnType<typeof manifest>) {
 }
 
 describe("native social dry-run synthetic evidence", () => {
+  it("retains decoded Unicode, timestamps, nullable metrics and provenance through exact matching and ranking", async () => {
+    const observation = post();
+    observation.contentText += " \uD569\uC131 \uD14C\uC2A4\uD2B8";
+    observation.evidence[0].sourceText = observation.contentText;
+    observation.metrics.likes = 0;
+    observation.evidence[0].metrics.likes = 0;
+    const feed = await readNativeSocialFeed(async () => Response.json({
+      records: [observation], discoveryLeads: [], socialSources: [], nextOffset: null, nextSocialOffset: null,
+      publicationReady: false, socialEvidenceVersion: "localley-social-evidence-v1",
+    }));
+    const result = reviewNativeSocial(feed, [spot()], manifest([observation]), now);
+    expect(result.accepted[0].observation).toEqual(observation);
+    expect(result.accepted[0]).toMatchObject({ spotId: spot().id, weightedScoreLowerBound: 100 });
+    expect(result.rankings[0]).toMatchObject({ rank: 1, score: 85, postCount: 1 });
+    expect(result).toMatchObject({ publicationReady: false, applied: false, paidProviderCalls: 0, publicRankingsAction: "unchanged" });
+  });
   it("ranks reviewed public spots without publication and preserves raw evidence/null metrics", () => {
     const result = review();
     expect(result.counts.acceptedPosts).toBe(1);

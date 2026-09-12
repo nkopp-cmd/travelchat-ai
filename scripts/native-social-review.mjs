@@ -25,7 +25,7 @@ export async function readNativeSocialFeed(fetcher = fetch) {
         chunks.push(value);
       }
     } finally { await reader.cancel(); }
-    const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    const body = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks)));
     if (body.publicationReady !== false || body.socialEvidenceVersion !== NATIVE_SOCIAL_VERSION
       || !Array.isArray(body.records) || body.records.length > 100
       || !Array.isArray(body.discoveryLeads) || !Array.isArray(body.socialSources)
@@ -72,7 +72,7 @@ export async function main(args = process.argv.slice(2)) {
     if (!statSync(file).isFile() || statSync(file).size > MAX_BYTES) throw new Error('Invalid input file');
     const raw = readFileSync(file);
     if (raw.length > MAX_BYTES) throw new Error('Input byte bound exceeded');
-    return JSON.parse(raw.toString('utf8'));
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw));
   };
   const feed = values['--live'] ? await readNativeSocialFeed() : load(values['--input']);
   if (feed.publicationReady !== false || feed.socialEvidenceVersion !== NATIVE_SOCIAL_VERSION) throw new Error('Private versioned input required');
