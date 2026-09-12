@@ -92,3 +92,33 @@ The entry point reads the existing shared key file silently and passes only the 
 No credentials were copied into a unit or committed. Each run is limited to 180 seconds and 512 MiB.
 Candidate imports remain separate from reviewed publication; no unapproved venue is made public by the timer.
 Unit sources are in `cloudflare/auth-proof/deploy/`; entry point is `scripts/run-native-sync.mjs`.
+
+## Builder Continuation — 2026-09-12
+
+The Localley builder resumed the existing source and tightly scoped Scrapelet collector work. The hourly timer remains unchanged and active.
+Scrapelet PR4 is deployed at `/srv/scrapelet/releases/social-4b3a6b8`, BUILD_ID `r8F1EQ3kcAw3yf9WKr5vQ`.
+The collector now retains exact social identity, nullable metrics, discovery leads, and incomplete-source diagnostics without inventing acceptance.
+All 234 Scrapelet tests passed. Both browser-worker PIDs and existing mission budgets remained unchanged during activation.
+
+Four additional venue images passed source, identity, license, hash, and visual review: DDP, Sewoon, Gwangjang Market, and Jongmyo.
+DDP uses existing UUID `c6a455dc-4b18-4e29-a36b-7430f2ba8f3b`; Gwangjang uses `7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67`.
+This preview mapping does not modify either production row, its categories, geography, or relationships.
+The other DDP row remains a separate quality conflict; it was not merged or deleted.
+Sewoon and Jongmyo IDs are preview-only, not assertions that production contains no matching venue.
+Six image-rights gaps remain. The gimbap branch evidence is inconsistent, so a market-photo crop was rejected.
+
+The expanded publisher requires explicit private observations and exact checked-in approval hashes.
+Raw feed snapshots and generated SQL stay private. All seven public JPEGs and their notices must be deployed before activating four new rows.
+The prepared rollback conditionally hides only those new rows, preserving UUIDs, relationships, mappings, and the original four places.
+See `pilot/new-native-review-20260912/` under the proof directory for public review decisions and license evidence.
+
+The explicit production Supabase adapter is implemented and tested against real PostGIS, with no public-table write path.
+Migration `supabase/migrations/20260912090631_native_scrapelet_production_ingest.sql` was generated with Supabase CLI 2.117.0 and remains unapplied.
+SQL or Management API credentials are unavailable. Live catalog verification, backup, installation, and private ingest activation remain blocked.
+Service-role REST access and the exact project origin were verified without exposing credentials.
+See `native-production-adapter.md` for transactional, UUID, RLS, geography, and rollback checks.
+
+The Localley native-social diagnostic now reads the deployed additive feed successfully.
+Its live result is zero social observations, zero accepted posts, and zero ranks; public rankings remain unchanged.
+Bounded source probes found YouTube challenges, a missing official RSS feed, Bluesky denial, and stale or unrelated Mastodon results.
+No paid Apify schedule has been replaced. Provider replacement and the broad Cloudflare application migration remain separate acceptance scopes.
