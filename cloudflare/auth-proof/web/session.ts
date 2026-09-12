@@ -47,7 +47,11 @@ export async function refreshContext() {
     if (ticket !== epoch) return;
     if (identity.error) throw new ApiError(identity.error.status, "auth_error", "Cannot check sign-in. Please retry.");
     if (!identity.data) { publish({ phase: "signedout" }); return; }
-    if (!identity.data.user.emailVerified) { publish({ phase: "unverified" }); return; }
+    const { user, session: observedSession } = identity.data;
+    if (!user || !observedSession || typeof user.emailVerified !== "boolean"
+      || typeof user.id !== "string" || !user.id.trim() || typeof observedSession.id !== "string" || !observedSession.id.trim()
+      || observedSession.userId !== user.id) throw new ApiError(502, "auth_error", "Cannot check sign-in. Please retry.");
+    if (user.emailVerified === false) { publish({ phase: "unverified" }); return; }
     const session = await api<AppSession>("/api/session", { signal, headers: { "x-localley-session-id": identity.data.session.id } });
     if (ticket !== epoch) return;
     if (session.authUserId !== identity.data.user.id || session.sessionId !== identity.data.session.id) {
@@ -60,7 +64,7 @@ export async function refreshContext() {
     if (session.state === "ready") await reloadSaved();
   } catch (error) {
     if (ticket !== epoch) return;
-    publish({ phase: error instanceof ApiError && error.status === 401 ? "signedout" : error instanceof ApiError && error.status === 403 ? "unverified" : "error", error: message(error) });
+    publish({ phase: error instanceof ApiError && error.status === 401 ? "signedout" : "error", error: message(error) });
   }
 }
 export const message = (error: unknown) => error instanceof Error ? error.message : "Request failed. Please retry.";
@@ -70,7 +74,9 @@ async function privateFailure(error: unknown) {
     await refreshContext();
     publish({ ...snapshot, error: "Account changed. Review the current account before trying again." });
   } else if (error instanceof ApiError && [401, 403].includes(error.status)) {
-    clearPrivate(error.status === 401 ? "signedout" : "unverified", "Sign in with a verified test account to continue.");
+    clearPrivate(error.status === 401 ? "signedout" : "error", error.status === 401
+      ? "Sign in with a verified test account to continue."
+      : "Account access could not be confirmed. Check your session before continuing.");
   }
 }
 export async function reloadSaved() {
