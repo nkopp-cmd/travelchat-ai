@@ -2,6 +2,16 @@
 
 ## Current Delivered Scope — 2026-09-12
 
+### Production Continuation Source Check
+
+Nils's explicit operator batch `next-1789217445` continues this same app session. Gravity owns receipt reconciliation.
+The 12:54 UTC credential check found no SQL connection, management token, or stored CLI token. Service-role REST remains available.
+Six bounded Commons searches found no exact reusable venue image. The Public Garden query returned unrelated historical PDFs.
+Public venue timelines returned 4 Gwangjang Market, 10 Jongmyo, and 4 Seoul Museum of Art observations, all outside this UTC week.
+No stale observation was accepted or staged as a current trend. Private results remain in `.preview-private/next-goal-source-evidence.json`.
+No job, mission, paid fallback, or transfer timer was added or changed.
+Independent native application migration continues with the existing email preference controls and a private D1 route.
+
 ### Independent Verification Continuation
 
 Gravity resumed this same Localley session without changing app ownership or the transfer timer.

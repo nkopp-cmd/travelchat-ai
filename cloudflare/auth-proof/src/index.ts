@@ -4,6 +4,7 @@ import { trustedAppSession } from "./app-session";
 import { savedSpots } from "./saved-spots";
 import { appError } from "./app-error";
 import { catalog } from "./catalog";
+import { emailPreferences } from "./email-preferences";
 import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryBodyLimit } from "./itineraries";
 import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
 import { verifyAccess, type AccessIdentity } from "./access";
@@ -12,7 +13,7 @@ const json = (data: unknown, status = 200) => Response.json(data, { status, head
 
 export default {
   async fetch(request, env, ctx) {
-    const savedRoute = ["/api/spots/save", "/api/spots"].includes(new URL(request.url).pathname);
+    const savedRoute = ["/api/spots/save", "/api/spots", "/api/user/email-preferences"].includes(new URL(request.url).pathname);
     const fail = (code: string, message: string, status: number, legacyMessage = message) =>
       savedRoute ? appError(code, message, status) : json({ error: legacyMessage }, status);
     try {
@@ -20,6 +21,7 @@ export default {
       const itineraryRoute = url.pathname === "/api/itineraries" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname);
       const itineraryPatch = request.method === "PATCH" && itineraryUpdatePath.test(url.pathname);
       const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
+      const preferencesRoute = url.pathname === "/api/user/email-preferences";
       const base = new URL(env.AUTH_BASE_URL);
       if (!await validRuntime(request, env)) return fail("forbidden", "Runtime unavailable", 403);
       let access: AccessIdentity | undefined;
@@ -84,7 +86,7 @@ export default {
       }
       const path = url.pathname;
       if (path !== "/api/session" && path !== "/api/account/new" && path !== "/api/account/claim"
-        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute) return json({ error: "Not found" }, 404);
+        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute && !preferencesRoute) return json({ error: "Not found" }, 404);
       if (!["GET", "HEAD"].includes(request.method) && headers.get("Origin") !== base.origin) return fail("forbidden", "Invalid origin", 403);
       const session = await trustedAppSession(env, request.headers);
       if (session.state === "signedout") return fail("unauthorized", "Please sign in to continue.", 401, "Unauthorized");
@@ -96,12 +98,12 @@ export default {
       if (session.state === "unverified") return fail("forbidden", "Verify email", 403);
       // This is a stale-client guard, never an authentication credential.
       const expectedSession = request.headers.get("x-localley-session-id");
-      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || path === "/api/spots/save";
+      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || path === "/api/spots/save" || preferencesRoute;
       // Refresh a stale account before the client interprets the new account's setup state.
       if (checksSession && expectedSession && expectedSession !== session.sessionId) {
         return appError("session_changed", "Your session changed. Refresh before trying again.", 409);
       }
-      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryDelete) {
+      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
         if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
         if (!expectedSession) return appError("session_required", "Refresh your session before trying again.", 428);
       }
@@ -142,6 +144,7 @@ export default {
       }
       if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
       const ownerId = session.ownerId;
+      if (preferencesRoute) return await emailPreferences(request, env, session, data);
       if (itineraryRoute) return await itineraries(request, env, session, data);
       if (path === "/api/spots/save") return await savedSpots(request, env, session, data);
       const id = path.startsWith("/api/private-notes/") ? decodeURIComponent(path.slice("/api/private-notes/".length)) : null;

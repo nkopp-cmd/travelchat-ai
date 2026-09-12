@@ -22,6 +22,10 @@ Stripe, OpenAI, and MiniMax remain external product providers, not hosting or au
 
 ## Current Checkpoint
 
+Native email preferences now have a guarded D1 route and reuse the actual settings controls through the application session boundary.
+New accounts start off. Legacy preferences require explicit import; missing import data never becomes implicit consent.
+This does not activate an email sender or change live Clerk settings. See `releases/native-email-preferences.md` for delivery evidence.
+
 Private itinerary summaries, detail reads, and atomic edits now run in native D1.
 The actual existing editor passed a Better Auth HTTPS journey against that backend.
 See `releases/native-itinerary-editor.md` for the schema, limits, evidence, and remaining feature coverage.

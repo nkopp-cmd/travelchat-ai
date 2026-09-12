@@ -8,6 +8,7 @@ import { resolve } from "node:path";
 import { issueFixtureGrant } from "./fixture-issuer.mjs";
 import { applicationTests } from "./application.test.mjs";
 import { itineraryTests } from "./itineraries.test.mjs";
+import { emailPreferenceTests } from "./email-preferences.test.mjs";
 
 await mkdir(process.env.TMPDIR, { recursive: true });
 const { getAuthTables } = await import("better-auth/db");
@@ -89,6 +90,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     await db.exec(await readFile("migrations/0001_local.sql", "utf8"));
     await db.exec(await readFile("migrations/0002_application.sql", "utf8"));
     await db.exec(await readFile("migrations/0005_itineraries.sql", "utf8"));
+    await db.exec(await readFile("migrations/0007_email_preferences.sql", "utf8"));
     await t.test("real D1 migration and schema", async () => {
       assert.equal((await db.prepare("PRAGMA foreign_keys").first()).foreign_keys, 1);
       assert.equal((await db.prepare("SELECT count(*) AS n FROM user").first()).n, 0);
@@ -283,6 +285,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     });
     await applicationTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bob, bobCookie, claimSecret });
     await itineraryTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bobCookie });
+    await emailPreferenceTests(t, { db, call, post, signup, login, mail, aliceCookie, bobCookie });
     assert.equal(outboundRequests, 0, "native application APIs never forward requests");
     assert.equal(workerLogCount, 0, "application failure paths must not log private data");
     await t.test("logout invalidates old cookie and session expiry", async () => {
