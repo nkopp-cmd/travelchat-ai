@@ -128,6 +128,9 @@ The frontend does not fetch photos, analytics, external media, or outbox message
 | `POST /api/account/new` | Empty body |
 
 App mutations send `x-localley-session-id` from the validated app context.
+Account mutations require it server-side. Mapping reads also send the observed SDK session ID.
+The SDK and application requests use the existing bounded fetch adapter with no automatic retries.
+Headers and body consumption share a twenty-second deadline. Account replacement aborts the old mapping request.
 They never send client owner fields. Auth SDK endpoints never receive this header.
 There is no claim form. The UI explains that legacy migration is unavailable.
 

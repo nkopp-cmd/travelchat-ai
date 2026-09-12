@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { mkdir } from "node:fs/promises";
+import { mkdir, mkdtemp } from "node:fs/promises";
 import { resolve } from "node:path";
 
 // Node-only seeds. The actual web entry, Better Auth, Worker and D1 handle every private operation.
@@ -22,19 +22,19 @@ export async function tripsUiChecks({ page, db, call, origin }) {
   // Only public presentation config is substituted. Authentication stays explicitly local/captured.
   const previewConfig = (route) => route.fulfill({ json: { mode: "preview", catalogSource: "seoul-pilot", registration: "restricted-preview", emailDelivery: "cloudflare" } });
   await page.route("**/api/app-config", previewConfig);
-  let rootReads = 0;
-  let parentReads = 0;
-  let parentBeforeMismatch = 0;
+  let mappingReads = 0;
+  let armed = false;
+  let changedAtRead = 0;
   let prematureRead = false;
   let tripReads = 0;
   const mappingChange = async (route) => {
-    const root = !!route.request().headers()["x-localley-session-id"];
-    if (root) rootReads++; else parentReads++;
-    if (root && rootReads === 1) {
+    assert.ok(route.request().headers()["x-localley-session-id"], "Both native consumers fence mapping reads");
+    mappingReads++;
+    if (armed && !changedAtRead) {
+      changedAtRead = mappingReads;
       // The shell has verified the old profile. The root provider must reject that stale expectation.
-      parentBeforeMismatch = parentReads;
       await new Promise((done) => setTimeout(done, 200));
-      assert.equal(parentReads, parentBeforeMismatch, "Root loading must not refresh the shell");
+      assert.equal(mappingReads, changedAtRead, "Root loading must not refresh the shell");
       assert.equal(tripReads, 0, "No trip reads before both contexts agree");
       await db.prepare("UPDATE profiles SET id = ? WHERE ownerId = ?").bind(randomUUID(), session.ownerId).run();
     }
@@ -43,23 +43,28 @@ export async function tripsUiChecks({ page, db, call, origin }) {
   const watchTrips = (request) => {
     if (new URL(request.url()).pathname === "/api/itineraries") {
       tripReads++;
-      prematureRead ||= rootReads < 2 || parentReads <= parentBeforeMismatch;
+      prematureRead ||= !changedAtRead || mappingReads < changedAtRead + 2;
     }
   };
   await page.route("**/api/session", mappingChange);
   page.on("request", watchTrips);
   await page.goto(origin);
+  // Startup observers can replace an in-flight shell check. Arm only once its identity is rendered.
+  await page.locator(".identity").waitFor({ state: "attached" });
+  armed = true;
   await page.getByRole("button", { name: "Trips", exact: true }).click();
   const pane = page.getByRole("region", { name: "Trips preview", exact: true });
   await pane.getByRole("heading", { name: "Local browser trip", exact: true }).first().waitFor();
-  assert.equal(prematureRead, false, "Profile mismatch must refresh the shell before reading trips");
-  assert.equal(rootReads, 2);
+  assert.equal(prematureRead, false, `Profile mismatch must refresh both contexts before reading trips: ${JSON.stringify({ mappingReads, changedAtRead, tripReads })}`);
+  assert.ok(changedAtRead > 0);
+  assert.equal(mappingReads, changedAtRead + 2);
   page.off("request", watchTrips);
   await page.unroute("**/api/session", mappingChange);
   assert.equal(await pane.getByText("Other owner private trip", { exact: true }).count(), 0);
   assert.equal((await call(`/api/itineraries/${otherId}`)).status, 404);
-  const results = resolve("../../test-results/cloudflare-trips");
-  await mkdir(results, { recursive: true });
+  const resultsRoot = resolve("../../test-results/cloudflare-trips");
+  await mkdir(resultsRoot, { recursive: true });
+  const results = await mkdtemp(resolve(resultsRoot, "run-"));
   const capture = async (state) => {
     for (const width of [390, 900, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
@@ -117,8 +122,10 @@ export async function tripsUiChecks({ page, db, call, origin }) {
   assert.equal(await pane.getByRole("link", { name: /Create/ }).count(), 0);
   let failedChecks = 0;
   let shellChecks = 0;
+  let failProvider = false;
   const providerFailure = (route) => {
-    if (route.request().headers()["x-localley-session-id"]) {
+    assert.ok(route.request().headers()["x-localley-session-id"]);
+    if (failProvider) {
       failedChecks++;
       return route.fulfill({ status: 503, json: { error: "Local provider failure" } });
     }
@@ -127,6 +134,8 @@ export async function tripsUiChecks({ page, db, call, origin }) {
   };
   await page.route("**/api/session", providerFailure);
   await page.reload();
+  await page.locator(".identity").waitFor({ state: "attached" });
+  failProvider = true;
   await page.getByRole("button", { name: "Trips", exact: true }).click();
   await pane.getByText("Trip access could not be confirmed. Trips remain hidden.", { exact: true }).waitFor();
   const initialShellChecks = shellChecks;

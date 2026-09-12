@@ -196,7 +196,9 @@ test("restricted preview: real RS256, native D1, mocked mail only", { timeout: 1
       const cookie = login.headers.getSetCookie().find(value => value.startsWith("__Secure-better-auth.session_token=")).split(";")[0];
       assert.equal((await call("/api/auth/get-session", { token: bob, headers: { cookie } })).status, 403);
       assert.equal((await call("/api/session", { token: bob, headers: { cookie } })).status, 403);
-      const provisions = await Promise.all(Array.from({ length: 3 }, () => call("/api/account/new", { body: {}, headers: { cookie } })));
+      const unlinked = await (await call("/api/session", { headers: { cookie } })).json();
+      assert.equal((await call("/api/account/new", { body: {}, headers: { cookie } })).status, 428);
+      const provisions = await Promise.all(Array.from({ length: 3 }, () => call("/api/account/new", { body: {}, headers: { cookie, "x-localley-session-id": unlinked.sessionId } })));
       assert.deepEqual(provisions.map(r => r.status).sort(), [200, 200, 201]);
       assert.equal((await db.prepare("SELECT count(*) n FROM profiles").first()).n, 1);
       const session = await (await call("/api/session", { headers: { cookie } })).json();

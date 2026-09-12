@@ -2,6 +2,12 @@
 
 ## Scope
 
+The native account timeout state reuses the existing error surface and explicit retry control; no new layout or component was added.
+The current identity stays hidden after a failed mapping check. Public catalog browsing remains available without assuming private access.
+Local mobile and desktop timeout screenshots were opened in `test-results/cloudflare-frontend/run-kHpMFL/`.
+The real browser checks retain visible focus, reduced motion, measured contrast, and no overflow in the affected state.
+Browser evidence now uses unique run directories rather than overwriting prior release screenshots.
+
 The native email preference panel reuses the existing settings component, Radix Switch, buttons, labels, icons, and root tokens.
 It follows the existing restrained settings layout, rather than introducing a separate account dashboard.
 New native accounts start off; legacy consent requires import. Unknown state never appears as a checked switch.
