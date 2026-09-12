@@ -8,18 +8,19 @@ Verified on 2026-09-11. This section supersedes the historical Vercel release id
 - Production remains on commit `e96b00356d955ed6b777f5fd139ce1652accf09d`.
 - Preserved Vercel deployment: `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`.
 - Read-only Vercel API verification confirmed no Git connection. No Vercel deployment was created or reconnected.
-- Current increment: `feature/native-collection-delivery`, based on `b5b4cc30de15178a54caccaabb8eaee3edf57a2c`.
+- Delivered increment: `feature/native-collection-delivery`, based on `b5b4cc30de15178a54caccaabb8eaee3edf57a2c`.
 - Source checkpoint committed and pushed: `2732900dfe0ae5933aedb226ea5699bc869cffe9`.
-- Stacked draft PR: https://github.com/nkopp-cmd/travelchat-ai/pull/123.
-- The increment will be reviewed against `cloudflare/full-migration`, not merged into `main` with unfinished migration history.
+- Reviewed PR: https://github.com/nkopp-cmd/travelchat-ai/pull/123, merged into `cloudflare/full-migration`.
+- Deployed merge commit: `c5d1446941049bd8663adec1bf6f654e0f4b6cac`. The unfinished migration history was not merged into `main`.
 - Authorized migration target: `localley-discovery-preview` at `https://preview.localley.io`, protected by Cloudflare Access.
-- Current preview version and code rollback: `88de0da0-0e10-4e4e-9cf7-1f12b4be1c04` at 100%.
+- Current preview version: `7b5ad3c3-f6bf-4bb9-97c9-85e86729bd3a` at 100%, tagged with the deployed merge commit.
+- Preview code rollback: `88de0da0-0e10-4e4e-9cf7-1f12b4be1c04`.
 - Persistent preview data: EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
 
 Remote preview verification found three public places and zero users, sessions, owners, saved places, or mail jobs.
 Migration 0005 was applied to the isolated preview after backup restoration and rehearsal.
 Post-migration checks preserved the three spots and all zero account/session/save/mail counts; the new itinerary table is empty.
-The deployment remains on the previous Worker version until final combined checks and reviewed merge complete.
+The updated Worker and actual native Trips entry were deployed after final checks and reviewed merge.
 The private SQL backup is `.preview-private/pre-collection-delivery.sql` under `cloudflare/auth-proof`.
 Its SHA-256 is `557946b171e742ca498cc6783dfee457d2dc6c2d8da86af378cf3adf787f68f4`.
 An in-memory restore and migration rehearsal preserved all existing counts and passed foreign-key checks.
@@ -34,12 +35,22 @@ Final combined checks passed on 2026-09-12: 2,081 root tests, 93 native tests, b
 The production build and TypeScript passed. Full root lint reports zero errors and 63 warnings.
 PostLabz's priority jobs were allowed to complete before these checks continued through the shared runner.
 See `native-collection-delivery.md` for exact scope, limits, review disposition, and remaining production gates.
-The increment is awaiting its reviewed migration-branch merge and protected-preview deployment, not a production cutover.
+Live verification on 2026-09-12 confirmed the deployed Worker version, commit tag, and matching JavaScript/CSS hashes.
+The app JavaScript SHA-256 is `c64a266ebe027eca2e87c9a8fd2157bd831d8d526c67f419b5dd3ccf886627f1`.
+The app CSS SHA-256 is `8133db31994b20ed68e9d86036e0b1491b1140ed474968c68d9591d776b484d2`.
+Anonymous preview requests redirect to Access. Authorized service reads reach health, configuration, and catalog endpoints.
+Private session and itinerary reads return 401 without a Better Auth session. Service-authenticated mutation attempts return 403.
+Live desktop, tablet, and mobile screenshots were opened. Both photos, real map tiles, selection, and the gated Trips tab worked.
+No browser page errors occurred. Hosted checks sent no email and created no account or itinerary.
+Post-verification D1 counts remained three spots and zero users, sessions, owners, saves, mail jobs, and itineraries.
+Vercel provider metadata still identifies `e96b003` and `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`; its Git connection remains absent.
 
 Full production migration is not complete. Native creation, generation, sharing, billing, remaining server routes, and customer identity import remain unfinished.
 Hosted human authentication, recovery, migration rehearsal, and complete application acceptance remain cutover gates.
+The available Access service credential is deliberately read-only. It cannot substitute for a human Access session in signed-in live acceptance.
 Necessary validated configuration and migration work is authorized by the updated delivery contract; repeated routine approval is not a blocker.
 Preview success must not be reported as completion of production migration.
+Only owned, regenerable integration fixture bundles were removed after verification. Unique reports, screenshots, backups, source, and active caches remain intact.
 
 ## Historical Release
 

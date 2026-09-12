@@ -318,3 +318,8 @@ No hosted migration, production release, or accessibility certification forms pa
 No production configuration, deployment, real email, real account, or live secret changed.
 Root editor changes are documented in `docs/releases/native-itinerary-editor.md`.
 No commit was created.
+
+Parent delivery update: PR 123 was merged and deployed to the restricted Cloudflare preview.
+The authoritative runtime, commit, rollback, and remaining production gates are in `docs/releases/seoul-discovery.md`.
+After verification, the parent removed only the generated `assets/index.html` and `assets/assets/app.js`/`app.css` bundles.
+The launcher rebuilds them. All unique screenshots and evidence reports remain intact.

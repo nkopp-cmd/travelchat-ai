@@ -1,5 +1,16 @@
 # Hosted Preview Evidence
 
+## Current Increment
+
+On 2026-09-12, PR 123 delivered the native collection/editor increment to this restricted preview.
+Current version: `7b5ad3c3-f6bf-4bb9-97c9-85e86729bd3a`.
+Deployed source: `c5d1446941049bd8663adec1bf6f654e0f4b6cac`.
+Migration 0005 was applied after a private backup and in-memory restoration rehearsal.
+Live version tags, asset hashes, access checks, maps, photos, and gated Trips navigation passed verification.
+Private authenticated acceptance remains open; read-only Access credentials cannot perform the human journey.
+See `../../../docs/releases/seoul-discovery.md` for the authoritative release and rollback record.
+The earlier checkpoint below is historical.
+
 Verified on 2026-09-11 at https://preview.localley.io.
 This restricted preview does not replace the live Localley service.
 

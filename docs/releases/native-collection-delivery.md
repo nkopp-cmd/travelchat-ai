@@ -6,6 +6,13 @@ This increment reuses Localley's collection, confirmation dialog, editor, and bo
 It targets the existing restricted Cloudflare preview. It does not replace production or complete the full migration.
 The primary release record remains `seoul-discovery.md`.
 
+## Delivered Increment
+
+PR https://github.com/nkopp-cmd/travelchat-ai/pull/123 merged into the migration branch at `c5d1446941049bd8663adec1bf6f654e0f4b6cac`.
+Cloudflare preview version `7b5ad3c3-f6bf-4bb9-97c9-85e86729bd3a` serves that tagged commit at 100%.
+Live metadata, asset hashes, access boundaries, public catalog, maps, and the Trips sign-in gate were verified.
+The full production application remains on the preserved Vercel origin.
+
 ## Behavior
 
 - Private collection and editor access requires verified authentication and the matching owner mapping.
@@ -53,7 +60,7 @@ Read-only provider checks confirmed Vercel Git is disconnected and production st
 The preview database held three public spots and no accounts, sessions, saves, or mail jobs.
 A mode-restricted SQL backup was restored in memory before migration 0005 was applied to the preview.
 Post-migration counts remained unchanged and the itinerary table was empty.
-The previous Worker version remains the code rollback target until deployment verification updates the primary record.
+Worker version `88de0da0-0e10-4e4e-9cf7-1f12b4be1c04` remains the code rollback target.
 Keep additive schema and any newer data during code rollback; do not overwrite later records with the earlier backup.
 
 ## Remaining Cutover Gates
@@ -64,3 +71,5 @@ Hosted human authentication and recovery must pass through the protected target;
 Production data parity, restoration, final synchronization, and operational rollback remain required.
 The root dependency audit also needs remediation and deployment-exposure review before full production cutover.
 No Vercel deployment, paid generation activation, or customer-data replacement belongs to this increment.
+Live signed-in acceptance is still open because the available automation identity is read-only under Cloudflare Access.
+Local authenticated journeys are real Better Auth/D1 tests, but are not evidence of hosted human authentication or delivery.
