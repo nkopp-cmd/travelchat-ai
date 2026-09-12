@@ -1,0 +1,57 @@
+name: Native ingestion verification
+
+on:
+  push:
+    branches:
+      - cloudflare/full-migration
+      - feature/native-ingestion-evidence
+  pull_request:
+    branches:
+      - cloudflare/full-migration
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-verification-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=1536
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            cloudflare/auth-proof/package-lock.json
+      - name: Install locked application dependencies
+        run: npm ci
+      - name: Install locked native dependencies
+        run: npm ci --prefix cloudflare/auth-proof
+      - name: Verify application and native social contracts
+        run: npm run test:run -- --maxWorkers=2
+      - name: Verify native runtime and ingestion
+        working-directory: cloudflare/auth-proof
+        run: npm run check
+      - name: Fetch pinned disposable PostGIS image
+        run: docker pull postgis/postgis@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6
+      - name: Verify production adapter on isolated PostGIS
+        env:
+          NATIVE_POSTGRES_BACKEND: docker
+          NATIVE_REQUIRE_POSTGIS: '1'
+        run: node --test scripts/native-production.test.mjs scripts/native-production-postgres.test.mjs
+      - name: Check TypeScript
+        run: npx tsc --noEmit
+      - name: Lint current application source
+        run: npm run lint
+
+# This workflow uses ephemeral fixtures only. It has no deployment credentials,
+# does not contact native feeds, and cannot activate ingestion or publication.

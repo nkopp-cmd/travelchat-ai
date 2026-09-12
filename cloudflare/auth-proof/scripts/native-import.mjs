@@ -14,7 +14,7 @@ export function prepareNativeImport(input, now = Date.now()) {
     ? input.places.map(row => ({ ...row, kind: 'place' }))
     : Array.isArray(input.records) ? input.records : null;
   if (!rows || rows.length > 5000) throw new Error('Unsupported or oversized native input');
-  const accepted = new Map(), rejected = [];
+  const accepted = new Map(), observations = new Map(), conflicts = new Set(), rejected = [];
   for (const row of rows) {
     try {
       if (row?.kind !== 'place') throw new Error('social_requires_separate_acceptance');
@@ -42,28 +42,42 @@ export function prepareNativeImport(input, now = Date.now()) {
       if (Buffer.byteLength(payload) > 32000) throw new Error('oversized_record');
       const key = `english.visitseoul.net:${row.providerPlaceId}`;
       const candidate = { key, sourceUrl: source.href, observedAt: new Date(observed).toISOString(), payload };
+      const observationKey = JSON.stringify([key, candidate.observedAt]);
+      if (observations.has(observationKey) && observations.get(observationKey) !== payload) conflicts.add(key);
+      observations.set(observationKey, payload);
       const previous = accepted.get(key);
-      if (!previous || candidate.observedAt > previous.observedAt
-        || (candidate.observedAt === previous.observedAt && candidate.payload > previous.payload)) accepted.set(key, candidate);
+      if (!previous || candidate.observedAt > previous.observedAt) accepted.set(key, candidate);
     } catch (error) {
       rejected.push({ recordId: typeof row?.recordId === 'string' ? row.recordId.slice(0, 64) : null, reason: error instanceof Error ? error.message : 'invalid_record' });
     }
   }
+  if (conflicts.size) throw new Error('Equal-time native observation conflict; no import generated');
   if (accepted.size > 1000) throw new Error('Import exceeds 1000 distinct venues');
   const candidates = [...accepted.values()].sort((a, b) => a.key.localeCompare(b.key));
   const batchId = sha(JSON.stringify(candidates));
   const sql = ['-- Native evidence only; no writes to spots, photos, scores, users, or saved places.'];
-  for (const row of candidates) {
-    const source = quote(row.sourceUrl);
+  if (candidates.length) {
     // Exact provenance matching only. Name similarity never overwrites an existing UUID.
-    const matches = `SELECT DISTINCT s.id FROM spots s, json_each(COALESCE(s.source_urls,'[]')) u WHERE u.value = ${source}`;
+    const matches = `SELECT DISTINCT s.id FROM spots s, json_each(COALESCE(s.source_urls,'[]')) u WHERE u.value = c.source_url`;
     const count = `(SELECT COUNT(*) FROM (${matches}))`;
     const spot = `(SELECT CASE WHEN COUNT(*) = 1 THEN MIN(id) ELSE NULL END FROM (${matches}))`;
-    sql.push(`INSERT INTO native_place_candidates(source_key,city,observed_at,source_url,payload,matched_spot_id,match_state,batch_id)
-VALUES(${quote(row.key)},'seoul',${quote(row.observedAt)},${source},${quote(row.payload)},${spot},CASE ${count} WHEN 0 THEN 'unmatched' WHEN 1 THEN 'exact_source' ELSE 'ambiguous' END,${quote(batchId)})
+    const values = candidates.map(row => `(${[row.key,row.observedAt,row.sourceUrl,row.payload].map(quote).join(',')})`).join(',\n');
+    // Materialize every conflict check before the single candidate write. A conflict or
+    // capacity failure aborts the whole statement; no partial candidate batch can survive.
+    sql.push(`WITH incoming(source_key,observed_at,source_url,payload) AS (VALUES ${values}),
+checked AS MATERIALIZED (
+ SELECT i.*,CASE WHEN EXISTS(SELECT 1 FROM runtime_purpose WHERE id=1 AND purpose='localley-preview')
+ AND NOT EXISTS(SELECT 1 FROM native_place_candidates old WHERE old.source_key=i.source_key
+   AND old.observed_at=i.observed_at AND old.payload COLLATE BINARY IS NOT i.payload)
+ THEN 1 ELSE json('Native import conflict or target mismatch') END AS valid FROM incoming i
+)
+INSERT INTO native_place_candidates(source_key,city,observed_at,source_url,payload,matched_spot_id,match_state,batch_id)
+SELECT c.source_key,'seoul',c.observed_at,c.source_url,c.payload,${spot},CASE ${count} WHEN 0 THEN 'unmatched' WHEN 1 THEN 'exact_source' ELSE 'ambiguous' END,${quote(batchId)}
+FROM checked c WHERE c.valid=1
 ON CONFLICT(source_key) DO UPDATE SET observed_at=excluded.observed_at,source_url=excluded.source_url,payload=excluded.payload,
 matched_spot_id=excluded.matched_spot_id,match_state=excluded.match_state,batch_id=excluded.batch_id
-WHERE excluded.observed_at >= native_place_candidates.observed_at;`);
+WHERE excluded.observed_at > native_place_candidates.observed_at
+ OR (excluded.observed_at=native_place_candidates.observed_at AND excluded.payload COLLATE BINARY IS native_place_candidates.payload);`);
   }
   // All rows are retry-safe. A receipt is written last, only after the preceding inserts succeed.
   sql.push(`INSERT INTO native_import_receipts VALUES(${quote(batchId)},${quote(new Date(now).toISOString())},${candidates.length},${rejected.length}) ON CONFLICT(batch_id) DO NOTHING;`);
