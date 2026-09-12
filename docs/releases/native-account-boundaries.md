@@ -2,6 +2,21 @@
 
 ## Independent Account Recovery
 
+Delivered through [PR135](https://github.com/nkopp-cmd/travelchat-ai/pull/135), checked source `355ed9a57e8eb371955b5d3cce0294527e7dafba`.
+Deployed merge: `b3ba5e2e827b36e1993934f240bdd275048ad247`. The source and merge trees match.
+PR verify `34717818649` and merge verify `34718132382`, attempt 1, passed.
+Active Worker version: `b94b6afb-46af-49a1-a08b-ade404c564b2`, serving 100% at `https://preview.localley.io`.
+Cloudflare deployment ID: `f938e403-7f41-4f58-94c9-0b4c69db8805`, verified at `2026-09-12T20:53:52.469Z`.
+Persistent data remains EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
+No schema or data migration ran. The eight public records and all checked private tables stayed unchanged.
+Backup and restored-snapshot proof: `.preview-private/account-release-vPLcWf/before.sql`, SHA-256 `69f90ce719fa0bad255ecc0acb8c095330e4b5ea2ea3a46c0fe82aeac1f113f0`.
+Rollback Worker: `cffeadb7-083e-428f-95d7-8093106e35a1`. Preserve all newer data, images, and receipts.
+Bindings and Access policies stayed unchanged. The hourly transfer remains active; no ingestion was repeated.
+The final live reports and reviewed account screenshots at 390/900/1440 pixels remain in `.preview-private/account-release-vPLcWf/`.
+JavaScript SHA-256: `95fb15964061da893a3a09469c3646261a963b07daa61273eedba9767b58c855`; CSS stayed unchanged.
+Gravity accepted the restricted-preview release using `.preview-private/gravity-preview-release-135.json`.
+This does not complete the deferred discovery outcome or hosted account cutover.
+
 After the image-rights question was rejected and cleared, the original session continued with independently eligible account work.
 `usable-native-discovery` remains deferred on six image grants. No outreach, image reuse, or new source search is authorized by this recovery.
 
@@ -11,9 +26,12 @@ The native shell tags recovery feedback with its context generation. A supersede
 The duplicate private-context reset before recovery was removed; no automatic network retry was added.
 Current, non-superseded recovery still asks the user to review the recovered account.
 Fifty focused account tests and root TypeScript passed. Six new cases failed against the prior code before the fix; the positive recovery case also passes.
-No database, deployment, schema, or schedule change is implied by this local check. Exact delivery evidence follows after release verification.
+The local regression checks alone did not imply delivery; the exact deployed evidence is recorded above.
 The native package also passed all 229 checks, types, lint and bundle validation. All three HTTPS browser suites passed.
 Current local account evidence is retained in `test-results/cloudflare-frontend/run-TSC4x7/`; the reviewed real-catalog journey is in `test-results/native-catalog/run-sS8EZT/`.
+The 20:58 UTC silent credential recheck still found no SQL/management/CLI token. The staged social read still returned zero accepted posts or ranks from 25 venue observations.
+Those receipts are `.preview-private/native-recovery-credentials.json` and `.preview-private/native-recovery-social.json`.
+No image sources were re-researched after deferral. No outreach or other external message was sent.
 
 ## Delivered Preview - 2026-09-12
 

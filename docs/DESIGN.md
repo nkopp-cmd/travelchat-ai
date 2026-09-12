@@ -2,6 +2,11 @@
 
 ## Scope
 
+The independent account recovery fix reuses the existing blocked/error presentation; no layout, token, or image decision changed.
+Local timeout screenshots and hosted read-only account screens were opened at mobile/desktop sizes, with the hosted intermediate width also checked.
+Hosted evidence: `.preview-private/account-release-vPLcWf/browser/`. Malformed verification data is not displayed as a missing-email-verification claim.
+The six deferred business images remain outside this work; no outreach or new reuse is authorized.
+
 The park photo improvement reuses the existing image, attribution, and map components without changing the layout.
 The selected 2018 photograph shows the actual park landscape. It must remain uncropped and explicitly historical in the card description.
 It replaces only the existing park's missing-image state, not any unresolved business image.

@@ -1,5 +1,17 @@
 # Seoul Discovery Release
 
+## Account Recovery - 2026-09-12
+
+The blocked image-rights question was cleared without granting outreach or reuse. The six items remain deferred in NEEDS.
+Independent account work shipped through [PR135](https://github.com/nkopp-cmd/travelchat-ai/pull/135), merge `b3ba5e2e827b36e1993934f240bdd275048ad247`.
+Exact merge verify run `34718132382.1` passed. Active Worker: `b94b6afb-46af-49a1-a08b-ade404c564b2`, at 100%.
+Deployment ID: `f938e403-7f41-4f58-94c9-0b4c69db8805`.
+Observer refresh is bounded, malformed verification flags fail closed, and stale recovery feedback cannot affect a newer account check.
+All eight public rows, reviewed images, bindings, policies, and the active hourly transfer remain unchanged.
+Gravity accepted the restricted-preview release evidence. See `native-account-boundaries.md` for exact source, tests, backup, rollback, and live receipts.
+SQL access, real current-week social evidence, hosted human recovery, and full account cutover remain separate unverified gates.
+Older deployment identities below are historical checkpoints.
+
 ## Reviewed Park Photo - 2026-09-12
 
 PR [134](https://github.com/nkopp-cmd/travelchat-ai/pull/134) delivered the licensed 2018 park landscape without changing its UUID or coordinates.
