@@ -1,5 +1,42 @@
 # Native Email Preferences
 
+## Delivered Preview - 2026-09-12
+
+- Repository: `nkopp-cmd/travelchat-ai`; release branch: `cloudflare/full-migration`.
+- Implementation: `ee13667191aa23f00b90653b99bca115609f5d61`, [PR129](https://github.com/nkopp-cmd/travelchat-ai/pull/129), merged as `61a6fd006499ef158df17f3b087913092158e9e3`.
+- Pre-installation correction: `159d4a22da2c8b73d78008e691921a55abe7e21e`, [PR130](https://github.com/nkopp-cmd/travelchat-ai/pull/130).
+- Deployed merge: `b2cabd6c75a7e1b055c7537a3553ab2a4c95fc26`; its tree matches the checked correction commit.
+- GitHub checks passed: PR129 run `34697431704`, PR130 run `34698222042`, and final merge run `34698529510`.
+- Worker: `localley-discovery-preview`, at `https://preview.localley.io`, protected by unchanged Cloudflare Access policies.
+- Active version: `5bf95956-8bba-4158-9c8a-c2e8a81f6b51`, tagged with the deployed merge, at 100%.
+- Deployment ID: `f521bb8d-553b-4c31-9429-86bb08fe9b04`; verified at `2026-09-12T14:17:41.437Z`.
+- Persistent data: EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
+- Migration `0007_email_preferences.sql` was applied only to that preview. The table had zero rows after installation.
+- Backup: `cloudflare/auth-proof/.preview-private/preferences-release-QWzkYC/before.sql`, mode `0600`.
+- Backup SHA-256: `6e6e062185607a86fecf52b312c4fc41783eadeb0623acfac8961fd043a3b825`; restoration and migration rehearsal passed.
+- Rollback version: `7e9c2a7c-2c5b-406b-8160-9ae705d7271c`. Retain the additive table and all newer data.
+
+The first preflight remains separately retained in `.preview-private/preferences-release-MK5uK3/`.
+No earlier receipts or operator counters were replaced. No ingestion command or timer configuration was changed.
+The existing user-manager interface confirmed `localley-native-sync.timer` remains active.
+All eight public rows and the checked account, identity, save, itinerary, and mail rows matched their pre-installation snapshots.
+Foreign-key checks passed. Worker secret names and Access policies stayed unchanged.
+
+Live JavaScript SHA-256: `7ab9f520b1c95cffb233fd151853465b3419c2f1eb393162bf4f17954ebd5b73`.
+Live CSS SHA-256: `2e6ee6fee62a96d3829d7e4defc696a9ebf261b6384c978f9b1e102c0e654de8`.
+All seven reviewed JPEG hashes and license notices matched. The eight-place catalog and fifteen map selections passed.
+The live preference route returned 401 without a Better Auth session; service-token PUT returned 403.
+Anonymous requests still redirected to Access. No protection exception was added.
+Hosted preference and catalog screenshots were opened at 390/900/1440 pixels.
+Early preference captures preceded image decoding. Corrected captures in `preferences-settled/` wait for the catalog, image, and font.
+Both sets remain retained; this was a capture timing issue, not a second deployment.
+Private deployment and live reports are `release.json` and `live.json` inside the final backup directory.
+
+Gravity accepted coding evidence for the exact deployed merge through `verify-commit Localley preserved-app-work`.
+The documented `verify-release Localley verified-delivery` command rejected the exact PR130/merge/deployment tuple with `independent_evidence_rejected`.
+Its last status still listed app-specific release-contract, check-catalog, and protected-merge gates. No registry or engine was changed.
+This is verified preview delivery, not independent full-production acceptance or proof of operator-receipt reconciliation.
+
 ## Scope
 
 This increment ports `/api/user/email-preferences` and the existing settings controls to Better Auth and D1.

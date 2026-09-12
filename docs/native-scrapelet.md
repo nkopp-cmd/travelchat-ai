@@ -2,6 +2,11 @@
 
 ## Current Delivered Scope — 2026-09-12
 
+The active preview now includes native email preferences from merge `b2cabd6c75a7e1b055c7537a3553ab2a4c95fc26`.
+Worker version `5bf95956-8bba-4158-9c8a-c2e8a81f6b51` supersedes the PR127 Worker while preserving all eight public records.
+See `releases/native-email-preferences.md` for the deployment, checked migration, backup, and live evidence.
+Native ingestion and the working hourly timer were not changed or repeated during this release.
+
 ### Production Continuation Source Check
 
 Nils's explicit operator batch `next-1789217445` continues this same app session. Gravity owns receipt reconciliation.
@@ -39,14 +44,14 @@ Persistent data remains in EU D1 `localley-migration-preview`, ID `e943548b-01ae
 The existing user-manager interface reported `localley-native-sync.timer` active. No scheduler configuration changed.
 The social dry run still returned zero accepted posts or ranks, with no publication or paid calls.
 
-This increment changed host ingestion, not the Worker bundle. The PR127 Worker identity below remains the deployed preview.
+PR128 changed host ingestion, not the Worker bundle. The PR127 Worker identity below records that historical checkpoint.
 Importer rollback reference: `70d8b7551cd9f206fc9580e0dcf3c2b52ae7fd00`, before PR128.
 Any rollback must preserve candidate data, receipts, public rows, and the existing timer. No rollback was performed.
 Gravity's last status still reported `app_specific_live_contract_required`, `check_catalog_unavailable`, and `private_protection_unavailable`.
 The accepted coding evidence is recorded separately from those status gates. No shared engine or registration was changed.
 
 Localley PR https://github.com/nkopp-cmd/travelchat-ai/pull/127 merged as `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
-Protected preview version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` serves that tag at 100%.
+Protected preview version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` served that tag at 100% before the native preference release.
 Cloudflare deployment ID: `a455a2cb-07ac-4216-9c1c-68918c286a64`.
 
 Four reviewed records were inserted: DDP, Sewoon Shopping Center, Gwangjang Market, and Jongmyo Shrine.

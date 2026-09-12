@@ -1,5 +1,20 @@
 # Seoul Discovery Release
 
+## Native Preferences - 2026-09-12
+
+PRs [129](https://github.com/nkopp-cmd/travelchat-ai/pull/129) and [130](https://github.com/nkopp-cmd/travelchat-ai/pull/130) delivered native email preferences.
+Deployed merge: `b2cabd6c75a7e1b055c7537a3553ab2a4c95fc26`; final GitHub verify run `34698529510` passed.
+Protected preview Worker version: `5bf95956-8bba-4158-9c8a-c2e8a81f6b51`, at 100%.
+Deployment identity: `f521bb8d-553b-4c31-9429-86bb08fe9b04`, at `https://preview.localley.io`.
+Additive D1 migration 0007 passed backup restoration and rehearsal before installation.
+All eight public records stayed unchanged. The hourly transfer remains active; no ingestion was repeated for this release.
+The actual settings controls passed local authenticated HTTPS tests and reviewed screenshots across three widths.
+Live assets, catalog, maps, and denied private access passed. Hosted human sign-in/recovery remains unverified.
+Gravity accepted the exact merged coding evidence but rejected independent release evidence. Its release gates remain open.
+See `native-email-preferences.md` for the exact checks, data location, backup hash, rollback version, and private receipts.
+Existing Vercel production, six image-rights gaps, native current-week social acceptance, and production SQL access remain unchanged.
+The older preview identities below are historical checkpoints, not the active Worker.
+
 ## Host Ingestion Verification - 2026-09-12
 
 PR https://github.com/nkopp-cmd/travelchat-ai/pull/128 merged as `0933208e4095354d92c3f3d78687dbc117d22bd3` into `cloudflare/full-migration`.
@@ -15,8 +30,8 @@ Production SQL access, six image-rights gaps, current-week social evidence, and 
 
 ## Native Provider Update — 2026-09-12
 
-The latest protected-preview source is PR https://github.com/nkopp-cmd/travelchat-ai/pull/127, merge `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
-Worker version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` serves that tag at 100%.
+The native-provider checkpoint was PR https://github.com/nkopp-cmd/travelchat-ai/pull/127, merge `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
+Worker version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` served that tag before the native preference release.
 Four reviewed native venues were added without changing the original four rows; eight places are visible.
 The preview holds thirteen candidates, seven exact source matches, six unmatched candidates, and no foreign-key violations.
 All image, notice, source, map, and live browser checks passed. The working hourly transfer timer remains unchanged.

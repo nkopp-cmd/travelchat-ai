@@ -13,6 +13,10 @@ All nine final screenshots were opened. Preference text measured at least 4.83:1
 Keyboard operation, visible focus, reduced motion, switch alignment, and no overflow passed at 390/900/1440 pixels.
 See `releases/native-email-preferences.md` for the verification record and hosted acceptance limits.
 No new component library, copied source, font, or paid asset was added.
+The panel is now deployed to the protected preview. Hosted signed-out preference and catalog screens were opened at three widths.
+Private controls remained hidden. Seven image hashes, exact credits, eight places, and fifteen map selections passed live checks.
+Early captures preceded image decoding; separate settled captures confirmed the real photos and retained both evidence sets.
+Hosted authenticated preference and recovery acceptance remain open; the available service identity stays read-only.
 
 The native-source expansion reuses the existing preview cards, photo credits, and map for four additional reviewed venues.
 Archive and historical photographs remain explicitly dated or marked date-unavailable. No market image stands in for an unverified stall.
