@@ -1,5 +1,18 @@
 # Seoul Discovery Release
 
+## Host Ingestion Verification - 2026-09-12
+
+PR https://github.com/nkopp-cmd/travelchat-ai/pull/128 merged as `0933208e4095354d92c3f3d78687dbc117d22bd3` into `cloudflare/full-migration`.
+The host checkout installed this importer. The existing transfer command passed live verification at `2026-09-12T11:44:34.043Z`.
+It accepted thirteen identities and preserved all eight public records. Candidate observations remained monotonic.
+The existing hourly timer remains active and unchanged. The Worker bundle was not redeployed.
+[Merged-commit verification](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/34691652711) passed application, native, PostGIS, TypeScript, and lint checks.
+Gravity accepted the merged commit's coding evidence. Full release verification remains unverified; no shared engine settings changed.
+Persistent data remains in EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
+Importer rollback source is `70d8b7551cd9f206fc9580e0dcf3c2b52ae7fd00`; preserve data and timer configuration during rollback.
+Exact receipts, private evidence paths, unchanged public digest, and remaining gates are in `../native-scrapelet.md`.
+Production SQL access, six image-rights gaps, current-week social evidence, and full migration acceptance remain unresolved.
+
 ## Native Provider Update — 2026-09-12
 
 The latest protected-preview source is PR https://github.com/nkopp-cmd/travelchat-ai/pull/127, merge `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.

@@ -6,11 +6,34 @@
 
 Gravity resumed this same Localley session without changing app ownership or the transfer timer.
 The previous commit did not have GitHub check evidence, so the independent coding verifier rejected it.
-The next increment adds a real `verify` workflow for exact source commits, including isolated native and PostGIS adapter checks.
+PR128 added a real `verify` workflow for exact source commits, including isolated native and PostGIS adapter checks.
 It also rejects equal-time conflicting venue observations instead of allowing input order to replace evidence.
 Candidate updates execute as one guarded statement; conflicts and capacity failures cannot leave a partial candidate batch.
 Identical retries can still refresh exact source matching. Older observations cannot replace newer candidates.
 The existing hourly unit and schedule remain unchanged.
+
+PR https://github.com/nkopp-cmd/travelchat-ai/pull/128 merged into `cloudflare/full-migration` as `0933208e4095354d92c3f3d78687dbc117d22bd3`.
+Source commit `475cc0857e5765b7c8c9fa3b36de6b50056912f7` and the merge have identical trees.
+The merged commit passed [GitHub verify run 34691652711](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/34691652711).
+Checks covered application tests, native ingestion, isolated PostGIS, TypeScript, and lint.
+Gravity accepted this merged commit through `verify-commit Localley preserved-app-work`.
+That coding evidence does not establish full production release acceptance.
+
+The host checkout installed the importer. At `2026-09-12T11:44:34.043Z`, the existing `scripts/run-native-sync.mjs` command passed live verification.
+It accepted thirteen identities from 58,588 source bytes, with no rejections, targeting only `localley-migration-preview`.
+The candidate identity set stayed unchanged. Observations remained monotonic; equal-time payloads stayed identical.
+All eight public records stayed unchanged. Their ordered JSON SHA-256 was `10442fca87f36e8a1e7850cefa576d3e0c552330496c44a0707146011b0250c6`.
+Batch receipt: `1664cca66006a7db2ba8bbab81a5835a8fa2cc3d793d69af27f7a5352e154797`.
+The private before-snapshot, command log, and report remain in `cloudflare/auth-proof/.preview-private/ingestion-{before.json,command.log,evidence.json}`.
+Persistent data remains in EU D1 `localley-migration-preview`, ID `e943548b-01ae-485d-9219-e2a46cb0da8e`.
+The existing user-manager interface reported `localley-native-sync.timer` active. No scheduler configuration changed.
+The social dry run still returned zero accepted posts or ranks, with no publication or paid calls.
+
+This increment changed host ingestion, not the Worker bundle. The PR127 Worker identity below remains the deployed preview.
+Importer rollback reference: `70d8b7551cd9f206fc9580e0dcf3c2b52ae7fd00`, before PR128.
+Any rollback must preserve candidate data, receipts, public rows, and the existing timer. No rollback was performed.
+Gravity's last status still reported `app_specific_live_contract_required`, `check_catalog_unavailable`, and `private_protection_unavailable`.
+The accepted coding evidence is recorded separately from those status gates. No shared engine or registration was changed.
 
 Localley PR https://github.com/nkopp-cmd/travelchat-ai/pull/127 merged as `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
 Protected preview version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` serves that tag at 100%.
