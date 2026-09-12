@@ -6,6 +6,54 @@ import { resolve } from "node:path";
 import { startLocalServer } from "../scripts/local-server.mjs";
 import { browserUiChecks } from "./browser-ui.mjs";
 import { captureBrowserState } from "./browser-visual.mjs";
+import { itineraryHTTPSChecks } from "./itineraries-https.mjs";
+import { tripsUiChecks } from "./trips-ui.mjs";
+
+test("HTTPS itinerary edits, native Trips UI and route-specific UTF8 body limits", { timeout: 120_000 }, async () => {
+  const server = await startLocalServer();
+  let browser;
+  try {
+    const { chromium } = await import("playwright");
+    browser = await chromium.launch({ executablePath: process.env.AUTH_PROOF_BROWSER_EXECUTABLE, headless: true, args: ["--no-proxy-server", "--disable-background-networking"] });
+    const context = await browser.newContext({ ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    let external = 0;
+    const errors = [];
+    await context.route("**/*", (route) => {
+      if (new URL(route.request().url()).origin === server.origin) return route.continue();
+      external++; return route.abort();
+    });
+    const page = await context.newPage();
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto(server.origin);
+    const call = async (path, method = "GET", body, expected) => page.evaluate(async ({ path, method, body, expected }) => {
+      const response = await fetch(path, { method, headers: { "Content-Type": "application/json",
+        ...(expected === undefined ? {} : { "x-localley-session-id": expected }) },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+      return { status: response.status, data: await response.json() };
+    }, { path, method, body, expected });
+    const email = "itinerary-https@example.test", password = "Synthetic-" + randomBytes(20).toString("hex");
+    const signup = await call("/api/auth/sign-up/email", "POST", { email, password, name: "Synthetic itinerary" });
+    assert.equal(signup.status, 200);
+    const mail = await server.db.prepare("SELECT url FROM local_outbox WHERE authUserId = ? AND kind = 'verify' ORDER BY id DESC LIMIT 1").bind(signup.data.user.id).first();
+    await page.goto(mail.url);
+    await page.goto(server.origin);
+    assert.equal((await call("/api/auth/sign-in/email", "POST", { email, password })).status, 200);
+    const session = await call("/api/session");
+    assert.equal(session.status, 200);
+    assert.equal(session.data.state, "unlinked");
+    assert.equal((await call("/api/account/new", "POST", {}, session.data.sessionId)).status, 201);
+    assert.deepEqual(await call("/api/itineraries"), { status: 200, data: { itineraries: [], nextOffset: null } });
+    assert.equal((await call("/api/itineraries/generate", "POST", {}, session.data.sessionId)).status, 404);
+    await itineraryHTTPSChecks({ db: server.db, page, call });
+    await server.db.prepare("DELETE FROM itineraries").run();
+    await tripsUiChecks({ db: server.db, page, call, origin: server.origin });
+    assert.deepEqual(errors, []);
+    assert.equal(external, 0);
+    assert.equal(server.outboundRequests, 0);
+  } finally {
+    try { await browser?.close(); } finally { await server.close(); }
+  }
+});
 
 test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }, async (t) => {
   let stage = "start local runtime";
@@ -23,7 +71,7 @@ test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }
     const { origin, db } = server;
     const { chromium } = await import("playwright");
     stage = "start local Chromium";
-    browser = await chromium.launch({ headless: true, args: ["--no-proxy-server", "--disable-background-networking"] });
+    browser = await chromium.launch({ executablePath: process.env.AUTH_PROOF_BROWSER_EXECUTABLE, headless: true, args: ["--no-proxy-server", "--disable-background-networking"] });
     const context = await browser.newContext({ ignoreHTTPSErrors: true, serviceWorkers: "block", reducedMotion: "reduce", viewport: { width: 390, height: 844 } });
     let blocked = 0;
     let pageErrors = 0;
@@ -82,10 +130,15 @@ test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }
     assert.equal(catalog.status, 200);
     assert.equal(catalog.data.nextOffset, 1);
     const spotId = catalog.data.spots[0].id;
-    assert.deepEqual(Object.keys(catalog.data.spots[0]).sort(), ["category", "description", "id", "localley_score", "name", "photos"]);
+    assert.deepEqual(Object.keys(catalog.data.spots[0]).sort(), [
+      "address", "category", "city", "description", "id", "latitude", "localley_score", "longitude", "name", "photoCredits", "photos", "sourceUrls",
+    ]);
     assert.equal(typeof catalog.data.spots[0].name, "object");
     assert.equal(catalog.data.spots[0].photos, null);
     assert.equal(catalog.data.spots[0].localley_score, null);
+    for (const key of ["address", "city", "latitude", "longitude"]) assert.equal(catalog.data.spots[0][key], null);
+    assert.deepEqual(catalog.data.spots[0].photoCredits, []);
+    assert.deepEqual(catalog.data.spots[0].sourceUrls, []);
     for (const query of ["limit=0", "limit=101", "offset=-1", "offset=10001", "limit=1&limit=2", "ownerId=forged", "limit=1.5", "limit=", "offset=Infinity"]) {
       assert.equal((await call("/api/spots?" + query)).status, 400);
     }
@@ -109,6 +162,13 @@ test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }
     assert.equal((await call("/api/account/new", "POST", {}, "stale-session")).status, 409);
     assert.equal(await count("owners"), 0);
     assert.equal((await call("/api/account/new", "POST", {}, aliceSession.sessionId)).status, 201);
+    for (const method of ["POST", "DELETE"]) {
+      const missing = await call("/api/spots/save", method, { spotId });
+      assert.equal(missing.status, 428);
+      assert.equal(missing.data.error.code, "session_required");
+    }
+    assert.equal(await count("saved_spots"), 0);
+    assert.equal(await count("application_outbox"), 0);
     assert.equal((await call("/api/spots/save", "POST", { spotId }, aliceSession.sessionId)).status, 200);
     assert.equal(await count("application_outbox"), 1);
     assert.equal((await call("/api/spots/save", "DELETE", { spotId }, aliceSession.sessionId)).status, 200);
@@ -120,6 +180,8 @@ test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }
     const before = await count("application_outbox");
     for (const path of ["/api/account/new", "/api/account/claim", "/api/private-notes", "/api/spots/save"]) {
       const response = await call(path, "POST", path.endsWith("save") ? { spotId } : {}, aliceSession.sessionId);
+      t.diagnostic(JSON.stringify({ checkpoint: "cross-user expected-session", path, status: response.status,
+        sessionChanged: response.data.error?.code === "session_changed", conflict: response.data.error?.code === "conflict" }));
       assert.equal(response.status, 409);
       assert.equal(response.data.error.code, "session_changed");
     }

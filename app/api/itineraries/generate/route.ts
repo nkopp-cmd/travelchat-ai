@@ -288,65 +288,74 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
 
     // Only save to database for authenticated users
     if (!isAnonymous && userId) {
-      const userDbId = await getOrCreateUserDbId(supabase, userId);
+      try {
+        const userDbId = await getOrCreateUserDbId(supabase, userId);
 
-      // Only try to save if we have a valid user ID
-      if (userDbId) {
-        const { data, error: saveError } = await supabase
-          .from('itineraries')
-          .insert([
-            {
-              user_id: userDbId,  // Required FK to users table
-              clerk_user_id: userId,  // For direct querying
-              title: itineraryData.title,
-              subtitle: itineraryData.subtitle,
-              city: normalizedCity,
-              days: days,
-              activities: buildItineraryPlanPayload(itineraryData.dailyPlans, itineraryData.insights),
-              local_score: itineraryData.localScore,
-              shared: false,
-              highlights: itineraryData.highlights,
-              estimated_cost: itineraryData.estimatedCost,
-            },
-          ])
-          .select()
-          .single();
+        // Only try to save if we have a valid user ID
+        if (userDbId) {
+          const { data, error: saveError } = await supabase
+            .from('itineraries')
+            .insert([
+              {
+                user_id: userDbId,  // Required FK to users table
+                clerk_user_id: userId,  // For direct querying
+                title: itineraryData.title,
+                subtitle: itineraryData.subtitle,
+                city: normalizedCity,
+                days: days,
+                activities: buildItineraryPlanPayload(itineraryData.dailyPlans, itineraryData.insights),
+                local_score: itineraryData.localScore,
+                shared: false,
+                highlights: itineraryData.highlights,
+                estimated_cost: itineraryData.estimatedCost,
+              },
+            ])
+            .select()
+            .single();
 
-        if (saveError) {
-          console.error('Error saving itinerary:', saveError);
-          // Continue even if save fails - return the itinerary
+          if (saveError) {
+            console.error('Error saving itinerary:', saveError);
+            // Continue even if save fails - return the itinerary
+          } else if (typeof data?.id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.id)) {
+            savedItinerary = data;
+          }
         } else {
-          savedItinerary = data;
+          console.error('Cannot save itinerary: no user_id found');
         }
-      } else {
-        console.error('Cannot save itinerary: no user_id found');
+      } catch (saveError) {
+        console.error('Error saving generated itinerary:', saveError);
       }
 
       // Usage already tracked atomically - no need for separate call
-      // Award XP for creating itinerary (fire and forget)
-      try {
-        await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Cookie': req.headers.get('cookie') || '',
-          },
-          body: JSON.stringify({
-            action: 'create_itinerary',
-          }),
-        });
-      } catch (xpError) {
-        console.error('Error awarding XP:', xpError);
+      // Creation XP requires confirmed persistence, not just generated content.
+      if (savedItinerary) {
+        try {
+          await fetch(`${req.nextUrl.origin}/api/gamification/award`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Cookie': req.headers.get('cookie') || '',
+            },
+            body: JSON.stringify({
+              action: 'create_itinerary',
+            }),
+          });
+        } catch (xpError) {
+          console.error('Error awarding XP:', xpError);
+        }
       }
     }
 
     // Build response
     const response = NextResponse.json({
-      success: true,
+      success: isAnonymous || Boolean(savedItinerary),
+      generated: true,
+      stored: Boolean(savedItinerary),
+      ...(!isAnonymous && !savedItinerary && { error: "itinerary_not_saved", message: "Your trip was generated, but could not be saved. Keep the generated draft." }),
       isAnonymous,
       itinerary: {
-        id: savedItinerary?.id,
         ...itineraryData,
+        id: savedItinerary?.id,
       },
       meta: {
         provider: aiProvider,

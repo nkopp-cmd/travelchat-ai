@@ -4,6 +4,9 @@ import { trustedAppSession } from "./app-session";
 import { savedSpots } from "./saved-spots";
 import { appError } from "./app-error";
 import { catalog } from "./catalog";
+import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryBodyLimit } from "./itineraries";
+import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
+import { verifyAccess, type AccessIdentity } from "./access";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -14,17 +17,33 @@ export default {
       savedRoute ? appError(code, message, status) : json({ error: legacyMessage }, status);
     try {
       const url = new URL(request.url);
+      const itineraryRoute = url.pathname === "/api/itineraries" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname);
+      const itineraryPatch = request.method === "PATCH" && itineraryUpdatePath.test(url.pathname);
+      const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
       const base = new URL(env.AUTH_BASE_URL);
-      const local = base.hostname === "localhost" || base.hostname.endsWith(".test");
-      if (env.LOCAL_PROOF !== "true" || !local || base.protocol !== "https:" || base.origin !== env.AUTH_BASE_URL
-        || url.origin !== base.origin || env.BETTER_AUTH_SECRET.length < 32 || env.CLAIM_SECRET.length < 32) return fail("forbidden", "Local proof only", 403);
-      if (request.method === "GET" && url.pathname === "/api/spots") return await catalog(url, env);
+      if (!await validRuntime(request, env)) return fail("forbidden", "Runtime unavailable", 403);
+      let access: AccessIdentity | undefined;
+      if (isPreview(env)) {
+        access = await verifyAccess(request, env) ?? undefined;
+        if (!access) return fail("forbidden", "Access denied", 403);
+        if (url.pathname === "/api/account/claim") return json({ error: "Not found" }, 404);
+      }
+      if (request.method === "GET" && url.pathname === "/api/app-config") return json(isPreview(env)
+        ? { mode: "preview", catalogSource: "seoul-pilot", registration: "restricted-preview", emailDelivery: "cloudflare" }
+        : { mode: "local", catalogSource: "synthetic", registration: "local-test", emailDelivery: "captured" });
+      if (["GET", "HEAD"].includes(request.method) && url.pathname === "/api/health") return json({ ok: true });
+      if ((request.method === "GET" || (isPreview(env) && request.method === "HEAD")) && url.pathname === "/api/spots") {
+        const response = await catalog(url, env);
+        return request.method === "HEAD" ? new Response(null, response) : response;
+      }
       if (["GET", "HEAD"].includes(request.method) && !url.pathname.startsWith("/api/") && url.pathname !== "/api") {
         return await env.ASSETS.fetch(request);
       }
-      // Never trust caller-provided proxy IPs in this local-only harness.
+      // Cloudflare overwrites its IP header. Never accept the caller's internal header.
       const headers = new Headers(request.headers);
-      headers.set("x-local-proof-ip", "127.0.0.1");
+      const ip = trustedIP(request, env);
+      if (!ip) return fail("forbidden", "Invalid client address", 403);
+      headers.set("x-local-proof-ip", ip);
       let body: Uint8Array | undefined;
       if (request.body) {
         const reader = request.body.getReader();
@@ -40,7 +59,7 @@ export default {
             if (next === null) return fail("timeout", "Body read timeout", 408);
             if (next.done) { complete = true; break; }
             size += next.value.byteLength;
-            if (size > 16 * 1024) return fail("validation_error", "Body too large", 413);
+            if (size > (itineraryPatch ? itineraryBodyLimit : 16 * 1024)) return fail("validation_error", "Body too large", 413);
             chunks.push(next.value);
           }
         } catch {
@@ -57,7 +76,7 @@ export default {
       }
       request = new Request(request.url, { method: request.method, headers, body });
       if (url.pathname.startsWith("/api/auth/")) {
-        const auth = createAuth(env);
+        const auth = createAuth(env, access);
         const response = await auth.handler(request);
         if (response.status >= 500) return json({ error: "Local proof failure" }, 500);
         response.headers.set("Cache-Control", "no-store");
@@ -65,22 +84,40 @@ export default {
       }
       const path = url.pathname;
       if (path !== "/api/session" && path !== "/api/account/new" && path !== "/api/account/claim"
-        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path)) return json({ error: "Not found" }, 404);
+        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute) return json({ error: "Not found" }, 404);
       if (!["GET", "HEAD"].includes(request.method) && headers.get("Origin") !== base.origin) return fail("forbidden", "Invalid origin", 403);
       const session = await trustedAppSession(env, request.headers);
       if (session.state === "signedout") return fail("unauthorized", "Please sign in to continue.", 401, "Unauthorized");
+      if (isPreview(env) && "authUserId" in session) {
+        const user = await env.DB.prepare("SELECT email FROM user WHERE id = ?").bind(session.authUserId).first<{ email: string }>();
+        const email = allowedEmail(env, user?.email);
+        if (!email || (access?.kind === "human" && email !== access.email)) return fail("forbidden", "Session email mismatch", 403);
+      }
       if (session.state === "unverified") return fail("forbidden", "Verify email", 403);
       // This is a stale-client guard, never an authentication credential.
       const expectedSession = request.headers.get("x-localley-session-id");
-      if (!["GET", "HEAD"].includes(request.method) && expectedSession !== null && expectedSession !== session.sessionId) {
+      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || path === "/api/spots/save";
+      // Refresh a stale account before the client interprets the new account's setup state.
+      if (checksSession && expectedSession && expectedSession !== session.sessionId) {
+        return appError("session_changed", "Your session changed. Refresh before trying again.", 409);
+      }
+      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryDelete) {
+        if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
+        if (!expectedSession) return appError("session_required", "Refresh your session before trying again.", 428);
+      }
+      if (checksSession && expectedSession === "") {
         return appError("session_changed", "Your session changed. Refresh before trying again.", 409);
       }
       if (path === "/api/session" && request.method === "GET") {
         return json(session);
       }
       let data: Record<string, unknown> = {};
+      if (itineraryDelete && body?.length) return json({ error: "Unexpected body" }, 400);
       if (body?.length) {
-        const parsed: unknown = JSON.parse(new TextDecoder().decode(body));
+        let text: string;
+        try { text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }).decode(body); }
+        catch { return fail("validation_error", "Invalid UTF-8", 400); }
+        const parsed: unknown = JSON.parse(text);
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return fail("validation_error", "Invalid body", 400);
         data = parsed as Record<string, unknown>;
       }
@@ -105,6 +142,7 @@ export default {
       }
       if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
       const ownerId = session.ownerId;
+      if (itineraryRoute) return await itineraries(request, env, session, data);
       if (path === "/api/spots/save") return await savedSpots(request, env, session, data);
       const id = path.startsWith("/api/private-notes/") ? decodeURIComponent(path.slice("/api/private-notes/".length)) : null;
       if (path === "/api/private-notes" && request.method === "GET") return json((await env.DB.prepare("SELECT id, body FROM private_notes WHERE ownerId = ? ORDER BY id LIMIT 100").bind(ownerId).all()).results);
@@ -133,4 +171,4 @@ export default {
       return fail("internal_error", "An unexpected error occurred. Please try again.", 500, "Local proof failure");
     }
   },
-} satisfies ExportedHandler<Env>;
+} satisfies ExportedHandler<RuntimeEnv>;

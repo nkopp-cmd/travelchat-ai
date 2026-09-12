@@ -2,6 +2,11 @@
 
 Final target: no Vercel, Supabase, or Clerk runtime dependency.
 
+Discovery improvements are additions to the complete existing application.
+Preserve current accounts, subscriptions, itineraries, bookmarks, and other product flows during migration.
+The restricted three-place preview is infrastructure evidence, not a replacement product or a cutover candidate.
+The existing-app integration is documented in `releases/integrated-discovery.md`.
+
 No new Vercel deployments are permitted, including narrow fixes to the existing website.
 An attempted unpromoted photo-repair candidate was removed after the user reiterated this requirement.
 Vercel Git integration is disconnected, and this branch retains only an explicit deployment-disable guard.
@@ -16,6 +21,19 @@ The current services stay online only until a verified replacement and rollback 
 Stripe, OpenAI, and MiniMax remain external product providers, not hosting or authentication platforms.
 
 ## Current Checkpoint
+
+Private itinerary summaries, detail reads, and atomic edits now run in native D1.
+The actual existing editor passed a Better Auth HTTPS journey against that backend.
+See `releases/native-itinerary-editor.md` for the schema, limits, evidence, and remaining feature coverage.
+This does not migrate the Next server pages or switch live accounts.
+
+The latest authentication step connects actual root bookmark components to Better Auth and native D1 over local HTTPS.
+The root application retains an explicit Clerk adapter for its current live backend.
+The Better Auth adapter validates authentication and application identities without provider fallback.
+Native bookmark writes now require matching session preconditions.
+Full root regression checks and the production build pass.
+See `releases/better-auth-integration.md` for exact evidence, dependency findings, and remaining account migration work.
+This is not a live authentication cutover or a replacement of the full product with the restricted preview.
 
 Cloudflare DNS is active for `localley.io` as of 2026-09-08.
 The 14 existing DNS records were compared and preserved before the user changed nameservers.

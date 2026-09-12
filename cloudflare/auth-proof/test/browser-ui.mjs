@@ -105,6 +105,7 @@ export async function browserUiChecks({ page, context, origin, db, call, stage, 
     if (!delayOnce || route.request().method() !== "GET") return route.continue();
     delayOnce = false;
     const response = await route.fetch();
+    assert.equal(route.request().headers()["x-localley-session-id"], previousSession.sessionId);
     receivedOld();
     await oldDelay;
     await route.fulfill({ response }).catch(() => {});
@@ -132,9 +133,12 @@ export async function browserUiChecks({ page, context, origin, db, call, stage, 
     const send = (path, body, session) => fetch(path, { method: "POST", headers: { "Content-Type": "application/json", ...(session ? { "x-localley-session-id": session } : {}) }, body: JSON.stringify(body) });
     const login = await send("/api/auth/sign-in/email", { email, password });
     const stale = await send("/api/spots/save", { spotId }, expected);
-    return { login: login.status, stale: stale.status, code: (await stale.json()).error.code };
+    const staleRead = await fetch("/api/spots/save?spotId=" + spotId, { headers: { "x-localley-session-id": expected } });
+    const data = await staleRead.json();
+    return { login: login.status, stale: stale.status, code: (await stale.json()).error.code,
+      staleRead: staleRead.status, readCode: data.error?.code, hasSaved: Object.hasOwn(data, "saved") };
   }, { email: otherEmail, password: otherPassword, expected: previousSession.sessionId, spotId: previousSave.spot_id });
-  assert.deepEqual(switched, { login: 200, stale: 409, code: "session_changed" });
+  assert.deepEqual(switched, { login: 200, stale: 409, code: "session_changed", staleRead: 409, readCode: "session_changed", hasSaved: false });
   await page.bringToFront();
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await visible(otherEmail);

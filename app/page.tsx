@@ -149,7 +149,7 @@ export default function LandingPage() {
     event.preventDefault();
     const query = searchQuery.trim();
     if (query) {
-      router.push(`/spots?search=${encodeURIComponent(query)}`);
+      router.push(`/spots?${new URLSearchParams({ city: citySlug(selectedCity), search: query })}`);
       return;
     }
     router.push(exploreHref);

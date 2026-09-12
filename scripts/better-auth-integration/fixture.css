@@ -1,0 +1,19 @@
+/* Test layout only. Product controls use the existing root Tailwind tokens. */
+body { font-family: Arial, sans-serif; }
+main { max-width: 1080px; margin: auto; padding: 24px; }
+header { margin-bottom: 24px; }
+h1 { font-size: 30px; font-weight: 700; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { margin-bottom: 12px; }
+p { margin: 8px 0; }
+section, article { border: 1px solid hsl(var(--border)); padding: 20px; margin-bottom: 20px; border-radius: var(--radius); }
+article { background: hsl(var(--card)); }
+.controls { display: flex; gap: 48px; flex-wrap: wrap; margin-top: 20px; }
+section:not([aria-label="Your itineraries"]) button { border: 1px solid hsl(var(--border)); padding: 10px 14px; margin: 6px 8px 6px 0; border-radius: 6px; min-height: 44px; }
+section:not([aria-label="Your itineraries"]) button:disabled { opacity: .5; }
+label { display: block; margin: 12px 0; }
+form input { display: block; width: 100%; max-width: 480px; margin-top: 6px; padding: 10px; background: hsl(var(--background)); border: 1px solid hsl(var(--border)); border-radius: 6px; }
+button:focus-visible, input:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+select[aria-label="Trip ID"] { display: block; width: 100%; min-height: 44px; padding: 8px; color: hsl(var(--foreground)); background: hsl(var(--background)); border: 1px solid hsl(var(--border)); border-radius: 6px; }
+select[aria-label="Trip ID"]:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+@media (max-width: 500px) { main { padding: 16px; } h1 { font-size: 26px; } section, article { padding: 16px; } }

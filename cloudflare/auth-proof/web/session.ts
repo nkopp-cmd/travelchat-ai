@@ -1,7 +1,11 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({ basePath: "/api/auth" });
-export type Spot = { id: string; name: string | Record<string, string>; description: string | Record<string, string>; category: string; localley_score: number | null; photos: unknown };
+export type Spot = { id: string; name: string | Record<string, string>; description: string | Record<string, string>; category: string; localley_score: number | null; photos: unknown;
+  city?: string | null; address?: string | Record<string, string> | null; latitude?: number | null; longitude?: number | null;
+  photoCredits?: { url: string; author: string; license: string; licenseUrl: string; sourceUrl: string }[] | null;
+  sourceUrls?: string[] | null;
+};
 export type Saved = { id: string; spot_id: string; spots: Spot | null };
 type AppSession = { state: "ready" | "unlinked" | "incomplete"; authUserId: string; sessionId: string; ownerId?: string; userRecordId?: string };
 type Context = { phase: "loading" | "signedout" | "unverified" | "error" | "blocked" | AppSession["state"]; session?: AppSession; user?: { name: string; email: string }; saved?: Saved[]; savedError?: string; error?: string; key?: string };
@@ -68,12 +72,14 @@ async function privateFailure(error: unknown) {
   }
 }
 export async function reloadSaved() {
-  if (snapshot.phase !== "ready") return;
+  const session = snapshot.session;
+  if (snapshot.phase !== "ready" || !session) return;
   const ticket = epoch;
   const version = ++readVersion;
   publish({ ...snapshot, savedError: undefined });
   try {
-    const data = await api<{ spots: Saved[] }>("/api/spots/save", { signal: controller.signal });
+    const data = await api<{ spots: Saved[] }>("/api/spots/save", { signal: controller.signal,
+      headers: { "x-localley-session-id": session.sessionId } });
     if (!Array.isArray(data.spots)) throw new Error("Saved places returned an invalid response.");
     if (ticket === epoch && version === readVersion) publish({ ...snapshot, saved: data.spots });
   } catch (error) {

@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { GripVertical, Trash2, Copy, Edit2, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { isPlanningSpotId } from "@/lib/itineraries/spot-planning";
 
 interface Activity {
+    spotId?: string;
     name: string;
     description?: string;
     time?: string;
@@ -40,8 +42,10 @@ export function ActivityEditor({
 }: ActivityEditorProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedActivity, setEditedActivity] = useState(activity);
+    const linkedPlace = isPlanningSpotId(activity.spotId);
 
     const handleSave = () => {
+        if (!editedActivity.name.trim()) return;
         onUpdate(index, editedActivity);
         setIsEditing(false);
     };
@@ -65,9 +69,9 @@ export function ActivityEditor({
 
                     {/* Activity Content */}
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                            <div className="flex-1">
-                                <h4 className="font-semibold text-lg">{activity.name}</h4>
+                        <div className="mb-2 flex flex-col items-start justify-between gap-2 sm:flex-row">
+                            <div className="min-w-0 flex-1">
+                                <h4 className="break-words font-semibold text-lg">{activity.name}</h4>
                                 {activity.address && (
                                     <p className="text-sm text-muted-foreground line-clamp-1">
                                         {activity.address}
@@ -78,8 +82,9 @@ export function ActivityEditor({
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setIsEditing(true)}
-                                    className="h-8 w-8 p-0"
+                                    onClick={() => { setEditedActivity(activity); setIsEditing(true); }}
+                                    className="h-11 w-11 p-0"
+                                    aria-label={`Edit ${activity.name}`}
                                 >
                                     <Edit2 className="h-4 w-4" />
                                 </Button>
@@ -87,7 +92,8 @@ export function ActivityEditor({
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => onDuplicate(index)}
-                                    className="h-8 w-8 p-0"
+                                    className="h-11 w-11 p-0"
+                                    aria-label={`Copy ${activity.name}`}
                                 >
                                     <Copy className="h-4 w-4" />
                                 </Button>
@@ -95,7 +101,8 @@ export function ActivityEditor({
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => onDelete(index)}
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    className="h-11 w-11 p-0 text-destructive hover:text-destructive"
+                                    aria-label={`Delete ${activity.name}`}
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -147,21 +154,23 @@ export function ActivityEditor({
     return (
         <Card className="p-4 border-violet-200 bg-violet-50/50 dark:bg-violet-950/20">
             <div className="flex items-start gap-3">
-                {/* Drag Handle (disabled when editing) */}
-                <div className="text-muted-foreground/30 mt-1">
+                {/* Stable activity identity keeps pending edits attached while reordering. */}
+                <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing text-muted-foreground mt-1">
                     <GripVertical className="h-5 w-5" />
                 </div>
 
                 {/* Edit Form */}
-                <div className="flex-1 space-y-3">
-                    <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                         <h4 className="font-semibold">Editing Activity</h4>
                         <div className="flex gap-1">
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleSave}
-                                className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
+                                disabled={!editedActivity.name.trim()}
+                                className="h-11 w-11 p-0 text-green-600 hover:text-green-700"
+                                aria-label="Apply activity changes"
                             >
                                 <Check className="h-4 w-4" />
                             </Button>
@@ -169,7 +178,8 @@ export function ActivityEditor({
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleCancel}
-                                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                                className="h-11 w-11 p-0 text-muted-foreground hover:text-foreground"
+                                aria-label="Cancel activity changes"
                             >
                                 <X className="h-4 w-4" />
                             </Button>
@@ -177,27 +187,34 @@ export function ActivityEditor({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {linkedPlace && <p className="text-sm text-muted-foreground md:col-span-2">
+                            This stop is linked to a catalog place. To replace it, remove this stop and add another place.
+                        </p>}
                         <div className="md:col-span-2">
                             <label className="text-sm font-medium mb-1 block">Activity Name</label>
                             <Input
+                                aria-label="Activity name"
+                                aria-invalid={!editedActivity.name.trim()}
+                                readOnly={linkedPlace}
                                 value={editedActivity.name}
                                 onChange={(e) =>
-                                    setEditedActivity({ ...editedActivity, name: e.target.value })
+                                    !linkedPlace && setEditedActivity({ ...editedActivity, name: e.target.value })
                                 }
                                 placeholder="e.g., Coffee at Hidden Alley Cafe"
                             />
+                            {!editedActivity.name.trim() && <p role="alert" className="mt-1 text-sm text-destructive">Enter an activity name before applying changes.</p>}
                         </div>
 
                         <div className="md:col-span-2">
                             <label className="text-sm font-medium mb-1 block">Address</label>
-                            <PlaceAutocomplete
+                            {linkedPlace ? <Input aria-label="Address" value={editedActivity.address || ""} readOnly /> : <PlaceAutocomplete
                                 value={editedActivity.address || ""}
                                 onChange={(value) =>
                                     setEditedActivity({ ...editedActivity, address: value })
                                 }
                                 types={["address", "establishment"]}
                                 placeholder="Search for address or place..."
-                            />
+                            />}
                         </div>
 
                         <div>

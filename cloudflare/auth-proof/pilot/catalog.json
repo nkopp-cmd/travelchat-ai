@@ -1,0 +1,60 @@
+{
+  "title": "Seoul public landmarks preview",
+  "retrievedAt": "2026-09-11",
+  "coordinateLicense": "CC0-1.0",
+  "coordinateNotice": "Approximate place positions from Wikidata. Entrances are not verified.",
+  "spots": [
+    {
+      "id": "0041a575-c6fd-4a7e-b9c3-56cc50e201d6",
+      "name": {"en": "Seodaemun Independence Park"},
+      "description": {"en": "This historic park contains Independence Gate and memorials to Korean independence activists. Seodaemun Prison History Hall explains the site's colonial history."},
+      "category": "park",
+      "city": "Seoul",
+      "address": "251, Tongil-ro, Seodaemun-gu, Seoul",
+      "latitude": 37.5752858,
+      "longitude": 126.9550192,
+      "localley_score": null,
+      "hours": null,
+      "cost": null,
+      "photos": [],
+      "photoCredits": [],
+      "photoStatus": "missing: reviewed candidate mainly depicts the prison, not the park",
+      "sourceUrls": ["https://english.visitseoul.net/attractions/Seodaemun-Independence-Park/ENP001753", "https://www.wikidata.org/wiki/Q623629"],
+      "legacyMapping": {"status": "confirmed", "legacyId": "0041a575-c6fd-4a7e-b9c3-56cc50e201d6", "existingName": "Seodaemun Independence Park", "source": "Parent-reported authenticated read-only SELECT id/name", "verifiedAt": "2026-09-11"}
+    },
+    {
+      "id": "cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5",
+      "name": {"en": "Gyeongbokgung Palace"},
+      "description": {"en": "Built in 1395, Gyeongbokgung served as the main palace of the Joseon dynasty. Its grounds contain restored royal buildings and courtyards."},
+      "category": "culture",
+      "city": "Seoul",
+      "address": "161, Sajik-ro, Jongno-gu, Seoul",
+      "latitude": 37.5798841,
+      "longitude": 126.9767996,
+      "localley_score": null,
+      "hours": null,
+      "cost": null,
+      "photos": ["/pilot/cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5.jpg"],
+      "photoCredits": [{"url": "/pilot/cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5.jpg", "author": "Seoul Tourism Archive", "license": "KOGL Type 1", "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do", "sourceUrl": "https://commons.wikimedia.org/wiki/File:%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg", "takenAt": "2023-10-16"}],
+      "sourceUrls": ["https://english.visitseoul.net/attractions/Gyeongbokgung-Palace_/72", "https://www.wikidata.org/wiki/Q482485"],
+      "legacyMapping": {"status": "confirmed", "legacyId": "cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5", "existingName": "Gyeongbokgung Palace", "source": "Parent-reported authenticated read-only SELECT id/name", "verifiedAt": "2026-09-11"}
+    },
+    {
+      "id": "f0fcf98e-76d7-4673-b8c3-6baf519a1551",
+      "name": {"en": "Cheonggyecheon Stream"},
+      "description": {"en": "This restored stream runs through central Seoul with paths below street level. Access can close during rain for safety."},
+      "category": "nature",
+      "city": "Seoul",
+      "address": "37, Mugyo-ro, Jongno-gu, Seoul",
+      "latitude": 37.56902,
+      "longitude": 126.97771,
+      "localley_score": null,
+      "hours": null,
+      "cost": null,
+      "photos": ["/pilot/f0fcf98e-76d7-4673-b8c3-6baf519a1551.jpg"],
+      "photoCredits": [{"url": "/pilot/f0fcf98e-76d7-4673-b8c3-6baf519a1551.jpg", "author": "Pauloleong2002", "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/", "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cheonggyecheon_in_Korea.jpg", "takenAt": "2014-10-29"}],
+      "sourceUrls": ["https://english.visitseoul.net/attractions/Cheonggyecheon-Stream_/35", "https://www.wikidata.org/wiki/Q495437"],
+      "legacyMapping": {"status": "pending", "legacyId": null, "candidateId": "11107241-dfb3-4cfc-a0c5-d243630f07b8", "candidateName": "Cheonggyecheon Stream Night Walk", "source": "Parent-reported authenticated read-only SELECT id/name", "verifiedAt": "2026-09-11", "note": "Candidate association pending. This night-walk experience is not a confirmed canonical stream venue. Keep the new pilot UUID."}
+    }
+  ]
+}

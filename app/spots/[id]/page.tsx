@@ -992,6 +992,7 @@ export default async function SpotPage({
       />
 
       <div className="mx-auto max-w-6xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/spots"
           className="inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
@@ -999,6 +1000,13 @@ export default async function SpotPage({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
         </Link>
+        <Link
+          href={`/itineraries?${new URLSearchParams({ spotId: spot.id })}`}
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300"
+        >
+          Add to itinerary
+        </Link>
+        </div>
 
         <div
           data-testid="spot-detail-hero"

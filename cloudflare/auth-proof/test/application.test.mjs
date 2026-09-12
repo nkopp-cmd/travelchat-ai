@@ -8,12 +8,20 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
   const dto = async (cookie = aliceCookie) => (await call("/api/session", { cookie })).json();
   const owner = (await dto()).ownerId;
   const count = async (table) => (await db.prepare(`SELECT count(*) AS n FROM ${table}`).first()).n;
-  const save = (spotId, cookie = aliceCookie) => post(route, { spotId }, cookie);
-  const unsave = (spotId, cookie = aliceCookie) => call(route, { method: "DELETE", body: { spotId }, cookie });
+  const sessionHeaders = async (cookie = aliceCookie) => {
+    const session = await dto(cookie);
+    assert.equal(session.state, "ready");
+    assert.ok(session.sessionId);
+    return { "x-localley-session-id": session.sessionId };
+  };
+  const save = async (spotId, cookie = aliceCookie) => post(route, { spotId }, cookie, { headers: await sessionHeaders(cookie) });
+  const unsave = async (spotId, cookie = aliceCookie) => call(route, { method: "DELETE", body: { spotId }, cookie, headers: await sessionHeaders(cookie) });
   const list = async (cookie = aliceCookie) => (await call(route, { cookie })).json();
   const state = async (spotId, cookie = aliceCookie) => (await call(route + "?spotId=" + spotId, { cookie })).json();
   const limit = (value) => db.prepare("UPDATE owner_limits SET savedSpotLimit = ? WHERE ownerId = ?").bind(value, owner).run();
   const clear = () => db.prepare("DELETE FROM saved_spots WHERE ownerId = ?").bind(owner).run();
+  const bookmarkSnapshot = async () => Promise.all(["saved_spots", "application_outbox"].map(async (table) =>
+    (await db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results));
   const catalog = Array.from({ length: 14 }, () => randomUUID());
   const name = { en: "Synthetic test cafe", ko: "\uac00\uc0c1 \ud14c\uc2a4\ud2b8 \uce74\ud398" };
   const description = { en: "Synthetic catalog only. Not a real place.", ko: "\uc2e4\uc81c \uc7a5\uc18c\uac00 \uc544\ub2cc \uac00\uc0c1 \ub370\uc774\ud130" };
@@ -50,7 +58,20 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
     const id = await signup("incomplete@example.test");
     await call((await mail(id, "verify")).url);
     const cookie = await login("incomplete@example.test");
-    assert.equal((await dto(cookie)).state, "unlinked");
+    const initialSession = await dto(cookie);
+    assert.equal(initialSession.state, "unlinked");
+    const bookmarksBefore = await bookmarkSnapshot();
+    const assertMutationDenied = async (status, code) => {
+      for (const method of ["POST", "DELETE"]) {
+        for (const headers of [{}, { "x-localley-session-id": "" }, { "x-localley-session-id": initialSession.sessionId }, { "x-localley-session-id": "wrong-session" }]) {
+          const response = await call(route, { method, cookie, headers, body: { spotId: catalog[0] } });
+          assert.equal(response.status, status);
+          assert.equal((await response.json()).error.code, status === 409 && headers["x-localley-session-id"] === "wrong-session" ? "session_changed" : code);
+          assert.deepEqual(await bookmarkSnapshot(), bookmarksBefore);
+        }
+      }
+    };
+    await assertMutationDenied(409, "conflict");
     for (const method of ["GET", "POST", "DELETE"]) assert.equal((await call(route, { method, cookie,
       ...(method === "GET" ? {} : { body: { spotId: catalog[0] } }) })).status, 409);
     const legacy = "synthetic/incomplete-owner";
@@ -70,6 +91,7 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
     await db.prepare("INSERT INTO identity_links VALUES (?, ?)").bind(id, legacy).run();
     await db.prepare("DELETE FROM profiles WHERE ownerId = ?").bind(legacy).run();
     assert.equal((await dto(cookie)).state, "incomplete");
+    await assertMutationDenied(409, "conflict");
     const before = await count("profiles");
     for (const path of [route, "/api/private-notes"]) assert.equal((await call(path, { cookie })).status, 409);
     assert.equal((await post("/api/account/new", {}, cookie)).status, 409);
@@ -77,8 +99,94 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
     await db.prepare("INSERT INTO profiles VALUES (?, ?)").bind(profile, legacy).run();
     assert.equal((await dto(cookie)).userRecordId, profile);
     await db.prepare("UPDATE user SET emailVerified = 0 WHERE id = ?").bind(id).run();
+    await assertMutationDenied(403, "forbidden");
     assert.equal((await call(route, { cookie })).status, 403);
     assert.equal((await call("/api/private-notes", { cookie })).status, 403);
+  });
+
+  await t.test("bookmark mutations require a nonempty matching native session without changing rows or events", async (guardTest) => {
+    const oldSession = await dto();
+    const newCookie = await login("alice@example.test");
+    const newSession = await dto(newCookie);
+    assert.notEqual(newCookie, aliceCookie);
+    assert.notEqual(newSession.sessionId, oldSession.sessionId);
+    assert.equal(newSession.ownerId, oldSession.ownerId);
+    assert.equal((await save(catalog[13], newCookie)).status, 200);
+    for (const method of ["POST", "DELETE"]) {
+      const spotId = method === "POST" ? catalog[12] : catalog[13];
+      for (const [label, cookie, headers, status, code] of [
+        ["missing", newCookie, {}, 428, "session_required"],
+        ["empty", newCookie, { "x-localley-session-id": "" }, 428, "session_required"],
+        ["mismatch", newCookie, { "x-localley-session-id": newSession.sessionId + "-wrong" }, 409, "session_changed"],
+        ["stale session with new cookie", newCookie, { "x-localley-session-id": oldSession.sessionId }, 409, "session_changed"],
+        ["other owner session", newCookie, await sessionHeaders(bobCookie), 409, "session_changed"],
+        ["header is not a credential", undefined, { "x-localley-session-id": newSession.sessionId }, 401, "unauthorized"],
+        ["signed out without header", undefined, {}, 401, "unauthorized"],
+      ]) {
+        await guardTest.test(`${method}: ${label}`, async () => {
+          const before = await bookmarkSnapshot();
+          const response = await call(route, { method, cookie, headers, body: { spotId } });
+          assert.equal(response.status, status);
+          assert.deepEqual(await response.json(), { error: { code, message: status === 428
+            ? "Refresh your session before trying again." : status === 401
+              ? "Please sign in to continue." : "Your session changed. Refresh before trying again." } });
+          assert.deepEqual(await bookmarkSnapshot(), before);
+        });
+      }
+      await guardTest.test(`${method}: current cookie and exact session header`, async () => {
+        const eventsBefore = await count("application_outbox");
+        const response = await call(route, { method, cookie: newCookie, headers: await sessionHeaders(newCookie), body: { spotId } });
+        assert.equal(response.status, 200);
+        assert.deepEqual(await state(spotId, newCookie), { saved: method === "POST" });
+        assert.deepEqual(await state(spotId, bobCookie), { saved: false });
+        assert.equal(await count("application_outbox"), eventsBefore + (method === "POST" ? 1 : 0));
+      });
+    }
+    assert.equal((await unsave(catalog[12], newCookie)).status, 200);
+  });
+
+  await t.test("saved GET rejects cookie B with observer A header without leaking cross-owner status", async () => {
+    const observerA = await sessionHeaders();
+    assert.equal((await save(catalog[12])).status, 200);
+    const before = await bookmarkSnapshot();
+    assert.deepEqual(await state(catalog[12]), { saved: true });
+    assert.deepEqual(await state(catalog[12], bobCookie), { saved: false });
+    for (const path of [route, route + "?spotId=" + catalog[12]]) {
+      for (const headers of [observerA, { "x-localley-session-id": "wrong-session" }]) {
+        const response = await call(path, { cookie: bobCookie, headers });
+        assert.equal(response.status, 409, `Saved GET ${path === route ? "list" : "status"} rejects stale observer`);
+        const data = await response.json();
+        assert.equal(data.error.code, "session_changed");
+        assert.deepEqual(Object.keys(data), ["error"]);
+      }
+      assert.equal((await call(path, { cookie: bobCookie })).status, 200);
+      assert.equal((await call(path, { cookie: bobCookie, headers: await sessionHeaders(bobCookie) })).status, 200);
+      const noCookie = await call(path, { headers: observerA });
+      assert.equal(noCookie.status, 401);
+      assert.equal((await noCookie.json()).error.code, "unauthorized");
+    }
+    assert.deepEqual(await bookmarkSnapshot(), before);
+    assert.equal((await unsave(catalog[12])).status, 200);
+  });
+
+  await t.test("unsupported private APIs stay native 404 for a verified mapped account", async () => {
+    assert.equal((await dto()).state, "ready");
+    const before = await bookmarkSnapshot();
+    for (const path of ["/api/subscription", "/api/connect", "/api/gamification", "/api/itineraries"]) {
+      for (const suffix of ["", "/status"]) {
+        for (const method of ["GET", "POST", "DELETE"]) {
+          const response = await call(path + suffix, { method, cookie: aliceCookie, headers: await sessionHeaders() });
+          if (path === "/api/itineraries" && !suffix) {
+            assert.equal(response.status, method === "GET" ? 200 : 405);
+            if (method === "GET") assert.deepEqual(await response.json(), { itineraries: [], nextOffset: null });
+            continue;
+          }
+          assert.equal(response.status, 404);
+          assert.deepEqual(await response.json(), { error: "Not found" });
+        }
+      }
+    }
+    assert.deepEqual(await bookmarkSnapshot(), before);
   });
 
   await t.test("same-save concurrency produces one row and event; UUID normalization and multilingual DTO", async () => {
@@ -167,13 +275,14 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
     assert.deepEqual(await state(saveRow.spot_id), { saved: true });
     for (const field of ["ownerId", "owner", "saveRowId", "tier", "quota", "savedSpotLimit"]) {
       for (const method of ["POST", "DELETE"]) assert.equal((await call(route, { method, cookie: aliceCookie,
+        headers: await sessionHeaders(),
         body: { spotId: catalog[1], [field]: field === "saveRowId" ? saveRow.id : "forged" } })).status, 400);
       assert.equal((await call(route + "?" + field + "=forged", { cookie: aliceCookie })).status, 400);
     }
     for (const spotId of ["bad", "' OR 1=1 --", 1, null]) assert.equal((await save(spotId)).status, 400);
     assert.equal((await call(route + "?spotId=bad", { cookie: aliceCookie })).status, 400);
     assert.equal((await call(route + "?spotId=" + catalog[0] + "&spotId=" + catalog[1], { cookie: aliceCookie })).status, 400);
-    assert.equal((await call(route, { method: "POST", raw: "{", cookie: aliceCookie })).status, 400);
+    assert.equal((await call(route, { method: "POST", raw: "{", cookie: aliceCookie, headers: await sessionHeaders() })).status, 400);
     assert.equal((await post(route, { spotId: catalog[0] }, aliceCookie, { origin: "https://evil.test" })).status, 403);
     assert.equal((await post("/api/owner-limits", { savedSpotLimit: 999 }, aliceCookie)).status, 404);
     assert.equal((await call("/api/application-outbox", { cookie: aliceCookie })).status, 404);
@@ -298,7 +407,7 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
       [{ body: [] }, "Invalid body"],
       [{ raw: "{" }, "Invalid JSON"],
     ]) {
-      const response = await call(route, { method: "POST", cookie: aliceCookie, ...options });
+      const response = await call(route, { method: "POST", cookie: aliceCookie, headers: await sessionHeaders(), ...options });
       assert.equal(response.status, 400);
       assert.deepEqual(await response.json(), { error: { code: "validation_error", message } });
     }

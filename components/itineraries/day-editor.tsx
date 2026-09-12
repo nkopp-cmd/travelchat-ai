@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { PlaceAutocomplete } from "@/components/ui/place-autocomplete";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface Activity {
     name: string;
@@ -33,6 +33,17 @@ interface DayEditorProps {
 }
 
 export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
+    const activityIdentity = useRef({ keys: new WeakMap<Activity, string>(), next: 0 });
+    // Keep an open activity editor attached to its object when insertion shifts its index.
+    const activityKey = (activity: Activity) => {
+        const identities = activityIdentity.current;
+        let key = identities.keys.get(activity);
+        if (!key) {
+            key = `activity-${dayPlan.day}-${identities.next++}`;
+            identities.keys.set(activity, key);
+        }
+        return key;
+    };
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isAddingActivity, setIsAddingActivity] = useState(false);
     const [newActivity, setNewActivity] = useState<Activity>({
@@ -235,8 +246,8 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                                     >
                                         {dayPlan.activities.map((activity, index) => (
                                             <Draggable
-                                                key={`activity-${dayPlan.day}-${index}`}
-                                                draggableId={`activity-${dayPlan.day}-${index}`}
+                                                key={activityKey(activity)}
+                                                draggableId={activityKey(activity)}
                                                 index={index}
                                             >
                                                 {(provided, snapshot) => (

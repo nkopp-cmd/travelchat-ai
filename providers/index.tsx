@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { QueryProvider } from "@/lib/query-client";
 import { SubscriptionProvider } from "./subscription-provider";
 import { ServiceWorkerRegistration } from "./service-worker-registration";
+import { ClerkSessionProvider } from "./clerk-session-provider";
 
 interface ProvidersProps {
     children: ReactNode;
@@ -11,11 +12,13 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
     return (
-        <QueryProvider>
-            <ServiceWorkerRegistration />
-            <SubscriptionProvider>
-                {children}
-            </SubscriptionProvider>
-        </QueryProvider>
+        <ClerkSessionProvider>
+            <QueryProvider>
+                <ServiceWorkerRegistration />
+                <SubscriptionProvider>
+                    {children}
+                </SubscriptionProvider>
+            </QueryProvider>
+        </ClerkSessionProvider>
     );
 }

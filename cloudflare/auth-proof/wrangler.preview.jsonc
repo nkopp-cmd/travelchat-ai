@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "localley-discovery-preview",
+  "account_id": "664f242340bcec2f32daaeee15f58bde",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-08",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "preview.localley.io", "custom_domain": true }],
+  "send_metrics": false,
+  "limits": { "cpu_ms": 1000 },
+  "assets": { "directory": "./dist/public", "binding": "ASSETS", "run_worker_first": true, "not_found_handling": "single-page-application" },
+  "observability": { "enabled": true, "redact_query_string": true, "logs": { "enabled": true, "invocation_logs": false }, "traces": { "enabled": false } },
+  "vars": {
+    "APP_MODE": "preview",
+    "LOCAL_PROOF": "false",
+    "AUTH_BASE_URL": "https://preview.localley.io",
+    "ACCESS_TEAM_DOMAIN": "https://autumn-queen-0cd5.cloudflareaccess.com",
+    "ACCESS_AUD": "1f1502cd5d4700cb5b5c7a3741dd7e551e879eea9248194928300e17644d87bb"
+  },
+  "send_email": [{
+    "name": "NATIVE_EMAIL",
+    "allowed_sender_addresses": ["auth@localley.io"],
+    "allowed_destination_addresses": ["nkopp@my-goodlife.com"]
+  }],
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "localley-migration-preview",
+    "database_id": "e943548b-01ae-485d-9219-e2a46cb0da8e",
+    "migrations_dir": "migrations",
+    "remote": false
+  }]
+}

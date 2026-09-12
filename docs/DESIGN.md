@@ -2,6 +2,33 @@
 
 ## Scope
 
+Discovery remains an addition to the existing Localley application, not a separate replacement site.
+The integrated flow connects a spot page to owned trip selection and the existing editor.
+It uses current buttons, cards, typography, and city data without a new UI library.
+Native labeled selects handle day and position selection; no new interaction primitive needs sourcing.
+See `releases/integrated-discovery.md` for local evidence and remaining release checks.
+The next review covered the built app's landing page, real spot page, and selected-place wizard at three widths.
+It found clipped tablet progress labels; compact steps now fit and retain accessible names with 44px targets.
+Canonical place identity stays read-only while visit notes remain editable.
+Clerk rejected the private HTTP test origin, so authenticated review still requires supported HTTPS.
+The actual bookmark controls now also pass a separate native Better Auth journey over local HTTPS.
+That journey uses temporary accounts and the existing controls, not a new production design.
+See `releases/better-auth-integration.md` for reviewed states and the explicit live-provider boundary.
+The same editor UI now serves the native D1 adapter, with no replacement design or new UI library.
+Native review covered loaded, staged, saved, conflicted, revoked, and cross-account states at three widths.
+The review found a false draft-retention message after access loss; the corrected editor now closes without that claim.
+Stable activity identities also preserve pending edits when insertion changes array positions.
+See `releases/native-itinerary-editor.md` for evidence and remaining migration limits.
+Native collection deletion now restores focus to its persistent collection region after reloading or entering the empty state.
+Confirmation names the selected itinerary. Hyphenated route titles remain distinguishable instead of losing their first city.
+The same collection and editor also run in the actual protected-preview entry, with unsupported actions hidden.
+Save-state text has explicit light and dark colors. Verification and limits are recorded in `releases/native-collection-delivery.md`.
+
+The restricted Cloudflare preview is hosted at `https://preview.localley.io` as of 2026-09-11.
+Hosted review covered 390, 900, and 1440 pixels with real photos and map tiles.
+See `../cloudflare/auth-proof/docs/hosted-preview.md` for evidence and remaining checks.
+This three-place pilot does not replace the live service or establish complete accessibility compliance.
+
 Primary product direction now includes `AUTHENTIC_DISCOVERY.md`.
 The user requested an order-of-magnitude improvement in genuine imagery, useful spot information, maps, and itinerary integration.
 Choose the neighborhood field-guide direction before an optional cinematic atlas.

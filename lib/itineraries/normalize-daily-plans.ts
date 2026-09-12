@@ -1,4 +1,7 @@
+import { isPlanningSpotId } from "./spot-planning";
+
 export interface ItineraryActivityLike {
+  spotId?: unknown;
   name?: unknown;
   description?: unknown;
   category?: unknown;
@@ -109,6 +112,7 @@ export function isTipLikeActivity(activity: ItineraryActivityLike): boolean {
   const type = getStringValue(activity.type);
 
   if (!name) return true;
+  if (isPlanningSpotId(activity.spotId)) return false;
   if (
     TIP_VALUE_PATTERN.test(name) ||
     TIP_VALUE_PATTERN.test(category) ||
@@ -430,6 +434,11 @@ export function sanitizeGeneratedDailyPlans<T extends ItineraryDayPlanLike>(
     const activities = (dayPlan.activities || []).reduce<
       ItineraryActivityLike[]
     >((keptActivities, activity) => {
+      // Catalog-linked venues are not generated advice, even when their names resemble tips.
+      if (isPlanningSpotId(activity.spotId) && getStringValue(activity.name)) {
+        keptActivities.push(activity);
+        return keptActivities;
+      }
       if (!isTipLikeActivity(activity)) {
         const split = splitDescriptionTips(activity);
         localTips.push(...split.localTips);

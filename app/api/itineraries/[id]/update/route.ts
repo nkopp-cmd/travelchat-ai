@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import {
-    buildItineraryPlanPayload,
-    normalizeDailyPlansForDisplay,
-} from "@/lib/itineraries/normalize-daily-plans";
+import { isDeepStrictEqual } from "node:util";
+import { mergeItineraryPlanPayload } from "@/lib/itineraries/plan-contract";
+import { isItinerarySnapshot, itinerarySnapshotFields } from "@/lib/itineraries/spot-planning";
 
 export async function PATCH(
     request: NextRequest,
@@ -19,27 +18,37 @@ export async function PATCH(
         }
 
         const { id } = await context.params;
-        const body = await request.json();
+        let body;
+        try { body = await request.json(); } catch { return Errors.validationError("Invalid JSON body"); }
+        if (!body || typeof body !== "object" || Array.isArray(body)) return Errors.validationError("Invalid request body");
+        if (!Object.hasOwn(body, "expected")) {
+            return NextResponse.json({ error: "A persisted itinerary snapshot is required. Reload before saving." }, { status: 428 });
+        }
+        if (!isItinerarySnapshot(body.expected)) return Errors.validationError("Invalid expected itinerary snapshot");
+        const expected = body.expected;
         const { title, city, days, insights, highlights, estimated_cost } = body;
 
         // Validate required fields
-        if (!title || !city || !days || !Array.isArray(days)) {
+        if (typeof title !== "string" || !title.trim() || typeof city !== "string" || !city.trim() || !Array.isArray(days)) {
             return Errors.validationError("Missing required fields: title, city, days");
         }
 
         // Validate days structure
         for (const day of days) {
-            if (typeof day.day !== "number" || !Array.isArray(day.activities)) {
+            if (!day || !Number.isInteger(day.day) || !Array.isArray(day.activities) || day.activities.some((activity: unknown) => !activity || typeof activity !== "object" || Array.isArray(activity))) {
                 return Errors.validationError("Invalid days structure");
             }
         }
+        if ((highlights !== undefined && (!Array.isArray(highlights) || highlights.some((item: unknown) => typeof item !== "string"))) ||
+            (estimated_cost !== undefined && estimated_cost !== null && typeof estimated_cost !== "string") ||
+            (insights !== undefined && !Array.isArray(insights))) return Errors.validationError("Invalid itinerary fields");
 
         const supabase = await createSupabaseServerClient();
 
         // Check if itinerary exists and user owns it
         const { data: existingItinerary, error: fetchError } = await supabase
             .from("itineraries")
-            .select("clerk_user_id")
+            .select("*")
             .eq("id", id)
             .single();
 
@@ -51,34 +60,44 @@ export async function PATCH(
             return Errors.forbidden("You don't own this itinerary.");
         }
 
-        const normalizedPlan = normalizeDailyPlansForDisplay(days, insights);
-        const activitiesPayload = buildItineraryPlanPayload(
-            normalizedPlan.dailyPlans,
-            normalizedPlan.insights
+        // Metadata comes from this owned read. Fence it against the client snapshot
+        // before the RPC atomically compares those same five raw values again.
+        if (itinerarySnapshotFields.some((field) => !isDeepStrictEqual(existingItinerary[field], expected[field]))) {
+            return NextResponse.json({ error: "This itinerary changed elsewhere. Your draft was not saved. Reload after preserving your draft." }, { status: 409 });
+        }
+        const activitiesPayload = mergeItineraryPlanPayload(
+            existingItinerary.activities,
+            days,
+            insights
         );
 
-        // Update itinerary
-        const { data, error } = await supabase
-            .from("itineraries")
-            .update({
+        // Send snapshots in the POST body, never in PostgREST URL filters.
+        const { data, error } = await supabase.rpc("save_itinerary_snapshot", {
+            p_itinerary_id: id,
+            p_expected: expected,
+            p_replacement: {
                 title,
                 city,
                 activities: activitiesPayload,
                 highlights: highlights || [],
                 estimated_cost: estimated_cost || null,
-            })
-            .eq("id", id)
-            .select()
-            .single();
+            },
+        });
 
         if (error) {
             console.error("Database update error:", error);
+            if (error.code === "PGRST202" || error.code === "42883") {
+                return NextResponse.json({ error: "Saving is unavailable. The itinerary snapshot database migration is required." }, { status: 503 });
+            }
+            if (error.code === "42501") return Errors.forbidden("You cannot update this itinerary.");
             return Errors.databaseError();
         }
+        if (!Array.isArray(data) || data.length > 1) return Errors.databaseError();
+        if (data.length === 0) return NextResponse.json({ error: "This itinerary changed elsewhere. Your draft was not saved. Reload after preserving your draft." }, { status: 409 });
 
         return NextResponse.json({
             success: true,
-            itinerary: data,
+            itinerary: data[0],
         });
     } catch (error) {
         return handleApiError(error, "itinerary-update");
