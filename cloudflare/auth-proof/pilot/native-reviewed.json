@@ -1,0 +1,41 @@
+{
+  "spots": [
+    {
+      "id": "052a314e-4aff-42c5-87f5-afa085efad0e",
+      "providerPlaceId": "visit-seoul:1537",
+      "sourceUrl": "https://english.visitseoul.net/attractions/Seoul%20Museum%20of%20Art%20%28Seosomun%20Main%20Building%29_/1537",
+      "name": {
+        "en": "Seoul Museum of Art (Seosomun Main Building)"
+      },
+      "description": {
+        "en": "An art museum at 61 Deoksugung-gil in central Seoul. The photo shows the Seosomun main building in 2011; exhibition banners are historical."
+      },
+      "category": "culture",
+      "address": "04515 61, Deoksugung-gil, Jung-gu, Seoul",
+      "latitude": 37.564245062699776,
+      "longitude": 126.97609950366385,
+      "photos": [
+        "/pilot/052a314e-4aff-42c5-87f5-afa085efad0e.jpg"
+      ],
+      "photoCredits": [
+        {
+          "url": "/pilot/052a314e-4aff-42c5-87f5-afa085efad0e.jpg",
+          "author": "Gapo",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Seoul_Museum_of_Art-1.jpg"
+        }
+      ],
+      "sourceUrls": [
+        "https://english.visitseoul.net/attractions/Seoul%20Museum%20of%20Art%20%28Seosomun%20Main%20Building%29_/1537"
+      ],
+      "legacyMapping": {
+        "status": "new_preview_only",
+        "legacyId": null,
+        "evidence": "Authenticated production name/address searches found no matching Seosomun museum on 2026-09-12. Do not merge other Seoul art museums."
+      },
+      "reviewedAt": "2026-09-12",
+      "imageSha256": "2e4e24467d447bb7c1adcd3a2f80c24d3676e27790dd45771135e0a6f1d8ab71"
+    }
+  ]
+}

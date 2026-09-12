@@ -52,3 +52,18 @@ Wikidata P625 coordinates use CC0. Entity links appear in `catalog.json`.
 Place facts and addresses come from the matched Visit Seoul pages, retrieved on 2026-09-11.
 Descriptions are brief original factual summaries, not copied reviews or promotional text.
 Source page photos, ratings, prices, opening hours, and visitor counts were not imported.
+
+## Seoul Museum of Art — Seosomun Main Building
+
+- Local file: `images/052a314e-4aff-42c5-87f5-afa085efad0e.jpg`
+- Title: Seoul Museum of Art-1. Author: Gapo.
+- Date taken: 2011-05-28. Exhibition banners are historical, not current programming.
+- Source: https://commons.wikimedia.org/wiki/File:Seoul_Museum_of_Art-1.jpg
+- License: CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/
+- Original JPEG retained without modification: 312,413 bytes, 2784 x 1848 pixels.
+- SHA-1 matches Commons: cbd1c38f8f0094b04211ff55f557be739a210ace.
+- Visual review on 2026-09-12 matched the main building facade against the native official venue image.
+- Changes: none. The original image remains available at its public Localley asset URL.
+
+Venue identity, address, and coordinates come from the native Scrapelet observation.
+Category and short factual description were reviewed separately. No score, rating, opening hours, or trend claim was invented.

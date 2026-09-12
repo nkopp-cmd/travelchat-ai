@@ -18,7 +18,13 @@ assert.equal(new Set(source.spots.map(spot => spot.id)).size, 3);
 assert.equal(source.spots.filter(spot => spot.legacyMapping.status === "confirmed").length, 2);
 assert.equal(source.spots.filter(spot => spot.legacyMapping.status === "pending").length, 1);
 const imageFiles = source.spots.flatMap(spot => spot.photos.map(() => `${spot.id}.jpg`)).sort();
-assert.deepEqual((await readdir(new URL("images/", import.meta.url))).sort(), imageFiles);
+const nativeReview = JSON.parse(await readFile(new URL("native-reviewed.json", import.meta.url), "utf8"));
+const nativeFiles = nativeReview.spots.map(spot => `${spot.id}.jpg`);
+assert.deepEqual((await readdir(new URL("images/", import.meta.url))).sort(), [...imageFiles, ...nativeFiles].sort());
+for (const spot of nativeReview.spots) {
+  const bytes = await readFile(new URL(`images/${spot.id}.jpg`, import.meta.url));
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), spot.imageSha256);
+}
 
 const state = await mkdtemp(new URL(".native-d1-", import.meta.url));
 let mf;
