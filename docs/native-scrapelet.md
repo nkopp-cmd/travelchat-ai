@@ -81,3 +81,14 @@ Automatic collection is active on Scrapelet for seven bounded daily runs.
 Automatic transfer is not yet installed: this session cannot access the main user's systemd bus or crontab.
 The transfer command itself has passed live validation. Do not report it as scheduled until a real timer run is verified.
 Outstanding: production Supabase adapter, ten unapproved venue identities/images, current-week social discovery/metrics/place matches, and eventual paid-schedule replacement.
+
+## Automatic transfer repair — 2026-09-12
+
+The prior scheduler limitation was a process-namespace compatibility issue in `systemctl`, not missing authorization.
+The existing supported GDBus user-manager interface works, as documented in CyberLink's Herdr installer.
+Installed and enabled `localley-native-sync.timer`: hourly, with bounded jitter and a persistent missed-run check.
+The timer triggered its first real service run successfully: exit status 0 and result `success`.
+The entry point reads the existing shared key file silently and passes only the Cloudflare token to the bounded importer.
+No credentials were copied into a unit or committed. Each run is limited to 180 seconds and 512 MiB.
+Candidate imports remain separate from reviewed publication; no unapproved venue is made public by the timer.
+Unit sources are in `cloudflare/auth-proof/deploy/`; entry point is `scripts/run-native-sync.mjs`.
