@@ -52,3 +52,32 @@ This delivers candidate ingestion and one reviewed native place through the prev
 It does not claim the production Supabase migration, full venue approval, or a complete social-trend replacement.
 Current-week social posts still require exact publication dates, observed metrics, and verified Localley place matching.
 Never fill missing trends with stale posts or invented metrics. Do not disable paid discovery until its replacement scope passes acceptance.
+
+## Release evidence — 2026-09-12
+
+PR124 merged into `cloudflare/full-migration` as `b8511ca`.
+Preview deployment: `741d8fd5-b254-447d-9347-5d5869143219`.
+Migration 0006 applied after a private SQL backup and in-memory restoration rehearsal.
+Live database: 13 private candidates, 3 exact source matches, 10 unmatched, 4 public preview places, zero foreign-key errors.
+The native feed import was repeated after publication to verify deduplication and preserved public records.
+Full isolated Cloudflare check: 98 tests passed, plus the negative environment fixture.
+Live browser checks passed at 390, 900, and 1440 pixels with real map tiles, loaded images, no overflow, and no page errors.
+The museum map button selected the correct card and marker. Anonymous requests still redirect to Access; service writes remain denied.
+No customer login or email delivery is claimed by these service-credential checks.
+Museum asset SHA-256 matched the reviewed file served by the deployed preview.
+Screenshots were opened and inspected. Existing identity, cards, source links, and photo-credit components remain in use.
+The first custom browser assertion assumed a card-local image; the existing hero intentionally owns that image.
+Corrected the assertion to check the hero image and the museum card's link/details, then reran successfully.
+The existing preview verification token expired during testing. Renewed the same identity for 24 hours without changing policies.
+Independent advisor review could not start because its app-server path was read-only. No paid fallback was used.
+
+Repeat live verification from the proof directory with the existing private Access credential:
+
+```sh
+node scripts/check-native-preview.mjs --live-preview
+```
+
+Automatic collection is active on Scrapelet for seven bounded daily runs.
+Automatic transfer is not yet installed: this session cannot access the main user's systemd bus or crontab.
+The transfer command itself has passed live validation. Do not report it as scheduled until a real timer run is verified.
+Outstanding: production Supabase adapter, ten unapproved venue identities/images, current-week social discovery/metrics/place matches, and eventual paid-schedule replacement.
