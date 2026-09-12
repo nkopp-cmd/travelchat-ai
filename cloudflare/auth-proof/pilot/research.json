@@ -35,5 +35,26 @@
     {"url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Mountain_Inwang_and_Seodaemun_Independence_Park.jpg", "opened": true, "included": false, "reason": "Prison dominates the scene; unsuitable for a general park card."},
     {"url": "https://upload.wikimedia.org/wikipedia/commons/6/63/%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg", "opened": true, "included": true, "reason": "Gwanghwamun and palace grounds match the place.", "originalArtist": "\uc11c\uc6b8\uad00\uad11 \uc544\uce74\uc774\ube0c", "originalTitle": "\uad11\ud654\ubb38 \uc6d4\ub300", "outputBytes": 383957, "outputWidth": 1600, "outputHeight": 1066, "outputSha256": "8493388a6de06bc8a1e340fa22a69748e2deeed09a6794c0c0a1b77761685936"},
     {"url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Cheonggyecheon_in_Korea.jpg", "opened": true, "included": true, "reason": "Stream and below-street walkway match the place; old portrait image, bright highlights.", "outputBytes": 364976, "outputWidth": 960, "outputHeight": 1600, "outputSha256": "3407643c5d6c443d7583a3477a888da02333058c7804484d382839181d7fd6f7"}
-  ]
+  ],
+  "followups": [{
+    "date": "2026-09-12",
+    "scope": "New park landscape review; original request counters and rejected candidate remain unchanged",
+    "metadataRequestCount": 6,
+    "imageRequestCount": 1,
+    "downloads": [{
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/%EC%84%9C%EB%8C%80%EB%AC%B8%EB%8F%85%EB%A6%BD%EA%B3%B5%EC%9B%90%EC%9D%98_%EB%AA%A8%EC%8A%B5.jpg",
+      "opened": true,
+      "included": true,
+      "reason": "Wide park paths, lawns and memorials match the exact park; no local crop or modification",
+      "originalArtist": "\uc720\uc790\ucc28",
+      "sourcePageId": 81456840,
+      "sourceRevisionId": 1018180457,
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "outputBytes": 1714706,
+      "outputWidth": 2064,
+      "outputHeight": 1161,
+      "outputSha256": "14c9c3a438e9f93980757be9c4654ed92dc658cebe2a90dcbfbf6ef7aaf17a75"
+    }]
+  }]
 }

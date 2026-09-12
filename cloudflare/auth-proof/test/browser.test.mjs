@@ -6,8 +6,46 @@ import { resolve } from "node:path";
 import { startLocalServer } from "../scripts/local-server.mjs";
 import { browserUiChecks } from "./browser-ui.mjs";
 import { captureBrowserState } from "./browser-visual.mjs";
+import { loadPreviewExpectations, checkPreviewBrowser } from "../scripts/check-native-preview.mjs";
 import { itineraryHTTPSChecks } from "./itineraries-https.mjs";
 import { tripsUiChecks } from "./trips-ui.mjs";
+
+test("reviewed real catalog renders licensed images and map journeys through local workerd and D1", { timeout: 150_000 }, async (t) => {
+  const { chromium } = await import("playwright");
+  const { startLocalServer } = await import("../scripts/local-server.mjs");
+  const expected = await loadPreviewExpectations();
+  const server = await startLocalServer();
+  let browser;
+  try {
+    // Only this disposable local database is replaced; no HTTP fixture controls exist.
+    await server.db.prepare("DELETE FROM spots").run();
+    await server.db.batch(expected.spots.map(spot => server.db.prepare(`INSERT INTO spots
+      (id,name,description,category,localley_score,photos,visible,city,address,latitude,longitude,photo_credits,source_urls)
+      VALUES (?,?,?,?,NULL,?,1,'Seoul',?,?,?,?,?)`).bind(spot.id, JSON.stringify(spot.name), JSON.stringify(spot.description), spot.category,
+        JSON.stringify(spot.photos), spot.address, spot.latitude, spot.longitude, JSON.stringify(spot.photoCredits), JSON.stringify(spot.sourceUrls))));
+    const before = (await server.db.prepare("SELECT * FROM spots ORDER BY id").all()).results;
+    browser = await chromium.launch({ headless: true, executablePath: process.env.AUTH_PROOF_BROWSER_EXECUTABLE });
+    const context = await browser.newContext({ ignoreHTTPSErrors: true, reducedMotion: "reduce" });
+    let blocked = 0;
+    await context.route("**/*", route => {
+      const url = new URL(route.request().url());
+      if (url.origin === server.origin || url.origin === "https://tile.openstreetmap.org") return route.continue();
+      blocked++; return route.abort();
+    });
+    // Presentation only: all API reads still execute the local Worker and real D1 binding.
+    await context.route("**/api/app-config", route => route.fulfill({ json: {
+      mode: "preview", catalogSource: "seoul-pilot", registration: "restricted-preview", emailDelivery: "cloudflare",
+    } }));
+    const parent = resolve("../../test-results/native-catalog"); await mkdir(parent, { recursive: true });
+    const output = await mkdtemp(resolve(parent, "run-"));
+    const result = await checkPreviewBrowser(context, expected, { output, baseUrl: server.origin });
+    assert.deepEqual((await server.db.prepare("SELECT * FROM spots ORDER BY id").all()).results, before);
+    assert.equal(server.outboundRequests, 0); assert.equal(blocked, 0);
+    t.diagnostic(JSON.stringify({ output, realReviewedPlaces: expected.spots.length, images: expected.assets.length,
+      ...result, localDatabaseUnchanged: true, realEmailSent: false, workerOutboundRequests: 0,
+      browserExternalSource: "OpenStreetMap tiles only" }));
+  } finally { try { await browser?.close(); } finally { await server.close(); } }
+});
 
 test("HTTPS itinerary edits, native Trips UI and route-specific UTF8 body limits", { timeout: 120_000 }, async () => {
   const server = await startLocalServer();

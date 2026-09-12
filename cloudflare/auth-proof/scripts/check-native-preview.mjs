@@ -141,6 +141,7 @@ export async function checkPreviewBrowser(context, expected, { output, baseUrl =
     await page.goto(baseUrl);
     await page.getByRole('heading',{name:'Get to know Seoul.',exact:true}).waitFor();
     await page.waitForFunction(count => document.querySelectorAll('.spot-card').length === count,expected.spots.length);
+    await page.evaluate(() => document.fonts.ready);
     check(await page.locator('.spot-card').count() === expected.spots.length, `ui.card_count:${width}`);
     for (const spot of expected.spots) {
       const card = page.locator(`#place-${spot.id}`);
@@ -166,11 +167,13 @@ export async function checkPreviewBrowser(context, expected, { output, baseUrl =
         check((await figure.innerText()).includes(credit.author), `ui.photo_author:${spot.id}`);
         check(await figure.getByRole('link',{name:credit.license,exact:true}).getAttribute('href') === credit.licenseUrl, `ui.photo_license:${spot.id}`);
         check(await figure.getByRole('link',{name:'Photo source',exact:true}).getAttribute('href') === new URL(credit.sourceUrl).href, `ui.photo_source:${spot.id}`);
-        if (credit.takenAt && expected.native.some(review => review.id === spot.id)) {
+        if (spot.photoStatus?.startsWith('reviewed: historical')) await capture(figure, `native-photo-${spot.id}-${width}`);
+        if (credit.takenAt && (expected.native.some(review => review.id === spot.id) || spot.photoStatus?.startsWith('reviewed: historical'))) {
           check((await card.innerText()).includes(credit.takenAt.slice(0,4)), `ui.historical_year:${spot.id}`);
           check(/historical|before later restoration/i.test(await card.innerText()), `ui.historical_caveat:${spot.id}`);
         }
       }
+      if (spot.photoStatus?.startsWith('reviewed: historical')) await capture(card, `native-card-${spot.id}-${width}`);
     }
     check(await page.locator('img[src^="/pilot/"]').count() === expected.assets.length, `ui.photo_count:${width}`);
     await Promise.all(imageResponses);
@@ -182,7 +185,7 @@ export async function checkPreviewBrowser(context, expected, { output, baseUrl =
     await page.evaluate(() => window.scrollTo(0,0));
     await page.screenshot({path:`${output}/native-hosted-${width}.png`,fullPage:true});
     screenshots.push(`native-hosted-${width}.png`);
-    for (const spot of expected.native) {
+    for (const spot of expected.spots) {
       const card = page.locator(`#place-${spot.id}`);
       await card.getByRole('button',{name:`Show on map: ${spot.name.en}`,exact:true}).click();
       const popup = page.locator('.leaflet-popup-content');
@@ -239,6 +242,7 @@ export async function checkPreviewBrowser(context, expected, { output, baseUrl =
   check(pageErrors === 0, 'ui.page_errors');
   await page.close();
   return { widths:[390,900,1440], cards:expected.spots.length, mappedNativeIds:expected.native.map(spot => spot.id),
+    mappedPlaceIds:expected.spots.map(spot => spot.id), mapSelections:mapMeasurements.length,
     realTilesLoaded:requireTiles, imagesLoaded:true, imagesUncropped:true, historicalCaptions:true, screenshots, mapMeasurements,
     screenshotReview:'required_before_release', humanAuth:'not tested', emailSent:false };
 }

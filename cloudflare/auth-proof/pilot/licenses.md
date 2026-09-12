@@ -1,10 +1,10 @@
 # Photo Licenses
 
-Metadata retrieval and visual review date: 2026-09-11.
+Initial metadata retrieval and visual review date: 2026-09-11. Later reviews are dated below.
 The credits below are plain text. Source pages contain the original license declarations.
 Localley claims no endorsement from photographers or public organizations.
 The palace filename now uses its parent-confirmed source UUID. The rename did not change image bytes or metadata.
-Both reviewed image hashes remain unchanged in `research.json` and `verification.json`.
+The original palace and stream hashes remain unchanged in `research.json` and the historical `verification.json`.
 
 ## Gyeongbokgung Palace
 
@@ -39,12 +39,33 @@ The resized image remains under CC BY-SA 4.0. Do not add restrictions to its reu
 Use this credit: Cheonggyecheon in Korea, Pauloleong2002, CC BY-SA 4.0. Resized and recompressed by Localley.
 This license does not imply endorsement or waive unrelated privacy and personality rights.
 
-## Missing Park Photo
+## Rejected Park Candidate
 
 The candidate `Mountain Inwang and Seodaemun Independence Park.jpg` credits MonasteryInwang under CC BY-SA 4.0.
 Its source is https://commons.wikimedia.org/wiki/File:Mountain_Inwang_and_Seodaemun_Independence_Park.jpg
 The declared date is 2023-04-08. Visual review showed the prison complex as the main subject.
 The pilot excludes this file to avoid confusing the park with its museum.
+
+## Reviewed Park Landscape - 2026-09-12
+
+- Local file: `images/0041a575-c6fd-4a7e-b9c3-56cc50e201d6.jpg`.
+- Title: 서대문독립공원의 모습 (View of Seodaemun Independence Park).
+- Author: 유자차. The file page explicitly declares the uploader's own work and copyright-holder license grant.
+- Declared date taken: 2018-06-16. The upload date is 2019-08-19, not the photograph date.
+- Source: https://commons.wikimedia.org/wiki/File:%EC%84%9C%EB%8C%80%EB%AC%B8%EB%8F%85%EB%A6%BD%EA%B3%B5%EC%9B%90%EC%9D%98_%EB%AA%A8%EC%8A%B5.jpg
+- File page revision reviewed: `1018180457`; Commons page ID: `81456840`.
+- License: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/ .
+- Commons JPEG retained unchanged: 1,714,706 bytes, 2064 x 1161 pixels.
+- SHA-256: `14c9c3a438e9f93980757be9c4654ed92dc658cebe2a90dcbfbf6ef7aaf17a75`.
+- Local changes: none. No crop, recompression, generation, or metadata removal.
+
+The wide view shows park lawns, paths, and memorials, rather than presenting the prison building as the park.
+Its Korean description identifies the park in Hyeonjeo-dong, Seodaemun-gu. The official venue page identifies the memorials and address.
+The existing Wikidata entity Q623629 still names Seodaemun Independence Park and supplies the unchanged catalog coordinates.
+These are place positions, not a verified photo viewpoint or entrance. The card explicitly identifies the photograph as historical.
+No crop isolates an artwork or person. The copyright license does not waive other rights or imply endorsement.
+Retain the author, source, and license links. The image remains under CC BY-SA 4.0, without additional reuse restrictions.
+This image applies only to the existing park UUID. It does not resolve any of the six business-image rights gaps.
 
 ## Data And Copy
 
