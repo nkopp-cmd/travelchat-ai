@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { spawnSync, spawn } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, existsSync, statSync } from 'node:fs';
 import { prepareProductionBatch, sha256 } from './native-production.mjs';
+import { isAbsolute, join } from 'node:path';
 
 const bin = '/usr/lib/postgresql/18/bin/';
 const backend = process.env.NATIVE_POSTGRES_BACKEND || 'local';
@@ -26,7 +27,11 @@ const withMappings = (b, mappings) => {
 };
 
 test('disposable PostgreSQL / real PostGIS transaction and RLS contract', { skip: !available && 'BLOCKED: local PostgreSQL 18 has no PostGIS; select the explicit docker backend' }, async t => {
-  const dir = mkdtempSync('/home/dev/projects/CyberLink/codex-work/tmp/opencode/nativepg-');
+  const parent = process.env.GITHUB_ACTIONS === 'true'
+    ? process.env.RUNNER_TEMP
+    : '/home/dev/projects/CyberLink/codex-work/tmp/opencode';
+  assert.ok(typeof parent === 'string' && isAbsolute(parent) && statSync(parent).isDirectory(), 'Existing private test scratch directory required');
+  const dir = mkdtempSync(join(parent, 'nativepg-'));
   const env = { PATH: process.env.PATH, LANG: 'C.UTF-8', HOME: dir };
   const container = 'localley-native-' + dir.split('/').pop();
   const dockerRun = args => {

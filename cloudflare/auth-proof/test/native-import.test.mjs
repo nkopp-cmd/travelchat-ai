@@ -53,6 +53,55 @@ test('ambiguous source matches never select an arbitrary spot', () => {
     assert.equal(result.match_state,'ambiguous'); assert.equal(result.matched_spot_id,null);
   } finally { db.close(); }
 });
+
+test('equal-time conflicts are rejected before choosing the newest input, regardless of order', () => {
+  const a = row(), b = row(), newer = row();
+  b.name.en = 'Conflicting source name';
+  newer.provenance.observedAt = '2026-09-12T05:30:00Z';
+  for (const records of [[a,b,newer],[a,newer,b],[b,a,newer],[b,newer,a],[newer,a,b],[newer,b,a]]) {
+    assert.throws(() => prepareNativeImport(feed(records), now), /Equal-time native observation conflict/);
+  }
+  assert.equal(prepareNativeImport(feed([a,structuredClone(a),newer]), now).accepted, 1);
+});
+
+test('stored equal-time conflicts abort the entire candidate batch and preserve receipts and public rows', () => {
+  const db = database();
+  try {
+    db.exec(prepareNativeImport(feed([row()]), now).sql);
+    const before = ['native_place_candidates','native_import_receipts','spots'].map(table => db.prepare(`SELECT * FROM ${table} ORDER BY 1`).all());
+    const conflict = row(); conflict.name.en = 'Unreviewed replacement';
+    const independent = row(); independent.providerPlaceId = 'visit-seoul:71';
+    independent.provenance.sourceUrl = 'https://english.visitseoul.net/attractions/fixture_/71';
+    const sql = prepareNativeImport(feed([independent,conflict]), now).sql;
+    assert.throws(() => db.exec(sql));
+    assert.deepEqual(['native_place_candidates','native_import_receipts','spots'].map(table => db.prepare(`SELECT * FROM ${table} ORDER BY 1`).all()), before);
+  } finally { db.close(); }
+});
+
+test('capacity failure cannot leave a partially imported candidate batch', () => {
+  const db = database();
+  try {
+    db.exec(`WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<4999)
+      INSERT INTO native_place_candidates SELECT 'fixture:'||x,'seoul','2026-09-12T04:00:00Z','https://example.test/'||x,'{}',NULL,'unmatched','fixture' FROM n;`);
+    const second = row(); second.providerPlaceId = 'visit-seoul:73';
+    second.provenance.sourceUrl = 'https://english.visitseoul.net/attractions/fixture_/73';
+    assert.throws(() => db.exec(prepareNativeImport(feed([row(),second]), now).sql), /capacity/);
+    assert.equal(db.prepare('SELECT count(*) n FROM native_place_candidates').get().n, 4999);
+    assert.equal(db.prepare('SELECT count(*) n FROM native_import_receipts').get().n, 0);
+  } finally { db.close(); }
+});
+
+test('native import rejects the wrong database purpose without changing candidates or public rows', () => {
+  const db = database();
+  try {
+    db.exec("UPDATE runtime_purpose SET purpose='not-preview'");
+    const before = db.prepare('SELECT * FROM spots').all();
+    assert.throws(() => db.exec(prepareNativeImport(feed([row()]), now).sql));
+    assert.equal(db.prepare('SELECT count(*) n FROM native_place_candidates').get().n, 0);
+    assert.equal(db.prepare('SELECT count(*) n FROM native_import_receipts').get().n, 0);
+    assert.deepEqual(db.prepare('SELECT * FROM spots').all(), before);
+  } finally { db.close(); }
+});
 test('invalid provenance, geography, dates, publication state and image URLs fail closed', () => {
   for (const patch of [{citySlug:'busan'}, {latitude:35.1}, {latitude:'37.5'}, {name:{en:'<script>x</script>'}},
     {verified:true}, {providerPlaceId:'google:made-up'}, {provenance:{sourceUrl:'https://evil.example/_/72',observedAt:'2026-09-12T05:00:00Z'}},
@@ -289,9 +338,15 @@ for (const collision of ['non-preview target','missing candidate','UUID','source
   } finally {db.close();}
 });
 
-test('all staged assets match manifest, JPEG magic, and exact approved research bytes',()=>{
+test('all staged assets match manifest, JPEG magic, and independently recorded source hashes',()=>{
   const manifest=JSON.parse(readFileSync(new URL('../pilot/manifest.json',import.meta.url)));
-  const research=['ddp-ARP007nc1.jpg','sewoon-ARP007ev1.jpg','gwangjang-bgag-20220926.jpg','jongmyo-cha-20130813.jpg'];
+  // Public source hashes preserve the byte-identity check without requiring private research copies in CI.
+  const researchHashes = [
+    '7ff2a91b9e2d9210be3dd6f57c17e8fb4e9758ac4d4eb0269ef763080b6178b1',
+    'd4ef7a67b4ee58d382c03832316021b0de964287a1c495b192108cfe850bff34',
+    '3954787c0f1877a8eda6d4e6a93e4667aba45cb98a37d33764c248331a08df94',
+    'b568f3917e1fe0963ecdcb1be4e13781805f2918c321fab9481e52289f456e68',
+  ];
   assert.equal(manifest.files.length,7);
   for (const asset of manifest.files) {
     const bytes=readFileSync(new URL(`../pilot/images/${asset.file}`,import.meta.url));
@@ -300,7 +355,7 @@ test('all staged assets match manifest, JPEG magic, and exact approved research 
   }
   for (const [index,review] of publicReviews.slice(1).entries()) {
     const bytes=readFileSync(new URL(`../pilot/images/${review.id}.jpg`,import.meta.url));
-    assert.deepEqual(bytes,readFileSync(new URL(`../pilot/new-native-review-20260912/${research[index]}`,import.meta.url)));
+    assert.equal(createHash('sha256').update(bytes).digest('hex'),researchHashes[index]);
     assert.equal(createHash('sha256').update(bytes).digest('hex'),review.imageSha256);
   }
 });
@@ -393,5 +448,14 @@ test('D1 executes guarded publication and rejects collisions atomically',async()
     const repeated=await execute(publicationSql(reviews));
     assert.equal(repeated[0].results.length,0);
     assert.deepEqual(await db.prepare('SELECT * FROM spots ORDER BY id').all().then(r=>r.results),before.results);
+    const candidateRows = (await db.prepare('SELECT * FROM native_place_candidates ORDER BY source_key').all()).results;
+    const receiptRows = (await db.prepare('SELECT * FROM native_import_receipts ORDER BY batch_id').all()).results;
+    const conflicting = candidateFor(reviews[0]); conflicting.name.en = 'Unreviewed change';
+    const additional = row(); additional.providerPlaceId = 'visit-seoul:1';
+    additional.provenance.sourceUrl = 'https://english.visitseoul.net/attractions/fixture_/1';
+    await assert.rejects(execute(prepareNativeImport(feed([additional,conflicting]),now).sql), /malformed JSON/);
+    assert.deepEqual((await db.prepare('SELECT * FROM native_place_candidates ORDER BY source_key').all()).results, candidateRows);
+    assert.deepEqual((await db.prepare('SELECT * FROM native_import_receipts ORDER BY batch_id').all()).results, receiptRows);
+    assert.deepEqual((await db.prepare('SELECT * FROM spots ORDER BY id').all()).results, before.results);
   } finally {await mf.dispose();rmSync(state,{recursive:true,force:true});}
 });

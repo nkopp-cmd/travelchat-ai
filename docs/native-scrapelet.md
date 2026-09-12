@@ -2,6 +2,16 @@
 
 ## Current Delivered Scope — 2026-09-12
 
+### Independent Verification Continuation
+
+Gravity resumed this same Localley session without changing app ownership or the transfer timer.
+The previous commit did not have GitHub check evidence, so the independent coding verifier rejected it.
+The next increment adds a real `verify` workflow for exact source commits, including isolated native and PostGIS adapter checks.
+It also rejects equal-time conflicting venue observations instead of allowing input order to replace evidence.
+Candidate updates execute as one guarded statement; conflicts and capacity failures cannot leave a partial candidate batch.
+Identical retries can still refresh exact source matching. Older observations cannot replace newer candidates.
+The existing hourly unit and schedule remain unchanged.
+
 Localley PR https://github.com/nkopp-cmd/travelchat-ai/pull/127 merged as `b965d3d9e631deb93dd6a23575ccb364c3d937e7`.
 Protected preview version `7e9c2a7c-2c5b-406b-8160-9ae705d7271c` serves that tag at 100%.
 Cloudflare deployment ID: `a455a2cb-07ac-4216-9c1c-68918c286a64`.
@@ -68,7 +78,7 @@ The original image, license, author, and source remain available through the exi
 The checked-in image manifest also pins both existing pilot images without changing their bytes.
 
 ```sh
-node scripts/native-publish.mjs reviewed-publication.sql
+node scripts/native-publish.mjs PRIVATE_OBSERVATIONS.json PRIVATE_PUBLICATION.sql
 ```
 
 Deploy the checked assets before applying that SQL to the preview. Verify cards, details, map pins, credits, and retry behavior.
