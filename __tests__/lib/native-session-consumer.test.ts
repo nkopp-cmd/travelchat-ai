@@ -54,3 +54,42 @@ it("a timed-out sign-out keeps private context blocked instead of claiming logou
   expect(consumer.getSnapshot().session).toBeUndefined();
   expect(consumer.getSnapshot().error).toContain("Sign-out failed");
 });
+
+it.each(["auth", "mapping"])("a generic %s 403 does not invent an unverified-email state", async phase => {
+  const fetch = vi.fn();
+  if (phase === "mapping") fetch.mockResolvedValueOnce(Response.json(identity("a")));
+  fetch.mockResolvedValueOnce(Response.json({ error: "Access denied" }, { status: 403 }));
+  vi.stubGlobal("fetch", fetch);
+  const consumer = await import("../../cloudflare/auth-proof/web/session");
+  await consumer.refreshContext();
+  expect(consumer.getSnapshot()).toMatchObject({ phase: "error" });
+  expect(consumer.getSnapshot().session).toBeUndefined();
+  expect(consumer.getSnapshot().user).toBeUndefined();
+});
+
+it("only an explicit current verification flag produces the unverified state", async () => {
+  const data = identity("a"); data.user.emailVerified = false;
+  const fetch = vi.fn().mockResolvedValueOnce(Response.json(data)); vi.stubGlobal("fetch", fetch);
+  const consumer = await import("../../cloudflare/auth-proof/web/session"); await consumer.refreshContext();
+  expect(consumer.getSnapshot()).toEqual({ phase: "unverified" }); expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it.each([
+  { user: { ...identity("a").user, emailVerified: undefined } },
+  { session: { ...identity("a").session, userId: "b" } },
+  { session: { ...identity("a").session, id: " " } },
+])("malformed identity cannot become a verification claim or mapping request: %j", async changes => {
+  const fetch = vi.fn().mockResolvedValueOnce(Response.json({ ...identity("a"), ...changes })); vi.stubGlobal("fetch", fetch);
+  const consumer = await import("../../cloudflare/auth-proof/web/session"); await consumer.refreshContext();
+  expect(consumer.getSnapshot()).toMatchObject({ phase: "error" });
+  expect(consumer.getSnapshot().session).toBeUndefined(); expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("a private-operation 403 clears identity without claiming email verification is missing", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(Response.json(identity("a")))
+    .mockResolvedValueOnce(Response.json(mapping("a"))).mockResolvedValueOnce(Response.json({ error: "Forbidden" }, { status: 403 })));
+  const consumer = await import("../../cloudflare/auth-proof/web/session"); await consumer.refreshContext();
+  expect(await consumer.mutate("/api/account/new", "POST")).toBe(false);
+  expect(consumer.getSnapshot()).toMatchObject({ phase: "error", error: "Account access could not be confirmed. Check your session before continuing." });
+  expect(consumer.getSnapshot().session).toBeUndefined();
+});

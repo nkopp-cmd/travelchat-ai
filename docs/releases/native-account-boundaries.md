@@ -33,7 +33,7 @@ This is not a real customer-data import or restoration rehearsal. Production cre
 
 The final native check passed 218 tests without skips, environment isolation, Worker/frontend types, lint, and the bundle build.
 It includes the ready-account no-fork regression and verification, revocation, and expiry checks at batch execution.
-Five focused auth-consumer tests passed. Root TypeScript passed.
+The initial five auth-consumer tests passed. Root TypeScript passed.
 Both actual HTTPS browser suites passed, including profile-change isolation, explicit retry, timeout recovery, and password reset.
 The successful browser run is `test-results/cloudflare-frontend/run-kHpMFL/`.
 The timeout state was opened at 390 and 1440 pixels. It retains the existing layout, readable errors, and visible keyboard focus.
@@ -44,6 +44,14 @@ The first browser attempt assumed mapping-request order identified the caller. S
 The second scenario still distinguished consumers by header presence, although both now send the header.
 The corrected fixtures wait for the shell's rendered identity before injecting root-provider changes or failure.
 They still require both contexts to agree before private reads and reject repeated automatic retries.
+
+Live read-only screenshot review then found that generic HTTP 403 responses were mislabeled as unverified email.
+The follow-up keeps generic denials in an unknown/error state, with private identity cleared.
+Only an explicit current verification flag can produce the email-verification instruction.
+Malformed auth IDs, mismatched session subjects, and missing verification flags fail before requesting an app mapping.
+Additional regression tests cover those distinctions and private-operation denials. The hosted service identity remains read-only.
+The follow-up passed twelve focused consumer tests, root TypeScript, and both native HTTPS browser suites.
+Its browser evidence is retained separately in `test-results/cloudflare-frontend/run-xvYpju/`.
 
 ## External Gates
 
