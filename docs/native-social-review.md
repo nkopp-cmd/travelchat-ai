@@ -2,6 +2,50 @@
 
 ## Current Live Check
 
+### Current-Week Product Attempt - 2026-09-12
+
+Outcome: incomplete. No accepted source-to-eligible-spot path or visible ranking was produced.
+No completion evidence was submitted for `current-week-trends-product`.
+The image-rights deferral remains intact; no image was reused and no outreach was attempted.
+
+The new public Mastodon sample used twelve bounded hashtag queries, up to forty entries each.
+The retained responses contained 219 timeline entries and 27 distinct current-week post URLs for the UTC week starting 2026-09-07.
+Tags checked: seoul, gyeongbokgung, koreatravel, cheonggyecheon, dongdaemun, gyeongbokgungpalace, the Korean palace name, namdaemun, ikseondong, seochon, dongmyo, and noryangjin.
+A separate mangwon query returned an empty array. No timeline pagination or account creation followed these samples.
+Current entries came from the broad Seoul and Korea Travel timelines. The venue-specific samples were old or empty.
+These are bounded observations, not a claim that no qualifying post exists anywhere.
+
+| Candidate | Actual Evidence | Decision |
+| --- | --- | --- |
+| Starfield Library mention | https://mastodon.world/@unofficial_bilder_des_tages/117239795855019476 ; home-instance publication `2026-09-09T07:01:54.683Z`, zero favourites/replies, one boost | Venue identity is plausible, but the existing COEX row `84c39978-45b4-4574-843b-d4f15d182c30` is `verified=false`, score 2. It fails the existing publication gate. Source is explicitly an unofficial automated account; it must not be presented as the broadcaster's official account. |
+| Children's Grand Park event post | https://mastodon.social/@koreaeventmap/117252964718036086 ; publication `2026-09-11T14:50:55.596Z`, zero favourites/replies, one boost | Existing row `7e75aa6b-51e5-416d-8258-677d1318b3bf` is unverified and its stored address is district-level. The linked event claims were not independently corroborated. No approval or public update was made. |
+| BOX magazine city article share | https://mastodon.social/@box_magazin/117246363843821331 ; publication `2026-09-10T10:52:14.244Z` | The post and linked article discuss Seoul generally, without an exact eligible venue match. No city-wide mention was reassigned to a specific palace or market. |
+| Repeated temple archive photographs | Seven current-week posts in the sampled Seoul timeline describe an unnamed temple and explicitly say the photographs are from archives | No temple identity was inferred from generic wording or old imagery. No media was reused or represented as current venue conditions. |
+
+For the Starfield candidate, the federated timeline rounded the publication time to whole seconds and used a different local status ID.
+The original instance supplied the exact timestamp above. The two observations were retained separately; their timestamps and counters were not blended.
+Views and saves were not present in these public status responses and were not invented as zero.
+
+Read-only production reconciliation found 24 Seoul records passing the stored verified/score filters; twenty also passed the existing public-quality check.
+No verification flag, score, photo, address, or identity was changed to force a trend match.
+The first limited query returned HTTP 206 as a valid partial result. The complete bounded query returned `0-23/24`.
+
+Permitted alternatives were also checked:
+- Lemmy.World public Seoul search: twenty returned posts were general news rather than a qualifying venue path.
+- Its actual Travel community, ID 2464: the Seoul search returned one April 27 post, outside the current week.
+- Sopuli public Seoul search: mixed general news and irrelevant locations; its requested Travel community was not found.
+- The official VisitKorea-linked YouTube account's public user feed returned 404. No consent challenge was bypassed.
+
+Public API responses and normalized reviews remain private under `cloudflare/auth-proof/.preview-private/`.
+Key receipts: `current-week-public-social-review.json`, `current-week-venue-social-review.json`, `current-week-local-social-review.json`, `current-week-final-social-review.json`, and `current-week-source-summary.json`.
+Venue reconciliation: `social-starfield-venues.json`, `social-other-venues.json`, and `social-eligible-catalog.json`.
+Lemmy/Sopuli reviews: `lemmy-seoul-review.json` and `sopuli-seoul-review.json`.
+The raw timeline files retain body hashes and source URLs. No production or native database writes occurred.
+
+Mastodon and Lemmy are not supported by the current three-platform native intake. Adding an adapter would still not waive venue eligibility or create missing matches.
+No new parser-only release, empty ranking UI, paid fallback, stale-post substitution, or unchanged-code deployment was made for this attempt.
+The precise remaining gate is a real current-week post with defensible evidence for an eligible canonical venue, followed by supported native ingestion and actual publication/browser acceptance.
+
 The application Worker subsequently advanced through the native account release in `releases/native-account-boundaries.md`.
 The host-reader check below retains its original time and Worker identity; it is not the current application deployment identity.
 
