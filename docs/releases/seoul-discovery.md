@@ -1,5 +1,17 @@
 # Seoul Discovery Release
 
+## Reviewed Park Photo - 2026-09-12
+
+PR [134](https://github.com/nkopp-cmd/travelchat-ai/pull/134) delivered the licensed 2018 park landscape without changing its UUID or coordinates.
+Deployed merge: `ebc1e8c62f70495681c4b362a1c253fd8afc1785`; exact merge verify run `34712538658.1` passed.
+Active preview version: `cffeadb7-083e-428f-95d7-8093106e35a1`; deployment `d91088ac-d931-4d95-89d2-449dd2392c0d`, serving 100%.
+All eight public venues now have working reviewed images with attribution. The other seven records remained unchanged.
+An actual repeated native transfer accepted thirteen identities and preserved public rows. The existing hourly schedule remains active.
+Actual hosted checks covered eight images and 24 map/list selections at three widths. Park screenshots were opened.
+See `park-photo.md` for exact source, database, relationship-rehearsal, replay, backup, rollback, and user-journey evidence.
+Gravity accepted the restricted-preview release only. `usable-native-discovery` remains unverified because six business-image rights gates remain unresolved.
+Older Worker identities below are historical checkpoints, not the current preview.
+
 ## Native Account Release - 2026-09-12
 
 PRs [132](https://github.com/nkopp-cmd/travelchat-ai/pull/132) and [133](https://github.com/nkopp-cmd/travelchat-ai/pull/133) delivered bounded native auth and ownership safeguards.

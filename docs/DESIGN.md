@@ -9,6 +9,9 @@ Source and copyright evidence are recorded in `releases/park-photo.md` and the p
 The source JPEG was opened before approval. Local and hosted card/map screenshots remain required before this increment is delivered.
 The local real-catalog rehearsal passed across 390/900/1440 pixels. The park becomes the hero under the existing first-photo rule.
 The wide park landscape and mobile map were opened in `test-results/native-catalog/run-O5QwXL/`; no unrelated venue image is substituted.
+The image is now live on the protected preview. All nine hosted park image/card/map screenshots were opened at 390/900/1440 pixels.
+The Korean author credit, historical context, uncropped image, and map/list return focus passed actual browser checks.
+Hosted evidence is in `.preview-private/park-release-EC2vdM/browser/`. This closes the existing park's missing image, not the six business-rights gaps.
 
 The native account timeout state reuses the existing error surface and explicit retry control; no new layout or component was added.
 The current identity stays hidden after a failed mapping check. Public catalog browsing remains available without assuming private access.

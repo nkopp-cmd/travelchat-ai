@@ -2,10 +2,10 @@
 
 ## Current Delivered Scope — 2026-09-12
 
-The active preview now includes native account safeguards from merge `18f43472126bc5260ed51db3ae76ec4a02de4733`.
-Worker version `b4b364de-1721-402b-8fd3-4b342267baef` supersedes earlier application checkpoints while preserving all eight public records.
-See `releases/native-account-boundaries.md` for the deployment, backup, and independent preview evidence.
-Native ingestion and the working hourly timer were not changed or repeated during this release.
+The active preview is merge `ebc1e8c62f70495681c4b362a1c253fd8afc1785`, Worker version `cffeadb7-083e-428f-95d7-8093106e35a1`.
+The existing park gained a reviewed licensed photograph; all eight published UUIDs and coordinates remain unchanged.
+The actual native transfer was repeated once after the guarded update and preserved every public row. The hourly schedule was not changed.
+See `releases/park-photo.md` for actual source, database, replay, and browser evidence. Six business-image rights gaps remain open.
 
 ### Production Continuation Source Check
 
