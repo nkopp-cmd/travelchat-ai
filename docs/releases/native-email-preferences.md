@@ -25,7 +25,7 @@ The bounded client request includes headers and body consumption. Buttons show p
 ## Verification
 
 Local release checks passed: 2,173 root tests with five existing optional skips; TypeScript; lint with zero errors and 62 warnings.
-The native package passed 211 tests without skips, environment isolation, Worker/frontend types, lint, and its production bundle build.
+The native package passed 212 tests without skips, environment isolation, Worker/frontend types, lint, and its production bundle build.
 Both native HTTPS browser suites passed. The final run reported zero browser errors and zero external requests.
 All nine preference screenshots were opened across 390, 900, and 1440 pixels.
 Measured preference text contrast was at least 4.83:1; targets were at least 44px, with visible keyboard focus and no overflow.
@@ -43,6 +43,8 @@ Attempt 2: component tests used unavailable Jest DOM matchers. Native DOM assert
 The browser runner initially refused low disk. Only the inactive authentic-discovery worktree's rebuildable `.next` output was removed.
 Its source, Git state, screenshots, and receipts were preserved. The active root development build was not removed.
 Frontend TypeScript caught optional identity fields. The new panel now uses the existing explicit identity-presence guard.
+Final pre-installation review added explicit `NOT NULL` to the owner primary key, with native D1 constraint regressions.
+SQLite text primary keys otherwise permit nulls. The migration had not been installed, so no stored data needed correction.
 Advisor review could not start: the installed wrapper could not find `codex`. No paid fallback or new builder was started.
 
 ## Release Gates

@@ -12,6 +12,13 @@ export async function emailPreferenceTests(t, { db, call, post, signup, login, m
   const untouched = async () => Promise.all(['spots', 'saved_spots', 'itineraries', 'application_outbox', 'owners', 'profiles', 'identity_links', 'owner_limits']
     .map(async table => (await db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results));
 
+  await t.test('D1 rejects null or unknown owners and non-boolean stored preferences', async () => {
+    for (const [owner, value] of [[null, 0], ['unknown-owner', 0], [session.ownerId, null], [session.ownerId, 2], [session.ownerId, 'false']]) {
+      await assert.rejects(db.prepare('INSERT INTO email_preferences VALUES (?, ?, 0, 0, 0)').bind(owner, value).run());
+    }
+    assert.deepEqual(await rows(), []);
+  });
+
   await t.test('new native preferences default off without writing during GET; partial updates preserve other fields', async () => {
     const before = await untouched();
     assert.deepEqual(await (await read()).json(), { preferences: defaults });
