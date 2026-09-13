@@ -5,6 +5,7 @@ import { savedSpots } from "./saved-spots";
 import { appError } from "./app-error";
 import { catalog } from "./catalog";
 import { emailPreferences } from "./email-preferences";
+import { currentTrends } from "./current-trends";
 import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryBodyLimit } from "./itineraries";
 import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
 import { verifyAccess, type AccessIdentity } from "./access";
@@ -34,6 +35,10 @@ export default {
         ? { mode: "preview", catalogSource: "seoul-pilot", registration: "restricted-preview", emailDelivery: "cloudflare" }
         : { mode: "local", catalogSource: "synthetic", registration: "local-test", emailDelivery: "captured" });
       if (["GET", "HEAD"].includes(request.method) && url.pathname === "/api/health") return json({ ok: true });
+      if (["GET", "HEAD"].includes(request.method) && url.pathname === "/api/trends/current") {
+        const response = await currentTrends(request, env);
+        return request.method === "HEAD" ? new Response(null, response) : response;
+      }
       if ((request.method === "GET" || (isPreview(env) && request.method === "HEAD")) && url.pathname === "/api/spots") {
         const response = await catalog(url, env);
         return request.method === "HEAD" ? new Response(null, response) : response;

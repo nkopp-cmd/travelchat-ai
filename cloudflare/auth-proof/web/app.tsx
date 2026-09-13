@@ -5,6 +5,7 @@ import { api, authClient, clearPrivate, getSnapshot, logout, message, mutate, mu
 import { ConfigGate, type AppConfig } from "./config";
 import { CatalogMap, PlacePhoto, coordinates, reviewedPhoto, sourceLink, placeText } from "./catalog";
 import { TripsPane } from "./trips";
+import { CurrentTrends } from "./trends";
 import "./styles.css";
 
 type Mode = "signin" | "signup" | "request" | "reset";
@@ -132,7 +133,7 @@ function App({ config }: { config: AppConfig }) {
   const identityMatches = context.session?.authUserId === observed.data?.user.id && context.session?.sessionId === observed.data?.session.id;
   const ready = context.phase === "ready" && identityMatches;
   const saved = ready ? context.saved : undefined;
-  const displayed = ["trips", "preferences"].includes(tab) ? [] : tab === "catalog" ? catalog.map((spot) => ({ id: spot.id, spot }))
+  const displayed = ["trips", "preferences", "trends"].includes(tab) ? [] : tab === "catalog" ? catalog.map((spot) => ({ id: spot.id, spot }))
     : (saved ?? []).map((row) => ({ id: row.spot_id, spot: preview && row.spots ? catalog.find((spot) => spot.id === row.spot_id) ?? row.spots : row.spots }));
   const hero = preview ? catalog.find((spot) => reviewedPhoto(spot)) : undefined;
   function selectPlace(id: string) {
@@ -176,9 +177,10 @@ function App({ config }: { config: AppConfig }) {
         {notice && <p className="notice" role="status">{notice}</p>}
       </aside>
       <section id="places" className="places" aria-labelledby="places-title">
-        <div id="discovery-lead" className={preview ? "discovery-lead" : ""}><div><p className="eyebrow">{preview ? "Seoul / The first places" : "Discover / Keep / Return"}</p><h2 id="places-title">{preview ? "Get to know Seoul." : "A few places to keep."}</h2>
-        <p className="intro">{preview ? "Real places, credited photos, and a map to help you explore. Check each source before you visit." : "Explore the synthetic catalog. Save a place to test your private collection."}</p>{hero && <a className="hero-place-link" href={`#place-${hero.id}`} onClick={() => { setTab("catalog"); setSelected(hero.id); }}>{text(hero.name)}: view place details</a>}</div>{hero && <PlacePhoto spot={hero} hero />}</div>
-        <div className="view-buttons" style={{ flexWrap: "wrap", whiteSpace: "nowrap" }} aria-label="Place views"><button aria-pressed={tab === "catalog"} className="secondary" onClick={() => setTab("catalog")}><Compass aria-hidden="true" />Catalog</button><button aria-pressed={tab === "saved"} className="secondary" onClick={() => setTab("saved")}><Bookmark aria-hidden="true" />Saved places</button><button aria-pressed={tab === "trips"} className="secondary" onClick={() => { setTripsVisited(true); setTab("trips"); }}>Trips</button><button aria-pressed={tab === "preferences"} className="secondary" onClick={() => setTab("preferences")}>Email preferences</button></div>
+        <div id="discovery-lead" className={preview && tab !== "trends" ? "discovery-lead" : ""}><div><p className="eyebrow">{tab === "trends" ? "Current week / Monitored sources" : preview ? "Seoul / The first places" : "Discover / Keep / Return"}</p><h2 id="places-title">{tab === "trends" ? "Signals, with their sources." : preview ? "Get to know Seoul." : "A few places to keep."}</h2>
+        <p className="intro">{tab === "trends" ? "A small reviewed sample, with real publication times and explicit limits. Check the original source before making plans." : preview ? "Real places, credited photos, and a map to help you explore. Check each source before you visit." : "Explore the synthetic catalog. Save a place to test your private collection."}</p>{hero && tab !== "trends" && <a className="hero-place-link" href={`#place-${hero.id}`} onClick={() => { setTab("catalog"); setSelected(hero.id); }}>{text(hero.name)}: view place details</a>}</div>{hero && tab !== "trends" && <PlacePhoto spot={hero} hero />}</div>
+        <div className="view-buttons" style={{ flexWrap: "wrap", whiteSpace: "nowrap" }} aria-label="Place views"><button aria-pressed={tab === "catalog"} className="secondary" onClick={() => setTab("catalog")}><Compass aria-hidden="true" />Catalog</button><button aria-pressed={tab === "saved"} className="secondary" onClick={() => setTab("saved")}><Bookmark aria-hidden="true" />Saved places</button><button aria-pressed={tab === "trips"} className="secondary" onClick={() => { setTripsVisited(true); setTab("trips"); }}>Trips</button><button aria-pressed={tab === "preferences"} className="secondary" onClick={() => setTab("preferences")}>Email preferences</button><button className="secondary" aria-pressed={tab === "trends"} onClick={() => setTab("trends")}>Current-week trends</button></div>
+        {tab === "trends" && <CurrentTrends />}
         {tab === "preferences" && <section aria-label="Email preferences preview">
           <h2>Email preferences</h2><p className="intro">Separate preview settings only. Optional emails start off. These controls do not send email or change your live account.</p>
           {ready && context.key && context.session?.ownerId && context.session.userRecordId
@@ -192,7 +194,7 @@ function App({ config }: { config: AppConfig }) {
             : <><p role="status">Sign in with a verified, linked account to view trips.</p><button className="secondary" onClick={() => { setMode("signin"); setAuthOpen(true); requestAnimationFrame(() => authHeading.current?.focus()); }}>Open account access</button></>}
         </section>}
         {preview && tab === "catalog" && <CatalogMap spots={catalog} selected={selected} onSelect={selectPlace} />}
-        {pending && tab !== "preferences" && <div className="continue"><p>A place is waiting for your confirmation. Nothing has been saved automatically.</p><button disabled={!ready || !saved || !!context.savedError || busySpots.has(mutationKey(context.session, `/api/spots/save/${pending}`))} onClick={() => void save(pending, false)}>Continue saving{catalog.some((spot) => spot.id === pending) ? `: ${text(catalog.find((spot) => spot.id === pending)?.name)}` : " selected place"}</button><button className="secondary" onClick={() => remember(null)}>Cancel selection</button></div>}
+        {pending && !["preferences", "trends"].includes(tab) && <div className="continue"><p>A place is waiting for your confirmation. Nothing has been saved automatically.</p><button disabled={!ready || !saved || !!context.savedError || busySpots.has(mutationKey(context.session, `/api/spots/save/${pending}`))} onClick={() => void save(pending, false)}>Continue saving{catalog.some((spot) => spot.id === pending) ? `: ${text(catalog.find((spot) => spot.id === pending)?.name)}` : " selected place"}</button><button className="secondary" onClick={() => remember(null)}>Cancel selection</button></div>}
         {ready && context.savedError && <div className="error" role="alert"><p>Could not refresh saved places. Previous results may be out of date. {context.savedError}</p><button className="secondary" onClick={() => void reloadSaved()}>Retry saved places</button></div>}
         {tab === "catalog" && catalogError && <div className="error" role="alert"><p>{catalogError}</p><button className="secondary" onClick={() => void loadCatalog(catalog.length ? nextOffset ?? 0 : 0)}>Retry catalog</button></div>}
         {tab === "catalog" && catalogBusy && <p role="status">Loading catalog...</p>}

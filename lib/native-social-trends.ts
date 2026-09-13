@@ -7,12 +7,17 @@ export const NATIVE_SOCIAL_VERSION = "localley-social-evidence-v1";
 export const metricWeights = { views: 1, likes: 8, comments: 12, shares: 20, saves: 16 } as const;
 const keys = Object.keys(metricWeights) as (keyof typeof metricWeights)[];
 const text = z.string().min(1).max(4000).refine(value => value.trim().length > 0);
+const sha = z.string().regex(/^[a-f0-9]{64}$/);
+export type NativeSocialCity = "seoul" | "tokyo";
 const count = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).nullable();
 const metricsSchema = z.object({ views: count, likes: count, comments: count, shares: count, saves: count }).strict();
-const provenanceSchema = z.object({ jobId: text, sourceUrl: text, observedAt: text }).passthrough();
+const provenanceSchema = z.object({ jobId: text, sourceUrl: text, observedAt: text,
+  retrieval: z.object({ kind: z.literal("youtube_public_feed"), url: text,
+    channelId: z.string().regex(/^UC[A-Za-z0-9_-]{22}$/), bodySha256: sha, ownerUrl: text }).strict().optional(),
+}).passthrough();
 const evidenceSchema = z.object({ locator: text, sourceText: text, publicationTimeText: text,
   addressText: z.string().max(4000), metrics: metricsSchema }).passthrough();
-const postSchema = z.object({ kind: z.literal("social"), recordId: text, citySlug: z.literal("seoul"),
+const postSchema = z.object({ kind: z.literal("social"), recordId: text, citySlug: z.enum(["seoul", "tokyo"]),
   platform: z.enum(["youtube", "instagram", "tiktok"]), externalId: text, canonicalUrl: text,
   contentText: text, publishedAt: text, weekStart: text, metrics: metricsSchema,
   provenance: provenanceSchema, evidence: z.array(evidenceSchema).min(1).max(6),
@@ -77,6 +82,8 @@ export function nativeContentDigest(post: NativeSocialPost): string {
   return nativeSocialDigest({ platform: post.platform, externalId: post.externalId, canonicalUrl: post.canonicalUrl,
     contentText: post.contentText, publishedAt: post.publishedAt,
     sourceIdentity: nativeSocialIdentity(post.provenance.sourceUrl),
+    ...(post.provenance.retrieval ? { retrievalIdentity: { kind: post.provenance.retrieval.kind,
+      url: post.provenance.retrieval.url, channelId: post.provenance.retrieval.channelId, ownerUrl: post.provenance.retrieval.ownerUrl } } : {}),
     evidence: post.evidence.map(({ locator, sourceText, publicationTimeText, addressText }) =>
       ({ locator, sourceText, publicationTimeText, addressText })) });
 }
@@ -87,6 +94,14 @@ export function validateNativeSocialPost(raw: unknown, now: number): { post?: Na
   const post = parsed.data, identity = nativeSocialIdentity(post.canonicalUrl), source = nativeSocialIdentity(post.provenance.sourceUrl);
   if (!identity || !source || identity.platform !== post.platform || identity.externalId !== post.externalId
     || identity.canonicalUrl !== post.canonicalUrl || source.canonicalUrl !== post.canonicalUrl) return { reason: "source_identity_mismatch" };
+  if (post.provenance.retrieval) {
+    const retrieval = post.provenance.retrieval;
+    try {
+      const owner = new URL(retrieval.ownerUrl);
+      if (post.platform !== "youtube" || retrieval.url !== `https://www.youtube.com/feeds/videos.xml?channel_id=${retrieval.channelId}`
+        || owner.protocol !== "https:" || owner.username || owner.password || owner.port || owner.hash) return { reason: "source_identity_mismatch" };
+    } catch { return { reason: "source_identity_mismatch" }; }
+  }
   const published = exactNativeSocialTime(post.publishedAt), observed = exactNativeSocialTime(post.provenance.observedAt);
   if (published === null || observed === null) return { reason: "inexact_timestamp" };
   if (observed > now || published > observed) return { reason: "future_timestamp" };
@@ -106,7 +121,6 @@ export function validateNativeSocialPost(raw: unknown, now: number): { post?: Na
 const identitySchema = z.object({ name: z.union([text, z.record(z.string(), z.string())]),
   address: z.union([text, z.record(z.string(), z.string())]), location: z.unknown(),
   google_place_id: z.string().nullable(), destination_id: z.string().nullable(), local_area_id: z.string().nullable() }).strict();
-const sha = z.string().regex(/^[a-f0-9]{64}$/);
 const mappingSchema = z.object({ platform: postSchema.shape.platform, externalId: text, canonicalUrl: text,
   contentDigest: sha, sourcePin: provenanceSchema.strict(), reviewedObservation: postSchema,
   spotId: z.string().uuid(), canonicalVenueIdentity: identitySchema,
@@ -152,14 +166,16 @@ export function validateNativeSocialManifest(raw: unknown, now: number): NativeS
 }
 
 export function reviewNativeSocial(input: { records: unknown[]; discoveryLeads: unknown[]; socialSources: unknown[] },
-  existingSpots: Record<string, unknown>[], manifest: unknown = undefined, now = Date.now()) {
+  existingSpots: Record<string, unknown>[], manifest: unknown = undefined, now = Date.now(), citySlug: NativeSocialCity = "seoul") {
+  if (!["seoul", "tokyo"].includes(citySlug)) throw new Error("Unsupported native review city");
   const weekStart = nativeSocialWeek(now), mappings = validateNativeSocialManifest(manifest, now);
   if ([input.records, input.discoveryLeads, input.socialSources, existingSpots].some(x => !Array.isArray(x) || x.length > 5000)) throw new Error("Review bounds exceeded");
   const rejected: { observation: unknown; reason: string }[] = [], observations: NativeSocialPost[] = [];
   for (const raw of input.records) {
     if (raw && typeof raw === "object" && (raw as { kind?: string }).kind === "place") continue;
     const result = validateNativeSocialPost(raw, now);
-    if (result.post) observations.push(result.post); else rejected.push({ observation: raw, reason: result.reason! });
+    if (result.post && result.post.citySlug === citySlug) observations.push(result.post);
+    else rejected.push({ observation: raw, reason: result.post ? "city_scope_mismatch" : result.reason! });
   }
   const groups = new Map<string, NativeSocialPost[]>();
   for (const post of observations) {
@@ -194,16 +210,19 @@ export function reviewNativeSocial(input: { records: unknown[]; discoveryLeads: 
   });
   for (const post of metricEligible) {
     const mapping = mappings.find(m => m.platform === post.platform && m.externalId === post.externalId);
-    let reason = !mapping ? "trusted_manual_mapping_required" : mapping.contentDigest !== nativeContentDigest(post) ? "review_content_changed" : "";
+    let reason = !mapping ? "trusted_manual_mapping_required" : mapping.contentDigest !== nativeContentDigest(post)
+      || mapping.reviewedObservation.citySlug !== post.citySlug ? "review_content_changed" : "";
     const spots = existingSpots.filter(s => s.id === mapping?.spotId), spot = spots[0];
     if (!reason && (!spot || spots.length !== 1 || nativeSocialDigest(nativeVenueIdentity(spot)) !== nativeSocialDigest(mapping!.canonicalVenueIdentity))) reason = "venue_identity_mismatch";
     if (!reason && spot) {
       const coords = parseSpotCoordinates(spot.location), address = localized(spot.address);
+      const cityMatches = coords && (citySlug === "seoul"
+        ? coords.lat >= 37.4 && coords.lat <= 37.72 && coords.lng >= 126.76 && coords.lng <= 127.19 && /(?:\bSeoul\b|서울)/i.test(address)
+        : coords.lat >= 35.45 && coords.lat <= 35.9 && coords.lng >= 139.3 && coords.lng <= 140.1 && /(?:\bTokyo\b|東京都)/i.test(address));
       if (spot.verified !== true || typeof spot.localley_score !== "number" || !Number.isFinite(spot.localley_score) || spot.localley_score < 4
         || !Array.isArray(spot.photos) || !spot.photos.every(p => typeof p === "string")
-        || !coords || coords.lat < 37.4 || coords.lat > 37.72 || coords.lng < 126.76 || coords.lng > 127.19
-        || !/(?:\bSeoul\b|서울)/i.test(address)
-        || getPublicSpotQualityIssue({ ...spot, name: spot.name as string, address: spot.address as string, photos: spot.photos as string[] })) reason = "spot_not_public_quality_seoul";
+        || !cityMatches
+        || getPublicSpotQualityIssue({ ...spot, name: spot.name as string, address: spot.address as string, photos: spot.photos as string[] })) reason = `spot_not_public_quality_${citySlug}`;
     }
     if (reason) unmatched.push({ observation: post, reason });
     else accepted.push({ observation: post, spotId: mapping!.spotId, weightedScoreLowerBound: lowerBound(post) });
@@ -225,7 +244,7 @@ export function reviewNativeSocial(input: { records: unknown[]; discoveryLeads: 
   const rejectionReasons: Record<string, number> = {};
   for (const row of [...rejected, ...unmatched]) rejectionReasons[row.reason] = (rejectionReasons[row.reason] || 0) + 1;
   return { publicationReady: false as const, applied: false as const, publicRankingsAction: "unchanged" as const,
-    status: ranked.length ? "dry_run_candidates_only" : "unready", citySlug: "seoul", weekStart,
+    status: ranked.length ? "dry_run_candidates_only" : "unready", citySlug, weekStart,
     reviewedAt: new Date(now).toISOString(), paidProviderCalls: 0, rankingSemantics: "Observed contributions only; weightedScoreLowerBound is not an assertion that unknown metrics are zero. Scores are provisional normalized lower-bound inputs, not lower bounds on final ranks.",
     counts: { records: input.records.length, validObservations: observations.length, uniquePosts: latest.length,
       acceptedPosts: accepted.length, ranks: ranked.length, rejected: rejected.length, unmatched: unmatched.length,

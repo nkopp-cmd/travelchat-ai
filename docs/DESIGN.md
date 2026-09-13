@@ -2,6 +2,14 @@
 
 ## Scope
 
+Current-week trends use a source-first numbered list, not image cards or a city-wide popularity chart.
+The alternative was another photo-led hero; the list is stronger because this workflow needs provenance and explicit sparse coverage, not unlicensed media.
+It reuses the app's existing typography, violet actions, neutral surfaces, link and focus behavior. No additional UI library or font was added.
+Rank, post/observation times, unknown metrics, source ownership, canonical place links, and expiry are visible.
+The trends view is explicitly Tokyo-scoped and does not reuse the Seoul hero. Its data is a reviewed sample, not an independent recommendation.
+The ready, error, and empty fixtures were reviewed at mobile and desktop sizes; hosted real-data review remains required.
+See `native-channel-trends.md` for source and activation constraints.
+
 The independent account recovery fix reuses the existing blocked/error presentation; no layout, token, or image decision changed.
 Local timeout screenshots and hosted read-only account screens were opened at mobile/desktop sizes, with the hosted intermediate width also checked.
 Hosted evidence: `.preview-private/account-release-vPLcWf/browser/`. Malformed verification data is not displayed as a missing-email-verification claim.

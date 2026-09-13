@@ -256,7 +256,7 @@ test("HTTPS browser through native assets, workerd and D1", { timeout: 240_000 }
       nativeWorkerdD1: true, requests: metrics.length, wallMs: Math.round(performance.now() - started) }));
 
     await browserUiChecks({ page, context, origin, db, call, stage: (value) => { stage = value; },
-      capture: (state) => captureBrowserState(page, results, state, evidence, state.startsWith("preferences-") ? [390, 900, 1440] : undefined).catch((error) => {
+      capture: (state) => captureBrowserState(page, results, state, evidence, /^(preferences|trends)-/.test(state) ? [390, 900, 1440] : undefined).catch((error) => {
         if (error.code === "ERR_ASSERTION") t.diagnostic(JSON.stringify({ visualCheck: error.message }));
         throw error;
       }) });
