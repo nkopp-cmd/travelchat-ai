@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
+import { currentTrendsUi } from "./current-trends-ui.mjs";
 
 // Failure and delay routes below are explicit test conditions, never successful auth/save mocks.
 export async function browserUiChecks({ page, context, origin, db, call, stage, capture }) {
@@ -76,6 +77,8 @@ export async function browserUiChecks({ page, context, origin, db, call, stage, 
   await page.getByRole("button", { name: "Saved places", exact: true }).click();
   await visible("No saved places yet.");
   assert.equal((await call("/api/spots/save")).data.spots.length, 0);
+  stage("Current-week UI preserves unknown counts, failures and freshness without source media");
+  await currentTrendsUi({ page, capture });
   stage("Native mapping deadline clears private identity and permits an explicit retry");
   const stalled = [];
   await page.route("**/api/session", route => { stalled.push(route); });
