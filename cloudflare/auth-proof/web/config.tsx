@@ -25,5 +25,5 @@ export function ConfigGate({ children }: { children: (config: AppConfig) => Reac
     return () => controller.abort();
   }, [attempt]);
   if (!config) return <main className="config-gate"><h1>Localley migration preview</h1>{error ? <><p role="alert">Preview configuration is unavailable. Account access is blocked. No local mode was assumed.</p><button onClick={() => { setError(false); setAttempt(attempt + 1); }}>Retry configuration</button></> : <p role="status">Loading preview configuration...</p>}</main>;
-  return <><div className="test-banner">{config.mode === "preview" ? "Cloudflare migration preview. Real Seoul places. Preview accounts are separate from the live service." : "Local migration test. Synthetic accounts and places. No real emails."}</div>{children(config)}</>;
+  return <div className="localley-app"><div className="test-banner">{config.mode === "preview" ? "Cloudflare migration preview. Real Seoul places. Preview accounts are separate from the live service." : "Local migration test. Synthetic accounts and places. No real emails."}</div>{children(config)}</div>;
 }

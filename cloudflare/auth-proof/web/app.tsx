@@ -143,7 +143,7 @@ function App({ config }: { config: AppConfig }) {
   }
   return <>
     <a className="skip-link" href="#places">Skip to places</a>
-    <header className="site-header"><a className="brand" href="/" aria-label="Localley home"><MapPin aria-hidden="true" />Localley</a><span className="eyebrow">{preview ? "Seoul / Migration preview" : "Local proof / Discovery"}</span></header>
+    <header className="site-header"><div className="site-header-inner"><a className="brand" href="/" aria-label="Localley home"><img src="/assets/localley-mark.png" alt="" width="36" height="36" />Localley</a><span className="eyebrow">{preview ? "Seoul / Migration preview" : "Local proof / Discovery"}</span></div></header>
     <main className={preview ? "layout preview-layout" : "layout"}>
       {preview && <div className="account-row"><p><strong>Separate preview accounts</strong><br />Invitation-only access. No live subscription or paid access transfers.</p><button className="secondary" aria-expanded={authOpen} aria-controls="preview-account" onClick={() => setAuthOpen(!authOpen)}>{authOpen ? "Close account access" : "Preview account access"}</button></div>}
       <aside id="preview-account" className="auth-panel" aria-labelledby="account-title" hidden={!authOpen}>
