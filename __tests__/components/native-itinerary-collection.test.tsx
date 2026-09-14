@@ -59,7 +59,7 @@ describe("native collection using the existing cards", () => {
         expect(screen.queryByRole("img")).toBeNull();
         expect(screen.queryByText("Create New Itinerary")).toBeNull();
         await menu();
-        expect(screen.queryByRole("menuitem", { name: "Duplicate" })).toBeNull();
+        expect(screen.getByRole("menuitem", { name: "Duplicate" })).toBeTruthy();
         expect(screen.queryByRole("menuitem", { name: "Share" })).toBeNull();
         expect(fetch).toHaveBeenCalledTimes(1);
     });
@@ -80,6 +80,23 @@ describe("native collection using the existing cards", () => {
         const posted = fetch.mock.calls.find((call) => call[1]?.method === "POST");
         expect(posted?.[0]).toBe("/api/itineraries");
         expect(JSON.parse(String(posted?.[1]?.body))).toEqual({ title: "Harbor walk", city: "Busan", days: [{ day: 1, activities: [{ name: "To plan" }] }] });
+    });
+
+    it("duplicates an owned trip from the collection menu and opens the copy", async () => {
+        const copy = { ...row, id: id2, title: "Private Seoul trip (Copy)" };
+        const fetch = vi.fn((_input: string, init?: RequestInit) => {
+            if (init?.method === "POST") return Promise.resolve(new Response(JSON.stringify({ itinerary: copy }), { status: 201 }));
+            return Promise.resolve(page());
+        });
+        vi.stubGlobal("fetch", fetch);
+        render(native());
+        await menu();
+        await act(async () => { fireEvent.click(screen.getByRole("menuitem", { name: "Duplicate" })); });
+        await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/itineraries/${id2}`));
+        expect(fetch).toHaveBeenCalledWith(`/api/itineraries/${id}/duplicate`, expect.objectContaining({
+            method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
+            headers: { "x-localley-session-id": "session" },
+        }));
     });
 
     it("uses the actual dialog, focuses Cancel, restores focus, and never writes on cancel", async () => {

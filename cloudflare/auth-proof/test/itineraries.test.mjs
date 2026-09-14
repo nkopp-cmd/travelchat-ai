@@ -451,6 +451,28 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     assert.deepEqual(await rows(), before);
   });
 
+  await t.test("itinerary duplicate copies owned rows and hides foreign sources", async () => {
+    const id = await seed();
+    const original = await raw(id);
+    const copied = await call(`${base}/${id}/duplicate`, { method: "POST", cookie: aliceCookie, headers });
+    assert.equal(copied.status, 201);
+    const { itinerary } = await copied.json();
+    assert.notEqual(itinerary.id, id);
+    assert.equal(itinerary.ownerId, owner);
+    assert.equal(itinerary.title, "Synthetic trip (Copy)");
+    assert.equal(itinerary.city, original.city);
+    assert.equal(itinerary.days, original.days);
+    assert.deepEqual(itinerary.activities, JSON.parse(original.activities));
+    assert.equal(itinerary.status, "draft");
+    assert.equal(itinerary.is_favorite, false);
+    assert.deepEqual(await raw(id), original);
+    assert.equal((await call(`${base}/${id}/duplicate`, { method: "POST", cookie: bobCookie, headers: { "x-localley-session-id": (await session(bobCookie)).sessionId } })).status, 404);
+    assert.equal((await call(`${base}/${id}/duplicate`, { method: "POST", cookie: aliceCookie })).status, 428);
+    assert.equal((await call(`${base}/${id}/duplicate`, { method: "POST", cookie: aliceCookie, headers, body: { title: "nope" } })).status, 400);
+    assert.equal((await call(`${base}/${id}/duplicate?limit=1`, { method: "POST", cookie: aliceCookie, headers })).status, 400);
+    assert.equal((await call(`${base}/${id}/duplicate`, { method: "GET", cookie: aliceCookie, headers })).status, 405);
+  });
+
   await t.test("itinerary session header fences reads optionally and mutations mandatorily without auth bypass", async () => {
     const id = await seed();
     const input = await body(id), before = await raw(id);
