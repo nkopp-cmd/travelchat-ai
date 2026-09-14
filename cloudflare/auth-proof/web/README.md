@@ -4,7 +4,7 @@
 
 Changes remain inside `web/` and `scripts/build-web.mjs`.
 The local layout and auth flows remain in place.
-The preview uses the existing violet and neutral colors.
+The preview uses Localley's mark, glass header, violet `#7c3aed`, and card glow on the catalog shell.
 Its account row opens a native account panel without hiding discovery.
 The hero uses one credited pilot photo. Its card links back rather than duplicating that image.
 The map appears above the two-column list. Mobile uses one column.

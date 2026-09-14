@@ -101,8 +101,9 @@ Build and review one real Seoul spot page with its linked map before extending t
 The detailed audit, measurable gates, media rules, and phased implementation order are in the new brief.
 
 Latest migration frontend: `cloudflare/auth-proof/web` connects real local Workers assets, Better Auth, and D1.
-It preserves Localley's neutral surfaces, violet accents, named controls, and existing font asset.
-This is an isolated migration UI, not a replacement of the live website yet.
+The product-shell increment applies Localley's mark, glass header, violet `#7c3aed`, ambient wash, and card glow to the whole preview, not only the trips pane.
+It reuses the existing 192px brand PNG. Geist is not bundled; the stack is system UI plus the existing Noto Korean face.
+This is still the restricted preview, not a replacement of the live website.
 The source and design selection record is `cloudflare/auth-proof/web/README.md`.
 The final browser evidence is `cloudflare/auth-proof/docs/browser-evidence.md`.
 

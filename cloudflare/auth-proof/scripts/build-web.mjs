@@ -66,6 +66,9 @@ for (const [name, hash] of [
   if (createHash("sha256").update(bytes).digest("hex") !== hash) throw new Error(`Unapproved font source: ${name}`);
   await writeFile(new URL(`assets/${name}`, output), bytes);
 }
+const mark = await readFile(new URL("../../public/icons/android-chrome-192x192.png", root));
+if (createHash("sha256").update(mark).digest("hex") !== "28d9c9cc6931114efb04552ebc6f900def8707072ccbcce4e1c259f5c12c523c") throw new Error("Unapproved Localley mark");
+await writeFile(new URL("assets/localley-mark.png", output), mark);
 
 // Only reviewed UUID JPEGs enter public output. Never recursively copy pilot exports.
 const pilot = new URL("pilot/images/", root);
