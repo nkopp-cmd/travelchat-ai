@@ -11,7 +11,7 @@ An observed mismatch refreshes the existing shell context. Loading does not refr
 Failed verification hides trips and requires an explicit retry without a remount loop.
 Tabs retain the editor draft; account changes still unmount private content.
 Native editor cancellation returns to the collection. Saving retains the native editor's existing behavior.
-Create uses `POST /api/itineraries`. Duplicate uses `POST /api/itineraries/:id/duplicate` for the owner only. Share uses `POST /api/itineraries/:id/share` and `GET /api/shared/:code`.
+Create uses `POST /api/itineraries`. Catalog generate uses `POST /api/itineraries/generate` from published spots only. Duplicate uses `POST /api/itineraries/:id/duplicate` for the owner only. Share uses `POST /api/itineraries/:id/share` and `GET /api/shared/:code`. Paid AI generation is not enabled.
 
 The build aliases React and React DOM to the installed proof copies.
 It writes `dist/web-dependencies.json` and asserts both native components are present.

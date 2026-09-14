@@ -78,9 +78,11 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     for (const query of ["limit=0", "limit=26", "limit=101", "offset=-1", "offset=1.2", "limit=2&limit=3", "ownerId=forged", "offset=9007199254740992", "limit="]) {
       assert.equal((await call(`${base}?${query}`, { cookie: aliceCookie })).status, 400);
     }
-    for (const path of ["/generate", "/share", "/status", "/bad-id"]) {
+    for (const path of ["/share", "/status", "/bad-id"]) {
       for (const method of ["GET", "POST", "PATCH", "DELETE"]) assert.equal((await call(base + path, { method, cookie: aliceCookie, headers })).status, 404);
     }
+    assert.equal((await call(`${base}/generate`, { method: "GET", cookie: aliceCookie, headers })).status, 405);
+    assert.equal((await call(`${base}/generate`, { method: "POST", cookie: aliceCookie, headers })).status, 400);
     assert.equal((await call(base, { method: "POST", cookie: aliceCookie, headers })).status, 400);
     assert.equal((await call(base, { method: "DELETE", cookie: aliceCookie, headers })).status, 405);
     for (const method of ["POST", "PUT", "PATCH", "HEAD", "OPTIONS"]) assert.equal((await call(`${base}/${ids[0]}`, { method, cookie: aliceCookie, headers })).status, 405);
@@ -449,6 +451,25 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     const before = await rows();
     assert.equal((await call(base, { method: "POST", cookie: aliceCookie, headers, body: { title: " ", city: "Seoul", days: plan } })).status, 400);
     assert.deepEqual(await rows(), before);
+  });
+
+  await t.test("itinerary generate builds an owned catalog plan and rejects empty cities", async () => {
+    const palace = randomUUID(), market = randomUUID();
+    await db.prepare("INSERT INTO spots(id,name,description,category,visible,city,address,latitude,longitude) VALUES (?, ?, '{}', 'culture', 1, 'Seoul', 'Sajik-ro', 37.5, 126.9)").bind(palace, JSON.stringify({ en: "Gyeongbokgung Palace" })).run();
+    await db.prepare("INSERT INTO spots(id,name,description,category,visible,city) VALUES (?, ?, '{}', 'food', 1, 'Seoul')").bind(market, JSON.stringify({ en: "Gwangjang Market" })).run();
+    const created = await call(`${base}/generate`, { method: "POST", cookie: aliceCookie, headers, body: { city: "Seoul", days: 2 } });
+    assert.equal(created.status, 201);
+    const { itinerary } = await created.json();
+    assert.equal(itinerary.ownerId, owner);
+    assert.equal(itinerary.city, "Seoul");
+    assert.equal(itinerary.days, 2);
+    assert.equal(itinerary.title, "Seoul trip");
+    assert.equal(isEditableItineraryPlan(itinerary.activities), true);
+    assert.equal(itinerary.activities.length, 2);
+    const spotIds = itinerary.activities.flatMap((day) => day.activities.map((activity) => activity.spotId)).sort();
+    assert.deepEqual(spotIds, [market, palace].sort());
+    assert.equal((await call(`${base}/generate`, { method: "POST", cookie: aliceCookie, headers, body: { city: "Nowhere", days: 1 } })).status, 409);
+    assert.equal((await call(`${base}/generate`, { method: "POST", cookie: aliceCookie, body: { city: "Seoul", days: 1 } })).status, 428);
   });
 
   await t.test("itinerary duplicate copies owned rows and hides foreign sources", async () => {

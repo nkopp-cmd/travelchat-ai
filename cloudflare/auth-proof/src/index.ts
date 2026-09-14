@@ -19,9 +19,10 @@ export default {
       savedRoute ? appError(code, message, status) : json({ error: legacyMessage }, status);
     try {
       const url = new URL(request.url);
-      const itineraryRoute = url.pathname === "/api/itineraries" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname) || itineraryDuplicatePath.test(url.pathname) || itinerarySharePath.test(url.pathname);
+      const itineraryRoute = url.pathname === "/api/itineraries" || url.pathname === "/api/itineraries/generate" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname) || itineraryDuplicatePath.test(url.pathname) || itinerarySharePath.test(url.pathname);
       const itineraryPatch = request.method === "PATCH" && itineraryUpdatePath.test(url.pathname);
       const itineraryCreate = request.method === "POST" && url.pathname === "/api/itineraries";
+      const itineraryGenerate = request.method === "POST" && url.pathname === "/api/itineraries/generate";
       const itineraryDuplicate = request.method === "POST" && itineraryDuplicatePath.test(url.pathname);
       const itineraryShare = itinerarySharePath.test(url.pathname) && ["POST", "DELETE"].includes(request.method);
       const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
@@ -115,7 +116,7 @@ export default {
       if (["/api/account/new", "/api/account/claim"].includes(path) && request.method === "POST" && !expectedSession) {
         return appError("session_required", "Refresh your session before trying again.", 428);
       }
-      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryDuplicate || itineraryShare || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
+      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryGenerate || itineraryDuplicate || itineraryShare || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
         if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
         if (!expectedSession) return appError("session_required", "Refresh your session before trying again.", 428);
       }

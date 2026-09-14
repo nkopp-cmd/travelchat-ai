@@ -227,6 +227,53 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
         }}>{children}</a>;
     });
 
+    async function generate(form: HTMLFormElement) {
+        const signal = lifetime.current?.signal;
+        if (!signal || !current(signal) || accessFault.current || writeLock.current) return;
+        const title = String(new FormData(form).get("title") ?? "").trim();
+        const city = String(new FormData(form).get("city") ?? "").trim();
+        const days = Number(String(new FormData(form).get("days") ?? ""));
+        if (!city || !Number.isSafeInteger(days) || days < 1 || days > 7) return;
+        writeLock.current = true;
+        readController.current?.abort();
+        setLoading(false);
+        setWriting(true);
+        setError("");
+        setNotice("");
+        try {
+            const payload: Record<string, unknown> = { city, days };
+            if (title) payload.title = title;
+            const { response, value: result } = await requestJSON("/api/itineraries/generate", {
+                method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
+                headers: { "content-type": "application/json", "x-localley-session-id": sessionId },
+                body: JSON.stringify(payload),
+            }, signal);
+            if (!current(signal)) return;
+            checkAccess(response, signal);
+            if (!current(signal) || accessFault.current) return;
+            if (response.status === 409) throw new Error("empty-city");
+            if (response.status !== 201 || !result || typeof result !== "object" || !("itinerary" in result)
+                || !result.itinerary || typeof result.itinerary !== "object" || typeof (result.itinerary as { id?: unknown }).id !== "string"
+                || !UUID.test((result.itinerary as { id: string }).id) || (result.itinerary as { ownerId?: unknown }).ownerId !== ownerId) {
+                throw new Error("Generate failed.");
+            }
+            const id = (result.itinerary as { id: string }).id.toLowerCase();
+            form.reset();
+            setNotice("Catalog trip created.");
+            callbacks.current.onNavigate?.(`/itineraries/${id}`);
+            if (current(signal)) await load(0, []);
+        } catch (error) {
+            if (current(signal)) setError(error instanceof Error && error.message === "empty-city"
+                ? "No catalog places for this city."
+                : "Could not build this trip from the catalog. Check the form and try again.");
+        } finally {
+            if (current(signal)) {
+                writeLock.current = false;
+                setWriting(false);
+            }
+        }
+    }
+
     async function create(form: HTMLFormElement) {
         const signal = lifetime.current?.signal;
         if (!signal || !current(signal) || accessFault.current || writeLock.current) return;
@@ -374,6 +421,12 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
     }
 
     return <section ref={collectionElement} tabIndex={-1} aria-label="Your itineraries" aria-busy={loading || writing}>
+        {!blocked && <form aria-label="Build a trip from catalog" onSubmit={(event) => { event.preventDefault(); void generate(event.currentTarget); }}>
+            <label>Catalog title<input name="title" maxLength={200} autoComplete="off" disabled={loading || writing} /></label>
+            <label>Catalog city<input name="city" required maxLength={100} autoComplete="off" disabled={loading || writing} /></label>
+            <label>Days<input name="days" type="number" required min={1} max={7} defaultValue={2} disabled={loading || writing} /></label>
+            <Button type="submit" disabled={loading || writing}>Build from catalog</Button>
+        </form>}
         {!blocked && <form aria-label="Create a trip" onSubmit={(event) => { event.preventDefault(); void create(event.currentTarget); }}>
             <label>Title<input name="title" required maxLength={200} autoComplete="off" disabled={loading || writing} /></label>
             <label>City<input name="city" required maxLength={100} autoComplete="off" disabled={loading || writing} /></label>
