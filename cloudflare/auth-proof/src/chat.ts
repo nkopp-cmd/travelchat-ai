@@ -31,6 +31,45 @@ function placeText(raw: string | null): string {
   return typeof raw === "string" ? raw : "";
 }
 
+function lunaText(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const record = payload as { output_text?: unknown; output?: unknown };
+  if (typeof record.output_text === "string" && record.output_text.trim()) return record.output_text.trim().slice(0, 2000);
+  if (!Array.isArray(record.output)) return null;
+  const parts: string[] = [];
+  for (const item of record.output) {
+    if (!item || typeof item !== "object") continue;
+    const content = (item as { content?: unknown }).content;
+    if (!Array.isArray(content)) continue;
+    for (const block of content) {
+      if (block && typeof block === "object" && typeof (block as { text?: unknown }).text === "string") {
+        parts.push((block as { text: string }).text);
+      }
+    }
+  }
+  const text = parts.join("").trim();
+  return text ? text.slice(0, 2000) : null;
+}
+
+async function lunaReply(key: string, model: string, message: string, facts: string): Promise<string | null> {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      input: `You are Localley. Answer only from these published catalog places. If the catalog does not contain the answer, say so. Do not invent hours, prices, or photos.\n\nCatalog:\n${facts}\n\nQuestion: ${message}`,
+      temperature: 0.4,
+      max_output_tokens: 256,
+      reasoning: { effort: "none" },
+      store: false,
+    }),
+    signal: AbortSignal.timeout(12000),
+    redirect: "error",
+  });
+  if (!response.ok) return null;
+  return lunaText(await response.json());
+}
+
 export async function catalogChat(request: Request, env: Env, _session: TrustedAppSession, data: Record<string, unknown>): Promise<Response> {
   const url = new URL(request.url);
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -49,24 +88,36 @@ export async function catalogChat(request: Request, env: Env, _session: TrustedA
       ? [{ id: row.id, name, city: row.city, category: row.category, address: row.address }]
       : [];
   }).slice(0, 3);
-  if (!places.length) {
-    const available = rows.flatMap((row) => {
-      const name = placeName(row.name);
-      return name ? [name] : [];
-    }).slice(0, 8);
-    return json({
-      reply: available.length
-        ? `No catalog match for that question. Published places here: ${available.join(", ")}.`
-        : "No catalog places are published yet.",
-      places: [],
-    });
-  }
-  const lines = places.map((place) => {
+  const catalogPlaces = places.length ? places : rows.flatMap((row) => {
+    const name = placeName(row.name);
+    return name ? [{ id: row.id, name, city: row.city, category: row.category, address: row.address }] : [];
+  }).slice(0, 8);
+  const lines = catalogPlaces.map((place) => {
     const bits = [place.name, place.category, place.city, place.address].filter((value): value is string => !!value && !!value.trim());
     return bits.join(" · ");
   });
+  const catalogReply = places.length
+    ? `From the published catalog: ${lines.join(" ")} Check each public source before you visit.`
+    : catalogPlaces.length
+      ? `No catalog match for that question. Published places here: ${catalogPlaces.map((place) => place.name).join(", ")}.`
+      : "No catalog places are published yet.";
+  const key = "OPENAI_API_KEY" in env && typeof (env as { OPENAI_API_KEY?: unknown }).OPENAI_API_KEY === "string"
+    ? (env as { OPENAI_API_KEY: string }).OPENAI_API_KEY.trim()
+    : "";
+  const model = "OPENAI_CHAT_MODEL" in env && typeof (env as { OPENAI_CHAT_MODEL?: unknown }).OPENAI_CHAT_MODEL === "string"
+    && (env as { OPENAI_CHAT_MODEL: string }).OPENAI_CHAT_MODEL.trim()
+    ? (env as { OPENAI_CHAT_MODEL: string }).OPENAI_CHAT_MODEL.trim()
+    : "gpt-5.6-luna";
+  let reply = catalogReply;
+  if (key && catalogPlaces.length) {
+    try {
+      const generated = await lunaReply(key, model, data.message.trim(), lines.join("\n"));
+      if (generated) reply = generated;
+    } catch { /* Keep the catalog reply. Do not call another paid model. */ }
+  }
   return json({
-    reply: `From the published catalog: ${lines.join(" ")} Check each public source before you visit.`,
+    reply,
     places: places.map((place) => ({ id: place.id, name: place.name })),
+    model: key && reply !== catalogReply ? model : "catalog",
   });
 }

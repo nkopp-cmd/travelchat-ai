@@ -14,6 +14,7 @@ export async function chatTests(t, { db, call, aliceCookie, bobCookie }) {
     const data = await asked.json();
     assert.match(data.reply, /Gyeongbokgung Palace/);
     assert.ok(data.places.some((place) => place.name === "Gyeongbokgung Palace"));
+    assert.equal(data.model, "catalog");
     assert.equal((await call("/api/chat", { method: "POST", cookie: aliceCookie, headers, body: { message: "zzzz not a place" } })).status, 200);
     assert.equal((await call("/api/chat", { method: "POST", cookie: aliceCookie, body: { message: "palace" } })).status, 428);
     assert.equal((await call("/api/chat", { method: "POST", cookie: bobCookie, headers: { "x-localley-session-id": (await session(bobCookie)).sessionId }, body: { message: "palace" } })).status, 200);
