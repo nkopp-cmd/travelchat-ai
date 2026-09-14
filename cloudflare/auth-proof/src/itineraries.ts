@@ -3,6 +3,7 @@ import { isBoundedJSON as validJSON, isEditableItineraryPlan, mergeItineraryPlan
 
 export const itineraryDetailPath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i;
 export const itineraryUpdatePath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/update$/i;
+export const itineraryDuplicatePath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/duplicate$/i;
 export const itineraryBodyLimit = 512 * 1024;
 export const itineraryCollectionLimit = 25;
 export const itineraryCollectionByteLimit = 1024 * 1024;
@@ -96,6 +97,22 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, 'draft', 0) RETURNING *`)
       .bind(crypto.randomUUID(), session.ownerId, data.title, data.city, dayCount, JSON.stringify(activities),
         JSON.stringify(data.highlights ?? []), data.estimated_cost || null).first<ItineraryRow>();
+    return saved ? json({ itinerary: itineraryDTO(saved) }, 201) : json({ error: "Incomplete identity" }, 409);
+  }
+  const duplicate = itineraryDuplicatePath.exec(url.pathname);
+  if (duplicate && request.method === "POST") {
+    if (url.search) return json({ error: "Unexpected query" }, 400);
+    if (Object.keys(data).length) return json({ error: "Unexpected body" }, 400);
+    const sourceId = duplicate[1].toLowerCase();
+    const observed = await env.DB.prepare("SELECT * FROM itineraries WHERE id = ? AND ownerId = ?").bind(sourceId, session.ownerId).first<ItineraryRow>();
+    if (!observed) return json({ error: "Not found" }, 404);
+    if (!Number.isSafeInteger(observed.days) || observed.days < 1) return json({ error: "Itinerary metadata requires repair" }, 400);
+    itineraryDTO(observed);
+    const title = observed.title && observed.title.trim() ? `${observed.title} (Copy)` : "Copy";
+    const saved = await env.DB.prepare(`INSERT INTO itineraries (id, ownerId, title, city, days, activities, highlights, estimated_cost, subtitle, local_score, status, is_favorite)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', 0) RETURNING *`)
+      .bind(crypto.randomUUID(), session.ownerId, title, observed.city, observed.days, observed.activities,
+        observed.highlights, observed.estimated_cost, observed.subtitle, observed.local_score).first<ItineraryRow>();
     return saved ? json({ itinerary: itineraryDTO(saved) }, 201) : json({ error: "Incomplete identity" }, 409);
   }
   if (!(detail && ["GET", "DELETE"].includes(request.method)) && !(update && request.method === "PATCH")) return json({ error: "Method not allowed" }, 405);

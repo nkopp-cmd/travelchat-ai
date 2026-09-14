@@ -20,4 +20,4 @@ Visitors on the Cloudflare app should recognize Localley: logo, violet glass chr
 
 Visible preview chrome only. No DNS cutover, no Vercel deploy, no Clerk import, no paid generation.
 
-Native trip create is part of this shell: `POST /api/itineraries` writes an owned draft and the collection form opens it. Sharing, duplication, generated plans, chat, stories, billing, and admin remain unported.
+Native trip create and owner-only duplicate are part of this shell. Sharing, generated plans, chat, stories, billing, and admin remain unported.
