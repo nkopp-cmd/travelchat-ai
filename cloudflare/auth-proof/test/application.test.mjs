@@ -25,7 +25,7 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
   const catalog = Array.from({ length: 14 }, () => randomUUID());
   const name = { en: "Synthetic test cafe", ko: "\uac00\uc0c1 \ud14c\uc2a4\ud2b8 \uce74\ud398" };
   const description = { en: "Synthetic catalog only. Not a real place.", ko: "\uc2e4\uc81c \uc7a5\uc18c\uac00 \uc544\ub2cc \uac00\uc0c1 \ub370\uc774\ud130" };
-  await db.batch(catalog.map((id) => db.prepare("INSERT INTO spots VALUES (?, ?, ?, 'cafe', 4, '[]', 1)")
+  await db.batch(catalog.map((id) => db.prepare("INSERT INTO spots(id,name,description,category,localley_score,photos,visible) VALUES (?, ?, ?, 'cafe', 4, '[]', 1)")
     .bind(id, JSON.stringify(name), JSON.stringify(description))));
 
   await t.test("application session UUID, neutral DTO, idempotent and concurrent atomic provisioning", async () => {

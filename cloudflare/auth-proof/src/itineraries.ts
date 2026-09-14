@@ -122,6 +122,54 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
         JSON.stringify(data.highlights ?? []), data.estimated_cost || null).first<ItineraryRow>();
     return saved ? json({ itinerary: itineraryDTO(saved) }, 201) : json({ error: "Incomplete identity" }, 409);
   }
+  if (request.method === "POST" && url.pathname === "/api/itineraries/generate") {
+    if (url.search) return json({ error: "Unexpected query" }, 400);
+    if (!validJSON(data)) return json({ error: "Unsupported JSON" }, 400);
+    if (Object.keys(data).some((key) => !["title", "city", "days"].includes(key))
+      || (Object.hasOwn(data, "title") && (typeof data.title !== "string" || !data.title.trim()))
+      || typeof data.city !== "string" || !data.city.trim()
+      || !Number.isSafeInteger(data.days) || Number(data.days) < 1 || Number(data.days) > 7) return json({ error: "Invalid itinerary fields" }, 400);
+    const city = data.city.trim();
+    const dayCount = Number(data.days);
+    const spots = (await env.DB.prepare(`SELECT id, name, address, latitude, longitude FROM spots
+      WHERE visible = 1 AND city IS NOT NULL AND lower(city) = lower(?) ORDER BY id LIMIT 24`).bind(city).all<{
+        id: string; name: string; address: string | null; latitude: number | null; longitude: number | null;
+      }>()).results;
+    const activities = spots.flatMap((spot) => {
+      let named: string | null = null;
+      try {
+        const parsed: unknown = JSON.parse(spot.name);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          const record = parsed as Record<string, unknown>;
+          const english = record.en;
+          named = typeof english === "string" && english.trim() ? english.trim()
+            : Object.values(record).find((value): value is string => typeof value === "string" && !!value.trim())?.trim() ?? null;
+        }
+      } catch { named = null; }
+      if (!named) return [];
+      const activity: Record<string, unknown> = { name: named, spotId: spot.id };
+      if (spot.address && spot.address.trim()) activity.address = spot.address.trim();
+      if (typeof spot.latitude === "number" && Number.isFinite(spot.latitude)) activity.lat = spot.latitude;
+      if (typeof spot.longitude === "number" && Number.isFinite(spot.longitude)) activity.lng = spot.longitude;
+      return [activity];
+    });
+    if (!activities.length) return json({ error: "No catalog places for this city" }, 409);
+    const days = Array.from({ length: dayCount }, (_, index) => ({
+      day: index + 1,
+      activities: activities.filter((_, spotIndex) => spotIndex % dayCount === index).slice(0, 4),
+    }));
+    if (days.some((day) => !day.activities.length)) {
+      days.forEach((day, index) => {
+        if (!day.activities.length) day.activities = [activities[index % activities.length]];
+      });
+    }
+    if (!isEditableItineraryPlan(days)) return json({ error: "Invalid itinerary fields" }, 400);
+    const title = typeof data.title === "string" && data.title.trim() ? data.title.trim() : `${city} trip`;
+    const saved = await env.DB.prepare(`INSERT INTO itineraries (id, ownerId, title, city, days, activities, highlights, estimated_cost, subtitle, local_score, status, is_favorite)
+      VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, 'draft', 0) RETURNING *`)
+      .bind(crypto.randomUUID(), session.ownerId, title, city, dayCount, JSON.stringify(days), JSON.stringify([])).first<ItineraryRow>();
+    return saved ? json({ itinerary: itineraryDTO(saved) }, 201) : json({ error: "Incomplete identity" }, 409);
+  }
   const duplicate = itineraryDuplicatePath.exec(url.pathname);
   if (duplicate && request.method === "POST") {
     if (url.search) return json({ error: "Unexpected query" }, 400);

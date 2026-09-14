@@ -82,6 +82,23 @@ describe("native collection using the existing cards", () => {
         expect(JSON.parse(String(posted?.[1]?.body))).toEqual({ title: "Harbor walk", city: "Busan", days: [{ day: 1, activities: [{ name: "To plan" }] }] });
     });
 
+    it("builds an owned catalog trip from published places", async () => {
+        const created = { ...row, id: id2, title: "Seoul trip", city: "Seoul" };
+        const fetch = vi.fn((_input: string, init?: RequestInit) => {
+            if (init?.method === "POST") return Promise.resolve(new Response(JSON.stringify({ itinerary: created }), { status: 201 }));
+            return Promise.resolve(page());
+        });
+        vi.stubGlobal("fetch", fetch);
+        render(native());
+        await waitFor(() => expect((screen.getByRole("button", { name: "Build from catalog" }) as HTMLButtonElement).disabled).toBe(false));
+        fireEvent.change(screen.getByLabelText("Catalog city"), { target: { value: "Seoul" } });
+        fireEvent.change(screen.getByLabelText("Days"), { target: { value: "2" } });
+        await act(async () => { fireEvent.submit(screen.getByRole("form", { name: "Build a trip from catalog" })); });
+        await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/itineraries/${id2}`));
+        const posted = fetch.mock.calls.find((call) => call[0] === "/api/itineraries/generate");
+        expect(JSON.parse(String(posted?.[1]?.body))).toEqual({ city: "Seoul", days: 2 });
+    });
+
     it("duplicates an owned trip from the collection menu and opens the copy", async () => {
         const copy = { ...row, id: id2, title: "Private Seoul trip (Copy)" };
         const fetch = vi.fn((_input: string, init?: RequestInit) => {

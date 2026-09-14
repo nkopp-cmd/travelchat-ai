@@ -20,4 +20,4 @@ Visitors on the Cloudflare app should recognize Localley: logo, violet glass chr
 
 Visible preview chrome only. No DNS cutover, no Vercel deploy, no Clerk import, no paid generation.
 
-Native trip create, owner-only duplicate, and owner-only share links are part of this shell. Generated plans, chat, stories, billing, and admin remain unported.
+Native trip create, catalog-backed generate, owner-only duplicate, and owner-only share links are part of this shell. Paid AI generation, chat, stories, billing, and admin remain unported.

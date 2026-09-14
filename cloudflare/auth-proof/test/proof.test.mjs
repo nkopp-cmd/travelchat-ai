@@ -96,6 +96,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     db = await mf.getD1Database("DB");
     await db.exec(await readFile("migrations/0001_local.sql", "utf8"));
     await db.exec(await readFile("migrations/0002_application.sql", "utf8"));
+    await db.exec(await readFile("migrations/0004_pilot_catalog.sql", "utf8"));
     await db.exec(await readFile("migrations/0005_itineraries.sql", "utf8"));
     await db.exec(await readFile("migrations/0007_email_preferences.sql", "utf8"));
     await db.exec(await readFile("migrations/0009_itinerary_share.sql", "utf8"));
