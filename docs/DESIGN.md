@@ -7,7 +7,8 @@ The alternative was another photo-led hero; the list is stronger because this wo
 It reuses the app's existing typography, violet actions, neutral surfaces, link and focus behavior. No additional UI library or font was added.
 Rank, post/observation times, unknown metrics, source ownership, canonical place links, and expiry are visible.
 The trends view is explicitly Tokyo-scoped and does not reuse the Seoul hero. Its data is a reviewed sample, not an independent recommendation.
-The ready, error, and empty fixtures were reviewed at mobile and desktop sizes; hosted real-data review remains required.
+The ready, error, and empty fixtures were reviewed at mobile and desktop sizes.
+Hosted real-data review passed on 2026-09-13 for one Tokyo ranking, then expired at the week boundary; the live page now shows the empty/unready state for week 2026-09-14.
 See `native-channel-trends.md` for source and activation constraints.
 
 The independent account recovery fix reuses the existing blocked/error presentation; no layout, token, or image decision changed.

@@ -1,5 +1,22 @@
 # Seoul Discovery Release
 
+## Current-Week Trends - 2026-09-13
+
+PR [136](https://github.com/nkopp-cmd/travelchat-ai/pull/136) delivered the official Tsukiji YouTube path for UTC week `2026-09-07`.
+Checked source `14a7f538a5aa07dcdcfaf6eeab02ec2984fe6e84`; merge `9aaec81bea7cef06c4922a439e21045b3b14c06e`.
+Exact merge verify run `34727683016.1` passed. Active Worker: `9b778bad-0fba-486b-81fa-c085f461c806`, at 100%.
+Deployment ID: `384eafca-f6f8-47e4-a360-eddb0b3bc544`. Rollback Worker: `b94b6afb-46af-49a1-a08b-ade404c564b2`.
+Backup SHA-256 `69f90ce719fa0bad255ecc0acb8c095330e4b5ea2ea3a46c0fe82aeac1f113f0`. Migration 0008 applied after restore rehearsal.
+Live publication accepted one post and one rank: video `J0K2Vpm7JEw`, published `2026-09-09T08:00:21+00:00`, 565 views, four metrics null.
+Canonical spot `65063bf2-32ad-44e8-8de4-8918fe074755` was unchanged. Hosted browser checks at 390/900/1440 passed on 2026-09-13 before expiry.
+Gravity accepted coding evidence for `current-week-trends-product` and restricted-preview release evidence for PR136.
+The snapshot expired `2026-09-14T00:00:00Z`. On 2026-09-14 the live API correctly returned `unready` with zero rankings for week `2026-09-14`.
+The official YouTube feed then returned HTTP 404 without following redirects. The market RSS is a 2019 WordPress stub. Mastodon/Lemmy samples had no eligible current-week venue match.
+Do not present the expired September 9 post as current. Coverage remains one reviewed venue-owned channel, not city-wide.
+See `native-channel-trends.md` for pipeline, receipts, and this week's empty-supply review.
+SQL access, six deferred image rights, hosted human recovery, and full account cutover remain separate gates.
+Older deployment identities below are historical checkpoints.
+
 ## Account Recovery - 2026-09-12
 
 The blocked image-rights question was cleared without granting outreach or reuse. The six items remain deferred in NEEDS.

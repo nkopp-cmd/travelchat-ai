@@ -2,10 +2,20 @@
 
 ## Current Live Check
 
+### Current Week - 2026-09-14
+
+UTC week `2026-09-14` has no accepted source-to-eligible-venue path.
+The previous official YouTube snapshot expired at `2026-09-14T00:00:00Z` and is no longer shown.
+The live Tokyo trends API returned `unready` with zero rankings.
+The official channel Atom feed returned HTTP 404 without a consent follow. The market RSS is a 2019 stub.
+Mastodon and Lemmy samples for this week produced no defensible eligible-venue match.
+Private receipt: `.preview-private/current-week-20260914-review.json`.
+Gravity already accepted the prior week's coding and preview-release evidence; this week's empty supply is recorded, not filled.
+
 ### Current-Week Product Attempt - 2026-09-12
 
-Outcome: incomplete. No accepted source-to-eligible-spot path or visible ranking was produced.
-No completion evidence was submitted for `current-week-trends-product`.
+Outcome: incomplete for week `2026-09-07` until the later official Tsukiji path. No accepted source-to-eligible-spot path or visible ranking was produced in this Mastodon/Lemmy attempt.
+No completion evidence was submitted from this attempt.
 The image-rights deferral remains intact; no image was reused and no outreach was attempted.
 
 The new public Mastodon sample used twelve bounded hashtag queries, up to forty entries each.

@@ -69,10 +69,29 @@ The UI hides expired data, clears failed responses, and rechecks on focus/visibi
 Initial coverage is one reviewed post from one official venue-owned YouTube channel in Tokyo.
 It is not representative of Tokyo, all four enabled cities, all YouTube posts, or independent visitor sentiment.
 Publication freshness does not establish the recording date or current venue conditions.
-Each snapshot expires within 24 hours and no later than the approved week boundary, `2026-09-14T00:00:00Z`.
+Each snapshot expires within 24 hours and no later than the approved week boundary. The first reviewed post was valid only through `2026-09-14T00:00:00Z`.
 Refresh is an explicit bounded host command. No new scheduler was added, and the existing hourly venue transfer was not changed.
 After expiry, the page honestly shows no fresh reviewed snapshot until a new qualified capture is published.
-This code and the successful live dry run alone do not complete the outcome. Migration, checked deployment, actual D1 publication, and hosted browser acceptance are still required.
+
+## Live Delivery - 2026-09-13
+
+PR [136](https://github.com/nkopp-cmd/travelchat-ai/pull/136) merged as `9aaec81bea7cef06c4922a439e21045b3b14c06e` from checked source `14a7f538a5aa07dcdcfaf6eeab02ec2984fe6e84`.
+Merge verify `34727683016.1` passed. Preview Worker `9b778bad-0fba-486b-81fa-c085f461c806` serves that merge at 100%.
+Cloudflare deployment `384eafca-f6f8-47e4-a360-eddb0b3bc544`. Rollback Worker `b94b6afb-46af-49a1-a08b-ade404c564b2`.
+Private receipts: `.preview-private/channel-release-XDLOG7/`. Backup SHA-256 `69f90ce719fa0bad255ecc0acb8c095330e4b5ea2ea3a46c0fe82aeac1f113f0`.
+The hosted API and browser showed one accepted post, one rank, 565 views, and four `Not reported` metrics before expiry.
+Gravity accepted `verify-commit Localley current-week-trends-product 14a7f538a5aa07dcdcfaf6eeab02ec2984fe6e84` and the PR136 preview-release evidence file.
+
+## Current Week - 2026-09-14
+
+UTC week `2026-09-14` has zero accepted posts and zero visible ranks.
+GET `/api/trends/current?city=tokyo` returned `unready` with an empty ranking list. The expired September 9 video is not shown as current.
+The official YouTube Atom feed returned HTTP 404. No consent redirect was followed.
+The official market RSS last built `2019-11-05` and contains only a WordPress stub.
+Mastodon.social tags `tsukiji`, `tsukijimarket`, `ginza`, `asakusa`, `gyeongbokgung`, and `seoul` had no current-week posts. Tag `tokyo` had seven unrelated current posts and zero eligible venue matches.
+Lemmy.World searches for Tsukiji and Seoul returned no current-week posts.
+Private review: `.preview-private/current-week-20260914-review.json`. No write, paid call, or fabricated metric occurred.
+The Access service token `localley-preview-ci` had expired after 24h; its existing identity was refreshed in place to `2026-09-15T04:29:10Z` without changing policies or adding a bypass.
 
 ## Verification
 
