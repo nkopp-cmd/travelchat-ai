@@ -64,6 +64,24 @@ describe("native collection using the existing cards", () => {
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
+    it("creates an owned trip through the native collection form and opens it", async () => {
+        const created = { ...row, id: id2, title: "Harbor walk", city: "Busan" };
+        const fetch = vi.fn((_input: string, init?: RequestInit) => {
+            if (init?.method === "POST") return Promise.resolve(new Response(JSON.stringify({ itinerary: created }), { status: 201 }));
+            return Promise.resolve(page(init?.method ? [created] : [row]));
+        });
+        vi.stubGlobal("fetch", fetch);
+        render(native());
+        await waitFor(() => expect((screen.getByRole("button", { name: "Create a trip" }) as HTMLButtonElement).disabled).toBe(false));
+        fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Harbor walk" } });
+        fireEvent.change(screen.getByLabelText("City"), { target: { value: "Busan" } });
+        await act(async () => { fireEvent.submit(screen.getByRole("form", { name: "Create a trip" })); });
+        await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/itineraries/${id2}`));
+        const posted = fetch.mock.calls.find((call) => call[1]?.method === "POST");
+        expect(posted?.[0]).toBe("/api/itineraries");
+        expect(JSON.parse(String(posted?.[1]?.body))).toEqual({ title: "Harbor walk", city: "Busan", days: [{ day: 1, activities: [{ name: "To plan" }] }] });
+    });
+
     it("uses the actual dialog, focuses Cancel, restores focus, and never writes on cancel", async () => {
         const fetch = vi.fn().mockResolvedValue(page()); vi.stubGlobal("fetch", fetch); render(native());
         const trigger = await menu();

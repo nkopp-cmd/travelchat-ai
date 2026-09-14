@@ -98,7 +98,7 @@ The old standalone `failure.png` is historical and is not current failure eviden
 
 ## Remaining Migration
 
-Native creation, generation, deletion, sharing, media, billing, and complete server-page routing remain unfinished.
+Native creation is in this shell. Generation, sharing, duplication, media, billing, and complete server-page routing remain unfinished.
 No customer itinerary import has occurred. Historical field coverage, precise values, and restoration still require rehearsal.
 Live Better Auth cutover also requires the existing identity, recovery, dependency, and account-migration gates.
 Do not replace the full live app with the limited preview or deploy to Vercel.

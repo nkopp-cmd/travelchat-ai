@@ -21,6 +21,7 @@ export default {
       const url = new URL(request.url);
       const itineraryRoute = url.pathname === "/api/itineraries" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname);
       const itineraryPatch = request.method === "PATCH" && itineraryUpdatePath.test(url.pathname);
+      const itineraryCreate = request.method === "POST" && url.pathname === "/api/itineraries";
       const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
       const preferencesRoute = url.pathname === "/api/user/email-preferences";
       const base = new URL(env.AUTH_BASE_URL);
@@ -66,7 +67,7 @@ export default {
             if (next === null) return fail("timeout", "Body read timeout", 408);
             if (next.done) { complete = true; break; }
             size += next.value.byteLength;
-            if (size > (itineraryPatch ? itineraryBodyLimit : 16 * 1024)) return fail("validation_error", "Body too large", 413);
+            if (size > (itineraryPatch || itineraryCreate ? itineraryBodyLimit : 16 * 1024)) return fail("validation_error", "Body too large", 413);
             chunks.push(next.value);
           }
         } catch {
@@ -111,7 +112,7 @@ export default {
       if (["/api/account/new", "/api/account/claim"].includes(path) && request.method === "POST" && !expectedSession) {
         return appError("session_required", "Refresh your session before trying again.", 428);
       }
-      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
+      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
         if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
         if (!expectedSession) return appError("session_required", "Refresh your session before trying again.", 428);
       }

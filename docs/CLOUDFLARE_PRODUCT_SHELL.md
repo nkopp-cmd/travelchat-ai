@@ -20,4 +20,4 @@ Visitors on the Cloudflare app should recognize Localley: logo, violet glass chr
 
 Visible preview chrome only. No DNS cutover, no Vercel deploy, no Clerk import, no paid generation.
 
-Coverage limits: catalog, saves, trips, email preferences, and trends stay the available product slices. Chat, stories, billing, and admin remain unported.
+Native trip create is part of this shell: `POST /api/itineraries` writes an owned draft and the collection form opens it. Sharing, duplication, generated plans, chat, stories, billing, and admin remain unported.
