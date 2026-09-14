@@ -8,6 +8,7 @@ import { resolve } from "node:path";
 import { issueFixtureGrant } from "./fixture-issuer.mjs";
 import { applicationTests } from "./application.test.mjs";
 import { itineraryTests } from "./itineraries.test.mjs";
+import { chatTests } from "./chat.test.mjs";
 import { emailPreferenceTests } from "./email-preferences.test.mjs";
 import { ownershipRehearsal } from "./ownership-rehearsal.mjs";
 
@@ -294,6 +295,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     });
     await applicationTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bob, bobCookie, claimSecret });
     await itineraryTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bobCookie });
+    await chatTests(t, { db, call, aliceCookie, bobCookie });
     await emailPreferenceTests(t, { db, call, post, signup, login, mail, aliceCookie, bobCookie });
     await ownershipRehearsal(t, { db, call, post, signup, login, mail, bobCookie, claimSecret });
     await t.test("identity batches recheck revocation, expiry and verification after HTTP authentication", async () => {
