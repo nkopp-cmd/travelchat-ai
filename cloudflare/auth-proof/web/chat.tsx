@@ -35,7 +35,7 @@ export function NativeChat({ sessionId, onSignIn }: { sessionId: string; onSignI
 
   return <section aria-label="Catalog chat">
     <h2>Ask the catalog</h2>
-    <p className="intro">Answers use published Localley places only. This is not paid AI chat.</p>
+    <p className="intro">Answers use GPT-5.6 Luna with published catalog places. If Luna is unavailable, the catalog facts still answer.</p>
     <form onSubmit={(event) => void submit(event)}>
       <label>Question<input value={message} onChange={(event) => setMessage(event.target.value)} required maxLength={2000} disabled={busy} /></label>
       <Button type="submit" disabled={busy || !message.trim()}>{busy ? "Checking catalog..." : "Ask"}</Button>

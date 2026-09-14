@@ -9,7 +9,7 @@
   "preview_urls": false,
   "routes": [{ "pattern": "preview.localley.io", "custom_domain": true }],
   "send_metrics": false,
-  "limits": { "cpu_ms": 1000 },
+  "limits": { "cpu_ms": 15000 },
   "assets": { "directory": "./dist/public", "binding": "ASSETS", "run_worker_first": true, "not_found_handling": "single-page-application" },
   "observability": { "enabled": true, "redact_query_string": true, "logs": { "enabled": true, "invocation_logs": false }, "traces": { "enabled": false } },
   "vars": {
@@ -17,7 +17,8 @@
     "LOCAL_PROOF": "false",
     "AUTH_BASE_URL": "https://preview.localley.io",
     "ACCESS_TEAM_DOMAIN": "https://autumn-queen-0cd5.cloudflareaccess.com",
-    "ACCESS_AUD": "1f1502cd5d4700cb5b5c7a3741dd7e551e879eea9248194928300e17644d87bb"
+    "ACCESS_AUD": "1f1502cd5d4700cb5b5c7a3741dd7e551e879eea9248194928300e17644d87bb",
+    "OPENAI_CHAT_MODEL": "gpt-5.6-luna"
   },
   "send_email": [{
     "name": "NATIVE_EMAIL",
