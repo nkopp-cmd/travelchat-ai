@@ -4,6 +4,8 @@ import { isBoundedJSON as validJSON, isEditableItineraryPlan, mergeItineraryPlan
 export const itineraryDetailPath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i;
 export const itineraryUpdatePath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/update$/i;
 export const itineraryDuplicatePath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/duplicate$/i;
+export const itinerarySharePath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/share$/i;
+export const sharedItineraryPath = /^\/api\/shared\/([a-z0-9]{8})$/;
 export const itineraryBodyLimit = 512 * 1024;
 export const itineraryCollectionLimit = 25;
 export const itineraryCollectionByteLimit = 1024 * 1024;
@@ -26,10 +28,31 @@ export function itineraryDTO(row: ItineraryRow) {
   const activities: unknown = JSON.parse(row.activities);
   const highlights: unknown = row.highlights === null ? null : JSON.parse(row.highlights);
   if (!validJSON(activities) || !validJSON(highlights)) throw new Error("Unsupported stored JSON");
-  return { ...row, activities, highlights, is_favorite: row.is_favorite === 1 };
+  const dto = { ...row, activities, highlights, is_favorite: row.is_favorite === 1 } as Record<string, unknown>;
+  delete dto.shared;
+  delete dto.share_code;
+  return dto;
 }
 
 export type ItinerarySummaryDTO = Omit<ReturnType<typeof itineraryDTO>, "activities">;
+
+function randomShareCode() {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const bytes = crypto.getRandomValues(new Uint8Array(8));
+  return Array.from(bytes, (byte) => alphabet[byte % 36]).join("");
+}
+
+export async function sharedItinerary(url: URL, env: Env): Promise<Response> {
+  const match = sharedItineraryPath.exec(url.pathname);
+  if (!match || url.search) return json({ error: "Not found" }, 404);
+  const row = await env.DB.prepare("SELECT title, city, days, activities, highlights, estimated_cost, created_at FROM itineraries WHERE share_code = ? AND shared = 1")
+    .bind(match[1]).first<Pick<ItineraryRow, "title" | "city" | "days" | "activities" | "highlights" | "estimated_cost" | "created_at">>();
+  if (!row) return json({ error: "Not found" }, 404);
+  const activities: unknown = JSON.parse(row.activities);
+  const highlights: unknown = row.highlights === null ? null : JSON.parse(row.highlights);
+  if (!validJSON(activities) || !validJSON(highlights)) return json({ error: "Not found" }, 404);
+  return json({ itinerary: { title: row.title, city: row.city, days: row.days, activities, highlights, estimated_cost: row.estimated_cost, created_at: row.created_at } });
+}
 
 // Detail and PATCH return the full DTO. Collection returns summaries WITHOUT activities.
 // Frontend contract: { itineraries: ItinerarySummaryDTO[], nextOffset: number|null }.
@@ -114,6 +137,33 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
       .bind(crypto.randomUUID(), session.ownerId, title, observed.city, observed.days, observed.activities,
         observed.highlights, observed.estimated_cost, observed.subtitle, observed.local_score).first<ItineraryRow>();
     return saved ? json({ itinerary: itineraryDTO(saved) }, 201) : json({ error: "Incomplete identity" }, 409);
+  }
+  const share = itinerarySharePath.exec(url.pathname);
+  if (share && ["POST", "DELETE"].includes(request.method)) {
+    if (url.search) return json({ error: "Unexpected query" }, 400);
+    if (Object.keys(data).length) return json({ error: "Unexpected body" }, 400);
+    const sourceId = share[1].toLowerCase();
+    const observed = await env.DB.prepare("SELECT * FROM itineraries WHERE id = ? AND ownerId = ?").bind(sourceId, session.ownerId).first<ItineraryRow & { shared?: number; share_code?: string | null }>();
+    if (!observed) return json({ error: "Not found" }, 404);
+    const origin = new URL(request.url).origin;
+    if (request.method === "DELETE") {
+      await env.DB.prepare("UPDATE itineraries SET shared = 0, share_code = NULL WHERE id = ? AND ownerId = ?").bind(sourceId, session.ownerId).run();
+      return json({ success: true });
+    }
+    if (observed.shared === 1 && typeof observed.share_code === "string" && /^[a-z0-9]{8}$/.test(observed.share_code)) {
+      return json({ success: true, shareCode: observed.share_code, shareUrl: `${origin}/shared/${observed.share_code}` });
+    }
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const code = randomShareCode();
+      try {
+        const saved = await env.DB.prepare("UPDATE itineraries SET shared = 1, share_code = ? WHERE id = ? AND ownerId = ? RETURNING share_code")
+          .bind(code, sourceId, session.ownerId).first<{ share_code: string }>();
+        if (saved?.share_code) return json({ success: true, shareCode: saved.share_code, shareUrl: `${origin}/shared/${saved.share_code}` });
+      } catch {
+        continue;
+      }
+    }
+    return json({ error: "Share unavailable" }, 500);
   }
   if (!(detail && ["GET", "DELETE"].includes(request.method)) && !(update && request.method === "PATCH")) return json({ error: "Method not allowed" }, 405);
   if (url.search) return json({ error: "Unexpected query" }, 400);

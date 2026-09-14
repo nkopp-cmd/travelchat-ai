@@ -143,7 +143,7 @@ test("restricted preview: real RS256, native D1, mocked mail only", { timeout: 1
   const stats = async () => (await call("/__fixture/stats", { headers: { "x-fixture-nonce": nonce } })).json();
   try {
     const db = await mf.getD1Database("DB");
-    for (const file of ["0001_local.sql", "0002_application.sql", "0003_preview_mail.sql", "0004_pilot_catalog.sql", "0005_itineraries.sql", "0007_email_preferences.sql", "0008_current_trends.sql"]) await db.exec(await readFile(`migrations/${file}`, "utf8"));
+    for (const file of ["0001_local.sql", "0002_application.sql", "0003_preview_mail.sql", "0004_pilot_catalog.sql", "0005_itineraries.sql", "0007_email_preferences.sql", "0008_current_trends.sql", "0009_itinerary_share.sql"]) await db.exec(await readFile(`migrations/${file}`, "utf8"));
     await t.test("purpose marker fails closed before JWKS or mail", async () => {
       assert.equal((await call("/api/app-config")).status, 403);
       assert.equal(outbound, 0);
