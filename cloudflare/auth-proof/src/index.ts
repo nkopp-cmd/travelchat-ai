@@ -7,6 +7,7 @@ import { catalog } from "./catalog";
 import { emailPreferences } from "./email-preferences";
 import { currentTrends } from "./current-trends";
 import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryDuplicatePath, itinerarySharePath, sharedItinerary, sharedItineraryPath, itineraryBodyLimit } from "./itineraries";
+import { catalogChat } from "./chat";
 import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
 import { verifyAccess, type AccessIdentity } from "./access";
 
@@ -27,6 +28,7 @@ export default {
       const itineraryShare = itinerarySharePath.test(url.pathname) && ["POST", "DELETE"].includes(request.method);
       const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
       const preferencesRoute = url.pathname === "/api/user/email-preferences";
+      const chatRoute = url.pathname === "/api/chat";
       const base = new URL(env.AUTH_BASE_URL);
       if (!await validRuntime(request, env)) return fail("forbidden", "Runtime unavailable", 403);
       let access: AccessIdentity | undefined;
@@ -96,7 +98,7 @@ export default {
       }
       const path = url.pathname;
       if (path !== "/api/session" && path !== "/api/account/new" && path !== "/api/account/claim"
-        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute && !preferencesRoute) return json({ error: "Not found" }, 404);
+        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute && !preferencesRoute && !chatRoute) return json({ error: "Not found" }, 404);
       if (!["GET", "HEAD"].includes(request.method) && headers.get("Origin") !== base.origin) return fail("forbidden", "Invalid origin", 403);
       const session = await trustedAppSession(env, request.headers);
       if (session.state === "signedout") return fail("unauthorized", "Please sign in to continue.", 401, "Unauthorized");
@@ -116,7 +118,7 @@ export default {
       if (["/api/account/new", "/api/account/claim"].includes(path) && request.method === "POST" && !expectedSession) {
         return appError("session_required", "Refresh your session before trying again.", 428);
       }
-      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryGenerate || itineraryDuplicate || itineraryShare || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
+      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryGenerate || itineraryDuplicate || itineraryShare || itineraryDelete || (preferencesRoute && request.method === "PUT") || (chatRoute && request.method === "POST")) {
         if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
         if (!expectedSession) return appError("session_required", "Refresh your session before trying again.", 428);
       }
@@ -169,6 +171,7 @@ export default {
       if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
       const ownerId = session.ownerId;
       if (preferencesRoute) return await emailPreferences(request, env, session, data);
+      if (chatRoute) return await catalogChat(request, env, session, data);
       if (itineraryRoute) return await itineraries(request, env, session, data);
       if (path === "/api/spots/save") return await savedSpots(request, env, session, data);
       const id = path.startsWith("/api/private-notes/") ? decodeURIComponent(path.slice("/api/private-notes/".length)) : null;
