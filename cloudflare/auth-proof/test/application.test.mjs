@@ -177,7 +177,7 @@ export async function applicationTests(t, { db, call, post, signup, login, mail,
         for (const method of ["GET", "POST", "DELETE"]) {
           const response = await call(path + suffix, { method, cookie: aliceCookie, headers: await sessionHeaders() });
           if (path === "/api/itineraries" && !suffix) {
-            assert.equal(response.status, method === "GET" ? 200 : 405);
+            assert.equal(response.status, method === "GET" ? 200 : method === "POST" ? 400 : 405);
             if (method === "GET") assert.deepEqual(await response.json(), { itineraries: [], nextOffset: null });
             continue;
           }

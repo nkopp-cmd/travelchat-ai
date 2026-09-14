@@ -79,6 +79,25 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
     });
   }
+  if (request.method === "POST" && url.pathname === "/api/itineraries") {
+    if (url.search) return json({ error: "Unexpected query" }, 400);
+    if (!validJSON(data)) return json({ error: "Unsupported JSON" }, 400);
+    if (Object.keys(data).some((key) => !["title", "city", "days", "insights", "highlights", "estimated_cost"].includes(key))
+      || typeof data.title !== "string" || !data.title.trim() || typeof data.city !== "string" || !data.city.trim()
+      || !Array.isArray(data.days)
+      || !isEditableItineraryPlan(Object.hasOwn(data, "insights") ? { dailyPlans: data.days, insights: data.insights } : data.days)
+      || (Object.hasOwn(data, "highlights") && (!Array.isArray(data.highlights) || data.highlights.some((item) => typeof item !== "string")))
+      || (Object.hasOwn(data, "estimated_cost") && data.estimated_cost !== null && typeof data.estimated_cost !== "string")) return json({ error: "Invalid itinerary fields" }, 400);
+    const activities = mergeItineraryPlanPayload([], data.days, Array.isArray(data.insights) ? data.insights : []);
+    if (!isEditableItineraryPlan(activities)) return json({ error: "Invalid itinerary fields" }, 400);
+    const dayCount = Array.isArray(activities) ? activities.length : activities.dailyPlans.length;
+    if (!Number.isSafeInteger(dayCount) || dayCount < 1) return json({ error: "Invalid itinerary fields" }, 400);
+    const saved = await env.DB.prepare(`INSERT INTO itineraries (id, ownerId, title, city, days, activities, highlights, estimated_cost, subtitle, local_score, status, is_favorite)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, 'draft', 0) RETURNING *`)
+      .bind(crypto.randomUUID(), session.ownerId, data.title, data.city, dayCount, JSON.stringify(activities),
+        JSON.stringify(data.highlights ?? []), data.estimated_cost || null).first<ItineraryRow>();
+    return saved ? json({ itinerary: itineraryDTO(saved) }, 201) : json({ error: "Incomplete identity" }, 409);
+  }
   if (!(detail && ["GET", "DELETE"].includes(request.method)) && !(update && request.method === "PATCH")) return json({ error: "Method not allowed" }, 405);
   if (url.search) return json({ error: "Unexpected query" }, 400);
   const id = (update ?? detail)![1].toLowerCase();

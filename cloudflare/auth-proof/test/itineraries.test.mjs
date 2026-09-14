@@ -81,7 +81,8 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     for (const path of ["/generate", "/share", "/status", `/${ids[0]}/share`, "/bad-id"]) {
       for (const method of ["GET", "POST", "PATCH", "DELETE"]) assert.equal((await call(base + path, { method, cookie: aliceCookie, headers })).status, 404);
     }
-    for (const method of ["POST", "DELETE"]) assert.equal((await call(base, { method, cookie: aliceCookie, headers })).status, 405);
+    assert.equal((await call(base, { method: "POST", cookie: aliceCookie, headers })).status, 400);
+    assert.equal((await call(base, { method: "DELETE", cookie: aliceCookie, headers })).status, 405);
     for (const method of ["POST", "PUT", "PATCH", "HEAD", "OPTIONS"]) assert.equal((await call(`${base}/${ids[0]}`, { method, cookie: aliceCookie, headers })).status, 405);
     assert.equal((await call(`${base}/${ids[0]}/update`, { method: "DELETE", cookie: aliceCookie, headers })).status, 405);
   });
@@ -423,6 +424,31 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
       assert.equal((await call(path, { method: "PATCH", cookie: aliceCookie, raw: " ".repeat(16385) })).status, 413);
     }
     assert.deepEqual(await raw(id), before);
+  });
+
+  await t.test("itinerary create owns the row, rejects foreign access, and requires a current session", async () => {
+    const plan = [{ day: 1, activities: [{ name: "To plan" }] }];
+    const created = await call(base, { method: "POST", cookie: aliceCookie, headers, body: { title: "New trip", city: "Seoul", days: plan } });
+    assert.equal(created.status, 201);
+    const { itinerary } = await created.json();
+    assert.equal(itinerary.ownerId, owner);
+    assert.equal(itinerary.title, "New trip");
+    assert.equal(itinerary.city, "Seoul");
+    assert.equal(itinerary.days, 1);
+    assert.equal(itinerary.status, "draft");
+    assert.equal(itinerary.is_favorite, false);
+    assert.equal(itinerary.local_score, null);
+    assert.deepEqual(itinerary.activities, plan);
+    assert.equal(isEditableItineraryPlan(itinerary.activities), true);
+    assert.equal((await call(`${base}/${itinerary.id}`, { cookie: bobCookie })).status, 404);
+    assert.equal((await call(`${base}/${itinerary.id}`, { method: "DELETE", cookie: bobCookie, headers: { "x-localley-session-id": (await session(bobCookie)).sessionId } })).status, 200);
+    assert.equal((await detail(itinerary.id)).id, itinerary.id);
+    assert.equal((await call(base, { method: "POST", cookie: aliceCookie, headers: { "x-localley-session-id": "wrong" }, body: { title: "New trip", city: "Seoul", days: plan } })).status, 409);
+    assert.equal((await call(base, { method: "POST", cookie: aliceCookie, body: { title: "New trip", city: "Seoul", days: plan } })).status, 428);
+    assert.equal((await call(`${base}?limit=1`, { method: "POST", cookie: aliceCookie, headers, body: { title: "New trip", city: "Seoul", days: plan } })).status, 400);
+    const before = await rows();
+    assert.equal((await call(base, { method: "POST", cookie: aliceCookie, headers, body: { title: " ", city: "Seoul", days: plan } })).status, 400);
+    assert.deepEqual(await rows(), before);
   });
 
   await t.test("itinerary session header fences reads optionally and mutations mandatorily without auth bypass", async () => {

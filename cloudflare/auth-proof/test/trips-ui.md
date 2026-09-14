@@ -11,7 +11,7 @@ An observed mismatch refreshes the existing shell context. Loading does not refr
 Failed verification hides trips and requires an explicit retry without a remount loop.
 Tabs retain the editor draft; account changes still unmount private content.
 Native editor cancellation returns to the collection. Saving retains the native editor's existing behavior.
-No new URL routes or create, share, or duplicate trip actions are claimed.
+Create uses `POST /api/itineraries`. Share and duplicate stay unavailable.
 
 The build aliases React and React DOM to the installed proof copies.
 It writes `dist/web-dependencies.json` and asserts both native components are present.
