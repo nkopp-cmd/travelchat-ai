@@ -60,7 +60,7 @@ describe("native collection using the existing cards", () => {
         expect(screen.queryByText("Create New Itinerary")).toBeNull();
         await menu();
         expect(screen.getByRole("menuitem", { name: "Duplicate" })).toBeTruthy();
-        expect(screen.queryByRole("menuitem", { name: "Share" })).toBeNull();
+        expect(screen.getByRole("menuitem", { name: "Share" })).toBeTruthy();
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
@@ -94,6 +94,23 @@ describe("native collection using the existing cards", () => {
         await act(async () => { fireEvent.click(screen.getByRole("menuitem", { name: "Duplicate" })); });
         await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/itineraries/${id2}`));
         expect(fetch).toHaveBeenCalledWith(`/api/itineraries/${id}/duplicate`, expect.objectContaining({
+            method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
+            headers: { "x-localley-session-id": "session" },
+        }));
+    });
+
+    it("shares an owned trip from the collection menu", async () => {
+        const shareUrl = `${location.origin}/shared/abcd1234`;
+        const fetch = vi.fn((_input: string, init?: RequestInit) => {
+            if (init?.method === "POST") return Promise.resolve(new Response(JSON.stringify({ success: true, shareCode: "abcd1234", shareUrl }), { status: 200 }));
+            return Promise.resolve(page());
+        });
+        vi.stubGlobal("fetch", fetch);
+        render(native());
+        await menu();
+        await act(async () => { fireEvent.click(screen.getByRole("menuitem", { name: "Share" })); });
+        await waitFor(() => expect(screen.getByRole("status").textContent).toContain(shareUrl));
+        expect(fetch).toHaveBeenCalledWith(`/api/itineraries/${id}/share`, expect.objectContaining({
             method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
             headers: { "x-localley-session-id": "session" },
         }));

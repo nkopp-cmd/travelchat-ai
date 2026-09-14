@@ -6,7 +6,7 @@ import { appError } from "./app-error";
 import { catalog } from "./catalog";
 import { emailPreferences } from "./email-preferences";
 import { currentTrends } from "./current-trends";
-import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryDuplicatePath, itineraryBodyLimit } from "./itineraries";
+import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryDuplicatePath, itinerarySharePath, sharedItinerary, sharedItineraryPath, itineraryBodyLimit } from "./itineraries";
 import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
 import { verifyAccess, type AccessIdentity } from "./access";
 
@@ -19,10 +19,11 @@ export default {
       savedRoute ? appError(code, message, status) : json({ error: legacyMessage }, status);
     try {
       const url = new URL(request.url);
-      const itineraryRoute = url.pathname === "/api/itineraries" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname) || itineraryDuplicatePath.test(url.pathname);
+      const itineraryRoute = url.pathname === "/api/itineraries" || itineraryDetailPath.test(url.pathname) || itineraryUpdatePath.test(url.pathname) || itineraryDuplicatePath.test(url.pathname) || itinerarySharePath.test(url.pathname);
       const itineraryPatch = request.method === "PATCH" && itineraryUpdatePath.test(url.pathname);
       const itineraryCreate = request.method === "POST" && url.pathname === "/api/itineraries";
       const itineraryDuplicate = request.method === "POST" && itineraryDuplicatePath.test(url.pathname);
+      const itineraryShare = itinerarySharePath.test(url.pathname) && ["POST", "DELETE"].includes(request.method);
       const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
       const preferencesRoute = url.pathname === "/api/user/email-preferences";
       const base = new URL(env.AUTH_BASE_URL);
@@ -45,6 +46,7 @@ export default {
         const response = await catalog(url, env);
         return request.method === "HEAD" ? new Response(null, response) : response;
       }
+      if (request.method === "GET" && sharedItineraryPath.test(url.pathname)) return await sharedItinerary(url, env);
       if (["GET", "HEAD"].includes(request.method) && !url.pathname.startsWith("/api/") && url.pathname !== "/api") {
         return await env.ASSETS.fetch(request);
       }
@@ -113,7 +115,7 @@ export default {
       if (["/api/account/new", "/api/account/claim"].includes(path) && request.method === "POST" && !expectedSession) {
         return appError("session_required", "Refresh your session before trying again.", 428);
       }
-      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryDuplicate || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
+      if ((path === "/api/spots/save" && ["POST", "DELETE"].includes(request.method)) || itineraryPatch || itineraryCreate || itineraryDuplicate || itineraryShare || itineraryDelete || (preferencesRoute && request.method === "PUT")) {
         if (session.state !== "ready") return fail("conflict", session.state === "incomplete" ? "Incomplete identity" : "Choose new account or claim legacy identity", 409);
         if (!expectedSession) return appError("session_required", "Refresh your session before trying again.", 428);
       }
@@ -124,7 +126,7 @@ export default {
         return json(session);
       }
       let data: Record<string, unknown> = {};
-      if ((itineraryDelete || itineraryDuplicate) && body?.length) return json({ error: "Unexpected body" }, 400);
+      if ((itineraryDelete || itineraryDuplicate || itineraryShare) && body?.length) return json({ error: "Unexpected body" }, 400);
       if (body?.length) {
         let text: string;
         try { text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }).decode(body); }

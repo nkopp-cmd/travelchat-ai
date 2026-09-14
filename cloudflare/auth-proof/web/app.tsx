@@ -136,10 +136,38 @@ function App({ config }: { config: AppConfig }) {
   const displayed = ["trips", "preferences", "trends"].includes(tab) ? [] : tab === "catalog" ? catalog.map((spot) => ({ id: spot.id, spot }))
     : (saved ?? []).map((row) => ({ id: row.spot_id, spot: preview && row.spots ? catalog.find((spot) => spot.id === row.spot_id) ?? row.spots : row.spots }));
   const hero = preview ? catalog.find((spot) => reviewedPhoto(spot)) : undefined;
+  const shareCode = /^\/shared\/([a-z0-9]{8})$/.exec(location.pathname)?.[1] ?? null;
+  const [shared, setShared] = useState<"loading" | "error" | { title: string | null; city: string | null; days: number; activities: unknown } | null>(shareCode ? "loading" : null);
+  useEffect(() => {
+    if (!shareCode) return;
+    const controller = new AbortController();
+    void (async () => {
+      try {
+        const response = await fetch(`/api/shared/${shareCode}`, { credentials: "same-origin", cache: "no-store", redirect: "error", signal: controller.signal });
+        const value = await response.json() as { itinerary?: { title: string | null; city: string | null; days: number; activities: unknown } };
+        if (!response.ok || !value.itinerary) throw new Error("unavailable");
+        if (!controller.signal.aborted) setShared(value.itinerary);
+      } catch { if (!controller.signal.aborted) setShared("error"); }
+    })();
+    return () => controller.abort();
+  }, [shareCode]);
   function selectPlace(id: string) {
     setSelected(id);
     document.getElementById(`place-${id}`)?.focus({ preventScroll: true });
     document.getElementById(`place-${id}`)?.scrollIntoView({ block: "nearest" });
+  }
+  if (shareCode) {
+    return <>
+      <header className="site-header"><div className="site-header-inner"><a className="brand" href="/" aria-label="Localley home"><img src="/assets/localley-mark.png" alt="" width="36" height="36" />Localley</a><span className="eyebrow">Shared trip</span></div></header>
+      <main className="layout preview-layout">
+        {shared === "loading" && <p role="status">Loading shared trip...</p>}
+        {shared === "error" && <p role="alert">This shared trip is unavailable.</p>}
+        {shared && shared !== "loading" && shared !== "error" && <article className="auth-panel">
+          <h1>{shared.title || "Shared trip"}</h1>
+          <p className="muted">{shared.city || "City unavailable"} · {shared.days} days</p>
+        </article>}
+      </main>
+    </>;
   }
   return <>
     <a className="skip-link" href="#places">Skip to places</a>
@@ -188,7 +216,7 @@ function App({ config }: { config: AppConfig }) {
             : <p role="status">Sign in with a verified, linked account to manage email preferences.</p>}
         </section>}
         {tripsVisited && <section aria-label="Trips preview" hidden={tab !== "trips"}>
-          <h2>Trips</h2><p className="intro">Preview: create, duplicate, read, edit, and delete your trips. Sharing and generated plans are not available. This is not the full Localley migration.</p>
+          <h2>Trips</h2><p className="intro">Preview: create, duplicate, share, read, edit, and delete your trips. Generated plans are not available. This is not the full Localley migration.</p>
           {ready && context.key && context.session?.ownerId && context.session.userRecordId
             ? <TripsPane key={context.key} expected={{ authUserId: context.session.authUserId, sessionId: context.session.sessionId, ownerId: context.session.ownerId, userRecordId: context.session.userRecordId }} onSignIn={() => { setMode("signin"); setAuthOpen(true); }} />
             : <><p role="status">Sign in with a verified, linked account to view trips.</p><button className="secondary" onClick={() => { setMode("signin"); setAuthOpen(true); requestAnimationFrame(() => authHeading.current?.focus()); }}>Open account access</button></>}

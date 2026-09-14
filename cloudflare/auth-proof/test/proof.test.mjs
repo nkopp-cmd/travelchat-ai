@@ -98,6 +98,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     await db.exec(await readFile("migrations/0002_application.sql", "utf8"));
     await db.exec(await readFile("migrations/0005_itineraries.sql", "utf8"));
     await db.exec(await readFile("migrations/0007_email_preferences.sql", "utf8"));
+    await db.exec(await readFile("migrations/0009_itinerary_share.sql", "utf8"));
     await t.test("real D1 migration and schema", async () => {
       assert.equal((await db.prepare("PRAGMA foreign_keys").first()).foreign_keys, 1);
       assert.equal((await db.prepare("SELECT count(*) AS n FROM user").first()).n, 0);

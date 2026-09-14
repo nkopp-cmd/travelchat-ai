@@ -78,7 +78,7 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     for (const query of ["limit=0", "limit=26", "limit=101", "offset=-1", "offset=1.2", "limit=2&limit=3", "ownerId=forged", "offset=9007199254740992", "limit="]) {
       assert.equal((await call(`${base}?${query}`, { cookie: aliceCookie })).status, 400);
     }
-    for (const path of ["/generate", "/share", "/status", `/${ids[0]}/share`, "/bad-id"]) {
+    for (const path of ["/generate", "/share", "/status", "/bad-id"]) {
       for (const method of ["GET", "POST", "PATCH", "DELETE"]) assert.equal((await call(base + path, { method, cookie: aliceCookie, headers })).status, 404);
     }
     assert.equal((await call(base, { method: "POST", cookie: aliceCookie, headers })).status, 400);
@@ -471,6 +471,29 @@ export async function itineraryTests(t, { db, call, post, signup, login, mail, a
     assert.equal((await call(`${base}/${id}/duplicate`, { method: "POST", cookie: aliceCookie, headers, body: { title: "nope" } })).status, 400);
     assert.equal((await call(`${base}/${id}/duplicate?limit=1`, { method: "POST", cookie: aliceCookie, headers })).status, 400);
     assert.equal((await call(`${base}/${id}/duplicate`, { method: "GET", cookie: aliceCookie, headers })).status, 405);
+  });
+
+  await t.test("itinerary share is owner-only, idempotent, and readable without a session", async () => {
+    const id = await seed();
+    const created = await call(`${base}/${id}/share`, { method: "POST", cookie: aliceCookie, headers });
+    assert.equal(created.status, 200);
+    const first = await created.json();
+    assert.equal(first.success, true);
+    assert.match(first.shareCode, /^[a-z0-9]{8}$/);
+    assert.equal(first.shareUrl, `https://localhost/shared/${first.shareCode}`);
+    const again = await call(`${base}/${id}/share`, { method: "POST", cookie: aliceCookie, headers });
+    assert.equal((await again.json()).shareCode, first.shareCode);
+    const publicView = await call(`/api/shared/${first.shareCode}`);
+    assert.equal(publicView.status, 200);
+    const { itinerary } = await publicView.json();
+    assert.equal(itinerary.title, "Synthetic trip");
+    assert.equal(itinerary.ownerId, undefined);
+    assert.equal(itinerary.share_code, undefined);
+    assert.equal((await call(`${base}/${id}/share`, { method: "POST", cookie: bobCookie, headers: { "x-localley-session-id": (await session(bobCookie)).sessionId } })).status, 404);
+    assert.equal((await call(`/api/shared/zzzzzzzz`)).status, 404);
+    assert.equal((await call(`${base}/${id}/share`, { method: "DELETE", cookie: aliceCookie, headers })).status, 200);
+    assert.equal((await call(`/api/shared/${first.shareCode}`)).status, 404);
+    assert.equal((await call(`${base}/${id}/share`, { method: "GET", cookie: aliceCookie, headers })).status, 405);
   });
 
   await t.test("itinerary session header fences reads optionally and mutations mandatorily without auth bypass", async () => {

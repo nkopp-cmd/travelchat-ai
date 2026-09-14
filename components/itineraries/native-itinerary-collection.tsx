@@ -268,6 +268,37 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
         }
     }
 
+    async function share(id: string) {
+        const signal = lifetime.current?.signal;
+        if (!signal || !current(signal) || accessFault.current || writeLock.current || !rows.some((row) => row.id === id)) return;
+        writeLock.current = true;
+        readController.current?.abort();
+        setLoading(false);
+        setWriting(true);
+        setError("");
+        setNotice("");
+        try {
+            const { response, value: result } = await requestJSON(`/api/itineraries/${encodeURIComponent(id)}/share`, {
+                method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
+                headers: { "x-localley-session-id": sessionId },
+            }, signal);
+            if (!current(signal)) return;
+            checkAccess(response, signal);
+            if (!current(signal) || accessFault.current) return;
+            if (response.status !== 200 || !result || typeof result !== "object" || !("shareUrl" in result) || typeof result.shareUrl !== "string"
+                || !result.shareUrl.startsWith(`${location.origin}/shared/`)) throw new Error("Share failed.");
+            try { await navigator.clipboard.writeText(result.shareUrl); } catch { /* The notice still shows the URL. */ }
+            setNotice(`Share link: ${result.shareUrl}`);
+        } catch {
+            if (current(signal)) setError("Could not share this trip. Reload the list and try again.");
+        } finally {
+            if (current(signal)) {
+                writeLock.current = false;
+                setWriting(false);
+            }
+        }
+    }
+
     async function duplicate(id: string) {
         const signal = lifetime.current?.signal;
         if (!signal || !current(signal) || accessFault.current || writeLock.current || !rows.some((row) => row.id === id)) return;
@@ -354,7 +385,7 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
             {!blocked && loaded && <Button variant="outline" disabled={loading || writing} onClick={() => setError("")}>Dismiss error</Button>}
         </div>}
         {loading && <p role="status">Loading itineraries...</p>}
-        {loaded && !blocked && <ItineraryCollection itineraries={rows} Link={Navigation} onDelete={remove} onDuplicate={(row) => void duplicate(row.id)} duplicatePending={writing} loadedOnly={nextOffset !== null} />}
+        {loaded && !blocked && <ItineraryCollection itineraries={rows} Link={Navigation} onDelete={remove} onDuplicate={(row) => void duplicate(row.id)} onShare={(row) => void share(row.id)} duplicatePending={writing} loadedOnly={nextOffset !== null} />}
         {loaded && byteLimit && !blocked && <p role="alert">Collection size limit reached (4 MiB). Only previously loaded trips are shown. More trips remain unchecked.</p>}
         {loaded && nextOffset !== null && !blocked && (rows.length >= MAX_ROWS
             ? <p role="alert">Loaded 1,000 trips. More trips exist. This collection cannot load more.</p>
