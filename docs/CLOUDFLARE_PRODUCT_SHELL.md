@@ -20,4 +20,5 @@ Visitors on the Cloudflare app should recognize Localley: logo, violet glass chr
 
 Visible preview chrome only. No DNS cutover, no Vercel deploy, no Clerk import, no paid generation.
 
-Native trip create, catalog-backed generate, owner-only duplicate, owner-only share, and catalog chat are part of this shell. Paid AI generation, GLM chat, stories, billing, and admin remain unported. See `CLOUDFLARE_GO_LIVE.md`.
+Native trips include manual create, catalog build, explicit Luna planning from published IDs, owner-only duplicate and share. Chat uses Luna with catalog fallback.
+Token receipts and request caps cover both AI paths. Stories, billing, admin, and full live-product parity remain unfinished. See `CLOUDFLARE_GO_LIVE.md`.

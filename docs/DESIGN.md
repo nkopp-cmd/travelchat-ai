@@ -2,6 +2,19 @@
 
 ## Scope
 
+### Luna itinerary draft form — 2026-09-20
+
+The Trips form now offers explicit catalog and Luna actions. Luna arranges published spots; it does not invent venue facts.
+We chose an inline two-column form over a modal wizard so users can compare both actions and retain their input after errors.
+Mobile uses one column. Reused local `Input` and `Button` components, existing violet action styling, and muted semantic borders; no new dependency.
+Screenshot review found invisible native input boundaries from the scoped CSS reset. Replacing raw inputs with the real Input component fixed them.
+Controls use 48px input height and 44px actions. Labels remain programmatically associated with fields.
+Local screenshots opened at 390/900/1440 in `test-results/cloudflare-trips/run-wdhtiV/`: collection and AI coverage error.
+The form fits all widths. The coverage error retains city and preferences; AI failure does not silently invoke the catalog planner.
+Three HTTPS browser suites passed, including the new explicit AI submit and 422 coverage-error path.
+Existing contrast/keyboard/reduced-motion checks passed in `test-results/cloudflare-frontend/run-QS80Fa/` (action contrast 5.7:1, muted text 7.73:1).
+This verifies the local form and existing tokens, not a full-product visual redesign or hosted signed-in AI acceptance.
+
 Current-week trends use a source-first numbered list, not image cards or a city-wide popularity chart.
 The alternative was another photo-led hero; the list is stronger because this workflow needs provenance and explicit sparse coverage, not unlicensed media.
 It reuses the app's existing typography, violet actions, neutral surfaces, link and focus behavior. No additional UI library or font was added.

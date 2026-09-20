@@ -1,4 +1,5 @@
 import type { TrustedAppSession } from "./app-session";
+import { generateAIPlan, type CatalogActivity } from "./ai-itinerary";
 import { isBoundedJSON as validJSON, isEditableItineraryPlan, mergeItineraryPlanPayload } from "../../../lib/itineraries/plan-contract";
 
 export const itineraryDetailPath = /^\/api\/itineraries\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i;
@@ -125,9 +126,11 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
   if (request.method === "POST" && url.pathname === "/api/itineraries/generate") {
     if (url.search) return json({ error: "Unexpected query" }, 400);
     if (!validJSON(data)) return json({ error: "Unsupported JSON" }, 400);
-    if (Object.keys(data).some((key) => !["title", "city", "days"].includes(key))
-      || (Object.hasOwn(data, "title") && (typeof data.title !== "string" || !data.title.trim()))
-      || typeof data.city !== "string" || !data.city.trim()
+    if (Object.keys(data).some((key) => !["title", "city", "days", "mode", "preferences"].includes(key))
+      || (Object.hasOwn(data, "title") && (typeof data.title !== "string" || !data.title.trim() || data.title.length > 200))
+      || (Object.hasOwn(data, "mode") && data.mode !== "catalog" && data.mode !== "ai")
+      || (Object.hasOwn(data, "preferences") && (typeof data.preferences !== "string" || data.preferences.length > 500))
+      || typeof data.city !== "string" || !data.city.trim() || data.city.length > 100
       || !Number.isSafeInteger(data.days) || Number(data.days) < 1 || Number(data.days) > 7) return json({ error: "Invalid itinerary fields" }, 400);
     const city = data.city.trim();
     const dayCount = Number(data.days);
@@ -147,13 +150,31 @@ export async function itineraries(request: Request, env: Env, session: TrustedAp
         }
       } catch { named = null; }
       if (!named) return [];
-      const activity: Record<string, unknown> = { name: named, spotId: spot.id };
+      const activity: CatalogActivity = { name: named, spotId: spot.id };
       if (spot.address && spot.address.trim()) activity.address = spot.address.trim();
       if (typeof spot.latitude === "number" && Number.isFinite(spot.latitude)) activity.lat = spot.latitude;
       if (typeof spot.longitude === "number" && Number.isFinite(spot.longitude)) activity.lng = spot.longitude;
       return [activity];
     });
-    if (!activities.length) return json({ error: "No catalog places for this city" }, 409);
+    if (!activities.length) return json({ error: "No catalog places for this city" }, data.mode === "ai" ? 422 : 409);
+    if (data.mode === "ai") {
+      const result = await generateAIPlan(env, session.ownerId, city, dayCount, typeof data.preferences === "string" ? data.preferences : "", activities);
+      if ("error" in result) return json({ error: result.error }, result.status);
+      if (!isEditableItineraryPlan(result.days)) return json({ error: "Invalid generated plan" }, 502);
+      const ids = result.days.flatMap(day => day.activities.map(activity => activity.spotId));
+      const title = typeof data.title === "string" ? data.title.trim() : `${city} trip`;
+      // Recheck session, owner mapping and publication after the provider wait, in the INSERT itself.
+      const saved = await env.DB.prepare(`INSERT INTO itineraries (id, ownerId, title, city, days, activities, highlights, status, is_favorite)
+        SELECT ?, ?, ?, ?, ?, ?, '[]', 'draft', 0
+        WHERE EXISTS (SELECT 1 FROM session s JOIN user u ON u.id=s.userId JOIN identity_links l ON l.authUserId=u.id
+          JOIN profiles p ON p.ownerId=l.ownerId
+          WHERE s.id=? AND u.id=? AND u.emailVerified=1 AND l.ownerId=? AND p.id=? AND s.expiresAt>unixepoch('subsec')*1000)
+        AND (SELECT count(*) FROM spots WHERE visible=1 AND lower(city)=lower(?) AND id IN (SELECT value FROM json_each(?))) = ?
+        RETURNING *`).bind(crypto.randomUUID(), session.ownerId, title, city, dayCount, JSON.stringify(result.days),
+          session.sessionId, session.authUserId, session.ownerId, session.userRecordId, city, JSON.stringify(ids), ids.length).first<ItineraryRow>();
+      return saved ? json({ itinerary: itineraryDTO(saved), generation: { model: "gpt-5.6-luna", source: "published_catalog" } }, 201)
+        : json({ error: "Session or catalog changed; generated plan was not saved" }, 409);
+    }
     const days = Array.from({ length: dayCount }, (_, index) => ({
       day: index + 1,
       activities: activities.filter((_, spotIndex) => spotIndex % dayCount === index).slice(0, 4),

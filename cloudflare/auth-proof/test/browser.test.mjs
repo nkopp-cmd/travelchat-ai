@@ -81,7 +81,7 @@ test("HTTPS itinerary edits, native Trips UI and route-specific UTF8 body limits
     assert.equal(session.data.state, "unlinked");
     assert.equal((await call("/api/account/new", "POST", {}, session.data.sessionId)).status, 201);
     assert.deepEqual(await call("/api/itineraries"), { status: 200, data: { itineraries: [], nextOffset: null } });
-    assert.equal((await call("/api/itineraries/generate", "POST", {}, session.data.sessionId)).status, 404);
+    assert.equal((await call("/api/itineraries/generate", "POST", {}, session.data.sessionId)).status, 400);
     await itineraryHTTPSChecks({ db: server.db, page, call });
     await server.db.prepare("DELETE FROM itineraries").run();
     await tripsUiChecks({ db: server.db, page, call, origin: server.origin });
