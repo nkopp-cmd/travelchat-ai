@@ -26,6 +26,7 @@ test('D1 reserves bounded paid attempts across concurrent Worker requests', asyn
     const db = await mf.getD1Database('DB');
     await db.exec('CREATE TABLE owners (id TEXT PRIMARY KEY);');
     await db.exec((await readFile('migrations/0010_ai_requests.sql','utf8')).replaceAll('\n',' '));
+    await db.exec(await readFile('migrations/0011_ai_receipts.sql','utf8'));
     for(let i=0;i<7;i++) await db.prepare('INSERT INTO owners VALUES (?)').bind(`owner-${i}`).run();
     await db.exec('CREATE TABLE spots (id TEXT, name TEXT, description TEXT, city TEXT, address TEXT, category TEXT, visible INTEGER);');
     await db.prepare('INSERT INTO spots VALUES (?,?,?,?,?,?,1)').bind('spot','{"en":"Palace"}','{}','Seoul','Street','culture').run();

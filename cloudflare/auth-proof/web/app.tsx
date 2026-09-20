@@ -222,7 +222,7 @@ function App({ config }: { config: AppConfig }) {
             : <p role="status">Sign in with a verified, linked account to manage email preferences.</p>}
         </section>}
         {tripsVisited && <section aria-label="Trips preview" hidden={tab !== "trips"}>
-          <h2>Trips</h2><p className="intro">Preview: create, build from catalog, duplicate, share, read, edit, and delete your trips. Paid AI generation, chat, stories, billing, and admin are not on this preview. This is not the full Localley migration.</p>
+          <h2>Trips</h2><p className="intro">Build a draft from published places or let Luna arrange them around your preferences. Review your route before you travel. Stories, billing, and admin are still outside this preview.</p>
           {ready && context.key && context.session?.ownerId && context.session.userRecordId
             ? <TripsPane key={context.key} expected={{ authUserId: context.session.authUserId, sessionId: context.session.sessionId, ownerId: context.session.ownerId, userRecordId: context.session.userRecordId }} onSignIn={() => { setMode("signin"); setAuthOpen(true); }} />
             : <><p role="status">Sign in with a verified, linked account to view trips.</p><button className="secondary" onClick={() => { setMode("signin"); setAuthOpen(true); requestAnimationFrame(() => authHeading.current?.focus()); }}>Open account access</button></>}

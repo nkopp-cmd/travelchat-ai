@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppSession } from "@/providers/app-session-provider";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ItineraryCollection, type CollectionItinerary, type CollectionLinkProps } from "./itinerary-collection";
 
 export interface NativeItineraryCollectionProps {
@@ -227,7 +228,7 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
         }}>{children}</a>;
     });
 
-    async function generate(form: HTMLFormElement) {
+    async function generate(form: HTMLFormElement, mode: "catalog" | "ai" = "catalog") {
         const signal = lifetime.current?.signal;
         if (!signal || !current(signal) || accessFault.current || writeLock.current) return;
         const title = String(new FormData(form).get("title") ?? "").trim();
@@ -243,6 +244,10 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
         try {
             const payload: Record<string, unknown> = { city, days };
             if (title) payload.title = title;
+            if (mode === "ai") {
+                payload.mode = "ai";
+                payload.preferences = String(new FormData(form).get("preferences") ?? "").trim();
+            }
             const { response, value: result } = await requestJSON("/api/itineraries/generate", {
                 method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
                 headers: { "content-type": "application/json", "x-localley-session-id": sessionId },
@@ -251,6 +256,9 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
             if (!current(signal)) return;
             checkAccess(response, signal);
             if (!current(signal) || accessFault.current) return;
+            if (response.status === 422) throw new Error("Not enough published places for these days. Choose fewer days or another city.");
+            if (response.status === 429) throw new Error("Daily AI request limit reached. Use Build from catalog or try another day.");
+            if (response.status === 502 || response.status === 503) throw new Error("Luna could not produce a valid plan. No trip was saved. You can use Build from catalog instead.");
             if (response.status === 409) throw new Error("empty-city");
             if (response.status !== 201 || !result || typeof result !== "object" || !("itinerary" in result)
                 || !result.itinerary || typeof result.itinerary !== "object" || typeof (result.itinerary as { id?: unknown }).id !== "string"
@@ -259,13 +267,14 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
             }
             const id = (result.itinerary as { id: string }).id.toLowerCase();
             form.reset();
-            setNotice("Catalog trip created.");
+            setNotice(mode === "ai" ? "Luna trip created from published places." : "Catalog trip created.");
             callbacks.current.onNavigate?.(`/itineraries/${id}`);
             if (current(signal)) await load(0, []);
         } catch (error) {
             if (current(signal)) setError(error instanceof Error && error.message === "empty-city"
                 ? "No catalog places for this city."
-                : "Could not build this trip from the catalog. Check the form and try again.");
+                : error instanceof Error && /^(Not enough|Daily AI|Luna could not)/.test(error.message)
+                    ? error.message : "Could not build this trip. Check the form and try again.");
         } finally {
             if (current(signal)) {
                 writeLock.current = false;
@@ -421,16 +430,23 @@ function OwnedNativeCollection({ ownerId, sessionId, onNavigate, onDeleted }: Na
     }
 
     return <section ref={collectionElement} tabIndex={-1} aria-label="Your itineraries" aria-busy={loading || writing}>
-        {!blocked && <form aria-label="Build a trip from catalog" onSubmit={(event) => { event.preventDefault(); void generate(event.currentTarget); }}>
-            <label>Catalog title<input name="title" maxLength={200} autoComplete="off" disabled={loading || writing} /></label>
-            <label>Catalog city<input name="city" required maxLength={100} autoComplete="off" disabled={loading || writing} /></label>
-            <label>Days<input name="days" type="number" required min={1} max={7} defaultValue={2} disabled={loading || writing} /></label>
-            <Button type="submit" disabled={loading || writing}>Build from catalog</Button>
+        {!blocked && <form className="mb-8 grid gap-4 rounded-xl border p-4 sm:grid-cols-2" aria-label="Build a trip from catalog" onSubmit={(event) => {
+            event.preventDefault();
+            const submitter = (event.nativeEvent as SubmitEvent).submitter;
+            void generate(event.currentTarget, submitter instanceof HTMLButtonElement && submitter.value === "ai" ? "ai" : "catalog");
+        }}>
+            <label>Catalog title<Input className="h-12 border-muted-foreground" name="title" maxLength={200} autoComplete="off" disabled={loading || writing} /></label>
+            <label>Catalog city<Input className="h-12 border-muted-foreground" name="city" required maxLength={100} autoComplete="off" disabled={loading || writing} /></label>
+            <label>Days<Input className="h-12 border-muted-foreground" name="days" type="number" required min={1} max={7} defaultValue={2} disabled={loading || writing} /></label>
+            <label>Preferences for Luna<Input className="h-12 border-muted-foreground" name="preferences" maxLength={500} placeholder="Markets and a relaxed pace" disabled={loading || writing} /></label>
+            <p className="text-sm text-muted-foreground sm:col-span-2">Luna arranges published places into a draft. Check opening hours and travel times before visiting.</p>
+            <Button className="h-11" variant="outline" type="submit" disabled={loading || writing}>Build from catalog</Button>
+            <Button className="h-11 bg-violet-600 text-white hover:bg-violet-700" type="submit" name="mode" value="ai" disabled={loading || writing}>Generate with Luna</Button>
         </form>}
-        {!blocked && <form aria-label="Create a trip" onSubmit={(event) => { event.preventDefault(); void create(event.currentTarget); }}>
-            <label>Title<input name="title" required maxLength={200} autoComplete="off" disabled={loading || writing} /></label>
-            <label>City<input name="city" required maxLength={100} autoComplete="off" disabled={loading || writing} /></label>
-            <Button type="submit" disabled={loading || writing}>Create a trip</Button>
+        {!blocked && <form className="mb-8 grid gap-4" aria-label="Create a trip" onSubmit={(event) => { event.preventDefault(); void create(event.currentTarget); }}>
+            <label>Title<Input className="h-12 border-muted-foreground" name="title" required maxLength={200} autoComplete="off" disabled={loading || writing} /></label>
+            <label>City<Input className="h-12 border-muted-foreground" name="city" required maxLength={100} autoComplete="off" disabled={loading || writing} /></label>
+            <Button className="h-11" variant="outline" type="submit" disabled={loading || writing}>Create a trip</Button>
         </form>}
         {notice && <p role="status">{notice}</p>}
         {error && <div role="alert"><p>{error}</p>

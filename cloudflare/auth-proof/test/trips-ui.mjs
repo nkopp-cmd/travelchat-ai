@@ -74,6 +74,14 @@ export async function tripsUiChecks({ page, db, call, origin }) {
     }
   };
   await capture("collection");
+  const builder = pane.getByRole("form", { name: "Build a trip from catalog" });
+  await builder.getByLabel("Catalog city", { exact: true }).fill("No published city");
+  await builder.getByLabel("Preferences for Luna", { exact: true }).fill("Markets and a relaxed pace");
+  const rejectedPlan = page.waitForResponse(response => response.request().method() === "POST" && new URL(response.url()).pathname === "/api/itineraries/generate");
+  await builder.getByRole("button", { name: "Generate with Luna", exact: true }).click();
+  assert.equal((await rejectedPlan).status(), 422);
+  await pane.getByRole("alert").filter({ hasText: "Not enough published places" }).waitFor();
+  await capture("ai-coverage-error");
   await pane.getByRole("link", { name: /Local browser trip/ }).first().click();
   const title = pane.getByPlaceholder("e.g., 3-Day Seoul Adventure");
   await title.waitFor();
@@ -100,7 +108,7 @@ export async function tripsUiChecks({ page, db, call, origin }) {
   assert.equal(stored[0].activities[0].address, "Updated manual address");
   const openDelete = async () => {
     await pane.getByRole("button", { name: "Actions for Local browser edited trip", exact: true }).click();
-    assert.equal(await page.getByRole("menuitem", { name: /Share|Duplicate/ }).count(), 0);
+    assert.equal(await page.getByRole("menuitem", { name: /Share|Duplicate/ }).count(), 2);
     await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
     await page.getByRole("alertdialog").waitFor();
   };

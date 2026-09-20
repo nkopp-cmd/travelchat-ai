@@ -1,5 +1,5 @@
 import type { TrustedAppSession } from "./app-session";
-import { lunaReply } from "./luna";
+import { lunaRequest } from "./luna";
 import { reserveAIRequest, settleAIRequest } from "./ai-requests";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -79,13 +79,14 @@ export async function catalogChat(request: Request, env: Env, session: TrustedAp
       const reservation = await reserveAIRequest(env.DB, session.ownerId);
       if (!reservation) aiStatus = "daily_limit";
       else {
-        const generated = await lunaReply(key, model, data.message.trim(), lines.join("\n"));
+        const result = await lunaRequest(key, model, data.message.trim(), lines.join("\n"));
+        const generated = result.text;
         if (generated) {
           reply = generated;
           replyModel = model;
         }
         aiStatus = generated ? "completed" : "unavailable";
-        await settleAIRequest(env.DB, reservation, session.ownerId, generated !== null);
+        await settleAIRequest(env.DB, reservation, session.ownerId, generated !== null, result.receipt);
       }
     } catch { aiStatus = "accounting_unavailable"; /* A reserved slot stays charged if settlement fails. */ }
   }

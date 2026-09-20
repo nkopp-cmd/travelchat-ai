@@ -99,6 +99,35 @@ describe("native collection using the existing cards", () => {
         expect(JSON.parse(String(posted?.[1]?.body))).toEqual({ city: "Seoul", days: 2 });
     });
 
+    it("explicit Luna submit sends preferences and opens the owned generated trip", async () => {
+        const fetch = vi.fn((_input: string, init?: RequestInit) => init?.method === "POST"
+            ? Promise.resolve(new Response(JSON.stringify({ itinerary: { ...row, id: id2 } }), { status: 201 }))
+            : Promise.resolve(page()));
+        vi.stubGlobal("fetch", fetch);
+        render(native());
+        await waitFor(() => expect((screen.getByRole("button", { name: "Generate with Luna" }) as HTMLButtonElement).disabled).toBe(false));
+        fireEvent.change(screen.getByLabelText("Catalog city"), { target: { value: "Seoul" } });
+        fireEvent.change(screen.getByLabelText("Preferences for Luna"), { target: { value: "Markets" } });
+        await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Generate with Luna" })); });
+        await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/itineraries/${id2}`));
+        const posted = fetch.mock.calls.find(call => call[1]?.method === "POST");
+        expect(JSON.parse(String(posted?.[1]?.body))).toEqual({ city: "Seoul", days: 2, mode: "ai", preferences: "Markets" });
+    });
+
+    it("AI quota failures retain the form and do not navigate or retry", async () => {
+        const fetch = vi.fn((_input: string, init?: RequestInit) => init?.method === "POST"
+            ? Promise.resolve(new Response("{}", { status: 429 })) : Promise.resolve(page()));
+        vi.stubGlobal("fetch", fetch);
+        render(native());
+        await waitFor(() => expect((screen.getByRole("button", { name: "Generate with Luna" }) as HTMLButtonElement).disabled).toBe(false));
+        fireEvent.change(screen.getByLabelText("Catalog city"), { target: { value: "Seoul" } });
+        await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Generate with Luna" })); });
+        await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Daily AI request limit"));
+        expect(navigate).not.toHaveBeenCalled();
+        expect(fetch.mock.calls.filter(call => call[1]?.method === "POST")).toHaveLength(1);
+        expect((screen.getByLabelText("Catalog city") as HTMLInputElement).value).toBe("Seoul");
+    });
+
     it("duplicates an owned trip from the collection menu and opens the copy", async () => {
         const copy = { ...row, id: id2, title: "Private Seoul trip (Copy)" };
         const fetch = vi.fn((_input: string, init?: RequestInit) => {

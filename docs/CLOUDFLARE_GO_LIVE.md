@@ -10,7 +10,7 @@ Public `localley.io` stays on Vercel until these pass. Do not point DNS at Acces
 
 ## Still required before cutover
 
-1. Preview chat uses `gpt-5.6-luna` when `OPENAI_API_KEY` is bound. Catalog facts still ground the reply. Paid AI itinerary generate, stories, billing, and admin remain unported.
+1. Preview chat and explicit AI itinerary drafts use `gpt-5.6-luna` when `OPENAI_API_KEY` is bound. Full live-app generation parity, stories, billing, and admin remain unfinished.
 2. Stories, billing, and admin are unported. Worker CPU is 1s.
 3. Hosted human sign-in and recovery on this shell.
 4. Access is not consumer login. Remove it only after public Better Auth works.
@@ -29,5 +29,13 @@ Preview limits are 20 attempts per owner and 100 globally per UTC day, checked a
 Completed, failed, and uncertain attempts all count. Accounting outages block new provider calls and keep catalog fallback available.
 API `aiStatus` distinguishes completion, daily limits, provider unavailability, and accounting faults.
 These are persistent request limits, not exact token usage or subscription billing.
-Next AI slice: token usage receipts and validated itinerary generation through this adapter.
+Migration `0011_ai_receipts.sql` adds provider IDs/status and nullable input, output, and cached-input counts for chat and itinerary attempts.
+Incomplete and rejected outputs retain observed counts; absent or malformed metrics remain unknown. This is not billing settlement.
+`POST /api/itineraries/generate` accepts explicit `mode:"ai"` and optional preferences. Default catalog mode remains non-AI.
+Luna selects day order and unique published spot IDs; the server reconstructs names, coordinates and addresses from D1.
+Unknown IDs, repeated venues, wrong day counts, incomplete output and insufficient coverage fail without saving a trip.
+Persistence rechecks the session, owner mapping and spot visibility in one INSERT after the provider wait.
+No automatic retry or paid-model fallback. Shared limits remain 20 owner/100 global attempts per UTC day.
+Actual structured host probe: `resp_00016ba3d3417215016aafa39a085c87d28872bf08fe68135b`; 603 input/177 output/0 cached tokens; two valid days and six real catalog venues. No database write.
+Hosted signed-in generation remains a separate acceptance check; the Access service identity is read-only.
 Catalog-generated itineraries and basic share pages are not complete equivalents of the existing Localley product.
