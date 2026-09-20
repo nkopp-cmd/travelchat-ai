@@ -24,5 +24,10 @@ Native provider-path tests now cover success, incomplete output, refusals, malfo
 One real host adapter probe completed: `resp_06da74f5c0ce31fb016aaf76f1bd5887d2a1e2c272030807cb`, 82 input and 6 output tokens.
 This is provider acceptance, not hosted account acceptance. The read-only Access identity cannot exercise chat POST.
 
-Next AI slice: persistent usage reservations, owner quotas, and validated itinerary generation through this adapter.
+Native chat now reserves each paid attempt in D1 before calling Luna (migration `0010_ai_requests.sql`).
+Preview limits are 20 attempts per owner and 100 globally per UTC day, checked atomically with insertion.
+Completed, failed, and uncertain attempts all count. Accounting outages block new provider calls and keep catalog fallback available.
+API `aiStatus` distinguishes completion, daily limits, provider unavailability, and accounting faults.
+These are persistent request limits, not exact token usage or subscription billing.
+Next AI slice: token usage receipts and validated itinerary generation through this adapter.
 Catalog-generated itineraries and basic share pages are not complete equivalents of the existing Localley product.

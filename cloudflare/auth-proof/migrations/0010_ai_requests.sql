@@ -1,0 +1,2 @@
+CREATE TABLE native_ai_requests (id TEXT PRIMARY KEY NOT NULL, owner_id TEXT NOT NULL REFERENCES owners(id), day TEXT NOT NULL, model TEXT NOT NULL CHECK(model = 'gpt-5.6-luna'), state TEXT NOT NULL DEFAULT 'reserved' CHECK(state IN ('reserved', 'completed', 'unknown')), created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')));
+CREATE INDEX native_ai_requests_day ON native_ai_requests(day, owner_id);

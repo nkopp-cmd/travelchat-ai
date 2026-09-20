@@ -66,7 +66,7 @@ export async function startLocalServer({ assetsDirectory } = {}) {
       logRequests: false, unsafeLocalExplorer: false, handleStructuredLogs: () => {}, log: new Log(LogLevel.NONE),
     });
     const db = await mf.getD1Database("DB");
-    for (const migration of ["0001_local.sql", "0002_application.sql", "0003_preview_mail.sql", "0004_pilot_catalog.sql", "0005_itineraries.sql", "0007_email_preferences.sql", "0008_current_trends.sql", "0009_itinerary_share.sql"]) await db.exec(await readFile(join("migrations", migration), "utf8"));
+    for (const migration of ["0001_local.sql", "0002_application.sql", "0003_preview_mail.sql", "0004_pilot_catalog.sql", "0005_itineraries.sql", "0007_email_preferences.sql", "0008_current_trends.sql", "0009_itinerary_share.sql", "0010_ai_requests.sql"]) await db.exec(await readFile(join("migrations", migration), "utf8"));
     const names = [
       ["Synthetic quiet reading cafe", "\uac00\uc0c1 \uace8\ubaa9 \ucc45\uc77d\ub294 \uce74\ud398", "cafe"],
       ["Synthetic neighborhood walking garden", "\uac00\uc0c1 \uc11c\uc6b8 \uace8\ubaa9\uc5d0\uc11c \ucc9c\ucc9c\ud788 \uac78\uc73c\uba70 \uc26c\uc5b4\uac00\ub294 \uc791\uc740 \uc815\uc6d0", "nature"],
