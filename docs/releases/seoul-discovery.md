@@ -1,5 +1,33 @@
 # Seoul Discovery Release
 
+## Luna itinerary drafts and token receipts — 2026-09-20
+
+- Repository `nkopp-cmd/travelchat-ai`, branch `cloudflare/full-migration`, [PR146](https://github.com/nkopp-cmd/travelchat-ai/pull/146).
+- Source `72cedefe918142e73988593283dba4fe0a5adbe0`; deployed merge/tag `4023b45ac66eaef400938cdb702209ee0c0fdfc5`.
+- Candidate CI `35502042049`; exact merge CI `35502287699.1`, both passed.
+- Native check: 283 tests, types and lint. React collection: 71 tests. HTTPS browser: all three suites passed.
+- Worker `da1ec9de-7284-4cb8-901b-7710676d0705`, 100%; deployment `912e55c3-52fc-4680-8f84-ead253339167`.
+- Data: EU D1 `localley-migration-preview` (`e943548b-01ae-485d-9219-e2a46cb0da8e`), migration `0011_ai_receipts.sql` applied and independently read back.
+- Private backup `.preview-private/luna-itinerary-pre-146.sql`, SHA-256 `b077364636f2cf59612197034e96e034418d3b80e07ddfbad2992e80cf94e1a4`.
+- Backup restore plus migration rehearsal: integrity `ok`, no foreign-key violations, eight visible spots and zero existing AI attempts.
+- Rollback Worker `6133e462-5664-4048-8081-eb3bce615d62`; retain the additive receipt columns and any collected usage evidence.
+- Live health 200 `{ok:true}`; private itineraries without an application session returned 401; eight published spots retained.
+- Hosted app.js matched the local artifact exactly: SHA-256 `ee90d7d797bef42ecb55f03b9a506ed2e4075502fff6e5c5e8e9d812cf02cfd0`, including the new Luna action.
+
+The Trips form offers explicit Luna planning and retains catalog-only build. Provider output contains day numbers and spot IDs only.
+The server rejects unknown/repeated IDs, missing days, extra invented fields and incomplete responses. It reconstructs facts from D1.
+Saving after the provider wait atomically rechecks session validity, owner/profile mapping and published spot visibility.
+Chat and generation now retain nullable provider response ID/status and input/output/cached token counts, including rejected output.
+Shared request limits remain 20 per owner and 100 global per UTC day. Token observations are not subscription billing.
+
+One real structured **host adapter** probe completed: `resp_00016ba3d3417215016aafa39a085c87d28872bf08fe68135b`.
+It used 603 input/177 output/0 cached tokens and validated two days with six published venues; it did not write a live trip.
+Local UI screenshots were opened at 390/900/1440 in `test-results/cloudflare-trips/run-wdhtiV/`.
+Visual review fixed invisible form boundaries using the existing Input component. Browser checks also corrected stale pre-generation/share assertions.
+Hosted signed-in generation remains unverified: the available Access service identity is read-only. No publication controls were bypassed.
+Advisor review was unavailable at the subscription limit. Gravity evidence submission returned `independent_evidence_rejected`; retained in `.preview-private/gravity-preview-release-146.json`.
+The full product migration remains open; this release does not establish billing, stories, admin, or public-domain cutover parity.
+
 ## Persistent AI request limits — 2026-09-20
 
 - PR [145](https://github.com/nkopp-cmd/travelchat-ai/pull/145), repository `nkopp-cmd/travelchat-ai`, branch `cloudflare/full-migration`.
