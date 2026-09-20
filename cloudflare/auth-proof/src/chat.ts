@@ -1,4 +1,5 @@
 import type { TrustedAppSession } from "./app-session";
+import { lunaReply } from "./luna";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -29,45 +30,6 @@ function placeText(raw: string | null): string {
     }
   } catch { /* Descriptions are JSON objects. */ }
   return typeof raw === "string" ? raw : "";
-}
-
-function lunaText(payload: unknown): string | null {
-  if (!payload || typeof payload !== "object") return null;
-  const record = payload as { output_text?: unknown; output?: unknown };
-  if (typeof record.output_text === "string" && record.output_text.trim()) return record.output_text.trim().slice(0, 2000);
-  if (!Array.isArray(record.output)) return null;
-  const parts: string[] = [];
-  for (const item of record.output) {
-    if (!item || typeof item !== "object") continue;
-    const content = (item as { content?: unknown }).content;
-    if (!Array.isArray(content)) continue;
-    for (const block of content) {
-      if (block && typeof block === "object" && typeof (block as { text?: unknown }).text === "string") {
-        parts.push((block as { text: string }).text);
-      }
-    }
-  }
-  const text = parts.join("").trim();
-  return text ? text.slice(0, 2000) : null;
-}
-
-async function lunaReply(key: string, model: string, message: string, facts: string): Promise<string | null> {
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      input: `You are Localley. Answer only from these published catalog places. If the catalog does not contain the answer, say so. Do not invent hours, prices, or photos.\n\nCatalog:\n${facts}\n\nQuestion: ${message}`,
-      temperature: 0.4,
-      max_output_tokens: 256,
-      reasoning: { effort: "none" },
-      store: false,
-    }),
-    signal: AbortSignal.timeout(12000),
-    redirect: "error",
-  });
-  if (!response.ok) return null;
-  return lunaText(await response.json());
 }
 
 export async function catalogChat(request: Request, env: Env, _session: TrustedAppSession, data: Record<string, unknown>): Promise<Response> {
@@ -109,15 +71,19 @@ export async function catalogChat(request: Request, env: Env, _session: TrustedA
     ? (env as { OPENAI_CHAT_MODEL: string }).OPENAI_CHAT_MODEL.trim()
     : "gpt-5.6-luna";
   let reply = catalogReply;
+  let replyModel = "catalog";
   if (key && catalogPlaces.length) {
     try {
       const generated = await lunaReply(key, model, data.message.trim(), lines.join("\n"));
-      if (generated) reply = generated;
+      if (generated) {
+        reply = generated;
+        replyModel = model;
+      }
     } catch { /* Keep the catalog reply. Do not call another paid model. */ }
   }
   return json({
     reply,
     places: places.map((place) => ({ id: place.id, name: place.name })),
-    model: key && reply !== catalogReply ? model : "catalog",
+    model: replyModel,
   });
 }
