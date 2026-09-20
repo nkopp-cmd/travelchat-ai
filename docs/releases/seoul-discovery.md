@@ -1,5 +1,25 @@
 # Seoul Discovery Release
 
+## Persistent AI request limits — 2026-09-20
+
+- PR [145](https://github.com/nkopp-cmd/travelchat-ai/pull/145), repository `nkopp-cmd/travelchat-ai`, branch `cloudflare/full-migration`.
+- Source `12fe72b2d3f6bacb808f3172b66b90e0beb3828f`; merge/tag `b67bfa7049748c861e07c022957862013a4ad935`.
+- Candidate CI `35498299859`; merge CI `35498760481.1`; both passed. Native check: 271 tests, types and lint passed.
+- Worker `6133e462-5664-4048-8081-eb3bce615d62`, 100%; deployment `fd21cc3b-a981-42f6-94ec-275861b65b53`.
+- Data remains EU D1 `localley-migration-preview` (`e943548b-01ae-485d-9219-e2a46cb0da8e`).
+- Backup `.preview-private/ai-reservations-pre-b67bfa7.sql`, SHA-256 `1c7e1c98464c9558b65827341914fbecd5d44ddc3c5e148a495174ebaa238b07`.
+- Restored backup locally: integrity check `ok`, eight visible spots. Rehearsed migration with integrity and foreign-key checks.
+- Remote migration `0010_ai_requests.sql` applied through Wrangler migration tracking. Read-only verification found one migration record, zero attempts, eight visible spots.
+- Live health 200 `{ok:true}`; sessionless chat GET 401. No paid provider calls or hosted user mutations during this release.
+- Rollback Worker `dfeb140c-9e1c-46af-9ee4-b0987f3f3d9a`; retain the additive table and reservation evidence. Previous Worker lacks these caps.
+
+Chat now reserves each provider attempt before calling Luna. Atomic limits: 20 per owner and 100 globally per UTC day.
+Completed and uncertain outcomes count; reservation failure prevents a new paid request. Native tests cover concurrency and accounting failure.
+This is persistent request accounting, not token billing or full AI itinerary generation.
+Hosted signed-in acceptance remains open because the available Access service identity is read-only.
+Advisor review was unavailable due to its weekly subscription limit; no paid fallback was used.
+Gravity's evidence command returned `independent_evidence_rejected`. Submitted evidence remains in `.preview-private/gravity-preview-release-145.json`; acceptance is not claimed.
+
 ## Luna runtime correction — 2026-09-20
 
 - Repository: `nkopp-cmd/travelchat-ai`; release branch: `cloudflare/full-migration`.
