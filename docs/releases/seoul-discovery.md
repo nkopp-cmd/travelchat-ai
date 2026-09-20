@@ -1,5 +1,34 @@
 # Seoul Discovery Release
 
+## Luna runtime correction — 2026-09-20
+
+- Repository: `nkopp-cmd/travelchat-ai`; release branch: `cloudflare/full-migration`.
+- PR: [144](https://github.com/nkopp-cmd/travelchat-ai/pull/144).
+- Source: `3875cbc3971b7881734aa8ed7186904b385f87df`.
+- Deployed merge/tag: `3c400317572af1f568522916cf40974950751cbc`.
+- Candidate CI: `35493559313`; exact merge CI: `35493816764.1`, both passed.
+- Local native check: 264 tests passed, including 15 new provider-path checks; types and lint passed.
+- Worker: `localley-discovery-preview`, version `dfeb140c-9e1c-46af-9ee4-b0987f3f3d9a`, 100% traffic.
+- Deployment: `c24f8752-0348-4965-8dd9-9da076673f2a`.
+- Data: EU D1 `localley-migration-preview` (`e943548b-01ae-485d-9219-e2a46cb0da8e`); no migration or data mutation in this release.
+- Rollback Worker: `4141b23e-d59e-44a1-bd1b-3ef5dfca2e5d`. This restores the prior catalog fallback and its broken provider call.
+- Live read-only checks: `/api/health` returned 200 `{ok:true}`; `/api/spots` returned eight spots; unauthenticated `/api/chat` returned 401.
+- The existing Access service token was refreshed in place through `2026-09-21T06:18:29Z`; policies were unchanged.
+
+The prior adapter used `redirect: "error"`, unsupported by workerd. Its exception was swallowed into the catalog fallback.
+The replacement rejects redirects using `manual`, rejects incomplete/refused/wrong-model responses, separates instructions from input, and bounds provider responses to 64 KiB.
+Only completed text is attributed to Luna; catalog fallback retains its own model label. No retries or alternate paid models are added.
+
+One real **host adapter** probe returned completed Luna output: `resp_06da74f5c0ce31fb016aaf76f1bd5887d2a1e2c272030807cb`, 82 input / 6 output tokens.
+Native workerd tests exercise the provider request with mocked outbound responses. Neither result establishes a hosted signed-in chat journey.
+The read-only Access service identity cannot execute chat POST. Hosted human acceptance remains open.
+Advisor read-only review timed out; no approval is claimed.
+Gravity's documented evidence command returned `independent_evidence_rejected`, including on an IPv4 retry. No acceptance is claimed.
+Submitted evidence remains in `.preview-private/gravity-preview-release-144.json` for reconciliation.
+
+The remaining migration includes AI itinerary generation with durable usage accounting, full product UI, stories, billing, admin, account/import acceptance, and public cutover.
+Older release identities below are historical checkpoints.
+
 ## Current-Week Trends - 2026-09-13
 
 PR [136](https://github.com/nkopp-cmd/travelchat-ai/pull/136) delivered the official Tsukiji YouTube path for UTC week `2026-09-07`.
