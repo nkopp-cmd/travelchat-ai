@@ -1,5 +1,6 @@
 import type { TrustedAppSession } from "./app-session";
 import { lunaReply } from "./luna";
+import { reserveAIRequest, settleAIRequest } from "./ai-requests";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -32,7 +33,7 @@ function placeText(raw: string | null): string {
   return typeof raw === "string" ? raw : "";
 }
 
-export async function catalogChat(request: Request, env: Env, _session: TrustedAppSession, data: Record<string, unknown>): Promise<Response> {
+export async function catalogChat(request: Request, env: Env, session: TrustedAppSession, data: Record<string, unknown>): Promise<Response> {
   const url = new URL(request.url);
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
   if (url.search) return json({ error: "Unexpected query" }, 400);
@@ -72,18 +73,26 @@ export async function catalogChat(request: Request, env: Env, _session: TrustedA
     : "gpt-5.6-luna";
   let reply = catalogReply;
   let replyModel = "catalog";
+  let aiStatus = "not_configured";
   if (key && catalogPlaces.length) {
     try {
-      const generated = await lunaReply(key, model, data.message.trim(), lines.join("\n"));
-      if (generated) {
-        reply = generated;
-        replyModel = model;
+      const reservation = await reserveAIRequest(env.DB, session.ownerId);
+      if (!reservation) aiStatus = "daily_limit";
+      else {
+        const generated = await lunaReply(key, model, data.message.trim(), lines.join("\n"));
+        if (generated) {
+          reply = generated;
+          replyModel = model;
+        }
+        aiStatus = generated ? "completed" : "unavailable";
+        await settleAIRequest(env.DB, reservation, session.ownerId, generated !== null);
       }
-    } catch { /* Keep the catalog reply. Do not call another paid model. */ }
+    } catch { aiStatus = "accounting_unavailable"; /* A reserved slot stays charged if settlement fails. */ }
   }
   return json({
     reply,
     places: places.map((place) => ({ id: place.id, name: place.name })),
     model: replyModel,
+    aiStatus,
   });
 }
