@@ -1,5 +1,8 @@
 # Cloudflare go-live gates
 
+See `CLOUDFLARE_CUTOVER_INVENTORY.md` for the 2026-09-21 live source audit, verified private EU R2 backups and media transfer, identity mismatches, and full-product cutover requirements.
+Available live Clerk/Stripe credentials and REST export access are confirmed; missing SQL access does not block the completed read-only export.
+
 Public `localley.io` stays on Vercel until these pass. Do not point DNS at Access-protected preview.
 
 ## Ready on preview
