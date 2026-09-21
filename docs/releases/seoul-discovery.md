@@ -1,5 +1,28 @@
 # Seoul Discovery Release
 
+## Production source and media custody — 2026-09-21
+
+- PR [147](https://github.com/nkopp-cmd/travelchat-ai/pull/147), repository `nkopp-cmd/travelchat-ai`, release branch `cloudflare/full-migration`.
+- Source `cf269ff363771c29fed18755d8da4808392b59af`; merge/tag `1cc9f10aa1b48891324146f95de54cf1d6cf0249`.
+- Candidate CI `35619265653`; exact merge CI `35619917040.1`, both passed, including nine new offline migration tests.
+- Preview Worker `9129f4b6-e893-4441-afc1-c5bb66e3595c`, 100%; deployment `718f6b6b-3b5f-463a-822b-86eee16612e7`; health 200 `{ok:true}`.
+- The runtime source and frontend bytes match PR146; this release adds verified host-side migration tools and private data transfers.
+- Rollback Worker `da1ec9de-7284-4cb8-901b-7710676d0705`. Data transfers are additive; retain private archives and media for rollback rather than deleting source records.
+- Existing read-only Access token refreshed through `2026-09-22T15:42:39Z`; no policy changes.
+
+Cloudflare now holds a private EU R2 archive of 48 application tables / 5,502 rows. Download/reassembly/restore verified every page hash.
+Archive SHA-256: `7a1c66c6a90a12fada700b66aabfccbdd9b366d1b085d12b5d71e12d2b25783f`.
+The snapshot is an observed stable export, not a transactional cutover snapshot, Clerk password export, or completed D1 import.
+Private EU R2 media storage holds 222 exact PNG/JPEG objects covering 223 existing story references. All objects were read-back verified.
+Normalized itinerary metadata reduces the largest source row from 23,711,386 to 11,797 bytes, resolving the 12 oversized-row blockers for later D1 import.
+Projection archive SHA-256: `6b0742d6a9bf26ddb00784f266ebf75da4057755071dfd8c564d4c1432ed9cc8`; read-back verified.
+Data locations and restore procedure: `CLOUDFLARE_CUTOVER_INVENTORY.md`. Both R2 buckets remain private with no custom domains.
+
+Actual remaining identity reconciliation: three Clerk/profile IDs overlap, two historical profiles lack current Clerk accounts, and two current Clerk accounts lack source profiles. No email-based linking or record deletion occurred.
+Public `localley.io` and `www.localley.io` still returned Vercel origin headers. Full application parity, normalized D1 imports and hosted ownership acceptance remain required before cutover.
+Gravity accepted coding evidence for `native-migration-next` at the exact source commit. Restricted-preview release evidence returned `independent_evidence_rejected`; retained in `.preview-private/gravity-preview-release-147.json`.
+Advisor review timed out. No review approval or full-production completion is claimed.
+
 ## Luna itinerary drafts and token receipts — 2026-09-20
 
 - Repository `nkopp-cmd/travelchat-ai`, branch `cloudflare/full-migration`, [PR146](https://github.com/nkopp-cmd/travelchat-ai/pull/146).

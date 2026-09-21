@@ -14,7 +14,7 @@ Public `localley.io` stays on Vercel until these pass. Do not point DNS at Acces
 ## Still required before cutover
 
 1. Preview chat and explicit AI itinerary drafts use `gpt-5.6-luna` when `OPENAI_API_KEY` is bound. Full live-app generation parity, stories, billing, and admin remain unfinished.
-2. Stories, billing, and admin are unported. Worker CPU is 1s.
+2. Stories, billing, and admin are unported. The preview Worker CPU limit is 15s; each migrated workload still needs verification.
 3. Hosted human sign-in and recovery on this shell.
 4. Access is not consumer login. Remove it only after public Better Auth works.
 5. Production SQL/import if live spots must move with the domain.
