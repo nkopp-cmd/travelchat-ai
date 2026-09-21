@@ -41,6 +41,8 @@ jobs:
       - name: Verify native runtime and ingestion
         working-directory: cloudflare/auth-proof
         run: npm run check
+      - name: Verify private source snapshot integrity
+        run: node --test scripts/cloudflare-source-snapshot.test.mjs scripts/cloudflare-story-media.test.mjs scripts/cloudflare-media-upload.test.mjs
       - name: Fetch pinned disposable PostGIS image
         run: docker pull postgis/postgis@sha256:01a6a70e41e6c4467c8f55f6063555ed72db2d6662cd0d571040d42eadaeb6f6
       - name: Verify production adapter on isolated PostGIS
