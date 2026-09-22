@@ -31,6 +31,8 @@ Private files: `cloudflare/auth-proof/.preview-private/import-rehearsal-20260922
 - node:sqlite with all 13 migrations: every expected row matches column by column (0 mismatches), repeat run 0 changes, 0 FK violations, integrity `ok`.
 - workerd D1 with all 13 migrations: 10,321 rows inserted, repeat 0 changes, 0 FK violations. The built Worker served exactly the 3,024 visible spots over 31 catalog pages. An imported itinerary without a session returned 401.
 
+Preview schema: migration `0013_legacy_import.sql` applied to the preview D1 on 2026-09-22 with 0 rows imported (Worker `2db6bcb5-8126-4aca-af10-90bb119e10c2`, tag `d4481fa`, backup SHA-256 `6220ffa9…12a9`, rollback Worker `1b77837e`).
+
 Findings to resolve before the real import:
 
 1. Visibility parity: the rule marks 3,024 of 3,295 spots public (Seoul 428). The 2026-09-21 audit counted 390 public Seoul spots on the live site. Compare with the live list query before cutover.

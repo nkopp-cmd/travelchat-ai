@@ -10,6 +10,7 @@ import { applicationTests } from "./application.test.mjs";
 import { itineraryTests } from "./itineraries.test.mjs";
 import { chatTests } from "./chat.test.mjs";
 import { emailPreferenceTests } from "./email-preferences.test.mjs";
+import { conversationTests } from "./conversations.test.mjs";
 import { ownershipRehearsal } from "./ownership-rehearsal.mjs";
 
 await mkdir(process.env.TMPDIR, { recursive: true });
@@ -103,6 +104,10 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     await db.exec(await readFile("migrations/0009_itinerary_share.sql", "utf8"));
     await db.exec(await readFile("migrations/0010_ai_requests.sql", "utf8"));
     await db.exec(await readFile("migrations/0011_ai_receipts.sql", "utf8"));
+    // Multi-line migrations are flattened for D1 exec, which runs one statement per line.
+    for (const name of ["0012_listing_places.sql", "0013_legacy_import.sql"]) {
+      await db.exec((await readFile(`migrations/${name}`, "utf8")).split("\n").filter((line) => !line.trimStart().startsWith("--")).join(" "));
+    }
     await t.test("real D1 migration and schema", async () => {
       assert.equal((await db.prepare("PRAGMA foreign_keys").first()).foreign_keys, 1);
       assert.equal((await db.prepare("SELECT count(*) AS n FROM user").first()).n, 0);
@@ -299,6 +304,7 @@ test("native workerd + D1 authentication and migration proof", { timeout: 180_00
     await itineraryTests(t, { db, call, post, signup, login, mail, alice, aliceCookie, bobCookie });
     await chatTests(t, { db, call, aliceCookie, bobCookie });
     await emailPreferenceTests(t, { db, call, post, signup, login, mail, aliceCookie, bobCookie });
+    await conversationTests(t, { db, call, aliceCookie, bobCookie });
     await ownershipRehearsal(t, { db, call, post, signup, login, mail, bobCookie, claimSecret });
     await t.test("identity batches recheck revocation, expiry and verification after HTTP authentication", async () => {
       await mf.setOptions({ ...options, workers: [fixtureWorker] });

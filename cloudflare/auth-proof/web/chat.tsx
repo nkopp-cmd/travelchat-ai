@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "./session";
 
@@ -42,5 +42,42 @@ export function NativeChat({ sessionId, onSignIn }: { sessionId: string; onSignI
     </form>
     {reply && <p role="status">{reply}</p>}
     {error && <p className="error" role="alert">{error}</p>}
+    <ConversationHistory sessionId={sessionId} />
+  </section>;
+}
+
+type Conversation = { id: string; title: string | null; createdAt: string; updatedAt: string | null };
+type Message = { id: string; role: "user" | "assistant"; content: string; createdAt: string };
+// Read-only history. Imported conversations appear after an account claims its legacy owner.
+function ConversationHistory({ sessionId }: { sessionId: string }) {
+  const [list, setList] = useState<Conversation[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [open, setOpen] = useState<{ id: string; messages: Message[] | null; failed?: boolean } | null>(null);
+  const headers = { "x-localley-session-id": sessionId };
+  useEffect(() => {
+    let active = true;
+    setList(null); setFailed(false); setOpen(null);
+    api<{ conversations: Conversation[] }>("/api/conversations", { headers: { "x-localley-session-id": sessionId } })
+      .then((value) => { if (active) setList(Array.isArray(value.conversations) ? value.conversations : []); })
+      .catch(() => { if (active) setFailed(true); });
+    return () => { active = false; };
+  }, [sessionId]);
+  async function show(id: string) {
+    setOpen({ id, messages: null });
+    try {
+      const value = await api<{ messages: Message[] }>(`/api/conversations/${encodeURIComponent(id)}/messages`, { headers });
+      setOpen((current) => current?.id === id ? { id, messages: Array.isArray(value.messages) ? value.messages : [] } : current);
+    } catch { setOpen((current) => current?.id === id ? { id, messages: null, failed: true } : current); }
+  }
+  return <section className="conversation-history" aria-label="Past conversations">
+    <h3>Past conversations</h3>
+    {failed && <p className="error" role="alert">Past conversations could not load.</p>}
+    {!failed && list === null && <p role="status">Loading past conversations...</p>}
+    {list?.length === 0 && <p className="empty">No past conversations. Chats from the current Localley site appear here after your account moves.</p>}
+    {!!list?.length && <ul>{list.map((conversation) => <li key={conversation.id}>
+      <button className="secondary" aria-expanded={open?.id === conversation.id} onClick={() => void show(conversation.id)}>{conversation.title?.trim() || "Untitled conversation"} · {new Date(conversation.updatedAt ?? conversation.createdAt).toLocaleDateString()}</button>
+      {open?.id === conversation.id && (open.failed ? <p className="error" role="alert">Messages could not load.</p> : open.messages === null ? <p role="status">Loading messages...</p>
+        : <ol className="conversation-messages">{open.messages.map((message) => <li key={message.id} data-role={message.role}><strong>{message.role === "user" ? "You" : "Localley"}</strong><p>{message.content}</p></li>)}</ol>)}
+    </li>)}</ul>}
   </section>;
 }

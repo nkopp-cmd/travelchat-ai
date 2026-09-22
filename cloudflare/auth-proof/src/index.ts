@@ -10,6 +10,7 @@ import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryDuplica
 import { catalogChat } from "./chat";
 import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
 import { verifyAccess, type AccessIdentity } from "./access";
+import { conversations, conversationsPath, conversationMessagesPath } from "./conversations";
 import { listingGallery, listingGalleryPath, listingPhoto, listingPhotoPath } from "./listing-photos";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -30,6 +31,7 @@ export default {
       const itineraryDelete = request.method === "DELETE" && itineraryDetailPath.test(url.pathname);
       const preferencesRoute = url.pathname === "/api/user/email-preferences";
       const chatRoute = url.pathname === "/api/chat";
+      const conversationRoute = conversationsPath.test(url.pathname) || conversationMessagesPath.test(url.pathname);
       const base = new URL(env.AUTH_BASE_URL);
       if (!await validRuntime(request, env)) return fail("forbidden", "Runtime unavailable", 403);
       let access: AccessIdentity | undefined;
@@ -106,7 +108,7 @@ export default {
       }
       const path = url.pathname;
       if (path !== "/api/session" && path !== "/api/account/new" && path !== "/api/account/claim"
-        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute && !preferencesRoute && !chatRoute) return json({ error: "Not found" }, 404);
+        && path !== "/api/spots/save" && path !== "/api/private-notes" && !/^\/api\/private-notes\/[^/]+$/.test(path) && !itineraryRoute && !preferencesRoute && !chatRoute && !conversationRoute) return json({ error: "Not found" }, 404);
       if (!["GET", "HEAD"].includes(request.method) && headers.get("Origin") !== base.origin) return fail("forbidden", "Invalid origin", 403);
       const session = await trustedAppSession(env, request.headers);
       if (session.state === "signedout") return fail("unauthorized", "Please sign in to continue.", 401, "Unauthorized");
@@ -118,7 +120,7 @@ export default {
       if (session.state === "unverified") return fail("forbidden", "Verify email", 403);
       // This is a stale-client guard, never an authentication credential.
       const expectedSession = request.headers.get("x-localley-session-id");
-      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || path === "/api/spots/save" || preferencesRoute || path === "/api/session";
+      const checksSession = !["GET", "HEAD"].includes(request.method) || itineraryRoute || conversationRoute || path === "/api/spots/save" || preferencesRoute || path === "/api/session";
       // Refresh a stale account before the client interprets the new account's setup state.
       if (checksSession && expectedSession && expectedSession !== session.sessionId) {
         return appError("session_changed", "Your session changed. Refresh before trying again.", 409);
@@ -180,6 +182,7 @@ export default {
       const ownerId = session.ownerId;
       if (preferencesRoute) return await emailPreferences(request, env, session, data);
       if (chatRoute) return await catalogChat(request, env, session, data);
+      if (conversationRoute) return await conversations(request, env, session);
       if (itineraryRoute) return await itineraries(request, env, session, data);
       if (path === "/api/spots/save") return await savedSpots(request, env, session, data);
       const id = path.startsWith("/api/private-notes/") ? decodeURIComponent(path.slice("/api/private-notes/".length)) : null;
