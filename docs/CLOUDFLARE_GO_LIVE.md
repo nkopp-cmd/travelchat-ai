@@ -58,7 +58,7 @@ Legend: **native** = on the preview Worker and hosted-verified. **partial** = so
 | --- | --- | --- |
 | Landing `/`, explore, templates | missing (preview has one catalog view) | 4 |
 | Spot list/detail `/spots`, `/spots/[id]` | partial: 8 reviewed Seoul spots, map, credits. Live has 3,295 rows (390 public Seoul) | 5 |
-| Venue listing photos (`release/authentic-discovery`, never live) | missing → port in progress (`feature/cloudflare-listing-photos`) | 4 |
+| Venue listing photos (`release/authentic-discovery`, never live) | native: PR149, hosted gate passed (`releases/native-listing-photos.md`) | 4 |
 | Spot reviews, helpful votes | missing (0 source rows) | 4 |
 | Social spot submissions, submit/status pages | missing (4 submissions, 10 media rows) | 4 |
 | Saved spots | native (0 live source rows) | — |
@@ -83,7 +83,7 @@ Legend: **native** = on the preview Worker and hosted-verified. **partial** = so
 | Hosting | Vercel | Worker + static assets (preview only) |
 | Database | Supabase PostgreSQL + PostGIS, 48 REST tables, 5,502 rows | D1, 15 application tables, 8 spots |
 | Auth | Clerk, 5 users | Better Auth on D1; no Clerk import; claim flow proven on synthetic data |
-| Rate limiting | Upstash Redis (did not answer from Vercel on 2026-09-22) and in-memory fallback | D1 counters for auth and AI; Workers rate-limit binding planned for photos |
+| Rate limiting | Upstash Redis (did not answer from Vercel on 2026-09-22) and in-memory fallback | D1 counters for auth and AI; Workers rate-limit bindings for listing photos |
 | Schedules | 4 Vercel crons (`vercel.json`) | 0 Cron Triggers. Hourly Scrapelet transfer runs from the VPS timer |
 | Media | Supabase Storage `generated-images`, Pexels, Google proxies | Private R2 copies only; reviewed pilot JPEGs in static assets |
 | Monitoring | Sentry | Workers observability logs (invocation logs off) |
@@ -100,7 +100,7 @@ Twelve itinerary rows need the R2 story-media projection because they exceed the
 - `builder/seoul-story-studio` and `integration/story-studio` have no commits outside `cloudflare/full-migration`. Their story code is in the Next.js tree only.
   The 4 story migrations (`story_video_jobs`, `story_video_processing`, `story_video_reservation_snapshot`, `save_itinerary_snapshot`) are Supabase-only.
   On Cloudflare they become D1 migrations for a native story port. They need no Supabase production migration.
-- `release/authentic-discovery` (`60ffc7c`, `4e38597`) failed its Vercel photo gate because Upstash timed out. It is ported natively, without Upstash.
+- `release/authentic-discovery` (`60ffc7c`, `4e38597`) failed its Vercel photo gate because Upstash timed out. The gallery is ported natively without Upstash and passed its hosted gate (PR149). Its spot-detail page, detail map and wording changes still need the native spot-detail view.
 - `fix/multi-city-network-narrowing` stays unmerged by decision.
 
 ### Path decision for Nils
