@@ -73,7 +73,7 @@ Legend: **native** = on the preview Worker and hosted-verified. **partial** = so
 | Gamification, challenges, leaderboard, friends, notifications, push | missing (10 challenges, 6 user_challenges) | 4 |
 | Profile, `/users/[username]`, settings (tier, usage) | partial: email preferences only | 4 |
 | Geocode, cities, translate, recommendations, Viator, affiliates, OG images | missing | 4 |
-| Sign-up, sign-in, recovery for the public | partial: Better Auth works for allowlisted preview emails behind Access only | 3, 4 |
+| Sign-up, sign-in, recovery for the public | partial: Better Auth works for allowlisted preview emails behind Access only. The Worker has no production runtime mode (`validRuntime` accepts only `preview` or `local`) | 3, 4 |
 | Email delivery | partial: Cloudflare `send_email` to one allowed address. Public mail needs a sender decision | 3 |
 
 ### Platform
@@ -91,7 +91,8 @@ Legend: **native** = on the preview Worker and hosted-verified. **partial** = so
 
 ### Data import
 
-No import code exists yet. The source backup is complete and verified (see `CLOUDFLARE_CUTOVER_INVENTORY.md`).
+Import tooling and a local rehearsal on the real snapshot now exist: see `CLOUDFLARE_CUTOVER_RUNBOOK.md` (0 mismatches, idempotent, 3,024 public spots served by the built Worker).
+No production or hosted import has run. The source backup is complete and verified (see `CLOUDFLARE_CUTOVER_INVENTORY.md`).
 Import must map 48 source tables to D1, keep owner strings and profile UUIDs, and keep the two unmatched historical owners.
 Twelve itinerary rows need the R2 story-media projection because they exceed the D1 row limit.
 
