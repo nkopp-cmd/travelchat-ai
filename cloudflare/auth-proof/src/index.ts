@@ -10,6 +10,7 @@ import { itineraries, itineraryDetailPath, itineraryUpdatePath, itineraryDuplica
 import { catalogChat } from "./chat";
 import { allowedEmail, isPreview, trustedIP, validRuntime, type RuntimeEnv } from "./runtime";
 import { verifyAccess, type AccessIdentity } from "./access";
+import { listingGallery, listingGalleryPath, listingPhoto, listingPhotoPath } from "./listing-photos";
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -48,6 +49,13 @@ export default {
       if ((request.method === "GET" || (isPreview(env) && request.method === "HEAD")) && url.pathname === "/api/spots") {
         const response = await catalog(url, env);
         return request.method === "HEAD" ? new Response(null, response) : response;
+      }
+      const galleryMatch = request.method === "GET" ? listingGalleryPath.exec(url.pathname) : null;
+      if (galleryMatch || (request.method === "GET" && url.pathname === listingPhotoPath)) {
+        // Cloudflare sets this header; without it the request gets no provider call.
+        const clientIP = trustedIP(request, env);
+        if (!clientIP) return fail("forbidden", "Invalid client address", 403);
+        return galleryMatch ? await listingGallery(galleryMatch[1], env, clientIP) : await listingPhoto(url, env, clientIP);
       }
       if (request.method === "GET" && sharedItineraryPath.test(url.pathname)) return await sharedItinerary(url, env);
       if (["GET", "HEAD"].includes(request.method) && !url.pathname.startsWith("/api/") && url.pathname !== "/api") {
