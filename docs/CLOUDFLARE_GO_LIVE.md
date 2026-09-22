@@ -10,6 +10,8 @@ Public `localley.io` stays on Vercel until these pass. Do not point DNS at Acces
 - Catalog, map, saves, Better Auth, email preferences, trends pipeline
 - Trips: create, catalog generate, duplicate, share, edit, delete
 - Localley chrome (mark, glass, violet)
+- Google listing photos with 1 km identity check and fail-closed Workers rate limits (PR149, Worker `1b77837e`, hosted gate passed)
+- Read-only owner conversation history (PR152, Worker `d747abf5-7a36-476e-95e4-9840f04860d9`, tag `52957e5`, rollback `2db6bcb5`). Hosted: routes return 401 without an app session; asset hash matches the build. Signed-in hosted check needs a human Access session.
 
 ## Still required before cutover
 
