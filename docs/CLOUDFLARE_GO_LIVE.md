@@ -65,7 +65,7 @@ Legend: **native** = on the preview Worker and hosted-verified. **partial** = so
 | Trips: create, generate, edit, duplicate, share, delete | native (catalog-only and Luna drafts) | — |
 | Trips: generate-v2 stream, revise, email, export, like, saved-itineraries | missing | 4 |
 | Multi-city `/api/v2/trips/preview` | missing. Nils keeps sign-in on this route; do not merge `fix/multi-city-network-narrowing` | 4 |
-| Chat with history (`/api/conversations*`, 115 conversations, 173 messages) | partial: Luna catalog chat, no stored history | 4, 5 |
+| Chat with history (`/api/conversations*`, 115 conversations, 173 messages) | partial: Luna catalog chat; read-only owner history API and UI (imported rows); new chats are not stored yet | 4, 5 |
 | Stories: backgrounds, Satori PNG render, save/persist, notify, cleanup cron | missing. 222 media objects are in private R2 `localley-legacy-media`; no serving route | 2 |
 | Pricing, subscription checkout/portal/status/webhook (Stripe) | missing | 2 |
 | Guide/Connect onboarding, earnings, webhook | missing | 2 |

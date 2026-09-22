@@ -194,3 +194,9 @@ svg{width:24px;height:24px}
 .listing-grid figcaption a{display:inline-flex;align-items:center;min-height:44px}
 .listing-source{font-size:13px;color:var(--muted);margin:0}
 .listing-photos>button{width:100%}
+.conversation-history{display:grid;gap:8px;margin-top:24px}
+.conversation-history ul,.conversation-messages{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.conversation-history button{width:100%;text-align:left;min-height:44px}
+.conversation-messages li{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.conversation-messages li[data-role=user]{background:#f5f3ff}
+.conversation-messages p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
