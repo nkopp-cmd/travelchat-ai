@@ -102,3 +102,54 @@ export function CatalogMap({ spots, selected, onSelect }: { spots: Spot[]; selec
   const count = spots.filter((spot) => coordinates(spot)).length;
   return <section className="catalog-map" aria-label="Place map"><div className="map-heading"><h3>Find your bearings</h3><span>{count} mapped places</span></div><p className="muted">Catalog locations, not verified entrances. Use arrow keys to pan and + or - to zoom.</p><div ref={element} className="map-canvas" role="region" aria-label="Interactive OpenStreetMap of catalog places" />{!count && <p>No valid coordinates are available. No pins are shown.</p>}{count < spots.length && <p>Some places have no valid coordinates. They remain in the list without a pin.</p>}{tileError && <p role="status">Some map tiles are unavailable. Place details remain available below.</p>}<button className="secondary" disabled={!count} onClick={() => { const bounds = L.latLngBounds(spots.flatMap((spot) => { const point = coordinates(spot); return point ? [point] : []; })); if (bounds.isValid()) mapRef.current?.fitBounds(bounds, { padding: [32, 32], maxZoom: 15, animate: false }); }}>Show all mapped places</button></section>;
 }
+type ListingPhoto = { id: string; url: string; sourceLabel: string; attributions: { displayName: string; uri?: string }[] };
+type ListingState = { state: "idle" | "loading" | "error" } | { state: "unavailable"; message: string } | { state: "available"; photos: ListingPhoto[] };
+function listingPhotoPath(value: unknown, spotId: string): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value, location.origin);
+    return url.origin === location.origin && url.pathname === "/api/places/photo" && url.searchParams.get("spot") === spotId && !url.hash ? url.pathname + url.search : null;
+  } catch { return null; }
+}
+// Google listing photos load only when the visitor asks. They are never shown as reviewed venue evidence.
+export function ListingPhotos({ spot }: { spot: Spot }) {
+  const [listing, setListing] = useState<ListingState>({ state: "idle" });
+  const [failed, setFailed] = useState<Set<string>>(new Set());
+  const controller = useRef<AbortController | null>(null);
+  useEffect(() => () => controller.current?.abort(), []);
+  const title = placeText(spot.name);
+  const load = async () => {
+    controller.current?.abort();
+    const current = new AbortController();
+    controller.current = current;
+    setListing({ state: "loading" });
+    setFailed(new Set());
+    try {
+      const response = await fetch(`/api/spots/${encodeURIComponent(spot.id)}/photos`, { credentials: "same-origin", cache: "no-store", signal: current.signal });
+      const data = await response.json() as { status?: unknown; photos?: unknown; message?: unknown };
+      if (current.signal.aborted) return;
+      const photos = data.status === "available" && Array.isArray(data.photos) ? data.photos.flatMap((entry) => {
+        const photo = entry as ListingPhoto;
+        const url = listingPhotoPath(photo?.url, spot.id);
+        return url && typeof photo.id === "string" && Array.isArray(photo.attributions) ? [{ ...photo, url, attributions: photo.attributions.filter((a) => a && typeof a.displayName === "string" && a.displayName.trim()) }] : [];
+      }) : [];
+      if (photos.length) setListing({ state: "available", photos: photos.slice(0, 4) });
+      else setListing({ state: "unavailable", message: response.status === 429 ? "Too many photo requests. Try again in a minute." : typeof data.message === "string" && data.message.length < 200 ? data.message : "Listing photos are unavailable." });
+    } catch { if (!current.signal.aborted) setListing({ state: "error" }); }
+  };
+  const shown = listing.state === "available" ? listing.photos.filter((photo) => !failed.has(photo.id)) : [];
+  return <section className="listing-photos" aria-label={`Google listing photos for ${title}`}>
+    {listing.state === "idle" && <button className="secondary" onClick={() => void load()}>Show Google listing photos</button>}
+    {listing.state === "loading" && <p role="status">Loading listing photos...</p>}
+    {listing.state === "error" && <div role="alert"><p>Listing photos could not load.</p><button className="secondary" onClick={() => void load()}>Retry listing photos</button></div>}
+    {listing.state === "unavailable" && <p className="photo-unavailable" role="status">{listing.message} No substitute image is shown.</p>}
+    {listing.state === "available" && <>
+      <p className="muted">From the Google Maps listing matched to this place. Localley did not review these photos.</p>
+      {shown.length ? <div className="listing-grid">{shown.map((photo, index) => <figure key={photo.id}>
+        <img src={photo.url} alt={`${title}: Google listing photo ${index + 1}`} loading="lazy" width={600} height={450} referrerPolicy="same-origin" onError={() => setFailed((value) => new Set(value).add(photo.id))} />
+        <figcaption>{photo.sourceLabel}{photo.attributions.length ? <> · Photo: {photo.attributions.map((author, i) => <span key={`${author.displayName}-${i}`}>{i ? ", " : ""}{author.uri ? <a href={sourceLink(author.uri) ?? undefined} target="_blank" rel="noopener noreferrer">{author.displayName}</a> : author.displayName}</span>)}</> : null}</figcaption>
+      </figure>)}</div> : <p className="photo-unavailable" role="status">These listing photos failed to load. No substitute image is shown.</p>}
+      <p className="listing-source">Google Maps</p>
+    </>}
+  </section>;
+}

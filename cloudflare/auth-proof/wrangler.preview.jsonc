@@ -25,6 +25,10 @@
     "allowed_sender_addresses": ["auth@localley.io"],
     "allowed_destination_addresses": ["nkopp@my-goodlife.com"]
   }],
+  "ratelimits": [
+    { "name": "LISTING_LIMITER", "namespace_id": "4201", "simple": { "limit": 40, "period": 60 } },
+    { "name": "LISTING_MEDIA_LIMITER", "namespace_id": "4202", "simple": { "limit": 120, "period": 60 } }
+  ],
   "d1_databases": [{
     "binding": "DB",
     "database_name": "localley-migration-preview",
