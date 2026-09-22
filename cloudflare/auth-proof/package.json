@@ -22,7 +22,7 @@
     "lint": "eslint src web",
     "clean:local": "node scripts/clean-local.mjs",
     "build": "node scripts/build.mjs",
-    "test": "npm run build && node --test --test-concurrency=1 test/proof.test.mjs test/native-import.test.mjs test/park-photo.test.mjs test/current-trends.test.mjs test/luna.test.mjs test/ai-requests.test.mjs test/ai-itinerary.test.mjs test/listing-photos.test.mjs",
+    "test": "npm run build && node --test --test-concurrency=1 test/proof.test.mjs test/native-import.test.mjs test/park-photo.test.mjs test/current-trends.test.mjs test/luna.test.mjs test/ai-requests.test.mjs test/ai-itinerary.test.mjs test/listing-photos.test.mjs test/legacy-import.test.mjs",
     "test:browser": "node scripts/browser-check.mjs",
     "preview:local": "node scripts/browser-check.mjs --serve",
     "check": "node scripts/check.mjs",
