@@ -158,8 +158,16 @@ Status and evidence: `docs/AUTH_BETTER_AUTH.md` section 7.
 - P8: Vercel crons disabled via API (`PATCH /v1/projects/<id>/crons {"enabled":false}`), then P7: the two Vercel DNS
   records deleted (backup `codex-work/tmp/localley-dns-backup-20260923.json`), Worker deployed with `localley.io`,
   `www.localley.io`, `next.localley.io` and the four Cron Triggers. Sign-in on `www` verified.
-- P6: no Stripe change needed (same URLs and secrets); verified with signed test events. A6 (disable Clerk) is
-  deliberately NOT done yet: Clerk on Vercel is the rollback path. Do it after an agreed stable period.
+- P6: no Stripe change needed (same URLs and secrets); verified with signed test events.
+- A6 + Vercel retirement (Nils: "go ahead with the next steps", same day): the five Clerk CNAMEs deleted (in the DNS
+  backup), `localley.io`/`www.localley.io` removed from the Vercel project (only `travelchat-ai.vercel.app` left;
+  crons off, no Git link). The Vercel project and the Clerk instance still exist but serve nothing; deleting them
+  cannot be undone, so that is left to Nils (dashboards). **The rollback to Vercel above now also needs the two
+  Vercel domains re-added and the Clerk CNAMEs restored from the backup.**
+- `localley.io` → `www.localley.io` 301 in `middleware.ts` (PR163), as on Vercel. `ANTHROPIC_API_KEY` removed from the
+  Worker (no credit; the orchestrator skips Claude when it is unset). Worker version `94422e32-62d2-42c6-a45c-4928e8327779`.
+- Speed (TTFB, 5 requests each from the VPS): `/` 0.2–1.6 s, `/spots` 0.16–0.75 s, `/api/cities` 0.2–2.9 s (first
+  request cold), `/pricing` 0.19–0.33 s.
 - `APIFY_SPOT_DISCOVERY_ENABLED` and `WEEKLY_SOCIAL_TRENDS_ENABLED` = `true` on the Worker (Nils: "go ahead for
   localley to full performing actions"). Supabase proved both ran on Vercel (Apify run 2026-09-01, weekly trends
   daily until 2026-09-22). Caps in code: Apify $1/run (monthly), trends $2/actor run. `MULTI_CITY_PREVIEW_API`

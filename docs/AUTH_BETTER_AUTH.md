@@ -130,8 +130,8 @@ real export: `{"users":5,"rowsWithSameId":5,"verified":5,"magicLinkKeepsId":5,"r
 ## 7. Production checklist — every step needs Nils' approval
 
 **Approval 2026-09-23, Nils: "go ahead"** for A1–A5 and the matching cutover steps P2–P5 in
-`CLOUDFLARE_OPENNEXT.md` (production Worker on the staging host `next.localley.io`). Not approved: A6, P6–P8,
-anything on Vercel.
+`CLOUDFLARE_OPENNEXT.md` (production Worker on the staging host `next.localley.io`). A6, P6–P8 and the Vercel domain removal were approved and done later the same day (see
+`CLOUDFLARE_OPENNEXT.md` section 6).
 
 Status 2026-09-23 (claude):
 
