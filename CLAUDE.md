@@ -2,7 +2,7 @@
 
 ## Project
 - **Domain**: `localley.io`
-- **Platform**: Next.js on Vercel + Supabase + Clerk
+- **Platform**: Next.js (Vercel today, Cloudflare Workers via OpenNext next) + Supabase + Better Auth on D1 (Clerk removed 2026-09-23, see `docs/AUTH_BETTER_AUTH.md`)
 - **All fallback URLs must use `https://localley.io`** (NOT localley.app)
 
 ## Important Notes for Claude
@@ -17,8 +17,8 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Active |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Active |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase admin access (bypasses RLS) | Active |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk authentication (frontend) | Active |
-| `CLERK_SECRET_KEY` | Clerk authentication (backend) | Active |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Clerk — used only by the old Vercel deployment; the code no longer reads them | Legacy |
+| `BETTER_AUTH_SECRET`, `SUPABASE_JWT_SECRET` | Better Auth session signing; Supabase RLS token signing | Cloudflare Worker secrets |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Maps JavaScript API | Active |
 | `NEXT_PUBLIC_KAKAO_MAPS_APP_KEY` | Kakao Maps for Korea | Active |
 | `NEXT_PUBLIC_KAKAO_REST_API_KEY` | Kakao REST API for Korea | Active |
@@ -38,7 +38,7 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `UPSTASH_REDIS_REST_URL` | Redis caching | Active |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis authentication | Active |
 | `CRON_SECRET` | Cron job authentication | Active |
-| `ADMIN_USER_IDS` | Clerk user ID allowlist for admin-only routes | Required for Stripe Connect admin approval/payout flow |
+| `ADMIN_USER_IDS` | User ID allowlist for admin-only routes (migrated users keep their Clerk ids) | Required for Stripe Connect admin approval/payout flow |
 
 #### Stripe Payment Keys (added Feb 13, 2026):
 | Variable | Purpose | Status |
@@ -69,7 +69,8 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - **Supabase** with PostGIS for location data
 - Spots table has no `city` column - city is inferred from address field
 - City queries use: `.ilike("address->>'en'", '%CityName%')`
-- **Clerk JWT template**: a `supabase` JWT template must exist in Clerk for user-scoped Supabase RLS reads to work via `lib/supabase-server.ts`
+- **RLS token**: `lib/supabase-server.ts` signs the user token (HS256, `sub` = user id) with `SUPABASE_JWT_SECRET`, as Clerk's `supabase` JWT template did. Without it user-scoped RLS reads fall back to anon.
+- **Auth**: import `auth`/`currentUser`/`requireUser` from `@/lib/auth/server` and `useUser`/`useAuth` from `@/lib/auth/client`. Never import `better-auth` or Clerk directly in app code.
 
 ### Maps
 - **OpenStreetMap/Leaflet**: Default for most cities
@@ -175,7 +176,7 @@ User triggers story → POST /api/images/story-background (generate + store)
 - **Post-checkout**: Redirects to `/settings?subscription=success`, `SubscriptionSuccessHandler` invalidates cache
 - **Emails**: `emails/subscription-email.tsx` — 6 event types (upgrade, downgrade, cancel, renew, trial_ending, payment_failed)
 - **Lifetime premium**: only `nkopp@my-goodlife.com` and `hello@localley.io` get unpaid Premium access; the old first-100 early adopter program is closed
-- **CRITICAL**: Webhook route at `/api/subscription/webhook` must be in middleware public routes (Clerk blocks unsigned requests)
+- **CRITICAL**: Webhook route at `/api/subscription/webhook` must be in middleware public routes (middleware blocks requests without a session)
 - **Status (as of Mar 2026)**: Subscription code is merged and TypeScript-clean; dashboard/env verification still required outside this repo audit
 
 ### Stripe Connect — Guide/Creator Revenue Sharing

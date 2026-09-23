@@ -1,8 +1,13 @@
 # Localley on Cloudflare Workers (OpenNext) — path B
 
 Decision: **2026-09-23, Nils chose path B.** Run the existing Next.js app (`main`) on Cloudflare Workers through
-OpenNext (`@opennextjs/cloudflare`). Supabase and Clerk stay as external services for now.
+OpenNext (`@opennextjs/cloudflare`). Supabase stays as an external service for now.
 The native rewrite on `cloudflare/full-migration` (path A) stays a separate, later track.
+
+Auth decision: **2026-09-23, Nils: replace Clerk with Better Auth BEFORE the cutover** (easier login, free agent
+testing, no external auth dashboard; house standard in `CyberLink/CLAUDE.md`). Better Auth stores users and sessions
+in D1 (`AUTH_DB`), keeps the Clerk user ids, and replaces every Clerk call site. Details, preview test helpers,
+the user migration and its approval checklist (A1–A6): `docs/AUTH_BETTER_AUTH.md`.
 
 Production today: `https://www.localley.io` on Vercel, deployment `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg` (main `e96b003`).
 That deployment is the rollback target. The Vercel project has **no Git repository connected** (Vercel API
@@ -29,7 +34,8 @@ Compatibility: `nodejs_compat`, `global_fetch_strictly_public`, compatibility da
 
 | Vercel feature | Cloudflare equivalent | State |
 | --- | --- | --- |
-| Next.js hosting, middleware (Clerk) | OpenNext Worker; `middleware.ts` runs unchanged | Verified on preview |
+| Next.js hosting, middleware | OpenNext Worker; `middleware.ts` checks the Better Auth cookie signature | Verified on preview |
+| Clerk (auth, hosted UI, webhook) | Better Auth on D1 `AUTH_DB`, own sign-in pages, user hooks | Verified on preview (e2e sign-up -> sign-out) |
 | Static assets, `/_next/static` | Workers static assets (`.open-next/assets`) | Verified |
 | `next/image` optimization | Cloudflare Images binding `IMAGES` (AVIF/WebP) | Verified (remote Unsplash image -> AVIF). Images Free includes 5,000 unique transformations per month. |
 | `unstable_cache`, `revalidateTag` | R2 `NEXT_INC_CACHE_R2_BUCKET` + D1 `NEXT_TAG_CACHE_D1` | Preview bucket/DB created; cache populated on deploy |
@@ -47,14 +53,15 @@ Compatibility: `nodejs_compat`, `global_fetch_strictly_public`, compatibility da
 ## 3. Environment variables (names only)
 
 Build time (inlined into the bundle, must be present when `npm run cf:build` runs):
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`,
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`,
 `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_KAKAO_MAPS_APP_KEY`, `NEXT_PUBLIC_KAKAO_REST_API_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`,
 `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED`, optional `NEXT_PUBLIC_SENTRY_DSN`,
 `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `NEXT_PUBLIC_KAKAO_MAPS_ENABLED`, `NEXT_PUBLIC_BASE_URL`, `NEXT_PUBLIC_ANALYTICS_ENDPOINT`.
 A preview build and a production build are different builds because these values are inlined.
 
 Runtime secrets (`wrangler secret put … --env production`):
-`SUPABASE_SERVICE_ROLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+`SUPABASE_SERVICE_ROLE_KEY`, `BETTER_AUTH_SECRET`, `SUPABASE_JWT_SECRET`, optional `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`,
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `STRIPE_CONNECT_WEBHOOK_SECRET`, `CRON_SECRET`, `ADMIN_USER_IDS`, `GLM_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`,
 `GEMINI_API_KEY`, `FAL_KEY`, `ARK_API_KEY`, `GOOGLE_PLACES_API_KEY`, `PEXELS_API_KEY`, `TRIPADVISOR_API_KEY`, `VIATOR_API_KEY`,
 `RESEND_API_KEY`, `APIFY_API_TOKEN`, `VAPID_PRIVATE_KEY`.
@@ -63,12 +70,14 @@ Runtime plain vars (`env.production.vars` or secrets): `STRIPE_PRO_MONTHLY_PRICE
 `STRIPE_PREMIUM_MONTHLY_PRICE_ID`, `STRIPE_PREMIUM_YEARLY_PRICE_ID`, `GLM_MODEL`, `GLM_BASE_URL`, `BETA_MODE`, `ENABLE_MULTI_LLM`,
 `MULTI_LLM_PRO_TIER`, `MULTI_LLM_PREMIUM_TIER`, `BYPASS_IMAGE_TIER_CHECK`, `LLM_CACHE_TTL`, `LLM_CACHE_LOCATIONS_TTL`,
 `CIRCUIT_BREAKER_THRESHOLD`, `CIRCUIT_BREAKER_RESET_MS`, `WEEKLY_SOCIAL_TRENDS_ENABLED`, `APIFY_SPOT_DISCOVERY_ENABLED`,
-`MULTI_CITY_PREVIEW_API`, `VAPID_SUBJECT`, `FROM_EMAIL`, plus optional model/affiliate overrides read by the code
+`MULTI_CITY_PREVIEW_API`, `VAPID_SUBJECT`, `FROM_EMAIL` (must be a Resend-verified sender), `BETTER_AUTH_URL`,
+`AUTH_ALLOWED_HOSTS` (both set in `env.production.vars`), plus optional model/affiliate overrides read by the code
 (`CLAUDE_MODEL`, `OPENAI_MODEL`, `SOCIAL_SPOT_RESEARCH_MODEL`, `VIATOR_API_URL`, `VIATOR_PARTNER_ID`, `VIATOR_AFFILIATE_ID`,
 `BOOKING_AFFILIATE_ID`, `GYG_AFFILIATE_ID`, `KLOOK_AFFILIATE_ID`, `LOG_LEVEL`, `SPOTS_QUERY_TIMEOUT_MS`, `MULTI_CITY_GEO_DB`).
 
-Not needed on Workers: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (replaced by rate limit bindings), `VERCEL*`, `TURBO_*`, `NX_DAEMON`.
-Never on production: `SUPABASE_READ_ONLY`.
+Not needed on Workers: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (replaced by rate limit bindings), `VERCEL*`, `TURBO_*`, `NX_DAEMON`,
+and all `CLERK_*` / `NEXT_PUBLIC_CLERK_*` (Clerk is removed).
+Never on production: `SUPABASE_READ_ONLY`, `AUTH_MAIL_MODE=outbox`.
 
 ## 4. Cron Triggers
 
@@ -119,7 +128,13 @@ in Vercel or `~/secrets/keys.env` (Vercel `preview` and `development` envs hold 
 - CPU (Workers analytics, 101 requests): p50 10.8 ms, p90 187 ms, p99 468 ms, max 784 ms (cold start). Startup 26 ms.
   This exceeds the Free plan 10 ms limit, so Workers Paid is required — and is already active.
 
-Not verifiable without non-production credentials (NEEDS.md): sign-in, signed-in flows, spot detail (uses service role),
+Auth on the preview (2026-09-23, Better Auth, version `c75c386e-322a-4c4f-b3e8-79e35b84b408`): `e2e/auth-preview.spec.ts`
+passed — sign-up, email verification from the test outbox, `/dashboard` signed in, sign-out via the account menu,
+`/settings` redirect, password sign-in back to `/settings`, magic-link sign-in. Signed out: pages 307 to `/sign-in`,
+`POST /api/spots/save`, `/api/v2/trips/preview`, `/api/user/tier` return 401. Bundle 8,596 KiB gzip.
+Signed-in pages that need the service-role key (`/settings`, `/profile`) render their error state on the preview.
+
+Not verifiable without non-production credentials (NEEDS.md): signed-in data flows, spot detail (uses service role),
 story PNG rendering with data, Stripe checkout/webhooks, AI chat/itineraries, email, cron jobs end-to-end.
 Found on production too: Google place photos return `502 lookup_failed_400` on www.localley.io and on the Worker alike.
 
@@ -127,8 +142,8 @@ Found on production too: Google place photos return `502 lookup_failed_400` on w
 
 Run from a clean worktree of `main`. Never commit or print secret values. Delete temporary env files at once.
 
-P1. **Non-production acceptance first.** Nils provides Clerk development keys, Stripe test keys and a Supabase preview
-    project (or approves another test setup). Then rebuild the preview with them and run sign-in, trip create, chat,
+P1. **Non-production acceptance first.** Sign-in no longer needs Clerk keys (Better Auth preview store, see
+    `docs/AUTH_BETTER_AUTH.md`). Nils provides Stripe test keys and a Supabase preview project (or approves another test setup). Then rebuild the preview with them and run sign-in, trip create, chat,
     story render, checkout (test mode) and the four crons against that data.
 
 P2. **Create production cache resources (Cloudflare, within the paid plan):**
@@ -158,14 +173,13 @@ npx opennextjs-cloudflare deploy --env production   # Worker localley-next, no r
 ```
 
 P5. **Staging host on the real zone (APPROVAL: DNS).** Add `{ "pattern": "next.localley.io", "custom_domain": true }` to
-    `env.production.routes`, deploy, and run the full acceptance journey there with a real Clerk production account.
-    Clerk production serves `localley.io` and its subdomains; if Clerk refuses `next.localley.io`, add it in the Clerk
-    dashboard (APPROVAL: auth provider change). The final hosts are the same as today, so no Clerk domain change is needed at cutover.
+    `env.production.routes`, deploy, and run the full acceptance journey there with a migrated account (magic link).
+    `next.localley.io` is already in `AUTH_ALLOWED_HOSTS`; no auth provider dashboard is involved.
 
 P6. **Stripe webhooks (APPROVAL: billing).** Keep the URLs the same: `https://www.localley.io/api/subscription/webhook` and
     `https://www.localley.io/api/connect/webhook`. After the DNS switch Stripe reaches the Worker with no Stripe change,
     because the signing secrets move with the secrets in P3. Send one test event from the Stripe dashboard and confirm 200 in
-    `npx wrangler tail localley-next`. The Clerk webhook `/api/webhooks/clerk` follows the same rule.
+    `npx wrangler tail localley-next`. (The Clerk webhook `/api/webhooks/clerk` is removed with Clerk.)
 
 P7. **DNS switch (APPROVAL: DNS).** Record the current records first: apex `A 216.198.79.1`
     (id `18a24961686715e5a1c7cd27df512c8d`) and `www CNAME 8597cfc582a3e8e6.vercel-dns-017.com` (id `4ee834b5f230582391427ce4fb98a089`).
@@ -178,10 +192,15 @@ P8. **Disable Vercel crons at the DNS switch (APPROVAL).** Vercel crons call the
     Running both doubles every job. Disable them in the Vercel dashboard (Project -> Settings -> Cron Jobs -> Disable)
     in the same window as P7. Retire the Vercel project only after an agreed period (APPROVAL).
 
+Auth steps A1–A6 (`docs/AUTH_BETTER_AUTH.md` section 7) run before P4/P5: the production auth D1 with its schema,
+`BETTER_AUTH_SECRET` + `SUPABASE_JWT_SECRET` secrets, a Resend-verified sender, and the 5-user import. Clerk stays
+enabled on Vercel until P7 is verified. The Clerk webhook in P6 no longer exists (the route is removed).
+
 Rollback to Vercel (deployment `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`):
 
 1. Remove the Worker custom domains (`routes` back to none) and deploy, or delete them in the dashboard.
 2. Recreate `A localley.io 216.198.79.1` and `CNAME www 8597cfc582a3e8e6.vercel-dns-017.com`, DNS-only.
 3. Re-enable the Vercel cron jobs in the dashboard.
 4. Stripe and Clerk webhook URLs did not change, so no webhook step is needed.
-5. Supabase stayed the only database, so there is no data to move back.
+5. Supabase stayed the only app database, so there is no data to move back. Vercel still runs Clerk with the
+   same user ids, so users who signed up on Better Auth after the switch are the only accounts that do not exist there.
