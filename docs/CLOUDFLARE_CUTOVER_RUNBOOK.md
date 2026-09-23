@@ -1,5 +1,11 @@
 # Cloudflare data import and cutover runbook
 
+> **Path B chosen 2026-09-23 (Nils).** The first `localley.io` cutover moves the existing Next.js app to Workers via OpenNext,
+> with Supabase and Clerk unchanged. That runbook (production secrets list, Stripe webhooks, Clerk domain, DNS switch to Worker
+> custom domains, rollback to Vercel `dpl_FA3tzDj3zDmxLGEFEjvoXv7d6rgg`) is section 6 of `docs/CLOUDFLARE_OPENNEXT.md` on `main`.
+> Path B needs no D1 import: Supabase stays the database. This file covers the later native (path A) data import and cutover.
+
+
 Status 2026-09-22: import tooling is built and rehearsed locally on the real private snapshot. Nothing in this runbook has run against production.
 Every step marked **APPROVAL** needs a separate, explicit approval from Nils (CLAUDE.md: production data, production secrets, DNS, retirement, spend).
 
