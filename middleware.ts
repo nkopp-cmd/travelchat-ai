@@ -44,7 +44,18 @@ export const isPublicRoute = (request: NextRequest) =>
     PUBLIC_MATCHERS.some((matcher) => matcher.test(request.nextUrl.pathname)) ||
     (request.method === 'GET' && /^\/api\/spots\/[^/]+\/reviews\/?$/.test(request.nextUrl.pathname));
 
+// Vercel redirected the apex to www; keep that on Cloudflare so there is one canonical
+// host and one Better Auth cookie. Only the exact apex host is redirected (not
+// next.localley.io or the cron self-reference host).
+export const apexRedirect = (request: NextRequest) => {
+    if (request.nextUrl.hostname !== 'localley.io') return null;
+    const target = new URL(request.nextUrl.pathname + request.nextUrl.search, 'https://www.localley.io');
+    return NextResponse.redirect(target, 301);
+};
+
 export default async function middleware(request: NextRequest) {
+    const redirect = apexRedirect(request);
+    if (redirect) return redirect;
     if (isPublicRoute(request)) return NextResponse.next();
     if (await hasValidSessionCookie(request.headers, process.env.BETTER_AUTH_SECRET)) return NextResponse.next();
 
