@@ -1,0 +1,38 @@
+name: D1 candidate verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/d1-preview-verification.yml'
+      - 'lib/app-data/**'
+      - '__tests__/lib/app-data-preview-db.test.ts'
+      - 'wrangler.jsonc'
+      - 'docs/CLOUDFLARE_D1_PROJECT.md'
+  push:
+    branches: [feature/opennext-d1-preview]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: localley-d1-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=2048
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run __tests__/lib/app-data-preview-db.test.ts --maxWorkers=1
+      - run: npx tsc --noEmit
+      - run: npx eslint lib/app-data/preview-db.ts __tests__/lib/app-data-preview-db.test.ts
