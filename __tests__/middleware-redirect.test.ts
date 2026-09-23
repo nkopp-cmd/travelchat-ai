@@ -66,3 +66,16 @@ describe("local sign-in continuation", () => {
     expect(response.status).toBe(307);
   });
 });
+
+describe("apex to www redirect", () => {
+  it.each(["/", "/spots?city=seoul", "/api/cities", "/dashboard"])("sends localley.io%s to www with 301", async path => {
+    const response = await middleware(new NextRequest(`https://localley.io${path}`));
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe(`https://www.localley.io${path}`);
+  });
+
+  it.each(["https://www.localley.io/", "https://next.localley.io/spots", "https://localley.internal/api/cron/cleanup-stories"])("leaves %s alone", async url => {
+    const response = await middleware(new NextRequest(url));
+    expect(response.status).not.toBe(301);
+  });
+});
