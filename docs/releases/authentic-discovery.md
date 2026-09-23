@@ -52,3 +52,18 @@ Cause to verify: the Upstash Redis store behind the Sensitive `UPSTASH_REDIS_RES
 within 2 s from Vercel. The values cannot be pulled locally, so the store could not be probed directly.
 The older shared limiter falls back to memory on errors, which can hide a dead store on the live site.
 Before retrying: restore or replace the Upstash store, confirm a 200 PING, redeploy a candidate, and repeat this gate.
+
+## Hosted Gate Result — 2026-09-23: PASSED on Cloudflare (claude)
+
+Candidate: Worker `localley-next` version `b92543b3-07b3-452b-a971-95db71e15cc0` (this branch merged with main,
+photo limiter moved from Upstash to Workers bindings `RATE_LIMIT_120`/`RATE_LIMIT_40` keyed by `cf-connecting-ip`,
+still fail-closed). Canary at 1% beside `94422e32`, tested with `Cloudflare-Workers-Version-Overrides`.
+
+- `GET /api/spots/<id>/photos` for four real Seoul spots: 200, `status: available`, 4 distinct Google listing photos
+  each, with author attributions (0.7–1.8 s).
+- `/api/places/photo` for one photo per spot: 200 `image/jpeg`, 388–644 KB, 0.4–1.5 s.
+- Nonexistent UUID 404 (0.26 s), invalid id 400, proxy without name 400.
+- Rate limit: a fast burst of 150 requests returned 66 × 429 (Cloudflare limits are approximate per location).
+- Spot detail page, headless Chromium desktop 1366×900 and Pixel 7: 4 venue images loaded, 4 attribution nodes,
+  no page errors, photo API calls all 200. Screenshots inspected.
+- Google usage: 4 metadata lookups on first load plus 4 image fetches, then the browser checks; no AI providers called.
