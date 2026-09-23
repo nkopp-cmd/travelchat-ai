@@ -96,11 +96,11 @@ describe("/api/chat provider routing", () => {
     });
   });
 
-  it("returns Anthropic as the route provider when GLM is unavailable", async () => {
+  it("returns OpenAI as the route provider when GLM is unavailable", async () => {
     mocks.generateChatReplyWithFallback.mockResolvedValueOnce({
-      content: "Anthropic unavailable fallback",
-      provider: "anthropic",
-      model: "claude-sonnet-4-20250514",
+      content: "OpenAI unavailable fallback",
+      provider: "openai",
+      model: "gpt-5.6-luna",
       fallbackUsed: false,
       fallbackReason: "glm_unavailable",
       primaryProvider: "glm",
@@ -114,9 +114,9 @@ describe("/api/chat provider routing", () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({
-      message: "Anthropic unavailable fallback",
-      provider: "anthropic",
-      model: "claude-sonnet-4-20250514",
+      message: "OpenAI unavailable fallback",
+      provider: "openai",
+      model: "gpt-5.6-luna",
       fallbackUsed: false,
       fallbackReason: "glm_unavailable",
       primaryProvider: "glm",
@@ -125,11 +125,11 @@ describe("/api/chat provider routing", () => {
     });
   });
 
-  it("returns Anthropic as the route provider after a GLM failure fallback", async () => {
+  it("returns OpenAI as the route provider after a GLM failure fallback", async () => {
     mocks.generateChatReplyWithFallback.mockResolvedValueOnce({
-      content: "Anthropic error fallback",
-      provider: "anthropic",
-      model: "claude-sonnet-4-20250514",
+      content: "OpenAI error fallback",
+      provider: "openai",
+      model: "gpt-5.6-luna",
       fallbackUsed: true,
       fallbackReason: "glm_error",
       primaryProvider: "glm",
@@ -143,9 +143,9 @@ describe("/api/chat provider routing", () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({
-      message: "Anthropic error fallback",
-      provider: "anthropic",
-      model: "claude-sonnet-4-20250514",
+      message: "OpenAI error fallback",
+      provider: "openai",
+      model: "gpt-5.6-luna",
       fallbackUsed: true,
       fallbackReason: "glm_error",
       primaryProvider: "glm",
