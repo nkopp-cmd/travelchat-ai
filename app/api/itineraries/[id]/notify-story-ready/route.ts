@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { StoryReadyEmail } from "@/emails/story-ready-email";
 import { Errors, handleApiError } from "@/lib/api-errors";
@@ -26,7 +26,7 @@ export async function POST(
         const { id } = await params;
         const { city } = await req.json();
 
-        // Get user email from Clerk
+        // Get user email from the auth session
         const user = await currentUser();
         const email = user?.emailAddresses?.[0]?.emailAddress;
         const firstName = user?.firstName;

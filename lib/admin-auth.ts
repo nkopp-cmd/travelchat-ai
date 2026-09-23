@@ -8,11 +8,11 @@
  * - Always returns 403 for non-admins (even if authenticated)
  */
 
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { NextResponse } from "next/server";
 
 // Parse admin user IDs from environment variable
-// Format: comma-separated Clerk user IDs (e.g., "user_abc123,user_def456")
+// Format: comma-separated user IDs (migrated users keep their Clerk ids, e.g. "user_abc123")
 const ADMIN_USER_IDS: ReadonlySet<string> = new Set(
   (process.env.ADMIN_USER_IDS || "")
     .split(",")

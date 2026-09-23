@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GET, POST } from '@/app/api/spots/[id]/reviews/route';
 
 const { auth, from } = vi.hoisted(() => ({ auth: vi.fn(), from: vi.fn() }));
-vi.mock('@clerk/nextjs/server', () => ({ auth }));
+vi.mock('@/lib/auth/server', () => ({ auth }));
 vi.mock('@/lib/supabase-server', () => ({
     createSupabaseServerClient: async () => ({ from }),
 }));

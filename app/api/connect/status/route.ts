@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getAccountStatus } from "@/lib/stripe-connect";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";

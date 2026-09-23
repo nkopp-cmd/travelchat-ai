@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { after, NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { isAdminUser } from "@/lib/admin-auth";
 import { Errors, handleApiError } from "@/lib/api-errors";

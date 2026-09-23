@@ -2,7 +2,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { ChatInterface } from "@/components/chat/chat-interface";
 import { MobileChatFAB } from "@/components/chat/mobile-chat-fab";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { getTemplateById } from "@/lib/templates";
 import { RecentStories } from "@/components/dashboard/recent-stories";
 import { MobileDashboardContent } from "@/components/dashboard/mobile-dashboard-content";

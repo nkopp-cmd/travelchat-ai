@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { chatSchema, validateBody } from "@/lib/validations";
 import { checkAndIncrementUsage } from "@/lib/usage-tracking";

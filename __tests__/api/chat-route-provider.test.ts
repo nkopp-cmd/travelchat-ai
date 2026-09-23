@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   generateChatReplyWithFallback: vi.fn(),
 }));
 
-vi.mock("@clerk/nextjs/server", () => ({
+vi.mock("@/lib/auth/server", () => ({
   auth: mocks.auth,
 }));
 

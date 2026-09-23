@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Share2, Heart, Check, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@/lib/auth/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface SpotInteractionsProps {

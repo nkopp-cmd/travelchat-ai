@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 

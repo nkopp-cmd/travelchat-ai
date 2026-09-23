@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { viatorClient } from '@/lib/viator';
 import { ViatorSearchParams } from '@/types/viator';
+import { requireUser } from '@/lib/auth/server';
 
 export async function POST(request: NextRequest) {
+    const gate = await requireUser();
+    if (gate.response) return gate.response;
+
     try {
         const body: ViatorSearchParams = await request.json();
 
@@ -46,6 +50,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+    const gate = await requireUser();
+    if (gate.response) return gate.response;
+
     try {
         const { searchParams } = new URL(request.url);
 

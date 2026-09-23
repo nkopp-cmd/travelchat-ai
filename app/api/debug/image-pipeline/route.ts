@@ -7,7 +7,7 @@
  * GET /api/debug/image-pipeline
  */
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { isImagenAvailable } from "@/lib/imagen";
 import { isSeedreamAvailable } from "@/lib/seedream";
 import { isAnyProviderAvailable, getImageProvider } from "@/lib/image-provider";

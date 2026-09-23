@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from '@clerk/nextjs/server';
+import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from '@/lib/activity-images';
 import { hasFeature, SubscriptionTier } from '@/lib/subscription';

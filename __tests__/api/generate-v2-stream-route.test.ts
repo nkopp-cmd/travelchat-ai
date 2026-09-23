@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => ({
   insertedItineraryRows: [] as Array<Record<string, unknown>>,
 }));
 
-vi.mock("@clerk/nextjs/server", () => ({
+vi.mock("@/lib/auth/server", () => ({
   auth: mocks.auth,
 }));
 

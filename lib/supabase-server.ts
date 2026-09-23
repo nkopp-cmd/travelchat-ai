@@ -1,53 +1,65 @@
 import "server-only";
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { auth } from '@clerk/nextjs/server';
+import { SignJWT } from 'jose';
+import { currentUser } from '@/lib/auth/server';
 import { withReadOnlyGuard } from '@/lib/supabase-read-only';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
+ * Mint the short-lived Supabase access token that Clerk's `supabase` JWT template
+ * used to issue: HS256 with the project's JWT secret, `sub` = user id (the old
+ * Clerk id for migrated users), `role`/`aud` = authenticated. RLS policies read
+ * `auth.jwt() ->> 'sub'`, so they keep working unchanged.
+ */
+export async function mintSupabaseAccessToken(
+  user: { id: string; email?: string | null },
+  secret: string,
+  ttlSeconds = 60,
+): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  return new SignJWT({
+    role: 'authenticated',
+    email: user.email ?? undefined,
+    app_metadata: {},
+    user_metadata: {},
+  })
+    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+    .setSubject(user.id)
+    .setAudience('authenticated')
+    .setIssuedAt(now)
+    .setExpirationTime(now + ttlSeconds)
+    .sign(new TextEncoder().encode(secret));
+}
+
+/**
  * Create an authenticated Supabase client for server components/API routes.
  *
- * This client attempts to use Clerk JWT template for RLS-based authentication.
- * If the JWT template is not configured, it falls back to an unauthenticated client.
- *
- * IMPORTANT: The 'supabase' JWT template must be configured in Clerk dashboard
- * for RLS policies to work correctly. Without it, this returns an anon client.
- *
- * @returns Supabase client authenticated with the current user's Clerk token,
- *          or an unauthenticated client if no user/token is available.
- *
- * @example
- * ```ts
- * // In a server component or API route:
- * const supabase = await createSupabaseServerClient();
- * const { data } = await supabase.from('itineraries').select('*');
- * // Only returns itineraries belonging to the current user (via RLS)
- * ```
+ * Uses a user token signed with SUPABASE_JWT_SECRET so RLS applies. Without the
+ * secret (e.g. the preview Worker) or without a signed-in user it returns the
+ * anon client, which is the same fallback the Clerk version had.
  */
 export async function createSupabaseServerClient(): Promise<SupabaseClient> {
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Supabase environment variables are not configured');
   }
 
-  try {
-    // Get the Clerk session token for Supabase
-    const { getToken } = await auth();
-    const token = await getToken({ template: 'supabase' });
-
-    if (token) {
-      return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({
-        global: { headers: { Authorization: `Bearer ${token}` } }
-      }));
+  const secret = process.env.SUPABASE_JWT_SECRET;
+  if (secret) {
+    try {
+      const user = await currentUser();
+      if (user) {
+        const token = await mintSupabaseAccessToken({ id: user.id, email: user.primaryEmailAddress?.emailAddress }, secret);
+        return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({
+          global: { headers: { Authorization: `Bearer ${token}` } }
+        }));
+      }
+    } catch (error) {
+      console.warn('[supabase-server] Failed to mint Supabase token:', error instanceof Error ? error.message : 'Unknown error');
     }
-  } catch (error) {
-    // JWT template 'supabase' may not be configured in Clerk
-    // Log warning but don't fail - fall through to anon client
-    console.warn('[supabase-server] Failed to get Clerk JWT token:', error instanceof Error ? error.message : 'Unknown error');
   }
 
-  // Return unauthenticated client if no token or on error
   return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({}));
 }
