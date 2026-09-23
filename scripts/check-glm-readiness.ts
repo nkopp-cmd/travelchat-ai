@@ -54,8 +54,8 @@ async function main() {
     glmModel: readiness.glm.model,
     glmBaseUrl: readiness.glm.baseUrl,
     glmApiKeySource: readiness.glm.env.apiKeySource,
-    anthropicFallbackConfigured: readiness.anthropicFallback.configured,
-    anthropicFallbackModel: readiness.anthropicFallback.model,
+    chatFallbackConfigured: readiness.chatFallback.configured,
+    chatFallbackModel: readiness.chatFallback.model,
     openaiItineraryFallbackConfigured: readiness.itineraryFallback.configured,
     openaiItineraryFallbackModel: readiness.itineraryFallback.model,
     readyForGlmPrimary: readiness.readyForGlmPrimary,
@@ -92,10 +92,10 @@ async function main() {
             : "failed"
           : "not checked"
       }`,
-      `Anthropic fallback configured: ${
-        summary.anthropicFallbackConfigured ? "yes" : "no"
+      `OpenAI chat fallback configured: ${
+        summary.chatFallbackConfigured ? "yes" : "no"
       }`,
-      `Anthropic fallback model: ${summary.anthropicFallbackModel}`,
+      `OpenAI chat fallback model: ${summary.chatFallbackModel}`,
       `OpenAI itinerary fallback configured: ${
         summary.openaiItineraryFallbackConfigured ? "yes" : "no"
       }`,

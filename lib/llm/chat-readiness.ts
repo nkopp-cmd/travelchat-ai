@@ -1,4 +1,4 @@
-import { getAnthropicChatModel } from "./chat-provider";
+import { getOpenAIChatModel } from "./chat-provider";
 import { getTrimmedEnv, readGLMProviderConfig } from "./env";
 import { GLMProvider } from "./providers/glm";
 import type { BaseLLMProvider } from "./providers/base";
@@ -6,12 +6,12 @@ import type { BaseLLMProvider } from "./providers/base";
 export type ChatProviderReadinessIssue =
   | "glm_api_key_missing"
   | "glm_health_failed"
-  | "anthropic_fallback_missing"
+  | "openai_chat_fallback_missing"
   | "openai_itinerary_fallback_missing";
 
 export interface ChatProviderReadiness {
   primary: "glm";
-  fallback: "anthropic";
+  fallback: "openai";
   readyForGlmPrimary: boolean;
   readyForProductionChat: boolean;
   readyForProductionItinerary: boolean;
@@ -29,7 +29,7 @@ export interface ChatProviderReadiness {
       apiKeySource: "GLM_API_KEY" | "ZAI_API_KEY" | null;
     };
   };
-  anthropicFallback: {
+  chatFallback: {
     configured: boolean;
     model: string;
   };
@@ -69,9 +69,9 @@ export function getChatProviderReadinessActions(
           "Verify the GLM key, model, and base URL with npm run llm:readiness -- --health --strict before promoting GLM traffic.",
         );
         break;
-      case "anthropic_fallback_missing":
+      case "openai_chat_fallback_missing":
         actions.push(
-          "Keep ANTHROPIC_API_KEY configured so chat can fall back when GLM is unavailable or returns an empty response.",
+          "Keep OPENAI_API_KEY configured so chat can fall back to OpenAI when GLM is unavailable or returns an empty response.",
         );
         break;
       case "openai_itinerary_fallback_missing":
@@ -101,7 +101,7 @@ export async function getChatProviderReadiness({
     glmHealthy = await glm.healthCheck();
   }
 
-  const anthropicFallbackConfigured = Boolean(getTrimmedEnv("ANTHROPIC_API_KEY"));
+  const chatFallbackConfigured = Boolean(getTrimmedEnv("OPENAI_API_KEY"));
   const openaiItineraryFallbackConfigured = Boolean(getTrimmedEnv("OPENAI_API_KEY"));
   const readyForGlmPrimary =
     glmConfigured && (!runGlmHealthCheck || glmHealthy === true);
@@ -111,20 +111,20 @@ export async function getChatProviderReadiness({
   if (runGlmHealthCheck && glmConfigured && glmHealthy !== true) {
     issues.push("glm_health_failed");
   }
-  if (!anthropicFallbackConfigured) {
-    issues.push("anthropic_fallback_missing");
+  if (!chatFallbackConfigured) {
+    issues.push("openai_chat_fallback_missing");
   }
   if (!openaiItineraryFallbackConfigured) {
     issues.push("openai_itinerary_fallback_missing");
   }
 
-  const readyForProductionChat = readyForGlmPrimary && anthropicFallbackConfigured;
+  const readyForProductionChat = readyForGlmPrimary && chatFallbackConfigured;
   const readyForProductionItinerary =
     readyForGlmPrimary && openaiItineraryFallbackConfigured;
 
   return {
     primary: "glm",
-    fallback: "anthropic",
+    fallback: "openai",
     readyForGlmPrimary,
     readyForProductionChat,
     readyForProductionItinerary,
@@ -142,9 +142,9 @@ export async function getChatProviderReadiness({
         apiKeySource: glmConfig.apiKeySource,
       },
     },
-    anthropicFallback: {
-      configured: anthropicFallbackConfigured,
-      model: getAnthropicChatModel(),
+    chatFallback: {
+      configured: chatFallbackConfigured,
+      model: getOpenAIChatModel(),
     },
     itineraryFallback: {
       provider: "openai",

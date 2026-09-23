@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getChatProviderReadiness: vi.fn(async ({ runGlmHealthCheck = false } = {}) => ({
     primary: "glm",
-    fallback: "anthropic",
+    fallback: "openai",
     readyForGlmPrimary: true,
     readyForProductionChat: true,
     readyForProductionItinerary: true,
@@ -22,9 +22,9 @@ const mocks = vi.hoisted(() => ({
         apiKeySource: "GLM_API_KEY",
       },
     },
-    anthropicFallback: {
+    chatFallback: {
       configured: true,
-      model: "claude-sonnet-4-20250514",
+      model: "gpt-5.6-luna",
     },
     itineraryFallback: {
       provider: "openai",
@@ -82,7 +82,7 @@ describe("admin LLM metrics readiness", () => {
     expect(response.status).toBe(200);
     expect(body.chatProviderReadiness).toMatchObject({
       primary: "glm",
-      fallback: "anthropic",
+      fallback: "openai",
       readyForGlmPrimary: true,
       readyForProductionChat: true,
       readyForProductionItinerary: true,
@@ -100,7 +100,7 @@ describe("admin LLM metrics readiness", () => {
           apiKeySource: "GLM_API_KEY",
         },
       },
-      anthropicFallback: {
+      chatFallback: {
         configured: true,
       },
       itineraryFallback: {
