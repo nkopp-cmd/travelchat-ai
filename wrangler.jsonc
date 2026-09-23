@@ -34,6 +34,12 @@
     "database_name": "localley-auth-preview",
     "database_id": "58b7eef4-2e41-4408-9246-36bc22988200",
     "migrations_dir": "migrations/auth"
+  }, {
+    // Read-only source for OpenNext D1 parity rehearsals. Separate from AUTH_DB.
+    // Existing native preview holds pilot data; it is NOT the production app database.
+    "binding": "APP_DATA_PREVIEW_DB",
+    "database_name": "localley-migration-preview",
+    "database_id": "e943548b-01ae-485d-9219-e2a46cb0da8e"
   }],
   // lib/rate-limit.ts uses RATE_LIMIT_<maxRequests> for 60 second windows (replaces Upstash).
   "ratelimits": [
