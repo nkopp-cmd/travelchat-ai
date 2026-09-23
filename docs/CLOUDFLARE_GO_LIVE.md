@@ -116,4 +116,8 @@ Two paths can retire Vercel:
   Keep Supabase and Clerk as external services for a short time. Then move data and auth in steps.
   This needs production secrets on a new Worker. That is a secret change and needs approval.
 
-This inventory does not choose a path. Increments on this branch continue path A.
+**Decision 2026-09-23: Nils chose path B.** The existing Next.js app (`main`) runs on Cloudflare Workers through OpenNext
+(`@opennextjs/cloudflare`); Supabase and Clerk stay for now. The native rewrite on this branch (path A) stays a separate, later track.
+Path B lives on `main` (PR154, merge `0ac31da`). Setup, preview evidence and the approval-gated cutover checklist are in
+`docs/CLOUDFLARE_OPENNEXT.md` on `main`. Preview Worker: `https://localley-next-preview.nkopp.workers.dev` (read-only Supabase, no production secrets).
+The cutover for `localley.io` now follows path B. The gates in this file apply to the later native (path A) cutover.
