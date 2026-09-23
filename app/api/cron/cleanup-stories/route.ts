@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
             .from("itineraries")
             .select("id, story_slides")
             .not("story_slides", "is", null)
-            .lt("story_slides->expires_at", now);
+            .lt("story_slides->>expires_at", now);
 
         if (queryError) {
             console.error("[CLEANUP_STORIES] Query error:", queryError);
