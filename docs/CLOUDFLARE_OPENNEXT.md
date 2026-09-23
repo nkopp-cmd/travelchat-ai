@@ -160,9 +160,12 @@ Status and evidence: `docs/AUTH_BETTER_AUTH.md` section 7.
   `www.localley.io`, `next.localley.io` and the four Cron Triggers. Sign-in on `www` verified.
 - P6: no Stripe change needed (same URLs and secrets); verified with signed test events. A6 (disable Clerk) is
   deliberately NOT done yet: Clerk on Vercel is the rollback path. Do it after an agreed stable period.
-- `APIFY_SPOT_DISCOVERY_ENABLED` and `WEEKLY_SOCIAL_TRENDS_ENABLED` are unset on the Worker (off); their cron routes
-  return 500 "disabled" by design. The Vercel values were sensitive and could not be read.
-- Known gap: the Anthropic fallback in chat fails on the Worker ("Connection error"); GLM is primary and works.
+- `APIFY_SPOT_DISCOVERY_ENABLED` and `WEEKLY_SOCIAL_TRENDS_ENABLED` = `true` on the Worker (Nils: "go ahead for
+  localley to full performing actions"). Supabase proved both ran on Vercel (Apify run 2026-09-01, weekly trends
+  daily until 2026-09-22). Caps in code: Apify $1/run (monthly), trends $2/actor run. `MULTI_CITY_PREVIEW_API`
+  stays off (unfinished preview API; plans require it hidden).
+- Chat fallback is OpenAI `gpt-5.6-luna` since PR161 (the Anthropic key had no credit; its SDK failed on Workers).
+  Worker version `e418172b-68a7-4e6a-8206-401e78998b59`.
 
 Run from a clean worktree of `main`. Never commit or print secret values. Delete temporary env files at once.
 
