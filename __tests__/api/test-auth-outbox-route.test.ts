@@ -8,10 +8,19 @@ const symbol = Symbol.for("__cloudflare-context__");
 const g = globalThis as unknown as Record<symbol, unknown>;
 const req = (email: string) => new NextRequest(`https://preview.test/api/test-auth/outbox?email=${encodeURIComponent(email)}`);
 
-afterEach(() => { delete process.env.AUTH_MAIL_MODE; g[symbol] = undefined; });
+afterEach(() => { delete process.env.AUTH_MAIL_MODE; delete process.env.BETTER_AUTH_URL; g[symbol] = undefined; });
 
 describe("/api/test-auth/outbox", () => {
   it("does not exist outside outbox mode (production)", async () => {
+    expect((await GET(req("a@preview.localley.test"))).status).toBe(404);
+  });
+
+  it("stays closed on production hosts even if AUTH_MAIL_MODE=outbox leaks there", async () => {
+    process.env.AUTH_MAIL_MODE = "outbox";
+    g[symbol] = { env: { AUTH_DB: createAuthTestDatabase() } };
+    const onProdHost = new NextRequest("https://www.localley.io/api/test-auth/outbox?email=a%40preview.localley.test");
+    expect((await GET(onProdHost)).status).toBe(404);
+    process.env.BETTER_AUTH_URL = "https://next.localley.io";
     expect((await GET(req("a@preview.localley.test"))).status).toBe(404);
   });
 

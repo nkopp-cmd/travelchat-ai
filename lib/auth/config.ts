@@ -98,7 +98,10 @@ export function createAuth(input: CreateAuthInput) {
     account: {
       // Migrated Clerk users have no account row yet. A verified Google login links
       // to the existing user (same id) by email instead of creating a new user.
-      accountLinking: { enabled: true, trustedProviders: ["google"] },
+      // requireLocalEmailVerified: Google never links to an UNVERIFIED local user (blocks the
+      // "attacker pre-registers victim@ with a password" takeover). Magic-link verification of
+      // such a user deletes its unproven password account and sessions (Better Auth built-in).
+      accountLinking: { enabled: true, trustedProviders: ["google"], requireLocalEmailVerified: true },
     },
     user: {
       additionalFields: {
@@ -112,7 +115,9 @@ export function createAuth(input: CreateAuthInput) {
     session: {
       expiresIn: 60 * 60 * 24 * 30,
       updateAge: 60 * 60 * 24,
-      cookieCache: { enabled: true, maxAge: 5 * 60 },
+      // Signed session snapshot in a cookie: fewer D1 reads. Revocation (sign-out elsewhere,
+      // password reset) reaches a copied cookie within 60 s, like Clerk's 60 s session JWT.
+      cookieCache: { enabled: true, maxAge: 60 },
     },
     rateLimit: {
       enabled: input.rateLimit ?? true,

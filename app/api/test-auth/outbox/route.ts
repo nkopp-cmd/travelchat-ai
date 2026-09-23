@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authMailMode, TEST_EMAIL_DOMAIN } from "@/lib/auth/mail";
+import { authMailMode, isProductionAuthHost, TEST_EMAIL_DOMAIN } from "@/lib/auth/mail";
 
 /**
  * Test mailbox for agents (preview Worker and local dev only).
@@ -22,7 +22,9 @@ interface D1Like {
 }
 
 export async function GET(request: NextRequest) {
-    if (authMailMode() !== "outbox") {
+    // Two independent gates: mail mode (which already refuses production BETTER_AUTH_URL)
+    // and the host this request arrived on.
+    if (authMailMode() !== "outbox" || isProductionAuthHost(request.url)) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     const email = (request.nextUrl.searchParams.get("email") || "").trim().toLowerCase();

@@ -115,6 +115,20 @@ describe("server auth adapter", () => {
     expect((await auth(withCookie(tokenOnly))).userId).toBeNull();
   });
 
+  it("blocks the pre-registration takeover: magic link removes an unproven password", async () => {
+    const email = "victim@preview.localley.test";
+    // Attacker registers the victim's address with a password and never verifies it.
+    expect((await call("/sign-up/email", { body: { email, password: "attacker-pass-1", name: "Mallory" } })).status).toBe(200);
+    // The real owner signs in with a magic link (proves the inbox).
+    await call("/sign-in/magic-link", { body: { email, callbackURL: "/dashboard" } });
+    const link = outbox(email).find((m) => m.kind === "magic-link")!;
+    const landed = await getAuth().handler(new Request(link.url, { redirect: "manual" }));
+    expect((await auth(withCookie(cookiesFrom(landed)))).userId).toMatch(/.+/);
+    // The attacker's password no longer works.
+    expect((await call("/sign-in/email", { body: { email, password: "attacker-pass-1" } })).status).toBe(401);
+    expect(db.sqlite.prepare("select count(*) n from account where providerId = 'credential'").get()).toEqual(expect.objectContaining({ n: 0 }));
+  });
+
   it("rejects a forged session cookie", async () => {
     expect((await auth(withCookie("better-auth.session_token=forged.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="))).userId).toBeNull();
   });

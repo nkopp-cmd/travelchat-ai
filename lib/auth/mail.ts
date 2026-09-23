@@ -49,8 +49,28 @@ export function renderAuthMail(mail: AuthMail): { subject: string; html: string;
 /** Reserved domain for agent test users; only these outbox entries are readable. */
 export const TEST_EMAIL_DOMAIN = "preview.localley.test";
 
+/** True for localley.io and its subdomains (production, staging). */
+export function isProductionAuthHost(url: string | undefined): boolean {
+  if (!url) return false;
+  try {
+    return /(^|\.)localley\.io$/i.test(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * "outbox" only when explicitly configured AND the auth base URL is not a production
+ * host. A stray AUTH_MAIL_MODE=outbox on production therefore still sends real mail
+ * and never exposes links through /api/test-auth/outbox.
+ */
 export function authMailMode(): "outbox" | "resend" {
-  return process.env.AUTH_MAIL_MODE === "outbox" ? "outbox" : "resend";
+  if (process.env.AUTH_MAIL_MODE !== "outbox") return "resend";
+  if (isProductionAuthHost(process.env.BETTER_AUTH_URL)) {
+    console.error("[auth] AUTH_MAIL_MODE=outbox ignored on a production host");
+    return "resend";
+  }
+  return "outbox";
 }
 
 export function createMailSender(database: OutboxDatabase | undefined) {

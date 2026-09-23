@@ -2,6 +2,7 @@
  * Minimal D1Database shim over node:sqlite for tests. Better Auth detects it as D1
  * (prepare + batch + exec), so tests run the same Kysely D1 dialect as the Worker.
  */
+// @ts-expect-error node:sqlite has no declarations in the installed @types/node
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";

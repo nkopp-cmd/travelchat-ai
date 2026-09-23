@@ -15,7 +15,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { D1Sqlite } from "../../__tests__/helpers/d1-sqlite";
 import { createAuth, type AuthMail } from "../../lib/auth/config";
-// @ts-expect-error plain ESM script without types
 import { toInsertSql } from "./clerk-to-better-auth.mjs";
 
 const arg = (name: string) => {

@@ -37,7 +37,7 @@ rewritten. `ADMIN_USER_IDS` keeps working unchanged.
 
 | File | Role |
 | --- | --- |
-| `lib/auth/config.ts` | Pure Better Auth factory: email+password (verified email required), magic link, password reset, optional Google, account linking by verified email, profile fields `firstName`/`lastName`/`bio`, DB rate limits, 5 min cookie cache. |
+| `lib/auth/config.ts` | Pure Better Auth factory: email+password (verified email required), magic link, password reset, optional Google, account linking by verified email (never to an unverified local user), profile fields `firstName`/`lastName`/`bio`, DB rate limits, 60 s cookie cache. |
 | `lib/auth/server.ts` | Server adapter: `auth()` -> `{ userId, sessionId }`, `currentUser()` (Clerk-shaped subset), `getSession()`, `requireUser()` (401), `getAuth()`. Fails closed (signed out) when the store is unavailable. |
 | `lib/auth/client.ts` | Client adapter: `useUser()`, `useAuth()`, `signOut()`, `authClient`, `safeRedirect()`. |
 | `lib/auth/session-cookie.ts` + `middleware.ts` | Middleware verifies the HMAC signature of the session cookie (no DB). Signed out: pages 307 to `/sign-in?redirect_url=...`, APIs **401** JSON (Clerk answered 404). |
@@ -51,7 +51,14 @@ The multi-city preview API (`/api/v2/trips/preview`) stays behind sign-in (Nils'
 explicit `requireUser()` in the route. `/api/viator/search` also got an explicit check.
 
 Session revocation: sign-out and password reset delete the session row at once. A copied cookie pair can still
-pass for up to 5 minutes (cookie cache) — same order as Clerk's 60 s session JWT.
+pass for up to 60 s (cookie cache) — the same window as Clerk's 60 s session JWT.
+
+Pre-registration takeover (someone signs up with another person's email and a password, never verifies): a later
+magic-link sign-in by the real owner deletes the unproven password account and sessions (Better Auth built-in,
+regression-tested), and Google never links to an unverified local user (`requireLocalEmailVerified`).
+
+Advisor review 2026-09-23 (`advisor --review`, Opus 5.5): the takeover path and the outbox gate were raised as P1.
+Both are closed (above; the outbox also refuses any `localley.io` host), the cookie cache went from 5 min to 60 s.
 
 ## 4. Sign-in methods
 
@@ -100,7 +107,9 @@ curl "https://localley-next-preview.nkopp.workers.dev/api/test-auth/outbox?email
 PLAYWRIGHT_BASE_URL=https://localley-next-preview.nkopp.workers.dev npx playwright test e2e/auth-preview.spec.ts
 ```
 
-`/api/test-auth/outbox` returns 404 unless `AUTH_MAIL_MODE=outbox`, and it only reads the reserved domain.
+`/api/test-auth/outbox` returns 404 unless `AUTH_MAIL_MODE=outbox`, and also on any `localley.io` request host or
+`BETTER_AUTH_URL` (a stray outbox setting on production is ignored and real mail is sent). It only reads the
+reserved domain.
 The preview never sends email. Reset the preview store with
 `npx wrangler d1 execute localley-auth-preview --remote --command 'delete from "user"'` (cascades).
 
