@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReviewList } from '@/components/spots/review-list';
 
-vi.mock('@clerk/nextjs', () => ({ useAuth: () => ({ userId: null }) }));
+vi.mock('@/lib/auth/client', () => ({ useAuth: () => ({ userId: null }) }));
 vi.mock('@/components/spots/review-form', () => ({ ReviewForm: () => null }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: vi.fn() }) }));
 

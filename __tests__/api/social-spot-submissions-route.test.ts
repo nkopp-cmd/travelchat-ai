@@ -72,7 +72,7 @@ const mocks = vi.hoisted(() => ({
   resumeClaimConflict: false,
 }));
 
-vi.mock("@clerk/nextjs/server", () => ({
+vi.mock("@/lib/auth/server", () => ({
   auth: mocks.auth,
 }));
 

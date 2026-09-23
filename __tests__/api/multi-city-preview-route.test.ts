@@ -5,7 +5,10 @@ import { corridorGoldenTrips } from "@/__tests__/fixtures/corridor-golden-trips"
 
 const mocks = vi.hoisted(() => ({
   rateLimit: vi.fn(async () => null as NextResponse | null),
+  requireUser: vi.fn(async () => ({ userId: "user_preview" as string | null, response: null as NextResponse | null })),
 }));
+
+vi.mock("@/lib/auth/server", () => ({ requireUser: mocks.requireUser }));
 
 vi.mock("@/lib/rate-limit", () => ({
   rateLimiters: { strict: mocks.rateLimit },
@@ -62,6 +65,14 @@ describe("POST /api/v2/trips/preview", () => {
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ error: "Not found" });
     expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("requires a signed-in session (Nils' choice)", async () => {
+    mocks.requireUser.mockResolvedValueOnce({ userId: null, response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) });
+    const response = await POST(request(corridorGoldenTrips[0].request));
+    expect(response.status).toBe(401);
+    mocks.requireUser.mockResolvedValueOnce({ userId: null, response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) });
+    expect((await GET()).status).toBe(401);
   });
 
   it("is rate limited when the strict limiter blocks the request", async () => {

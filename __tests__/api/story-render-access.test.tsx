@@ -15,7 +15,7 @@ const mocks = vi.hoisted(() => ({
     admin: vi.fn(),
 }));
 
-vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
+vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
 
 const fixture = {

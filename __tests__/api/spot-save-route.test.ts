@@ -7,7 +7,7 @@ const { auth, client, from, admin, getUserTier, checkUsageLimit, trackEngagement
     auth: vi.fn(), client: vi.fn(), from: vi.fn(), admin: vi.fn(),
     getUserTier: vi.fn(), checkUsageLimit: vi.fn(), trackEngagement: vi.fn(), fetchMock: vi.fn(),
 }));
-vi.mock('@clerk/nextjs/server', () => ({ auth }));
+vi.mock('@/lib/auth/server', () => ({ auth }));
 vi.mock('@/lib/supabase-server', () => ({ createSupabaseServerClient: client }));
 vi.mock('@/lib/supabase', () => ({ createSupabaseAdmin: admin }));
 vi.mock('@/lib/usage-tracking', () => ({ getUserTier, checkUsageLimit }));
