@@ -142,7 +142,27 @@ Found on production too: Google place photos return `502 lookup_failed_400` on w
 
 **2026-09-23, Nils approved P2–P5 ("go ahead") with A1–A5.** P2 done (earlier), P3 done (35 secrets), P4 + P5 done:
 Worker `localley-next` version `ad07d446-e0d6-4209-8a0d-22c0c6f73015` on `next.localley.io`, crons `[]`.
-Status and evidence: `docs/AUTH_BETTER_AUTH.md` section 7. P6–P8 are not approved.
+Status and evidence: `docs/AUTH_BETTER_AUTH.md` section 7.
+
+**2026-09-23, Nils: "go ahead with all live test and deployments".** Cutover done (claude):
+
+- Live test on `next.localley.io` (migrated account, magic link read from the Resend API): dashboard, trips,
+  profile, settings, trip save/read/delete, chat (GLM `glm-5.2`), AI itinerary generate-v2 (1 day, 69 s, then deleted),
+  story/edit pages, export, Stripe checkout for all four plans (session created, not paid), signed Stripe test events
+  on both webhook routes (200; wrong signature 400). Admin API 403 for this account is expected (admin id = other account).
+- Fixes found by the test: Worker secrets `GLM_BASE_URL`/`GLM_MODEL` held Vercel's `[SENSITIVE]` placeholder (chat 500) →
+  deleted, code defaults apply. The four `STRIPE_*_PRICE_ID` values were product ids from another Stripe account
+  (Vercel checkout was broken too) → set to the live Localley prices (`price_1T2rh…`). PR159: Stripe
+  `createFetchHttpClient()` (the Node client hung on workerd, error 1101). `cleanup-stories` compared a jsonb value to
+  a string (`->` → `->>`, 22P02 on Vercel too).
+- P8: Vercel crons disabled via API (`PATCH /v1/projects/<id>/crons {"enabled":false}`), then P7: the two Vercel DNS
+  records deleted (backup `codex-work/tmp/localley-dns-backup-20260923.json`), Worker deployed with `localley.io`,
+  `www.localley.io`, `next.localley.io` and the four Cron Triggers. Sign-in on `www` verified.
+- P6: no Stripe change needed (same URLs and secrets); verified with signed test events. A6 (disable Clerk) is
+  deliberately NOT done yet: Clerk on Vercel is the rollback path. Do it after an agreed stable period.
+- `APIFY_SPOT_DISCOVERY_ENABLED` and `WEEKLY_SOCIAL_TRENDS_ENABLED` are unset on the Worker (off); their cron routes
+  return 500 "disabled" by design. The Vercel values were sensitive and could not be read.
+- Known gap: the Anthropic fallback in chat fails on the Worker ("Connection error"); GLM is primary and works.
 
 Run from a clean worktree of `main`. Never commit or print secret values. Delete temporary env files at once.
 
