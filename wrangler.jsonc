@@ -40,7 +40,9 @@
     { "name": "RATE_LIMIT_5", "namespace_id": "4301", "simple": { "limit": 5, "period": 60 } },
     { "name": "RATE_LIMIT_10", "namespace_id": "4302", "simple": { "limit": 10, "period": 60 } },
     { "name": "RATE_LIMIT_20", "namespace_id": "4303", "simple": { "limit": 20, "period": 60 } },
-    { "name": "RATE_LIMIT_60", "namespace_id": "4304", "simple": { "limit": 60, "period": 60 } }
+    { "name": "RATE_LIMIT_60", "namespace_id": "4304", "simple": { "limit": 60, "period": 60 } },
+    { "name": "RATE_LIMIT_40", "namespace_id": "4305", "simple": { "limit": 40, "period": 60 } },
+    { "name": "RATE_LIMIT_120", "namespace_id": "4306", "simple": { "limit": 120, "period": 60 } }
   ],
   // The preview points at production Supabase with the public anon key only.
   // SUPABASE_READ_ONLY blocks every non-GET Supabase request (lib/supabase-read-only.ts).
@@ -85,7 +87,9 @@
         { "name": "RATE_LIMIT_5", "namespace_id": "4311", "simple": { "limit": 5, "period": 60 } },
         { "name": "RATE_LIMIT_10", "namespace_id": "4312", "simple": { "limit": 10, "period": 60 } },
         { "name": "RATE_LIMIT_20", "namespace_id": "4313", "simple": { "limit": 20, "period": 60 } },
-        { "name": "RATE_LIMIT_60", "namespace_id": "4314", "simple": { "limit": 60, "period": 60 } }
+        { "name": "RATE_LIMIT_60", "namespace_id": "4314", "simple": { "limit": 60, "period": 60 } },
+        { "name": "RATE_LIMIT_40", "namespace_id": "4315", "simple": { "limit": 40, "period": 60 } },
+        { "name": "RATE_LIMIT_120", "namespace_id": "4316", "simple": { "limit": 120, "period": 60 } }
       ],
       // BETTER_AUTH_SECRET, SUPABASE_JWT_SECRET, RESEND_API_KEY (+ optional GOOGLE_CLIENT_ID/SECRET)
       // are secrets: set them at cutover (APPROVAL). FROM_EMAIL is also a secret on localley-next

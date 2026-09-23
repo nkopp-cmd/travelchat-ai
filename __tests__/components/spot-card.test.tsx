@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpotCard } from "@/components/spots/spot-card";
 import { LocalleyScale, type Spot } from "@/types";
 
@@ -30,15 +30,18 @@ const baseSpot: Spot = {
 };
 
 describe("SpotCard", () => {
+  beforeEach(() => vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "unavailable", photos: [] }) })));
+  afterEach(() => vi.unstubAllGlobals());
   it("uses user-facing location trust copy on spot cards", () => {
     render(<SpotCard spot={baseSpot} />);
 
     expect(screen.getByText("LADRIO")).toBeTruthy();
-    expect(screen.getByText("Verified")).toBeTruthy();
+    expect(screen.getByText("Place matched")).toBeTruthy();
+    expect(screen.queryByTestId("spot-local-crowd-chip")).toBeNull();
     expect(screen.queryByText("Place")).toBeNull();
   });
 
-  it("does not disguise missing real imagery as a city or area photo", () => {
+  it("does not disguise missing real imagery as a city or area photo", async () => {
     render(
       <SpotCard
         spot={{
@@ -51,7 +54,7 @@ describe("SpotCard", () => {
       />,
     );
 
-    expect(screen.getAllByText(/Photo needed/).length).toBeGreaterThan(0);
+    expect(await screen.findByText("Photo unavailable")).toBeTruthy();
     expect(screen.queryByText(/Area photo/)).toBeNull();
   });
 
@@ -60,7 +63,7 @@ describe("SpotCard", () => {
 
     expect(screen.getByText("Trending")).toBeTruthy();
     expect(screen.getByText("5/6")).toBeTruthy();
-    expect(screen.getByText("Verified")).toBeTruthy();
+    expect(screen.getByText("Place matched")).toBeTruthy();
 
     const meta = container.querySelector("[data-spot-card-meta]");
     expect(meta?.className).toContain(

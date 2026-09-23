@@ -1,213 +1,142 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-    getGooglePlacesApiKey,
-    normalizePhotoWidth,
-} from "@/lib/place-images";
+import { getGooglePlacesApiKey, normalizePhotoWidth } from "@/lib/place-images";
+import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 
-interface GooglePlacePhotoLookup {
-    photos?: Array<{ name?: string }>;
-}
+export const dynamic = "force-dynamic";
+const developmentLimit = rateLimit({ windowMs: 60_000, maxRequests: 120 });
+const noStore = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
 
-const FALLBACK_IMAGE_HOSTS = new Set([
-    "images.unsplash.com",
-    "images.pexels.com",
-    "media-cdn.tripadvisor.com",
-]);
-
-function photoFetchFailureResponse(reason: string, status = 502) {
+function unavailable(status = 502) {
     return new NextResponse("Place photo unavailable", {
-        status,
-        headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-            "Cache-Control": "public, max-age=60, s-maxage=60",
-            "X-Localley-Photo-Fallback": reason,
-        },
+        status, headers: { ...noStore, "Content-Type": "text/plain; charset=utf-8" },
     });
 }
 
-function getSafeFallbackImageUrl(value: string | null, origin: string): string | null {
-    if (!value) return null;
-
-    try {
-        const url = new URL(value, origin);
-        if (url.origin === origin && url.pathname.startsWith("/images/")) {
-            return url.toString();
-        }
-
-        if (url.protocol === "https:" && FALLBACK_IMAGE_HOSTS.has(url.hostname.toLowerCase())) {
-            return url.toString();
-        }
-    } catch {
-        return null;
+function trustedImageUrl(value: string): URL {
+    const url = new URL(value);
+    const host = url.hostname;
+    if (url.protocol !== "https:" || url.username || url.password || url.port ||
+        !(host === "googleusercontent.com" || host.endsWith(".googleusercontent.com") ||
+          host === "ggpht.com" || host.endsWith(".ggpht.com"))) {
+        throw new Error("Untrusted image host");
     }
+    return url;
+}
 
+async function readBounded(response: Response, limit: number): Promise<Uint8Array<ArrayBuffer>> {
+    if (Number(response.headers.get("content-length")) > limit) {
+        await response.body?.cancel();
+        throw new Error("Response too large");
+    }
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("Empty response");
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    try {
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            size += value.byteLength;
+            if (size > limit) throw new Error("Response too large");
+            chunks.push(value);
+        }
+    } finally {
+        await reader.cancel();
+        reader.releaseLock();
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    return bytes;
+}
+
+function imageType(bytes: Uint8Array): string | null {
+    const starts = (...signature: number[]) => signature.every((byte, i) => bytes[i] === byte);
+    const text = (start: number, end: number) => String.fromCharCode(...bytes.slice(start, end));
+    if (bytes.length < 12) return null;
+    if (starts(0xff, 0xd8, 0xff)) return "image/jpeg";
+    if (starts(137, 80, 78, 71, 13, 10, 26, 10)) return "image/png";
+    if (text(0, 4) === "RIFF" && text(8, 12) === "WEBP") return "image/webp";
+    if (["GIF87a", "GIF89a"].includes(text(0, 6))) return "image/gif";
+    if (text(4, 8) === "ftyp") {
+        const boxSize = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(0);
+        if (boxSize >= 16 && boxSize <= bytes.length) {
+            if (["avif", "avis"].includes(text(8, 12))) return "image/avif";
+            for (let i = 16; i + 4 <= boxSize; i += 4) {
+                if (["avif", "avis"].includes(text(i, i + 4))) return "image/avif";
+            }
+        }
+    }
     return null;
 }
 
-function getPlaceIdFromPhotoName(photoName: string): string | null {
-    const match = photoName.match(/^places\/([^/]+)\/photos\/[^/]+$/);
-    return match?.[1] || null;
-}
-
-async function findReplacementPhotoName(
-    photoName: string,
-    apiKey: string
-): Promise<string | null> {
-    const placeId = getPlaceIdFromPhotoName(photoName);
-    if (!placeId) return null;
-
-    const placeUrl = new URL(`https://places.googleapis.com/v1/places/${placeId}`);
-    placeUrl.searchParams.set("key", apiKey);
-
-    const response = await fetch(placeUrl.toString(), {
-        headers: {
-            "X-Goog-FieldMask": "photos",
-        },
-        next: { revalidate: 60 * 60 * 24 },
-    });
-
-    if (!response.ok) return null;
-
-    const data = (await response.json()) as GooglePlacePhotoLookup;
-    return (
-        data.photos
-            ?.map((photo) => photo.name)
-            .find((name): name is string => Boolean(name && name !== photoName)) || null
-    );
-}
-
-async function proxiedImageResponse(
-    imageUrl: string,
-    fallbackReason: string,
-    extraHeaders: Record<string, string> = {}
-) {
-    const response = await fetch(imageUrl, {
-        next: { revalidate: 60 * 60 * 24 * 30 },
-    });
-
-    if (!response.ok) {
-        return photoFetchFailureResponse(`${fallbackReason}_${response.status}`);
-    }
-
-    const contentType = response.headers.get("content-type") || "";
-    if (!contentType.toLowerCase().startsWith("image/")) {
-        return photoFetchFailureResponse(`${fallbackReason}_non_image`);
-    }
-
-    const image = new Uint8Array(await response.arrayBuffer());
-
-    return new NextResponse(image, {
-        status: 200,
-        headers: {
-            "Content-Type": contentType,
-            "Cache-Control":
-                "public, max-age=2592000, s-maxage=2592000, stale-while-revalidate=86400",
-            ...extraHeaders,
-        },
-    });
-}
-
-async function placePhotoUnavailable(
-    reason: string,
-    fallbackImageUrl: string | null,
-    status = 502
-) {
-    if (fallbackImageUrl) {
-        const response = await proxiedImageResponse(fallbackImageUrl, `fallback_image_fetch_failed_${reason}`, {
-            "X-Localley-Photo-Fallback": reason,
-        });
-
-        if (response.ok) return response;
-    }
-
-    return photoFetchFailureResponse(reason, status);
-}
-
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const photoName = searchParams.get("name");
-    const legacyPhotoRef = searchParams.get("ref");
-    const width = normalizePhotoWidth(searchParams.get("w"));
-    const apiKey = getGooglePlacesApiKey();
-    const fallbackImageUrl = getSafeFallbackImageUrl(searchParams.get("fallback"), req.nextUrl.origin);
+    const params = req.nextUrl.searchParams;
+    const name = params.get("name");
+    const ref = params.get("ref");
+    if ((!!name === !!ref) || params.getAll("name").length > 1 || params.getAll("ref").length > 1 ||
+        (name && !/^places\/[A-Za-z0-9_-]{1,256}\/photos\/[A-Za-z0-9_-]{1,4096}$/.test(name)) ||
+        (ref && !/^[A-Za-z0-9_-]{1,4096}$/.test(ref))) return unavailable(400);
 
-    if (!photoName && !legacyPhotoRef) {
-        return NextResponse.json({ error: "Missing photo reference" }, { status: 400 });
-    }
-
-    if (!apiKey) {
-        return placePhotoUnavailable("missing_google_places_api_key", fallbackImageUrl, 503);
-    }
-
-    if (photoName && !/^places\/[^/]+\/photos\/[^/]+$/.test(photoName)) {
-        return placePhotoUnavailable("invalid_photo_name", fallbackImageUrl, 400);
-    }
-
-    if (legacyPhotoRef) {
-        if (!/^[A-Za-z0-9_-]+$/.test(legacyPhotoRef)) {
-            return placePhotoUnavailable("invalid_photo_reference", fallbackImageUrl, 400);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12_000);
+    try {
+        // The shared helper deliberately fails open. Production must not use that fallback.
+        if (process.env.NODE_ENV === "production") {
+            const verdict = await strictPlatformLimit(req, 120, "venue_images_v2");
+            if (verdict === "unavailable") return unavailable(503);
+            if (verdict === "limited") return unavailable(429);
+        } else {
+            const limited = await developmentLimit(req);
+            if (limited) return unavailable(limited.status);
         }
-
-        const legacyUrl = new URL("https://maps.googleapis.com/maps/api/place/photo");
-        legacyUrl.searchParams.set("maxwidth", String(width));
-        legacyUrl.searchParams.set("photo_reference", legacyPhotoRef);
-        legacyUrl.searchParams.set("key", apiKey);
-
-        const legacyResponse = await fetch(legacyUrl.toString(), {
-            redirect: "manual",
-            next: { revalidate: 60 * 60 * 24 * 30 },
-        });
-        const location = legacyResponse.headers.get("location");
-
-        if (!location) {
-            return placePhotoUnavailable(`legacy_lookup_failed_${legacyResponse.status}`, fallbackImageUrl);
+        const apiKey = getGooglePlacesApiKey();
+        if (!apiKey) return unavailable(503);
+        const width = normalizePhotoWidth(params.get("w"));
+        const upstream = name
+            ? new URL(`https://places.googleapis.com/v1/${name}/media`)
+            : new URL("https://maps.googleapis.com/maps/api/place/photo");
+        if (name) {
+            upstream.searchParams.set("maxWidthPx", String(width));
+            upstream.searchParams.set("skipHttpRedirect", "true");
+        } else {
+            upstream.searchParams.set("maxwidth", String(width));
+            upstream.searchParams.set("photo_reference", ref!);
+            // The shipped legacy API requires its key in the query string.
+            upstream.searchParams.set("key", apiKey);
         }
-
-        const imageResponse = await proxiedImageResponse(location, "legacy_image_fetch_failed");
-        if (imageResponse.ok) return imageResponse;
-        return placePhotoUnavailable(imageResponse.headers.get("X-Localley-Photo-Fallback") || "legacy_image_fetch_failed", fallbackImageUrl);
-    }
-
-    const photoUrl = new URL(`https://places.googleapis.com/v1/${photoName}/media`);
-    photoUrl.searchParams.set("maxWidthPx", String(width));
-    photoUrl.searchParams.set("skipHttpRedirect", "true");
-    photoUrl.searchParams.set("key", apiKey);
-
-    const response = await fetch(photoUrl.toString(), {
-        next: { revalidate: 60 * 60 * 24 * 30 },
-    });
-
-    if (!response.ok) {
-        if (response.status === 404 && photoName) {
-            const replacementPhotoName = await findReplacementPhotoName(photoName, apiKey);
-            if (replacementPhotoName) {
-                const replacementUrl = new URL(`https://places.googleapis.com/v1/${replacementPhotoName}/media`);
-                replacementUrl.searchParams.set("maxWidthPx", String(width));
-                replacementUrl.searchParams.set("skipHttpRedirect", "true");
-                replacementUrl.searchParams.set("key", apiKey);
-
-                const replacementResponse = await fetch(replacementUrl.toString(), {
-                    next: { revalidate: 60 * 60 * 24 * 30 },
-                });
-
-                if (replacementResponse.ok) {
-                    const replacementData = (await replacementResponse.json()) as { photoUri?: string };
-                    if (replacementData.photoUri) {
-                        return proxiedImageResponse(replacementData.photoUri, "replacement_image_fetch_failed");
-                    }
-                }
+        const response = await fetch(upstream.toString(), { cache: "no-store", redirect: "manual",
+            signal: controller.signal, headers: name ? { "X-Goog-Api-Key": apiKey } : {} });
+        let imageUrl: URL;
+        if (name) {
+            if (!response.ok) { await response.body?.cancel(); return unavailable(response.status === 404 ? 404 : 502); }
+            const data = JSON.parse(new TextDecoder().decode(await readBounded(response, 256 * 1024)));
+            if (typeof data?.photoUri !== "string") return unavailable();
+            imageUrl = trustedImageUrl(data.photoUri);
+        } else {
+            await response.body?.cancel();
+            if (![301, 302, 303, 307, 308].includes(response.status)) return unavailable();
+            imageUrl = trustedImageUrl(response.headers.get("location") || "");
+        }
+        for (let redirects = ref ? 1 : 0; redirects <= 2; redirects++) {
+            const image = await fetch(imageUrl.toString(), { cache: "no-store", redirect: "manual", signal: controller.signal });
+            if ([301, 302, 303, 307, 308].includes(image.status)) {
+                await image.body?.cancel();
+                const location = image.headers.get("location");
+                if (!location || redirects === 2) return unavailable();
+                imageUrl = trustedImageUrl(new URL(location, imageUrl).toString());
+                continue;
             }
+            if (!image.ok) { await image.body?.cancel(); return unavailable(); }
+            const bytes = await readBounded(image, 10 * 1024 * 1024);
+            const contentType = imageType(bytes);
+            if (!contentType) return unavailable();
+            return new NextResponse(bytes, { headers: { ...noStore, "Content-Type": contentType } });
         }
-
-        return placePhotoUnavailable(`lookup_failed_${response.status}`, fallbackImageUrl);
+        return unavailable();
+    } catch {
+        return unavailable(controller.signal.aborted ? 504 : 502);
+    } finally {
+        clearTimeout(timeout);
     }
-
-    const data = (await response.json()) as { photoUri?: string };
-    if (!data.photoUri) {
-        return placePhotoUnavailable("photo_uri_missing", fallbackImageUrl);
-    }
-
-    const imageResponse = await proxiedImageResponse(data.photoUri, "image_fetch_failed");
-    if (imageResponse.ok) return imageResponse;
-    return placePhotoUnavailable(imageResponse.headers.get("X-Localley-Photo-Fallback") || "image_fetch_failed", fallbackImageUrl);
 }

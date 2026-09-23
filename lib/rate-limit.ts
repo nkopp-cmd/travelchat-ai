@@ -1,3 +1,4 @@
+import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -94,6 +95,30 @@ function getClientIp(req: NextRequest): string {
         req.headers.get("x-forwarded-for")?.split(",")[0] ||
         req.headers.get("x-real-ip") ||
         "unknown";
+}
+
+export type StrictLimitVerdict = "ok" | "limited" | "unavailable";
+
+/**
+ * Fail-closed limiter for routes that spend on a paid provider (venue photos).
+ * Uses only the Workers binding RATE_LIMIT_<maxRequests> (60 s) keyed by a validated
+ * cf-connecting-ip; it never falls back to memory, so a missing or failing binding
+ * returns "unavailable". Spoofable forwarding headers are ignored.
+ */
+export async function strictPlatformLimit(
+    req: NextRequest,
+    maxRequests: number,
+    prefix: string,
+): Promise<StrictLimitVerdict> {
+    const binding = getWorkersRateLimiter(60_000, maxRequests);
+    if (!binding) return "unavailable";
+    const ip = req.headers.get("cf-connecting-ip")?.trim() ?? "";
+    const key = `${prefix}:${isIP(ip) ? ip : "unknown"}`;
+    try {
+        return (await binding.limit({ key })).success ? "ok" : "limited";
+    } catch {
+        return "unavailable";
+    }
 }
 
 export function rateLimit(config: RateLimitConfig) {

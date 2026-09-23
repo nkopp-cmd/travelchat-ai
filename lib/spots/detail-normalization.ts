@@ -130,7 +130,8 @@ function getLocalizedTextValue(value: unknown): string {
 }
 
 export function getSpotBestTime(bestTimes: unknown, bestTime?: unknown): string {
-    return getLocalizedTextValue(bestTimes) || getLocalizedTextValue(bestTime) || "Anytime";
+    const value = getLocalizedTextValue(bestTimes) || getLocalizedTextValue(bestTime);
+    return !value || /^any\s*time$/i.test(value) ? "Not verified" : value;
 }
 
 export function normalizeSpotTips(value: unknown): string[] {
@@ -179,24 +180,14 @@ export function normalizeLocalPercentage(value: unknown): number {
 }
 
 export function getSpotPhotoEvidenceLabel(input: SpotPhotoEvidenceInput): string {
-    if (!input.hasRealPhoto || input.realPhotoCount <= 0) return "Image fallback";
-
-    const sourceLabel = input.googlePlaceId ? "place photo" : "real photo";
-    return input.realPhotoCount === 1
-        ? `1 ${sourceLabel} source`
-        : `${input.realPhotoCount} ${sourceLabel} sources`;
+    if (!input.hasRealPhoto || input.realPhotoCount <= 0) return "No stored photo references";
+    return `${input.realPhotoCount} stored photo reference${input.realPhotoCount === 1 ? "" : "s"}`;
 }
 
 export function getSpotPhotoEvidenceHelper(input: SpotPhotoEvidenceInput): string {
-    if (input.hasRealPhoto && input.googlePlaceId) {
-        return "Uses place-matched imagery for this spot rather than a category placeholder.";
-    }
-
-    if (input.hasRealPhoto) {
-        return "Uses stored real imagery rather than a category placeholder.";
-    }
-
-    return "Showing a city fallback until a verified spot photo is backfilled.";
+    return input.hasRealPhoto
+        ? "Stored references only. Current photo availability appears with each image; venue identity is not independently verified."
+        : "No stored references. The gallery checks current photo availability; no stock substitute is shown.";
 }
 
 export function getSpotCoordinateEvidenceLabel(
@@ -297,8 +288,8 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
     const imageReady = input.hasRealPhoto && input.realPhotoCount > 0;
     const routeReady = input.hasTrustedGooglePlaceId || input.locationTone === "exact";
     const imageValue = imageReady
-        ? `${input.realPhotoCount} real photo${input.realPhotoCount === 1 ? "" : "s"}`
-        : "Needs photo";
+        ? `${input.realPhotoCount} stored reference${input.realPhotoCount === 1 ? "" : "s"}`
+        : "No stored references";
     const routeValue = input.hasTrustedGooglePlaceId
         ? "Place matched"
         : input.locationTone === "exact"
@@ -309,7 +300,7 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
 
     const checks: SpotRecordConfidenceCheck[] = [
         {
-            label: "Image",
+            label: "References",
             value: imageValue,
             ready: imageReady,
         },
@@ -320,15 +311,15 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
         },
         {
             label: "Curation",
-            value: input.verified ? "Verified" : "Curated",
+            value: "Curated record",
             ready: true,
         },
     ];
 
     if (imageReady && routeReady) {
         return {
-            label: input.verified ? "Verified route-ready record" : "Route-ready record",
-            helper: "This spot has real image evidence and a specific map target for trip planning.",
+            label: "Stored references and map target",
+            helper: "Stored photo references do not prove current availability or venue identity. Check the gallery state above.",
             actionLabel: "Plan with confidence",
             actionHelper: "Use this as a route anchor and open directions directly when you are ready to go.",
             tone: "emerald",
@@ -339,9 +330,9 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
     if (routeReady) {
         return {
             label: "Route-ready, image pending",
-            helper: "The map target is specific, but the visual record still needs a reviewed real spot image.",
+            helper: "The map target is specific. The gallery checks current photo availability separately.",
             actionLabel: "Use route, review photo",
-            actionHelper: "Directions are specific enough for planning; treat the image as temporary until photo review finishes.",
+            actionHelper: "Use directions and confirm the venue before travel. No stock substitute is shown.",
             tone: "sky",
             checks,
         };
@@ -349,8 +340,8 @@ export function getSpotRecordConfidence(input: SpotRecordConfidenceInput): SpotR
 
     if (imageReady) {
         return {
-            label: "Image-ready, route needs review",
-            helper: "The spot has real imagery, but directions should stay search-first until the address is exact.",
+            label: "Stored references, route needs review",
+            helper: "Stored references do not prove current photo availability. Confirm the map result before travel.",
             actionLabel: "Search before routing",
             actionHelper: "Use the saved name and address to confirm the map result before starting directions.",
             tone: "amber",
@@ -453,24 +444,24 @@ function getRoutePairing(category: string, primaryArea: string, city: string): s
 
 function getLocalReason(input: SpotVisitPlanInput): string {
     if (input.localleyScore >= LocalleyScale.LEGENDARY_ALLEY) {
-        return `${input.localPercentage}% local signal makes this one of the strongest Localley stops in ${input.primaryArea}.`;
+        return `Editorial curation highlights this stop in ${input.primaryArea}; this is not a measured visitor count.`;
     }
 
     if (input.localleyScore >= LocalleyScale.HIDDEN_GEM) {
-        return `${input.localPercentage}% local signal means it is worth planning around, not just saving as a maybe.`;
+        return "Editorial curation suggests planning a stop here; this is not a measured visitor count.";
     }
 
     if (input.localleyScore >= LocalleyScale.LOCAL_FAVORITE) {
-        return `${input.localPercentage}% local signal makes it a useful neighborhood anchor.`;
+        return "Editorial curation suggests a neighborhood stop; this is not a measured visitor count.";
     }
 
-    return `${input.localPercentage}% local signal gives it enough context for a nearby route.`;
+    return "Editorial curation suggests considering it for a nearby route; this is not a measured visitor count.";
 }
 
 function getEvidenceSummary(input: SpotVisitPlanInput): string {
     const photoLabel = input.hasRealPhoto
-        ? `${input.realPhotoCount} real photo${input.realPhotoCount === 1 ? "" : "s"}`
-        : "area fallback imagery";
+        ? `${input.realPhotoCount} stored photo reference${input.realPhotoCount === 1 ? "" : "s"}`
+        : "no stored photo references";
 
     const locationLabel =
         input.locationTone === "exact"
@@ -479,13 +470,13 @@ function getEvidenceSummary(input: SpotVisitPlanInput): string {
                 ? "pinned area"
                 : "area-level address";
 
-    return `${photoLabel} plus ${locationLabel} context.`;
+    return `${photoLabel} plus ${locationLabel} context. References do not prove current image availability.`;
 }
 
 export function getSpotVisitPlan(input: SpotVisitPlanInput): SpotVisitPlan {
     return {
         localReason: getLocalReason(input),
-        bestUse: `${getCategoryVisitUse(input.category)} Best window: ${input.bestTime}.`,
+        bestUse: `${getCategoryVisitUse(input.category)} Best window: ${input.bestTime}. Visit advice, not opening hours. Confirm hours with the venue.`,
         routePairing: getRoutePairing(input.category, input.primaryArea, input.city),
         evidence: getEvidenceSummary(input),
     };
