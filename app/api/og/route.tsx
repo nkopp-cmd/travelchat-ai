@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// Node.js runtime: OpenNext on Cloudflare Workers does not support `runtime = "edge"` routes.
+export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {

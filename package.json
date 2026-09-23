@@ -7,6 +7,10 @@
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview:local": "opennextjs-cloudflare preview",
+    "cf:deploy:preview": "opennextjs-cloudflare deploy",
+    "cf:upload:preview": "opennextjs-cloudflare upload",
     "lint": "eslint",
     "test": "vitest",
     "test:run": "vitest run",
@@ -35,6 +39,7 @@
     "@fal-ai/client": "^1.9.0",
     "@google/genai": "^1.31.0",
     "@hello-pangea/dnd": "^18.0.1",
+    "@opennextjs/cloudflare": "1.20.6",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -104,6 +109,7 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.23.1",
     "typescript": "5.9.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "wrangler": "^4.136.3"
   }
 }

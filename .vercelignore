@@ -37,3 +37,8 @@ data/**
 **/*.pem
 **/*.key
 skills-lock.json
+.open-next
+.open-next/**
+.wrangler
+.wrangler/**
+.dev.vars*

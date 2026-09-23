@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
+import { withReadOnlyGuard } from '@/lib/supabase-read-only';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -37,9 +38,9 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient> {
     const token = await getToken({ template: 'supabase' });
 
     if (token) {
-      return createClient(supabaseUrl, supabaseAnonKey, {
+      return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({
         global: { headers: { Authorization: `Bearer ${token}` } }
-      });
+      }));
     }
   } catch (error) {
     // JWT template 'supabase' may not be configured in Clerk
@@ -48,5 +49,5 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient> {
   }
 
   // Return unauthenticated client if no token or on error
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({}));
 }
