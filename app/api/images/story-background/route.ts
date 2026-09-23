@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { isImagenAvailable } from "@/lib/imagen";
 import { isSeedreamAvailable } from "@/lib/seedream";
 import { isFluxAvailable } from "@/lib/flux";

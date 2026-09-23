@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
@@ -28,7 +28,7 @@ async function getItineraries(): Promise<{ itineraries: Array<{
 
         // Use admin client with manual user filtering
         // Note: This bypasses RLS but filters by clerk_user_id explicitly
-        // TODO: Configure Clerk JWT template 'supabase' for proper RLS support
+        // RLS token: lib/supabase-server.ts mints it when SUPABASE_JWT_SECRET is set
         const supabase = createSupabaseAdmin();
 
         const { data: itineraries, error } = await supabase
@@ -52,7 +52,7 @@ async function getItineraries(): Promise<{ itineraries: Array<{
         }));
         return { itineraries: transformed, error: null };
     } catch (err) {
-        // Handle Clerk auth failures gracefully
+        // Handle auth failures gracefully
         console.error("[itineraries] Auth or fetch error:", err);
         // If auth fails with network error, redirect to sign-in
         redirect("/sign-in");

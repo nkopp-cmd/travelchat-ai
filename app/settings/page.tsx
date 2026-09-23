@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Crown, Rocket, Sparkles, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "lucide-react";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";

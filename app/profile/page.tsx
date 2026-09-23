@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Star, MapPin, Flame, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "lucide-react";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import Link from "next/link";

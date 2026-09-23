@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Trophy, Medal, Award, Crown, ArrowLeft, Flame } from "lucide-react";
 import { getRankTitle } from "@/lib/gamification";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { AppBackground } from "@/components/layout/app-background";

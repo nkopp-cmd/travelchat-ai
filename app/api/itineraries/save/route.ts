@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { saveItinerarySchema, validateBody } from "@/lib/validations";
 import { Errors, handleApiError } from "@/lib/api-errors";

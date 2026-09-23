@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import {
   getEarlyAdopterStatus,
   registerEarlyAdopter,
@@ -48,7 +48,7 @@ export async function POST() {
       return Errors.unauthorized();
     }
 
-    // Get user email from Clerk
+    // Get user email from the auth session
     const user = await currentUser();
     const email = user?.emailAddresses?.[0]?.emailAddress;
 
