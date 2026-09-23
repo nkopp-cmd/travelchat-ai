@@ -4,12 +4,7 @@ import { GET } from "@/app/api/spots/[id]/photos/route";
 
 const mocks = vi.hoisted(() => ({ select: vi.fn(), single: vi.fn(), admin: vi.fn(), limit: vi.fn(), productionLimit: vi.fn() }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
-vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit }));
-vi.mock("@upstash/redis", () => ({ Redis: class {} }));
-vi.mock("@upstash/ratelimit", () => ({ Ratelimit: class {
-    static slidingWindow = vi.fn();
-    limit = mocks.productionLimit;
-} }));
+vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit, strictPlatformLimit: mocks.productionLimit }));
 
 const id = "550e8400-e29b-41d4-a716-446655440000";
 const placeId = "ChIJseoul";
@@ -34,7 +29,7 @@ describe("public spot photo gallery", () => {
         vi.stubEnv("GOOGLE_PLACES_API_KEY", "test-key");
         vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY", "");
         mocks.limit.mockReset().mockResolvedValue(null);
-        mocks.productionLimit.mockReset().mockResolvedValue({ success: true });
+        mocks.productionLimit.mockReset().mockResolvedValue("ok");
         mocks.single.mockReset().mockResolvedValue({ data: structuredClone(spot), error: null });
         const query = { select: mocks.select, eq: vi.fn().mockReturnThis(), abortSignal: vi.fn().mockReturnThis(), maybeSingle: mocks.single };
         mocks.select.mockReset().mockReturnValue(query);
@@ -186,45 +181,25 @@ describe("public spot photo gallery", () => {
         expect(fetch).not.toHaveBeenCalled();
     });
 
-    it.each([
-        ["203.0.113.10", "203.0.113.10"],
-        ["2001:db8::1234", "2001:db8::1234"],
-        [null, "unknown"],
-        ["", "unknown"],
-        ["not-an-ip", "unknown"],
-        ["999.0.0.1", "unknown"],
-        ["203.0.113.10, 198.51.100.1", "unknown"],
-        ["203.0.113.10:443", "unknown"],
-        ["[2001:db8::1234]", "unknown"],
-    ])("uses only a validated Vercel IP in production: %s", async (platformIp, expectedKey) => {
+    it("uses the strict platform limiter in production and never the development helper", async () => {
         vi.stubEnv("NODE_ENV", "production");
-        vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example");
-        vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test");
-        mocks.productionLimit.mockResolvedValue({ success: false });
-        for (const spoofedIp of ["198.51.100.1", "198.51.100.2"]) {
-            const req = new NextRequest(`https://localley.io/api/spots/${id}/photos`);
-            if (platformIp !== null) req.headers.set("x-vercel-forwarded-for", platformIp);
-            req.headers.set("x-forwarded-for", `${spoofedIp}, 192.0.2.1`);
-            req.headers.set("x-real-ip", spoofedIp);
-            expect((await GET(req, { params: Promise.resolve({ id }) })).status).toBe(429);
-        }
-        expect(mocks.productionLimit.mock.calls).toEqual([[expectedKey], [expectedKey]]);
+        mocks.productionLimit.mockResolvedValue("limited");
+        const response = await call();
+        expect(response.status).toBe(429);
+        expect(mocks.productionLimit).toHaveBeenCalledWith(expect.anything(), 40, "venue_photos_v2");
         expect(mocks.limit).not.toHaveBeenCalled();
-        expect(mocks.admin).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });
 
-    it.each(["missing", "error", "timeout", "denied"])("fails closed in production: %s", async mode => {
+    it.each(["unavailable", "error", "limited"])("fails closed in production: %s", async mode => {
         vi.stubEnv("NODE_ENV", "production");
-        vi.stubEnv("UPSTASH_REDIS_REST_URL", mode === "missing" ? "" : "https://redis.example");
-        vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test");
         if (mode === "error") mocks.productionLimit.mockRejectedValue(new Error("unavailable"));
-        if (mode === "timeout") mocks.productionLimit.mockResolvedValue({ success: true, reason: "timeout" });
-        if (mode === "denied") mocks.productionLimit.mockResolvedValue({ success: false });
+        else mocks.productionLimit.mockResolvedValue(mode);
         const response = await call();
-        expect(response.status).toBe(mode === "denied" ? 429 : mode === "error" ? 502 : 503);
+        expect(response.status).toBe(mode === "limited" ? 429 : mode === "error" ? 502 : 503);
         expect(response.headers.get("cache-control")).toBe("no-store");
         expect(mocks.admin).not.toHaveBeenCalled();
+        expect(mocks.limit).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });
 });

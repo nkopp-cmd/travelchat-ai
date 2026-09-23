@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { EditForm } from "@/components/itineraries/edit-form";

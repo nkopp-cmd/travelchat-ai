@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
-vi.mock("@clerk/nextjs", () => ({
+vi.mock("@/lib/auth/client", () => ({
   useUser: () => mockUseUser(),
 }));
 

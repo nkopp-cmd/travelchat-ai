@@ -9,7 +9,7 @@ export default defineConfig({
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
         include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-        exclude: ['node_modules', '.next', 'dist', 'e2e/**', '.codex-*/**'],
+        exclude: ['node_modules', '.next', '.open-next', '.wrangler', 'dist', 'e2e/**', '.codex-*/**'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
@@ -24,6 +24,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './'),
+            'server-only': path.resolve(__dirname, './__tests__/stubs/server-only.ts'),
         },
     },
 });

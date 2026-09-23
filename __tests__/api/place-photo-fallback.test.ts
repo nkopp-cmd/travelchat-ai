@@ -3,12 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/places/photo/route";
 
 const mocks = vi.hoisted(() => ({ limit: vi.fn(), productionLimit: vi.fn() }));
-vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit }));
-vi.mock("@upstash/redis", () => ({ Redis: class {} }));
-vi.mock("@upstash/ratelimit", () => ({ Ratelimit: class {
-    static slidingWindow = vi.fn();
-    limit = mocks.productionLimit;
-} }));
+vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit, strictPlatformLimit: mocks.productionLimit }));
 
 const name = "places/ChIJabc/photos/fresh";
 const cdn = "https://lh3.googleusercontent.com/photo";
@@ -20,7 +15,7 @@ describe("place photo proxy without substitution", () => {
         vi.stubEnv("GOOGLE_PLACES_API_KEY", "test-key");
         vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY", "");
         mocks.limit.mockReset().mockResolvedValue(null);
-        mocks.productionLimit.mockReset().mockResolvedValue({ success: true });
+        mocks.productionLimit.mockReset().mockResolvedValue("ok");
         vi.stubGlobal("fetch", vi.fn());
     });
     afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.useRealTimers(); });
@@ -154,41 +149,22 @@ describe("place photo proxy without substitution", () => {
         expect(fetch).not.toHaveBeenCalled();
     });
 
-    it.each([
-        ["203.0.113.10", "203.0.113.10"],
-        ["2001:db8::1234", "2001:db8::1234"],
-        [null, "unknown"],
-        ["", "unknown"],
-        ["not-an-ip", "unknown"],
-        ["999.0.0.1", "unknown"],
-        ["203.0.113.10, 198.51.100.1", "unknown"],
-        ["203.0.113.10:443", "unknown"],
-        ["[2001:db8::1234]", "unknown"],
-    ])("uses only a validated Vercel IP in production: %s", async (platformIp, expectedKey) => {
+    it("uses the strict platform limiter in production and never the development helper", async () => {
         vi.stubEnv("NODE_ENV", "production");
-        vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example");
-        vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test");
-        mocks.productionLimit.mockResolvedValue({ success: false });
-        for (const spoofedIp of ["198.51.100.1", "198.51.100.2"]) {
-            const req = request();
-            if (platformIp !== null) req.headers.set("x-vercel-forwarded-for", platformIp);
-            req.headers.set("x-forwarded-for", `${spoofedIp}, 192.0.2.1`);
-            req.headers.set("x-real-ip", spoofedIp);
-            expect((await GET(req)).status).toBe(429);
-        }
-        expect(mocks.productionLimit.mock.calls).toEqual([[expectedKey], [expectedKey]]);
+        mocks.productionLimit.mockResolvedValue("limited");
+        const response = await GET(request());
+        expect(response.status).toBe(429);
+        expect(mocks.productionLimit).toHaveBeenCalledWith(expect.anything(), 120, "venue_images_v2");
         expect(mocks.limit).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });
 
-    it.each(["missing", "error", "timeout", "denied"])("fails closed in production: %s", async mode => {
+    it.each(["unavailable", "error", "limited"])("fails closed in production: %s", async mode => {
         vi.stubEnv("NODE_ENV", "production");
-        vi.stubEnv("UPSTASH_REDIS_REST_URL", mode === "missing" ? "" : "https://redis.example");
-        vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test");
         if (mode === "error") mocks.productionLimit.mockRejectedValue(new Error("unavailable"));
-        if (mode === "timeout") mocks.productionLimit.mockResolvedValue({ success: true, reason: "timeout" });
-        if (mode === "denied") mocks.productionLimit.mockResolvedValue({ success: false });
-        expect((await GET(request())).status).toBe(mode === "denied" ? 429 : mode === "error" ? 502 : 503);
+        else mocks.productionLimit.mockResolvedValue(mode);
+        const response = await GET(request());
+        expect(response.status).toBe(mode === "limited" ? 429 : mode === "error" ? 502 : 503);
         expect(mocks.limit).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });

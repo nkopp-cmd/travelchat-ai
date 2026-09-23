@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isIP } from "node:net";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { getGooglePlacesApiKey, normalizePhotoWidth } from "@/lib/place-images";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 const developmentLimit = rateLimit({ windowMs: 60_000, maxRequests: 120 });
@@ -86,15 +83,9 @@ export async function GET(req: NextRequest) {
     try {
         // The shared helper deliberately fails open. Production must not use that fallback.
         if (process.env.NODE_ENV === "production") {
-            const url = process.env.UPSTASH_REDIS_REST_URL;
-            const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-            if (!url || !token) return unavailable(503);
-            const limiter = new Ratelimit({ redis: new Redis({ url, token }),
-                limiter: Ratelimit.slidingWindow(120, "60 s"), prefix: "localley_venue_images_v2", timeout: 2000 });
-            const ip = req.headers.get("x-vercel-forwarded-for")?.trim() || "";
-            const result = await limiter.limit(isIP(ip) ? ip : "unknown");
-            if (result.reason === "timeout") return unavailable(503);
-            if (!result.success) return unavailable(429);
+            const verdict = await strictPlatformLimit(req, 120, "venue_images_v2");
+            if (verdict === "unavailable") return unavailable(503);
+            if (verdict === "limited") return unavailable(429);
         } else {
             const limited = await developmentLimit(req);
             if (limited) return unavailable(limited.status);

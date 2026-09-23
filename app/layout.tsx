@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from '@clerk/nextjs';
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -14,29 +13,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const clerkLocalization = {
-  signIn: {
-    start: {
-      title: "Sign in to Localley",
-      titleCombined: "Sign in to Localley",
-      subtitle: "Continue planning local-first trips across Asia.",
-      subtitleCombined: "Continue planning local-first trips across Asia.",
-      actionText: "New to Localley?",
-      actionLink: "Create an account",
-    },
-  },
-  signUp: {
-    start: {
-      title: "Join Localley",
-      titleCombined: "Join Localley",
-      subtitle: "Create an account, choose a plan, and start building better routes.",
-      subtitleCombined: "Create an account, choose a plan, and start building better routes.",
-      actionText: "Already use Localley?",
-      actionLink: "Sign in",
-    },
-  },
-};
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -118,47 +94,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: undefined,
-        variables: {
-          colorPrimary: "#7c3aed", // violet-600
-          colorBackground: "#0f0f1a",
-          colorText: "#ffffff",
-          colorInputBackground: "#1a1a2e",
-          colorInputText: "#ffffff",
-        },
-      }}
-      localization={clerkLocalization}
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/dashboard"
-    >
-      <html lang="en" className="dark">
-        <head>
-          <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-          <meta name="apple-mobile-web-app-title" content="Localley" />
-          <OrganizationJsonLd />
-          <WebsiteJsonLd />
-        </head>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-dvh flex flex-col overflow-hidden`}
-        >
-          <SkipLink />
-          <Providers>
-            <ConditionalNavbar />
-            <MainContentShell>
-              {children}
-            </MainContentShell>
-            <MobileBottomNav />
-            <Toaster />
-          </Providers>
-          <SpeedInsights />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className="dark">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Localley" />
+        <OrganizationJsonLd />
+        <WebsiteJsonLd />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-dvh flex flex-col overflow-hidden`}
+      >
+        <SkipLink />
+        <Providers>
+          <ConditionalNavbar />
+          <MainContentShell>
+            {children}
+          </MainContentShell>
+          <MobileBottomNav />
+          <Toaster />
+        </Providers>
+        {/* Vercel Speed Insights only exists on Vercel; Workers builds omit it. */}
+        {process.env.VERCEL ? <SpeedInsights /> : null}
+      </body>
+    </html>
   );
 }

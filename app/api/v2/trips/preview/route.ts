@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimiters } from "@/lib/rate-limit";
+import { requireUser } from "@/lib/auth/server";
 import { supportedCorridorNetwork } from "@/lib/trips/corridor-network";
 import {
   MultiCityTripRequestSchema,
@@ -112,6 +113,9 @@ export async function GET() {
   if (process.env.MULTI_CITY_PREVIEW_API !== "on") {
     return NextResponse.json({ error: "Not found" }, { status: 404, headers: noStoreHeaders });
   }
+  // Signed-in only (Nils' choice). Middleware checks the cookie signature; this checks the live session.
+  const gate = await requireUser();
+  if (gate.response) return gate.response;
   return NextResponse.json(
     { enabled: true, network: supportedCorridorNetwork() },
     { headers: noStoreHeaders },
@@ -122,6 +126,9 @@ export async function POST(request: NextRequest) {
   if (process.env.MULTI_CITY_PREVIEW_API !== "on") {
     return NextResponse.json({ error: "Not found" }, { status: 404, headers: noStoreHeaders });
   }
+  // Signed-in only (Nils' choice). Middleware checks the cookie signature; this checks the live session.
+  const gate = await requireUser();
+  if (gate.response) return gate.response;
 
   const limited = await rateLimiters.strict(request);
   if (limited) return limited;

@@ -18,6 +18,7 @@ const ENV_NAMES = [
   "CLAUDE_MODEL",
   "ANTHROPIC_MODEL",
   "CHAT_MODEL",
+  "OPENAI_CHAT_MODEL",
 ];
 
 function clearEnv() {
@@ -31,7 +32,7 @@ describe("chat provider readiness", () => {
     clearEnv();
   });
 
-  it("reports GLM primary and Anthropic fallback readiness without a health check by default", async () => {
+  it("reports GLM primary and OpenAI fallback readiness without a health check by default", async () => {
     clearEnv();
     process.env.GLM_API_KEY = " glm-live ";
     process.env.ANTHROPIC_API_KEY = " anthropic-live ";
@@ -45,7 +46,7 @@ describe("chat provider readiness", () => {
 
     expect(readiness).toMatchObject({
       primary: "glm",
-      fallback: "anthropic",
+      fallback: "openai",
       readyForGlmPrimary: true,
       readyForProductionChat: true,
       readyForProductionItinerary: true,
@@ -63,9 +64,9 @@ describe("chat provider readiness", () => {
           apiKeySource: "GLM_API_KEY",
         },
       },
-      anthropicFallback: {
+      chatFallback: {
         configured: true,
-        model: "claude-sonnet-4-20250514",
+        model: "gpt-5.6-luna",
       },
       itineraryFallback: {
         provider: "openai",
@@ -125,7 +126,7 @@ describe("chat provider readiness", () => {
       readyForProductionAI: false,
       issues: [
         "glm_api_key_missing",
-        "anthropic_fallback_missing",
+        "openai_chat_fallback_missing",
         "openai_itinerary_fallback_missing",
       ],
     });
@@ -163,8 +164,7 @@ describe("chat provider readiness", () => {
     process.env.ANTHROPIC_API_KEY = "anthropic-live";
     process.env.OPENAI_API_KEY = "openai-live";
     process.env.OPENAI_MODEL = " gpt-itinerary-fallback ";
-    process.env.ANTHROPIC_MODEL = " claude-fallback ";
-    process.env.CHAT_MODEL = "claude-legacy";
+    process.env.OPENAI_CHAT_MODEL = " gpt-chat-fallback ";
     const glmProvider = {
       isAvailable: vi.fn(() => true),
       healthCheck: vi.fn(async () => true),
@@ -181,9 +181,9 @@ describe("chat provider readiness", () => {
         apiKeySource: "ZAI_API_KEY",
       },
     });
-    expect(readiness.anthropicFallback).toMatchObject({
+    expect(readiness.chatFallback).toMatchObject({
       configured: true,
-      model: "claude-fallback",
+      model: "gpt-chat-fallback",
     });
     expect(readiness.itineraryFallback).toMatchObject({
       provider: "openai",
@@ -195,7 +195,7 @@ describe("chat provider readiness", () => {
     expect(readiness.readyForProductionAI).toBe(true);
   });
 
-  it("flags itinerary fallback readiness separately from chat fallback readiness", async () => {
+  it("flags chat and itinerary fallback as missing without an OpenAI key", async () => {
     clearEnv();
     process.env.GLM_API_KEY = "glm-live";
     process.env.ANTHROPIC_API_KEY = "anthropic-live";
@@ -208,10 +208,11 @@ describe("chat provider readiness", () => {
 
     expect(readiness).toMatchObject({
       readyForGlmPrimary: true,
-      readyForProductionChat: true,
+      readyForProductionChat: false,
       readyForProductionItinerary: false,
       readyForProductionAI: false,
-      issues: ["openai_itinerary_fallback_missing"],
+      issues: ["openai_chat_fallback_missing", "openai_itinerary_fallback_missing"],
+      chatFallback: { configured: false, model: "gpt-5.6-luna" },
       itineraryFallback: {
         provider: "openai",
         configured: false,
@@ -241,13 +242,13 @@ describe("chat provider readiness", () => {
       getChatProviderReadinessActions({
         issues: [
           "glm_api_key_missing",
-          "anthropic_fallback_missing",
+          "openai_chat_fallback_missing",
           "openai_itinerary_fallback_missing",
         ],
       }),
     ).toEqual([
       "Add GLM_API_KEY in Vercel and local env; keep GLM_MODEL=glm-5.2 and GLM_BASE_URL=https://api.z.ai/api/paas/v4/.",
-      "Keep ANTHROPIC_API_KEY configured so chat can fall back when GLM is unavailable or returns an empty response.",
+      "Keep OPENAI_API_KEY configured so chat can fall back to OpenAI when GLM is unavailable or returns an empty response.",
       "Keep OPENAI_API_KEY configured so itinerary generation has a paid OpenAI fallback behind the GLM primary path.",
     ]);
   });

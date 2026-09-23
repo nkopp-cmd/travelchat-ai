@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@/lib/auth/client";
 import { Notification, NotificationPreferences } from "@/types";
 
 interface UseNotificationsReturn {

@@ -1,10 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
 import { getTrimmedEnv, readGLMProviderConfig } from "./env";
 import { GLMProvider } from "./providers/glm";
 import type { TextGenerationProvider } from "./providers/base";
 
-export type ChatProviderName = "glm" | "anthropic";
+export type ChatProviderName = "glm" | "openai";
 export type ChatFallbackReason =
   | "glm_unavailable"
   | "glm_error"
@@ -16,14 +16,15 @@ export interface ChatMessage {
   content: string;
 }
 
-interface AnthropicChatClient {
-  messages: {
-    create(input: {
-      model: string;
-      max_tokens: number;
-      system: string;
-      messages: Array<{ role: "user" | "assistant"; content: string }>;
-    }): Promise<{ content: Array<{ type: string; text?: string }> }>;
+interface OpenAIChatClient {
+  chat: {
+    completions: {
+      create(input: {
+        model: string;
+        max_completion_tokens: number;
+        messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+      }): Promise<{ choices: Array<{ message?: { content?: string | null } }> }>;
+    };
   };
 }
 
@@ -40,20 +41,17 @@ export interface ChatProviderResult {
 
 interface ChatProviderDependencies {
   glm?: Pick<TextGenerationProvider, "isAvailable" | "generateText">;
-  anthropic?: AnthropicChatClient;
-  anthropicModel?: string;
+  openai?: OpenAIChatClient;
+  openaiModel?: string;
   logger?: Pick<Console, "error">;
 }
 
-export const DEFAULT_ANTHROPIC_CHAT_MODEL = "claude-sonnet-4-20250514";
+// Chat fallback moved from Anthropic to OpenAI (2026-09-23): the Anthropic key had no
+// credit and its SDK failed on Cloudflare Workers; the OpenAI SDK works there (GLM uses it).
+export const DEFAULT_OPENAI_CHAT_MODEL = "gpt-5.6-luna";
 
-export function getAnthropicChatModel(): string {
-  return (
-    getTrimmedEnv("CLAUDE_MODEL") ||
-    getTrimmedEnv("ANTHROPIC_MODEL") ||
-    getTrimmedEnv("CHAT_MODEL") ||
-    DEFAULT_ANTHROPIC_CHAT_MODEL
-  );
+export function getOpenAIChatModel(): string {
+  return getTrimmedEnv("OPENAI_CHAT_MODEL") || DEFAULT_OPENAI_CHAT_MODEL;
 }
 
 export function buildChatTranscript(messages: ChatMessage[]): string {
@@ -63,24 +61,13 @@ export function buildChatTranscript(messages: ChatMessage[]): string {
     .join("\n\n");
 }
 
-function getAnthropicClient(): AnthropicChatClient {
-  const apiKey = getTrimmedEnv("ANTHROPIC_API_KEY");
+function getOpenAIClient(): OpenAIChatClient {
+  const apiKey = getTrimmedEnv("OPENAI_API_KEY");
   if (!apiKey) {
-    throw new Error("Anthropic API key is not configured");
+    throw new Error("OpenAI API key is not configured");
   }
 
-  return new Anthropic({ apiKey });
-}
-
-function getAnthropicText(response: {
-  content: Array<{ type: string; text?: string }>;
-}): string {
-  return response.content
-    .filter((block) => block.type === "text" && block.text)
-    .map((block) => block.text?.trim())
-    .filter(Boolean)
-    .join("\n\n")
-    .trim();
+  return new OpenAI({ apiKey, maxRetries: 0 });
 }
 
 export async function generateChatReplyWithFallback(
@@ -130,7 +117,7 @@ export async function generateChatReplyWithFallback(
     } catch (glmError) {
       fallbackReason = fallbackReason || "glm_error";
       (dependencies.logger ?? console).error(
-        "[CHAT] GLM primary failed; falling back to Anthropic:",
+        "[CHAT] GLM primary failed; falling back to OpenAI:",
         glmError
       );
     }
@@ -138,30 +125,30 @@ export async function generateChatReplyWithFallback(
     fallbackReason = "glm_unavailable";
   }
 
-  const anthropicMessages = input.messages
+  const fallbackMessages = input.messages
     .filter((message) => message.role === "user" || message.role === "assistant")
     .map((message) => ({
       role: message.role as "user" | "assistant",
       content: message.content,
     }));
 
-  const client = dependencies.anthropic ?? getAnthropicClient();
-  const fallbackModel = dependencies.anthropicModel ?? getAnthropicChatModel();
-  const response = await client.messages.create({
+  const client = dependencies.openai ?? getOpenAIClient();
+  const fallbackModel = dependencies.openaiModel ?? getOpenAIChatModel();
+  // GPT-5 models accept only the default temperature, so it is not sent here.
+  const response = await client.chat.completions.create({
     model: fallbackModel,
-    max_tokens: maxTokens,
-    system: input.systemPrompt,
-    messages: anthropicMessages,
+    max_completion_tokens: maxTokens,
+    messages: [{ role: "system", content: input.systemPrompt }, ...fallbackMessages],
   });
 
-  const reply = getAnthropicText(response);
+  const reply = (response.choices[0]?.message?.content ?? "").trim();
   if (!reply) {
-    throw new Error("Anthropic returned an empty chat response");
+    throw new Error("OpenAI returned an empty chat response");
   }
 
   return {
     content: reply,
-    provider: "anthropic",
+    provider: "openai",
     model: fallbackModel,
     fallbackUsed: glmWasAttempted,
     fallbackReason,

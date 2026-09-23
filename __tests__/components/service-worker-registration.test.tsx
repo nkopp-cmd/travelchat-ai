@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ServiceWorkerRegistration } from "@/providers/service-worker-registration";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 
-vi.mock("@clerk/nextjs", () => ({ useUser: () => ({ isSignedIn: true }) }));
+vi.mock("@/lib/auth/client", () => ({ useUser: () => ({ isSignedIn: true }) }));
 afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();

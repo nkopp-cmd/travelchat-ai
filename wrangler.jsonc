@@ -1,0 +1,119 @@
+// Localley Next.js app on Cloudflare Workers through OpenNext (@opennextjs/cloudflare).
+// Path B, chosen by Nils on 2026-09-23. See docs/CLOUDFLARE_OPENNEXT.md.
+//
+// Top level = NON-PRODUCTION preview Worker `localley-next-preview` (workers.dev).
+//   Deploy: npm run cf:deploy:preview
+// env.production = production Worker `localley-next`. No workers.dev URL. Until the
+//   DNS switch (P7) its only host is the staging domain next.localley.io, and its
+//   Cron Triggers stay off until P8 (docs/CLOUDFLARE_OPENNEXT.md section 6).
+//
+// Secrets are never stored here. Preview secrets are set with `wrangler secret put`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "localley-next-preview",
+  "account_id": "664f242340bcec2f32daaeee15f58bde",
+  "main": "cloudflare/opennext/worker.ts",
+  "compatibility_date": "2026-09-08",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "send_metrics": false,
+  "limits": { "cpu_ms": 30000 },
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "images": { "binding": "IMAGES" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next-preview" }],
+  "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-preview-cache" }],
+  "d1_databases": [{
+    "binding": "NEXT_TAG_CACHE_D1",
+    "database_name": "localley-next-preview-tags",
+    "database_id": "d0abdd88-2dc4-47c1-a40e-14b0dcb64e30"
+  }, {
+    // Better Auth store for the PREVIEW only (users, sessions, test mailbox). Never production data.
+    // Agents may create test users here freely (docs/AUTH_BETTER_AUTH.md).
+    "binding": "AUTH_DB",
+    "database_name": "localley-auth-preview",
+    "database_id": "58b7eef4-2e41-4408-9246-36bc22988200",
+    "migrations_dir": "migrations/auth"
+  }],
+  // lib/rate-limit.ts uses RATE_LIMIT_<maxRequests> for 60 second windows (replaces Upstash).
+  "ratelimits": [
+    { "name": "RATE_LIMIT_5", "namespace_id": "4301", "simple": { "limit": 5, "period": 60 } },
+    { "name": "RATE_LIMIT_10", "namespace_id": "4302", "simple": { "limit": 10, "period": 60 } },
+    { "name": "RATE_LIMIT_20", "namespace_id": "4303", "simple": { "limit": 20, "period": 60 } },
+    { "name": "RATE_LIMIT_60", "namespace_id": "4304", "simple": { "limit": 60, "period": 60 } },
+    { "name": "RATE_LIMIT_40", "namespace_id": "4305", "simple": { "limit": 40, "period": 60 } },
+    { "name": "RATE_LIMIT_120", "namespace_id": "4306", "simple": { "limit": 120, "period": 60 } }
+  ],
+  // The preview points at production Supabase with the public anon key only.
+  // SUPABASE_READ_ONLY blocks every non-GET Supabase request (lib/supabase-read-only.ts).
+  "vars": {
+    "SUPABASE_READ_ONLY": "true",
+    "NEXTJS_ENV": "production",
+    // Auth emails go to the auth_mail_outbox table, never to a real inbox.
+    "AUTH_MAIL_MODE": "outbox",
+    "BETTER_AUTH_URL": "https://localley-next-preview.nkopp.workers.dev",
+    "AUTH_ALLOWED_HOSTS": "localley-next-preview.nkopp.workers.dev"
+  },
+  // No Cron Triggers on the preview: the jobs write data. Test them with
+  // `npm run cf:preview:local` and /cdn-cgi/handler/scheduled (see the docs).
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": { "enabled": true, "invocation_logs": true }
+  },
+  "env": {
+    "production": {
+      "name": "localley-next",
+      "workers_dev": false,
+      "preview_urls": false,
+      "limits": { "cpu_ms": 30000 },
+      "images": { "binding": "IMAGES" },
+      "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
+      // Created 2026-09-23 (step P2, approved by Nils).
+      "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" }],
+      "d1_databases": [{
+        "binding": "NEXT_TAG_CACHE_D1",
+        "database_name": "localley-next-tags",
+        "database_id": "ca1dc3b6-b8cc-49a6-b299-f5d1965cf18c"
+      }, {
+        // Production Better Auth store (users, sessions). Created 2026-09-23 (step A1,
+        // approved by Nils "go ahead"). Migrations: migrations/auth, applied --env production --remote.
+        "binding": "AUTH_DB",
+        "database_name": "localley-auth",
+        "database_id": "73378d0e-7f2a-465a-8188-a67cb6d2a5c2",
+        "migrations_dir": "migrations/auth"
+      }],
+      "ratelimits": [
+        { "name": "RATE_LIMIT_5", "namespace_id": "4311", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RATE_LIMIT_10", "namespace_id": "4312", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RATE_LIMIT_20", "namespace_id": "4313", "simple": { "limit": 20, "period": 60 } },
+        { "name": "RATE_LIMIT_60", "namespace_id": "4314", "simple": { "limit": 60, "period": 60 } },
+        { "name": "RATE_LIMIT_40", "namespace_id": "4315", "simple": { "limit": 40, "period": 60 } },
+        { "name": "RATE_LIMIT_120", "namespace_id": "4316", "simple": { "limit": 120, "period": 60 } }
+      ],
+      // BETTER_AUTH_SECRET, SUPABASE_JWT_SECRET, RESEND_API_KEY (+ optional GOOGLE_CLIENT_ID/SECRET)
+      // are secrets: set them at cutover (APPROVAL). FROM_EMAIL is also a secret on localley-next
+      // (Resend-verified localley.io sender, 2026-09-23); do not add it to vars.
+      "vars": {
+        "NEXTJS_ENV": "production",
+        "BETTER_AUTH_URL": "https://www.localley.io",
+        "AUTH_ALLOWED_HOSTS": "www.localley.io,localley.io,next.localley.io"
+      },
+      // Cron Triggers ON since the DNS switch (P7/P8, Nils 2026-09-23); the Vercel crons were
+      // disabled in the same window. Same UTC schedules as vercel.json (cloudflare/opennext/cron-routes.ts).
+      "triggers": { "crons": ["0 3 * * *", "0 4 * * *", "23 2 1 * *", "0 5 * * *"] },
+      // next.localley.io = production staging host (P5, approved by Nils 2026-09-23).
+      // P7 (Nils 2026-09-23): localley.io and www.localley.io served here; the Vercel DNS records were deleted.
+      "routes": [
+        { "pattern": "next.localley.io", "custom_domain": true },
+        { "pattern": "localley.io", "custom_domain": true },
+        { "pattern": "www.localley.io", "custom_domain": true }
+      ],
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "logs": { "enabled": true, "invocation_logs": true }
+      }
+    }
+  }
+}

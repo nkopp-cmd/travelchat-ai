@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isIP } from "node:net";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { z } from "zod";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 import { inferCityFromAddress } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
 import { getGooglePlaceIdsFromSpotPhotos, getGooglePlacesApiKey, getPlacePhotoMatchQuality } from "@/lib/place-images";
@@ -40,15 +37,9 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
     try {
         // Use one IP bucket across spot IDs; the development helper keys by pathname.
         if (process.env.NODE_ENV === "production") {
-            const url = process.env.UPSTASH_REDIS_REST_URL;
-            const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-            if (!url || !token) return unavailable(503);
-            const limiter = new Ratelimit({ redis: new Redis({ url, token }),
-                limiter: Ratelimit.slidingWindow(40, "60 s"), prefix: "localley_venue_photos_v2", timeout: 2000 });
-            const ip = req.headers.get("x-vercel-forwarded-for")?.trim() || "";
-            const result = await limiter.limit(isIP(ip) ? ip : "unknown");
-            if (result.reason === "timeout") return unavailable(503);
-            if (!result.success) return unavailable(429, "Too many requests. Please try again later.");
+            const verdict = await strictPlatformLimit(req, 40, "venue_photos_v2");
+            if (verdict === "unavailable") return unavailable(503);
+            if (verdict === "limited") return unavailable(429, "Too many requests. Please try again later.");
         } else {
             const limited = await developmentLimit(new NextRequest(new URL("/api/spots/photos", req.url), { headers: req.headers }));
             if (limited) return unavailable(limited.status);

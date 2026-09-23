@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from "@/lib/auth/server";
 import { handleApiError, Errors } from '@/lib/api-errors';
 import { getUserTier } from '@/lib/usage-tracking';
 import { buildPlacePhotoProxyUrl, getGooglePlacesApiKey } from '@/lib/place-images';

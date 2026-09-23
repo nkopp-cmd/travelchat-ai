@@ -16,7 +16,7 @@ import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insight
 import { DayRouteSection } from "@/components/itinerary/day-route-section";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
 import { HeroSection } from "@/components/itinerary/hero-section";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { withReadOnlyGuard } from '@/lib/supabase-read-only';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -16,7 +17,7 @@ export const createSupabaseClient = (clerkToken?: string) => {
     ? { global: { headers: { Authorization: `Bearer ${clerkToken}` } } }
     : {};
 
-  return createClient(supabaseUrl, supabaseAnonKey, options);
+  return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard(options));
 };
 
 /**
@@ -37,7 +38,7 @@ export const createSupabaseAdmin = () => {
     throw new Error('Supabase environment variables are not configured');
   }
 
-  return createClient(supabaseUrl, serviceRoleKey);
+  return createClient(supabaseUrl, serviceRoleKey, withReadOnlyGuard({}));
 };
 
 // For the server-authenticated client, import from lib/supabase-server instead:

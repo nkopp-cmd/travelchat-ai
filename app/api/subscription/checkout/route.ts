@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import {
     stripe,
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
             return Errors.unauthorized();
         }
 
-        // Get user details from Clerk
+        // Get user details from the auth session
         const user = await currentUser();
         if (!user) {
             return Errors.notFound("User");

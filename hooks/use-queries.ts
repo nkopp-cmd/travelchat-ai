@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@/lib/auth/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, isApiError } from "@/lib/api-client";
 

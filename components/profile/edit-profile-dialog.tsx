@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -46,7 +46,7 @@ export function EditProfileDialog({ initialBio = "" }: EditProfileDialogProps) {
 
         setLoading(true);
         try {
-            // Update Clerk user profile
+            // Update the Better Auth user profile
             await user.update({
                 firstName,
                 lastName,
