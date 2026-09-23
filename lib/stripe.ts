@@ -11,6 +11,9 @@ if (!stripeSecretKey) {
 export const stripe = stripeSecretKey
     ? new Stripe(stripeSecretKey, {
           typescript: true,
+          // The default Node HTTP client hangs on Cloudflare Workers (error 1101);
+          // the fetch client works on Workers and on Node alike.
+          httpClient: Stripe.createFetchHttpClient(),
       })
     : null;
 
