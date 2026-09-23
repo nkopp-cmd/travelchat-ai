@@ -19,9 +19,15 @@ describe("Cloudflare cron parity", () => {
     expect(CRON_ROUTES).toEqual(fromVercel);
   });
 
-  it("registers every schedule as a production Cron Trigger", () => {
-    const wrangler = JSON.parse(stripJsonComments(readFileSync(join(root, "wrangler.jsonc"), "utf8")));
-    expect([...wrangler.env.production.triggers.crons].sort()).toEqual(Object.keys(CRON_ROUTES).sort());
+  it("keeps production Cron Triggers either off (before P8) or equal to every Vercel schedule", () => {
+    const source = readFileSync(join(root, "wrangler.jsonc"), "utf8");
+    const wrangler = JSON.parse(stripJsonComments(source));
+    const crons = [...wrangler.env.production.triggers.crons].sort();
+    const all = Object.keys(CRON_ROUTES).sort();
+    // Before the DNS switch the triggers are [] so Vercel and Cloudflare never both run a job.
+    if (crons.length > 0) expect(crons).toEqual(all);
+    // The schedules to enable at P8 stay written next to the empty list.
+    expect(source).toContain(JSON.stringify(Object.keys(CRON_ROUTES)).replace(/","/g, '", "'));
   });
 });
 

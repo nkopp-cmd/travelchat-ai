@@ -3,9 +3,9 @@
 //
 // Top level = NON-PRODUCTION preview Worker `localley-next-preview` (workers.dev).
 //   Deploy: npm run cf:deploy:preview
-// env.production = production Worker `localley-next`. It has no routes and no
-//   workers.dev URL until the approved cutover (docs/CLOUDFLARE_OPENNEXT.md).
-//   Never deploy it without Nils' approval.
+// env.production = production Worker `localley-next`. No workers.dev URL. Until the
+//   DNS switch (P7) its only host is the staging domain next.localley.io, and its
+//   Cron Triggers stay off until P8 (docs/CLOUDFLARE_OPENNEXT.md section 6).
 //
 // Secrets are never stored here. Preview secrets are set with `wrangler secret put`.
 {
@@ -56,12 +56,12 @@
       "limits": { "cpu_ms": 30000 },
       "images": { "binding": "IMAGES" },
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
-      // APPROVAL: create before the first production deploy (docs/CLOUDFLARE_OPENNEXT.md, step P2).
+      // Created 2026-09-23 (step P2, approved by Nils).
       "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" }],
       "d1_databases": [{
         "binding": "NEXT_TAG_CACHE_D1",
         "database_name": "localley-next-tags",
-        "database_id": "REPLACE_AT_CUTOVER_WITH_localley-next-tags_ID"
+        "database_id": "ca1dc3b6-b8cc-49a6-b299-f5d1965cf18c"
       }],
       "ratelimits": [
         { "name": "RATE_LIMIT_5", "namespace_id": "4311", "simple": { "limit": 5, "period": 60 } },
@@ -70,13 +70,20 @@
         { "name": "RATE_LIMIT_60", "namespace_id": "4314", "simple": { "limit": 60, "period": 60 } }
       ],
       "vars": { "NEXTJS_ENV": "production" },
-      // Same UTC schedules as vercel.json crons (cloudflare/opennext/cron-routes.ts).
-      "triggers": { "crons": ["0 3 * * *", "0 4 * * *", "23 2 1 * *", "0 5 * * *"] },
-      // APPROVAL at cutover: custom domains replace the Vercel DNS records.
-      // "routes": [
-      //   { "pattern": "localley.io", "custom_domain": true },
-      //   { "pattern": "www.localley.io", "custom_domain": true }
-      // ],
+      // Cron Triggers are OFF until the DNS switch (step P8). Vercel crons still run
+      // against the Vercel deployment host, so enabling both would run every job twice.
+      // P8 (same window as disabling the Vercel crons): replace [] with the same UTC
+      // schedules as vercel.json (cloudflare/opennext/cron-routes.ts):
+      //   ["0 3 * * *", "0 4 * * *", "23 2 1 * *", "0 5 * * *"]
+      // An explicit [] makes `wrangler deploy` remove any existing schedules.
+      "triggers": { "crons": [] },
+      // next.localley.io = production staging host (P5, approved by Nils 2026-09-23).
+      // APPROVAL at cutover (P7): add localley.io and www.localley.io after the Vercel DNS records are deleted.
+      "routes": [
+        { "pattern": "next.localley.io", "custom_domain": true }
+        // { "pattern": "localley.io", "custom_domain": true },
+        // { "pattern": "www.localley.io", "custom_domain": true }
+      ],
       "observability": {
         "enabled": true,
         "head_sampling_rate": 1,
