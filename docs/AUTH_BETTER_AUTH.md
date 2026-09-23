@@ -127,7 +127,35 @@ Rehearsal 2026-09-23 on a throwaway local D1 (`wrangler d1 execute --local --per
 real export: `{"users":5,"rowsWithSameId":5,"verified":5,"magicLinkKeepsId":5,"resetThenPasswordKeepsId":5,
 "accountsBefore":0,"newUsersCreated":0}`. A second import changed nothing. All files were shredded.
 
-## 7. Production checklist — every step needs Nils' approval (NOT done)
+## 7. Production checklist — every step needs Nils' approval
+
+**Approval 2026-09-23, Nils: "go ahead"** for A1–A5 and the matching cutover steps P2–P5 in
+`CLOUDFLARE_OPENNEXT.md` (production Worker on the staging host `next.localley.io`). Not approved: A6, P6–P8,
+anything on Vercel.
+
+Status 2026-09-23 (claude):
+
+| Step | State | Evidence |
+| --- | --- | --- |
+| A1 | done | D1 `localley-auth` `73378d0e-7f2a-465a-8188-a67cb6d2a5c2` (WEUR) in `env.production`; migrations 0001 + 0002 applied remotely. |
+| A2 | done | 35 Worker secrets on `localley-next` (`wrangler secret bulk`): Vercel production runtime values, `GLM_API_KEY` + `APIFY_API_TOKEN` from `~/secrets/keys.env` (Vercel "Sensitive" placeholders), `SUPABASE_JWT_SECRET` from `LOCALLEY_SUPABASE_JWT_SECRET` (checked: Supabase REST accepts a token signed with it, rejects a wrong one), new `BETTER_AUTH_SECRET`, `ADMIN_USER_IDS` = the Clerk id of `nkopp@my-goodlife.com`. `hello@localley.io` has no Clerk account and no Supabase profile, so it has no admin id yet. Flags `WEEKLY_SOCIAL_TRENDS_ENABLED`, `APIFY_SPOT_DISCOVERY_ENABLED`, `MULTI_CITY_PREVIEW_API` are unset = code default off. No Google OAuth secrets. |
+| A3 | **blocked** | The Localley `RESEND_API_KEY` is a send-only key (`restricted_api_key`): it cannot add a domain. The full-access key in `keys.env` belongs to another Resend account. No DNS record was added, `FROM_EMAIL` is not set, so auth mail still goes from `onboarding@resend.dev`. Inbound mail for `localley.io` is Google Workspace (apex MX). |
+| A4 | done | 5 users imported: `{"users":5,"verified":5,"clerkIds":5,"accounts":0}`. Export/SQL files shredded. |
+| A5 | partly | Worker `localley-next` version `ad07d446-e0d6-4209-8a0d-22c0c6f73015`, custom domain `next.localley.io`, crons `[]`, workers.dev off. Signed-out acceptance passed (below). Signed-in check waits for A3. |
+
+To unblock A3 (Nils): in the Resend account that owns the Localley sending key, either add the domain
+`localley.io` yourself (https://resend.com/domains), or create a **Full access** API key and save it with
+`secret LOCALLEY_RESEND_ADMIN_API_KEY`. An agent then adds only the Resend DNS records (`send` MX/SPF TXT,
+`resend._domainkey` TXT), waits for "verified", sets `FROM_EMAIL` in `env.production.vars` and redeploys.
+Do not change the Worker's sending key.
+
+Signed-out acceptance on `next.localley.io` vs `www.localley.io` (117 build-manifest paths, IPv4): 49 equal;
+the 68 differences are all expected — 65 protected APIs answer 401 instead of Clerk's 404, `/api/auth/get-session`
+200 (`null`), `/forgot-password` + `/reset-password` 200 (new pages). `/api/cities` byte-identical (14,037 B),
+`/spots` shows 3,023 spots on both, `next/image` returns AVIF, the 20/min limiter returns 429 in a burst, the four
+cron routes return 401 with a wrong bearer, both Stripe webhook routes return 400 for an unsigned POST.
+Note: IPv6 from the agent host to Cloudflare drops TLS handshakes (also on the old preview Worker); use `curl -4`.
+
 
 Run from a clean worktree of `main`, with `set -a; . ~/secrets/keys.env; set +a` and
 `export CLOUDFLARE_ACCOUNT_ID=664f242340bcec2f32daaeee15f58bde`. Never print or commit secrets or emails.

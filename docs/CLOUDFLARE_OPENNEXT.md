@@ -140,6 +140,10 @@ Found on production too: Google place photos return `502 lookup_failed_400` on w
 
 ## 6. Production cutover checklist — every step needs Nils' approval
 
+**2026-09-23, Nils approved P2–P5 ("go ahead") with A1–A5.** P2 done (earlier), P3 done (35 secrets), P4 + P5 done:
+Worker `localley-next` version `ad07d446-e0d6-4209-8a0d-22c0c6f73015` on `next.localley.io`, crons `[]`.
+Status and evidence: `docs/AUTH_BETTER_AUTH.md` section 7. P6–P8 are not approved.
+
 Run from a clean worktree of `main`. Never commit or print secret values. Delete temporary env files at once.
 
 P1. **Non-production acceptance first.** Sign-in no longer needs Clerk keys (Better Auth preview store, see
