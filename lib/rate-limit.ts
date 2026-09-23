@@ -32,6 +32,7 @@ function inMemoryRateLimit(key: string, windowMs: number, maxRequests: number): 
     reset: Date;
 } {
     const now = Date.now();
+    cleanupInMemoryStore(now);
     const record = inMemoryStore.get(key);
 
     if (!record || now > record.resetTime) {
@@ -48,16 +49,51 @@ function inMemoryRateLimit(key: string, windowMs: number, maxRequests: number): 
     return { success: true, remaining: maxRequests - record.count, reset: new Date(record.resetTime) };
 }
 
-// Clean up in-memory store periodically
-if (typeof window === "undefined") {
-    setInterval(() => {
-        const now = Date.now();
-        for (const [key, record] of inMemoryStore.entries()) {
-            if (now > record.resetTime) {
-                inMemoryStore.delete(key);
-            }
+// Clean up expired in-memory entries lazily. A module-scope setInterval is not
+// allowed in Cloudflare Workers global scope, so cleanup runs on use instead.
+let lastCleanup = 0;
+function cleanupInMemoryStore(now: number) {
+    if (now - lastCleanup < 60000) return;
+    lastCleanup = now;
+    for (const [key, record] of inMemoryStore.entries()) {
+        if (now > record.resetTime) {
+            inMemoryStore.delete(key);
         }
-    }, 60000);
+    }
+}
+
+/**
+ * Cloudflare Workers rate limiting binding (wrangler `ratelimits`).
+ * Bindings are named RATE_LIMIT_<maxRequests> with a 60 second period.
+ */
+interface WorkersRateLimitBinding {
+    limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
+interface WorkersRuntimeContext {
+    env?: Record<string, unknown>;
+}
+
+const cloudflareContextSymbol = Symbol.for("__cloudflare-context__");
+
+function getWorkersContext(): WorkersRuntimeContext | undefined {
+    return (globalThis as Record<symbol, WorkersRuntimeContext | undefined>)[cloudflareContextSymbol];
+}
+
+function getWorkersRateLimiter(windowMs: number, maxRequests: number): WorkersRateLimitBinding | null {
+    if (windowMs !== 60_000) return null;
+    const binding = getWorkersContext()?.env?.[`RATE_LIMIT_${maxRequests}`] as WorkersRateLimitBinding | undefined;
+    return binding && typeof binding.limit === "function" ? binding : null;
+}
+
+function getClientIp(req: NextRequest): string {
+    // cf-connecting-ip is set by Cloudflare and cannot be spoofed on a Worker.
+    // It is only trusted when the request runs inside the Workers runtime.
+    const cfIp = getWorkersContext() ? req.headers.get("cf-connecting-ip") : null;
+    return cfIp ||
+        req.headers.get("x-forwarded-for")?.split(",")[0] ||
+        req.headers.get("x-real-ip") ||
+        "unknown";
 }
 
 export function rateLimit(config: RateLimitConfig) {
@@ -75,15 +111,26 @@ export function rateLimit(config: RateLimitConfig) {
         : null;
 
     return async (req: NextRequest) => {
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ||
-                   req.headers.get("x-real-ip") ||
-                   "unknown";
+        const ip = getClientIp(req);
         const key = `${ip}:${req.nextUrl.pathname}`;
 
         let success: boolean;
         let reset: Date;
 
-        if (upstashLimiter) {
+        const workersLimiter = getWorkersRateLimiter(windowMs, maxRequests);
+
+        if (workersLimiter) {
+            try {
+                const result = await workersLimiter.limit({ key });
+                success = result.success;
+                reset = new Date(Date.now() + windowMs);
+            } catch (error) {
+                console.warn("[rate-limit] Workers rate limit binding failed; using in-memory fallback.", error);
+                const result = inMemoryRateLimit(key, windowMs, maxRequests);
+                success = result.success;
+                reset = result.reset;
+            }
+        } else if (upstashLimiter) {
             try {
                 const result = await upstashLimiter.limit(key);
                 success = result.success;

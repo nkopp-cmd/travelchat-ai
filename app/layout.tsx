@@ -156,7 +156,8 @@ export default function RootLayout({
             <MobileBottomNav />
             <Toaster />
           </Providers>
-          <SpeedInsights />
+          {/* Vercel Speed Insights only exists on Vercel; Workers builds omit it. */}
+          {process.env.VERCEL ? <SpeedInsights /> : null}
         </body>
       </html>
     </ClerkProvider>

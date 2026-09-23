@@ -1,0 +1,87 @@
+// Localley Next.js app on Cloudflare Workers through OpenNext (@opennextjs/cloudflare).
+// Path B, chosen by Nils on 2026-09-23. See docs/CLOUDFLARE_OPENNEXT.md.
+//
+// Top level = NON-PRODUCTION preview Worker `localley-next-preview` (workers.dev).
+//   Deploy: npm run cf:deploy:preview
+// env.production = production Worker `localley-next`. It has no routes and no
+//   workers.dev URL until the approved cutover (docs/CLOUDFLARE_OPENNEXT.md).
+//   Never deploy it without Nils' approval.
+//
+// Secrets are never stored here. Preview secrets are set with `wrangler secret put`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "localley-next-preview",
+  "account_id": "664f242340bcec2f32daaeee15f58bde",
+  "main": "cloudflare/opennext/worker.ts",
+  "compatibility_date": "2026-09-08",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "send_metrics": false,
+  "limits": { "cpu_ms": 30000 },
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "images": { "binding": "IMAGES" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next-preview" }],
+  "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-preview-cache" }],
+  "d1_databases": [{
+    "binding": "NEXT_TAG_CACHE_D1",
+    "database_name": "localley-next-preview-tags",
+    "database_id": "d0abdd88-2dc4-47c1-a40e-14b0dcb64e30"
+  }],
+  // lib/rate-limit.ts uses RATE_LIMIT_<maxRequests> for 60 second windows (replaces Upstash).
+  "ratelimits": [
+    { "name": "RATE_LIMIT_5", "namespace_id": "4301", "simple": { "limit": 5, "period": 60 } },
+    { "name": "RATE_LIMIT_10", "namespace_id": "4302", "simple": { "limit": 10, "period": 60 } },
+    { "name": "RATE_LIMIT_20", "namespace_id": "4303", "simple": { "limit": 20, "period": 60 } },
+    { "name": "RATE_LIMIT_60", "namespace_id": "4304", "simple": { "limit": 60, "period": 60 } }
+  ],
+  // The preview points at production Supabase with the public anon key only.
+  // SUPABASE_READ_ONLY blocks every non-GET Supabase request (lib/supabase-read-only.ts).
+  "vars": {
+    "SUPABASE_READ_ONLY": "true",
+    "NEXTJS_ENV": "production"
+  },
+  // No Cron Triggers on the preview: the jobs write data. Test them with
+  // `npm run cf:preview:local` and /cdn-cgi/handler/scheduled (see the docs).
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": { "enabled": true, "invocation_logs": true }
+  },
+  "env": {
+    "production": {
+      "name": "localley-next",
+      "workers_dev": false,
+      "preview_urls": false,
+      "limits": { "cpu_ms": 30000 },
+      "images": { "binding": "IMAGES" },
+      "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
+      // APPROVAL: create before the first production deploy (docs/CLOUDFLARE_OPENNEXT.md, step P2).
+      "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" }],
+      "d1_databases": [{
+        "binding": "NEXT_TAG_CACHE_D1",
+        "database_name": "localley-next-tags",
+        "database_id": "REPLACE_AT_CUTOVER_WITH_localley-next-tags_ID"
+      }],
+      "ratelimits": [
+        { "name": "RATE_LIMIT_5", "namespace_id": "4311", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RATE_LIMIT_10", "namespace_id": "4312", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RATE_LIMIT_20", "namespace_id": "4313", "simple": { "limit": 20, "period": 60 } },
+        { "name": "RATE_LIMIT_60", "namespace_id": "4314", "simple": { "limit": 60, "period": 60 } }
+      ],
+      "vars": { "NEXTJS_ENV": "production" },
+      // Same UTC schedules as vercel.json crons (cloudflare/opennext/cron-routes.ts).
+      "triggers": { "crons": ["0 3 * * *", "0 4 * * *", "23 2 1 * *", "0 5 * * *"] },
+      // APPROVAL at cutover: custom domains replace the Vercel DNS records.
+      // "routes": [
+      //   { "pattern": "localley.io", "custom_domain": true },
+      //   { "pattern": "www.localley.io", "custom_domain": true }
+      // ],
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "logs": { "enabled": true, "invocation_logs": true }
+      }
+    }
+  }
+}
