@@ -48,6 +48,14 @@ The private report is `.preview-private/owner-rehearsal-20260925.json` under the
 This snapshot is old. It is **not** the required current-data, zero-mismatch import rehearsal.
 No paid model calls, production data freeze, application import or live data switch occurred.
 
+### Hosted preview binding check
+
+`GET /api/test-app-data` can verify the `APP_DATA_PREVIEW_DB` binding through the actual OpenNext Worker.
+It requires the exact preview hostname, read-only Supabase flag, test-outbox mode, and a signed-in Better Auth session.
+The route returns only public-spot and import-batch counts, with `Cache-Control: no-store`.
+It returns 404 on the production and staging hosts even if the same source file is bundled there.
+This is a preview diagnostic, not a route for production account or venue reads. A missing D1 binding fails closed.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
