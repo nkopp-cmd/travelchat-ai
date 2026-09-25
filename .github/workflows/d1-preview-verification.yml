@@ -7,6 +7,7 @@ on:
       - '.github/workflows/d1-preview-verification.yml'
       - 'lib/app-data/**'
       - '__tests__/lib/app-data-preview-db.test.ts'
+      - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
       - 'docs/CLOUDFLARE_D1_PROJECT.md'
   push:
@@ -34,5 +35,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx vitest run __tests__/lib/app-data-preview-db.test.ts --maxWorkers=1
+      - run: node --test scripts/d1-migration/owner-rehearsal.test.mjs
       - run: npx tsc --noEmit
       - run: npx eslint lib/app-data/preview-db.ts __tests__/lib/app-data-preview-db.test.ts

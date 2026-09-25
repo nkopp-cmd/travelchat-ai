@@ -31,6 +31,23 @@ No production query, import, write, public route, DNS, or Worker version is chan
 
 No signed-in customer-data flow or zero-mismatch current-data rehearsal is claimed from this preview release.
 
+### Owner reconciliation — 2026-09-25
+
+`scripts/d1-migration/owner-rehearsal.mjs` validates the source manifest and page hashes before it reads owners.
+It queries IDs only from the pinned Better Auth production `AUTH_DB`. It makes no identity or application data writes.
+It compares exact IDs; it never links by email or creates sessions. Its detailed ID lists stay in a mode-0600 private report.
+
+The verified **2026-09-21** snapshot contains five profiles and seven source owners. Six Better Auth users exist now.
+Five source owners match Better Auth IDs. Two historical owners remain unclaimed.
+Those two owners hold **31 itineraries, 76 conversations, and nine usage rows**. Keep them intact and inaccessible until verified claims exist.
+Three Better Auth IDs have no source profile, including the two billing-only identities observed in the old export.
+Both required admin IDs exist in `AUTH_DB`; admin authorization must still use the configured allowlist.
+
+Three synthetic reconciliation tests passed, including tampered-page rejection and no email-based join.
+The private report is `.preview-private/owner-rehearsal-20260925.json` under the native preview directory.
+This snapshot is old. It is **not** the required current-data, zero-mismatch import rehearsal.
+No paid model calls, production data freeze, application import or live data switch occurred.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
