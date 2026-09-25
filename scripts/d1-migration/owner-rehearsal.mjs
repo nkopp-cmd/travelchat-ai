@@ -107,7 +107,8 @@ async function main() {
     oldSnapshot: snapshot.oldSnapshot, ...classifyOwners(snapshot.tables, await fetchAuthIds(token)) };
   // Never overwrite evidence; keep IDs in the private report, not the command output.
   await writeFile(resolve(args[3]), JSON.stringify(report, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
-  const { private: _private, ...summary } = report;
+  const summary = { ...report };
+  delete summary.private;
   console.log(JSON.stringify(summary));
 }
 
