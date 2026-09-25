@@ -56,6 +56,18 @@ The route returns only public-spot and import-batch counts, with `Cache-Control:
 It returns 404 on the production and staging hosts even if the same source file is bundled there.
 This is a preview diagnostic, not a route for production account or venue reads. A missing D1 binding fails closed.
 
+### Signed-in preview release — 2026-09-25
+
+- [PR170](https://github.com/nkopp-cmd/travelchat-ai/pull/170) merged as `050989d74cf264d349c756e20f51e56c58559bea` from checked source `f04c292`.
+- Required verify check `36090795869` passed. Seven focused tests passed locally. The merged OpenNext production-format preview build passed.
+- Non-production Worker `localley-next-preview`: version `a40e3b63-a86d-4aa0-b6f4-4683eda2cb3a`, deployment `9ef9de16-06a7-4468-a435-c47e0826d90c`, 100% of the preview host. Rollback preview version: `40b300f4-217c-4be0-b8d1-6d43ca32844d`.
+- A new reserved-domain preview account completed sign-up and verification through the test outbox. Its authenticated GET of `/api/test-app-data` returned 200, `D1 pilot only`, eight published spots, zero import batches, and `Cache-Control: no-store`.
+- Signed-out preview GET returned 401. Signed-out www GET also returned 401 from middleware before the route; unit tests show the route itself returns 404 on non-preview hosts.
+- Production `localley-next` remained at version `72cc3bca-1b07-4f5d-a1f3-f0fa6fa488bb`, deployment `eb429308-fc68-4c80-817c-9f43e7931d0e`. Public www returned 200.
+- Persistent data: preview `AUTH_DB` for the synthetic account, preview `APP_DATA_PREVIEW_DB` for read-only counts, and unchanged production Supabase for application data. No paid call, customer import, version override on www, or production data write.
+
+This signed-in preview check confirms the D1 binding. It does not satisfy the zero-mismatch current-data import, tested rollback, or 1% signed-in canary gates for a live switch.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
