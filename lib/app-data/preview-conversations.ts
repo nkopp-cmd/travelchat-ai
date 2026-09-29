@@ -141,3 +141,25 @@ export async function createPreviewConversationMessage(
   if (result.meta.changes !== 1) throw new Error("Preview message write failed");
   return { message: { id, conversation_id: conversationId, role, content, created_at: now } };
 }
+
+export async function linkPreviewConversation(
+  userId: string, conversationId: string, itineraryId: unknown,
+): Promise<boolean> {
+  const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
+  if (!uuid.test(conversationId)) return false;
+  if (itineraryId !== null && (typeof itineraryId !== "string" || !uuid.test(itineraryId))) {
+    throw new RangeError("Invalid linked itinerary ID");
+  }
+  const owners = await ownerIds(userId);
+  if (!owners.legacy && !owners.fresh) return false;
+  const result = await previewAppDataReader().prepare(`UPDATE conversations
+    SET linkedItineraryId = ?, updatedAt = ?
+    WHERE id = ? AND ownerId IN (?, ?)
+      AND (? IS NULL OR EXISTS (SELECT 1 FROM itineraries i
+        WHERE i.id = ? AND i.ownerId IN (?, ?)))`)
+    .bind(itineraryId, new Date().toISOString(), conversationId,
+      owners.legacy ?? "", owners.fresh ?? "", itineraryId, itineraryId,
+      owners.legacy ?? "", owners.fresh ?? "").run();
+  if (result.meta.changes > 1) throw new Error("Unexpected preview conversation update count");
+  return result.meta.changes === 1;
+}

@@ -6,14 +6,15 @@ const mocks = vi.hoisted(() => ({ reader: vi.fn() }));
 vi.mock("@/lib/app-data/preview-db", () => ({ previewAppDataReader: mocks.reader }));
 import { createPreviewConversation, isPreviewConversationCandidate,
   previewConversations, previewConversationMessages,
-  createPreviewConversationMessage } from "@/lib/app-data/preview-conversations";
+  createPreviewConversationMessage, linkPreviewConversation } from "@/lib/app-data/preview-conversations";
 
 const environment = process.env;
 const conversationId = "11111111-1111-4111-8111-111111111111";
 afterEach(() => { process.env = environment; vi.clearAllMocks(); });
 
 function setup(initialOwners: { id: string; source: string }[], conversations: unknown[] = [],
-  messages: unknown[] = [], ownedId: string | null = null, messageWriteChanges = 1) {
+  messages: unknown[] = [], ownedId: string | null = null, messageWriteChanges = 1,
+  updateChanges = 1) {
   let ownerRows = initialOwners;
   const binds: { sql: string; values: unknown[] }[] = [];
   const prepare = vi.fn((sql: string) => ({
@@ -27,7 +28,8 @@ function setup(initialOwners: { id: string; source: string }[], conversations: u
           if (sql.includes("INSERT OR IGNORE INTO owners")) {
             ownerRows = [{ id: String(values[0]), source: "new" }];
           }
-          return { meta: { changes: sql.includes("INSERT INTO messages") ? messageWriteChanges : 1 } };
+          return { meta: { changes: sql.includes("INSERT INTO messages") ? messageWriteChanges
+            : sql.includes("UPDATE conversations") ? updateChanges : 1 } };
         },
       };
     },
@@ -128,5 +130,31 @@ describe("preview conversations", () => {
   it("does not report a message when ownership changes before the guarded insert", async () => {
     setup([{ id: "auth:user-a", source: "new" }], [], [], conversationId, 0);
     expect(await createPreviewConversationMessage("user-a", conversationId, "user", "Hello")).toBeNull();
+  });
+
+  it("updates a fresh owner's conversation only with an owned itinerary", async () => {
+    const { binds } = setup([{ id: "auth:user-a", source: "new" }]);
+    const itineraryId = "22222222-2222-4222-8222-222222222222";
+    expect(await linkPreviewConversation("user-a", conversationId, itineraryId)).toBe(true);
+    const write = binds.find(call => call.sql.includes("UPDATE conversations"));
+    expect(write?.sql).toContain("WHERE id = ? AND ownerId IN (?, ?)");
+    expect(write?.sql).toContain("i.ownerId IN (?, ?)");
+    expect(write?.values).toEqual([itineraryId, expect.any(String), conversationId,
+      "", "auth:user-a", itineraryId, itineraryId, "", "auth:user-a"]);
+  });
+
+  it("allows unlinking imported history and rejects malformed or foreign links", async () => {
+    const { binds } = setup([{ id: "legacy-owner", source: "legacy-fixture" }]);
+    expect(await linkPreviewConversation("user-a", conversationId, null)).toBe(true);
+    expect(binds.find(call => call.sql.includes("UPDATE conversations"))?.values.slice(3, 5))
+      .toEqual(["legacy-owner", ""]);
+    await expect(linkPreviewConversation("user-a", conversationId, undefined)).rejects.toThrow(RangeError);
+    await expect(linkPreviewConversation("user-a", conversationId, "bad-id")).rejects.toThrow(RangeError);
+    const denied = setup([{ id: "auth:user-b", source: "new" }], [], [], null, 1, 0);
+    expect(await linkPreviewConversation("user-b", conversationId,
+      "22222222-2222-4222-8222-222222222222")).toBe(false);
+    expect(denied.binds.some(call => call.sql.includes("UPDATE conversations"))).toBe(true);
+    setup([]);
+    expect(await linkPreviewConversation("user-c", conversationId, null)).toBe(false);
   });
 });

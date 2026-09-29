@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import { createPreviewConversation, isPreviewConversationCandidate, previewConversations } from "@/lib/app-data/preview-conversations";
+import { createPreviewConversation, isPreviewConversationCandidate, linkPreviewConversation,
+    previewConversations } from "@/lib/app-data/preview-conversations";
 
 // GET - Fetch all conversations for the current user
 export async function GET(req: NextRequest) {
@@ -111,6 +112,19 @@ export async function PATCH(req: NextRequest) {
 
         if (!conversationId) {
             return Errors.validationError("Missing conversationId", ["conversationId"]);
+        }
+
+        if (isPreviewConversationCandidate(req)) {
+            try {
+                const updated = await linkPreviewConversation(userId, conversationId, linked_itinerary_id);
+                if (!updated) return Errors.notFound("Conversation or itinerary");
+                return NextResponse.json({ success: true }, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch (error) {
+                if (error instanceof RangeError) return Errors.validationError(error.message, ["linked_itinerary_id"]);
+                throw error;
+            }
         }
 
         const supabase = await createSupabaseServerClient();

@@ -3,7 +3,7 @@ import "server-only";
 /** D1's bounded statement interface for isolated preview probes. */
 export interface PreviewAppDataStatement {
   first<T = Record<string, unknown>>(): Promise<T | null>;
-  bind(...values: (string | number)[]): PreviewAppDataStatement;
+  bind(...values: (string | number | null)[]): PreviewAppDataStatement;
   all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
   run(): Promise<{ meta: { changes: number } }>;
 }
