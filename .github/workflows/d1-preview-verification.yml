@@ -25,18 +25,23 @@ concurrency:
 jobs:
   verify:
     runs-on: self-hosted
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       NODE_OPTIONS: --max-old-space-size=2048
       NEXT_TELEMETRY_DISABLED: '1'
+      HEAVY_LOCK_WAIT_SECONDS: '1200'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npm ci
-      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npx vitest run __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts --maxWorkers=1
-      - run: node --test scripts/d1-migration/owner-rehearsal.test.mjs
-      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npx tsc --noEmit
-      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npx eslint lib/app-data/preview-db.ts lib/app-data/preview-story-metadata.ts __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts app/api/test-app-data/route.ts app/api/test-app-data/spots/route.ts 'app/api/test-app-data/stories/[id]/route.ts' __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts
+      - run: |
+          /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
+            set -e
+            npm ci
+            npx vitest run __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts --maxWorkers=1
+            node --test scripts/d1-migration/owner-rehearsal.test.mjs
+            npx tsc --noEmit
+            npx eslint lib/app-data/preview-db.ts lib/app-data/preview-story-metadata.ts __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts app/api/test-app-data/route.ts app/api/test-app-data/spots/route.ts "app/api/test-app-data/stories/[id]/route.ts" __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts
+          '
