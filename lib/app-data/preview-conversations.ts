@@ -17,12 +17,12 @@ export function isPreviewConversationCandidate(req: NextRequest): boolean {
     && process.env.SUPABASE_READ_ONLY === "true";
 }
 
-function newOwnerId(userId: string): string {
+export function newOwnerId(userId: string): string {
   if (!userId || userId.length > 100) throw new Error("Invalid preview user ID");
   return `auth:${userId}`;
 }
 
-async function ownerIds(userId: string): Promise<{ legacy: string | null; fresh: string | null }> {
+export async function ownerIds(userId: string): Promise<{ legacy: string | null; fresh: string | null }> {
   const results = await previewAppDataReader().prepare(`SELECT o.id, o.source FROM owners o
     LEFT JOIN legacy_owners l ON l.ownerId = o.id
     WHERE l.clerkUserId = ? OR (o.id = ? AND o.source = 'new' AND l.clerkUserId IS NULL) LIMIT 3`)
@@ -40,6 +40,20 @@ async function ownerIds(userId: string): Promise<{ legacy: string | null; fresh:
     else throw new Error("Conflicting preview owner mapping");
   }
   return { legacy, fresh };
+}
+
+export async function ensureOwnerId(userId: string): Promise<string> {
+  const db = previewAppDataReader();
+  let owners = await ownerIds(userId);
+  if (!owners.legacy && !owners.fresh) {
+    await db.prepare(`INSERT OR IGNORE INTO owners(id, source) SELECT ?, 'new'
+      WHERE NOT EXISTS (SELECT 1 FROM legacy_owners WHERE clerkUserId = ?)`)
+      .bind(newOwnerId(userId), userId).run();
+    owners = await ownerIds(userId);
+  }
+  const ownerId = owners.legacy ?? owners.fresh;
+  if (!ownerId) throw new Error("Preview owner unavailable");
+  return ownerId;
 }
 
 export async function previewConversations(userId: string): Promise<{ conversations: (ConversationRow & {
@@ -79,15 +93,7 @@ export async function createPreviewConversation(userId: string, title: unknown):
   const name = title || "New Conversation";
   if (typeof name !== "string" || name.length > 200) throw new RangeError("Invalid conversation title");
   const db = previewAppDataReader();
-  let owners = await ownerIds(userId);
-  if (!owners.legacy && !owners.fresh) {
-    await db.prepare(`INSERT OR IGNORE INTO owners(id, source) SELECT ?, 'new'
-      WHERE NOT EXISTS (SELECT 1 FROM legacy_owners WHERE clerkUserId = ?)`)
-      .bind(newOwnerId(userId), userId).run();
-    owners = await ownerIds(userId);
-  }
-  const ownerId = owners.legacy ?? owners.fresh;
-  if (!ownerId) throw new Error("Preview conversation owner unavailable");
+  const ownerId = await ensureOwnerId(userId);
   const id = randomUUID();
   const now = new Date().toISOString();
   const result = await db.prepare(`INSERT INTO conversations

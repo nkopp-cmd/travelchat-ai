@@ -5,6 +5,8 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { checkUsageLimit, getUserTier } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
+import { createPreviewSavedSpot, deletePreviewSavedSpot, isPreviewSavedSpotCandidate,
+  previewSavedSpot, previewSavedSpots } from "@/lib/app-data/preview-saved-spots";
 
 const spotIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -24,6 +26,16 @@ export async function POST(req: NextRequest) {
 
     if (typeof spotId !== "string" || !spotIdPattern.test(spotId)) {
       return Errors.validationError("Spot ID must be a valid UUID");
+    }
+
+    if (isPreviewSavedSpotCandidate(req)) {
+      const result = await createPreviewSavedSpot(userId, spotId.toLowerCase());
+      if (result.kind === "missing") return Errors.notFound("Spot");
+      if (result.kind === "limit") return Errors.limitExceeded("saved spots", result.current, result.limit);
+      return NextResponse.json({ success: true, saved: true,
+        message: result.kind === "already" ? "Spot already saved" : "Spot saved successfully" }, {
+        headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+      });
     }
 
     const supabase = await createSupabaseServerClient();
@@ -142,6 +154,13 @@ export async function DELETE(req: NextRequest) {
       return Errors.validationError("Spot ID must be a valid UUID");
     }
 
+    if (isPreviewSavedSpotCandidate(req)) {
+      await deletePreviewSavedSpot(userId, spotId.toLowerCase());
+      return NextResponse.json({ success: true, saved: false, message: "Spot removed from saved" }, {
+        headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+      });
+    }
+
     const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase
@@ -177,6 +196,15 @@ export async function GET(req: NextRequest) {
 
     if (spotId !== null && !spotIdPattern.test(spotId)) {
       return Errors.validationError("Spot ID must be a valid UUID");
+    }
+
+    if (isPreviewSavedSpotCandidate(req)) {
+      const result = spotId
+        ? { saved: await previewSavedSpot(userId, spotId.toLowerCase()) }
+        : await previewSavedSpots(userId);
+      return NextResponse.json(result, {
+        headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+      });
     }
 
     const supabase = await createSupabaseServerClient();
