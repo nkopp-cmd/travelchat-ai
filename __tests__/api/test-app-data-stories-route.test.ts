@@ -3,7 +3,8 @@ import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), read: vi.fn(), write: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
-vi.mock("@/lib/app-data/preview-story-metadata", () => ({
+vi.mock("@/lib/app-data/preview-story-metadata", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/lib/app-data/preview-story-metadata")>(),
   previewStoryBackgrounds: mocks.read, updatePreviewStoryBackgrounds: mocks.write,
 }));
 
