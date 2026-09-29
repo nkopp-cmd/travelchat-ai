@@ -108,6 +108,10 @@ This is **not** a transactional cutover snapshot or a complete product-port rehe
 
 ## Approval and gates
 
+### Preview story metadata candidate — 2026-09-29
+
+`GET` and `PATCH /api/test-app-data/stories/[id]` use `APP_DATA_PREVIEW_DB` only on the isolated preview host. They require a Better Auth session and an exact `legacy_owners.clerkUserId` match to the itinerary owner. `PATCH` merges bounded image URLs into `legacy_itinerary_media.aiBackgrounds`; it cannot create owners or media rows. Production has no application D1 binding, and the normal story routes still use Supabase. The preview D1 schema contains this table with `itineraryId` as its primary key, but currently has zero itineraries, zero story media rows and zero import batches. A hosted successful read or write requires a synthetic preview account and itinerary or an approved isolated import. This increment does not migrate stored PNGs or other story paths.
+
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
 
 1. Full import rehearsal on current source data passes with zero mismatches.
