@@ -92,6 +92,10 @@ Private EU R2 was independently read at 09:42 UTC: managed access disabled, zero
 
 Delivery: [PR174](https://github.com/nkopp-cmd/travelchat-ai/pull/174), source `642b009`, merged as `a6435096dce232171fdfa8ec2738a833717fecb0`. Required CI verify `36551768369` passed; six focused tests, focused lint and diff check passed. Public www `/` and preview `/api/cities` returned 200 after merge. Code contains offline/local rehearsal tooling only; no Worker deployment identity was created. Data stays in Supabase (production), existing private EU R2 (story archive), and the private local reports above; the disposable local D1 was removed. Rollback for this script-only merge: revert `a643509` on `main`. No production Worker version was changed.
 
+### First candidate-only product read (spot catalog pilot)
+
+`GET /api/test-app-data/spots` lists at most 24 visible rows from the preview application D1 with bound pagination and minimal public fields. The exact preview hostname, read-only Supabase mode, outbox auth mode and a Better Auth session are required before touching D1. The pilot table still contains only eight spots; this is an isolated repository probe, not a replacement for `/spots`. The live spots page, save actions, reviews, maps and all production read/write paths remain on Supabase. Failures return 503 without SQL details, and responses are never cached. This route is the first incremental candidate query; a full normalized spot repository and real imported candidate data remain to be built.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:

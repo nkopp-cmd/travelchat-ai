@@ -8,7 +8,9 @@ on:
       - 'lib/app-data/**'
       - '__tests__/lib/app-data-preview-db.test.ts'
       - 'app/api/test-app-data/route.ts'
+      - 'app/api/test-app-data/spots/route.ts'
       - '__tests__/api/test-app-data-route.test.ts'
+      - '__tests__/api/test-app-data-spots-route.test.ts'
       - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
       - 'docs/CLOUDFLARE_D1_PROJECT.md'
@@ -36,7 +38,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx vitest run __tests__/lib/app-data-preview-db.test.ts __tests__/api/test-app-data-route.test.ts --maxWorkers=1
+      - run: npx vitest run __tests__/lib/app-data-preview-db.test.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts --maxWorkers=1
       - run: node --test scripts/d1-migration/owner-rehearsal.test.mjs
       - run: npx tsc --noEmit
-      - run: npx eslint lib/app-data/preview-db.ts __tests__/lib/app-data-preview-db.test.ts
+      - run: npx eslint lib/app-data/preview-db.ts __tests__/lib/app-data-preview-db.test.ts app/api/test-app-data/spots/route.ts __tests__/api/test-app-data-spots-route.test.ts

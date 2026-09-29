@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { previewAppDataCounts } from "@/lib/app-data/preview-db";
+import { previewAppDataCounts, previewSpotPage } from "@/lib/app-data/preview-db";
 
 const contextSymbol = Symbol.for("__cloudflare-context__");
 const env = process.env;
@@ -45,5 +45,30 @@ describe("isolated application D1 preview", () => {
       APP_DATA_PREVIEW_DB: { prepare: () => ({ first: async () => ({ n: NaN }) }) },
     } };
     await expect(previewAppDataCounts()).rejects.toThrow("counters unavailable");
+  });
+
+  it("pages only public D1 spots with bound parameters and no owner fields", async () => {
+    process.env = { ...env, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
+    const queries: string[] = [], params: unknown[][] = [];
+    (globalThis as Record<symbol, unknown>)[contextSymbol] = { env: {
+      AUTH_DB: { prepare: () => { throw new Error("never read auth DB"); } },
+      APP_DATA_PREVIEW_DB: { prepare: (sql: string) => {
+        queries.push(sql);
+        return { bind: (...values: unknown[]) => {
+          params.push(values);
+          return { all: async () => ({ results: [
+            { id: "pilot-1", name: '{"en":"Pilot Cafe"}', category: "Cafe", city: "Seoul", score: 5 },
+            { id: "pilot-2", name: '{"en":"Second"}', category: "Food", city: null, score: null },
+          ] }) };
+        } };
+      } },
+    } };
+    await expect(previewSpotPage(1, 0)).resolves.toEqual({
+      spots: [{ id: "pilot-1", name: "Pilot Cafe", category: "Cafe", city: "Seoul", score: 5 }], nextOffset: 1,
+    });
+    expect(queries[0]).toContain("WHERE visible = 1 ORDER BY id LIMIT ? OFFSET ?");
+    expect(params).toEqual([[2, 0]]);
+    await expect(previewSpotPage(25, 0)).rejects.toThrow("pagination");
+    expect(queries).toHaveLength(1);
   });
 });
