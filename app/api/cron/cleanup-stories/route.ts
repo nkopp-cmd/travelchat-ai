@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isCronRequestAuthorized } from "@/lib/cron-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
+import { cleanupPreviewStories } from "@/lib/app-data/preview-story-cleanup";
 
 /**
  * GET /api/cron/cleanup-stories
@@ -10,6 +12,18 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 export async function GET(req: NextRequest) {
     if (!isCronRequestAuthorized(req)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isPreviewStoryCandidate(req)) {
+        try {
+            const result = await cleanupPreviewStories();
+            return NextResponse.json(result, {
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        } catch (error) {
+            console.error("[CLEANUP_STORIES_PREVIEW] Cleanup failed", error);
+            return NextResponse.json({ success: false, error: "Cleanup failed" }, { status: 500 });
+        }
     }
 
     try {
