@@ -42,6 +42,8 @@ const PUBLIC_MATCHERS = PUBLIC_ROUTES.map(toRegExp);
 
 export const isPublicRoute = (request: NextRequest) =>
     PUBLIC_MATCHERS.some((matcher) => matcher.test(request.nextUrl.pathname)) ||
+    (request.method === 'GET' && request.nextUrl.hostname === 'localley-next-preview.nkopp.workers.dev' &&
+        /^\/api\/itineraries\/[^/]+\/story\/media\/[^/]+\/[^/]+\/?$/.test(request.nextUrl.pathname)) ||
     (request.method === 'GET' && /^\/api\/spots\/[^/]+\/(?:reviews|photos)\/?$/.test(request.nextUrl.pathname));
 
 // Vercel redirected the apex to www; keep that on Cloudflare so there is one canonical

@@ -1,5 +1,6 @@
 import "server-only";
 import { previewAppDataReader } from "./preview-db";
+import { previewStoryMediaUrl } from "./preview-story-media";
 
 interface StoredStorySlides {
   generated_at: string;
@@ -36,6 +37,8 @@ export async function previewStorySlides(id: string, userId: string | null): Pro
     throw new Error("Invalid story slides");
   }
   const expired = Date.parse(story.expires_at) < Date.now();
-  return { success: true, available: !expired, expired, slides: expired ? null : story.slides,
+  const slides = Object.fromEntries(Object.entries(story.slides).map(([slide, source]) =>
+    [slide, previewStoryMediaUrl(id, source)]));
+  return { success: true, available: !expired, expired, slides: expired ? null : slides,
     generatedAt: story.generated_at, expiresAt: story.expires_at, tier: story.tier };
 }
