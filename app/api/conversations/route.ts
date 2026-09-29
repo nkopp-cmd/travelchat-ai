@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { createPreviewConversation, isPreviewConversationCandidate, previewConversations } from "@/lib/app-data/preview-conversations";
 
 // GET - Fetch all conversations for the current user
 export async function GET(req: NextRequest) {
@@ -10,6 +11,13 @@ export async function GET(req: NextRequest) {
 
         if (!userId) {
             return Errors.unauthorized();
+        }
+
+        if (isPreviewConversationCandidate(req)) {
+            const result = await previewConversations(userId);
+            return NextResponse.json(result, {
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
         }
 
         const supabase = await createSupabaseServerClient();
@@ -54,6 +62,18 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
         const { title } = body;
+
+        if (isPreviewConversationCandidate(req)) {
+            try {
+                const result = await createPreviewConversation(userId, title);
+                return NextResponse.json(result, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch (error) {
+                if (error instanceof RangeError) return Errors.validationError(error.message, ["title"]);
+                throw error;
+            }
+        }
 
         const supabase = await createSupabaseServerClient();
 
