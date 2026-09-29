@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { createPreviewConversationMessage, isPreviewConversationCandidate,
+    previewConversationMessages } from "@/lib/app-data/preview-conversations";
 
 // GET - Fetch messages for a conversation
 export async function GET(req: NextRequest) {
@@ -17,6 +19,14 @@ export async function GET(req: NextRequest) {
 
         if (!conversationId) {
             return Errors.validationError("Missing conversationId", ["conversationId"]);
+        }
+
+        if (isPreviewConversationCandidate(req)) {
+            const result = await previewConversationMessages(userId, conversationId);
+            if (!result) return Errors.notFound("Conversation");
+            return NextResponse.json(result, {
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
         }
 
         const supabase = await createSupabaseServerClient();
@@ -65,6 +75,19 @@ export async function POST(req: NextRequest) {
 
         if (!conversationId || !role || !content) {
             return Errors.validationError("Missing required fields", ["conversationId", "role", "content"]);
+        }
+
+        if (isPreviewConversationCandidate(req)) {
+            try {
+                const result = await createPreviewConversationMessage(userId, conversationId, role, content);
+                if (!result) return Errors.notFound("Conversation");
+                return NextResponse.json(result, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch (error) {
+                if (error instanceof RangeError) return Errors.validationError(error.message, ["role", "content"]);
+                throw error;
+            }
         }
 
         const supabase = await createSupabaseServerClient();
