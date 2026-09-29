@@ -6,6 +6,8 @@ import { stripe, getTierFromPriceId, constructWebhookEvent } from "@/lib/stripe"
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { SubscriptionEmail } from "@/emails/subscription-email";
 import { invalidateUserCache } from "@/lib/cache";
+import { isPreviewStripeWebhookCandidate, PreviewStripeEventRejected, PreviewStripeSecretMissing,
+    recordPreviewStripeEvent, verifyPreviewStripeEvent } from "@/lib/app-data/preview-stripe-events";
 
 // Disable body parsing for webhook
 export const runtime = "nodejs";
@@ -13,6 +15,28 @@ export const runtime = "nodejs";
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: NextRequest) {
+    if (isPreviewStripeWebhookCandidate(req)) {
+        try {
+            const signature = req.headers.get("stripe-signature");
+            if (!signature) return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+            const body = await req.text();
+            const event = verifyPreviewStripeEvent(body, signature);
+            if (!event) return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+            const result = await recordPreviewStripeEvent(event, body);
+            return NextResponse.json({ received: true, ...result }, {
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        } catch (error) {
+            if (error instanceof PreviewStripeSecretMissing) {
+                return NextResponse.json({ error: "Preview webhook not configured" }, { status: 503 });
+            }
+            if (error instanceof PreviewStripeEventRejected) {
+                return NextResponse.json({ error: error.message }, { status: 400 });
+            }
+            console.error("[STRIPE_PREVIEW] Event ledger write failed", error);
+            return NextResponse.json({ error: "Preview webhook write failed" }, { status: 500 });
+        }
+    }
     if (!stripe || !webhookSecret) {
         console.error("Stripe or webhook secret not configured");
         return NextResponse.json(
