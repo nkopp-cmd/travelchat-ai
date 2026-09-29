@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getUserTier } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
@@ -7,6 +7,7 @@ import { Errors, handleApiError } from "@/lib/api-errors";
 import { previewStorySlides } from "@/lib/app-data/preview-story-slides";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewStoryOwner, savePreviewStoryMedia } from "@/lib/app-data/preview-story-media";
+import { previewStoryTier } from "@/lib/app-data/preview-story-tier";
 
 // Uploading multiple slide PNGs can take time
 export const maxDuration = 30;
@@ -35,7 +36,9 @@ export async function POST(
                 if (Number.isFinite(contentLength) && contentLength > 32 * 2 * 1024 * 1024 + 128 * 1024) {
                     return Errors.validationError("Story upload is too large");
                 }
-                const tier = await getUserTier(userId);
+                const user = await currentUser();
+                if (!user || user.id !== userId) return Errors.unauthorized();
+                const tier = await previewStoryTier(userId, user.primaryEmailAddress?.emailAddress ?? null);
                 const retentionDays = hasFeature(tier, "storyRetentionDays");
                 const saved = await savePreviewStoryMedia(id, userId, await req.formData(), tier, retentionDays);
                 if (!saved) return Errors.notFound("Itinerary");
