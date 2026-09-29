@@ -76,6 +76,8 @@ The retained 2026-09-21 snapshot manifest SHA-256 `2428ac6f34b47b877e79dc9880fce
 
 The isolated D1 replay remains pending: the shared heavy-work guard requires at least 4 GiB free disk, and the host had 1.5 GiB after Localley's unused `.next` cache was removed. Preserve the private snapshot and avoid the rehearsal until disk headroom is safe.
 
+Read-only audit delivery: [PR172](https://github.com/nkopp-cmd/travelchat-ai/pull/172), source `2fcd551`, merged as `5a4e56c2f203acf93093a7ea13b37c8892304870`; required verify job `36547613513` passed on the PR. Public www `/` and non-production preview `/api/cities` returned 200 after merge. This script-only delivery has no Worker deployment or application-data destination; rollback is reverting `5a4e56c` on `main`. The last recorded preview Worker version is `a40e3b63-a86d-4aa0-b6f4-4683eda2cb3a`; production application data remains in Supabase.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
