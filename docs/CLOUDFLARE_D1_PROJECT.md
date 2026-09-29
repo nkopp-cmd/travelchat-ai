@@ -68,6 +68,14 @@ This is a preview diagnostic, not a route for production account or venue reads.
 
 This signed-in preview check confirms the D1 binding. It does not satisfy the zero-mismatch current-data import, tested rollback, or 1% signed-in canary gates for a live switch.
 
+### Read-only archive inventory — 2026-09-29
+
+`scripts/d1-migration/reconcile-archive.mjs` checks each snapshot page hash, row count and primary key, plus each local media object's bytes, SHA-256, magic bytes and reference. It distinguishes imported source tables from archived-only tables. It checks the historical R2 receipts but explicitly reports `currentRemoteR2Verified: false`; remote object parity must be rechecked before a live import.
+
+The retained 2026-09-21 snapshot manifest SHA-256 `2428ac6f34b47b877e79dc9880fce02cecfe70a0ff2d579cf5aadc8ab35269f4` passed: seven PR151-imported source tables (3,707 rows), 41 archived-only tables (1,795 rows), 48 total tables (5,502 rows), 222 locally verified media objects, 223 references, and 222 historically receipt-verified R2 objects. Four focused tests passed, including changed-page, missing-table, broken-reference and missing-receipt rejection. Historical archived-only tables have **not** been imported into application D1. This check makes no identity assignment, remote R2 read, D1 write, or current-data claim.
+
+The isolated D1 replay remains pending: the shared heavy-work guard requires at least 4 GiB free disk, and the host had 1.5 GiB after Localley's unused `.next` cache was removed. Preserve the private snapshot and avoid the rehearsal until disk headroom is safe.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
