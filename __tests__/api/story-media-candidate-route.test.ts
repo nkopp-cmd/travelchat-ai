@@ -2,10 +2,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), story: vi.fn(), bucket: vi.fn(), owner: vi.fn(), save: vi.fn(), tier: vi.fn(), supabase: vi.fn() }));
-vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), currentUser: vi.fn(), story: vi.fn(), bucket: vi.fn(), owner: vi.fn(), save: vi.fn(), tier: vi.fn(), candidateTier: vi.fn(), supabase: vi.fn() }));
+vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: mocks.currentUser }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.supabase }));
 vi.mock("@/lib/usage-tracking", () => ({ getUserTier: mocks.tier }));
+vi.mock("@/lib/app-data/preview-story-tier", () => ({ previewStoryTier: mocks.candidateTier }));
 vi.mock("@/lib/subscription", () => ({ hasFeature: () => 7 }));
 vi.mock("@/lib/app-data/preview-story-slides", () => ({ previewStorySlides: mocks.story }));
 vi.mock("@/lib/app-data/preview-story-media", async (importOriginal) => ({
@@ -32,8 +33,9 @@ describe("preview story media routes", () => {
   it("writes only the exact preview owner's story and keeps Supabase out of the candidate", async () => {
     process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
     mocks.auth.mockResolvedValue({ userId: "owner-id" });
+    mocks.currentUser.mockResolvedValue({ id: "owner-id", primaryEmailAddress: { emailAddress: "owner@example.test" } });
     mocks.owner.mockResolvedValue(true);
-    mocks.tier.mockResolvedValue("free");
+    mocks.candidateTier.mockResolvedValue("free");
     mocks.save.mockResolvedValue({ slides: { cover: mediaUrl }, expiresAt: "2026-10-06T00:00:00Z", retentionDays: 7, tier: "free" });
     const form = new FormData(); form.append("cover", new Blob(["png"]));
     const request = new NextRequest(`https://${preview}/api/itineraries/${id}/story/persist?data_candidate=d1`, { method: "POST", body: form });
@@ -42,11 +44,14 @@ describe("preview story media routes", () => {
     expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
     expect((await response.json()).slides.cover).toBe(mediaUrl);
     expect(mocks.owner).toHaveBeenCalledWith(id, "owner-id");
+    expect(mocks.candidateTier).toHaveBeenCalledWith("owner-id", "owner@example.test");
     expect(mocks.save).toHaveBeenCalledWith(id, "owner-id", expect.any(FormData), "free", 7);
+    expect(mocks.tier).not.toHaveBeenCalled();
     expect(mocks.supabase).not.toHaveBeenCalled();
     mocks.owner.mockResolvedValue(false);
     expect((await POST(new NextRequest(request.url, { method: "POST", body: form }), persistParams)).status).toBe(404);
     expect(mocks.save).toHaveBeenCalledTimes(1);
+    expect(mocks.candidateTier).toHaveBeenCalledTimes(1);
   });
 
   it("serves only the current unexpired owner's or public slide", async () => {
@@ -72,6 +77,19 @@ describe("preview story media routes", () => {
     expect((await GET(new NextRequest(mediaUrl.replace(preview, "www.localley.io")), mediaParams)).status).toBe(404);
   });
 
+  it("rejects a changed session identity before tier lookup or upload", async () => {
+    process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
+    mocks.auth.mockResolvedValue({ userId: "owner-id" });
+    mocks.currentUser.mockResolvedValue({ id: "other-id", primaryEmailAddress: null });
+    mocks.owner.mockResolvedValue(true);
+    const form = new FormData(); form.append("cover", new Blob(["png"]));
+    const response = await POST(new NextRequest(`https://${preview}/api/itineraries/${id}/story/persist?data_candidate=d1`,
+      { method: "POST", body: form }), persistParams);
+    expect(response.status).toBe(401);
+    expect(mocks.candidateTier).not.toHaveBeenCalled();
+    expect(mocks.save).not.toHaveBeenCalled();
+  });
+
   it("keeps the existing Supabase POST on www and normal preview", async () => {
     process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
     mocks.auth.mockResolvedValue({ userId: "owner-id" });
@@ -89,6 +107,8 @@ describe("preview story media routes", () => {
       expect((await POST(request, persistParams)).status).toBe(200);
     }
     expect(mocks.supabase).toHaveBeenCalledTimes(2);
+    expect(mocks.tier).toHaveBeenCalledTimes(2);
+    expect(mocks.candidateTier).not.toHaveBeenCalled();
     expect(mocks.owner).not.toHaveBeenCalled();
     expect(mocks.save).not.toHaveBeenCalled();
   });
