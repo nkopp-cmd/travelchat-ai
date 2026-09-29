@@ -90,6 +90,8 @@ Private EU R2 was independently read at 09:42 UTC: managed access disabled, zero
 
 **Scope limit:** This is a rehearsal on an eight-day-old observed-stable export, not a current-data, transactional or production import. The 41 archived-only source tables are byte-verified and classified, not imported into the product D1. No Supabase writes, live read switch or Worker deployment occurred. The full current-data zero-mismatch, rollback and signed-in canary gates remain open.
 
+Delivery: [PR174](https://github.com/nkopp-cmd/travelchat-ai/pull/174), source `642b009`, merged as `a6435096dce232171fdfa8ec2738a833717fecb0`. Required CI verify `36551768369` passed; six focused tests, focused lint and diff check passed. Public www `/` and preview `/api/cities` returned 200 after merge. Code contains offline/local rehearsal tooling only; no Worker deployment identity was created. Data stays in Supabase (production), existing private EU R2 (story archive), and the private local reports above; the disposable local D1 was removed. Rollback for this script-only merge: revert `a643509` on `main`. No production Worker version was changed.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
