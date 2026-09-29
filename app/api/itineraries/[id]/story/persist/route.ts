@@ -4,6 +4,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { getUserTier } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { previewStorySlides } from "@/lib/app-data/preview-story-slides";
 
 // Uploading multiple slide PNGs can take time
 export const maxDuration = 30;
@@ -149,11 +150,26 @@ export async function POST(
  * Check if persisted story slides exist and are still valid.
  */
 export async function GET(
-    _req: NextRequest,
+    req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params;
+        if (req.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
+            && req.nextUrl.searchParams.get("data_candidate") === "d1"
+            && process.env.AUTH_MAIL_MODE === "outbox"
+            && process.env.SUPABASE_READ_ONLY === "true") {
+            const { userId } = await auth();
+            try {
+                const story = await previewStorySlides(id, userId);
+                if (!story) return Errors.notFound("Itinerary");
+                return NextResponse.json(story, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch {
+                return Errors.databaseError();
+            }
+        }
         const supabase = createSupabaseAdmin();
 
         const { data: itinerary, error } = await supabase
