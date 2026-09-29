@@ -1,10 +1,11 @@
 import "server-only";
 
-/** D1's small read interface. This cannot perform application writes. */
+/** D1's bounded statement interface for isolated preview probes. */
 export interface PreviewAppDataStatement {
   first<T = Record<string, unknown>>(): Promise<T | null>;
   bind(...values: (string | number)[]): PreviewAppDataStatement;
   all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
+  run(): Promise<{ meta: { changes: number } }>;
 }
 export interface PreviewAppDataReader {
   prepare(query: string): PreviewAppDataStatement;

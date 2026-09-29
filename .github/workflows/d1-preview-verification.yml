@@ -6,11 +6,9 @@ on:
     paths:
       - '.github/workflows/d1-preview-verification.yml'
       - 'lib/app-data/**'
-      - '__tests__/lib/app-data-preview-db.test.ts'
-      - 'app/api/test-app-data/route.ts'
-      - 'app/api/test-app-data/spots/route.ts'
-      - '__tests__/api/test-app-data-route.test.ts'
-      - '__tests__/api/test-app-data-spots-route.test.ts'
+      - '__tests__/lib/app-data-preview-*.test.ts'
+      - 'app/api/test-app-data/**'
+      - '__tests__/api/test-app-data-*.test.ts'
       - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
       - 'docs/CLOUDFLARE_D1_PROJECT.md'
@@ -26,7 +24,7 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       NODE_OPTIONS: --max-old-space-size=2048
@@ -37,8 +35,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - run: npm ci
-      - run: npx vitest run __tests__/lib/app-data-preview-db.test.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts --maxWorkers=1
+      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npm ci
+      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npx vitest run __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts --maxWorkers=1
       - run: node --test scripts/d1-migration/owner-rehearsal.test.mjs
-      - run: npx tsc --noEmit
-      - run: npx eslint lib/app-data/preview-db.ts __tests__/lib/app-data-preview-db.test.ts app/api/test-app-data/spots/route.ts __tests__/api/test-app-data-spots-route.test.ts
+      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npx tsc --noEmit
+      - run: /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh npx eslint lib/app-data/preview-db.ts lib/app-data/preview-story-metadata.ts __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts app/api/test-app-data/route.ts app/api/test-app-data/spots/route.ts 'app/api/test-app-data/stories/[id]/route.ts' __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts
