@@ -5,6 +5,8 @@ import { getUserTier } from "@/lib/usage-tracking";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { previewStorySlides } from "@/lib/app-data/preview-story-slides";
+import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
+import { previewStoryOwner, savePreviewStoryMedia } from "@/lib/app-data/preview-story-media";
 
 // Uploading multiple slide PNGs can take time
 export const maxDuration = 30;
@@ -26,6 +28,26 @@ export async function POST(
         }
 
         const { id } = await params;
+        if (isPreviewStoryCandidate(req)) {
+            try {
+                if (!await previewStoryOwner(id, userId)) return Errors.notFound("Itinerary");
+                const contentLength = Number(req.headers.get("content-length"));
+                if (Number.isFinite(contentLength) && contentLength > 32 * 2 * 1024 * 1024 + 128 * 1024) {
+                    return Errors.validationError("Story upload is too large");
+                }
+                const tier = await getUserTier(userId);
+                const retentionDays = hasFeature(tier, "storyRetentionDays");
+                const saved = await savePreviewStoryMedia(id, userId, await req.formData(), tier, retentionDays);
+                if (!saved) return Errors.notFound("Itinerary");
+                return NextResponse.json({ success: true, ...saved }, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch (error) {
+                if (error instanceof RangeError) return Errors.validationError(error.message);
+                console.error("[STORY_PREVIEW] Candidate write failed", error);
+                return Errors.databaseError();
+            }
+        }
         const supabase = createSupabaseAdmin();
 
         // Verify itinerary ownership
@@ -155,10 +177,7 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        if (req.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
-            && req.nextUrl.searchParams.get("data_candidate") === "d1"
-            && process.env.AUTH_MAIL_MODE === "outbox"
-            && process.env.SUPABASE_READ_ONLY === "true") {
+        if (isPreviewStoryCandidate(req)) {
             const { userId } = await auth();
             try {
                 const story = await previewStorySlides(id, userId);

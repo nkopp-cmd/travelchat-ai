@@ -50,4 +50,21 @@ describe("preview story slide metadata", () => {
     mocks.first.mockResolvedValue({ storySlides: '{"slides":{"cover":4}}' });
     await expect(previewStorySlides("trip-id", "owner-id")).rejects.toThrow("Invalid story slides");
   });
+
+  it("maps only current preview R2 keys while preserving imported HTTPS URLs", async () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    const generation = "22222222-2222-4222-8222-222222222222";
+    mocks.prepare.mockReturnValue({ bind: mocks.bind });
+    mocks.bind.mockReturnValue({ first: mocks.first });
+    mocks.reader.mockReturnValue({ prepare: mocks.prepare });
+    mocks.first.mockResolvedValue({ storySlides: JSON.stringify({
+      generated_at: "2026-09-29T00:00:00Z", expires_at: "2099-01-01T00:00:00Z", tier: "free",
+      slides: { cover: `r2://story-slides/${id}/${generation}/cover.png`,
+        day1: "https://example.com/imported.png" },
+    }) });
+    expect(await previewStorySlides(id, "owner-id")).toMatchObject({ slides: {
+      cover: `https://localley-next-preview.nkopp.workers.dev/api/itineraries/${id}/story/media/${generation}/cover?data_candidate=d1`,
+      day1: "https://example.com/imported.png",
+    } });
+  });
 });

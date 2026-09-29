@@ -22,7 +22,10 @@
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "images": { "binding": "IMAGES" },
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next-preview" }],
-  "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-preview-cache" }],
+  "r2_buckets": [
+    { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-preview-cache" },
+    { "binding": "STORY_PREVIEW_MEDIA", "bucket_name": "localley-story-preview-media", "jurisdiction": "eu" }
+  ],
   "d1_databases": [{
     "binding": "NEXT_TAG_CACHE_D1",
     "database_name": "localley-next-preview-tags",
@@ -35,7 +38,7 @@
     "database_id": "58b7eef4-2e41-4408-9246-36bc22988200",
     "migrations_dir": "migrations/auth"
   }, {
-    // Read-only source for OpenNext D1 parity rehearsals. Separate from AUTH_DB.
+    // Isolated application-data candidate. Synthetic story rows may be written in preview only.
     // Existing native preview holds pilot data; it is NOT the production app database.
     "binding": "APP_DATA_PREVIEW_DB",
     "database_name": "localley-migration-preview",
