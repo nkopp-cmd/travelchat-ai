@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { isBetaMode, getEarlyAdopterStatus } from "@/lib/early-adopters";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { isLifetimePremiumEmail } from "@/lib/lifetime-premium";
+import { isPreviewBillingStatusCandidate, previewBillingStatus } from "@/lib/app-data/preview-billing-status";
 
 export interface SubscriptionStatusResponse {
     tier: SubscriptionTier;
@@ -35,7 +36,7 @@ export interface SubscriptionStatusResponse {
     earlyAdopterSlotsRemaining?: number;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
 
@@ -45,6 +46,14 @@ export async function GET() {
 
         const user = await currentUser();
         const primaryEmail = user?.emailAddresses[0]?.emailAddress;
+
+        if (isPreviewBillingStatusCandidate(req)) {
+            if (!user || user.id !== userId) return Errors.unauthorized();
+            const status = await previewBillingStatus(userId, primaryEmail ?? null);
+            return NextResponse.json(status, {
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        }
 
         const supabase = await createSupabaseServerClient();
 
