@@ -78,6 +78,18 @@ The isolated D1 replay remains pending: the shared heavy-work guard requires at 
 
 Read-only audit delivery: [PR172](https://github.com/nkopp-cmd/travelchat-ai/pull/172), source `2fcd551`, merged as `5a4e56c2f203acf93093a7ea13b37c8892304870`; required verify job `36547613513` passed on the PR. Public www `/` and non-production preview `/api/cities` returned 200 after merge. This script-only delivery has no Worker deployment or application-data destination; rollback is reverting `5a4e56c` on `main`. The last recorded preview Worker version is `a40e3b63-a86d-4aa0-b6f4-4683eda2cb3a`; production application data remains in Supabase.
 
+### Isolated historical import rehearsal — 2026-09-29
+
+Disk headroom recovered above the shared 4 GiB guard. The unchanged PR151 importer generated the same batch `44614e23dac96506680bc316970e44fe407721d0e99af49ae479abc28d43b9d9` and SQL hash `dd77bf348c2d431632a60e0e55ae605634ed668700e2cb172e292bcf5db00fbd` from the verified 2026-09-21 private snapshot and story projection. The 13 migrations plus 10,321 statements passed exact column comparison in node:sqlite: zero mismatches, zero repeat changes, zero FK violations, integrity `ok`.
+
+The old native Miniflare dependency failed during batch preparation. `scripts/d1-migration/rehearse-import.mjs` replayed that same hash-pinned SQL with the current pinned Miniflare in **disposable local workerd D1**, with outbound network disabled. All 10,321 rows inserted, all 14 imported D1 table counts matched PR151's report, repeat replay changed zero rows, FK violations were zero, and the built native Worker served 3,024 visible spots across 31 catalog pages. This workerd check does not support `PRAGMA integrity_check`; the separate node:sqlite comparison did pass it. The disposable D1 was removed after the run.
+
+The exact-ID owner comparison was refreshed against the Better Auth production `AUTH_DB` on 2026-09-29 at 09:36 UTC (IDs only, read-only). Six Better Auth users exist; five of seven historical owner IDs match, two remain unclaimed. The D1 replay retained their 31 itineraries, 76 conversations and nine usage records under their original IDs in legacy-only owner rows. Both configured admin IDs are present. No email matching or ownership assignment occurred.
+
+Private EU R2 was independently read at 09:42 UTC: managed access disabled, zero custom domains, 222 of 222 objects matched their SHA-256 and length (482,060,794 bytes), accounting for all 223 story references. This was GET-only and did not call a model or upload media. Mode-0600 local reports are under `cloudflare/auth-proof/.preview-private/import-rehearsal-20260929/`.
+
+**Scope limit:** This is a rehearsal on an eight-day-old observed-stable export, not a current-data, transactional or production import. The 41 archived-only source tables are byte-verified and classified, not imported into the product D1. No Supabase writes, live read switch or Worker deployment occurred. The full current-data zero-mismatch, rollback and signed-in canary gates remain open.
+
 ## Approval and gates
 
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
