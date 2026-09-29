@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { parsePreviewStoryPatch, previewStoryBackgrounds, updatePreviewStoryBackgrounds } from "@/lib/app-data/preview-story-metadata";
+
+/** Explicit candidate opt-in. Production and normal preview requests keep the existing repository. */
+function isPreviewStoryDataCandidate(req: NextRequest): boolean {
+    return req.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
+        && req.nextUrl.searchParams.get("data_candidate") === "d1"
+        && process.env.AUTH_MAIL_MODE === "outbox"
+        && process.env.SUPABASE_READ_ONLY === "true";
+}
 
 /**
  * Validate that a string is a valid image source (HTTPS URL or local path)
@@ -53,6 +62,20 @@ export async function PATCH(
 
         const { id } = await params;
         const body = await req.json();
+
+        if (isPreviewStoryDataCandidate(req)) {
+            const patch = parsePreviewStoryPatch(body);
+            if (!patch) return Errors.validationError("Invalid backgrounds");
+            try {
+                const backgrounds = await updatePreviewStoryBackgrounds(id, userId, patch);
+                if (!backgrounds) return Errors.notFound("Itinerary");
+                return NextResponse.json({ success: true, itinerary: { id, ai_backgrounds: backgrounds } }, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch {
+                return Errors.databaseError();
+            }
+        }
 
         // Extract known fields and any day backgrounds (day1, day2, etc.)
         const { cover, summary, ...rest } = body;
@@ -171,6 +194,19 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
+        if (isPreviewStoryDataCandidate(req)) {
+            const { userId } = await auth();
+            if (!userId) return Errors.unauthorized();
+            try {
+                const backgrounds = await previewStoryBackgrounds(id, userId);
+                if (!backgrounds) return Errors.notFound("Itinerary");
+                return NextResponse.json({ success: true, backgrounds }, {
+                    headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch {
+                return Errors.databaseError();
+            }
+        }
         const supabase = createSupabaseAdmin();
 
         const { data: itinerary, error } = await supabase
