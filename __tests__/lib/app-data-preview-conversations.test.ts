@@ -5,12 +5,15 @@ import { NextRequest } from "next/server";
 const mocks = vi.hoisted(() => ({ reader: vi.fn() }));
 vi.mock("@/lib/app-data/preview-db", () => ({ previewAppDataReader: mocks.reader }));
 import { createPreviewConversation, isPreviewConversationCandidate,
-  previewConversations } from "@/lib/app-data/preview-conversations";
+  previewConversations, previewConversationMessages,
+  createPreviewConversationMessage } from "@/lib/app-data/preview-conversations";
 
 const environment = process.env;
+const conversationId = "11111111-1111-4111-8111-111111111111";
 afterEach(() => { process.env = environment; vi.clearAllMocks(); });
 
-function setup(initialOwners: { id: string; source: string }[], conversations: unknown[] = [], messages: unknown[] = []) {
+function setup(initialOwners: { id: string; source: string }[], conversations: unknown[] = [],
+  messages: unknown[] = [], ownedId: string | null = null, messageWriteChanges = 1) {
   let ownerRows = initialOwners;
   const binds: { sql: string; values: unknown[] }[] = [];
   const prepare = vi.fn((sql: string) => ({
@@ -19,11 +22,12 @@ function setup(initialOwners: { id: string; source: string }[], conversations: u
       return {
         all: async () => ({ results: sql.includes("FROM owners o") ? ownerRows
           : sql.includes("FROM conversations WHERE") ? conversations : messages }),
+        first: async () => sql.includes("SELECT id FROM conversations") && ownedId ? { id: ownedId } : null,
         run: async () => {
           if (sql.includes("INSERT OR IGNORE INTO owners")) {
             ownerRows = [{ id: String(values[0]), source: "new" }];
           }
-          return { meta: { changes: 1 } };
+          return { meta: { changes: sql.includes("INSERT INTO messages") ? messageWriteChanges : 1 } };
         },
       };
     },
@@ -90,5 +94,39 @@ describe("preview conversations", () => {
   it("rejects a conflicting deterministic owner instead of claiming it", async () => {
     setup([{ id: "auth:user-a", source: "legacy-fixture" }]);
     await expect(previewConversations("user-a")).rejects.toThrow("Conflicting preview owner mapping");
+  });
+
+  it("reads messages only after an exact owner and conversation check", async () => {
+    const { binds } = setup([{ id: "legacy-owner", source: "legacy-fixture" }], [], [
+      { id: "message-a", role: "user", content: "Hello", created_at: "2026-09-29" },
+    ], conversationId);
+    expect(await previewConversationMessages("user-a", conversationId)).toEqual({ messages: [
+      { id: "message-a", role: "user", content: "Hello", created_at: "2026-09-29" },
+    ] });
+    expect(binds.find(call => call.sql.includes("SELECT id FROM conversations"))?.values)
+      .toEqual([conversationId, "legacy-owner", ""]);
+    setup([{ id: "auth:user-b", source: "new" }]);
+    expect(await previewConversationMessages("user-b", conversationId)).toBeNull();
+  });
+
+  it("writes only accepted roles and bounded content through an owner-guarded insert", async () => {
+    const { binds } = setup([{ id: "auth:user-a", source: "new" }], [], [], conversationId);
+    const result = await createPreviewConversationMessage("user-a", conversationId, "user", "Hello");
+    expect(result?.message).toMatchObject({ conversation_id: conversationId, role: "user", content: "Hello" });
+    const write = binds.find(call => call.sql.includes("INSERT INTO messages"));
+    expect(write?.sql).toContain("WHERE id = ? AND ownerId IN (?, ?)");
+    expect(write?.values.slice(-3)).toEqual([conversationId, "", "auth:user-a"]);
+    await expect(createPreviewConversationMessage("user-a", conversationId, "system", "Hello"))
+      .rejects.toThrow(RangeError);
+    await expect(createPreviewConversationMessage("user-a", conversationId, "user", "x".repeat(65537)))
+      .rejects.toThrow(RangeError);
+    const denied = setup([{ id: "auth:user-b", source: "new" }]);
+    expect(await createPreviewConversationMessage("user-b", conversationId, "user", "Hello")).toBeNull();
+    expect(denied.binds.some(call => call.sql.includes("INSERT INTO messages"))).toBe(false);
+  });
+
+  it("does not report a message when ownership changes before the guarded insert", async () => {
+    setup([{ id: "auth:user-a", source: "new" }], [], [], conversationId, 0);
+    expect(await createPreviewConversationMessage("user-a", conversationId, "user", "Hello")).toBeNull();
   });
 });

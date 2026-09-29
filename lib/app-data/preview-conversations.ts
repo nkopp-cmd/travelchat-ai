@@ -97,3 +97,47 @@ export async function createPreviewConversation(userId: string, title: unknown):
   return { conversation: { id, clerk_user_id: userId, title: name, linked_itinerary_id: null,
     created_at: now, updated_at: now } };
 }
+
+async function ownedConversation(userId: string, conversationId: string): Promise<boolean> {
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(conversationId)) return false;
+  const owners = await ownerIds(userId);
+  if (!owners.legacy && !owners.fresh) return false;
+  const row = await previewAppDataReader().prepare(`SELECT id FROM conversations
+    WHERE id = ? AND ownerId IN (?, ?)`)
+    .bind(conversationId, owners.legacy ?? "", owners.fresh ?? "").first<{ id: string }>();
+  return row?.id === conversationId;
+}
+
+export async function previewConversationMessages(userId: string, conversationId: string): Promise<{
+  messages: { id: string; role: string; content: string; created_at: string }[];
+} | null> {
+  if (!(await ownedConversation(userId, conversationId))) return null;
+  const { results } = await previewAppDataReader().prepare(`SELECT id, role, content,
+    createdAt AS created_at FROM messages WHERE conversationId = ? ORDER BY createdAt, id LIMIT 1001`)
+    .bind(conversationId).all<{ id: string; role: string; content: string; created_at: string }>();
+  if (!Array.isArray(results) || results.length > 1000) throw new Error("Preview message count exceeds limit");
+  return { messages: results };
+}
+
+export async function createPreviewConversationMessage(
+  userId: string, conversationId: string, role: unknown, content: unknown,
+): Promise<{ message: { id: string; conversation_id: string; role: string;
+  content: string; created_at: string } } | null> {
+  if (role !== "user" && role !== "assistant") throw new RangeError("Invalid message role");
+  if (typeof content !== "string" || !content || Buffer.byteLength(content, "utf8") > 65536) {
+    throw new RangeError("Invalid message content");
+  }
+  if (!(await ownedConversation(userId, conversationId))) return null;
+  const owners = await ownerIds(userId);
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  const result = await previewAppDataReader().prepare(`INSERT INTO messages
+    (id, conversationId, role, content, createdAt)
+    SELECT ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM conversations
+      WHERE id = ? AND ownerId IN (?, ?))`)
+    .bind(id, conversationId, role, content, now, conversationId,
+      owners.legacy ?? "", owners.fresh ?? "").run();
+  if (result.meta.changes === 0) return null;
+  if (result.meta.changes !== 1) throw new Error("Preview message write failed");
+  return { message: { id, conversation_id: conversationId, role, content, created_at: now } };
+}
