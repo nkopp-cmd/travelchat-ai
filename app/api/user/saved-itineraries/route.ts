@@ -1,14 +1,27 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { assertPreviewLikeUser, isPreviewItineraryLikeCandidate,
+    previewSavedItineraries } from "@/lib/app-data/preview-itinerary-likes";
 
 // GET - Get user's saved/liked itineraries
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) {
             return Errors.unauthorized();
+        }
+
+        if (isPreviewItineraryLikeCandidate(request)) {
+            const headers = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
+            try {
+                await assertPreviewLikeUser(userId);
+                return NextResponse.json(await previewSavedItineraries(userId), { headers });
+            } catch (error) {
+                console.error("[PREVIEW_SAVED_ITINERARIES] D1 unavailable", error);
+                return NextResponse.json({ error: "Saved itineraries unavailable" }, { status: 503, headers });
+            }
         }
 
         const supabase = await createSupabaseServerClient();

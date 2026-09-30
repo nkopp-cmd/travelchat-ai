@@ -37,11 +37,12 @@ export function SharedActions({ itineraryId, shareCode, candidate = false }: Sha
 
     return (
         <div className="flex items-center gap-2">
-            {!candidate && <LikeButton
+            <LikeButton
                 itineraryId={itineraryId}
                 showCount={true}
                 variant="outline"
-            />}
+                candidate={candidate}
+            />
             <Button
                 variant="outline"
                 size="default"
