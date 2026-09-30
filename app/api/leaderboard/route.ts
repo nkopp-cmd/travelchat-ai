@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getRankTitle } from "@/lib/gamification";
+import { isPreviewLeaderboardCandidate, parseLeaderboardLimit,
+    previewLeaderboard } from "@/lib/app-data/preview-leaderboard";
 
 export async function GET(req: NextRequest) {
     try {
@@ -10,6 +12,22 @@ export async function GET(req: NextRequest) {
         const type = searchParams.get("type") || "global";
         const _city = searchParams.get("city"); // Reserved for future city-specific leaderboards
         const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
+
+        if (isPreviewLeaderboardCandidate(req)) {
+            const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+            const candidateLimit = parseLeaderboardLimit(searchParams.get("limit"));
+            if (candidateLimit === null || type.length > 64) {
+                return NextResponse.json({ error: "Invalid leaderboard query" }, { status: 400, headers });
+            }
+            try {
+                const { leaderboard, currentUserRank } = await previewLeaderboard(userId, candidateLimit);
+                return NextResponse.json({ success: true, type, leaderboard, currentUserRank,
+                    total: leaderboard.length }, { headers });
+            } catch (error) {
+                console.error("[PREVIEW_LEADERBOARD] Archive unavailable", error);
+                return NextResponse.json({ error: "Leaderboard archive unavailable" }, { status: 503, headers });
+            }
+        }
 
         const supabase = createSupabaseAdmin();
 
