@@ -114,6 +114,8 @@ The unchanged 10,324-statement SQL replayed into disposable local workerd D1 wit
 
 This is a preview candidate data copy, not a production import or a frozen cutover snapshot. The 41 archived-only source tables still need serving repositories. The 1% canary, a tested Supabase rollback and the final fresh rehearsal remain separate gates.
 
+Release evidence: [PR260](https://github.com/nkopp-cmd/travelchat-ai/pull/260) merged as `f448068` after seven focused route tests, TypeScript, lint, diff check and required self-hosted CI `36760010575` passed. Advisor review reached its turn limit without a result. The merged OpenNext build passed. Only preview Worker `7eb3775b-f24b-42f4-b209-a9ae745aa937` deployed at 18:46 UTC, with rollback `63dfe4dd-2329-48dc-9fe9-3191e7302c54` and the intact eight-spot pilot D1. Hosted candidate cities returned 200 with a D1 header and matched www on all 30 city counts and statuses: 2,583 spots in both responses, zero mismatches. One outbox-verified preview user read 3,024 visible D1 spots and one import batch, eight paged spots with next offset eight, and five D1 recommendations. Signed-out preview and www recommendation requests returned 401; both roots returned 200. The imported Kunitachi University Street spot page returned 200 with the same title as www. The exact test user and mail rows returned to zero. The candidate D1 retained one import batch, zero proof reviews and likes, and zero foreign-key violations. Production Worker `23b84d37-b55d-4405-94c3-4273c4e52691` stayed at 100%. This proves hosted catalog parity for the counted cities, not all product routes, a frozen final snapshot, private-owner journeys, rollback or a 1% canary.
+
 ## Approval and gates
 
 ### Preview story metadata candidate — 2026-09-29
