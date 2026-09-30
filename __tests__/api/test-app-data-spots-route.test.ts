@@ -36,7 +36,7 @@ describe("candidate-only spot reads", () => {
     const response = await GET(request(preview, "?limit=1&offset=8"));
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
-    expect((await response.json()).source).toBe("D1 pilot only");
+    expect((await response.json()).source).toBe("D1 preview candidate");
     expect(mocks.page).toHaveBeenCalledWith(1, 8);
   });
 

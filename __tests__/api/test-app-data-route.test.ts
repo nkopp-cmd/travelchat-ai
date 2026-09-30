@@ -47,7 +47,7 @@ describe("preview-only D1 count probe", () => {
     const response = await GET(request());
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
-    expect(await response.json()).toEqual({ source: "D1 pilot only", publishedSpots: 8, importedBatches: 0 });
+    expect(await response.json()).toEqual({ source: "D1 preview candidate", publishedSpots: 8, importedBatches: 0 });
     expect(mocks.counts).toHaveBeenCalledTimes(1);
   });
 

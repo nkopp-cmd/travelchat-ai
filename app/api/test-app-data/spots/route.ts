@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   }
   try {
     const page = await previewSpotPage(Number(limit), Number(offset));
-    return NextResponse.json({ source: "D1 pilot only", ...page }, { headers });
+    return NextResponse.json({ source: "D1 preview candidate", ...page }, { headers });
   } catch {
     return NextResponse.json({ error: "Preview D1 not ready" }, { status: 503, headers });
   }
