@@ -6,7 +6,7 @@ vi.mock("@/lib/admin-auth", () => ({ requireAdmin: mocks.admin }));
 vi.mock("@/lib/app-data/preview-admin-guides", () => ({
   isPreviewAdminGuidesCandidate: (request: NextRequest) => request.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
     && request.nextUrl.searchParams.get("data_candidate") === "d1",
-  previewAdminGuides: mocks.guides,
+  previewAdminGuideList: mocks.guides,
 }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.supabase }));
 vi.mock("@/lib/stripe-connect", () => ({ createConnectAccount: vi.fn(), createOnboardingLink: vi.fn() }));

@@ -1,6 +1,7 @@
 import "server-only";
 import type { NextRequest } from "next/server";
 import { previewAppDataReader } from "./preview-db";
+import { listPreviewGuideApplications } from "./preview-guide-application";
 
 interface GuideBatch { id: string; sourceCount: number; sourceSha256: string }
 interface GuideRow { id: string; clerkUserId: string; status: string; appliedAt: string; payload: string }
@@ -44,4 +45,40 @@ export async function previewAdminGuides(status: string | null): Promise<Record<
     }
     return guide;
   });
+}
+
+/** Admin-only view of the immutable source and separate pending preview writes. */
+export async function previewAdminGuideList(status: string | null): Promise<Record<string, unknown>[]> {
+  if (status !== null && status.length > 64) throw new Error("Invalid guide filter");
+  const source = await previewAdminGuides(null);
+  const applications = await listPreviewGuideApplications();
+  const sourceOwners = new Set(source.map(guide => guide.clerk_user_id));
+  const sourceIds = new Set(source.map(guide => guide.id));
+  if (applications.some(application => sourceOwners.has(application.clerkUserId) || sourceIds.has(application.id))
+    || source.length + applications.length > 100) throw new Error("Guide list collision or overflow");
+  const pending = applications.map(application => ({
+    id: application.id,
+    clerk_user_id: application.clerkUserId,
+    status: "pending",
+    applied_at: application.appliedAt,
+    approved_at: null,
+    approved_by: null,
+    stripe_account_id: null,
+    stripe_onboarding_complete: false,
+    stripe_charges_enabled: false,
+    stripe_payouts_enabled: false,
+    bio: application.bio,
+    specialties: application.specialties,
+    cities: application.cities,
+    revenue_share_percent: 20,
+    minimum_payout: 10,
+    total_earned: 0,
+    total_paid_out: 0,
+    pending_balance: 0,
+    created_at: application.appliedAt,
+    updated_at: application.appliedAt,
+  }));
+  return [...source, ...pending]
+    .filter(guide => status === null || guide.status === status)
+    .sort((a, b) => String(b.applied_at).localeCompare(String(a.applied_at)) || String(b.id).localeCompare(String(a.id)));
 }

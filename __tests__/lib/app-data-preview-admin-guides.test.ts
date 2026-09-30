@@ -8,6 +8,7 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 const mocks = vi.hoisted(() => ({ reader: vi.fn() }));
 vi.mock("@/lib/app-data/preview-db", () => ({ previewAppDataReader: mocks.reader }));
 import { isPreviewAdminGuidesCandidate, previewAdminGuides } from "@/lib/app-data/preview-admin-guides";
+import { previewAdminGuideList } from "@/lib/app-data/preview-admin-guides";
 
 const originalEnvironment = process.env;
 afterEach(() => { process.env = originalEnvironment; vi.clearAllMocks(); });
@@ -15,6 +16,7 @@ afterEach(() => { process.env = originalEnvironment; vi.clearAllMocks(); });
 function database() {
   const db = new D1Sqlite();
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0015_preview_guide_profiles.sql"), "utf8"));
+  db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0016_preview_guide_applications.sql"), "utf8"));
   db.sqlite.exec("DELETE FROM legacy_guide_profile_batches");
   mocks.reader.mockReturnValue(db);
   return db;
@@ -68,5 +70,47 @@ describe("preview admin guide archive", () => {
     row(db, "one", "pending", { id: "one", clerk_user_id: "wrong", status: "pending", applied_at: "2026-09-30T01:00:00Z" });
     await expect(previewAdminGuides(null)).rejects.toThrow("payload mismatch");
     await expect(previewAdminGuides("x".repeat(65))).rejects.toThrow("Invalid guide filter");
+  });
+});
+
+describe("preview admin list of new applications", () => {
+  const application = (db: D1Sqlite, id = "application-1", userId = "owner-1", specialties = '["food"]') =>
+    db.sqlite.prepare("INSERT INTO preview_guide_applications VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run(id, userId, "pending", "Local guide", specialties, '["seoul"]', "2026-09-30T02:00:00Z");
+
+  it("merges pending applications after checking the counted source archive", async () => {
+    const db = database();
+    batch(db, 1);
+    row(db, "source", "approved");
+    application(db);
+    const all = await previewAdminGuideList(null);
+    expect(all).toHaveLength(2);
+    expect(all[0]).toMatchObject({ id: "application-1", clerk_user_id: "owner-1", status: "pending",
+      bio: "Local guide", cities: ["seoul"], stripe_account_id: null });
+    expect((await previewAdminGuideList("pending")).map(item => item.id)).toEqual(["application-1"]);
+    expect((await previewAdminGuideList("approved")).map(item => item.id)).toEqual(["source"]);
+  });
+
+  it("refuses missing source, source-owner collisions and malformed applications", async () => {
+    const db = database();
+    application(db);
+    await expect(previewAdminGuideList(null)).rejects.toThrow("Guide archive unavailable");
+    batch(db, 1);
+    row(db, "source", "pending", { id: "source", clerk_user_id: "owner-1", status: "pending",
+      applied_at: "2026-09-30T01:00:00Z" });
+    db.sqlite.prepare("UPDATE legacy_guide_profiles SET clerkUserId = ?").run("owner-1");
+    await expect(previewAdminGuideList(null)).rejects.toThrow("collision");
+    db.sqlite.prepare("DELETE FROM legacy_guide_profiles").run();
+    db.sqlite.prepare("UPDATE legacy_guide_profile_batches SET sourceCount = 0").run();
+    db.sqlite.prepare("UPDATE preview_guide_applications SET specialties = '{}'").run();
+    await expect(previewAdminGuideList(null)).rejects.toThrow("Invalid preview guide application");
+  });
+
+  it("refuses an oversized combined result", async () => {
+    const db = database();
+    batch(db, 0);
+    const insert = db.sqlite.prepare("INSERT INTO preview_guide_applications VALUES (?, ?, ?, ?, ?, ?, ?)");
+    for (let i = 0; i < 101; i++) insert.run(`id-${i}`, `owner-${i}`, "pending", "Bio", "[]", '["seoul"]', "2026-09-30T02:00:00Z");
+    await expect(previewAdminGuideList(null)).rejects.toThrow("Guide applications unavailable");
   });
 });

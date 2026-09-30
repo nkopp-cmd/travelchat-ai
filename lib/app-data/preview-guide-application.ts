@@ -32,10 +32,13 @@ function parseRow(row: ApplicationRow | null): GuideApplication | null {
   if (!row) return null;
   const specialties: unknown = JSON.parse(row.specialties);
   const cities: unknown = JSON.parse(row.cities);
-  if (typeof row.id !== "string" || typeof row.clerkUserId !== "string" || row.status !== "pending"
-    || (row.bio !== null && typeof row.bio !== "string") || typeof row.appliedAt !== "string"
-    || !Array.isArray(specialties) || !specialties.every(item => typeof item === "string")
-    || !Array.isArray(cities) || !cities.every(item => typeof item === "string")) {
+  const bounded = (items: unknown): items is string[] => Array.isArray(items) && items.length <= 12
+    && items.every(item => typeof item === "string" && item.length > 0 && item.length <= 80);
+  if (typeof row.id !== "string" || !row.id || row.id.length > 128
+    || typeof row.clerkUserId !== "string" || !row.clerkUserId || row.clerkUserId.length > 256
+    || row.status !== "pending" || typeof row.bio !== "string" || !row.bio || row.bio.length > 2000
+    || typeof row.appliedAt !== "string" || !Number.isFinite(Date.parse(row.appliedAt))
+    || !bounded(specialties) || !bounded(cities) || cities.length === 0) {
     throw new Error("Invalid preview guide application");
   }
   return { id: row.id, clerkUserId: row.clerkUserId, bio: row.bio,
@@ -48,6 +51,19 @@ export async function readPreviewGuideApplication(userId: string): Promise<Guide
     "SELECT id, clerkUserId, status, bio, specialties, cities, appliedAt FROM preview_guide_applications WHERE clerkUserId = ?",
   ).bind(userId).first<ApplicationRow>();
   return parseRow(row);
+}
+
+/** Bounded pending applications for an authorized preview admin list. */
+export async function listPreviewGuideApplications(): Promise<GuideApplication[]> {
+  const { results } = await previewAppDataReader().prepare(
+    "SELECT id, clerkUserId, status, bio, specialties, cities, appliedAt FROM preview_guide_applications ORDER BY appliedAt DESC, id DESC LIMIT 101",
+  ).all<ApplicationRow>();
+  if (!Array.isArray(results) || results.length > 100) throw new Error("Guide applications unavailable");
+  return results.map(row => {
+    const application = parseRow(row);
+    if (!application) throw new Error("Invalid preview guide application");
+    return application;
+  });
 }
 
 export function parseGuideApplication(value: unknown): { bio: string; specialties: string[]; cities: string[] } | null {

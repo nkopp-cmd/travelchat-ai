@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createConnectAccount, createOnboardingLink } from "@/lib/stripe-connect";
-import { isPreviewAdminGuidesCandidate, previewAdminGuides } from "@/lib/app-data/preview-admin-guides";
+import { isPreviewAdminGuidesCandidate, previewAdminGuideList } from "@/lib/app-data/preview-admin-guides";
 
 /**
  * GET /api/admin/guides
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
     if (isPreviewAdminGuidesCandidate(req)) {
         try {
-            const guides = await previewAdminGuides(req.nextUrl.searchParams.get("status"));
+            const guides = await previewAdminGuideList(req.nextUrl.searchParams.get("status"));
             return NextResponse.json({ guides }, {
                 headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
             });

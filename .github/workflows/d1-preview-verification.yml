@@ -93,7 +93,7 @@ jobs:
             npx vitest run __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts --maxWorkers=1
-            npx eslint app/api/admin/guides/route.ts lib/app-data/preview-admin-guides.ts __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts
+            npx eslint app/api/admin/guides/route.ts lib/app-data/preview-admin-guides.ts lib/app-data/preview-guide-application.ts __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts
             npx eslint app/api/connect/status/route.ts lib/app-data/preview-guide-status.ts __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts
             npx eslint app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
             node --test scripts/d1-migration/owner-rehearsal.test.mjs
