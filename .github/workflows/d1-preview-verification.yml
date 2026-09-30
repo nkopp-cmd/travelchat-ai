@@ -47,6 +47,7 @@ on:
       - '__tests__/api/cities-candidate-route.test.ts'
       - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
+      - 'docs/AUTH_BETTER_AUTH.md'
       - 'lib/auth/mail.ts'
       - 'lib/auth/server.ts'
       - '__tests__/lib/auth-mail.test.ts'
