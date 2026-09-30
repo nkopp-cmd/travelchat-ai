@@ -15,6 +15,7 @@ afterEach(() => { process.env = originalEnvironment; vi.clearAllMocks(); });
 function database() {
   const db = new D1Sqlite();
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0015_preview_guide_profiles.sql"), "utf8"));
+  db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0016_preview_guide_applications.sql"), "utf8"));
   mocks.reader.mockReturnValue(db);
   return db;
 }
@@ -45,6 +46,18 @@ describe("preview guide Connect status", () => {
   it("returns no guide from the counted empty source archive", async () => {
     database();
     expect(await previewGuideStatus("owner-1")).toEqual({ isGuide: false });
+  });
+
+  it("returns a newly applied guide only to its exact owner", async () => {
+    const db = database();
+    db.sqlite.prepare("INSERT INTO preview_guide_applications VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run("application-1", "owner-1", "pending", "Local guide", "[\"food\"]", "[\"seoul\"]", "2026-09-30T01:00:00Z");
+    expect(await previewGuideStatus("other-owner")).toEqual({ isGuide: false });
+    expect(await previewGuideStatus("owner-1")).toEqual({
+      isGuide: true, status: "pending", onboardingComplete: false, chargesEnabled: false,
+      payoutsEnabled: false, specialties: ["food"], cities: ["seoul"], totalEarned: 0,
+      pendingBalance: 0, stripeStatus: null, appliedAt: "2026-09-30T01:00:00Z", approvedAt: null,
+    });
   });
 
   it("maps only the exact owner's pending guide with existing response fields", async () => {

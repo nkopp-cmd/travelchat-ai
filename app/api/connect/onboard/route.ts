@@ -7,6 +7,9 @@ import {
     isConnectConfigured,
 } from "@/lib/stripe-connect";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
+import { previewAdminGuides } from "@/lib/app-data/preview-admin-guides";
+import { createPreviewGuideApplication, isPreviewGuideApplicationCandidate,
+    parseGuideApplication, readPreviewGuideApplication } from "@/lib/app-data/preview-guide-application";
 
 /**
  * POST /api/connect/onboard
@@ -17,6 +20,39 @@ import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
  */
 export async function POST(req: NextRequest) {
     try {
+        if (isPreviewGuideApplicationCandidate(req)) {
+            const { userId } = await auth();
+            if (!userId) return Errors.unauthorized();
+            if (!await currentUser()) return Errors.notFound("User");
+            const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+            try {
+                const guides = await previewAdminGuides(null);
+                const existing = guides.find(guide => guide.clerk_user_id === userId);
+                if (existing?.status === "rejected" || existing?.status === "suspended") {
+                    return NextResponse.json({ error: "Guide application unavailable" }, { status: 403, headers });
+                }
+                if (existing) {
+                    if (existing.status !== "pending" || existing.stripe_account_id !== null) {
+                        return NextResponse.json({ error: "Guide onboarding unavailable" }, { status: 503, headers });
+                    }
+                    return NextResponse.json({ status: "pending", onboarded: false }, { headers });
+                }
+                if (await readPreviewGuideApplication(userId)) {
+                    return NextResponse.json({ status: "pending", onboarded: false }, { headers });
+                }
+                const raw = await req.text();
+                if (raw.length > 8192) return NextResponse.json({ error: "Invalid guide application" }, { status: 400, headers });
+                let body: unknown;
+                try { body = JSON.parse(raw); } catch { body = null; }
+                const input = parseGuideApplication(body);
+                if (!input) return NextResponse.json({ error: "Invalid guide application" }, { status: 400, headers });
+                await createPreviewGuideApplication(userId, input);
+                return NextResponse.json({ status: "pending", message: "Application submitted for review" }, { headers });
+            } catch (error) {
+                console.error("[GUIDE_APPLICATION_PREVIEW] Candidate unavailable", error);
+                return NextResponse.json({ error: "Guide application unavailable" }, { status: 503, headers });
+            }
+        }
         if (!isConnectConfigured()) {
             return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Connect is not configured");
         }

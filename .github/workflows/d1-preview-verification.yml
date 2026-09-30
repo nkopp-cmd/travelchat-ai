@@ -25,6 +25,7 @@ on:
       - 'app/api/cities/route.ts'
       - 'app/api/admin/guides/route.ts'
       - 'app/api/connect/status/route.ts'
+      - 'app/api/connect/onboard/route.ts'
       - 'migrations/app-preview/**'
       - 'middleware.ts'
       - '__tests__/api/test-app-data-*.test.ts'
@@ -51,6 +52,8 @@ on:
       - '__tests__/lib/app-data-preview-admin-guides.test.ts'
       - '__tests__/api/connect-status-candidate-route.test.ts'
       - '__tests__/lib/app-data-preview-guide-status.test.ts'
+      - '__tests__/api/connect-onboard-candidate-route.test.ts'
+      - '__tests__/lib/app-data-preview-guide-application.test.ts'
       - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
       - 'docs/AUTH_BETTER_AUTH.md'
@@ -89,8 +92,10 @@ jobs:
             npx vitest run __tests__/lib/auth-mail.test.ts __tests__/app/itinerary-list-candidate-page.test.tsx __tests__/lib/app-data-preview-itinerary-list.test.ts __tests__/api/itinerary-save-candidate.test.ts __tests__/lib/app-data-preview-itinerary-save.test.ts __tests__/api/itinerary-delete-candidate.test.ts __tests__/lib/app-data-preview-itinerary-delete.test.ts __tests__/api/itinerary-update-candidate.test.ts __tests__/lib/app-data-preview-itinerary-update.test.ts __tests__/api/itinerary-detail-candidate.test.ts __tests__/lib/app-data-preview-itinerary-detail.test.ts __tests__/api/spot-photos.test.ts __tests__/api/spot-photos-candidate.test.ts __tests__/lib/app-data-preview-spot-photos.test.ts __tests__/api/cities-candidate-route.test.ts __tests__/lib/app-data-preview-cities.test.ts __tests__/lib/app-data-preview-saved-spots.test.ts __tests__/lib/app-data-preview-conversations.test.ts __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts __tests__/lib/app-data-preview-story-slides.test.ts __tests__/lib/app-data-preview-story-media.test.ts __tests__/lib/app-data-preview-story-cleanup.test.ts __tests__/lib/app-data-preview-story-tier.test.ts __tests__/lib/app-data-preview-billing-status.test.ts __tests__/lib/app-data-preview-stripe-events.test.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts __tests__/api/ai-backgrounds-candidate-route.test.ts __tests__/api/story-persist-candidate-route.test.ts __tests__/api/story-media-candidate-route.test.ts __tests__/api/cleanup-stories-candidate-route.test.ts __tests__/api/conversations-candidate-route.test.ts __tests__/api/conversation-messages-candidate-route.test.ts __tests__/api/conversation-patch-candidate-route.test.ts __tests__/api/saved-spots-candidate-route.test.ts __tests__/api/subscription-status-candidate-route.test.ts __tests__/api/subscription-webhook-candidate-route.test.ts --maxWorkers=1
             npx vitest run __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts --maxWorkers=1
+            npx vitest run __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts --maxWorkers=1
             npx eslint app/api/admin/guides/route.ts lib/app-data/preview-admin-guides.ts __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts
             npx eslint app/api/connect/status/route.ts lib/app-data/preview-guide-status.ts __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts
+            npx eslint app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
             node --test scripts/d1-migration/owner-rehearsal.test.mjs
             node --import tsx --test scripts/d1-migration/compare-cities.test.mjs
             npx tsc --noEmit
