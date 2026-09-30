@@ -9,14 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 interface SharedActionsProps {
     itineraryId: string;
     shareCode: string;
+    candidate?: boolean;
 }
 
-export function SharedActions({ itineraryId, shareCode }: SharedActionsProps) {
+export function SharedActions({ itineraryId, shareCode, candidate = false }: SharedActionsProps) {
     const [copied, setCopied] = useState(false);
     const { toast } = useToast();
 
     const handleCopyLink = async () => {
-        const url = `${window.location.origin}/shared/${shareCode}`;
+        const url = `${window.location.origin}/shared/${shareCode}${candidate ? "?data_candidate=d1" : ""}`;
         try {
             await navigator.clipboard.writeText(url);
             setCopied(true);
@@ -36,11 +37,11 @@ export function SharedActions({ itineraryId, shareCode }: SharedActionsProps) {
 
     return (
         <div className="flex items-center gap-2">
-            <LikeButton
+            {!candidate && <LikeButton
                 itineraryId={itineraryId}
                 showCount={true}
                 variant="outline"
-            />
+            />}
             <Button
                 variant="outline"
                 size="default"
@@ -59,7 +60,7 @@ export function SharedActions({ itineraryId, shareCode }: SharedActionsProps) {
                     </>
                 )}
             </Button>
-            <a
+            {!candidate && <a
                 href={`/api/itineraries/${itineraryId}/export`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -68,7 +69,7 @@ export function SharedActions({ itineraryId, shareCode }: SharedActionsProps) {
                     <Download className="h-4 w-4" />
                     Download
                 </Button>
-            </a>
+            </a>}
         </div>
     );
 }

@@ -12,20 +12,31 @@ import { HeroSection } from "@/components/itinerary/hero-section";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import { DayRouteSection } from "@/components/itinerary/day-route-section";
 import { buildItineraryDisplayPayload } from "@/lib/itineraries/display-payload";
+import { headers } from "next/headers";
+import { getPreviewSharedItinerary } from "@/lib/app-data/preview-itinerary-share";
+
+async function previewShareCandidate(searchParams: Promise<{ data_candidate?: string }>) {
+    const [params, requestHeaders] = await Promise.all([searchParams, headers()]);
+    return params.data_candidate === "d1"
+        && requestHeaders.get("host") === "localley-next-preview.nkopp.workers.dev"
+        && process.env.AUTH_MAIL_MODE === "outbox"
+        && process.env.SUPABASE_READ_ONLY === "true";
+}
 
 // Generate dynamic metadata for social sharing
 export async function generateMetadata(
-    { params }: { params: Promise<{ shareCode: string }> }
+    { params, searchParams }: { params: Promise<{ shareCode: string }>;
+        searchParams: Promise<{ data_candidate?: string }> }
 ): Promise<Metadata> {
     const { shareCode } = await params;
-    const supabase = createSupabaseAdmin();
-
-    const { data: itinerary } = await supabase
-        .from("itineraries")
-        .select("title, city, days, highlights, local_score")
-        .eq("share_code", shareCode)
-        .eq("shared", true)
-        .single();
+    const candidate = await previewShareCandidate(searchParams);
+    const itinerary = candidate ? await getPreviewSharedItinerary(shareCode) : await (async () => {
+        const supabase = createSupabaseAdmin();
+        const { data } = await supabase.from("itineraries")
+            .select("title, city, days, highlights, local_score")
+            .eq("share_code", shareCode).eq("shared", true).single();
+        return data;
+    })();
 
     if (!itinerary) {
         return {
@@ -34,24 +45,27 @@ export async function generateMetadata(
     }
 
     const title = `${itinerary.title} | Localley`;
+    const score = "localScore" in itinerary ? itinerary.localScore : itinerary.local_score;
     const description = itinerary.highlights?.length > 0
         ? `${itinerary.days}-day ${itinerary.city} itinerary featuring: ${itinerary.highlights.slice(0, 3).join(", ")}`
         : `Explore ${itinerary.city} with this ${itinerary.days}-day local-approved itinerary.`;
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localley.io";
+    const baseUrl = candidate ? "https://localley-next-preview.nkopp.workers.dev"
+        : process.env.NEXT_PUBLIC_APP_URL || "https://localley.io";
 
     return {
         title,
         description,
+        ...(candidate ? { robots: { index: false, follow: false } } : {}),
         openGraph: {
             title,
             description,
             type: "article",
-            url: `${baseUrl}/shared/${shareCode}`,
+            url: `${baseUrl}/shared/${shareCode}${candidate ? "?data_candidate=d1" : ""}`,
             siteName: "Localley",
             images: [
                 {
-                    url: `${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${itinerary.local_score || 0}`,
+                    url: `${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${score || 0}`,
                     width: 1200,
                     height: 630,
                     alt: itinerary.title,
@@ -62,7 +76,7 @@ export async function generateMetadata(
             card: "summary_large_image",
             title,
             description,
-            images: [`${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${itinerary.local_score || 0}`],
+            images: [`${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${score || 0}`],
         },
     };
 }
@@ -88,7 +102,8 @@ interface DayPlan {
 }
 
 // Fetch shared itinerary by share code
-async function getSharedItinerary(shareCode: string) {
+async function getSharedItinerary(shareCode: string, candidate: boolean) {
+    if (candidate) return getPreviewSharedItinerary(shareCode);
     const supabase = createSupabaseAdmin();
 
     const { data: itinerary, error } = await supabase
@@ -130,9 +145,11 @@ async function getSharedItinerary(shareCode: string) {
     };
 }
 
-export default async function SharedItineraryPage({ params }: { params: Promise<{ shareCode: string }> }) {
+export default async function SharedItineraryPage({ params, searchParams }: { params: Promise<{ shareCode: string }>;
+    searchParams: Promise<{ data_candidate?: string }> }) {
     const { shareCode } = await params;
-    const itinerary = await getSharedItinerary(shareCode);
+    const candidate = await previewShareCandidate(searchParams);
+    const itinerary = await getSharedItinerary(shareCode, candidate);
 
     if (!itinerary) {
         notFound();
@@ -195,7 +212,7 @@ export default async function SharedItineraryPage({ params }: { params: Promise<
                                     <p className="mt-1 text-sm text-muted-foreground">Save the route, share it, or build a fresh one with real local spots.</p>
                                 </div>
                                 <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
-                                    <SharedActions itineraryId={itinerary.id} shareCode={shareCode} />
+                                    <SharedActions itineraryId={itinerary.id} shareCode={shareCode} candidate={candidate} />
                                     <Link href="/sign-up">
                                         <Button className="h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700">
                                             <Sparkles className="mr-2 h-4 w-4" />

@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { isPreviewItineraryShareCandidate, setPreviewItineraryShare } from "@/lib/app-data/preview-itinerary-share";
+
+async function previewShare(req: NextRequest, id: string, userId: string, enabled: boolean) {
+  const headers = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
+  try {
+    const result = await setPreviewItineraryShare(id, userId, enabled);
+    if (result.state === "missing") return NextResponse.json({ error: "Itinerary not found" }, { status: 404, headers });
+    if (result.state === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403, headers });
+    if (!enabled) return NextResponse.json({ success: true, message: "Sharing disabled" }, { headers });
+    if (!result.code) throw new Error("Missing preview share code");
+    return NextResponse.json({ success: true, shareCode: result.code,
+      shareUrl: `${req.nextUrl.origin}/shared/${result.code}?data_candidate=d1` }, { headers });
+  } catch (error) {
+    console.error("[PREVIEW_ITINERARY_SHARE] D1 unavailable", error);
+    return NextResponse.json({ error: "Share unavailable" }, { status: 503, headers });
+  }
+}
 
 // Generate a unique share code
 function generateShareCode(): string {
@@ -25,6 +42,7 @@ export async function POST(
     }
 
     const { id } = await params;
+    if (isPreviewItineraryShareCandidate(req)) return previewShare(req, id, userId, true);
     const supabase = await createSupabaseServerClient();
 
     // Check if itinerary belongs to user
@@ -115,6 +133,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    if (isPreviewItineraryShareCandidate(req)) return previewShare(req, id, userId, false);
     const supabase = await createSupabaseServerClient();
 
     // Check if itinerary belongs to user
