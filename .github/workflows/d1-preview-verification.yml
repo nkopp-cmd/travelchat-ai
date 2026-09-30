@@ -26,6 +26,7 @@ on:
       - 'app/api/geocode/route.ts'
       - 'app/api/geocode/batch/route.ts'
       - 'app/api/leaderboard/route.ts'
+      - 'app/api/user/email-preferences/route.ts'
       - 'app/api/admin/guides/route.ts'
       - 'app/api/admin/payouts/approve/route.ts'
       - 'app/api/connect/status/route.ts'
@@ -57,6 +58,8 @@ on:
       - '__tests__/api/geocode-batch-stored-candidate-route.test.ts'
       - '__tests__/api/leaderboard-candidate-route.test.ts'
       - '__tests__/lib/app-data-preview-leaderboard.test.ts'
+      - '__tests__/api/email-preferences-candidate-route.test.ts'
+      - '__tests__/lib/app-data-preview-email-preferences.test.ts'
       - '__tests__/lib/app-data-preview-stored-geocode.test.ts'
       - '__tests__/api/admin-guides-candidate-route.test.ts'
       - '__tests__/api/admin-guide-reject-candidate-route.test.ts'
@@ -111,6 +114,7 @@ jobs:
             npx vitest run __tests__/api/geocode-stored-candidate-route.test.ts __tests__/lib/app-data-preview-stored-geocode.test.ts --maxWorkers=1
             npx vitest run __tests__/api/geocode-batch-stored-candidate-route.test.ts --maxWorkers=1
             npx vitest run __tests__/api/leaderboard-candidate-route.test.ts __tests__/lib/app-data-preview-leaderboard.test.ts --maxWorkers=1
+            npx vitest run __tests__/api/email-preferences-candidate-route.test.ts __tests__/lib/app-data-preview-email-preferences.test.ts --maxWorkers=1
             npx vitest run __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts --maxWorkers=1
             npx vitest run __tests__/api/admin-guide-reject-candidate-route.test.ts --maxWorkers=1
@@ -120,6 +124,7 @@ jobs:
             npx eslint app/api/geocode/route.ts lib/app-data/preview-stored-geocode.ts __tests__/api/geocode-stored-candidate-route.test.ts __tests__/lib/app-data-preview-stored-geocode.test.ts
             npx eslint app/api/geocode/batch/route.ts __tests__/api/geocode-batch-stored-candidate-route.test.ts
             npx eslint app/api/leaderboard/route.ts lib/app-data/preview-leaderboard.ts __tests__/api/leaderboard-candidate-route.test.ts __tests__/lib/app-data-preview-leaderboard.test.ts
+            npx eslint app/api/user/email-preferences/route.ts lib/app-data/preview-email-preferences.ts __tests__/api/email-preferences-candidate-route.test.ts __tests__/lib/app-data-preview-email-preferences.test.ts
             npx eslint app/api/admin/payouts/approve/route.ts lib/app-data/preview-payout-approval.ts __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts
             npx eslint app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
