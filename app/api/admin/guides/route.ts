@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createConnectAccount, createOnboardingLink } from "@/lib/stripe-connect";
+import { isPreviewAdminGuidesCandidate, previewAdminGuides } from "@/lib/app-data/preview-admin-guides";
 
 /**
  * GET /api/admin/guides
@@ -14,6 +15,21 @@ import { createConnectAccount, createOnboardingLink } from "@/lib/stripe-connect
 export async function GET(req: NextRequest) {
     const adminCheck = await requireAdmin("/api/admin/guides", "list_guides");
     if (adminCheck.response) return adminCheck.response;
+
+    if (isPreviewAdminGuidesCandidate(req)) {
+        try {
+            const guides = await previewAdminGuides(req.nextUrl.searchParams.get("status"));
+            return NextResponse.json({ guides }, {
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        } catch (error) {
+            console.error("[ADMIN_GUIDES_PREVIEW] Guide archive unavailable", error);
+            return NextResponse.json({ error: "Guide archive unavailable" }, {
+                status: 503,
+                headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        }
+    }
 
     const supabase = createSupabaseAdmin();
     const status = req.nextUrl.searchParams.get("status"); // filter by status
