@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const counts = await previewAppDataCounts();
-    return NextResponse.json({ source: "D1 pilot only", ...counts }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ source: "D1 preview candidate", ...counts }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "Preview D1 not ready" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
