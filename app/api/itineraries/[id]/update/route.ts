@@ -6,6 +6,8 @@ import {
     buildItineraryPlanPayload,
     normalizeDailyPlansForDisplay,
 } from "@/lib/itineraries/normalize-daily-plans";
+import { isPreviewItineraryDetailCandidate } from "@/lib/app-data/preview-itinerary-detail";
+import { updatePreviewItinerary } from "@/lib/app-data/preview-itinerary-update";
 
 export async function PATCH(
     request: NextRequest,
@@ -31,6 +33,27 @@ export async function PATCH(
         for (const day of days) {
             if (typeof day.day !== "number" || !Array.isArray(day.activities)) {
                 return Errors.validationError("Invalid days structure");
+            }
+        }
+
+        if (isPreviewItineraryDetailCandidate(request)) {
+            const withSource = (response: NextResponse) => {
+                response.headers.set("X-Localley-Data-Source", "d1-preview");
+                response.headers.set("Cache-Control", "no-store");
+                return response;
+            };
+            try {
+                const normalizedPlan = normalizeDailyPlansForDisplay(days, insights);
+                const activities = buildItineraryPlanPayload(normalizedPlan.dailyPlans, normalizedPlan.insights);
+                const result = await updatePreviewItinerary(id, userId, {
+                    title, city, activities, highlights: highlights || [], estimatedCost: estimated_cost || null,
+                });
+                if (result.state === "missing") return withSource(Errors.notFound("Itinerary"));
+                if (result.state === "forbidden") return withSource(Errors.forbidden("You don't own this itinerary."));
+                return withSource(NextResponse.json({ success: true, itinerary: result.itinerary }));
+            } catch (error) {
+                if (error instanceof RangeError) return withSource(Errors.validationError(error.message));
+                return withSource(Errors.databaseError());
             }
         }
 
