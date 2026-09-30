@@ -1,7 +1,7 @@
 import "server-only";
 import { ALL_CITIES } from "@/lib/cities";
 import { formatChatSpotContext, matchedChatCategories, type ChatContextSpot } from "@/lib/chat/spot-context";
-import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS } from "@/lib/spots/public-quality";
+import { getPublicSpotQualityIssue, PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS, type PublicSpotQualityInput } from "@/lib/spots/public-quality";
 import { previewAppDataReader } from "./preview-db";
 
 interface BatchRow { counts: string }
@@ -73,8 +73,13 @@ export async function previewChatSpotContext(city: string, userMessage: string) 
   const { results } = await db.prepare(sql).bind(`%${cityConfig.name}%`,
     ...PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS, ...categories, limit).all<SourceRow & { publicIssue: string | null; visible: number }>();
   if (!Array.isArray(results) || results.length > limit) throw new Error("Chat source rows unavailable");
-  if (results.some(row => (row.visible === 1) !== (row.publicIssue === null))) {
-    throw new Error("Chat source visibility mismatch");
+  for (const row of results) {
+    const source: unknown = JSON.parse(row.payload);
+    if (!source || typeof source !== "object" || Array.isArray(source) || !("name" in source)
+      || row.visible !== Number(row.publicIssue === null)
+      || getPublicSpotQualityIssue(source as PublicSpotQualityInput) !== row.publicIssue) {
+      throw new Error("Chat source visibility mismatch");
+    }
   }
   // Production applies its JS quality predicate after SQL LIMIT.
   const spots = results.filter(row => row.publicIssue === null).map(sourceSpot);

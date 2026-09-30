@@ -10,15 +10,16 @@ import { formatChatSpotContext, matchedChatCategories } from "@/lib/chat/spot-co
 let db: D1Sqlite;
 const source = (id: string, category: string, score: number, pct: number, city = "Seoul") => ({
   id, name: { en: id }, description: { en: "A local place" },
-  address: { en: `Street, ${city}` }, category, localley_score: score,
+  address: { en: `123 Main Street, ${city}` }, category, localley_score: score,
   local_percentage: pct, best_times: { en: "Morning" }, tips: { en: "Go early" },
-  subcategories: [], photos: ["https://example.test/photo.jpg"],
+  subcategories: [], photos: ["/images/spots/test.jpg"],
 });
 function add(id: string, category: string, score: number, pct: number, visible = 1, city = "Seoul") {
-  const payload = JSON.stringify(source(id, category, score, pct, city));
+  const payload = JSON.stringify({ ...source(id, category, score, pct, city),
+    address: { en: visible ? `123 Main Street, ${city}` : `Street, ${city}` } });
   db.sqlite.prepare("INSERT INTO spots(id,visible,localley_score) VALUES(?,?,?)").run(id, visible, score);
   db.sqlite.prepare("INSERT INTO legacy_spot_source(spotId,payload,publicIssue) VALUES(?,?,?)")
-    .run(id, payload, visible ? null : "hidden");
+    .run(id, payload, visible ? null : "inexact_location");
 }
 beforeEach(() => {
   db = new D1Sqlite();
@@ -41,7 +42,7 @@ describe("counted preview chat spot source", () => {
     expect(formatChatSpotContext("Seoul", [source("cafe-high", "Cafe", 6, 90)]))
       .toBe(`\n\n## CURATED SPOTS DATABASE — Real verified places in Seoul
 Use these REAL spots in your recommendations when relevant. These are verified, curated places from our database:\n\n- cafe-high [Cafe] (Legendary Alley, 6/6, 90% locals)
-  Address: Street, Seoul
+  Address: 123 Main Street, Seoul
   Description: A local place
   Best time: Morning
   
