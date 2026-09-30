@@ -57,6 +57,10 @@ describe("stored map geocode candidate", () => {
 
   it("returns stored coordinates only for one exact visible source", async () => {
     const db = database(); spot(db);
+    db.sqlite.prepare("INSERT INTO spots VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run("pilot-with-plain-address", '{"en":"Pilot"}', "Pilot street", "seoul", 37.5, 127, 1);
+    db.sqlite.prepare("INSERT INTO legacy_spot_source VALUES (?, ?, ?)")
+      .run("pilot-with-plain-address", '{"id":"pilot-with-plain-address"}', null);
     expect(await previewStoredGeocode(` ${address.toUpperCase()} `, "SEOUL", "Gwangjang Market"))
       .toEqual({ lat: 37.57, lng: 126.999, provider: "stored" });
     expect(await previewStoredGeocode("Different address", "Seoul", null)).toBeNull();

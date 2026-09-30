@@ -33,8 +33,10 @@ export async function previewStoredGeocode(address: string, city: string, name: 
   const normalizedName = name?.trim().toLowerCase() ?? null;
   const { results } = await db.prepare(`SELECT p.id, p.address, p.name, p.city, p.latitude, p.longitude,
     s.payload, s.publicIssue FROM spots p JOIN legacy_spot_source s ON s.spotId = p.id
-    WHERE p.visible = 1 AND lower(trim(json_extract(p.address, '$.en'))) = ?
-    AND lower(trim(p.city)) = ? AND (? IS NULL OR lower(trim(json_extract(p.name, '$.en'))) = ?)
+    WHERE p.visible = 1
+    AND lower(trim(CASE WHEN json_valid(p.address) THEN json_extract(p.address, '$.en') END)) = ?
+    AND lower(trim(p.city)) = ?
+    AND (? IS NULL OR lower(trim(CASE WHEN json_valid(p.name) THEN json_extract(p.name, '$.en') END)) = ?)
     LIMIT 2`).bind(normalizedAddress, normalizedCity, normalizedName, normalizedName).all<StoredSpot>();
   if (!Array.isArray(results) || results.length > 1) throw new Error("Stored map location is ambiguous");
   const row = results[0];
