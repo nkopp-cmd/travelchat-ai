@@ -9,6 +9,7 @@ export interface PreviewAppDataStatement {
 }
 export interface PreviewAppDataReader {
   prepare(query: string): PreviewAppDataStatement;
+  batch(statements: PreviewAppDataStatement[]): Promise<{ meta: { changes: number } }[]>;
 }
 
 const contextSymbol = Symbol.for("__cloudflare-context__");

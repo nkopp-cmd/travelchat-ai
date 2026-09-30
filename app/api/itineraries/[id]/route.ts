@@ -4,9 +4,10 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
 import { isPreviewItineraryDetailCandidate, previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
+import { deletePreviewItinerary } from "@/lib/app-data/preview-itinerary-delete";
 
 export async function DELETE(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -16,6 +17,21 @@ export async function DELETE(
         }
 
         const { id } = await params;
+        if (isPreviewItineraryDetailCandidate(request)) {
+            const withSource = (response: NextResponse) => {
+                response.headers.set("X-Localley-Data-Source", "d1-preview");
+                response.headers.set("Cache-Control", "no-store");
+                return response;
+            };
+            try {
+                const result = await deletePreviewItinerary(id, userId);
+                if (result === "missing") return withSource(Errors.notFound("Itinerary"));
+                if (result === "forbidden") return withSource(Errors.forbidden());
+                return withSource(NextResponse.json({ success: true }));
+            } catch {
+                return withSource(Errors.databaseError());
+            }
+        }
         const supabase = await createSupabaseServerClient();
 
         // Verify ownership before deleting
