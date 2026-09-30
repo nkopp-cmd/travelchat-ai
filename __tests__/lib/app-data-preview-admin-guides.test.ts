@@ -17,6 +17,7 @@ function database() {
   const db = new D1Sqlite();
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0015_preview_guide_profiles.sql"), "utf8"));
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0016_preview_guide_applications.sql"), "utf8"));
+  db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0017_preview_guide_application_decisions.sql"), "utf8"));
   db.sqlite.exec("DELETE FROM legacy_guide_profile_batches");
   mocks.reader.mockReturnValue(db);
   return db;
@@ -89,6 +90,18 @@ describe("preview admin list of new applications", () => {
       bio: "Local guide", cities: ["seoul"], stripe_account_id: null });
     expect((await previewAdminGuideList("pending")).map(item => item.id)).toEqual(["application-1"]);
     expect((await previewAdminGuideList("approved")).map(item => item.id)).toEqual(["source"]);
+  });
+
+  it("moves a reviewed application from pending to rejected", async () => {
+    const db = database();
+    batch(db, 0);
+    application(db);
+    db.sqlite.prepare("INSERT INTO preview_guide_application_decisions VALUES (?, ?, ?, ?)")
+      .run("owner-1", "rejected", "2026-09-30T03:00:00Z", "admin-1");
+    expect(await previewAdminGuideList("pending")).toEqual([]);
+    expect((await previewAdminGuideList("rejected"))[0]).toMatchObject({
+      clerk_user_id: "owner-1", status: "rejected", reviewed_by: "admin-1",
+    });
   });
 
   it("refuses missing source, source-owner collisions and malformed applications", async () => {

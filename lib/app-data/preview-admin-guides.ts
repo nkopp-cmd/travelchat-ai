@@ -59,7 +59,7 @@ export async function previewAdminGuideList(status: string | null): Promise<Reco
   const pending = applications.map(application => ({
     id: application.id,
     clerk_user_id: application.clerkUserId,
-    status: "pending",
+    status: application.status,
     applied_at: application.appliedAt,
     approved_at: null,
     approved_by: null,
@@ -76,7 +76,9 @@ export async function previewAdminGuideList(status: string | null): Promise<Reco
     total_paid_out: 0,
     pending_balance: 0,
     created_at: application.appliedAt,
-    updated_at: application.appliedAt,
+    updated_at: application.reviewedAt ?? application.appliedAt,
+    reviewed_at: application.reviewedAt,
+    reviewed_by: application.reviewedBy,
   }));
   return [...source, ...pending]
     .filter(guide => status === null || guide.status === status)

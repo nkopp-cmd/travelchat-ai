@@ -3,6 +3,8 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createConnectAccount, createOnboardingLink } from "@/lib/stripe-connect";
 import { isPreviewAdminGuidesCandidate, previewAdminGuideList } from "@/lib/app-data/preview-admin-guides";
+import { previewAdminGuides } from "@/lib/app-data/preview-admin-guides";
+import { PreviewGuideApplicationNotFound, rejectPreviewGuideApplication } from "@/lib/app-data/preview-guide-application";
 
 /**
  * GET /api/admin/guides
@@ -54,6 +56,39 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
     const adminCheck = await requireAdmin("/api/admin/guides", "manage_guide");
     if (adminCheck.response) return adminCheck.response;
+
+    if (isPreviewAdminGuidesCandidate(req)) {
+        const headers = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
+        try {
+            const raw = await req.text();
+            if (raw.length > 2048) return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+            let body: unknown;
+            try { body = JSON.parse(raw); } catch { body = null; }
+            if (!body || typeof body !== "object" || Array.isArray(body)) {
+                return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+            }
+            const { clerkUserId, action } = body as Record<string, unknown>;
+            if (typeof clerkUserId !== "string" || !clerkUserId || clerkUserId.length > 256
+                || typeof action !== "string" || !["approve", "reject", "suspend"].includes(action)) {
+                return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+            }
+            if (action !== "reject") {
+                return NextResponse.json({ error: "Guide action unavailable" }, { status: 503, headers });
+            }
+            const archived = await previewAdminGuides(null);
+            if (archived.some(guide => guide.clerk_user_id === clerkUserId)) {
+                return NextResponse.json({ error: "Archived guide action unavailable" }, { status: 503, headers });
+            }
+            await rejectPreviewGuideApplication(clerkUserId, adminCheck.userId);
+            return NextResponse.json({ status: "rejected" }, { headers });
+        } catch (error) {
+            if (error instanceof PreviewGuideApplicationNotFound) {
+                return NextResponse.json({ error: "Guide not found" }, { status: 404, headers });
+            }
+            console.error("[ADMIN_GUIDE_REJECTION_PREVIEW] Review unavailable", error);
+            return NextResponse.json({ error: "Guide review unavailable" }, { status: 503, headers });
+        }
+    }
 
     try {
         const body = await req.json();
