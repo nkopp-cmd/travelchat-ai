@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
+import { isPreviewItineraryDetailCandidate, previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
 
 export async function DELETE(
     request: Request,
@@ -50,7 +51,7 @@ export async function DELETE(
 }
 
 export async function GET(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -60,6 +61,21 @@ export async function GET(
         }
 
         const { id } = await params;
+        if (isPreviewItineraryDetailCandidate(request)) {
+            const withSource = (response: NextResponse) => {
+                response.headers.set("X-Localley-Data-Source", "d1-preview");
+                response.headers.set("Cache-Control", "no-store");
+                return response;
+            };
+            try {
+                const result = await previewItineraryDetail(id, userId);
+                if (result.state === "missing") return withSource(Errors.notFound("Itinerary"));
+                if (result.state === "forbidden") return withSource(Errors.forbidden());
+                return withSource(NextResponse.json(result.itinerary));
+            } catch {
+                return withSource(Errors.databaseError());
+            }
+        }
         const supabase = await createSupabaseServerClient();
 
         const { data: itinerary, error } = await supabase
