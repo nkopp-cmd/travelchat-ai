@@ -5,6 +5,11 @@ import {
     markAllNotificationsRead,
 } from "@/lib/notifications";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { assertPreviewNotificationUser, isPreviewNotificationCandidate,
+    markAllPreviewNotificationsRead, parsePreviewNotificationPage,
+    previewNotifications } from "@/lib/app-data/preview-notifications";
+
+const candidateHeaders = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
 
 // GET /api/notifications - Get user notifications
 export async function GET(request: NextRequest) {
@@ -13,6 +18,18 @@ export async function GET(request: NextRequest) {
 
         if (!userId) {
             return Errors.unauthorized();
+        }
+
+        if (isPreviewNotificationCandidate(request)) {
+            const page = parsePreviewNotificationPage(request);
+            if (!page) return NextResponse.json({ error: "Invalid notification page" }, { status: 400, headers: candidateHeaders });
+            try {
+                await assertPreviewNotificationUser(userId);
+                return NextResponse.json(await previewNotifications(userId, page), { headers: candidateHeaders });
+            } catch (error) {
+                console.error("[PREVIEW_NOTIFICATIONS] Read unavailable", error);
+                return NextResponse.json({ error: "Notifications unavailable" }, { status: 503, headers: candidateHeaders });
+            }
         }
 
         const searchParams = request.nextUrl.searchParams;
@@ -37,8 +54,24 @@ export async function POST(request: NextRequest) {
             return Errors.unauthorized();
         }
 
-        const body = await request.json();
+        if (isPreviewNotificationCandidate(request)) {
+            let body: unknown;
+            try { body = await request.json(); } catch {
+                return NextResponse.json({ error: "Invalid action" }, { status: 400, headers: candidateHeaders });
+            }
+            if (!body || typeof body !== "object" || !("action" in body) || body.action !== "markAllRead") {
+                return NextResponse.json({ error: "Invalid action" }, { status: 400, headers: candidateHeaders });
+            }
+            try {
+                await assertPreviewNotificationUser(userId);
+                return NextResponse.json({ success: await markAllPreviewNotificationsRead(userId) }, { headers: candidateHeaders });
+            } catch (error) {
+                console.error("[PREVIEW_NOTIFICATIONS] Mark-all unavailable", error);
+                return NextResponse.json({ error: "Notifications unavailable" }, { status: 503, headers: candidateHeaders });
+            }
+        }
 
+        const body = await request.json();
         if (body.action === "markAllRead") {
             const success = await markAllNotificationsRead(userId);
             return NextResponse.json({ success });
