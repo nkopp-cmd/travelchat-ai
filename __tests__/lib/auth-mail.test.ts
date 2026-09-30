@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { authMailMode, createMailSender, isProductionAuthHost, renderAuthMail, type AuthEmailBinding } from "@/lib/auth/mail";
+import { authMailMode, createMailSender, isLocalleyAuthLink, isProductionAuthHost, renderAuthMail, type AuthEmailBinding } from "@/lib/auth/mail";
 
 afterEach(() => { delete process.env.AUTH_MAIL_MODE; delete process.env.FROM_EMAIL; delete process.env.BETTER_AUTH_URL; });
 
@@ -9,11 +9,12 @@ function binding(send: ReturnType<typeof vi.fn>) {
 }
 
 describe("auth mail", () => {
-  it("escapes the link and name in HTML", () => {
-    const { html, subject } = renderAuthMail({ kind: "reset-password", to: "a@b.test", url: "https://x/?a=1&b=<2>", name: "<Eve>" });
+  it("escapes the link and excludes untrusted names from both parts", () => {
+    const { html, text, subject } = renderAuthMail({ kind: "reset-password", to: "a@b.test", url: "https://x/?a=1&b=<2>", name: "Visit https://evil.example <Eve>" });
     expect(subject).toBe("Set your Localley password");
-    expect(html).toContain("&lt;Eve&gt;");
     expect(html).toContain("a=1&amp;b=&lt;2&gt;");
+    expect(html).not.toContain("evil.example");
+    expect(text).not.toContain("evil.example");
   });
 
   it("sends each auth action with HTML and text through Cloudflare", async () => {
@@ -31,11 +32,12 @@ describe("auth mail", () => {
       expect(message.html).toContain("https://www.localley.io/auth/secret");
       expect(message.text).toContain("https://www.localley.io/auth/secret");
       expect(message.subject).toBeTruthy();
+      expect(message.text).toContain("If you did not ask for it, ignore this email.");
     }
   });
 
   it("fails closed for a missing binding or wrong sender", async () => {
-    const mail = { kind: "magic-link" as const, to: "a@b.test", url: "https://x" };
+    const mail = { kind: "magic-link" as const, to: "a@b.test", url: "https://www.localley.io/api/auth/magic-link/verify?token=test" };
     process.env.FROM_EMAIL = "Localley <hello@localley.io>";
     await expect(createMailSender(undefined)(mail)).rejects.toThrow(/AUTH_EMAIL/);
     process.env.FROM_EMAIL = "Localley <other@example.com>";
@@ -48,7 +50,7 @@ describe("auth mail", () => {
     process.env.FROM_EMAIL = "hello@localley.io";
     const send = vi.fn(async () => { throw Object.assign(new Error("a@b.test https://x"), { code: "E_RECIPIENT_SUPPRESSED" }); });
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
-    await expect(createMailSender(undefined, binding(send))({ kind: "magic-link", to: "a@b.test", url: "https://x" }))
+    await expect(createMailSender(undefined, binding(send))({ kind: "magic-link", to: "a@b.test", url: "https://www.localley.io/api/auth/magic-link/verify?token=test" }))
       .rejects.toThrow("Auth email could not be sent");
     expect(send).toHaveBeenCalledTimes(1);
     expect(log).toHaveBeenCalledWith("[auth] Cloudflare email send failed:", "E_RECIPIENT_SUPPRESSED");
@@ -65,6 +67,19 @@ describe("auth mail", () => {
     await createMailSender(database, binding(send))({ kind: "magic-link", to: "A@B.test", url: "https://x" });
     expect(bind).toHaveBeenCalledWith("magic-link", "a@b.test", "https://x", expect.any(Number));
     expect(send).not.toHaveBeenCalled();
+  });
+
+  it("blocks shorteners and deceptive domains before production sending", async () => {
+    process.env.FROM_EMAIL = "Localley <hello@localley.io>";
+    const send = vi.fn();
+    const sender = createMailSender(undefined, binding(send));
+    for (const url of ["https://bit.ly/example", "https://localley.io.evil.test/link", "http://www.localley.io/link", "https://localley.io:8443/link", "https://evil.test@localley.io/link"]) {
+      expect(isLocalleyAuthLink(url)).toBe(false);
+      await expect(sender({ kind: "magic-link", to: "a@b.test", url })).rejects.toThrow(/HTTPS on localley.io/);
+    }
+    expect(send).not.toHaveBeenCalled();
+    expect(isLocalleyAuthLink("https://www.localley.io/api/auth/magic-link/verify?token=test")).toBe(true);
+    expect(isLocalleyAuthLink("https://localley.io/api/auth/verify-email?token=test")).toBe(true);
   });
 
   it("never uses the outbox on a production host", () => {
