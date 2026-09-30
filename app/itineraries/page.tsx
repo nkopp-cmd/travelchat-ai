@@ -4,7 +4,9 @@ import { Plus } from "lucide-react";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
+import { isPreviewItineraryListCandidate, previewItineraryList } from "@/lib/app-data/preview-itinerary-list";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 
@@ -59,8 +61,17 @@ async function getItineraries(): Promise<{ itineraries: Array<{
     }
 }
 
-export default async function ItinerariesPage() {
-    const { itineraries, error } = await getItineraries();
+export default async function ItinerariesPage({ searchParams }: {
+    searchParams: Promise<{ data_candidate?: string }>;
+}) {
+    const host = (await headers()).get("host");
+    const { data_candidate } = await searchParams;
+    const candidate = isPreviewItineraryListCandidate(host, data_candidate);
+    const { itineraries, error } = candidate ? await (async () => {
+        const { userId } = await auth();
+        if (!userId) redirect("/sign-in");
+        return { itineraries: await previewItineraryList(userId), error: null };
+    })() : await getItineraries();
 
     return (
         <AppBackground ambient fitParent>
