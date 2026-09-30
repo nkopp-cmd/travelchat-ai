@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(async () => ({ userId: "user_test" })),
@@ -52,8 +52,25 @@ function createChatRequest() {
 }
 
 describe("/api/chat provider routing", () => {
+  afterEach(() => vi.unstubAllEnvs());
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("fails explicit preview D1 chat closed before Supabase usage or a paid model", async () => {
+    vi.stubEnv("AUTH_MAIL_MODE", "outbox");
+    vi.stubEnv("SUPABASE_READ_ONLY", "true");
+    const { POST } = await import("@/app/api/chat/route");
+    const request = new NextRequest("https://localley-next-preview.nkopp.workers.dev/api/chat?data_candidate=d1", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "Seoul spots" }] }),
+    });
+    const response = await POST(request);
+    expect(response.status).toBe(503);
+    expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
+    expect(mocks.rateLimitHandler).not.toHaveBeenCalled();
+    expect(mocks.checkAndIncrementUsage).not.toHaveBeenCalled();
+    expect(mocks.generateChatReplyWithFallback).not.toHaveBeenCalled();
   });
 
   it("returns GLM as the route provider when the primary chat model succeeds", async () => {

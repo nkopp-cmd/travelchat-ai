@@ -13,6 +13,7 @@ import {
 import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
 import { generateChatReplyWithFallback } from "@/lib/llm/chat-provider";
 import type { MultiLanguageField } from "@/types";
+import { isPreviewChatUsageCandidate } from "@/lib/app-data/preview-chat-usage";
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -220,6 +221,17 @@ ${spotsContext}`;
 
 export async function POST(req: NextRequest) {
     try {
+        // The counter has a candidate adapter, but spot context still needs its D1 projection.
+        // Never send an explicit candidate request to Redis, Supabase, or a paid model meanwhile.
+        if (isPreviewChatUsageCandidate(req)) {
+            const { userId } = await auth();
+            if (!userId) return Errors.unauthorized();
+            return NextResponse.json({ error: "Candidate chat context unavailable" }, {
+                status: 503,
+                headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        }
+
         // Check rate limit
         const rateLimitResponse = await limiter(req);
         if (rateLimitResponse) {
