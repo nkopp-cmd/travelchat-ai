@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/lib/auth/server";
 import { getRecommendations } from '@/lib/recommendations';
 import { handleApiError } from '@/lib/api-error-handler';
+import { isPreviewRecommendationsCandidate, previewRecommendations } from '@/lib/app-data/preview-recommendations';
 
 /**
  * GET /api/recommendations
@@ -36,14 +37,27 @@ export async function GET(req: NextRequest) {
     }
 
     // Get recommendations
-    const recommendations = await getRecommendations(userId, limit);
+    const candidate = isPreviewRecommendationsCandidate(req);
+    let recommendations;
+    if (candidate) {
+      try {
+        recommendations = await previewRecommendations(userId, limit);
+      } catch (error) {
+        console.error('Preview recommendations unavailable:', error);
+        return NextResponse.json({ error: 'Recommendations unavailable' }, { status: 503,
+          headers: { 'Cache-Control': 'private, no-store', 'X-Localley-Data-Source': 'd1-preview' } });
+      }
+    } else {
+      recommendations = await getRecommendations(userId, limit);
+    }
 
     // Return recommendations
     return NextResponse.json({
       recommendations,
       count: recommendations.length,
       personalized: recommendations.length > 0,
-    });
+    }, candidate ? { headers: { 'Cache-Control': 'private, no-store',
+      'X-Localley-Data-Source': 'd1-preview' } } : undefined);
   } catch (error) {
     return handleApiError(error, {
       context: 'api/recommendations',
