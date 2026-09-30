@@ -239,3 +239,8 @@ Do not link accounts by email. Never drop or delete Supabase data until D1 has o
 Avoid paid API probes this week. Do not send preview changes to `localley-next` or `www.localley.io` before release checks.
 
 See `docs/CLOUDFLARE_OPENNEXT.md` section 6 for the active Worker, `docs/AUTH_BETTER_AUTH.md` section 7 for user identities, and `shared/plans/localley-full-cutover.md` for progress.
+### Preview guide application write candidate (2026-09-30)
+
+The existing `POST /api/connect/onboard` uses D1 only with `data_candidate=d1` on the exact preview Worker host. This candidate requires the isolated preview mail and read-only Supabase flags, authenticates the Better Auth owner, validates the counted source guide archive, and writes a bounded pending application to `preview_guide_applications`. A unique owner key makes repeat submissions idempotent. Candidate `GET /api/connect/status` reads that owner's application when the source archive has no profile. Rejected or suspended source profiles remain forbidden. Approved or Stripe-linked profiles fail closed until their provider path has a separate candidate. Normal preview and www retain their existing Supabase and Stripe paths. The existing admin guide list still reads the imported source archive; new preview applications need a separate admin candidate before review.
+
+Migration `0016` applies only to `APP_DATA_PREVIEW_DB`. It creates no production binding and changes no production data. The preview release must verify a signed-in POST and status GET, exact owner isolation, repeat POST, cleanup, www health, and a rollback version. The full current-data rehearsal and live switch remain separate gates.

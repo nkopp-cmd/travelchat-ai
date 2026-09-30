@@ -1,6 +1,7 @@
 import "server-only";
 import type { NextRequest } from "next/server";
 import { previewAdminGuides } from "./preview-admin-guides";
+import { readPreviewGuideApplication } from "./preview-guide-application";
 
 export function isPreviewGuideStatusCandidate(request: NextRequest): boolean {
   return request.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
@@ -37,7 +38,14 @@ export async function previewGuideStatus(userId: string): Promise<GuideStatus> {
   if (!userId || userId.length > 256) throw new Error("Invalid guide owner");
   const guides = await previewAdminGuides(null);
   const guide = guides.find(row => row.clerk_user_id === userId);
-  if (!guide) return { isGuide: false };
+  if (!guide) {
+    const application = await readPreviewGuideApplication(userId);
+    if (!application) return { isGuide: false };
+    return { isGuide: true, status: "pending", onboardingComplete: false, chargesEnabled: false,
+      payoutsEnabled: false, specialties: application.specialties, cities: application.cities,
+      totalEarned: 0, pendingBalance: 0, stripeStatus: null, appliedAt: application.appliedAt,
+      approvedAt: null };
+  }
   if (guide.stripe_account_id !== null) throw new Error("Stripe-linked guide status unavailable");
   if (!boolOrNull(guide.stripe_onboarding_complete) || !boolOrNull(guide.stripe_charges_enabled)
     || !boolOrNull(guide.stripe_payouts_enabled) || !textArrayOrNull(guide.specialties)
