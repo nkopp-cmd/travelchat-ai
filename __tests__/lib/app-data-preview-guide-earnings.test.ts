@@ -17,6 +17,7 @@ function database() {
   const db = new D1Sqlite();
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0015_preview_guide_profiles.sql"), "utf8"));
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0018_preview_guide_revenue.sql"), "utf8"));
+  db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0019_preview_earning_approvals.sql"), "utf8"));
   mocks.reader.mockReturnValue(db);
   return db;
 }
