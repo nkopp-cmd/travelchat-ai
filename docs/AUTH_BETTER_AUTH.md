@@ -51,7 +51,7 @@ rewritten. `ADMIN_USER_IDS` keeps working unchanged.
 | `lib/auth/server.ts` | Server adapter: `auth()` -> `{ userId, sessionId }`, `currentUser()` (Clerk-shaped subset), `getSession()`, `requireUser()` (401), `getAuth()`. Fails closed (signed out) when the store is unavailable. |
 | `lib/auth/client.ts` | Client adapter: `useUser()`, `useAuth()`, `signOut()`, `authClient`, `safeRedirect()`. |
 | `lib/auth/session-cookie.ts` + `middleware.ts` | Middleware verifies the HMAC signature of the session cookie (no DB). Signed out: pages 307 to `/sign-in?redirect_url=...`, APIs **401** JSON (Clerk answered 404). |
-| `lib/auth/mail.ts` | Resend (production) or D1 outbox (`AUTH_MAIL_MODE=outbox`). |
+| `lib/auth/mail.ts` | Cloudflare `AUTH_EMAIL` (production) or D1 outbox (`AUTH_MAIL_MODE=outbox`). |
 | `lib/auth/user-sync.ts` | Better Auth user hooks upsert Supabase `users` / `subscriptions` (replaces `/api/webhooks/clerk`, which is removed). No welcome email: `CLERK_WEBHOOK_SECRET` was never set in production, so none was ever sent. |
 | `lib/supabase-server.ts` | Mints the RLS token that Clerk's `supabase` JWT template issued (HS256, `sub`, `role`/`aud` = authenticated, 60 s) with `SUPABASE_JWT_SECRET`. Without the secret: anon client (old fallback). |
 | `app/api/auth/[...all]` | Better Auth handler. |

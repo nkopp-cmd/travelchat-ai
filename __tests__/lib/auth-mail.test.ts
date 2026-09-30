@@ -9,11 +9,12 @@ function binding(send: ReturnType<typeof vi.fn>) {
 }
 
 describe("auth mail", () => {
-  it("escapes the link and name in HTML", () => {
-    const { html, subject } = renderAuthMail({ kind: "reset-password", to: "a@b.test", url: "https://x/?a=1&b=<2>", name: "<Eve>" });
+  it("escapes the link and excludes untrusted names from both parts", () => {
+    const { html, text, subject } = renderAuthMail({ kind: "reset-password", to: "a@b.test", url: "https://x/?a=1&b=<2>", name: "Visit https://evil.example <Eve>" });
     expect(subject).toBe("Set your Localley password");
-    expect(html).toContain("&lt;Eve&gt;");
     expect(html).toContain("a=1&amp;b=&lt;2&gt;");
+    expect(html).not.toContain("evil.example");
+    expect(text).not.toContain("evil.example");
   });
 
   it("sends each auth action with HTML and text through Cloudflare", async () => {

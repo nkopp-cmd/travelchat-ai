@@ -47,7 +47,7 @@ const escapeHtml = (value: string) =>
 export function renderAuthMail(mail: AuthMail): { subject: string; html: string; text: string } {
   const subject = SUBJECTS[mail.kind];
   const action = ACTIONS[mail.kind];
-  const greeting = mail.name ? `Hi ${escapeHtml(mail.name)},` : "Hi,";
+  const greeting = "Hi,";
   const note = mail.kind === "magic-link"
     ? "This link works once and expires in 15 minutes. If you did not ask for it, ignore this email."
     : mail.kind === "reset-password"
@@ -60,7 +60,7 @@ export function renderAuthMail(mail: AuthMail): { subject: string; html: string;
 <p><a href="${url}" style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">${action}</a></p>
 <p style="font-size:13px;color:#6b7280">${note}</p>
 <p style="font-size:12px;color:#9ca3af;word-break:break-all">${url}</p></body></html>`;
-  const text = `${mail.name ? `Hi ${mail.name},` : "Hi,"}\n\n${introduction}\n\n${action}: ${mail.url}\n\n${note}\n`;
+  const text = `Hi,\n\n${introduction}\n\n${action}: ${mail.url}\n\n${note}\n`;
   return { subject, html, text };
 }
 
