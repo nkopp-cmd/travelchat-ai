@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { assertPreviewReviewUser, deletePreviewSpotReview, isPreviewSpotReviewCandidate,
+    parseReviewInput, updatePreviewSpotReview } from "@/lib/app-data/preview-spot-reviews";
+
+const candidateHeaders = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
 
 // PUT - Update a review
 export async function PUT(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string; reviewId: string }> }
 ) {
     try {
@@ -16,6 +20,22 @@ export async function PUT(
         }
 
         const { id: spotId, reviewId } = await params;
+        if (isPreviewSpotReviewCandidate(request)) {
+            const changes = parseReviewInput(await request.json().catch(() => null), true);
+            if (!changes) return NextResponse.json({ error: "Invalid review" }, { status: 400, headers: candidateHeaders });
+            try {
+                await assertPreviewReviewUser(userId);
+                const result = await updatePreviewSpotReview(spotId, reviewId, userId, changes);
+                if (result.state === "missing") return NextResponse.json({ error: "Review not found" },
+                    { status: 404, headers: candidateHeaders });
+                if (result.state === "forbidden") return NextResponse.json({ error: "Forbidden" },
+                    { status: 403, headers: candidateHeaders });
+                return NextResponse.json(result.review, { headers: candidateHeaders });
+            } catch (error) {
+                console.error("[PREVIEW_SPOT_REVIEWS] D1 unavailable", error);
+                return NextResponse.json({ error: "Reviews unavailable" }, { status: 503, headers: candidateHeaders });
+            }
+        }
         const body = await request.json();
         const { rating, comment, visitDate } = body;
 
@@ -75,7 +95,7 @@ export async function PUT(
 
 // DELETE - Delete a review
 export async function DELETE(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string; reviewId: string }> }
 ) {
     try {
@@ -85,6 +105,20 @@ export async function DELETE(
         }
 
         const { id: spotId, reviewId } = await params;
+        if (isPreviewSpotReviewCandidate(request)) {
+            try {
+                await assertPreviewReviewUser(userId);
+                const state = await deletePreviewSpotReview(spotId, reviewId, userId);
+                if (state === "missing") return NextResponse.json({ error: "Review not found" },
+                    { status: 404, headers: candidateHeaders });
+                if (state === "forbidden") return NextResponse.json({ error: "Forbidden" },
+                    { status: 403, headers: candidateHeaders });
+                return NextResponse.json({ success: true }, { headers: candidateHeaders });
+            } catch (error) {
+                console.error("[PREVIEW_SPOT_REVIEWS] D1 unavailable", error);
+                return NextResponse.json({ error: "Reviews unavailable" }, { status: 503, headers: candidateHeaders });
+            }
+        }
         const supabase = await createSupabaseServerClient();
 
         // Verify ownership
