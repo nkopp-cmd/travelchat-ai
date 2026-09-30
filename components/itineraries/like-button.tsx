@@ -15,6 +15,7 @@ interface LikeButtonProps {
     size?: "sm" | "default" | "lg";
     variant?: "default" | "ghost" | "outline";
     className?: string;
+    candidate?: boolean;
 }
 
 export function LikeButton({
@@ -25,6 +26,7 @@ export function LikeButton({
     size = "default",
     variant = "ghost",
     className,
+    candidate = false,
 }: LikeButtonProps) {
     const { isSignedIn } = useAuth();
     const { toast } = useToast();
@@ -32,12 +34,13 @@ export function LikeButton({
     const [likeCount, setLikeCount] = useState(initialCount);
     const [loading, setLoading] = useState(false);
     const [initialFetch, setInitialFetch] = useState(true);
+    const endpoint = `/api/itineraries/${itineraryId}/like${candidate ? "?data_candidate=d1" : ""}`;
 
     // Fetch initial like status on mount
     useEffect(() => {
         async function fetchLikeStatus() {
             try {
-                const response = await fetch(`/api/itineraries/${itineraryId}/like`);
+                const response = await fetch(endpoint);
                 if (response.ok) {
                     const data = await response.json();
                     setLiked(data.liked);
@@ -51,7 +54,7 @@ export function LikeButton({
         }
 
         fetchLikeStatus();
-    }, [itineraryId]);
+    }, [endpoint]);
 
     const handleClick = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -70,7 +73,7 @@ export function LikeButton({
 
         try {
             const method = liked ? "DELETE" : "POST";
-            const response = await fetch(`/api/itineraries/${itineraryId}/like`, {
+            const response = await fetch(endpoint, {
                 method,
             });
 

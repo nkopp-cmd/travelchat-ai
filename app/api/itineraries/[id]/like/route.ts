@@ -1,12 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
+import { addPreviewItineraryLike, assertPreviewLikeUser, isPreviewItineraryLikeCandidate,
+    previewLikeStatus, removePreviewItineraryLike } from "@/lib/app-data/preview-itinerary-likes";
+
+async function candidateLike(id: string, userId: string, method: "GET" | "POST" | "DELETE") {
+    const headers = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
+    try {
+        await assertPreviewLikeUser(userId);
+        if (method === "GET") return NextResponse.json(await previewLikeStatus(userId, id), { headers });
+        if (method === "DELETE") return NextResponse.json(await removePreviewItineraryLike(userId, id), { headers });
+        const result = await addPreviewItineraryLike(userId, id);
+        if (result.state === "missing") return NextResponse.json({ error: "Itinerary not found" }, { status: 404, headers });
+        if (result.state === "own") return NextResponse.json({ error: "Cannot like your own itinerary" }, { status: 400, headers });
+        if (result.state === "private") return NextResponse.json({ error: "Itinerary is not public" }, { status: 403, headers });
+        return NextResponse.json({ liked: true, likeCount: result.likeCount,
+            ...(result.duplicate ? { message: "Already liked" } : {}) }, { headers });
+    } catch (error) {
+        console.error("[PREVIEW_ITINERARY_LIKE] D1 unavailable", error);
+        return NextResponse.json({ error: "Itinerary likes unavailable" }, { status: 503, headers });
+    }
+}
 
 // GET - Check if user has liked an itinerary
 export async function GET(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -16,6 +36,7 @@ export async function GET(
         }
 
         const { id } = await params;
+        if (isPreviewItineraryLikeCandidate(request)) return candidateLike(id, userId, "GET");
         const supabase = await createSupabaseServerClient();
 
         // Check if user has liked this itinerary
@@ -44,7 +65,7 @@ export async function GET(
 
 // POST - Like/save an itinerary
 export async function POST(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -54,6 +75,7 @@ export async function POST(
         }
 
         const { id } = await params;
+        if (isPreviewItineraryLikeCandidate(request)) return candidateLike(id, userId, "POST");
         const supabase = await createSupabaseServerClient();
 
         // Verify itinerary exists and is public/shared
@@ -115,7 +137,7 @@ export async function POST(
 
 // DELETE - Unlike/unsave an itinerary
 export async function DELETE(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -125,6 +147,7 @@ export async function DELETE(
         }
 
         const { id } = await params;
+        if (isPreviewItineraryLikeCandidate(request)) return candidateLike(id, userId, "DELETE");
         const supabase = await createSupabaseServerClient();
 
         // Remove the like

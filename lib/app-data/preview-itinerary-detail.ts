@@ -31,7 +31,8 @@ export async function previewItineraryDetail(id: string, userId: string): Promis
 > {
   if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) return { state: "missing" };
   const row = await previewAppDataReader().prepare(`SELECT i.*, o.source AS ownerSource,
-    l.clerkUserId AS legacyUserId, m.isPublic AS is_public, m.likeCount AS like_count,
+    l.clerkUserId AS legacyUserId, m.isPublic AS is_public,
+    (SELECT count(*) FROM preview_itinerary_likes x WHERE x.itineraryId = i.id) AS like_count,
     m.viewCount AS view_count, m.sourceProfileId AS source_profile_id,
     m.aiBackgrounds AS ai_backgrounds, m.storySlides AS story_slides
     FROM itineraries i JOIN owners o ON o.id = i.ownerId
