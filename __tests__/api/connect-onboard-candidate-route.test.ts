@@ -51,10 +51,19 @@ describe("Connect guide application candidate", () => {
 
   it("does not rewrite an existing application", async () => {
     preview();
-    mocks.read.mockResolvedValue({ id: "application-1", clerkUserId: "owner-1" });
+    mocks.read.mockResolvedValue({ id: "application-1", clerkUserId: "owner-1", status: "pending" });
     const response = await POST(request("localley-next-preview.nkopp.workers.dev", { bio: 42 }));
     expect(await response.json()).toEqual({ status: "pending", onboarded: false });
     expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it("refuses a rejected application without calling Stripe or Supabase", async () => {
+    preview();
+    mocks.read.mockResolvedValue({ id: "application-1", clerkUserId: "owner-1", status: "rejected" });
+    const response = await POST(request("localley-next-preview.nkopp.workers.dev"));
+    expect(response.status).toBe(403);
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.supabase).not.toHaveBeenCalled();
   });
 
   it("refuses invalid or oversized applications", async () => {

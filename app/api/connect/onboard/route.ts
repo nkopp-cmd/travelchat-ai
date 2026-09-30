@@ -37,7 +37,11 @@ export async function POST(req: NextRequest) {
                     }
                     return NextResponse.json({ status: "pending", onboarded: false }, { headers });
                 }
-                if (await readPreviewGuideApplication(userId)) {
+                const application = await readPreviewGuideApplication(userId);
+                if (application?.status === "rejected") {
+                    return NextResponse.json({ error: "Your guide application was not approved" }, { status: 403, headers });
+                }
+                if (application) {
                     return NextResponse.json({ status: "pending", onboarded: false }, { headers });
                 }
                 const raw = await req.text();
@@ -46,7 +50,10 @@ export async function POST(req: NextRequest) {
                 try { body = JSON.parse(raw); } catch { body = null; }
                 const input = parseGuideApplication(body);
                 if (!input) return NextResponse.json({ error: "Invalid guide application" }, { status: 400, headers });
-                await createPreviewGuideApplication(userId, input);
+                const created = await createPreviewGuideApplication(userId, input);
+                if (created.status === "rejected") {
+                    return NextResponse.json({ error: "Your guide application was not approved" }, { status: 403, headers });
+                }
                 return NextResponse.json({ status: "pending", message: "Application submitted for review" }, { headers });
             } catch (error) {
                 console.error("[GUIDE_APPLICATION_PREVIEW] Candidate unavailable", error);

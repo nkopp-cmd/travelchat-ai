@@ -41,7 +41,7 @@ export async function previewGuideStatus(userId: string): Promise<GuideStatus> {
   if (!guide) {
     const application = await readPreviewGuideApplication(userId);
     if (!application) return { isGuide: false };
-    return { isGuide: true, status: "pending", onboardingComplete: false, chargesEnabled: false,
+    return { isGuide: true, status: application.status, onboardingComplete: false, chargesEnabled: false,
       payoutsEnabled: false, specialties: application.specialties, cities: application.cities,
       totalEarned: 0, pendingBalance: 0, stripeStatus: null, appliedAt: application.appliedAt,
       approvedAt: null };

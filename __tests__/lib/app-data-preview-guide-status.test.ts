@@ -16,6 +16,7 @@ function database() {
   const db = new D1Sqlite();
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0015_preview_guide_profiles.sql"), "utf8"));
   db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0016_preview_guide_applications.sql"), "utf8"));
+  db.sqlite.exec(readFileSync(path.resolve("migrations/app-preview/0017_preview_guide_application_decisions.sql"), "utf8"));
   mocks.reader.mockReturnValue(db);
   return db;
 }
@@ -58,6 +59,16 @@ describe("preview guide Connect status", () => {
       payoutsEnabled: false, specialties: ["food"], cities: ["seoul"], totalEarned: 0,
       pendingBalance: 0, stripeStatus: null, appliedAt: "2026-09-30T01:00:00Z", approvedAt: null,
     });
+  });
+
+  it("shows a rejected preview application only to its owner", async () => {
+    const db = database();
+    db.sqlite.prepare("INSERT INTO preview_guide_applications VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run("application-1", "owner-1", "pending", "Local guide", "[]", '["seoul"]', "2026-09-30T01:00:00Z");
+    db.sqlite.prepare("INSERT INTO preview_guide_application_decisions VALUES (?, ?, ?, ?)")
+      .run("owner-1", "rejected", "2026-09-30T02:00:00Z", "admin-1");
+    expect(await previewGuideStatus("other-owner")).toEqual({ isGuide: false });
+    expect(await previewGuideStatus("owner-1")).toMatchObject({ isGuide: true, status: "rejected" });
   });
 
   it("maps only the exact owner's pending guide with existing response fields", async () => {
