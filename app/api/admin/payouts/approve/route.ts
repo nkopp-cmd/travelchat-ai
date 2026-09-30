@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
+import { approvePreviewPayouts, isPreviewPayoutApprovalCandidate,
+    parsePayoutApproval, PreviewPayoutMissing } from "@/lib/app-data/preview-payout-approval";
 
 /**
  * POST /api/admin/payouts/approve
@@ -13,6 +15,25 @@ import { requireAdmin } from "@/lib/admin-auth";
 export async function POST(req: NextRequest) {
     const adminCheck = await requireAdmin("/api/admin/payouts/approve", "approve_payouts");
     if (adminCheck.response) return adminCheck.response;
+
+    if (isPreviewPayoutApprovalCandidate(req)) {
+        const headers = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
+        try {
+            const raw = await req.text();
+            if (raw.length > 8192) return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+            let body: unknown;
+            try { body = JSON.parse(raw); } catch { body = null; }
+            const scope = parsePayoutApproval(body);
+            if (!scope) return NextResponse.json({ error: "Provide a valid month or earningIds" }, { status: 400, headers });
+            return NextResponse.json({ approved: await approvePreviewPayouts(scope, adminCheck.userId) }, { headers });
+        } catch (error) {
+            if (error instanceof PreviewPayoutMissing) {
+                return NextResponse.json({ error: "Earning not found" }, { status: 404, headers });
+            }
+            console.error("[PREVIEW_PAYOUT_APPROVAL] Approval unavailable", error);
+            return NextResponse.json({ error: "Payout approval unavailable" }, { status: 503, headers });
+        }
+    }
 
     try {
         const body = await req.json();

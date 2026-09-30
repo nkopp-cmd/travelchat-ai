@@ -3,20 +3,22 @@ import type { NextRequest } from "next/server";
 import { previewAppDataReader } from "./preview-db";
 import { previewAdminGuides } from "./preview-admin-guides";
 
-interface RevenueBatch {
+export interface RevenueBatch {
   id: string;
   earningsCount: number;
   engagementCount: number;
   earningsSha256: string;
   engagementSha256: string;
 }
-interface EarningRow {
+export interface EarningRow {
   id: string;
   guideClerkUserId: string;
   earningMonth: string;
   status: string;
   grossAmount: string;
   payload: string;
+  approvedAt?: string | null;
+  approvedBy?: string | null;
 }
 interface EngagementRow {
   id: string;
@@ -48,7 +50,7 @@ const sha256 = /^[a-f0-9]{64}$/;
 const money = /^-?\d{1,8}(?:\.\d{1,2})?$/;
 const month = /^\d{4}-(?:0[1-9]|1[0-2])-01$/;
 
-function earningPayload(row: EarningRow): Record<string, unknown> {
+export function earningPayload(row: EarningRow): Record<string, unknown> {
   if (typeof row.id !== "string" || !row.id || typeof row.guideClerkUserId !== "string"
     || !month.test(row.earningMonth) || !statuses.has(row.status)
     || typeof row.grossAmount !== "string" || !money.test(row.grossAmount)
@@ -62,6 +64,12 @@ function earningPayload(row: EarningRow): Record<string, unknown> {
     || earning.id !== row.id || earning.guide_clerk_user_id !== row.guideClerkUserId
     || earning.earning_month !== row.earningMonth || earning.status !== row.status
     ) throw new Error("Guide earning payload mismatch");
+  if (row.approvedAt !== undefined && row.approvedAt !== null) {
+    if (row.status !== "calculated" || typeof row.approvedBy !== "string" || !row.approvedBy
+      || !Number.isFinite(Date.parse(row.approvedAt))) throw new Error("Invalid guide approval overlay");
+    return { ...earning, status: "approved" };
+  }
+  if (row.approvedBy !== undefined && row.approvedBy !== null) throw new Error("Invalid guide approval overlay");
   return earning;
 }
 
@@ -83,15 +91,8 @@ function engagementPayload(row: EngagementRow): void {
   }
 }
 
-/** Exact-owner read from two counted source pages. No provider or Supabase calls. */
-export async function previewGuideEarnings(userId: string, months: number, now = new Date()) {
-  if (!userId || userId.length > 256 || !Number.isInteger(months) || months < 1 || months > 24) {
-    throw new Error("Invalid guide earnings request");
-  }
-  const guides = await previewAdminGuides(null);
-  const guide = guides.find(row => row.clerk_user_id === userId);
-  if (!guide || guide.status !== "approved") throw new PreviewGuideNotApproved("Guide account is not active");
-
+/** Read the latest complete revenue import before any approval or owner read. */
+export async function currentPreviewRevenueBatch(): Promise<RevenueBatch> {
   const db = previewAppDataReader();
   const batch = await db.prepare(`SELECT id, earningsCount, engagementCount, earningsSha256,
     engagementSha256 FROM legacy_guide_revenue_batches ORDER BY importedAt DESC, id DESC LIMIT 1`)
@@ -109,10 +110,24 @@ export async function previewGuideEarnings(userId: string, months: number, now =
   if (earningCount?.n !== batch.earningsCount || engagementCount?.n !== batch.engagementCount) {
     throw new Error("Guide revenue archive count mismatch");
   }
+  return batch;
+}
 
-  const { results: earningRows } = await db.prepare(`SELECT id, guideClerkUserId, earningMonth,
-    status, grossAmount, payload FROM legacy_guide_earnings
-    WHERE batchId = ? AND guideClerkUserId = ? ORDER BY earningMonth DESC LIMIT 501`)
+/** Exact-owner read from two counted source pages. No provider or Supabase calls. */
+export async function previewGuideEarnings(userId: string, months: number, now = new Date()) {
+  if (!userId || userId.length > 256 || !Number.isInteger(months) || months < 1 || months > 24) {
+    throw new Error("Invalid guide earnings request");
+  }
+  const guides = await previewAdminGuides(null);
+  const guide = guides.find(row => row.clerk_user_id === userId);
+  if (!guide || guide.status !== "approved") throw new PreviewGuideNotApproved("Guide account is not active");
+  const db = previewAppDataReader();
+  const batch = await currentPreviewRevenueBatch();
+
+  const { results: earningRows } = await db.prepare(`SELECT e.id, e.guideClerkUserId, e.earningMonth,
+    e.status, e.grossAmount, e.payload, a.approvedAt, a.approvedBy FROM legacy_guide_earnings e
+    LEFT JOIN preview_earning_approvals a ON a.batchId = e.batchId AND a.earningId = e.id
+    WHERE e.batchId = ? AND e.guideClerkUserId = ? ORDER BY e.earningMonth DESC LIMIT 501`)
     .bind(batch.id, userId).all<EarningRow>();
   if (!Array.isArray(earningRows) || earningRows.length > 500) throw new Error("Guide earnings exceed preview limit");
   const allEarnings = earningRows.map(earningPayload);
