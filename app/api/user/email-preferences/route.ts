@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/server";
+import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { isPreviewEmailPreferencesCandidate, parsePreviewEmailPreferencePatch,
+    previewEmailPreferences, updatePreviewEmailPreferences } from "@/lib/app-data/preview-email-preferences";
 
 export interface EmailPreferences {
     marketing: boolean;
@@ -18,12 +20,27 @@ const defaultPreferences: EmailPreferences = {
 };
 
 // GET current email preferences
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
 
         if (!userId) {
             return Errors.unauthorized();
+        }
+
+        if (isPreviewEmailPreferencesCandidate(req)) {
+            const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+            const user = await currentUser();
+            if (user?.id !== userId || !user.emailVerified
+                || !user.primaryEmailAddress?.emailAddress.toLowerCase().endsWith("@preview.localley.test")) {
+                return NextResponse.json({ error: "Historical email preferences unavailable" }, { status: 503, headers });
+            }
+            try {
+                return NextResponse.json({ preferences: await previewEmailPreferences(userId) }, { headers });
+            } catch (error) {
+                console.error("[PREVIEW_EMAIL_PREFERENCES] Read unavailable", error);
+                return NextResponse.json({ error: "Email preferences unavailable" }, { status: 503, headers });
+            }
         }
 
         const supabase = await createSupabaseServerClient();
@@ -61,6 +78,24 @@ export async function PUT(req: NextRequest) {
 
         if (!preferences) {
             return Errors.validationError("Missing preferences");
+        }
+
+        if (isPreviewEmailPreferencesCandidate(req)) {
+            const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+            const patch = parsePreviewEmailPreferencePatch(preferences);
+            if (!patch) return NextResponse.json({ error: "Invalid email preferences" }, { status: 400, headers });
+            const user = await currentUser();
+            if (user?.id !== userId || !user.emailVerified
+                || !user.primaryEmailAddress?.emailAddress.toLowerCase().endsWith("@preview.localley.test")) {
+                return NextResponse.json({ error: "Historical email preferences unavailable" }, { status: 503, headers });
+            }
+            try {
+                const updated = await updatePreviewEmailPreferences(userId, patch);
+                return NextResponse.json({ success: true, preferences: updated }, { headers });
+            } catch (error) {
+                console.error("[PREVIEW_EMAIL_PREFERENCES] Write unavailable", error);
+                return NextResponse.json({ error: "Email preferences unavailable" }, { status: 503, headers });
+            }
         }
 
         const supabase = await createSupabaseServerClient();
