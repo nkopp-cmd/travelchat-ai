@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Loader2, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { reviewCandidateSuffix } from "@/lib/app-data/review-candidate-url";
 
 interface ReviewFormProps {
     spotId: string;
@@ -60,7 +61,8 @@ export function ReviewForm({ spotId, onSuccess, existingReview }: ReviewFormProp
                 ? `/api/spots/${spotId}/reviews/${existingReview.id}`
                 : `/api/spots/${spotId}/reviews`;
 
-            const response = await fetch(url, {
+            const candidate = reviewCandidateSuffix();
+            const response = await fetch(`${url}${candidate ? `?${candidate}` : ""}`, {
                 method: isEditing ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

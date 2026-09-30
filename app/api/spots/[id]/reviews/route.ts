@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { assertPreviewReviewUser, createPreviewSpotReview, isPreviewSpotReviewCandidate,
+    parseReviewInput, previewSpotReviews, type ReviewInput } from "@/lib/app-data/preview-spot-reviews";
+
+const candidateHeaders = { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" };
 
 interface ReviewWithUser {
     id: string;
@@ -21,12 +25,30 @@ interface ReviewWithUser {
 
 // GET - Fetch reviews for a spot
 export async function GET(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id: spotId } = await params;
         const { userId } = await auth();
+        if (isPreviewSpotReviewCandidate(request)) {
+            const q = request.nextUrl.searchParams;
+            const sort = q.get("sort") || "recent";
+            const limit = q.get("limit") === null ? 20 : Number(q.get("limit"));
+            const offset = q.get("offset") === null ? 0 : Number(q.get("offset"));
+            if (!/^(recent|helpful|highest|lowest)$/.test(sort)
+                || !Number.isSafeInteger(limit) || limit < 1 || limit > 100
+                || !Number.isSafeInteger(offset) || offset < 0 || offset > 10000) {
+                return NextResponse.json({ error: "Invalid review query" }, { status: 400, headers: candidateHeaders });
+            }
+            try {
+                return NextResponse.json(await previewSpotReviews(spotId, userId, sort, limit, offset),
+                    { headers: candidateHeaders });
+            } catch (error) {
+                console.error("[PREVIEW_SPOT_REVIEWS] D1 unavailable", error);
+                return NextResponse.json({ error: "Reviews unavailable" }, { status: 503, headers: candidateHeaders });
+            }
+        }
         const supabase = await createSupabaseServerClient();
 
         const url = new URL(request.url);
@@ -169,7 +191,7 @@ export async function GET(
 
 // POST - Create a new review
 export async function POST(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -179,6 +201,22 @@ export async function POST(
         }
 
         const { id: spotId } = await params;
+        if (isPreviewSpotReviewCandidate(request)) {
+            const input = parseReviewInput(await request.json().catch(() => null));
+            if (!input) return NextResponse.json({ error: "Invalid review" }, { status: 400, headers: candidateHeaders });
+            try {
+                await assertPreviewReviewUser(userId);
+                const result = await createPreviewSpotReview(spotId, userId, input as ReviewInput);
+                if (result.state === "missing") return NextResponse.json({ error: "Spot not found" },
+                    { status: 404, headers: candidateHeaders });
+                if (result.state === "duplicate") return NextResponse.json({ error: "You already reviewed this spot" },
+                    { status: 409, headers: candidateHeaders });
+                return NextResponse.json(result.review, { status: 201, headers: candidateHeaders });
+            } catch (error) {
+                console.error("[PREVIEW_SPOT_REVIEWS] D1 unavailable", error);
+                return NextResponse.json({ error: "Reviews unavailable" }, { status: 503, headers: candidateHeaders });
+            }
+        }
         const body = await request.json();
         const { rating, comment, visitDate } = body;
 

@@ -27,6 +27,7 @@ import { Star, ThumbsUp, Loader2, Calendar, Pencil, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReviewForm } from "./review-form";
+import { reviewCandidateSuffix } from "@/lib/app-data/review-candidate-url";
 
 interface Review {
     id: string;
@@ -73,7 +74,8 @@ export function ReviewList({ spotId }: ReviewListProps) {
         setAverageRating(0);
         setRatingDistribution([0, 0, 0, 0, 0]);
         try {
-            const response = await fetch(`/api/spots/${spotId}/reviews?sort=${sortBy}`, {
+            const candidate = reviewCandidateSuffix();
+            const response = await fetch(`/api/spots/${spotId}/reviews?sort=${sortBy}${candidate ? `&${candidate}` : ""}`, {
                 signal: controller.signal,
             });
             if (!response.ok) throw new Error(`Review request failed: ${response.status}`);
@@ -111,7 +113,7 @@ export function ReviewList({ spotId }: ReviewListProps) {
         setVotingId(reviewId);
         try {
             const response = await fetch(
-                `/api/spots/${spotId}/reviews/${reviewId}/helpful`,
+                `/api/spots/${spotId}/reviews/${reviewId}/helpful${reviewCandidateSuffix() ? `?${reviewCandidateSuffix()}` : ""}`,
                 { method: currentlyVoted ? "DELETE" : "POST" }
             );
 
@@ -147,7 +149,8 @@ export function ReviewList({ spotId }: ReviewListProps) {
         if (!deleteId) return;
 
         try {
-            const response = await fetch(`/api/spots/${spotId}/reviews/${deleteId}`, {
+            const candidate = reviewCandidateSuffix();
+            const response = await fetch(`/api/spots/${spotId}/reviews/${deleteId}${candidate ? `?${candidate}` : ""}`, {
                 method: "DELETE",
             });
 
