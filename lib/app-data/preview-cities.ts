@@ -1,7 +1,6 @@
 import "server-only";
 import type { NextRequest } from "next/server";
-import { ENABLED_CITIES } from "@/lib/cities";
-import { shouldShowPublicSpot, PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS } from "@/lib/spots/public-quality";
+import { projectImportedCities, type ImportedCitySpot } from "./city-counts";
 import { previewAppDataReader } from "./preview-db";
 
 export function isPreviewCitiesCandidate(request: NextRequest): boolean {
@@ -10,17 +9,6 @@ export function isPreviewCitiesCandidate(request: NextRequest): boolean {
     && process.env.AUTH_MAIL_MODE === "outbox"
     && process.env.SUPABASE_READ_ONLY === "true";
 }
-
-type CityStatus = "recommended" | "available" | "beta" | "hidden";
-
-function english(value: unknown): string {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-  const field = (value as Record<string, unknown>).en;
-  return typeof field === "string" ? field : "";
-}
-
-const excludedNames = PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS.map(pattern =>
-  new RegExp(`^${pattern.split("%").map(part => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".*")}$`, "i"));
 
 /** Exact imported-source counts. A pilot-only or partial import is unavailable. */
 export async function previewImportedCities() {
@@ -32,7 +20,7 @@ export async function previewImportedCities() {
   if (!batch || !count || !Number.isSafeInteger(batch.expected) || batch.expected < 1 ||
       count.actual !== batch.expected) throw new Error("Imported catalog is incomplete");
 
-  const counts = new Map(ENABLED_CITIES.map(city => [city.slug, 0]));
+  const rows: ImportedCitySpot[] = [];
   let offset = 0;
   while (offset < count.actual) {
     const { results } = await db.prepare(`SELECT s.payload, p.visible FROM legacy_spot_source s
@@ -41,27 +29,9 @@ export async function previewImportedCities() {
     if (!Array.isArray(results) || results.length === 0 || results.length > 500) {
       throw new Error("Imported catalog page is incomplete");
     }
-    for (const row of results) {
-      if (row.visible !== 1) continue;
-      const spot = JSON.parse(row.payload);
-      const name = english(spot.name);
-      // Match the existing SQL prefilter before its quality filter.
-      if (!name || excludedNames.some(pattern => pattern.test(name)) || !Array.isArray(spot.photos) ||
-          spot.photos.length === 0 || !shouldShowPublicSpot(spot)) continue;
-      const address = english(spot.address).toLowerCase();
-      for (const city of ENABLED_CITIES) {
-        if (address.includes(city.name.toLowerCase())) {
-          counts.set(city.slug, (counts.get(city.slug) ?? 0) + 1);
-        }
-      }
-    }
+    rows.push(...results);
     offset += results.length;
   }
   if (offset !== count.actual) throw new Error("Imported catalog changed during read");
-  return ENABLED_CITIES.map(city => {
-    const spotCount = counts.get(city.slug) ?? 0;
-    const status: CityStatus = spotCount >= 150 ? "recommended"
-      : spotCount >= 60 ? "available" : spotCount >= 1 ? "beta" : "hidden";
-    return { ...city, spotCount, status };
-  });
+  return projectImportedCities(rows);
 }

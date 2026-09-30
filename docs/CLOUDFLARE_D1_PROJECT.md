@@ -186,6 +186,8 @@ The existing `/api/cities` route reads original imported spot payloads only on t
 
 Release evidence: [PR203](https://github.com/nkopp-cmd/travelchat-ai/pull/203) merged as `0bff85c` after seven focused tests, TypeScript, lint, `git diff --check`, advisor review with no P0/P1, and required self-hosted CI `36646124270` passed. The merged OpenNext build passed. Preview Worker version `ab5cec58-7c7e-42f0-a9de-df22013c468f` deployed at 23:42 UTC; rollback version is `2662f752-957f-420d-9897-21e473e26f4e`. Hosted candidate `/api/cities?data_candidate=d1&includeHidden=true&noCache=true` returned 503 with the D1 header, as required while no full import exists. Normal preview and www city requests returned 200; both roots returned 200. Production Worker version `72cc3bca-1b07-4f5d-a1f3-f0fa6fa488bb` remained unchanged. No remote D1 data was written.
 
+The read-only city drift gate uses the same quality projection as the candidate route. Run `node --import tsx scripts/d1-migration/compare-cities.mjs --sql PRIVATE_IMPORT.sql --report PRIVATE_REPORT.json` from the app root. It checks the private SQL hash and catalog counts, loads only spot rows into in-memory SQLite, and compares aggregate counts with the existing www city API. A difference exits with code 2; invalid source or response exits with code 1. The September 29 observed-stable import returned 3,295 joined spots, 30 cities, and zero differences against www at 23:57 UTC. This is a moving-source comparison, not a frozen cutover snapshot or hosted preview D1 proof.
+
 Nils approved the freeze, final import and live D1 switch on 2026-09-23 at 19:15 UTC, **conditional** on all three checks:
 
 1. Full import rehearsal on current source data passes with zero mismatches.
