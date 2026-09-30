@@ -1,18 +1,33 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getAccountStatus } from "@/lib/stripe-connect";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
+import { isPreviewGuideStatusCandidate, previewGuideStatus } from "@/lib/app-data/preview-guide-status";
 
 /**
  * GET /api/connect/status
  *
  * Get guide's Connect account status.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) return Errors.unauthorized();
+
+        if (isPreviewGuideStatusCandidate(req)) {
+            try {
+                return NextResponse.json(await previewGuideStatus(userId), {
+                    headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            } catch (error) {
+                console.error("[GUIDE_STATUS_PREVIEW] Archive unavailable", error);
+                return NextResponse.json({ error: "Guide archive unavailable" }, {
+                    status: 503,
+                    headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
+                });
+            }
+        }
 
         const supabase = createSupabaseAdmin();
 
