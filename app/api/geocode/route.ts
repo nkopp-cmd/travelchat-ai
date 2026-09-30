@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/lib/auth/server";
 import { geocodeWithCascade } from '@/lib/geocoding';
 import { handleApiError, Errors } from '@/lib/api-errors';
+import { isPreviewStoredGeocodeCandidate, previewStoredGeocode,
+    validStoredGeocodeQuery } from '@/lib/app-data/preview-stored-geocode';
 
 /**
  * GET /api/geocode?address=...&city=...&name=...
@@ -23,6 +25,22 @@ export async function GET(req: NextRequest) {
 
         if (!address) {
             return Errors.validationError('address parameter is required');
+        }
+
+        if (isPreviewStoredGeocodeCandidate(req)) {
+            const headers = { 'Cache-Control': 'private, no-store', 'X-Localley-Data-Source': 'd1-preview' };
+            if (!validStoredGeocodeQuery(address, city, name ?? null)) {
+                return NextResponse.json({ error: 'Invalid stored map query' }, { status: 400, headers });
+            }
+            try {
+                const stored = await previewStoredGeocode(address, city, name ?? null);
+                return stored
+                    ? NextResponse.json(stored, { headers })
+                    : NextResponse.json({ error: 'not_found' }, { status: 404, headers });
+            } catch (error) {
+                console.error('[PREVIEW_STORED_GEOCODE] Source unavailable', error);
+                return NextResponse.json({ error: 'Stored map source unavailable' }, { status: 503, headers });
+            }
         }
 
         const result = await geocodeWithCascade(address, city, name);
