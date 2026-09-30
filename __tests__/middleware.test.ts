@@ -1,6 +1,21 @@
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { isPublicRoute } from "@/middleware";
+
+describe("preview D1 shared itinerary access", () => {
+  it("opens only the exact candidate link on the isolated preview", () => {
+    vi.stubEnv("AUTH_MAIL_MODE", "outbox");
+    vi.stubEnv("SUPABASE_READ_ONLY", "true");
+    const path = "/shared/deadbeef?data_candidate=d1";
+    expect(isPublicRoute(new NextRequest(`https://localley-next-preview.nkopp.workers.dev${path}`))).toBe(true);
+    expect(isPublicRoute(new NextRequest("https://localley-next-preview.nkopp.workers.dev/shared/deadbeef"))).toBe(false);
+    expect(isPublicRoute(new NextRequest(`https://www.localley.io${path}`))).toBe(false);
+    expect(isPublicRoute(new NextRequest(`https://localley-next-preview.nkopp.workers.dev${path}`, { method: "POST" }))).toBe(false);
+    vi.stubEnv("SUPABASE_READ_ONLY", "false");
+    expect(isPublicRoute(new NextRequest(`https://localley-next-preview.nkopp.workers.dev${path}`))).toBe(false);
+    vi.unstubAllEnvs();
+  });
+});
 
 describe("Clerk public route allowlist", () => {
   it.each(["/api/spots/spot-1/reviews", "/api/spots/spot-1/reviews?sort=helpful", "/api/spots/spot-1/reviews/"])("allows anonymous GET %s", (path) => {
