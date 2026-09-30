@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getGuideEngagement } from "@/lib/engagement-tracking";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
+import { isPreviewGuideEarningsCandidate, parseEarningsMonths,
+    PreviewGuideNotApproved, previewGuideEarnings } from "@/lib/app-data/preview-guide-earnings";
 
 /**
  * GET /api/connect/earnings
@@ -14,6 +16,24 @@ export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (!userId) return Errors.unauthorized();
+
+        if (isPreviewGuideEarningsCandidate(req)) {
+            const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+            const months = parseEarningsMonths(req.nextUrl.searchParams.get("months"));
+            if (months === null) return NextResponse.json({ error: "Invalid months" }, { status: 400, headers });
+            try {
+                return NextResponse.json(await previewGuideEarnings(userId, months), { headers });
+            } catch (error) {
+                if (error instanceof PreviewGuideNotApproved) {
+                    const response = apiError(ErrorCodes.FORBIDDEN, "Guide account is not active");
+                    response.headers.set("Cache-Control", headers["Cache-Control"]);
+                    response.headers.set("X-Localley-Data-Source", headers["X-Localley-Data-Source"]);
+                    return response;
+                }
+                console.error("[GUIDE_EARNINGS_PREVIEW] Archive unavailable", error);
+                return NextResponse.json({ error: "Guide revenue archive unavailable" }, { status: 503, headers });
+            }
+        }
 
         const supabase = createSupabaseAdmin();
 
