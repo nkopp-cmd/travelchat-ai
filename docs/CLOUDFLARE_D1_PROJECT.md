@@ -106,6 +106,14 @@ The unchanged PR151 importer generated batch `d0f2b946a4925064c11c197856661519d4
 
 This is **not** a transactional cutover snapshot or a complete product-port rehearsal: the 41 archived tables are intact but not yet imported into serving repositories, source writes continue, and no Supabase rollback or signed-in 1% canary has been tested. The final current-data zero-mismatch gate must be rerun after feature ports and immediately around the approved freeze, with a short delta check. The public site still serves application data from Supabase.
 
+### September 30 observed-stable candidate import
+
+A read-only Supabase export completed at 18:20 UTC with 48 tables and 5,810 rows. Its second-pass page and schema checks passed. Every table count and page hash matched the September 29 export; the new manifest SHA-256 is `296d4d7982aaa85c71a059e9a9629b803ebc65a2988b7fc21850c7e7bded7579`. The unchanged import SQL remains byte-identical to this source content. A fresh exact-ID Better Auth comparison found six production auth users, five of seven mapped historical owners, two unclaimed owners and both admin IDs. The two unclaimed owners still hold 31 itineraries, 76 conversations and nine usage records. The private snapshot and reports are under `cloudflare/auth-proof/.preview-private/source-snapshot-20260930/` and `import-rehearsal-current-20260930/`.
+
+The unchanged 10,324-statement SQL replayed into disposable local workerd D1 with 10,324 inserts, zero repeat changes, matching counts across 14 serving tables, zero foreign-key violations and 3,024 visible catalog spots across 31 Worker pages. That disposable state was removed. A separate EU D1 database, `localley-migration-candidate-20260930` (`6f5b1df7-2eb5-479f-8803-8095e72c7053`), received all 13 native and ten preview migrations, then the same import SQL. Remote counts matched all 14 imported tables; `PRAGMA foreign_key_check` returned zero rows and the import batch ID matched. The old eight-spot preview D1 remains intact for rollback. The preview auth store has 20 users but zero IDs overlap the seven historical owners.
+
+This is a preview candidate data copy, not a production import or a frozen cutover snapshot. The 41 archived-only source tables still need serving repositories. The 1% canary, a tested Supabase rollback and the final fresh rehearsal remain separate gates.
+
 ## Approval and gates
 
 ### Preview story metadata candidate — 2026-09-29

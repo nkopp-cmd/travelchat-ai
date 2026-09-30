@@ -38,11 +38,11 @@
     "database_id": "58b7eef4-2e41-4408-9246-36bc22988200",
     "migrations_dir": "migrations/auth"
   }, {
-    // Isolated application-data candidate. Synthetic story rows may be written in preview only.
-    // Existing native preview holds pilot data; it is NOT the production app database.
+    // Isolated application-data candidate with the verified September 30 source import.
+    // Production still uses Supabase. Keep the old pilot D1 for preview rollback.
     "binding": "APP_DATA_PREVIEW_DB",
-    "database_name": "localley-migration-preview",
-    "database_id": "e943548b-01ae-485d-9219-e2a46cb0da8e",
+    "database_name": "localley-migration-candidate-20260930",
+    "database_id": "6f5b1df7-2eb5-479f-8803-8095e72c7053",
     "migrations_dir": "migrations/app-preview"
   }],
   // lib/rate-limit.ts uses RATE_LIMIT_<maxRequests> for 60 second windows (replaces Upstash).
