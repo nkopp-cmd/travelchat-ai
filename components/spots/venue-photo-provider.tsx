@@ -43,12 +43,12 @@ function requestPhotos(spotId: string) {
   return request;
 }
 
-export function useVenuePhotos(spotId: string, priority = false, directPhotos: PhotoGalleryResponse["photos"] = []) {
+export function useVenuePhotos(spotId: string, priority = false, directPhotos: PhotoGalleryResponse["photos"] = [], allowFetch = true) {
   const ref = useRef<HTMLDivElement>(null);
   const [result, setResult] = useState<{ spotId: string; data: PhotoGalleryResponse | null }>({ spotId, data: null });
   if (result.spotId !== spotId) setResult({ spotId, data: null });
   useEffect(() => {
-    if (directPhotos.length) return;
+    if (directPhotos.length || !allowFetch) return;
     let current = true;
     const load = () => requestPhotos(spotId).then((data) => {
       if (current) setResult({ spotId, data });
@@ -66,17 +66,18 @@ export function useVenuePhotos(spotId: string, priority = false, directPhotos: P
       observer.observe(ref.current);
     }
     return () => { current = false; observer?.disconnect(); };
-  }, [spotId, priority, directPhotos.length]);
+  }, [spotId, priority, directPhotos.length, allowFetch]);
   const data: PhotoGalleryResponse | null = directPhotos.length
     ? { status: "available", photos: directPhotos }
+    : !allowFetch ? unavailable
     : result?.spotId === spotId ? result.data : null;
   return { ref, data, loading: !data, spotId };
 }
 
 const VenuePhotoContext = createContext<ReturnType<typeof useVenuePhotos> | null>(null);
 
-export function VenuePhotoProvider({ spotId, children, directPhotos = [] }: { spotId: string; children: ReactNode; directPhotos?: string[] }) {
-  const state = useVenuePhotos(spotId, true, getDirectVenuePhotos(directPhotos));
+export function VenuePhotoProvider({ spotId, children, directPhotos = [], allowFetch = true }: { spotId: string; children: ReactNode; directPhotos?: string[]; allowFetch?: boolean }) {
+  const state = useVenuePhotos(spotId, true, getDirectVenuePhotos(directPhotos), allowFetch);
   return <VenuePhotoContext.Provider value={state}>{children}</VenuePhotoContext.Provider>;
 }
 

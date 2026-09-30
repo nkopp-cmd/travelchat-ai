@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { LocalleyScale } from "@/types";
 import { LocalleyScaleIndicator } from "@/components/spots/localley-scale";
 import { Badge } from "@/components/ui/badge";
@@ -69,6 +70,7 @@ import {
   normalizeSpotTips,
 } from "@/lib/spots/detail-normalization";
 import type { Metadata } from "next";
+import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
 
 const LIQUID_CARD =
   "rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
@@ -645,8 +647,31 @@ function NavigationTargetPanel({
   );
 }
 
-// Fetch spot data from Supabase
-async function getSpot(id: string) {
+async function previewSpotPageCandidate(searchParams: Promise<{ data_candidate?: string }>) {
+  const [query, requestHeaders] = await Promise.all([searchParams, headers()]);
+  return query.data_candidate === "d1"
+    && requestHeaders.get("host") === "localley-next-preview.nkopp.workers.dev"
+    && process.env.AUTH_MAIL_MODE === "outbox"
+    && process.env.SUPABASE_READ_ONLY === "true";
+}
+
+// Keep the existing Supabase page for all normal preview and www requests.
+async function getSpot(id: string, candidate = false) {
+  if (candidate) {
+    const row = await previewSpotPageData(id);
+    if (!row) return null;
+    const photos = normalizeSpotPhotos(row.photos, row.category, 1600);
+    const photoSummary = summarizeSpotPhotos(photos);
+    return {
+      id: row.id, name: row.name, description: row.description,
+      location: { lat: row.lat ?? 0, lng: row.lng ?? 0, address: row.address },
+      category: row.category, subcategories: [] as string[],
+      localleyScore: normalizeLocalleyScore(row.score), localPercentage: 50,
+      bestTime: "Not verified", photos, hasRealPhoto: photoSummary.hasRealPhoto,
+      realPhotoCount: countRealDisplaySpotPhotos(photos), googlePlaceId: null,
+      tips: [] as string[], verified: false, trending: false, communitySubmission: null,
+    };
+  }
   const supabase = createSupabaseAdmin();
 
   const { data: spot, error } = await supabase
@@ -864,11 +889,14 @@ function getScoreLabel(score: LocalleyScale): string {
 // Generate metadata for SEO
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ data_candidate?: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const spot = await getSpot(id);
+  const candidate = await previewSpotPageCandidate(searchParams);
+  const spot = await getSpot(id, candidate);
 
   if (!spot) {
     return {
@@ -895,6 +923,7 @@ export async function generateMetadata({
     title,
     description,
     keywords,
+    ...(candidate ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title: spot.name,
       description: `${scoreLabel} - ${spot.description.slice(0, 100)}`,
@@ -913,11 +942,14 @@ export async function generateMetadata({
 
 export default async function SpotPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ data_candidate?: string }>;
 }) {
   const { id } = await params;
-  const spot = await getSpot(id);
+  const candidate = await previewSpotPageCandidate(searchParams);
+  const spot = await getSpot(id, candidate);
 
   if (!spot) {
     notFound();
@@ -943,7 +975,7 @@ export default async function SpotPage({
     status: navigationMode.status,
     locationTone: locationConfidence.tone,
   });
-  const relatedSpots = await getRelatedSpots(spot, city);
+  const relatedSpots = candidate ? [] : await getRelatedSpots(spot, city);
   const hasDistanceRankedRelatedSpots = relatedSpots.some(
     (related) => related.distanceKm !== null,
   );
@@ -971,7 +1003,7 @@ export default async function SpotPage({
   });
 
   return (
-    <VenuePhotoProvider key={spot.id} spotId={spot.id} directPhotos={spot.googlePlaceId ? [] : spot.photos.filter((photo: string) => !photo.includes("/api/places/photo"))}>
+    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={spot.googlePlaceId ? [] : spot.photos.filter((photo: string) => !photo.includes("/api/places/photo"))}>
       {/* JSON-LD Structured Data */}
       <SpotJsonLd
         name={spot.name}
@@ -1007,7 +1039,7 @@ export default async function SpotPage({
           <VenueHeroPhoto name={spot.name} />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
-            <SpotInteractions spotId={spot.id} spotName={spot.name} />
+            {!candidate && <SpotInteractions spotId={spot.id} spotName={spot.name} />}
           </div>
 
           <div className="absolute inset-x-0 bottom-0 w-full p-4 sm:p-6 md:p-8">
@@ -1417,7 +1449,7 @@ export default async function SpotPage({
             )}
 
             {/* Viator Activities Section */}
-            <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />
+            {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />}
 
             {/* Reviews Section */}
             <div className="space-y-6">
