@@ -4,12 +4,23 @@
  * AUTH_MAIL_MODE=outbox (preview Worker, local dev, tests): links are stored in the
  * D1 table auth_mail_outbox and never sent. Agents read them through
  * /api/test-auth/outbox (see docs/AUTH_BETTER_AUTH.md).
- * Any other value: send through Resend with RESEND_API_KEY and FROM_EMAIL.
+ * Production sends through the Cloudflare AUTH_EMAIL binding.
  */
 import type { AuthMail } from "./config";
 
 export interface OutboxDatabase {
   prepare(query: string): { bind(...values: unknown[]): { run(): Promise<unknown> | unknown } };
+}
+
+/** The send_email binding's structured message API, kept local to the auth adapter. */
+export interface AuthEmailBinding {
+  send(message: {
+    to: string;
+    from: { email: string; name: string };
+    subject: string;
+    html: string;
+    text: string;
+  }): Promise<{ messageId: string }>;
 }
 
 const SUBJECTS: Record<AuthMail["kind"], string> = {
@@ -64,16 +75,16 @@ export function isProductionAuthHost(url: string | undefined): boolean {
  * host. A stray AUTH_MAIL_MODE=outbox on production therefore still sends real mail
  * and never exposes links through /api/test-auth/outbox.
  */
-export function authMailMode(): "outbox" | "resend" {
-  if (process.env.AUTH_MAIL_MODE !== "outbox") return "resend";
+export function authMailMode(): "outbox" | "cloudflare" {
+  if (process.env.AUTH_MAIL_MODE !== "outbox") return "cloudflare";
   if (isProductionAuthHost(process.env.BETTER_AUTH_URL)) {
     console.error("[auth] AUTH_MAIL_MODE=outbox ignored on a production host");
-    return "resend";
+    return "cloudflare";
   }
   return "outbox";
 }
 
-export function createMailSender(database: OutboxDatabase | undefined) {
+export function createMailSender(database: OutboxDatabase | undefined, emailBinding?: AuthEmailBinding) {
   return async (mail: AuthMail) => {
     if (authMailMode() === "outbox") {
       if (!database) throw new Error("Auth outbox database is not configured");
@@ -83,22 +94,25 @@ export function createMailSender(database: OutboxDatabase | undefined) {
         .run();
       return;
     }
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) throw new Error("RESEND_API_KEY is not set; auth email cannot be sent");
+    if (!emailBinding) throw new Error("AUTH_EMAIL binding is not configured");
+    if (process.env.FROM_EMAIL !== "Localley <hello@localley.io>" && process.env.FROM_EMAIL !== "hello@localley.io") {
+      throw new Error("FROM_EMAIL must use hello@localley.io");
+    }
     const { subject, html, text } = renderAuthMail(mail);
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: process.env.FROM_EMAIL || "Localley <onboarding@resend.dev>",
-        to: [mail.to],
+    try {
+      await emailBinding.send({
+        from: { email: "hello@localley.io", name: "Localley" },
+        to: mail.to,
         subject,
         html,
         text,
-      }),
-    });
-    if (!response.ok) {
-      throw new Error(`Resend rejected the auth email (status ${response.status})`);
+      });
+    } catch (error) {
+      const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "unknown";
+      // Cloudflare enforces account and sender-domain suppression lists. Never retry
+      // a suppressed recipient or reveal the email or token in a log or response.
+      console.error("[auth] Cloudflare email send failed:", /^E_[A-Z_]+$/.test(code) ? code : "unknown");
+      throw new Error("Auth email could not be sent");
     }
   };
 }

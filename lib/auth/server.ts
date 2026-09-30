@@ -15,7 +15,7 @@ import "server-only";
 import { headers as nextHeaders } from "next/headers";
 import { NextResponse } from "next/server";
 import { createAuth, type AuthUserRecord, type LocalleyAuth } from "./config";
-import { createMailSender, type OutboxDatabase } from "./mail";
+import { createMailSender, type AuthEmailBinding, type OutboxDatabase } from "./mail";
 import { syncAppUserCreated, syncAppUserUpdated } from "./user-sync";
 
 const cloudflareContextSymbol = Symbol.for("__cloudflare-context__");
@@ -78,7 +78,7 @@ export function getAuth(): LocalleyAuth {
     secret,
     baseURL: local ? fallback : { allowedHosts: hosts, fallback, protocol: "https" },
     trustedOrigins: local ? [fallback] : hosts.map((h) => `https://${h}`),
-    sendMail: createMailSender(db),
+    sendMail: createMailSender(db, runtimeBindings()?.AUTH_EMAIL as AuthEmailBinding | undefined),
     google: googleProvider(),
     onUserCreated: syncAppUserCreated,
     onUserUpdated: syncAppUserUpdated,

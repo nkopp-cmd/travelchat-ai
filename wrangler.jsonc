@@ -78,6 +78,7 @@
       "preview_urls": false,
       "limits": { "cpu_ms": 30000 },
       "images": { "binding": "IMAGES" },
+      "send_email": [{ "name": "AUTH_EMAIL", "allowed_sender_addresses": ["hello@localley.io"] }],
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
       // Created 2026-09-23 (step P2, approved by Nils).
       "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" }],
@@ -101,9 +102,8 @@
         { "name": "RATE_LIMIT_40", "namespace_id": "4315", "simple": { "limit": 40, "period": 60 } },
         { "name": "RATE_LIMIT_120", "namespace_id": "4316", "simple": { "limit": 120, "period": 60 } }
       ],
-      // BETTER_AUTH_SECRET, SUPABASE_JWT_SECRET, RESEND_API_KEY (+ optional GOOGLE_CLIENT_ID/SECRET)
-      // are secrets: set them at cutover (APPROVAL). FROM_EMAIL is also a secret on localley-next
-      // (Resend-verified localley.io sender, 2026-09-23); do not add it to vars.
+      // FROM_EMAIL remains the existing Worker secret: Localley <hello@localley.io>.
+      // AUTH_EMAIL uses Cloudflare Email Sending. Auth no longer uses RESEND_API_KEY.
       "vars": {
         "NEXTJS_ENV": "production",
         "BETTER_AUTH_URL": "https://www.localley.io",
