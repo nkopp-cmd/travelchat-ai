@@ -1,5 +1,9 @@
 # Localley auth: Better Auth (replaces Clerk)
 
+## 2026-09-30: Cloudflare auth mail sender
+
+Magic links, password reset links and email confirmations use the production Worker's `AUTH_EMAIL` send binding. The binding allows only `hello@localley.io` as sender. `FROM_EMAIL` remains the existing Worker secret `Localley <hello@localley.io>`; the auth sender rejects any other value. Every message has HTML and plain text. Cloudflare applies account and sender-domain suppressions; a suppressed send fails without retry or a Resend fallback. The preview Worker retains the isolated D1 outbox and has no email binding. The earlier Resend A3 history below records the former sender, not the current auth sender.
+
 Decision: **2026-09-23, Nils.** Replace Clerk with Better Auth in the Next.js app (path B, OpenNext on Workers)
 **before** the Cloudflare cutover. Reasons: easier login, free agent testing, no external auth dashboard.
 House standard: `CyberLink/CLAUDE.md` ("Auth: Better Auth using the same database").
