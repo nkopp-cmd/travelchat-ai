@@ -23,6 +23,7 @@ on:
       - 'app/api/spots/save/route.ts'
       - 'app/api/spots/[id]/photos/route.ts'
       - 'app/api/cities/route.ts'
+      - 'app/api/geocode/route.ts'
       - 'app/api/admin/guides/route.ts'
       - 'app/api/admin/payouts/approve/route.ts'
       - 'app/api/connect/status/route.ts'
@@ -50,6 +51,8 @@ on:
       - '__tests__/lib/app-data-preview-spot-photos.test.ts'
       - '__tests__/lib/app-data-preview-cities.test.ts'
       - '__tests__/api/cities-candidate-route.test.ts'
+      - '__tests__/api/geocode-stored-candidate-route.test.ts'
+      - '__tests__/lib/app-data-preview-stored-geocode.test.ts'
       - '__tests__/api/admin-guides-candidate-route.test.ts'
       - '__tests__/api/admin-guide-reject-candidate-route.test.ts'
       - '__tests__/api/admin-payout-approval-candidate-route.test.ts'
@@ -100,12 +103,14 @@ jobs:
             npx vitest run __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-earnings-candidate-route.test.ts __tests__/lib/app-data-preview-guide-earnings.test.ts --maxWorkers=1
+            npx vitest run __tests__/api/geocode-stored-candidate-route.test.ts __tests__/lib/app-data-preview-stored-geocode.test.ts --maxWorkers=1
             npx vitest run __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts --maxWorkers=1
             npx vitest run __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts --maxWorkers=1
             npx vitest run __tests__/api/admin-guide-reject-candidate-route.test.ts --maxWorkers=1
             npx eslint app/api/admin/guides/route.ts lib/app-data/preview-admin-guides.ts lib/app-data/preview-guide-application.ts __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts
             npx eslint app/api/connect/status/route.ts lib/app-data/preview-guide-status.ts __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts
             npx eslint app/api/connect/earnings/route.ts lib/app-data/preview-guide-earnings.ts __tests__/api/connect-earnings-candidate-route.test.ts __tests__/lib/app-data-preview-guide-earnings.test.ts
+            npx eslint app/api/geocode/route.ts lib/app-data/preview-stored-geocode.ts __tests__/api/geocode-stored-candidate-route.test.ts __tests__/lib/app-data-preview-stored-geocode.test.ts
             npx eslint app/api/admin/payouts/approve/route.ts lib/app-data/preview-payout-approval.ts __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts
             npx eslint app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
