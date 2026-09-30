@@ -15,7 +15,7 @@ import {
  * Generates personalized spot recommendations based on user history
  */
 
-interface UserItinerary {
+export interface UserItinerary {
   id: string;
   city: string;
   activities: unknown;
@@ -32,7 +32,7 @@ interface ItineraryDay {
   activities?: unknown;
 }
 
-interface RawRecommendationSpot {
+export interface RawRecommendationSpot {
   id: string;
   name: LocalizedField;
   description: LocalizedField;
@@ -73,6 +73,29 @@ interface CategoryPreference {
   category: string;
   count: number;
   weight: number;
+}
+
+/** Score repository rows with the same rules for Supabase and preview D1. */
+export function rankRecommendationRows(
+  itineraries: UserItinerary[], spots: RawRecommendationSpot[], limit: number
+): RecommendedSpot[] {
+  if (itineraries.length === 0) {
+    return spots.filter(spot => (spot.localley_score ?? 0) >= 5)
+      .sort((a, b) => (b.localley_score ?? 0) - (a.localley_score ?? 0))
+      .slice(0, limit)
+      .map(spot => normalizeRecommendationSpot(spot, (spot.localley_score || 3) * 10, 'Popular hidden gem'));
+  }
+  const categoryPreferences = calculateCategoryPreferences(itineraries);
+  const visitedCities = getVisitedCities(itineraries);
+  return spots.filter(spot => (spot.localley_score ?? 0) >= 3)
+    .map(spot => {
+      const { score, reason } = matchesPreferences(
+        normalizeRecommendationSpot(spot, 0, ''), categoryPreferences, visitedCities
+      );
+      return normalizeRecommendationSpot(spot, score, reason);
+    })
+    .sort((a, b) => b.recommendationScore - a.recommendationScore)
+    .slice(0, limit);
 }
 
 /**
