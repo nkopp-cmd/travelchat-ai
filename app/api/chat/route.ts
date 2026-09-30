@@ -5,15 +5,14 @@ import { chatSchema, validateBody } from "@/lib/validations";
 import { checkAndIncrementUsage } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { getLocalizedText } from "@/lib/spots/transform";
 import {
     applyPublicSpotVisibilityFilters,
     shouldShowPublicSpot,
 } from "@/lib/spots/public-quality";
-import { ALL_CITIES, LOCALNESS_LABELS } from "@/lib/cities";
+import { ALL_CITIES } from "@/lib/cities";
 import { generateChatReplyWithFallback } from "@/lib/llm/chat-provider";
-import type { MultiLanguageField } from "@/types";
 import { isPreviewChatUsageCandidate } from "@/lib/app-data/preview-chat-usage";
+import { formatChatSpotContext, matchedChatCategories } from "@/lib/chat/spot-context";
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -78,22 +77,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
             .limit(20);
 
         // Try to filter by category based on user message keywords
-        const categoryKeywords: Record<string, string[]> = {
-            "Food": ["eat", "food", "lunch", "dinner", "breakfast", "brunch", "restaurant", "meal", "hungry", "cuisine", "dining"],
-            "Cafe": ["cafe", "coffee", "tea", "dessert", "cake", "pastry", "bakery"],
-            "Nightlife": ["bar", "drink", "cocktail", "nightlife", "pub", "club", "night out", "beer", "wine"],
-            "Shopping": ["shop", "shopping", "buy", "store", "market", "souvenir", "clothes", "fashion"],
-            "Outdoor": ["park", "outdoor", "walk", "hike", "nature", "garden", "kids", "children", "family", "playground"],
-            "Market": ["market", "street food", "stall", "vendor"],
-        };
-
-        const lowerMessage = userMessage.toLowerCase();
-        const matchedCategories: string[] = [];
-        for (const [category, keywords] of Object.entries(categoryKeywords)) {
-            if (keywords.some(kw => lowerMessage.includes(kw))) {
-                matchedCategories.push(category);
-            }
-        }
+        const matchedCategories = matchedChatCategories(userMessage);
 
         if (matchedCategories.length > 0) {
             query = supabase
@@ -118,27 +102,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
         const visibleSpots = spots.filter((spot) => shouldShowPublicSpot(spot));
         if (visibleSpots.length === 0) return "";
 
-        const spotLines = visibleSpots.map((spot) => {
-            const name = getLocalizedText(spot.name as MultiLanguageField);
-            const desc = getLocalizedText(spot.description as MultiLanguageField);
-            const addr = getLocalizedText(spot.address as MultiLanguageField);
-            const score = spot.localley_score || 3;
-            const scoreLabel = LOCALNESS_LABELS[score] || "Mixed Crowd";
-            const bestTime = getLocalizedText(spot.best_times as MultiLanguageField) || "";
-            const category = spot.category || "";
-            const localPct = spot.local_percentage || 50;
-            const tips = Array.isArray(spot.tips) ? spot.tips.slice(0, 2).join("; ") : "";
-            const hasPhotos = Array.isArray(spot.photos) && spot.photos.length > 0;
-
-            return `- ${name} [${category}] (${scoreLabel}, ${score}/6, ${localPct}% locals)
-  Address: ${addr}
-  ${desc ? `Description: ${desc.substring(0, 150)}` : ""}
-  ${bestTime ? `Best time: ${bestTime}` : ""}
-  ${tips ? `Tips: ${tips}` : ""}
-  ${hasPhotos ? "Has photos" : ""}`;
-        }).join("\n");
-
-        return `\n\n## CURATED SPOTS DATABASE — Real verified places in ${cityConfig.name}\nUse these REAL spots in your recommendations when relevant. These are verified, curated places from our database:\n\n${spotLines}\n\nIMPORTANT: Prefer recommending these verified spots over places from your training data. If you recommend a spot from this list, use the exact name and address shown.`;
+        return formatChatSpotContext(cityConfig.name, visibleSpots);
     } catch (error) {
         console.error("[CHAT] Error fetching spots:", error);
         return "";
