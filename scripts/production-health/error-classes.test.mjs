@@ -2,13 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { classifyUserError, summarizeErrorClasses } from './error-classes.mjs';
 
-test('distinguishes primary format failures from fallback failures without claiming fallback success', () => {
+test('distinguishes GLM and OpenAI format failures without claiming fallback success', () => {
   const path = '/api/itineraries/generate';
   const primary = classifyUserError('Failed to parse GLM response; retrying with OpenAI: secret raw output', path, null);
   const fallback = classifyUserError('Failed to parse OpenAI response: private itinerary', path, null);
   assert.equal(primary.errorClass, 'glm_invalid_json');
   assert.match(primary.message, /requested$/);
   assert.equal(fallback.errorClass, 'openai_invalid_json');
+  assert.equal(fallback.message, 'OpenAI trip format failed');
   assert.equal(JSON.stringify([primary, fallback]).includes('secret'), false);
   assert.equal(classifyUserError('Failed to parse GLM response; retrying with OpenAI:', '/unrelated', null).errorClass, 'server_error_unclassified');
 });
@@ -55,4 +56,11 @@ test('class totals preserve event counts and status distinctions rather than cou
   assert.deepEqual(result[1].statuses, { 500: 1, unknown: 3 });
   assert.equal(result[1].count, 4);
   assert.equal(JSON.stringify(result).includes('secret'), false);
+});
+
+test('captures final generation failures without inferring their provider or retry result', () => {
+  assert.deepEqual(classifyUserError('Error generating itinerary: SyntaxError secret output', '/api/itineraries/generate', null), {
+    errorClass: 'generation_request_failed', message: 'Trip generation request failed',
+  });
+  assert.equal(classifyUserError('Error generating itinerary:', '/unrelated', null).errorClass, 'server_error_unclassified');
 });

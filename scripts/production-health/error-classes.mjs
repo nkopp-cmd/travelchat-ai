@@ -14,7 +14,10 @@ export function classifyUserError(raw, path, status) {
       return { errorClass: 'glm_primary_failed', message: 'Primary trip provider failed; existing fallback requested' };
     }
     if (text.startsWith('Failed to parse OpenAI response:')) {
-      return { errorClass: 'openai_invalid_json', message: 'Fallback trip format failed' };
+      return { errorClass: 'openai_invalid_json', message: 'OpenAI trip format failed' };
+    }
+    if (text.startsWith('Error generating itinerary:')) {
+      return { errorClass: 'generation_request_failed', message: 'Trip generation request failed' };
     }
   }
   if (path === '/api/notifications/preferences' && status === 503) {
