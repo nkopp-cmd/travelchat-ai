@@ -118,7 +118,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
     }
   }, [initialConversationId, loadedMessages, historyLoaded]);
 
-  const isLoading = isSavingConversation || sendChatMutation.isPending || reviseItineraryMutation.isPending;
+  const isLoading = isLoadingHistory || isSavingConversation || sendChatMutation.isPending || reviseItineraryMutation.isPending;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -197,6 +197,10 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
       const message = userMessageSaved
         ? "Your message was saved, but Alley could not finish this reply."
         : "Your message could not be saved. Alley has not received it yet.";
+      if (!userMessageSaved) {
+        setMessages((prev) => prev.filter((item) => item.id !== userMessageObj.id));
+        setInput(userMessage);
+      }
       setChatError(message);
       announce(`Error: ${message}`);
       // Never retry a generation after an uncertain response.
