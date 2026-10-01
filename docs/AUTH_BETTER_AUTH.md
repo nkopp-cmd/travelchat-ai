@@ -220,3 +220,25 @@ sensitive, so its value cannot be read back: confirm it lists the id of the Cler
 A6. **After the DNS switch is verified** (P7): disable the Clerk production instance, then remove the Clerk DNS
 CNAMEs (`clerk.`, `accounts.`, `clkmail.`, `clk._domainkey.`, `clk2._domainkey.`). Rollback before this step: the
 Vercel deployment still runs Clerk and its users were not changed.
+
+
+### Users first: live sender authentication proof — 2026-10-01
+
+Nils paused the application-data D1 cutover. Production remains OpenNext on Cloudflare with Supabase application data.
+
+At approximately 02:31 UTC, one fresh, controlled mail-tester seed received a real production magic-link email from the existing Workers binding. The production request returned HTTP 200. The received report scored **10/10** and independently established:
+
+- SPF passed for the `cf-bounce.localley.io` return-path domain.
+- DKIM passed with a 2048-bit key, `d=localley.io`, selector `cf-bounce`.
+- DMARC passed with `header.from=localley.io`; the author-domain DKIM signature aligns exactly.
+- The message contained both `text/plain` and `text/html`, the sender name Localley, and the subject Your Localley sign-in link.
+- Links used HTTPS on www.localley.io; the report found no shorteners or listed sending IP among its 20 blocklists.
+- The sending host was `bg-bgi.cloudflare-smtp.org` / `104.30.16.168`, with matching reverse DNS.
+
+The Cloudflare DNS API read all 22 zone records before this test. It confirmed one apex SPF (`v=spf1 include:_spf.google.com include:_spf.mx.cloudflare.net ~all`), one Cloudflare bounce SPF (`v=spf1 include:_spf.mx.cloudflare.net ~all`), the three Cloudflare bounce MX records, selector `cf-bounce._domainkey.localley.io`, and DMARC `v=DMARC1; p=none;`. These records already support passing alignment. No DNS record changed: before and after remain identical. Changing DMARC enforcement cannot establish inbox placement and could affect other legitimate mail sources.
+
+Email Sending status API reads returned HTTP 403 / code 10000 for the existing token. DNS access and the live Workers send binding worked. No token or sender change is needed for the tested binding.
+
+The report's link checker consumed the fresh seed magic link and created one isolated auth user/session. Exact seed cleanup removed that session and user; credential accounts and matching Supabase users/subscriptions were zero. The proof retained no customer identity or data. Private raw report and seed metadata are under `cloudflare/auth-proof/.preview-private/users-first-seed-20261001.*`; do not publish the raw report or link tokens.
+
+This proves live receiver authentication and message quality. It does **not** prove Gmail inbox placement for every recipient. Nils's received-header and placement check remains in NEEDS.md; work on production user journeys continues without waiting for it. No production deployment, application-data import, D1 candidate change, or paid generation occurred. Existing production Worker remains `23b84d37-b55d-4405-94c3-4273c4e52691`, with rollback reference `4a7a0329` from the recorded email release.
