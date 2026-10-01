@@ -212,6 +212,7 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Config in `lib/cities.ts`
 
 ### Release Workflow
+- Install pinned dependencies inside each OpenNext release worktree. Turbopack rejects node_modules symlinks outside its filesystem root.
 - The user authorizes routine commits and production deployment after successful release checks.
 - Verify the target, credentials, required migrations, and release gates before deployment.
 - Keep main aligned with the verified release. Do not merge unfinished media or hosting experiments merely to clear branches.
