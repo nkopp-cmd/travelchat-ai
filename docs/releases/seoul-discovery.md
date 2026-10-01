@@ -2,9 +2,9 @@
 
 ## Current production — users first, 2026-10-01
 
-The current target is Cloudflare OpenNext Worker `localley-next`, serving apex, www and next.localley.io. Repository `nkopp-cmd/travelchat-ai`, merged main code `71f9dc1` (PR #281), required self-hosted CI `36815008641`. Deployment `4c8acf2b-1836-41f0-968a-ff4c91ec69c2` serves version `b66a792d-fa68-4db4-acda-3e60d9ed3329` at 100%, released 04:34:05 UTC. Rollback `5a303f10-4e77-4cec-a19e-807030929066`. Supabase application data and D1 Better Auth remain unchanged.
+The current target is Cloudflare OpenNext Worker `localley-next`, serving apex, www and next.localley.io. Repository `nkopp-cmd/travelchat-ai`, merged main code `2177fa7` (PR #284), required self-hosted CI `36847108837`. Deployment `a1b6362a-817a-42c3-aec5-3c38dd53fc17` serves version `58e7dadb-406b-4e48-a7da-f25683cbf30c` at 100%, released 10:30:23 UTC. Rollback `b66a792d-fa68-4db4-acda-3e60d9ed3329`. Supabase application data and D1 Better Auth remain unchanged apart from the explicitly authorized one-row wrong-photo quarantine.
 
-Four public curl routes returned 200. Real desktop/mobile password login each requested one document navigation with no script errors or overflow. Signup/confirmation/magic-link, generated/saved/reopened trip, chat and selected map-pin proof, exact QA cleanup and remaining acceptance limits are recorded in [Production user health](../PRODUCTION_USER_HEALTH.md) and [Better Auth](../AUTH_BETTER_AUTH.md). Daily production checks run from stable main; obsolete native sync remains disabled/inactive. The application-data D1 move remains paused.
+Merged OpenNext build and account guard passed. Four public curl routes returned 200. Source quarantine used exact compare-and-set, cleared three proven wrong landmark photos, preserved deep non-photo fields, and passed readback. Its original backup and guarded rollback remain private. See [Source photo repair](../SOURCE_PHOTO_REPAIR.md). Notification schema draft PR #283 passed required CI `36846355366`; live SQL access is missing, so its tables and controls remain unavailable. Daily checks run from stable main; native sync remains disabled/inactive. The application-data D1 move stays paused.
 
 ## Historical Vercel release — 2026-09-07
 
