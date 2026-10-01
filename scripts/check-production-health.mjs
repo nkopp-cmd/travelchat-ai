@@ -5,6 +5,7 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
 import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
+import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -76,7 +77,7 @@ try {
     groups.set(key, (groups.get(key) || 0) + 1);
   }
   const classifiedGroups = [...groups].map(([key, count]) => ({ ...JSON.parse(key), count }));
-  logs = { available: true, observedEvents: events.length, truncated: events.length >= 500,
+  logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
     countingUnit: 'log_events_not_requests_or_users',
     photoFailures: [...photoGroups].sort((a, b) => b[1] - a[1]).slice(0, 20).map(([key, count]) => ({ ...JSON.parse(key), count })),
     errorClasses: summarizeErrorClasses(classifiedGroups),
