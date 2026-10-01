@@ -58,14 +58,25 @@ try {
     // Refuse unrelated service events even if the provider filter changes.
     if (metadata.service !== service) throw new Error('unexpected service');
     const path = pathOf(metadata.url || worker.event?.request?.url);
-    const message = sanitize(metadata.error || metadata.message || 'server error');
+    // Never persist raw log text: an upstream exception can contain a credential
+    // without a recognizable label. Keep diagnostic classes, not payloads.
+    const raw = String(metadata.error || metadata.message || '');
+    const message = raw.includes('[auth] user hook failed') ? 'Auth profile synchronization failed'
+      : raw.includes('Cannot coerce the result to a single JSON object') ? 'Application record not found'
+      : raw.includes('Network connection lost.') ? 'Network connection lost'
+      : raw.startsWith('GET ') || raw.startsWith('POST ') ? 'HTTP request failed'
+      : 'Server error; inspect private Cloudflare logs';
     const status = worker.event?.response?.status ?? null;
     const key = JSON.stringify({ path, message, status });
     groups.set(key, (groups.get(key) || 0) + 1);
   }
   logs = { available: true, observedEvents: events.length, truncated: events.length >= 500,
     top5: [...groups].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([key, count]) => ({ ...JSON.parse(key), count })) };
-} catch (error) { logs = { available: false, error: sanitize(error.message) }; }
+} catch (error) {
+  const message = String(error.message);
+  logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)
+    ? message : 'Query failed or timed out' };
+}
 const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs };
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
