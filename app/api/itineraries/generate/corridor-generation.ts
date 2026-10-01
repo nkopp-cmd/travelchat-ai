@@ -1,3 +1,4 @@
+import { logItineraryFormatFailure } from "./diagnostics";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { addThumbnailsToItinerary, addAIThumbnailsToItinerary } from "@/lib/activity-images";
@@ -223,9 +224,9 @@ export async function handleCorridorGeneration({
   let itineraryData;
   try {
     itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
-  } catch (parseError) {
+  } catch {
     if (aiProvider === "glm") {
-      console.error("Failed to parse GLM response; retrying with OpenAI:", parseError, rawContent);
+      logItineraryFormatFailure("glm", rawContent);
       rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
       aiProvider = "openai";
       aiModel = OPENAI_MODEL;
@@ -233,7 +234,7 @@ export async function handleCorridorGeneration({
       fallbackReason = "glm_invalid_json";
       itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
     } else {
-      console.error("Failed to parse OpenAI response:", rawContent);
+      logItineraryFormatFailure("openai", rawContent);
       throw new Error("AI generated invalid response format. Please try again.");
     }
   }

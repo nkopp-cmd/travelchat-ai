@@ -106,6 +106,7 @@ describe("itinerary provider fallback", () => {
       primaryConfigured: true,
     });
     expect(logger.error).toHaveBeenCalledOnce();
+    expect(JSON.stringify(logger.error.mock.calls)).not.toContain("temporary GLM outage");
     expect(generateWithOpenAI).toHaveBeenCalledOnce();
   });
 
@@ -140,6 +141,7 @@ describe("itinerary provider fallback", () => {
       primaryConfigured: true,
     });
     expect(logger.error).toHaveBeenCalledOnce();
+    expect(JSON.stringify(logger.error.mock.calls)).not.toContain("temporary GLM outage");
     expect(generateWithOpenAI).toHaveBeenCalledOnce();
   });
 });

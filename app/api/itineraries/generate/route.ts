@@ -1,3 +1,4 @@
+import { logItineraryFormatFailure, logItineraryRequestFailure } from "./diagnostics";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from '@/lib/supabase';
@@ -7,7 +8,7 @@ import { generateCorridorItinerarySchema, generateItinerarySchema } from '@/lib/
 import { checkAndIncrementUsage, checkUsageLimit, getUserTier } from '@/lib/usage-tracking';
 import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
-import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
+import { Errors, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
 import {
   applyPublicSpotVisibilityFilters,
@@ -226,9 +227,9 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     let itineraryData;
     try {
       itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
-    } catch (parseError) {
+    } catch {
       if (aiProvider === "glm") {
-        console.error("Failed to parse GLM response; retrying with OpenAI:", parseError, rawContent);
+        logItineraryFormatFailure("glm", rawContent);
         rawContent = await generateWithOpenAI(SYSTEM_PROMPT, userPrompt);
         aiProvider = "openai";
         aiModel = OPENAI_MODEL;
@@ -236,7 +237,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
         fallbackReason = "glm_invalid_json";
         itineraryData = parseAndSanitizeItinerary(rawContent, aiProvider);
       } else {
-        console.error("Failed to parse OpenAI response:", rawContent);
+        logItineraryFormatFailure("openai", rawContent);
         throw new Error("AI generated invalid response format. Please try again.");
       }
     }
@@ -384,8 +385,8 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     }
 
     return response;
-  } catch (error) {
-    console.error("Error generating itinerary:", error);
-    return handleApiError(error, "itinerary-generate");
+  } catch {
+    logItineraryRequestFailure();
+    return Errors.internalError();
   }
 }
