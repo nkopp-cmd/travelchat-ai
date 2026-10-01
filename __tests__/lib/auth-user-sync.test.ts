@@ -12,6 +12,7 @@ vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: () => ({
   from: (table: string) => ({
     upsert: async (row: Record<string, unknown>, options: Record<string, unknown>) => {
       state.calls.push({ table, row, options });
+      if (options.onConflict !== (table === "users" ? "clerk_id" : "clerk_user_id")) return { error: { message: "wrong conflict target" } };
       if (state.failure) return { error: { message: state.failure } };
       const columns = table === "users"
         ? ["id", "clerk_id", "username", "email", "level", "xp", "title", "created_at"]
@@ -23,7 +24,8 @@ vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: () => ({
       if (!rows.has(key) || !options.ignoreDuplicates) rows.set(key, { ...row });
       return { error: null };
     },
-    update: (row: Record<string, unknown>) => ({ eq: async (_column: string, key: string) => {
+    update: (row: Record<string, unknown>) => ({ eq: async (column: string, key: string) => {
+      if (column !== "clerk_id") return { error: { message: "wrong owner column" } };
       state.calls.push({ table, row });
       if (Object.keys(row).some(column => column !== "email")) return { error: { message: "unsupported profile update" } };
       const existing = state.users.get(key);
