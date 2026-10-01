@@ -1,4 +1,4 @@
-import { logItineraryFormatFailure } from "./diagnostics";
+import { logItineraryFormatFailure, logItineraryRequestFailure } from "./diagnostics";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from '@/lib/supabase';
@@ -8,7 +8,7 @@ import { generateCorridorItinerarySchema, generateItinerarySchema } from '@/lib/
 import { checkAndIncrementUsage, checkUsageLimit, getUserTier } from '@/lib/usage-tracking';
 import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
-import { Errors, handleApiError, apiError, ErrorCodes } from '@/lib/api-errors';
+import { Errors, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
 import {
   applyPublicSpotVisibilityFilters,
@@ -385,8 +385,8 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     }
 
     return response;
-  } catch (error) {
-    console.error("Error generating itinerary:", error);
-    return handleApiError(error, "itinerary-generate");
+  } catch {
+    logItineraryRequestFailure();
+    return Errors.internalError();
   }
 }

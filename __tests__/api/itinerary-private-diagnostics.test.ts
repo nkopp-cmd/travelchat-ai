@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { logItineraryFormatFailure, parsePrivateItineraryJSON } from '@/app/api/itineraries/generate/diagnostics';
+import { logItineraryFormatFailure, parsePrivateItineraryJSON, logItineraryRequestFailure } from '@/app/api/itineraries/generate/diagnostics';
 
 describe('private itinerary diagnostics', () => {
   it('never logs raw model text, URLs, credentials or syntax error fragments', () => {
@@ -32,6 +32,11 @@ describe('private itinerary diagnostics', () => {
         expect((error as Error).stack).not.toContain('private@example.com');
       }
     }
+  });
+  it('logs final generation failure with one fixed event and no exception object', () => {
+    const logger = { error: vi.fn() };
+    logItineraryRequestFailure(logger);
+    expect(logger.error.mock.calls).toEqual([['Error generating itinerary:', { reason: 'generation_request_failed' }]]);
   });
   it('preserves valid JSON exactly without rewriting provider output', () => {
     const itinerary = { title: 'Seoul', dailyPlans: [{ day: 1, activities: [{ name: 'Market' }] }] };

@@ -18,3 +18,8 @@ export function parsePrivateItineraryJSON(rawContent: string) {
     throw new Error('AI generated invalid response format. Please try again.');
   }
 }
+
+/** The route must not pass an SDK error, cause or model-derived message here. */
+export function logItineraryRequestFailure(logger: Pick<Console, 'error'> = console) {
+  logger.error('Error generating itinerary:', { reason: 'generation_request_failed' });
+}

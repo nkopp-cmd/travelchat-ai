@@ -131,7 +131,7 @@ export function parseAndSanitizeItinerary(rawContent: string, provider: string) 
 
   for (const day of itineraryData.dailyPlans) {
     if (!day.activities || !Array.isArray(day.activities) || day.activities.length === 0) {
-      throw new Error(`Day ${day.day} has no activities`);
+      throw new Error("Generated day has no activities");
     }
 
     for (const activity of day.activities) {
