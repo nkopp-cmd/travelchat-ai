@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSubscription } from "@/hooks/use-subscription";
 import type { SubscriptionTier } from "@/lib/subscription";
 
 interface PlacePhotoResult {
@@ -45,15 +46,16 @@ export function usePlacePhoto(
         includeDetails?: boolean;
     } = {}
 ): PlacePhotoResult {
-    const { existingImage, enabled = true, includeDetails = false } = options;
+    const { tier } = useSubscription();
+    const { existingImage, userTier = tier, enabled = true, includeDetails = false } = options;
 
-    const shouldFetch = enabled && (!!includeDetails || !existingImage) && !!activityName;
+    const shouldFetch = (tier === "pro" || tier === "premium") && (userTier === "pro" || userTier === "premium") && enabled && (!!includeDetails || !existingImage) && !!activityName;
     const cacheKey = `${activityName}:${city}`;
 
     // Check cache synchronously on render
     const cached = shouldFetch ? photoCache.get(cacheKey) : undefined;
 
-    const [fetchResult, setFetchResult] = useState<PlacePhotoResult | null>(null);
+    const [fetchResult, setFetchResult] = useState<{ key: string; value: PlacePhotoResult } | null>(null);
     const fetchedKeyRef = useRef<string | null>(null);
 
     useEffect(() => {
@@ -77,22 +79,23 @@ export function usePlacePhoto(
                     lng: typeof data?.lng === "number" ? data.lng : null,
                     isLoading: false,
                 };
-                photoCache.set(cacheKey, newResult);
-                setFetchResult(newResult);
+                if (data) photoCache.set(cacheKey, newResult);
+                setFetchResult({ key: cacheKey, value: newResult });
             })
             .catch(() => {
                 if (!mounted) return;
-                setFetchResult(EMPTY_RESULT);
+                setFetchResult({ key: cacheKey, value: EMPTY_RESULT });
             });
 
         return () => {
             mounted = false;
+            if (fetchedKeyRef.current === cacheKey) fetchedKeyRef.current = null;
         };
     }, [shouldFetch, activityName, city, cacheKey, cached]);
 
     // Priority: cached sync > fetch result > loading/empty
     if (cached) return cached;
-    if (fetchResult) return fetchResult;
+    if (shouldFetch && fetchResult?.key === cacheKey) return fetchResult.value;
     if (shouldFetch && !cached) return { ...EMPTY_RESULT, isLoading: true };
     return EMPTY_RESULT;
 }
