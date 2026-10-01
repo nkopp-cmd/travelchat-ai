@@ -1,3 +1,5 @@
+import { parseSpotCoordinates } from "@/lib/spots/coordinates";
+import { distanceKm } from "@/lib/geocoding";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -76,8 +78,8 @@ function getSpotIds(value: unknown): string[] {
 
 function selectSpotPhotoColumns(hasGooglePlaceIdColumn: boolean): string {
     return hasGooglePlaceIdColumn
-        ? "id, name, address, photos, category, google_place_id"
-        : "id, name, address, photos, category";
+        ? "id, name, address, location, photos, category, google_place_id"
+        : "id, name, address, location, photos, category";
 }
 
 function spotNeedsPhotoBackfill(
@@ -189,7 +191,7 @@ async function fetchSingleBackfillCandidate(
     let hasGooglePlaceIdColumn = true;
     let result = await supabase
         .from("spots")
-        .select("id, name, address, photos, category, google_place_id")
+        .select("id, name, address, location, photos, category, google_place_id")
         .eq("id", spotId)
         .single();
 
@@ -197,7 +199,7 @@ async function fetchSingleBackfillCandidate(
         hasGooglePlaceIdColumn = false;
         result = await supabase
             .from("spots")
-            .select("id, name, address, photos, category")
+            .select("id, name, address, location, photos, category")
             .eq("id", spotId)
             .single();
     }
@@ -344,6 +346,13 @@ export async function POST(req: NextRequest) {
                     query: match.query,
                 });
                 await sleep(150);
+                continue;
+            }
+
+            const coordinates = parseSpotCoordinates(spot.location);
+            if (coordinates && (coordinates.lat !== 0 || coordinates.lng !== 0) &&
+                (!place?.location || distanceKm(coordinates.lat, coordinates.lng, place.location.latitude, place.location.longitude) > 1)) {
+                results.push({ ...baseResult, status: "skipped", reason: "listing_coordinate_conflict", placeId: place?.placeId || null });
                 continue;
             }
 

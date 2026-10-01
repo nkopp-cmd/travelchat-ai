@@ -1,7 +1,14 @@
+import type { ImgHTMLAttributes } from "react";
+import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 
+vi.mock("next/image", () => ({ default: ({ src, alt, onLoad, onError }: ImgHTMLAttributes<HTMLImageElement>) =>
+ // eslint-disable-next-line @next/next/no-img-element
+ <img src={src} alt={alt} onLoad={onLoad} onError={onError} /> }));
+const galleryMock = vi.hoisted(() => ({ use: vi.fn(), result: { ref: { current: null }, data: { status: "available", photos: [{ id: "fresh", url: "/api/places/photo?name=places/owned/photos/fresh", sourceLabel: "Google listing photo", attributions: [{ displayName: "Owned author" }] }] } as PhotoGalleryResponse | null, loading: false } }));
+vi.mock("@/components/spots/venue-photo-provider", () => ({ useVenuePhotos: (...args: unknown[]) => { galleryMock.use(...args); return galleryMock.result; } }));
 const placePhotoMock = vi.hoisted(() => ({
   result: {
     photoUrl: null,
@@ -34,6 +41,20 @@ vi.mock("@/components/activities/booking-deals-popover", () => ({
 }));
 
 describe("ItineraryActivityCard", () => {
+  it("resolves a fresh attributed image by grounded spot ID without rendering the expired URL", () => {
+    const old = "/api/places/photo?name=places/owned/photos/expired";
+    render(<ItineraryActivityCard activity={{ name: "Owned venue", spotId: "550e8400-e29b-41d4-a716-446655440000", image: old }} city="Seoul" />);
+    expect(galleryMock.use).toHaveBeenCalledWith("550e8400-e29b-41d4-a716-446655440000", false, [], true);
+    const image = screen.getByRole("img", { name: "Owned venue" });
+    expect(image.getAttribute("src")).toContain("fresh"); expect(image.getAttribute("src")).not.toContain("expired");
+    expect(screen.getByText("Owned author")).toBeTruthy();
+  });
+  it("does not request legacy expired images without a grounded identity", () => {
+    galleryMock.result = { ...galleryMock.result, data: null };
+    render(<ItineraryActivityCard activity={{ name: "Legacy venue", image: "/api/places/photo?name=places/other/photos/expired" }} city="Seoul" />);
+    expect(galleryMock.use).toHaveBeenCalledWith("", false, [], false);
+    expect(screen.getByText("Photo unavailable")).toBeTruthy(); expect(screen.queryByRole("img", { name: "Legacy venue" })).toBeNull();
+  });
   it("shows a matched exact address when the stored itinerary address is area-level", () => {
     render(
       <ItineraryActivityCard

@@ -20,6 +20,8 @@ import {
 } from "@/lib/affiliates";
 import { BookingDealsPopover } from "./booking-deals-popover";
 import { usePlacePhoto } from "@/hooks/use-place-photo";
+import { useVenuePhotos } from "@/components/spots/venue-photo-provider";
+import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
 import { CityImageAvatar } from "@/components/ui/city-image";
 import {
   buildActivityMapUrl,
@@ -29,6 +31,7 @@ import {
 import { isKoreanCity } from "@/hooks/use-map-provider";
 
 interface ItineraryActivity {
+  spotId?: string;
   name: string;
   nameKo?: string;
   description?: string;
@@ -131,6 +134,11 @@ export function ItineraryActivityCard({
     : null;
   const showDeals = hasFeature(userTier, "bookingDeals");
   const storedActivityImage = activity.image || activity.thumbnail;
+  // Stored Google references expire. Resolve a fresh, attributed gallery only
+  // through the grounded spot ID; never guess a new venue from an old photo.
+  const storedProxy = Boolean(storedActivityImage && /^\/api\/places\/photo(?:\?|$)/.test(storedActivityImage));
+  const sourceSpotId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(activity.spotId || "") ? activity.spotId! : "";
+  const { ref: photoRef, data: venuePhotoData, loading: venuePhotosLoading } = useVenuePhotos(sourceSpotId, false, [], storedProxy && Boolean(sourceSpotId));
   const hasExactStoredAddress = hasExactActivityAddress(activity.address);
 
   // Fetch Google Places details when the card needs a real image or address.
@@ -217,8 +225,12 @@ export function ItineraryActivityCard({
         <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
-            <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-violet-950/20 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28 sm:rounded-xl">
-              {displayImage ? (
+            <div ref={photoRef} className="relative h-16 w-16 overflow-hidden rounded-lg bg-violet-950/20 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28 sm:rounded-xl">
+              {storedProxy ? (
+                <SpotPhotoImage photo={venuePhotoData?.photos[0]} alt={activity.name}
+                  sizes="(max-width: 419px) 64px, (max-width: 640px) 76px, 112px"
+                  loading={Boolean(sourceSpotId) && venuePhotosLoading} />
+              ) : displayImage ? (
                 isStoredActivityImage ? (
                   <Image
                     src={displayImage}

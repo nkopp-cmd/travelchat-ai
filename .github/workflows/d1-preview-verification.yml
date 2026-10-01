@@ -78,6 +78,12 @@ on:
       - '__tests__/lib/app-data-preview-guide-application.test.ts'
       - 'scripts/check-production-health.mjs'
       - 'ops/localley-user-health.*'
+      - 'components/activities/itinerary-activity-card.tsx'
+      - '__tests__/components/itinerary-activity-card.test.tsx'
+      - '__tests__/api/backfill-photo-coordinate-guard.test.ts'
+      - 'app/api/admin/spots/backfill-photos/route.ts'
+      - 'lib/place-images.ts'
+      - 'scripts/photos/**'
       - 'hooks/use-place-photo.ts'
       - '__tests__/hooks/use-place-photo.test.tsx'
       - 'components/chat/chat-interface.tsx'
@@ -131,6 +137,9 @@ jobs:
             npx eslint components/chat/chat-interface.tsx __tests__/app/chat-history-pair.test.tsx
             npx vitest run __tests__/components/auth-password-redirect.test.tsx --maxWorkers=1
             npx eslint components/auth/auth-forms.tsx __tests__/components/auth-password-redirect.test.tsx
+            npx vitest run __tests__/components/itinerary-activity-card.test.tsx __tests__/api/backfill-photo-coordinate-guard.test.ts --maxWorkers=1
+            npx eslint components/activities/itinerary-activity-card.tsx __tests__/components/itinerary-activity-card.test.tsx app/api/admin/spots/backfill-photos/route.ts lib/place-images.ts __tests__/api/backfill-photo-coordinate-guard.test.ts
+            node --test scripts/photos/quarantine-source.test.mjs
             node --check scripts/check-production-health.mjs
             systemd-analyze --user verify ops/localley-user-health.service ops/localley-user-health.timer
             npx vitest run __tests__/api/notification-preferences-unavailable.test.ts --maxWorkers=1
