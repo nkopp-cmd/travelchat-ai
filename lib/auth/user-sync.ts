@@ -13,11 +13,6 @@ import type { AuthUserRecord } from "./config";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { isSupabaseReadOnly } from "@/lib/supabase-read-only";
 
-function displayName(user: AuthUserRecord): string | null {
-  const parts = [user.firstName, user.lastName].filter(Boolean).join(" ");
-  return parts || user.name || null;
-}
-
 function syncEnabled(): boolean {
   return !isSupabaseReadOnly() && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
@@ -28,31 +23,33 @@ export async function syncAppUserCreated(user: AuthUserRecord): Promise<void> {
   const now = new Date().toISOString();
   const { error: userError } = await supabase.from("users").upsert(
     {
+      // Production users.id has no default. Do not replace an existing app ID
+      // or username when an auth hook repeats. Names and avatars live in Auth.
+      id: crypto.randomUUID(),
       clerk_id: user.id,
       email: user.email,
-      name: displayName(user),
-      avatar_url: user.image ?? null,
-      email_preferences: { marketing: true, weekly_digest: true, product_updates: true, itinerary_shared: true },
       created_at: now,
-      updated_at: now,
     },
-    { onConflict: "clerk_id" },
+    { onConflict: "clerk_id", ignoreDuplicates: true },
   );
   if (userError) throw new Error(`users upsert failed: ${userError.message}`);
 
   const { error: subError } = await supabase.from("subscriptions").upsert(
     { clerk_user_id: user.id, tier: "free", status: "active", created_at: now, updated_at: now },
-    { onConflict: "clerk_user_id" },
+    { onConflict: "clerk_user_id", ignoreDuplicates: true },
   );
   if (subError) throw new Error(`subscriptions upsert failed: ${subError.message}`);
 }
 
 export async function syncAppUserUpdated(user: AuthUserRecord): Promise<void> {
   if (!syncEnabled()) return;
+  // Verification/profile updates repair accounts made before this schema fix.
+  // Duplicate inserts preserve existing IDs, profile fields and paid tiers.
+  await syncAppUserCreated(user);
   const supabase = createSupabaseAdmin();
   const { error } = await supabase
     .from("users")
-    .update({ email: user.email, name: displayName(user), avatar_url: user.image ?? null, updated_at: new Date().toISOString() })
+    .update({ email: user.email })
     .eq("clerk_id", user.id);
   if (error) throw new Error(`users update failed: ${error.message}`);
 }
