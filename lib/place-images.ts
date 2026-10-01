@@ -1,6 +1,7 @@
 import type { MultiLanguageField } from "@/types";
 
 export interface SpotPhotoBackfillRow {
+    location?: unknown;
     id: string;
     name: MultiLanguageField;
     address: MultiLanguageField;
