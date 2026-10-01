@@ -30,6 +30,7 @@ try{
  sql(`SET ROLE service_role; INSERT INTO notifications(clerk_user_id,type,title,message) VALUES('owner-a','system','Test','Owned');`);
  assert.equal(sql(owner('owner-b',`SELECT count(*) FROM notifications`)).split('\n').at(-1),'0');
  assert.equal(sql(owner('owner-a',`UPDATE notifications SET read=true WHERE clerk_user_id='owner-a' RETURNING read`)).split('\n').at(-1),'t');
+ let altered=false;try{sql(owner('owner-a',`UPDATE notifications SET title='Forged' WHERE clerk_user_id='owner-a'`))}catch{altered=true}assert.ok(altered,'authenticated owners cannot forge server notice content');
  sql(owner('owner-a',`INSERT INTO push_subscriptions(clerk_user_id,endpoint,p256dh,auth) VALUES('owner-a','https://push.example/shared','a','a')`));
  sql(owner('owner-b',`INSERT INTO push_subscriptions(clerk_user_id,endpoint,p256dh,auth) VALUES('owner-b','https://push.example/shared','b','b')`));
  assert.equal(sql(`SELECT count(*) FROM push_subscriptions`),'2');
