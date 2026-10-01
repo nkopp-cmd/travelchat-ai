@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth/server";
 import { NextRequest, NextResponse } from "next/server";
 import {
+    NotificationStorageUnavailableError,
     getNotificationPreferences,
     updateNotificationPreferences,
 } from "@/lib/notifications";
@@ -23,6 +24,10 @@ export async function GET() {
 
         return NextResponse.json(preferences);
     } catch (error) {
+        if (error instanceof NotificationStorageUnavailableError) {
+            return NextResponse.json({ available: false, preferences: null, message: error.message },
+                { headers: { "Cache-Control": "private, no-store" } });
+        }
         return handleApiError(error, "notification-preferences-get");
     }
 }
@@ -45,6 +50,10 @@ export async function PATCH(request: NextRequest) {
 
         return NextResponse.json(preferences);
     } catch (error) {
+        if (error instanceof NotificationStorageUnavailableError) {
+            return NextResponse.json({ error: "notifications_unavailable", message: error.message },
+                { status: 503, headers: { "Cache-Control": "private, no-store" } });
+        }
         return handleApiError(error, "notification-preferences-update");
     }
 }

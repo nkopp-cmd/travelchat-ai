@@ -17,6 +17,7 @@ export function NotificationPreferencesSection() {
     const {
         preferences,
         isLoading: prefsLoading,
+        error: preferencesError,
         updatePreferences,
     } = useNotificationPreferences();
 
@@ -92,6 +93,13 @@ export function NotificationPreferencesSection() {
                 </div>
             </div>
         );
+    }
+
+    if (!preferences) {
+        return <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+            {preferencesError || "Notification settings are currently unavailable."}
+            <p className="mt-2">No changes were saved. Please try again later.</p>
+        </div>;
     }
 
     return (
