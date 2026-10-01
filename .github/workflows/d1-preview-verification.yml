@@ -77,6 +77,7 @@ on:
       - '__tests__/api/connect-onboard-candidate-route.test.ts'
       - '__tests__/lib/app-data-preview-guide-application.test.ts'
       - 'scripts/check-production-health.mjs'
+      - 'scripts/production-health/**'
       - 'ops/localley-user-health.*'
       - 'components/activities/itinerary-activity-card.tsx'
       - '__tests__/components/itinerary-activity-card.test.tsx'
@@ -141,6 +142,7 @@ jobs:
             npx eslint components/activities/itinerary-activity-card.tsx __tests__/components/itinerary-activity-card.test.tsx app/api/admin/spots/backfill-photos/route.ts lib/place-images.ts __tests__/api/backfill-photo-coordinate-guard.test.ts
             node --test scripts/photos/quarantine-source.test.mjs
             node --check scripts/check-production-health.mjs
+            node --test scripts/production-health/photo-diagnostics.test.mjs
             systemd-analyze --user verify ops/localley-user-health.service ops/localley-user-health.timer
             npx vitest run __tests__/api/notification-preferences-unavailable.test.ts --maxWorkers=1
             npx eslint lib/notifications.ts hooks/use-notifications.ts components/settings/notification-preferences.tsx app/api/notifications/preferences/route.ts __tests__/api/notification-preferences-unavailable.test.ts

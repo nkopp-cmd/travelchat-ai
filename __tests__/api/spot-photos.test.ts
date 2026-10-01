@@ -135,6 +135,44 @@ describe("public spot photo gallery", () => {
         expect((await (await call()).json()).status).toBe("available");
     });
 
+    it("logs the source and fixed coordinate rejection without private provider data", async () => {
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            vi.mocked(fetch).mockResolvedValue(Response.json({ ...details(),
+                location: { latitude: 37.60, longitude: 126.999 },
+                private: "secret-key person@example.com https://private.example/?token=secret",
+            }));
+            const response = await call();
+            expect(response.status).toBe(502);
+            expect((await response.json()).photos).toEqual([]);
+            expect(log).toHaveBeenCalledExactlyOnceWith(`[spot-photos] ${JSON.stringify({
+                spotId: id, reason: "listing_coordinate_conflict", status: 502,
+            })}`);
+        } finally { log.mockRestore(); }
+    });
+
+    it("records only the upstream HTTP status and never its response body", async () => {
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            vi.mocked(fetch).mockResolvedValue(new Response("private provider token", { status: 429 }));
+            expect((await call()).status).toBe(502);
+            expect(log).toHaveBeenCalledExactlyOnceWith(`[spot-photos] ${JSON.stringify({
+                spotId: id, reason: "provider_http", status: 502, upstreamStatus: 429,
+            })}`);
+        } finally { log.mockRestore(); }
+    });
+
+    it("reports database failure without its private error payload", async () => {
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            mocks.single.mockResolvedValue({ data: null, error: { message: "secret SQL password" } });
+            expect((await call()).status).toBe(503);
+            expect(log).toHaveBeenCalledExactlyOnceWith(`[spot-photos] ${JSON.stringify({
+                spotId: id, reason: "source_unavailable", status: 503,
+            })}`);
+        } finally { log.mockRestore(); }
+    });
+
     it("uses name and address evidence when stored coordinates are absent", async () => {
         mocks.single.mockResolvedValue({ data: { ...spot, location: null } });
         expect((await (await call()).json()).status).toBe("available");
