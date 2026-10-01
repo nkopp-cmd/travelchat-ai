@@ -1,5 +1,13 @@
 # Seoul Discovery Release
 
+## Current production — users first, 2026-10-01
+
+The current target is Cloudflare OpenNext Worker `localley-next`, serving apex, www and next.localley.io. Repository `nkopp-cmd/travelchat-ai`, merged main code `71f9dc1` (PR #281), required self-hosted CI `36815008641`. Deployment `4c8acf2b-1836-41f0-968a-ff4c91ec69c2` serves version `b66a792d-fa68-4db4-acda-3e60d9ed3329` at 100%, released 04:34:05 UTC. Rollback `5a303f10-4e77-4cec-a19e-807030929066`. Supabase application data and D1 Better Auth remain unchanged.
+
+Four public curl routes returned 200. Real desktop/mobile password login each requested one document navigation with no script errors or overflow. Signup/confirmation/magic-link, generated/saved/reopened trip, chat and selected map-pin proof, exact QA cleanup and remaining acceptance limits are recorded in [Production user health](../PRODUCTION_USER_HEALTH.md) and [Better Auth](../AUTH_BETTER_AUTH.md). Daily production checks run from stable main; obsolete native sync remains disabled/inactive. The application-data D1 move remains paused.
+
+## Historical Vercel release — 2026-09-07
+
 Date: 2026-09-07. Target: Vercel `travelchat-ai`, serving `www.localley.io`.
 Baseline: `98ccd6d00e11002326b8b7926e845414f675a7ef`.
 Rollback deployment: `dpl_8GLWuch2zYWyFEJHt9SCNmyDPTJw`.
