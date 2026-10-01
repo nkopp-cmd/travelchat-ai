@@ -49,7 +49,7 @@ export function usePlacePhoto(
     const { tier } = useSubscription();
     const { existingImage, userTier = tier, enabled = true, includeDetails = false } = options;
 
-    const shouldFetch = (userTier === "pro" || userTier === "premium") && enabled && (!!includeDetails || !existingImage) && !!activityName;
+    const shouldFetch = (tier === "pro" || tier === "premium") && (userTier === "pro" || userTier === "premium") && enabled && (!!includeDetails || !existingImage) && !!activityName;
     const cacheKey = `${activityName}:${city}`;
 
     // Check cache synchronously on render
@@ -79,7 +79,7 @@ export function usePlacePhoto(
                     lng: typeof data?.lng === "number" ? data.lng : null,
                     isLoading: false,
                 };
-                photoCache.set(cacheKey, newResult);
+                if (data) photoCache.set(cacheKey, newResult);
                 setFetchResult({ key: cacheKey, value: newResult });
             })
             .catch(() => {
@@ -89,6 +89,7 @@ export function usePlacePhoto(
 
         return () => {
             mounted = false;
+            if (fetchedKeyRef.current === cacheKey) fetchedKeyRef.current = null;
         };
     }, [shouldFetch, activityName, city, cacheKey, cached]);
 

@@ -19,20 +19,33 @@ describe("place detail entitlement and venue state", () => {
  expect(fetch).not.toHaveBeenCalled(); expect(result.current.isLoading).toBe(false);
  });
  it("allows Premium details without replacing an existing image", async () => {
- const { result } = renderHook(() => usePlacePhoto("Premium venue", "Seoul", { userTier: "premium", existingImage: "saved.jpg", includeDetails: true }));
+ mocks.tier = "premium"; const { result } = renderHook(() => usePlacePhoto("Premium venue", "Seoul", { userTier: "premium", existingImage: "saved.jpg", includeDetails: true }));
  await waitFor(() => expect(result.current.formattedAddress).toBe("Exact venue address")); expect(fetch).toHaveBeenCalledTimes(1);
  });
  it("keeps stored images without unnecessary detail requests", () => {
- renderHook(() => usePlacePhoto("Stored image venue", "Seoul", { userTier: "pro", existingImage: "saved.jpg" })); expect(fetch).not.toHaveBeenCalled();
+ mocks.tier = "pro"; renderHook(() => usePlacePhoto("Stored image venue", "Seoul", { userTier: "pro", existingImage: "saved.jpg" })); expect(fetch).not.toHaveBeenCalled();
+ });
+ it("refuses a hardcoded Pro hint when the actual viewer is Free", () => {
+ renderHook(() => usePlacePhoto("Shared public venue", "Seoul", { userTier: "pro" })); expect(fetch).not.toHaveBeenCalled();
  });
  it("does not expose cached paid results after a downgrade", async () => {
- const { result, rerender } = renderHook(({ paid }) => usePlacePhoto("Downgrade venue", "Seoul", { userTier: paid ? "pro" : "free" }), { initialProps: { paid: true } });
+ mocks.tier = "pro"; const { result, rerender } = renderHook(({ paid }) => usePlacePhoto("Downgrade venue", "Seoul", { userTier: paid ? "pro" : "free" }), { initialProps: { paid: true } });
  await waitFor(() => expect(result.current.photoUrl).toBeTruthy()); rerender({ paid: false });
  expect(result.current.photoUrl).toBeNull(); expect(result.current.formattedAddress).toBeNull(); expect(fetch).toHaveBeenCalledTimes(1);
  });
  it("does not show the previous venue while a new lookup is pending", async () => {
- const { result, rerender } = renderHook(({ name }) => usePlacePhoto(name, "Seoul", { userTier: "pro" }), { initialProps: { name: "First exact venue" } });
+ mocks.tier = "pro"; const { result, rerender } = renderHook(({ name }) => usePlacePhoto(name, "Seoul", { userTier: "pro" }), { initialProps: { name: "First exact venue" } });
  await waitFor(() => expect(result.current.photoUrl).toBeTruthy()); vi.mocked(fetch).mockImplementation(() => new Promise(() => {}));
  act(() => rerender({ name: "Second exact venue" })); expect(result.current.photoUrl).toBeNull(); expect(result.current.isLoading).toBe(true);
+ });
+ it("restarts a cancelled lookup when a paid viewer returns", async () => {
+ mocks.tier = "pro"; vi.mocked(fetch).mockImplementationOnce(() => new Promise(() => {}));
+ const { result, rerender } = renderHook(({ tier }) => { mocks.tier = tier; return usePlacePhoto("Cancelled lookup venue", "Seoul"); }, { initialProps: { tier: "pro" } });
+ rerender({ tier: "free" }); rerender({ tier: "pro" }); await waitFor(() => expect(result.current.photoUrl).toBeTruthy()); expect(fetch).toHaveBeenCalledTimes(2);
+ });
+ it("does not poison a later lookup with a failed HTTP response", async () => {
+ mocks.tier = "pro"; vi.mocked(fetch).mockResolvedValueOnce(new Response("Forbidden", { status: 403 }));
+ const first = renderHook(() => usePlacePhoto("Transient refusal venue", "Seoul")); await waitFor(() => expect(first.result.current.isLoading).toBe(false)); first.unmount();
+ const second = renderHook(() => usePlacePhoto("Transient refusal venue", "Seoul")); await waitFor(() => expect(second.result.current.photoUrl).toBeTruthy()); expect(fetch).toHaveBeenCalledTimes(2);
  });
 });
