@@ -33,3 +33,15 @@ test('accepts only the exact D1 internal KV definition',()=>{
  assert.throws(()=>reconcileLedger({...evidence,actual:[...evidence.actual,{...internal,sql:'CREATE TABLE _cf_KV(key TEXT)'}]}),/internal/);
  }finally{db.close();}
 });
+
+test('guards a complete large schema as a set and refuses later drift',()=>{
+ const {db,evidence}=setup();try{
+ for(let i=0;i<90;i++)db.exec(`CREATE TABLE extra_${i}(id INTEGER PRIMARY KEY)`);
+ const actual=db.prepare("SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
+ const expected={...evidence.expected,schema:actual.filter(r=>r.name!=='d1_migrations')};
+ const {sql}=reconcileLedger({...evidence,actual,expected});
+ db.exec(sql);assert.equal(db.prepare('SELECT count(*) n FROM d1_migrations').get().n,2);
+ db.exec('DELETE FROM d1_migrations; ALTER TABLE extra_89 ADD COLUMN drift TEXT');db.exec(sql);
+ assert.equal(db.prepare('SELECT count(*) n FROM d1_migrations').get().n,0);
+ }finally{db.close();}
+});

@@ -49,10 +49,16 @@ export function reconcileLedger({ databaseId, expected, actual, ledger, foreignK
   const table = byName.get('d1_migrations');
   if (!table || table.type !== 'table') throw new Error('Missing migration ledger');
   // Exact sqlite_master guards prevent applying a stale preflight. This is one INSERT, never DDL.
-  const guards = actual.map(r => `EXISTS (SELECT 1 FROM sqlite_master WHERE name=${quote(r.name)} AND type=${quote(r.type)} AND sql=${quote(r.sql)})`);
-  guards.push(`(SELECT count(*) FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%')=${actual.length}`);
-  guards.push(`NOT EXISTS (SELECT 1 FROM d1_migrations WHERE name NOT IN (${migrations.map(m => quote(m.name)).join(',')}))`);
-  const sql = `WITH approved(name) AS (VALUES ${migrations.map(m => `(${quote(m.name)})`).join(',')})\nINSERT INTO d1_migrations(name) SELECT name FROM approved a WHERE NOT EXISTS (SELECT 1 FROM d1_migrations d WHERE d.name=a.name) AND ${guards.join(' AND ')};\n`;
+  const schemaValues = actual.map(r => `(${quote(r.name)},${quote(r.type)},${quote(r.sql)})`).join(',');
+  const sql = `WITH approved_schema(name,type,sql) AS (VALUES ${schemaValues}),
+approved(name) AS (VALUES ${migrations.map(m => `(${quote(m.name)})`).join(',')})
+INSERT INTO d1_migrations(name) SELECT name FROM approved a
+WHERE NOT EXISTS (SELECT 1 FROM d1_migrations d WHERE d.name=a.name)
+AND NOT EXISTS (SELECT 1 FROM approved_schema p LEFT JOIN sqlite_master m
+  ON m.name=p.name AND m.type=p.type AND m.sql=p.sql WHERE m.name IS NULL)
+AND (SELECT count(*) FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%')=${actual.length}
+AND NOT EXISTS (SELECT 1 FROM d1_migrations WHERE name NOT IN (${migrations.map(m => quote(m.name)).join(',')}));\n`;
+  if (Buffer.byteLength(sql) > 100_000) throw new Error('Registration exceeds D1 statement limit');
   return { sql, report: { databaseId, baseCommit: BASE_COMMIT, schemaObjects: expected.schema.length,
     schemaSha256: digest(JSON.stringify(expected.schema.map(r => [r.type, r.name, normalize(r.sql)]))), migrations,
     pending: migrations.filter(m => !ledger.some(r => r.name === m.name)).map(m => m.name), sqlSha256: digest(sql) } };
