@@ -117,6 +117,8 @@ jobs:
             npx vitest run __tests__/lib/app-data-preview-chat-usage.test.ts --maxWorkers=1
             npx eslint lib/app-data/preview-chat-usage.ts __tests__/lib/app-data-preview-chat-usage.test.ts
             npx vitest run __tests__/lib/app-data-preview-user-tier.test.ts __tests__/api/user-tier-candidate.test.ts --maxWorkers=1
+            node --test scripts/d1-migration/reconcile-ledger.test.mjs
+            npx eslint scripts/d1-migration/reconcile-ledger.mjs scripts/d1-migration/reconcile-ledger.test.mjs
             node --test scripts/d1-migration/profile-emails.test.mjs
             npx eslint app/api/user/tier/route.ts lib/app-data/preview-user-tier.ts __tests__/lib/app-data-preview-user-tier.test.ts __tests__/api/user-tier-candidate.test.ts scripts/d1-migration/profile-emails.mjs scripts/d1-migration/profile-emails.test.mjs
             npx eslint app/api/chat/route.ts app/api/test-app-data/chat-spots/route.ts lib/chat/spot-context.ts lib/app-data/preview-chat-spots.ts __tests__/lib/app-data-preview-chat-spots.test.ts
