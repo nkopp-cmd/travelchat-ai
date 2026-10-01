@@ -3,9 +3,11 @@ const boundedNumber = value => typeof value === 'number' && Number.isFinite(valu
   && value >= 0 && value <= Number.MAX_SAFE_INTEGER ? value : null;
 
 export function summarizeQueryCoverage(result, returnedEvents, limit = 500) {
-  // Cloudflare documents absent ABR as level 1. An invalid present value stays unknown.
+  // An absent ABR field defaults to 1 only in a recognized statistics object.
+  const isStatistics = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const hasStatistics = isStatistics(result?.statistics) || isStatistics(result?.run?.statistics);
   const rawLevel = result?.statistics?.abr_level ?? result?.run?.statistics?.abr_level;
-  const candidate = rawLevel == null ? 1 : boundedNumber(rawLevel);
+  const candidate = rawLevel == null ? (hasStatistics ? 1 : null) : boundedNumber(rawLevel);
   const abrLevel = candidate !== null && candidate >= 1 ? candidate : null;
   const sampled = abrLevel === null ? null : abrLevel > 1;
   const matchingEventsReported = boundedNumber(result?.events?.count);

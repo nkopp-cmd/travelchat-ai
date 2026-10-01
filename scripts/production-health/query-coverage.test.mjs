@@ -47,3 +47,13 @@ test('missing matching counts and invalid counts never become proof of zero fail
     assert.equal(report.rankingScope, 'returned_events_only');
   }
 });
+test('missing or malformed entire statistics stays unknown instead of implying no query sampling', () => {
+  for (const statistics of [undefined, null, 'private', []]) {
+    const report = summarizeQueryCoverage({ statistics, events: { count: 0 } }, 0);
+    assert.deepEqual(report.querySampling, { abrLevel: null, sampled: null });
+    assert.ok(report.coverageWarnings.includes('query_sampling_unknown'));
+    assert.equal(JSON.stringify(report).includes('private'), false);
+  }
+  assert.deepEqual(summarizeQueryCoverage({ run: { statistics: {} }, events: { count: 0 } }, 0).querySampling,
+    { abrLevel: 1, sampled: false });
+});
