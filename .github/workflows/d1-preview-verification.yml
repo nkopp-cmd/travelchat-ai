@@ -91,6 +91,9 @@ on:
       - '__tests__/app/chat-history-pair.test.tsx'
       - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
+      - 'app/api/itineraries/generate/**'
+      - '__tests__/api/itinerary-private-diagnostics.test.ts'
+      - '__tests__/api/itinerary-provider-fallback.test.ts'
       - 'docs/AUTH_BETTER_AUTH.md'
       - 'lib/notifications.ts'
       - 'hooks/use-notifications.ts'
@@ -132,6 +135,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/itinerary-sanitize.test.ts --maxWorkers=1
+            npx eslint app/api/itineraries/generate/diagnostics.ts app/api/itineraries/generate/provider-fallback.ts app/api/itineraries/generate/shared.ts app/api/itineraries/generate/corridor-generation.ts app/api/itineraries/generate/route.ts __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts
             npx vitest run __tests__/hooks/use-place-photo.test.tsx --maxWorkers=1
             npx eslint hooks/use-place-photo.ts __tests__/hooks/use-place-photo.test.tsx
             npx vitest run __tests__/app/chat-history-pair.test.tsx --maxWorkers=1
