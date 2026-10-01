@@ -280,3 +280,22 @@ A read-only Cloudflare API audit verified `localley.io` in nilskopp. Its 22 reco
 The archived real magic-link receipt proves Received-SPF pass on `cf-bounce.localley.io`, DKIM pass with `d=localley.io`/`s=cf-bounce`, and DMARC pass with `header.from=localley.io`. It contains plain text and HTML, Localley sender name, the clear sign-in subject and HTTPS Localley links. The controlled receiver score remains 10/10. Seven current mail tests passed; `lib/auth/mail.ts` is byte-identical to checked PR #246 / CI `36723544766`.
 
 This audit sent no new email and required no sender release. U1 remains unchecked because Gmail inbox placement is still unknown; existing NEED480 requests Nils's received headers and placement. A receiver score or HTTP200 is not Gmail inbox proof. Sender implementation remains unchanged in the separate diagnostics release `4b0d466` / Worker `93f34779-7182-4158-b564-86546800ce33`. Private DNS and received-mail evidence remain outside Git.
+
+## U2 coverage audit and fresh mobile auth — 2026-10-01 16:44 UTC
+
+The action audit found a missing distinction: the 10:31–10:37 journey generated and saved a new trip on desktop. Mobile reopened that trip; it did not submit a new generation. Existing screenshots and a reopened schedule do not prove mobile creation. U2 remains open for that action.
+
+| Journey | Desktop evidence | Mobile evidence | Limit |
+| --- | --- | --- | --- |
+| Signup | Earlier real UI request HTTP200, one application mapping | Fresh UI request HTTP200, one application mapping | Owned controlled seed; no customer account. |
+| Magic-link login | Earlier functional callback passed | Fresh magic request HTTP200; callback reached dashboard; session matched the verified owned user | Both functional checks read the owned D1 token. They do not prove inbox receipt. |
+| Create and save trip | Earlier real wizard request HTTP200; saved new generated Seoul trip | Reopened the desktop trip; new mobile creation still untested | No fixture or screenshot is counted as generation. |
+| Chat | Earlier real send HTTP200 | Earlier real send HTTP200 | Durable read returned two conversations, each with two messages. |
+| Map | Earlier 24 selectable spots; selected card displayed | Earlier 24 selectable spots; selected card displayed | Fresh mobile spots page also loaded; this additional check did not repeat pin selection. |
+| Checkout | Skipped | Skipped | Current app and shared keys contain only live Stripe credentials. Test mode is unavailable; no charge or checkout session was created. Existing NEED477 retains the test credential request. |
+
+Current production Worker remains `93f34779-7182-4158-b564-86546800ce33`, deployment `d9cfd015-9ec8-4b7d-88d4-80ccf8f733a3`, 100%, rollback `58e7dadb`. Deployed code is `4b0d466`; the evidence-only main merge is `2b573a2`. A scoped Git comparison proved that auth, wizard, itinerary, chat, pricing, subscription, components and hooks are unchanged since the earlier `2177fa7` journey release. Existing gallery changes add bounded diagnostic logs while preserving statuses and identity checks.
+
+The fresh mobile probe at 390×844 passed signup, functional magic login, dashboard and spots. It recorded zero browser script errors and no document overflow; dashboard and spots screenshots were inspected. The test blocked venue gallery/media calls to avoid paid provider activity. Exact cleanup removed one session, one Free subscription, one profile and the owned auth user. Credentials were already removed by Better Auth's mailbox-proof safeguard. Scoped auth/profile reads returned zero remaining rows. The stable daily health service completed with Result=success and ExecMainStatus=0. Private proof is `users-first-u2-mobile-auth-20261001/report.json` and its screenshots.
+
+The shared ledger has USD24.8939 this week, leaving USD0.1061. A new real generation uses the prior conservative USD0.20 reservation, so the mobile generation probe was deferred before any model call. No automatic retry or substituted fixture was used. Current remaining U2 work is new mobile trip creation/save when budget permits; checkout remains a conditional test-mode skip. Gmail placement remains a separate U1 check. This evidence-only change requires no runtime deployment.
