@@ -85,6 +85,9 @@ on:
       - 'scripts/d1-migration/**'
       - 'wrangler.jsonc'
       - 'docs/AUTH_BETTER_AUTH.md'
+      - 'supabase/migrations/*users_first_notifications.sql'
+      - 'scripts/notifications/**'
+      - '__tests__/lib/notification-push-owner.test.ts'
       - 'lib/notifications.ts'
       - 'hooks/use-notifications.ts'
       - 'components/settings/notification-preferences.tsx'
@@ -131,6 +134,9 @@ jobs:
             npx eslint components/chat/chat-interface.tsx __tests__/app/chat-history-pair.test.tsx
             npx vitest run __tests__/components/auth-password-redirect.test.tsx --maxWorkers=1
             npx eslint components/auth/auth-forms.tsx __tests__/components/auth-password-redirect.test.tsx
+            node scripts/notifications/test-storage.mjs
+            npx vitest run __tests__/lib/notification-push-owner.test.ts --maxWorkers=1
+            npx eslint __tests__/lib/notification-push-owner.test.ts
             node --check scripts/check-production-health.mjs
             systemd-analyze --user verify ops/localley-user-health.service ops/localley-user-health.timer
             npx vitest run __tests__/api/notification-preferences-unavailable.test.ts --maxWorkers=1
