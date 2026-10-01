@@ -79,6 +79,8 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
   const [activeItinerary, setActiveItinerary] = useState<ItineraryContext | undefined>(itineraryContext);
   const [chatError, setChatError] = useState<string | null>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [isSavingConversation, setIsSavingConversation] = useState(false);
+  const submissionPending = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -116,7 +118,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
     }
   }, [initialConversationId, loadedMessages, historyLoaded]);
 
-  const isLoading = sendChatMutation.isPending || reviseItineraryMutation.isPending;
+  const isLoading = isLoadingHistory || isSavingConversation || sendChatMutation.isPending || reviseItineraryMutation.isPending;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -126,6 +128,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
 
   const createNewConversation = () => {
+    if (submissionPending.current) return;
     setCurrentConversationId(null);
     setChatError(null);
     setMessages([
@@ -142,99 +145,69 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
     });
   };
 
-  const saveMessage = async (role: string, content: string) => {
-    if (!currentConversationId) {
-      // Create new conversation first
-      createConversationMutation.mutate(content.substring(0, 50), {
-        onSuccess: (conversation) => {
-          setCurrentConversationId(conversation.id);
-          // Save the message to the new conversation
-          saveMessageMutation.mutate({
-            conversationId: conversation.id,
-            role,
-            content,
-          });
-        },
-      });
-    } else {
-      // Save to existing conversation
-      saveMessageMutation.mutate({
-        conversationId: currentConversationId,
-        role,
-        content,
-      });
+  const saveMessage = async (role: string, content: string, destination?: string) => {
+    let conversationId = destination || currentConversationId;
+    if (!conversationId) {
+      const conversation = await createConversationMutation.mutateAsync(content.substring(0, 50));
+      conversationId = conversation.id;
+      setCurrentConversationId(conversation.id);
     }
+    await saveMessageMutation.mutateAsync({ conversationId, role, content });
+    return conversationId;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
+    if (!input.trim() || isLoading || submissionPending.current) return;
+    submissionPending.current = true;
+    setIsSavingConversation(true);
     const userMessage = input.trim();
     setInput("");
     setChatError(null);
-
-    // Check if user is asking for itinerary/trip planning (only if no active itinerary)
     if (!activeItinerary) {
       const itineraryKeywords = /\b(itinerary|trip|plan|visit|travel|days?|week)\b/i;
       const cityMentioned = /\b(seoul|tokyo|bangkok|singapore|paris|london|new york)\b/i;
-
-      if (itineraryKeywords.test(userMessage) || cityMentioned.test(userMessage)) {
-        setShowItineraryPrompt(true);
-      }
+      if (itineraryKeywords.test(userMessage) || cityMentioned.test(userMessage)) setShowItineraryPrompt(true);
     }
-
-    // Add user message with stable ID
     const userMessageObj: Message = { id: generateMessageId(), role: "user", content: userMessage };
     setMessages((prev) => [...prev, userMessageObj]);
-
-    // Save user message (fire and forget)
-    saveMessage("user", userMessage);
-
-    // If there's an active itinerary, use revision API
-    if (activeItinerary) {
-      reviseItineraryMutation.mutate(
-        { id: activeItinerary.id, revisionRequest: userMessage },
-        {
-          onSuccess: () => {
-            const assistantMessage = `Great! I've updated "${activeItinerary.title}" based on your request. The changes have been saved. Would you like to make any other changes?`;
-            setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
-            saveMessage("assistant", assistantMessage);
-            announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
-            toast({
-              title: "Itinerary updated!",
-              description: "Your changes have been saved successfully.",
-            });
-          },
-          onError: (error) => {
-            const errorMessage = "Oops! I couldn't update the itinerary. Can you try again?";
-            setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: errorMessage }]);
-            setChatError(error.message || "Failed to update itinerary");
-            announce(`Error: ${errorMessage}`);
-          },
-        }
-      );
-    } else {
-      // Normal chat flow - prepare messages for API (without id field)
-      const apiMessages = [...messages, userMessageObj].map(({ role, content }) => ({ role, content }));
-
-      // Pass city context if available from itinerary context prop
-      const cityContext = itineraryContext?.city || undefined;
-
-      sendChatMutation.mutate({ messages: apiMessages, city: cityContext }, {
-        onSuccess: (data) => {
-          const assistantMessage = data.message;
-          setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
-          saveMessage("assistant", assistantMessage);
-          announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
-        },
-        onError: (error) => {
-          const errorMessage = "Oops! I tripped over a cobblestone. Can you say that again?";
-          setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: errorMessage }]);
-          setChatError(error.message || "Failed to send message");
-          announce(`Error: ${errorMessage}`);
-        },
-      });
+    let userMessageSaved = false;
+    try {
+      // Pin this exchange to one persisted conversation before calling a model.
+      const conversationId = await saveMessage("user", userMessage);
+      userMessageSaved = true;
+      let assistantMessage: string;
+      if (activeItinerary) {
+        await reviseItineraryMutation.mutateAsync({ id: activeItinerary.id, revisionRequest: userMessage });
+        assistantMessage = `Great! I've updated "${activeItinerary.title}" based on your request. The changes have been saved. Would you like to make any other changes?`;
+        toast({ title: "Itinerary updated!", description: "Your changes have been saved successfully." });
+      } else {
+        const apiMessages = [...messages, userMessageObj].map(({ role, content }) => ({ role, content }));
+        const response = await sendChatMutation.mutateAsync({ messages: apiMessages, city: itineraryContext?.city });
+        assistantMessage = response.message;
+      }
+      setMessages((prev) => [...prev, { id: generateMessageId(), role: "assistant", content: assistantMessage }]);
+      announce(`Alley says: ${assistantMessage.substring(0, 150)}`);
+      try {
+        await saveMessage("assistant", assistantMessage, conversationId);
+      } catch {
+        setChatError("Your reply is shown here, but chat history could not save it. Keep this page open.");
+      }
+    } catch {
+      const message = userMessageSaved
+        ? "Your message was saved, but Alley could not finish this reply."
+        : "Your message could not be saved. Alley has not received it yet.";
+      if (!userMessageSaved) {
+        setMessages((prev) => prev.filter((item) => item.id !== userMessageObj.id));
+        setInput(userMessage);
+      }
+      setChatError(message);
+      announce(`Error: ${message}`);
+      // Never retry a generation after an uncertain response.
+      console.error("[chat] Submission failed", userMessageSaved ? "Reply failed" : "History save failed");
+    } finally {
+      submissionPending.current = false;
+      setIsSavingConversation(false);
     }
   };
 
@@ -265,6 +238,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
                   createNewConversation();
                 }}
                 className="flex-shrink-0"
+                disabled={isLoading}
                 aria-label="Stop editing itinerary and start new chat"
               >
                 <X className="h-4 w-4" />
@@ -333,6 +307,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
           variant="ghost"
           size="sm"
           onClick={createNewConversation}
+          disabled={isLoading}
           className="text-muted-foreground hover:text-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
