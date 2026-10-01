@@ -183,7 +183,12 @@ export function useNotificationPreferences(): UseNotificationPreferencesReturn {
                 }
 
                 const data = await response.json();
-                setPreferences(data);
+                if (data.available === false) {
+                    setPreferences(null);
+                    setError("Notification settings are currently unavailable.");
+                } else {
+                    setPreferences(data);
+                }
             } catch (err) {
                 setError(err instanceof Error ? err.message : "An error occurred");
             } finally {

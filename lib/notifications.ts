@@ -59,6 +59,10 @@ function toPreferences(record: {
     };
 }
 
+export class NotificationStorageUnavailableError extends Error {
+    constructor() { super("Notification settings are unavailable."); this.name = "NotificationStorageUnavailableError"; }
+}
+
 // Get notification icon and color based on type
 export function getNotificationMeta(type: NotificationType): { icon: string; color: string } {
     switch (type) {
@@ -295,9 +299,9 @@ export async function getNotificationPreferences(
         .single();
 
     if (error) {
-        // Table doesn't exist - return null silently
+        // Do not fabricate preferences when their storage is absent.
         if (isTableMissing(error)) {
-            return null;
+            throw new NotificationStorageUnavailableError();
         }
         // If no preferences exist, create default ones
         if (error.code === 'PGRST116') {
@@ -308,6 +312,7 @@ export async function getNotificationPreferences(
                 .single();
 
             if (insertError) {
+                if (isTableMissing(insertError)) throw new NotificationStorageUnavailableError();
                 if (!isTableMissing(insertError)) {
                     console.error('[notifications] Error creating preferences:', insertError);
                 }
@@ -355,6 +360,7 @@ export async function updateNotificationPreferences(
         .single();
 
     if (error) {
+        if (isTableMissing(error)) throw new NotificationStorageUnavailableError();
         if (!isTableMissing(error)) {
             console.error('[notifications] Error updating preferences:', error);
         }
