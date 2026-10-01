@@ -67,14 +67,15 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
         event.preventDefault();
         setBusy("password"); setError(null); setInfo(null);
         const { error: failure } = await authClient.signIn.email({ email, password, callbackURL: redirectTo });
-        setBusy(null);
         if (failure) {
+            setBusy(null);
             setError(failure.code === "EMAIL_NOT_VERIFIED"
                 ? "Please confirm your email first. We sent you a new link."
                 : failure.status === 401 ? "Wrong email or password. No password yet? Use the email link below." : errorText(failure.message));
             return;
         }
-        window.location.assign(redirectTo);
+        // Better Auth's default plugin follows the callbackURL once. A second
+        // navigation here can cancel the new document while it hydrates.
     }
 
     async function onMagicLink() {
