@@ -133,8 +133,7 @@ export function getNotificationUrl(notification: Notification): string {
 
 // Check if error is a table-not-found error
 function isTableMissing(error: { code?: string; message?: string }): boolean {
-    return error.code === 'PGRST205' || error.code === '42P01' ||
-        (error.message?.includes('does not exist') ?? false);
+    return error.code === 'PGRST205' || error.code === '42P01';
 }
 
 // Create a new notification

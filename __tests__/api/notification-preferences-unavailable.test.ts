@@ -27,7 +27,7 @@ describe("notification settings storage availability", () => {
  });
  it("refuses absent storage discovered when creating first preferences", async () => {
  mocks.single.mockResolvedValueOnce({ data: null, error: { code: "PGRST116" } });
- expect((await GET()).status).toBe(200); expect(mocks.insert).toHaveBeenCalledWith({ clerk_user_id: owner });
+ const response = await GET(); expect(response.status).toBe(200); expect((await response.json()).preferences).toBeNull(); expect(mocks.insert).toHaveBeenCalledWith({ clerk_user_id: owner });
  });
  it("keeps actual preferences and owner scope when storage exists", async () => {
  mocks.single.mockResolvedValue({ data: row, error: null }); const response = await GET();
@@ -36,6 +36,10 @@ describe("notification settings storage availability", () => {
  it("keeps real database failures as failures", async () => {
  mocks.single.mockResolvedValue({ data: null, error: { code: "XX000", message: "private data" } });
  const response = await GET(); expect(response.status).toBe(500); expect(await response.text()).not.toContain("private data");
+ });
+ it("keeps missing-column schema drift as a real failure", async () => {
+ mocks.single.mockResolvedValue({ data: null, error: { code: "42703", message: "column email_enabled does not exist" } });
+ expect((await GET()).status).toBe(500); expect((await patch()).status).toBe(500);
  });
  it("requires a signed-in owner for both reads and writes", async () => {
  mocks.auth.mockResolvedValue({ userId: null }); expect((await GET()).status).toBe(401); expect((await patch()).status).toBe(401); expect(mocks.from).not.toHaveBeenCalled();
