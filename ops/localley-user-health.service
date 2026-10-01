@@ -1,0 +1,10 @@
+[Unit]
+Description=Localley daily production user health and error check
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev/projects/CyberLink/apps/Localley
+EnvironmentFile=/home/dev/secrets/keys.env
+ExecStart=/usr/bin/node scripts/check-production-health.mjs
+TimeoutStartSec=90
+UMask=0077

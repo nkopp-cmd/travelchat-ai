@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Localley production health daily
+
+[Timer]
+OnCalendar=*-*-* 07:15:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=localley-user-health.service
+
+[Install]
+WantedBy=timers.target
