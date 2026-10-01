@@ -6,7 +6,7 @@ Nils paused the application-data D1 move on 2026-10-01. Production remains OpenN
 
 Run `node scripts/check-production-health.mjs` from the stable main checkout, with `CLOUDFLARE_API_TOKEN` in the environment. The dependency-free command reads three public production routes and the last 24 hours of Cloudflare Workers Observability for exactly `localley-next`. It includes console errors and HTTP 5xx responses. It writes a private report at `~/.local/state/localley/production-health.json` and returns nonzero if public health fails or logs cannot be read. Existing recorded errors remain visible in the report even when public uptime passes. A 500-event result is marked truncated; do not infer an exhaustive count from it.
 
-The report records paths, statuses and sanitized error summaries. It omits request headers, URL queries, tokens, emails, user identifiers, and raw source payloads. Validated requested spot UUIDs are retained only in the bounded `photoFailures` diagnostic group. Cloudflare observability already stores production logs with 100% sampling; the API read verified enabled logs, persistence and invocation logging.
+The report records paths, statuses and fixed error classes. `top5` ranks path/status/class groups; `errorClasses` groups the full result across paths, retaining status counts. `countingUnit` explicitly identifies log events, not requests or users. A console error and invocation event can describe the same request. Never sum these counts as failed journeys or infer that a requested fallback succeeded. It omits request headers, URL queries, tokens, emails, user identifiers, and raw source payloads. Validated requested spot UUIDs are retained only in the bounded `photoFailures` diagnostic group. Cloudflare observability already stores production logs with 100% sampling; the API read verified enabled logs, persistence and invocation logging.
 
 The tracked units in `ops/` run at 07:15 UTC daily, with at most five minutes of random delay. Their WorkingDirectory is the stable app checkout, never a disposable worktree. Install them into `~/.config/systemd/user/` only after merging this script to main; reload the user daemon, enable the timer and start the service once. Read the report during each builder continuation and fix the highest-impact user-visible errors first. This service sends no messages and changes no application data.
 
@@ -82,3 +82,21 @@ At 16:28 UTC the daily service completed successfully with public routes 200 and
 Private proof: `users-first-photo-diagnostics-{release,http,public-http,final-health}-20261001.json` and `users-first-photo-diagnostics-signin-20261001/`. Publishing receipt `2a4eaeeda1df` closed after deployment verification. Both bounded gallery receipts (`26a3dbfd6f9d`, `8db0057ffe65`) closed with received responses; conservative USD0.10 remains reserved. A local receipt-ID placeholder was corrected after the second reply without another network request.
 
 U1-U3 remain open. Gmail placement, notification SQL activation and Stripe test checkout still lack evidence. Primary generation format failures and newly identified source conflicts remain independent work. The native venue sync timer stays disabled/inactive; its recorded retirement remains in the root cutover plan.
+
+## U3 daily diagnosis — 2026-10-01 17:31 UTC
+
+The stable daily service passed at 17:27 UTC (Result=success, ExecMainStatus=0). The candidate classification script then read the same production source at 17:31 UTC: three public routes200, logs available,39 events, no truncation. This is a read-only production query, not a new application release.
+
+| Top path/status group | Log events | Evidence and next repair |
+| --- | ---: | --- |
+| Venue photo request failed,502 |24| Historical events lack a source reason. The separate new structured event identifies source00fa7ad9-3ef8-43ae-849b-fafd8c0b7ac0 with listing_coordinate_conflict. Preserve the identity guard; correct only verified source data. |
+| Primary trip format failed,unknown status |3| Legacy GLM parse failures now have a fixed class. Successful owned journeys separately prove fallback returned200; this log alone does not prove success. Provider repair remains open; no paid retry or provider change ran. |
+| Notification preferences unavailable,503 |2| Expected refusal while tables are absent. The UI already explains unavailability. Draft PR283 prepares storage; NEED519 tracks the missing SQL access. |
+| Dashboard connection lost,unknown status |2| Historical events include controlled browser probes. Actual recent desktop/mobile journeys passed. No new network root cause or repair is claimed. |
+| Notification preference request failed,500 |2| Historical genuine failures remain separate from the503 refusal. Approved schema activation still needs SQL access. |
+
+Full class totals additionally retain three old auth profile-sync failures, one missing application record, and a third network event outside the dashboard group. Earlier profile/navigation repairs and their real signup/login evidence remain above. A24-hour report includes earlier versions and controlled probes; it does not prove that these errors persist on the current Worker.
+
+This increment repairs the daily report's generic generation labels and its unclear counting unit. Six new tests prove error classification, fallback-success limits, notification status separation, hostile-text exclusion and count preservation. The three existing photo-parser tests also pass. Required CI now runs every production-health test. Private production readback: `users-first-u3-error-classes-candidate-20261001.json`.
+
+No Worker code, provider request, billing setting, source row or database schema changes. Release the host-side script by pulling the verified merge into the stable app checkout and running the existing daily service. Its timer already uses that checkout. Keep Worker93f34779 / deploymentd9cfd015 at100%, rollback58e7dadb. U3 remains open for the source, primary-format and notification storage repairs; do not tick it from this diagnostic improvement.
