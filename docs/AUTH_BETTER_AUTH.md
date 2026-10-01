@@ -272,3 +272,11 @@ A real desktop wizard generated and saved a new one-day Seoul trip, HTTP200; bot
 No browser script error or document overflow occurred. Screenshots were inspected; shared `screenshot.sh` also passed desktop/mobile sign-in top and scrolled views. Private proof: `users-first-photo-journeys-20261001/report.json`, `users-first-photo-public-sign-in-20261001/report.json`, and `users-first-photo-cleanup-20261001.json`. Exact cleanup removed only the owned identity, two trips, two conversations/four messages, two usage rows, and its Free subscription/profile/auth rows. Owner reads returned zero; both real admins retained one auth and one app mapping each.
 
 Notification schema draft #283 passed CI `36846355366` and private PostgreSQL18 ownership/RLS/default/grant tests. Nils authorized it, but no SQL credential exists; live storage remains unavailable. Stripe test credentials remain missing; no checkout charge ran. D1 data movement stays paused, and native sync stays disabled.
+
+## Current sender audit — 2026-10-01 16:01 UTC
+
+A read-only Cloudflare API audit verified `localley.io` in nilskopp. Its 22 records retain one apex SPF (Google plus Cloudflare), one `cf-bounce` SPF, three bounce MX records, the `cf-bounce._domainkey` DKIM selector and DMARC `p=none`. Canonical before/after SHA256 hashes both equal `9e1bed44af23303d3f0717eec8e6f5d51bb47003bd75eb9a6b41631d763494e6`; no DNS records changed.
+
+The archived real magic-link receipt proves Received-SPF pass on `cf-bounce.localley.io`, DKIM pass with `d=localley.io`/`s=cf-bounce`, and DMARC pass with `header.from=localley.io`. It contains plain text and HTML, Localley sender name, the clear sign-in subject and HTTPS Localley links. The controlled receiver score remains 10/10. Seven current mail tests passed; `lib/auth/mail.ts` is byte-identical to checked PR #246 / CI `36723544766`.
+
+This audit sent no new email and required no sender release. U1 remains unchecked because Gmail inbox placement is still unknown; existing NEED480 requests Nils's received headers and placement. A receiver score or HTTP200 is not Gmail inbox proof. Sender implementation remains unchanged in the separate diagnostics release `4b0d466` / Worker `93f34779-7182-4158-b564-86546800ce33`. Private DNS and received-mail evidence remain outside Git.
