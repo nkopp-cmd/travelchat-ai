@@ -111,3 +111,10 @@ The final redirect-only follow-up passed its hosted redirect checks before promo
 
 The user authorized routine commit and deployment after successful release checks.
 That authorization does not permit bypassing access controls or weakening authentication.
+
+
+## Bounded cave source repair — 2026-10-03
+
+Operational source release PR298 / merge2d8f99e63f9201a1413a1e3e3c3503b00021f529, required CI37128259544. Nils directed the builder to proceed after the quota-blocked report; independent advisor verdict remains unavailable. Fourteen guard tests passed again. At16:28:09UTC receipt ff863c2eea2c cleared only three rejected cave photo references. Non-photo fields and both control sources remained unchanged. Live gallery404/unavailable, public quality query0 and four public200 passed at16:28:52UTC. Private original backup/hash and guarded rollback predicate are retained; rejected photos were not restored. See docs/SOURCE_PHOTO_REPAIR.md for exact incident and proof.
+
+Current Cloudflare Worker a548f24e-1f17-4021-a830-219074baa337 at100%, deployment d39a5358-8601-4902-adad-c39b75cb7837; rollback93f34779-7182-4158-b564-86546800ce33. The source command changes no Worker bundle, so this operation needs no OpenNext deployment. Supabase remains the application database. D1 migration stays paused.
