@@ -234,10 +234,10 @@ async function storyBackgroundPost(req: NextRequest) {
                 providerOrder.push(imageProvider!);
             } else {
                 // Auto-select mode: try all available providers in priority order
-                if (imageProvider) providerOrder.push(imageProvider);
+                if (imageProvider && (!candidate || canUseTierModel(tier, imageProvider))) providerOrder.push(imageProvider);
                 const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
                 for (const p of allProviders) {
-                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
+                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p) && (!candidate || canUseTierModel(tier, p))) {
                         providerOrder.push(p);
                     }
                 }

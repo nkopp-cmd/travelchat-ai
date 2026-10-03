@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
 import { NextRequest } from "next/server";
 import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
-const mocks=vi.hoisted(()=>({auth:vi.fn(),user:vi.fn(),source:vi.fn(),tier:vi.fn(),sourceTier:vi.fn(),weighted:vi.fn(),generate:vi.fn(),day:vi.fn(),available:vi.fn()}));
+const mocks=vi.hoisted(()=>({auth:vi.fn(),user:vi.fn(),source:vi.fn(),tier:vi.fn(),sourceTier:vi.fn(),weighted:vi.fn(),generate:vi.fn(),day:vi.fn(),available:vi.fn(),provider:vi.fn()}));
 vi.mock("@/lib/auth/server",()=>({auth:mocks.auth,currentUser:mocks.user}));
 vi.mock("@/lib/supabase",()=>({createSupabaseAdmin:mocks.source}));
 vi.mock("@/lib/usage-tracking",()=>({getUserTier:mocks.sourceTier,checkAndIncrementUsageWeighted:mocks.weighted}));
@@ -12,7 +12,7 @@ vi.mock("@/lib/rate-limit",()=>({rateLimit:()=>async()=>null}));
 vi.mock("@/lib/flux",()=>({isFluxAvailable:()=>true}));
 vi.mock("@/lib/seedream",()=>({isSeedreamAvailable:()=>true}));
 vi.mock("@/lib/imagen",()=>({isImagenAvailable:()=>true}));
-vi.mock("@/lib/image-provider",()=>({getImageProvider:()=>"flux",isAnyProviderAvailable:mocks.available,generateStoryBackground:mocks.generate,generateDayBackground:mocks.day}));
+vi.mock("@/lib/image-provider",()=>({getImageProvider:mocks.provider,isAnyProviderAvailable:mocks.available,generateStoryBackground:mocks.generate,generateDayBackground:mocks.day}));
 import { POST,GET } from "@/app/api/images/story-background/route";
 import { PUT,DELETE } from "@/app/api/test-app-data/story-background/route";
 import { GET as media } from "@/app/api/images/story-background/media/[id]/route";
@@ -38,7 +38,7 @@ beforeEach(()=>{
  db.sqlite.exec(readFileSync("migrations/app-preview/0028_preview_story_backgrounds.sql","utf8"));
  objects=new Map();put=vi.fn(async(key:string,bytes:Uint8Array)=>{objects.set(key,new Uint8Array(bytes));return{key};});
  (globalThis as Record<symbol,unknown>)[symbol]={env:{APP_DATA_PREVIEW_DB:db,STORY_PREVIEW_MEDIA:{put,get:async(key:string)=>objects.has(key)?{arrayBuffer:async()=>new Uint8Array(objects.get(key)!).buffer}:null,delete:async(key:string)=>{objects.delete(key);}}}};
- user();mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");mocks.available.mockReturnValue(true);mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
+ user();mocks.provider.mockReturnValue("flux");mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");mocks.available.mockReturnValue(true);mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
 });
 afterEach(()=>{db.sqlite.close();process.env=original;delete(globalThis as Record<symbol,unknown>)[symbol];vi.restoreAllMocks();});
 async function owner(){await db.prepare("INSERT OR IGNORE INTO owners VALUES('auth:one','new')").run();}
@@ -63,11 +63,18 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   expect(Buffer.from(await response.arrayBuffer())).toEqual(jpeg);expect(response.headers.get("content-type")).toBe("image/jpeg");
  });
  it("uses the selected model only and charges each automatic fallback its real weight",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.generate.mockRejectedValueOnce(new Error("flux failed")).mockResolvedValueOnce(png.toString("base64"));
+  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("premium");mocks.generate.mockRejectedValueOnce(new Error("flux failed")).mockResolvedValueOnce(png.toString("base64"));
   expect((await POST(req())).status).toBe(200);expect(usage()[0].count).toBe(3);expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["flux","seedream"]);
   user("two");mocks.tier.mockResolvedValue("premium");mocks.generate.mockRejectedValue(new Error("selected model failed"));
   await POST(req({...input,provider:"gemini"}));expect(mocks.generate.mock.calls.at(-1)?.[0]).toBe("gemini");
   expect(db.sqlite.prepare("SELECT count FROM preview_story_usage WHERE ownerId='auth:two'").get()).toEqual({count:3});
+ });
+ it("does not authorize Premium fallback models for a Pro candidate",async()=>{
+  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("pro");mocks.generate.mockRejectedValue(new Error("flux unavailable"));
+  const r=await POST(req());expect(r.status).toBe(200);expect(await r.json()).toMatchObject({success:false});
+  expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["flux"]);expect(usage()[0].count).toBe(1);
+  mocks.provider.mockReturnValue("seedream");mocks.generate.mockClear();await POST(req({...input,cacheKey:"pro-priority"}));
+  expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["flux"]);expect(usage()[0].count).toBe(2);
  });
  it("never treats WebP as PNG and does not retry generation after storage failure",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.generate.mockResolvedValue(Buffer.concat([Buffer.from("RIFFxxxxWEBP"),Buffer.alloc(600)]).toString("base64"));
