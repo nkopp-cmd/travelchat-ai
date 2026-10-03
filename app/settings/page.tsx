@@ -16,6 +16,8 @@ import Link from "next/link";
 import { BillingPortalButton } from "@/components/subscription/billing-portal-button";
 import { EmailPreferencesSection } from "@/components/settings/email-preferences";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences";
+import { headers } from "next/headers";
+import { assertPreviewNotificationUser } from "@/lib/app-data/preview-notifications";
 
 const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
 const LIQUID_CARD_SOFT = "rounded-2xl border-white/10 bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
@@ -103,11 +105,35 @@ async function getSubscriptionData() {
     };
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: {
+    searchParams: Promise<{ data_candidate?: string }>;
+}) {
     const user = await currentUser();
 
     if (!user) {
         redirect("/sign-in");
+    }
+
+    const params = await searchParams;
+    const host = (await headers()).get("host");
+    if (host === "localley-next-preview.nkopp.workers.dev" && params.data_candidate === "d1"
+        && process.env.AUTH_MAIL_MODE === "outbox" && process.env.SUPABASE_READ_ONLY === "true") {
+        let eligible = false;
+        try { await assertPreviewNotificationUser(user.id); eligible = true; }
+        catch { /* No source fallback for unimported or unverified accounts. */ }
+        return (
+            <div className="mx-auto w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8">
+                <Card className={LIQUID_CARD}>
+                    <CardHeader>
+                        <CardTitle>Notification settings</CardTitle>
+                        <CardDescription>Preview choices only. Billing and other account settings use the existing site.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {eligible ? <NotificationPreferencesSection /> : <p role="status">Preview notification settings are unavailable for this account.</p>}
+                    </CardContent>
+                </Card>
+            </div>
+        );
     }
 
     const { subscription, usage } = await getSubscriptionData();
