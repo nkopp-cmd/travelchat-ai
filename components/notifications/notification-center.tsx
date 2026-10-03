@@ -21,11 +21,13 @@ import { cn } from "@/lib/utils";
 
 function NotificationItem({
     notification,
+    isPreviewCandidate,
     onRead,
     onDelete,
     onClick,
 }: {
     notification: Notification;
+    isPreviewCandidate: boolean;
     onRead: () => void;
     onDelete: () => void;
     onClick: () => void;
@@ -62,7 +64,8 @@ function NotificationItem({
             </div>
 
             {/* Actions */}
-            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+            <div className={cn("flex-shrink-0 transition-opacity flex gap-1",
+                isPreviewCandidate ? "opacity-100 sm:opacity-0 sm:group-hover:opacity-100" : "opacity-0 group-hover:opacity-100")}>
                 {!notification.read && (
                     <Button
                         variant="ghost"
@@ -189,6 +192,7 @@ export function NotificationCenter() {
                                 <NotificationItem
                                     key={notification.id}
                                     notification={notification}
+                                    isPreviewCandidate={isPreviewCandidate}
                                     onRead={() => markAsRead(notification.id)}
                                     onDelete={() => deleteNotification(notification.id)}
                                     onClick={() => handleNotificationClick(notification)}
