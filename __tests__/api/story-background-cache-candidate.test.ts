@@ -16,7 +16,7 @@ vi.mock("@/lib/image-provider",()=>({getImageProvider:()=>"flux",isAnyProviderAv
 import { POST,GET } from "@/app/api/images/story-background/route";
 import { PUT,DELETE } from "@/app/api/test-app-data/story-background/route";
 import { GET as media } from "@/app/api/images/story-background/media/[id]/route";
-import { backgroundCacheHash,cachedPreviewBackground,savePreviewBackground,previewBackgroundId,previewBackgroundData } from "@/lib/app-data/preview-story-background-cache";
+import { backgroundCacheHash,cachedPreviewBackground,savePreviewBackground,previewBackgroundId,previewBackgroundData,previewBackgroundMime } from "@/lib/app-data/preview-story-background-cache";
 import { incrementPreviewStoryUsage } from "@/lib/app-data/preview-story-usage";
 import { updatePreviewStoryBackgrounds } from "@/lib/app-data/preview-story-metadata";
 const symbol=Symbol.for("__cloudflare-context__"),original=process.env,host="localley-next-preview.nkopp.workers.dev";
@@ -47,6 +47,7 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
  it("blocks real generation by default and rejects invalid bounded requests without source calls",async()=>{
   expect((await POST(req())).status).toBe(503);expect(mocks.generate).not.toHaveBeenCalled();expect(usage()).toEqual([]);
   for(const body of[{...input,ownerId:"other"},{...input,city:"x".repeat(20000)},{...input,provider:"bad"}])expect((await POST(req(body))).status).toBe(400);
+  expect(previewBackgroundMime(png.subarray(0,499))).toBeNull();
   expect(mocks.source).not.toHaveBeenCalled();expect(mocks.weighted).not.toHaveBeenCalled();expect(mocks.sourceTier).not.toHaveBeenCalled();
  });
  it("stores actual byte format privately and cache hits preserve credits and skip tier/provider calls",async()=>{
@@ -109,6 +110,19 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   const denied=await DELETE(new NextRequest(`https://${host}/api/test-app-data/story-background?data_candidate=d1&image=${encodeURIComponent(result.image)}`,{method:"DELETE"}));expect(await denied.json()).toEqual({deleted:false});
   user();const deleted=await DELETE(new NextRequest(`https://${host}/api/test-app-data/story-background?data_candidate=d1&image=${encodeURIComponent(result.image)}`,{method:"DELETE"}));expect(await deleted.json()).toEqual({deleted:true});expect(objects.size).toBe(0);
   expect(mocks.generate).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();
+ });
+ it("preserves normal www provider upload, byte detection and source quota",async()=>{
+  const upload=vi.fn(async()=>({error:null}));
+  const getPublicUrl=vi.fn(()=>({data:{publicUrl:"https://source.supabase.co/storage/v1/object/public/generated-images/normal.jpg"}}));
+  const from=vi.fn(()=>({upload,getPublicUrl}));mocks.source.mockReturnValue({storage:{from}});
+  mocks.weighted.mockResolvedValue({allowed:true,usage:{}});
+  const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);
+  mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
+  const response=await POST(req({...input,cacheKey:undefined,provider:"flux"},"www.localley.io",true));
+  expect(response.status).toBe(200);expect(await response.json()).toMatchObject({success:true,source:"ai",provider:"flux"});
+  expect(upload).toHaveBeenCalledWith(expect.stringMatching(/\.jpg$/),jpeg,{contentType:"image/jpeg",upsert:true});
+  expect(mocks.weighted).toHaveBeenCalledWith("one","ai_images_generated",1);
+  expect(mocks.generate).toHaveBeenCalledTimes(1);expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);
  });
  it("keeps normal preview/www on source and rejects anonymous candidate callers",async()=>{
   mocks.available.mockReturnValue(false);

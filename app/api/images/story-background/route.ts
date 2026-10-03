@@ -113,7 +113,7 @@ async function storyBackgroundPost(req: NextRequest) {
             if (cached) return NextResponse.json({ success: true, image: cached, source: "cache", cached: true });
         }
         const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
-        let requestedProvider: typeof requestedProviderRaw | null = requestedProviderRaw;
+        const requestedProvider = requestedProviderRaw;
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -217,7 +217,7 @@ async function storyBackgroundPost(req: NextRequest) {
         }
 
         let imageUrl: string | null = null;
-        let source: "ai" = "ai";
+        const source = "ai";
         const failedProviders: Array<{ provider: string; error: string }> = [];
 
         // =====================================================================
@@ -275,7 +275,6 @@ async function storyBackgroundPost(req: NextRequest) {
                     // Check for empty string (Gemini returns "" on failure)
                     if (aiImage && aiImage.length > 100) {
                         imageProvider = currentProvider;
-                        source = "ai";
                         console.log(`[STORY_BG] ${currentProvider} succeeded! Image length: ${aiImage.length}`);
 
                         // Store candidate bytes privately in R2; keep the normal Supabase path.

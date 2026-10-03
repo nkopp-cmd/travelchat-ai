@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS preview_story_backgrounds (
   cacheHash TEXT NOT NULL CHECK(length(cacheHash)=64),
   objectKey TEXT UNIQUE NOT NULL,
   contentType TEXT NOT NULL CHECK(contentType IN ('image/png','image/jpeg')),
-  byteSize INTEGER NOT NULL CHECK(byteSize BETWEEN 8 AND 2097152),
+  byteSize INTEGER NOT NULL CHECK(byteSize BETWEEN 500 AND 2097152),
   sha256 TEXT NOT NULL CHECK(length(sha256)=64),
   UNIQUE(ownerId,cacheHash)
 );
