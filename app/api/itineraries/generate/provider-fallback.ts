@@ -58,6 +58,7 @@ export async function generateItineraryTextWithFallback(
         systemPrompt: input.systemPrompt,
         userPrompt: input.userPrompt,
         responseFormat: 'json',
+        disableThinking: true,
         temperature: input.temperature ?? 0.8,
         maxTokens: input.maxTokens ?? 3000,
       });

@@ -29,6 +29,8 @@ export interface TextGenerationOptions {
   temperature?: number;
   maxTokens?: number;
   responseFormat?: 'text' | 'json';
+  /** Opt out of reasoning for bounded JSON tasks on explicitly supported models. */
+  disableThinking?: boolean;
 }
 
 export interface TextGenerationResult {

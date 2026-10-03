@@ -42,6 +42,7 @@ describe("itinerary provider fallback", () => {
       systemPrompt: "System",
       userPrompt: "Plan Seoul",
       responseFormat: "json",
+      disableThinking: true,
       temperature: 0.3,
       maxTokens: 1200,
     });
