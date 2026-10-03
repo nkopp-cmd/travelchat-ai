@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { previewBackgroundId, previewBackgroundData } from "@/lib/app-data/preview-story-background-cache";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
 import { parsePreviewStoryPatch } from "@/lib/app-data/preview-story-metadata";
@@ -916,7 +917,11 @@ export async function GET(
         // Try Supabase SDK download first (bypasses bucket access restrictions),
         // then fall back to HTTP fetch for non-Supabase URLs.
         let backgroundDataUri: string | undefined;
-        if (aiBackground) {
+        if (candidate && aiBackground && previewBackgroundId(aiBackground)) {
+            const background = await previewBackgroundData(aiBackground, String(itinerary.clerk_user_id));
+            if (!background) throw new Error("Candidate background unavailable");
+            backgroundDataUri = `data:${background.contentType};base64,${Buffer.from(background.bytes).toString("base64")}`;
+        } else if (aiBackground) {
             const isSupabaseUrl = aiBackground.includes("supabase.co/storage/");
             const hasMarker = aiBackground.includes("/storage/v1/object/public/generated-images/");
             console.log("[STORY_ROUTE] Prefetch attempt:", { isSupabaseUrl, hasMarker, urlLength: aiBackground.length, urlPreview: aiBackground.substring(0, 150) });
