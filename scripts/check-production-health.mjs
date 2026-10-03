@@ -6,12 +6,14 @@ import { dirname, join } from 'node:path';
 import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
 import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
 import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
+import { auditIngestionSettings } from './production-health/ingestion-settings.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
 const token = process.env.CLOUDFLARE_API_TOKEN;
 if (!token) throw new Error('CLOUDFLARE_API_TOKEN is required');
 const now = Date.now();
+const ingestionSettings = await auditIngestionSettings(token);
 const args = process.argv.slice(2);
 const reportIndex = args.indexOf('--report');
 const destination = reportIndex < 0 ? join(homedir(), '.local/state/localley/production-health.json') : args[reportIndex + 1];
@@ -88,8 +90,8 @@ try {
   logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)
     ? message : 'Query failed or timed out' };
 }
-const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs };
+const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings };
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
-console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, report: destination }));
-if (!logs.available || health.some(check => check.status !== 200)) process.exitCode = 1;
+console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, report: destination }));
+if (!logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200)) process.exitCode = 1;
