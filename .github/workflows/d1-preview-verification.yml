@@ -13,6 +13,8 @@ on:
       - 'app/itineraries/page.tsx'
       - 'app/api/itineraries/[id]/update/route.ts'
       - 'app/api/itineraries/[id]/ai-backgrounds/route.ts'
+      - 'app/api/itineraries/[id]/story/route.tsx'
+      - '__tests__/api/story-render-access.test.tsx'
       - 'app/api/itineraries/[id]/story/persist/route.ts'
       - 'app/api/itineraries/[id]/story/media/**'
       - 'app/api/subscription/status/route.ts'
@@ -138,6 +140,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/api/story-render-access.test.tsx --maxWorkers=1
+            npx eslint "app/api/itineraries/[id]/story/route.tsx" __tests__/api/story-render-access.test.tsx
             npx vitest run __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/itinerary-sanitize.test.ts --maxWorkers=1
             npx eslint app/api/itineraries/generate/diagnostics.ts app/api/itineraries/generate/provider-fallback.ts app/api/itineraries/generate/shared.ts app/api/itineraries/generate/corridor-generation.ts app/api/itineraries/generate/route.ts __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts
             npx vitest run __tests__/hooks/use-place-photo.test.tsx --maxWorkers=1
