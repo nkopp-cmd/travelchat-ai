@@ -193,3 +193,8 @@ Production Worker `a548f24e-1f17-4021-a830-219074baa337` and deployment `d39a535
 Private mode600 receipts retain both failed hosted attempts,31-test/build/deploy logs and the final unchanged-state proof. No provider call, real email, push delivery, Stripe charge, production deploy or source write ran. Full U3 stays open; paid GLM remains off untilOctober5. Independent advisor quota remains unavailable.
 
 Next continuation: inspect the cache command's account selection, then pin `CLOUDFLARE_ACCOUNT_ID=664f242340bcec2f32daaeee15f58bde` for the complete guarded preview release. Rebuild the verified main code, preserve its tree and required-CI evidence, and verify the actual deployment before hosted accounts. This fix needs builder action; no new Nils-only blocker exists. An evidence-only draft preserves this stopped release; merge and hosted acceptance remain future gates.
+
+
+### Preview cache account selection — prepared 2026-10-03
+
+The installed OpenNext ensure-r2-bucket helper checks CLOUDFLARE_ACCOUNT_ID or CF_ACCOUNT_ID before listing accounts. It does not read the pinned wrangler account for this step. Both preview npm commands now explicitly set the existing nilskopp account664f242340bcec2f32daaeee15f58bde. No credential, binding, schema or production script changes are included. This prevents interactive account selection during cache setup. The actual guarded preview release and hosted desktop/mobile acceptance remain required; prior failures remain recorded above.
