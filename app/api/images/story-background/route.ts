@@ -23,6 +23,11 @@ export const maxDuration = 60;
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
+import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
+import { previewUserTier } from "@/lib/app-data/preview-user-tier";
+import { previewBackgroundOwner, readPreviewBackgroundBody, backgroundCacheHash, cachedPreviewBackground, savePreviewBackground, PreviewBackgroundUnavailable } from "@/lib/app-data/preview-story-background-cache";
+import { incrementPreviewStoryUsage } from "@/lib/app-data/preview-story-usage";
+import { TIER_CONFIGS } from "@/lib/subscription";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
@@ -85,10 +90,11 @@ function isProviderKeyAvailable(provider: ImageProvider): boolean {
     }
 }
 
-export async function POST(req: NextRequest) {
+async function storyBackgroundPost(req: NextRequest) {
+    const candidate = isPreviewStoryCandidate(req);
     try {
         // Check rate limit
-        const rateLimitResponse = await limiter(req);
+        const rateLimitResponse = candidate ? null : await limiter(req);
         if (rateLimitResponse) {
             return rateLimitResponse;
         }
@@ -98,16 +104,23 @@ export async function POST(req: NextRequest) {
             return Errors.unauthorized();
         }
 
-        const body: StoryBackgroundRequest = await req.json();
+        const body: StoryBackgroundRequest | null = candidate ? await readPreviewBackgroundBody(req) : await req.json();
+        if (!body) return Errors.validationError("Invalid bounded background request");
+        const candidateOwner = candidate ? await previewBackgroundOwner(userId) : null;
+        const candidateHash = candidate ? backgroundCacheHash(body) : null;
+        if (candidateOwner && candidateHash) {
+            const cached = await cachedPreviewBackground(candidateOwner, candidateHash);
+            if (cached) return NextResponse.json({ success: true, image: cached, source: "cache", cached: true });
+        }
         const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
-        let requestedProvider: typeof requestedProviderRaw | null = requestedProviderRaw;
+        const requestedProvider = requestedProviderRaw;
 
         if (!city) {
             return Errors.validationError("city is required");
         }
 
         // Determine user tier and AI eligibility
-        const tier = await getUserTier(userId);
+        const tier = candidate ? await previewUserTier(userId) : await getUserTier(userId);
         const hasAiFeature = hasFeature(tier, 'aiBackgrounds');
         const anyProviderAvailable = isAnyProviderAvailable();
         const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
@@ -142,7 +155,7 @@ export async function POST(req: NextRequest) {
 
         // Check AI usage quota before attempting generation
         // Permissive: if usage tracking fails, allow generation anyway (don't block user)
-        if (canUseAI) {
+        if (canUseAI && !candidate) {
             try {
                 const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
                 if (!allowed) {
@@ -180,7 +193,7 @@ export async function POST(req: NextRequest) {
             : `story-backgrounds/${userId}/${type}${dayNumber ? `-day${dayNumber}` : ''}-${Date.now()}.png`;
 
         // Check cache first if cacheKey provided
-        if (cacheKey) {
+        if (cacheKey && !candidate) {
             const supabase = createSupabaseAdmin();
             const { data: cached } = await supabase.storage
                 .from("generated-images")
@@ -204,13 +217,16 @@ export async function POST(req: NextRequest) {
         }
 
         let imageUrl: string | null = null;
-        let source: "ai" = "ai";
+        const source = "ai";
         const failedProviders: Array<{ provider: string; error: string }> = [];
 
         // =====================================================================
         // AI GENERATION — respect user's model choice (no silent fallback)
         // =====================================================================
         if (canUseAI) {
+            if (candidate && process.env.PREVIEW_STORY_GENERATION_ENABLED !== "true") {
+                return NextResponse.json({ success: false, error: "Preview generation is disabled" }, { status: 503 });
+            }
             const providerOrder: ImageProvider[] = [];
             if (requestedProvider) {
                 // User explicitly chose a model — use ONLY that provider.
@@ -218,16 +234,22 @@ export async function POST(req: NextRequest) {
                 providerOrder.push(imageProvider!);
             } else {
                 // Auto-select mode: try all available providers in priority order
-                if (imageProvider) providerOrder.push(imageProvider);
+                if (imageProvider && (!candidate || canUseTierModel(tier, imageProvider))) providerOrder.push(imageProvider);
                 const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
                 for (const p of allProviders) {
-                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p)) {
+                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p) && (!candidate || canUseTierModel(tier, p))) {
                         providerOrder.push(p);
                     }
                 }
             }
 
             for (const currentProvider of providerOrder) {
+                if (candidateOwner) {
+                    // Each attempted provider uses its actual weight, including automatic fallback.
+                    // A cache hit has already returned. Quota failures never permit generation.
+                    const usage = await incrementPreviewStoryUsage(candidateOwner, getModelCredits(currentProvider), TIER_CONFIGS[tier].limits.aiImagesPerMonth);
+                    if (!usage.allowed) return NextResponse.json({ success: false, error: "Image credit limit reached", usage }, { status: 429 });
+                }
                 try {
                     console.log(`[STORY_BG] Attempting AI generation with ${currentProvider}...`);
                     let aiImage: string | null = null;
@@ -253,11 +275,10 @@ export async function POST(req: NextRequest) {
                     // Check for empty string (Gemini returns "" on failure)
                     if (aiImage && aiImage.length > 100) {
                         imageProvider = currentProvider;
-                        source = "ai";
                         console.log(`[STORY_BG] ${currentProvider} succeeded! Image length: ${aiImage.length}`);
 
-                        // Upload AI images to Supabase Storage and return URL
-                        const supabase = createSupabaseAdmin();
+                        // Store candidate bytes privately in R2; keep the normal Supabase path.
+                        const supabase = candidate ? null : createSupabaseAdmin();
                         const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
                         const buffer = Buffer.from(cleanBase64, "base64");
 
@@ -278,33 +299,37 @@ export async function POST(req: NextRequest) {
                         const actualStorageKey = storageKey.replace(/\.png$/, `.${ext}`);
                         console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes, key: ${actualStorageKey}`);
 
-                        const { error: uploadError } = await supabase.storage
-                            .from("generated-images")
-                            .upload(actualStorageKey, buffer, {
-                                contentType: detectedType,
-                                upsert: true,
-                            });
-
-                        if (!uploadError) {
-                            const { data: urlData } = supabase.storage
+                        if (candidateOwner && candidateHash) {
+                            imageUrl = await savePreviewBackground(candidateOwner, candidateHash, buffer);
+                        } else if (supabase) {
+                            const { error: uploadError } = await supabase.storage
                                 .from("generated-images")
-                                .getPublicUrl(actualStorageKey);
+                                .upload(actualStorageKey, buffer, {
+                                    contentType: detectedType,
+                                    upsert: true,
+                                });
 
-                            if (urlData?.publicUrl) {
-                                imageUrl = urlData.publicUrl;
-                                console.log("[STORY_BG] AI image stored, URL:", imageUrl);
+                            if (!uploadError) {
+                                const { data: urlData } = supabase.storage
+                                    .from("generated-images")
+                                    .getPublicUrl(actualStorageKey);
+
+                                if (urlData?.publicUrl) {
+                                    imageUrl = urlData.publicUrl;
+                                    console.log("[STORY_BG] AI image stored, URL:", imageUrl);
+                                }
+                            } else {
+                                console.error("[STORY_BG] Storage upload failed:", {
+                                    message: uploadError.message,
+                                    name: uploadError.name,
+                                    storageKey: actualStorageKey,
+                                    bufferSize: buffer.length,
+                                    detectedType,
+                                });
+                                // Image generated but upload failed — still count as AI success
+                                // The base64 can't be returned directly (too large), so fall through
+                                failedProviders.push({ provider: currentProvider, error: `Upload failed: ${uploadError.message}` });
                             }
-                        } else {
-                            console.error("[STORY_BG] Storage upload failed:", {
-                                message: uploadError.message,
-                                name: uploadError.name,
-                                storageKey: actualStorageKey,
-                                bufferSize: buffer.length,
-                                detectedType,
-                            });
-                            // Image generated but upload failed — still count as AI success
-                            // The base64 can't be returned directly (too large), so fall through
-                            failedProviders.push({ provider: currentProvider, error: `Upload failed: ${uploadError.message}` });
                         }
                         break; // AI succeeded — stop trying providers
                     } else {
@@ -313,6 +338,9 @@ export async function POST(req: NextRequest) {
                         failedProviders.push({ provider: currentProvider, error: msg });
                     }
                 } catch (error: unknown) {
+                    if (candidate && error instanceof PreviewBackgroundUnavailable) {
+                        return NextResponse.json({ success: false, error: "Preview background storage unavailable" }, { status: 503 });
+                    }
                     const errorMsg = error instanceof Error ? error.message : String(error);
                     // Capture full error details (FAL ApiError has .body, .status)
                     const apiError = error as { status?: number; body?: unknown };
@@ -380,8 +408,18 @@ export async function POST(req: NextRequest) {
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);
+        if (candidate) return NextResponse.json({ success: false, error: "Preview background unavailable" }, { status: 503 });
         return handleApiError(error, "story-background");
     }
+}
+
+export async function POST(req: NextRequest) {
+    const response = await storyBackgroundPost(req);
+    if (isPreviewStoryCandidate(req)) {
+        response.headers.set("Cache-Control", "private, no-store");
+        response.headers.set("X-Localley-Data-Source", "d1-preview");
+    }
+    return response;
 }
 
 // GET endpoint to check available sources and model info
@@ -390,9 +428,10 @@ export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
         if (userId) {
-            tier = await getUserTier(userId);
+            tier = isPreviewStoryCandidate(req) ? await previewUserTier(userId) : await getUserTier(userId);
         }
     } catch {
+        if (isPreviewStoryCandidate(req)) return NextResponse.json({ error: "Preview tier unavailable" }, { status: 503 });
         // Not authenticated — return free tier info
     }
 
