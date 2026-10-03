@@ -95,6 +95,9 @@ on:
       - '__tests__/api/itinerary-private-diagnostics.test.ts'
       - '__tests__/api/itinerary-provider-fallback.test.ts'
       - 'docs/AUTH_BETTER_AUTH.md'
+      - 'supabase/migrations/*users_first_notifications.sql'
+      - 'scripts/notifications/**'
+      - '__tests__/lib/notification-push-owner.test.ts'
       - 'docs/PRODUCTION_USER_HEALTH.md'
       - 'docs/SOURCE_PHOTO_REPAIR.md'
       - 'lib/notifications.ts'
@@ -145,6 +148,9 @@ jobs:
             npx eslint components/chat/chat-interface.tsx __tests__/app/chat-history-pair.test.tsx
             npx vitest run __tests__/components/auth-password-redirect.test.tsx --maxWorkers=1
             npx eslint components/auth/auth-forms.tsx __tests__/components/auth-password-redirect.test.tsx
+            node scripts/notifications/test-storage.mjs
+            npx vitest run __tests__/lib/notification-push-owner.test.ts --maxWorkers=1
+            npx eslint __tests__/lib/notification-push-owner.test.ts
             npx vitest run __tests__/components/itinerary-activity-card.test.tsx __tests__/api/backfill-photo-coordinate-guard.test.ts --maxWorkers=1
             npx eslint components/activities/itinerary-activity-card.tsx __tests__/components/itinerary-activity-card.test.tsx app/api/admin/spots/backfill-photos/route.ts lib/place-images.ts __tests__/api/backfill-photo-coordinate-guard.test.ts
             node --test scripts/photos/quarantine-source.test.mjs

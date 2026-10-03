@@ -306,11 +306,15 @@ export async function getNotificationPreferences(
         if (error.code === 'PGRST116') {
             const { data: newData, error: insertError } = await supabase
                 .from('notification_preferences')
-                .insert({ clerk_user_id: clerkUserId })
+                .upsert({ clerk_user_id: clerkUserId }, { onConflict: 'clerk_user_id', ignoreDuplicates: true })
                 .select()
                 .single();
 
             if (insertError) {
+                if (insertError.code === 'PGRST116') {
+                    const { data: existing, error: readError } = await supabase.from('notification_preferences').select('*').eq('clerk_user_id', clerkUserId).single();
+                    if (!readError && existing) return toPreferences(existing);
+                }
                 if (isTableMissing(insertError)) throw new NotificationStorageUnavailableError();
                 if (!isTableMissing(insertError)) {
                     console.error('[notifications] Error creating preferences:', insertError);
@@ -392,7 +396,7 @@ export async function savePushSubscription(
                 user_agent: subscription.userAgent,
                 last_used_at: new Date().toISOString(),
             },
-            { onConflict: 'endpoint' }
+            { onConflict: 'clerk_user_id,endpoint' }
         );
 
     if (error) {

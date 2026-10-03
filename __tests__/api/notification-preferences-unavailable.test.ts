@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), single: vi.fn(), from: vi.fn(), eq: vi.fn(), insert: vi.fn(), update: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), single: vi.fn(), from: vi.fn(), eq: vi.fn(), insert: vi.fn(), upsert: vi.fn(), update: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: () => ({ from: mocks.from }) }));
 import { GET, PATCH } from "@/app/api/notifications/preferences/route";
@@ -10,8 +10,8 @@ const row = { clerk_user_id: owner, push_enabled: false, email_enabled: false, a
  new_spots: true, social: false, challenges: false, weekly_digest: false, system: true, timezone: "UTC" };
 beforeEach(() => {
  vi.clearAllMocks(); mocks.auth.mockResolvedValue({ userId: owner });
- const query = { select: vi.fn().mockReturnThis(), eq: mocks.eq, single: mocks.single, insert: mocks.insert, update: mocks.update };
- mocks.eq.mockReturnValue(query); mocks.insert.mockReturnValue(query); mocks.update.mockReturnValue(query); mocks.from.mockReturnValue(query);
+ const query = { select: vi.fn().mockReturnThis(), eq: mocks.eq, single: mocks.single, insert: mocks.insert, upsert: mocks.upsert, update: mocks.update };
+ mocks.eq.mockReturnValue(query); mocks.insert.mockReturnValue(query); mocks.upsert.mockReturnValue(query); mocks.update.mockReturnValue(query); mocks.from.mockReturnValue(query);
  mocks.single.mockResolvedValue({ data: null, error: missing });
 });
 const patch = () => PATCH(new NextRequest("https://www.localley.io/api/notifications/preferences", { method: "PATCH", body: JSON.stringify({ emailEnabled: false }) }));
@@ -27,7 +27,14 @@ describe("notification settings storage availability", () => {
  });
  it("refuses absent storage discovered when creating first preferences", async () => {
  mocks.single.mockResolvedValueOnce({ data: null, error: { code: "PGRST116" } });
- const response = await GET(); expect(response.status).toBe(200); expect((await response.json()).preferences).toBeNull(); expect(mocks.insert).toHaveBeenCalledWith({ clerk_user_id: owner });
+ const response = await GET(); expect(response.status).toBe(200); expect((await response.json()).preferences).toBeNull(); expect(mocks.upsert).toHaveBeenCalledWith({ clerk_user_id: owner }, { onConflict: 'clerk_user_id', ignoreDuplicates: true });
+ });
+ it("reads the winner of concurrent first-read inserts without resetting settings", async () => {
+ mocks.single.mockResolvedValueOnce({ data: null, error: { code: "PGRST116" } })
+ .mockResolvedValueOnce({ data: null, error: { code: "PGRST116" } })
+ .mockResolvedValueOnce({ data: row, error: null });
+ const response = await GET(); expect(response.status).toBe(200); expect((await response.json()).emailEnabled).toBe(false);
+ expect(mocks.upsert).toHaveBeenCalledWith({ clerk_user_id: owner }, { onConflict: 'clerk_user_id', ignoreDuplicates: true });
  });
  it("keeps actual preferences and owner scope when storage exists", async () => {
  mocks.single.mockResolvedValue({ data: row, error: null }); const response = await GET();
