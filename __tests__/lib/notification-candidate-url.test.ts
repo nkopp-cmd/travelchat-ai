@@ -1,6 +1,8 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
-import { isPreviewNotificationSettings, notificationPreferencesUrl } from "@/lib/app-data/notification-candidate-url";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { isPreviewNotificationSettings, notificationPreferencesUrl, notificationInboxUrl } from "@/lib/app-data/notification-candidate-url";
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("notification settings candidate URL gate", () => {
   it("requires the exact preview host and explicit D1 opt-in", () => {
@@ -12,8 +14,24 @@ describe("notification settings candidate URL gate", () => {
       expect(isPreviewNotificationSettings({hostname:"localley-next-preview.nkopp.workers.dev",search})).toBe(false);
     }
   });
+  it("adds D1 only on the opted-in preview browser for every inbox URL", () => {
+    for (const [hostname, search, candidate] of [
+      ["localley-next-preview.nkopp.workers.dev", "?data_candidate=d1", true],
+      ["localley-next-preview.nkopp.workers.dev", "", false],
+      ["www.localley.io", "?data_candidate=d1", false],
+      ["localley.io", "?data_candidate=d1", false],
+    ] as const) {
+      vi.stubGlobal("window", { location: { hostname, search } });
+      expect(notificationInboxUrl()).toBe(`/api/notifications${candidate ? "?data_candidate=d1" : ""}`);
+      expect(notificationInboxUrl("one")).toBe(`/api/notifications/one${candidate ? "?data_candidate=d1" : ""}`);
+      expect(notificationInboxUrl(undefined, {limit:20,offset:20})).toBe(`/api/notifications?limit=20&offset=20${candidate ? "&data_candidate=d1" : ""}`);
+    }
+  });
   it("keeps server rendering on the normal route", () => {
     expect(isPreviewNotificationSettings()).toBe(false);
     expect(notificationPreferencesUrl()).toBe("/api/notifications/preferences");
+    expect(notificationInboxUrl()).toBe("/api/notifications");
+    expect(notificationInboxUrl("a/b")).toBe("/api/notifications/a%2Fb");
+    expect(notificationInboxUrl(undefined, {limit:20,offset:20})).toBe("/api/notifications?limit=20&offset=20");
   });
 });

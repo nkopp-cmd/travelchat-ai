@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@/lib/auth/client";
 import { Notification, NotificationPreferences } from "@/types";
-import { isPreviewNotificationSettings, notificationPreferencesUrl } from "@/lib/app-data/notification-candidate-url";
+import { isPreviewNotificationSettings, notificationPreferencesUrl, notificationInboxUrl } from "@/lib/app-data/notification-candidate-url";
 
 interface UseNotificationsReturn {
+    isPreviewCandidate: boolean;
     notifications: Notification[];
     unreadCount: number;
     isLoading: boolean;
@@ -20,6 +21,7 @@ interface UseNotificationsReturn {
 
 export function useNotifications(): UseNotificationsReturn {
     const { isSignedIn } = useUser();
+    const isPreviewCandidate = isPreviewNotificationSettings();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +40,7 @@ export function useNotifications(): UseNotificationsReturn {
 
             const currentOffset = reset ? 0 : offset;
             const response = await fetch(
-                `/api/notifications?limit=${limit}&offset=${currentOffset}`
+                notificationInboxUrl(undefined, { limit, offset: currentOffset })
             );
 
             if (!response.ok) {
@@ -82,11 +84,11 @@ export function useNotifications(): UseNotificationsReturn {
 
     const markAsRead = useCallback(async (id: string) => {
         try {
-            const response = await fetch(`/api/notifications/${id}`, {
+            const response = await fetch(notificationInboxUrl(id), {
                 method: "PATCH",
             });
 
-            if (!response.ok) {
+            if (!response.ok || (isPreviewCandidate && (await response.json()).success !== true)) {
                 throw new Error("Failed to mark notification as read");
             }
 
@@ -98,18 +100,19 @@ export function useNotifications(): UseNotificationsReturn {
             setUnreadCount((prev) => Math.max(0, prev - 1));
         } catch (err) {
             console.error("Error marking notification as read:", err);
+            if (isPreviewCandidate) setError("Preview notifications are currently unavailable.");
         }
-    }, []);
+    }, [isPreviewCandidate]);
 
     const markAllAsRead = useCallback(async () => {
         try {
-            const response = await fetch("/api/notifications", {
+            const response = await fetch(notificationInboxUrl(), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "markAllRead" }),
             });
 
-            if (!response.ok) {
+            if (!response.ok || (isPreviewCandidate && (await response.json()).success !== true)) {
                 throw new Error("Failed to mark all notifications as read");
             }
 
@@ -119,16 +122,17 @@ export function useNotifications(): UseNotificationsReturn {
             setUnreadCount(0);
         } catch (err) {
             console.error("Error marking all notifications as read:", err);
+            if (isPreviewCandidate) setError("Preview notifications are currently unavailable.");
         }
-    }, []);
+    }, [isPreviewCandidate]);
 
     const deleteNotification = useCallback(async (id: string) => {
         try {
-            const response = await fetch(`/api/notifications/${id}`, {
+            const response = await fetch(notificationInboxUrl(id), {
                 method: "DELETE",
             });
 
-            if (!response.ok) {
+            if (!response.ok || (isPreviewCandidate && (await response.json()).success !== true)) {
                 throw new Error("Failed to delete notification");
             }
 
@@ -139,10 +143,12 @@ export function useNotifications(): UseNotificationsReturn {
             }
         } catch (err) {
             console.error("Error deleting notification:", err);
+            if (isPreviewCandidate) setError("Preview notifications are currently unavailable.");
         }
-    }, [notifications]);
+    }, [notifications, isPreviewCandidate]);
 
     return {
+        isPreviewCandidate,
         notifications,
         unreadCount,
         isLoading,
