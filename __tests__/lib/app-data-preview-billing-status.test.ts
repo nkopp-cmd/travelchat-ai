@@ -38,7 +38,7 @@ describe("preview billing status repository", () => {
         aiImagesThisMonth: 5, savedSpots: 6 } });
     expect(result.limits).toHaveProperty("storiesPerWeek");
     expect(prepare.mock.calls.every(([sql]: [string]) => sql.includes("o.clerkUserId = ?"))).toBe(true);
-    expect(bind.mock.calls[1]).toEqual(["owner-id", "2026-09-01", "2026-09-29", "2026-09-28"]);
+    expect(bind.mock.calls[1]).toEqual(["owner-id", "auth:owner-id", "2026-09-01", "2026-09-29", "2026-09-28"]);
   });
 
   it("returns the free default and retains lifetime and beta priority", async () => {
