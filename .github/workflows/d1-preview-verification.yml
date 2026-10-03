@@ -207,6 +207,8 @@ jobs:
             npx eslint app/api/admin/payouts/approve/route.ts lib/app-data/preview-payout-approval.ts __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts
             npx eslint app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
+            node --test scripts/d1-migration/notification-inventory.test.mjs
+            node --check scripts/d1-migration/notification-inventory.mjs
             node --test scripts/d1-migration/owner-rehearsal.test.mjs
             node --import tsx --test scripts/d1-migration/compare-cities.test.mjs
             npx tsc --noEmit
