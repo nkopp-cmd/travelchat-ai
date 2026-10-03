@@ -3,6 +3,9 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
+import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
+import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -53,6 +56,7 @@ try {
   const events = data.result?.events?.events;
   if (!Array.isArray(events)) throw new Error('missing events');
   const groups = new Map();
+  const photoGroups = new Map();
   for (const event of events) {
     const metadata = event.$metadata || {}, worker = event.$workers || {};
     // Refuse unrelated service events even if the provider filter changes.
@@ -61,17 +65,24 @@ try {
     // Never persist raw log text: an upstream exception can contain a credential
     // without a recognizable label. Keep diagnostic classes, not payloads.
     const raw = String(metadata.error || metadata.message || '');
-    const message = raw.includes('[auth] user hook failed') ? 'Auth profile synchronization failed'
-      : raw.includes('Cannot coerce the result to a single JSON object') ? 'Application record not found'
-      : raw.includes('Network connection lost.') ? 'Network connection lost'
-      : raw.startsWith('GET ') || raw.startsWith('POST ') ? 'HTTP request failed'
-      : 'Server error; inspect private Cloudflare logs';
-    const status = worker.event?.response?.status ?? null;
-    const key = JSON.stringify({ path, message, status });
+    const photoFailure = parsePhotoFailure(raw);
+    if (photoFailure) {
+      const key = JSON.stringify(photoFailure);
+      photoGroups.set(key, (photoGroups.get(key) || 0) + 1);
+    }
+    const candidateStatus = photoFailure?.status ?? worker.event?.response?.status;
+    const status = Number.isInteger(candidateStatus) && candidateStatus >= 100 && candidateStatus <= 599 ? candidateStatus : null;
+    const classification = classifyUserError(raw, path, status);
+    const key = JSON.stringify({ path, ...classification, status });
     groups.set(key, (groups.get(key) || 0) + 1);
   }
-  logs = { available: true, observedEvents: events.length, truncated: events.length >= 500,
-    top5: [...groups].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([key, count]) => ({ ...JSON.parse(key), count })) };
+  const classifiedGroups = [...groups].map(([key, count]) => ({ ...JSON.parse(key), count }));
+  logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
+    countingUnit: 'log_events_not_requests_or_users',
+    photoFailures: [...photoGroups].sort((a, b) => b[1] - a[1]).slice(0, 20).map(([key, count]) => ({ ...JSON.parse(key), count })),
+    errorClasses: summarizeErrorClasses(classifiedGroups),
+    top5: classifiedGroups.sort((a, b) => b.count - a.count).slice(0, 5) };
+
 } catch (error) {
   const message = String(error.message);
   logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)

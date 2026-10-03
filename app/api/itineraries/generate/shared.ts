@@ -1,3 +1,4 @@
+import { parsePrivateItineraryJSON } from "./diagnostics";
 import { OpenAI } from "openai";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isTipLikeActivity, sanitizeGeneratedDailyPlans } from "./sanitize-itinerary";
@@ -115,7 +116,7 @@ EXAMPLE of a GOOD insight (separate from dailyPlans):
 `;
 
 export function parseAndSanitizeItinerary(rawContent: string, provider: string) {
-  const itineraryData = JSON.parse(rawContent);
+  const itineraryData = parsePrivateItineraryJSON(rawContent);
 
   if (!itineraryData.title || !itineraryData.dailyPlans || !Array.isArray(itineraryData.dailyPlans)) {
     throw new Error(`Invalid itinerary structure from ${provider}`);
@@ -130,7 +131,7 @@ export function parseAndSanitizeItinerary(rawContent: string, provider: string) 
 
   for (const day of itineraryData.dailyPlans) {
     if (!day.activities || !Array.isArray(day.activities) || day.activities.length === 0) {
-      throw new Error(`Day ${day.day} has no activities`);
+      throw new Error("Generated day has no activities");
     }
 
     for (const activity of day.activities) {

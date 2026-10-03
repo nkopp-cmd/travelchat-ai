@@ -78,11 +78,11 @@ export async function generateItineraryTextWithFallback(
         primaryModel,
         primaryConfigured: true,
       };
-    } catch (glmError) {
+    } catch {
       fallbackReason = fallbackReason || 'glm_error';
       (dependencies.logger ?? console).error(
         '[generate] GLM primary failed; falling back to OpenAI:',
-        glmError
+        { reason: fallbackReason }
       );
     }
   } else {
