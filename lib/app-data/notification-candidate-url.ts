@@ -13,3 +13,16 @@ export function isPreviewNotificationSettings(
 export function notificationPreferencesUrl(): string {
   return `/api/notifications/preferences${isPreviewNotificationSettings() ? "?data_candidate=d1" : ""}`;
 }
+
+/** Preserve list pagination while keeping all inbox actions on the same candidate. */
+export function notificationInboxUrl(id?: string, page?: { limit: number; offset: number }): string {
+  const path = `/api/notifications${id === undefined ? "" : `/${encodeURIComponent(id)}`}`;
+  const params = new URLSearchParams();
+  if (page) {
+    params.set("limit", String(page.limit));
+    params.set("offset", String(page.offset));
+  }
+  if (isPreviewNotificationSettings()) params.set("data_candidate", "d1");
+  const query = params.toString();
+  return `${path}${query ? `?${query}` : ""}`;
+}
