@@ -7,7 +7,7 @@ import { resend, FROM_EMAIL } from "@/lib/resend";
 import { SubscriptionEmail } from "@/emails/subscription-email";
 import { invalidateUserCache } from "@/lib/cache";
 import { isPreviewStripeWebhookCandidate, PreviewStripeEventRejected, PreviewStripeSecretMissing,
-    recordPreviewStripeEvent, verifyPreviewStripeEvent } from "@/lib/app-data/preview-stripe-events";
+    recordPreviewStripeEvent, verifyPreviewStripeEvent, readPreviewStripeBody } from "@/lib/app-data/preview-stripe-events";
 
 // Disable body parsing for webhook
 export const runtime = "nodejs";
@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
         try {
             const signature = req.headers.get("stripe-signature");
             if (!signature) return NextResponse.json({ error: "Missing signature" }, { status: 400 });
-            const body = await req.text();
+            const body = await readPreviewStripeBody(req);
+            if(body===null)return NextResponse.json({error:"Invalid bounded webhook body"},{status:400});
             const event = verifyPreviewStripeEvent(body, signature);
             if (!event) return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
             const result = await recordPreviewStripeEvent(event, body);

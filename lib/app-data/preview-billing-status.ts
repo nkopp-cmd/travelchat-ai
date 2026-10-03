@@ -5,15 +5,8 @@ import { isLifetimePremiumEmail } from "@/lib/lifetime-premium";
 import { TIER_CONFIGS, type SubscriptionTier } from "@/lib/subscription";
 import type { SubscriptionStatusResponse } from "@/app/api/subscription/status/route";
 import { previewAppDataReader } from "./preview-db";
+import { previewSubscriptionRows, previewSubscriptionTier } from "./preview-subscription-read";
 
-interface SubscriptionRow {
-  tier: string | null;
-  status: string | null;
-  stripeCustomerId: string | null;
-  currentPeriodEnd: string | null;
-  cancelAtPeriodEnd: number | null;
-  trialEnd: string | null;
-}
 interface UsageRow { usageType: string; periodType: string; periodStart: string; count: number }
 
 export function isPreviewBillingStatusCandidate(req: NextRequest): boolean {
@@ -23,30 +16,28 @@ export function isPreviewBillingStatusCandidate(req: NextRequest): boolean {
     && process.env.SUPABASE_READ_ONLY === "true";
 }
 
-/** Read the imported billing view without crossing owner IDs or touching Stripe. */
+/** Read the effective candidate billing view without crossing owner IDs or touching Stripe. */
 export async function previewBillingStatus(userId: string, email: string | null, now = new Date()): Promise<SubscriptionStatusResponse> {
   const db = previewAppDataReader();
   const today = now.toISOString().slice(0, 10);
   const week = new Date(now);
-  const day = week.getDay();
-  week.setDate(week.getDate() - day + (day === 0 ? -6 : 1));
+  const day = week.getUTCDay();
+  week.setUTCDate(week.getUTCDate() - day + (day === 0 ? -6 : 1));
   const weekStart = week.toISOString().slice(0, 10);
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const monthStart = today.slice(0, 7)+"-01";
 
   const [subscriptions, usage, saved] = await Promise.all([
-    db.prepare(`SELECT s.tier, s.status, s.stripeCustomerId, s.currentPeriodEnd,
-      s.cancelAtPeriodEnd, s.trialEnd FROM legacy_subscriptions s
-      JOIN legacy_owners o ON o.ownerId = s.ownerId WHERE o.clerkUserId = ? LIMIT 2`)
-      .bind(userId).all<SubscriptionRow>(),
-    db.prepare(`SELECT u.usageType, u.periodType, u.periodStart, u.count FROM legacy_usage u
-      JOIN legacy_owners o ON o.ownerId = u.ownerId
-      WHERE o.clerkUserId = ? AND ((u.periodType = 'monthly' AND u.periodStart = ?)
+    previewSubscriptionRows(userId),
+    db.prepare(`SELECT u.usageType, u.periodType, u.periodStart, u.count FROM preview_usage_effective u
+      JOIN owners own ON own.id=u.ownerId LEFT JOIN legacy_owners o ON o.ownerId = own.id
+      WHERE (o.clerkUserId = ? OR (own.id=? AND own.source='new' AND o.clerkUserId IS NULL)) AND ((u.periodType = 'monthly' AND u.periodStart = ?)
         OR (u.periodType = 'daily' AND u.periodStart = ?)
         OR (u.periodType = 'weekly' AND u.periodStart = ?)) LIMIT 65`)
-      .bind(userId, monthStart, today, weekStart).all<UsageRow>(),
+      .bind(userId, `auth:${userId}`, monthStart, today, weekStart).all<UsageRow>(),
     db.prepare(`SELECT count(*) AS n FROM saved_spots s
-      JOIN legacy_owners o ON o.ownerId = s.ownerId WHERE o.clerkUserId = ?`)
-      .bind(userId).first<{ n: number }>(),
+      JOIN owners own ON own.id=s.ownerId LEFT JOIN legacy_owners o ON o.ownerId = own.id
+      WHERE o.clerkUserId = ? OR (own.id=? AND own.source='new' AND o.clerkUserId IS NULL)`)
+      .bind(userId, `auth:${userId}`).first<{ n: number }>(),
   ]);
 
   if (!Array.isArray(subscriptions.results) || subscriptions.results.length > 1
@@ -64,7 +55,7 @@ export async function previewBillingStatus(userId: string, email: string | null,
   const earlyAdopter = await getEarlyAdopterStatus(userId);
   const lifetimePremium = isLifetimePremiumEmail(email);
   const tier: SubscriptionTier = betaMode || lifetimePremium || earlyAdopter.isEarlyAdopter
-    ? "premium" : baseTier;
+    ? "premium" : previewSubscriptionTier(subscription);
 
   const counts = new Map<string, number>();
   for (const row of usage.results) {

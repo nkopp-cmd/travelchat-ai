@@ -12,15 +12,22 @@ beforeEach(() => {
   db = new D1Sqlite();
   db.sqlite.exec(`CREATE TABLE profiles(id TEXT PRIMARY KEY,ownerId TEXT);
     CREATE TABLE legacy_owners(ownerId TEXT PRIMARY KEY,clerkUserId TEXT);
-    CREATE TABLE legacy_subscriptions(ownerId TEXT,tier TEXT,status TEXT);
+    CREATE TABLE owners(id TEXT PRIMARY KEY,source TEXT);
+    CREATE TABLE legacy_subscriptions(ownerId TEXT,tier TEXT,status TEXT,stripeCustomerId TEXT,stripeSubscriptionId TEXT,currentPeriodEnd TEXT,cancelAtPeriodEnd INTEGER,trialEnd TEXT,updatedAt TEXT);
+    CREATE TABLE legacy_usage(ownerId TEXT,usageType TEXT,periodType TEXT,periodStart TEXT,count INTEGER);
+    CREATE TABLE preview_story_usage(ownerId TEXT,periodStart TEXT,count INTEGER);
+    CREATE TABLE preview_chat_usage(ownerId TEXT,periodStart TEXT,count INTEGER);
+    INSERT INTO owners VALUES('legacy-a','legacy-fixture'),('legacy-b','legacy-fixture');
     CREATE TABLE legacy_import_batches(counts TEXT);
     INSERT INTO profiles VALUES('profile-a','legacy-a'),('profile-b','legacy-b');
     INSERT INTO legacy_owners VALUES('legacy-a','auth-a'),('legacy-b','auth-b');
-    INSERT INTO legacy_subscriptions VALUES('legacy-a','pro','active');
+    INSERT INTO legacy_subscriptions(ownerId,tier,status) VALUES('legacy-a','pro','active');
     INSERT INTO legacy_import_batches VALUES('{"profiles":2,"legacy_subscriptions":1}');`);
   db.sqlite.exec(readFileSync("migrations/app-preview/0025_preview_profile_emails.sql", "utf8"));
   db.sqlite.exec(`INSERT INTO legacy_profile_emails VALUES('profile-a','ordinary@example.test'),
     ('profile-b','hello@localley.io');`);
+  db.sqlite.exec(readFileSync("migrations/app-preview/0014_preview_stripe_events.sql","utf8"));
+  db.sqlite.exec(readFileSync("migrations/app-preview/0029_preview_subscription_state.sql","utf8"));
   mocks.reader.mockReturnValue(db);
 });
 afterEach(() => { db.sqlite.close(); vi.unstubAllEnvs(); vi.clearAllMocks(); });

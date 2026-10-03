@@ -1,18 +1,9 @@
 import "server-only";
-import { createHash } from "node:crypto";
+import { applyPreviewSubscriptionEvent } from "./preview-subscription-state";
+import { PreviewStripeEventRejected, PreviewStripeSecretMissing } from "./preview-stripe-errors";
+export { PreviewStripeEventRejected, PreviewStripeSecretMissing } from "./preview-stripe-errors";
 import type { NextRequest } from "next/server";
 import Stripe from "stripe";
-import { previewAppDataReader } from "./preview-db";
-
-interface StoredEvent {
-  eventType: string;
-  stripeCreated: number;
-  objectId: string;
-  payloadSha256: string;
-}
-
-export class PreviewStripeEventRejected extends Error {}
-export class PreviewStripeSecretMissing extends Error {}
 
 // This client verifies signatures only. It never makes a Stripe API request.
 const verifier = new Stripe("sk_test_localley_preview_signature_only", {
@@ -34,8 +25,8 @@ export function isPreviewStripeWebhookCandidate(req: NextRequest): boolean {
     && process.env.SUPABASE_READ_ONLY === "true";
 }
 
-/** Store only signed, test-mode event metadata. No billing state or external effects. */
-export async function recordPreviewStripeEvent(event: Stripe.Event, payload: string): Promise<{ recorded: boolean }> {
+/** Apply only signed test-mode candidate state; never source or external effects. */
+export async function recordPreviewStripeEvent(event: Stripe.Event, payload: string): Promise<{ recorded: boolean; applied: boolean }> {
   if (event.livemode !== false) throw new PreviewStripeEventRejected("Live Stripe events are not accepted on preview");
   const objectId = (event.data?.object as { id?: unknown } | undefined)?.id;
   if (typeof event.id !== "string" || !/^evt_[A-Za-z0-9_]{1,196}$/.test(event.id)
@@ -45,18 +36,14 @@ export async function recordPreviewStripeEvent(event: Stripe.Event, payload: str
     || Buffer.byteLength(payload, "utf8") > 256 * 1024) {
     throw new PreviewStripeEventRejected("Invalid preview Stripe event");
   }
-  const payloadSha256 = createHash("sha256").update(payload).digest("hex");
-  const db = previewAppDataReader();
-  const result = await db.prepare(`INSERT OR IGNORE INTO preview_stripe_events
-    (id,eventType,stripeCreated,livemode,objectId,payloadSha256) VALUES (?,?,?,?,?,?)`)
-    .bind(event.id, event.type, event.created, 0, objectId, payloadSha256).run();
-  if (result.meta.changes === 1) return { recorded: true };
-  if (result.meta.changes !== 0) throw new Error("Unexpected preview Stripe write count");
-  const existing = await db.prepare(`SELECT eventType,stripeCreated,objectId,payloadSha256
-    FROM preview_stripe_events WHERE id = ?`).bind(event.id).first<StoredEvent>();
-  if (!existing || existing.eventType !== event.type || existing.stripeCreated !== event.created
-    || existing.objectId !== objectId || existing.payloadSha256 !== payloadSha256) {
-    throw new PreviewStripeEventRejected("Stripe event ID conflicts with a different payload");
-  }
-  return { recorded: false };
+  return applyPreviewSubscriptionEvent(event, payload);
+}
+
+/** Keep the exact decoded raw body for signature verification, bounded before allocation. */
+export async function readPreviewStripeBody(req:Request):Promise<string|null>{
+  const reader=req.body?.getReader();if(!reader)return null;
+  const chunks:Uint8Array[]=[];let size=0;
+  try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>262144){await reader.cancel();return null;}chunks.push(value);}
+    return new TextDecoder("utf-8",{fatal:true}).decode(Buffer.concat(chunks));
+  }catch{return null;}finally{reader.releaseLock();}
 }

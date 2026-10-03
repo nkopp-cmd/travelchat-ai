@@ -61,6 +61,8 @@
     "NEXTJS_ENV": "production",
     // Auth emails go to the auth_mail_outbox table, never to a real inbox.
     "AUTH_MAIL_MODE": "outbox",
+    // Synthetic signed preview event fixtures only. Real test checkout remains gated.
+    "PREVIEW_STRIPE_PRICE_TIERS": "{\"price_localley_preview_pro\":\"pro\",\"price_localley_preview_premium\":\"premium\"}",
     "BETTER_AUTH_URL": "https://localley-next-preview.nkopp.workers.dev",
     "AUTH_ALLOWED_HOSTS": "localley-next-preview.nkopp.workers.dev",
     "ADMIN_USER_IDS": "user_38VRkLQbwVNbAqR9lBXTMGXr54h,eRrDwrrwjwO1YsxVlci7M6mMjjqPtyYx"

@@ -142,6 +142,7 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx eslint lib/app-data/preview-subscription-state.ts lib/app-data/preview-subscription-read.ts lib/app-data/preview-stripe-errors.ts
             npx vitest run __tests__/api/story-background-cache-candidate.test.ts --maxWorkers=1
             npx eslint lib/app-data/preview-story-background-cache.ts lib/app-data/preview-story-usage.ts app/api/images/story-background/route.ts "app/api/images/story-background/media/[id]/route.ts" app/api/test-app-data/story-background/route.ts __tests__/api/story-background-cache-candidate.test.ts
             npx vitest run __tests__/api/story-render-access.test.tsx --maxWorkers=1
