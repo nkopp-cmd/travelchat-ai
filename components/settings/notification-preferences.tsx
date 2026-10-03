@@ -16,6 +16,7 @@ export function NotificationPreferencesSection() {
     const { toast } = useToast();
     const {
         preferences,
+        isPreviewCandidate,
         isLoading: prefsLoading,
         error: preferencesError,
         updatePreferences,
@@ -54,6 +55,7 @@ export function NotificationPreferencesSection() {
     };
 
     const handlePushToggle = async () => {
+        if (isPreviewCandidate) return;
         if (isSubscribed) {
             const success = await unsubscribe();
             if (success) {
@@ -104,6 +106,10 @@ export function NotificationPreferencesSection() {
 
     return (
         <div className="space-y-6">
+            {isPreviewCandidate && <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+                Your choices are saved. Notifications are not sent from this preview.
+            </div>}
+            {!isPreviewCandidate && <>
             {/* Push Notification Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
                 <div className="flex items-center gap-3">
@@ -151,6 +157,7 @@ export function NotificationPreferencesSection() {
 
             <Separator />
 
+            </>}
             {/* Notification Categories */}
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -255,6 +262,7 @@ export function NotificationPreferencesSection() {
 
             <Separator />
 
+            {!isPreviewCandidate && <>
             {/* Delivery Methods */}
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -297,6 +305,7 @@ export function NotificationPreferencesSection() {
                     />
                 </div>
             </div>
+            </>}
         </div>
     );
 }

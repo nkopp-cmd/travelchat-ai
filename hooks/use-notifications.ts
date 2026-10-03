@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@/lib/auth/client";
 import { Notification, NotificationPreferences } from "@/types";
+import { isPreviewNotificationSettings, notificationPreferencesUrl } from "@/lib/app-data/notification-candidate-url";
 
 interface UseNotificationsReturn {
     notifications: Notification[];
@@ -156,6 +157,7 @@ export function useNotifications(): UseNotificationsReturn {
 }
 
 interface UseNotificationPreferencesReturn {
+    isPreviewCandidate: boolean;
     preferences: NotificationPreferences | null;
     isLoading: boolean;
     error: string | null;
@@ -176,7 +178,7 @@ export function useNotificationPreferences(): UseNotificationPreferencesReturn {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await fetch("/api/notifications/preferences");
+                const response = await fetch(notificationPreferencesUrl());
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch preferences");
@@ -201,7 +203,7 @@ export function useNotificationPreferences(): UseNotificationPreferencesReturn {
 
     const updatePreferences = useCallback(async (updates: Partial<NotificationPreferences>) => {
         try {
-            const response = await fetch("/api/notifications/preferences", {
+            const response = await fetch(notificationPreferencesUrl(), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updates),
@@ -220,6 +222,7 @@ export function useNotificationPreferences(): UseNotificationPreferencesReturn {
     }, []);
 
     return {
+        isPreviewCandidate: isPreviewNotificationSettings(),
         preferences,
         isLoading,
         error,
