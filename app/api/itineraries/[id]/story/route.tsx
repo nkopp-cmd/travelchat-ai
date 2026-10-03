@@ -2,6 +2,9 @@ import { ImageResponse } from "next/og";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
+import { previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
+import { parsePreviewStoryPatch } from "@/lib/app-data/preview-story-metadata";
 import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 
 export const runtime = "nodejs";
@@ -825,7 +828,9 @@ export async function GET(
     const debugMode = new URL(req.url).searchParams.get("debug") === "true";
     const diagnostics: Record<string, unknown> = { timestamp: new Date().toISOString(), runtime: "nodejs" };
     let authorized = false;
-    const responseHeaders = { "Cache-Control": "private, no-store" };
+    const candidate = isPreviewStoryCandidate(req);
+    const responseHeaders: Record<string, string> = { "Cache-Control": "private, no-store" };
+    if (candidate) responseHeaders["X-Localley-Data-Source"] = "d1-preview";
 
     try {
         const { userId } = await auth();
@@ -836,27 +841,31 @@ export async function GET(
         const isPaidUser = searchParams.get("paid") === "true";
         diagnostics.params = { id, slide, dayIndex, isPaidUser };
 
-        const supabase = createSupabaseAdmin();
-        diagnostics.supabaseCreated = true;
-
-        // Use select("*") — safe even if ai_backgrounds column doesn't exist yet
-        // (select("*") returns whatever columns exist, unlike named selects which error)
-        const { data: itinerary, error } = await supabase
-            .from("itineraries")
-            .select("*")
-            .eq("id", id)
-            .single();
-
-        diagnostics.queryResult = { hasData: !!itinerary, error: error?.message || null };
-
-        if (error && error.code !== "PGRST116") {
-            throw error;
-        }
-
-        // Admin reads bypass RLS; deny before image downloads, rendering, or diagnostics.
-        if (error || !itinerary || (itinerary.is_public !== true &&
-            (!userId || itinerary.clerk_user_id !== userId))) {
-            return NextResponse.json({ error: "Itinerary not found" }, { status: 404, headers: responseHeaders });
+        // Candidate reads reuse the exact-ID owner/public rules of the D1 detail repository.
+        // Never instantiate the source admin client or fall back to it on candidate failure.
+        let supabase: ReturnType<typeof createSupabaseAdmin> | undefined;
+        let itinerary;
+        if (candidate) {
+            const result = await previewItineraryDetail(id, userId ?? "");
+            if (result.state !== "found") {
+                return NextResponse.json({ error: "Itinerary not found" }, { status: 404, headers: responseHeaders });
+            }
+            itinerary = result.itinerary;
+            diagnostics.dataSource = "d1-preview";
+            const backgrounds = itinerary.ai_backgrounds;
+            if (backgrounds !== null && Object.keys(backgrounds as object).length > 0
+                && !parsePreviewStoryPatch(backgrounds)) throw new Error("Invalid candidate background metadata");
+        } else {
+            supabase = createSupabaseAdmin();
+            diagnostics.supabaseCreated = true;
+            // Keep select("*"): deployments can have different optional media columns.
+            const { data, error } = await supabase.from("itineraries").select("*").eq("id", id).single();
+            diagnostics.queryResult = { hasData: !!data, error: error?.message || null };
+            if (error && error.code !== "PGRST116") throw error;
+            if (error || !data || (data.is_public !== true && (!userId || data.clerk_user_id !== userId))) {
+                return NextResponse.json({ error: "Itinerary not found" }, { status: 404, headers: responseHeaders });
+            }
+            itinerary = data;
         }
         authorized = true;
         if (itinerary.is_public === true) {
@@ -912,7 +921,7 @@ export async function GET(
             const hasMarker = aiBackground.includes("/storage/v1/object/public/generated-images/");
             console.log("[STORY_ROUTE] Prefetch attempt:", { isSupabaseUrl, hasMarker, urlLength: aiBackground.length, urlPreview: aiBackground.substring(0, 150) });
 
-            if (isSupabaseUrl) {
+            if (isSupabaseUrl && supabase) {
                 backgroundDataUri = await prefetchFromSupabase(aiBackground, supabase);
                 if (backgroundDataUri) {
                     console.log("[STORY_ROUTE] Supabase SDK download succeeded, dataUri length:", backgroundDataUri.length);
