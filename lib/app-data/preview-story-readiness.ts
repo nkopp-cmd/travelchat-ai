@@ -35,7 +35,7 @@ export async function previewStoryReady(id: string, userId: string): Promise<boo
     if (!object || object.key !== key || !Number.isSafeInteger(object.size) || object.size < 8
       || object.size > 2 * 1024 * 1024 || object.httpMetadata?.contentType !== "image/png") return false;
   }
-  // Recheck ownership, expiry and exact metadata after R2 reads. Refuse a changed generation.
+  // Recheck ownership, expiry and gallery references after R2 reads. Refuse a changed generation.
   const current = await previewStoryGallery(id, userId);
   return JSON.stringify(current) === JSON.stringify(gallery);
 }

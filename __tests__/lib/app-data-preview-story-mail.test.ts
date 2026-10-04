@@ -107,9 +107,24 @@ describe("candidate story outbox", () => {
   it("checks each expected object and refuses an incomplete day sequence", async () => {
     expect(await queuePreviewStoryMail("a", id)).toBe(true); expect(mocks.head.mock.calls.map(c => c[0])).toEqual(
       ["cover", "day1", "summary"].map(slide => `story-slides/${id}/${generation}/${slide}.png`));
-    db.sqlite.exec("DELETE FROM auth_mail_outbox"); db.sqlite.exec("UPDATE itineraries SET days=2");
+    outbox.sqlite.exec("DELETE FROM auth_mail_outbox"); db.sqlite.exec("UPDATE itineraries SET days=2");
     mocks.head.mockClear(); expect(await queuePreviewStoryMail("a", id)).toBe(false);
     expect(mocks.head).not.toHaveBeenCalled(); expect(count()).toBe(0);
+  });
+
+  it("refuses unavailable binding, changed generation and outbox write failure", async () => {
+    Object.assign(globalThis, { [symbol]: { env: { AUTH_DB: outbox } } });
+    await expect(queuePreviewStoryMail("a", id)).rejects.toThrow("storage unavailable");
+    expect(count()).toBe(0);
+    Object.assign(globalThis, { [symbol]: { env: { AUTH_DB: outbox, STORY_PREVIEW_MEDIA: { head: mocks.head } } } });
+    mocks.head.mockImplementation(async (key: string) => {
+      metadata({ ...story(), slides: Object.fromEntries(Object.entries(story().slides).map(([k,v]) => [k,v.replace(generation,id)])) });
+      return { key, size: 100, httpMetadata: { contentType: "image/png" } };
+    });
+    expect(await queuePreviewStoryMail("a", id)).toBe(false); expect(count()).toBe(0);
+    metadata(story()); mocks.head.mockImplementation(async (key: string) => ({ key, size: 100, httpMetadata: { contentType: "image/png" } }));
+    outbox.sqlite.exec("DROP TABLE auth_mail_outbox");
+    await expect(queuePreviewStoryMail("a", id)).rejects.toThrow();
   });
 
 });
