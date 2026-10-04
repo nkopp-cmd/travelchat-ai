@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { previewBillingActionRefusal } from "@/lib/app-data/preview-billing-action";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { createDashboardLink } from "@/lib/stripe-connect";
@@ -9,8 +10,10 @@ import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
  *
  * Get a Stripe Express dashboard login link for the guide.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+        const candidate = await previewBillingActionRefusal(request);
+        if (candidate) return candidate;
         const { userId } = await auth();
         if (!userId) return Errors.unauthorized();
 
