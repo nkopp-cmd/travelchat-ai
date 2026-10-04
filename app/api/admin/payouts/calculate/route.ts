@@ -1,3 +1,4 @@
+import { previewBillingActionRefusal } from "@/lib/app-data/preview-billing-action";
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -33,6 +34,9 @@ function isLocalleySubscriptionInvoice(invoice: Stripe.Invoice) {
 export async function POST(req: NextRequest) {
     const adminCheck = await requireAdmin("/api/admin/payouts/calculate", "calculate_payouts");
     if (adminCheck.response) return adminCheck.response;
+
+    const candidate = await previewBillingActionRefusal(req);
+    if (candidate) return candidate;
 
     try {
         const body = await req.json().catch(() => ({}));
