@@ -17,6 +17,7 @@ interface StoriesClientProps {
     city: string;
     days: number;
     itineraryId: string;
+    candidate?: boolean;
 }
 
 function getFilename(slide: Slide, city: string, days: number): string {
@@ -47,7 +48,7 @@ async function shareOrDownload(blob: Blob, filename: string): Promise<"shared" |
     return "downloaded";
 }
 
-export function StoriesClient({ slides, city, days, itineraryId }: StoriesClientProps) {
+export function StoriesClient({ slides, city, days, itineraryId, candidate = false }: StoriesClientProps) {
     const [downloadingKey, setDownloadingKey] = useState<string | null>(null);
     const [zipping, setZipping] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -114,7 +115,7 @@ export function StoriesClient({ slides, city, days, itineraryId }: StoriesClient
     };
 
     const handleCopyLink = async () => {
-        const url = `${window.location.origin}/itineraries/${itineraryId}/stories`;
+        const url = `${window.location.origin}/itineraries/${itineraryId}/stories${candidate ? "?data_candidate=d1" : ""}`;
         try {
             await navigator.clipboard.writeText(url);
             setCopied(true);
@@ -126,7 +127,7 @@ export function StoriesClient({ slides, city, days, itineraryId }: StoriesClient
     };
 
     const handleShareLink = async () => {
-        const url = `${window.location.origin}/itineraries/${itineraryId}/stories`;
+        const url = `${window.location.origin}/itineraries/${itineraryId}/stories${candidate ? "?data_candidate=d1" : ""}`;
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -173,6 +174,7 @@ export function StoriesClient({ slides, city, days, itineraryId }: StoriesClient
                         >
                             <Image
                                 src={slide.url}
+                                unoptimized={candidate}
                                 alt={slide.label}
                                 fill
                                 className="object-cover"
