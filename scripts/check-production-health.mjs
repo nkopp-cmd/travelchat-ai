@@ -7,6 +7,7 @@ import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
 import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
 import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
 import { auditIngestionSettings } from './production-health/ingestion-settings.mjs';
+import { recordEventTime, summarizeEventTime } from './production-health/event-times.mjs';
 import { checkCityCatalog } from './production-health/city-catalog.mjs';
 import { errorRouteGroup } from './production-health/route-groups.mjs';
 
@@ -52,8 +53,10 @@ try {
   if (!Array.isArray(events)) throw new Error('missing events');
   const groups = new Map();
   const photoGroups = new Map();
+  let totalEventTimes = null;
   for (const event of events) {
     const metadata = event.$metadata || {}, worker = event.$workers || {};
+    totalEventTimes = recordEventTime(totalEventTimes, event.timestamp, query.timeframe);
     // Refuse unrelated service events even if the provider filter changes.
     if (metadata.service !== service) throw new Error('unexpected service');
     const path = errorRouteGroup(metadata.url || worker.event?.request?.url);
@@ -63,18 +66,19 @@ try {
     const photoFailure = parsePhotoFailure(raw);
     if (photoFailure) {
       const key = JSON.stringify(photoFailure);
-      photoGroups.set(key, (photoGroups.get(key) || 0) + 1);
+      photoGroups.set(key, recordEventTime(photoGroups.get(key), event.timestamp, query.timeframe));
     }
     const candidateStatus = photoFailure?.status ?? worker.event?.response?.status;
     const status = Number.isInteger(candidateStatus) && candidateStatus >= 100 && candidateStatus <= 599 ? candidateStatus : null;
     const classification = classifyUserError(raw, path, status);
     const key = JSON.stringify({ path, ...classification, status });
-    groups.set(key, (groups.get(key) || 0) + 1);
+    groups.set(key, recordEventTime(groups.get(key), event.timestamp, query.timeframe));
   }
-  const classifiedGroups = [...groups].map(([key, count]) => ({ ...JSON.parse(key), count }));
+  const classifiedGroups = [...groups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }));
   logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
     countingUnit: 'log_events_not_requests_or_users',
-    photoFailures: [...photoGroups].sort((a, b) => b[1] - a[1]).slice(0, 20).map(([key, count]) => ({ ...JSON.parse(key), count })),
+    eventTimes: totalEventTimes ? summarizeEventTime(totalEventTimes).eventTimes : { firstSeen: null, lastSeen: null, knownCount: 0, unknownCount: 0, scope: 'returned_events_only' },
+    photoFailures: [...photoGroups].sort((a, b) => b[1].count - a[1].count).slice(0, 20).map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) })),
     errorClasses: summarizeErrorClasses(classifiedGroups),
     top5: classifiedGroups.sort((a, b) => b.count - a.count).slice(0, 5) };
 
