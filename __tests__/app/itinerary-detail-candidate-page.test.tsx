@@ -12,6 +12,7 @@ vi.mock('@/components/itinerary/hero-section',()=>({HeroSection:({title}:{title:
 vi.mock('@/components/itinerary/day-route-section',()=>({DayRouteSection:()=> <p>Owned day schedule</p>}));
 vi.mock('@/components/itinerary/itinerary-insights-panel',()=>({ItineraryInsightsPanel:()=> <p>Owned trip notes</p>}));
 vi.mock('@/components/itineraries/share-dialog',()=>({ShareDialog:()=> <button>Share</button>}));
+vi.mock('@/components/itineraries/owner-email-preview-dialog',()=>({OwnerEmailPreviewDialog:({itineraryId,ownerEmail}:{itineraryId:string;ownerEmail:string})=> <button data-id={itineraryId} data-owner={ownerEmail}>Preview email link</button>}));
 vi.mock('@/components/itineraries/email-dialog',()=>({EmailDialog:()=> <button>Email</button>}));
 vi.mock('@/components/itineraries/story-dialog',()=>({StoryDialog:()=> <button>Generate story</button>}));
 vi.mock('@/components/itinerary/itinerary-map',()=>({ItineraryMap:()=> <p>Provider map</p>}));
@@ -24,7 +25,7 @@ beforeEach(()=>{
   mocks.headers.mockResolvedValue(new Headers({host:'localley-next-preview.nkopp.workers.dev'}));
   mocks.auth.mockResolvedValue({userId:'a'});
   mocks.tier.mockResolvedValue('free');
-  mocks.read.mockResolvedValue({id:'owned',title:'Private trip',city:'Seoul',days:1,subtitle:null,
+  mocks.read.mockResolvedValue({id:'owned',ownerEmail:'a@preview.localley.test',title:'Private trip',city:'Seoul',days:1,subtitle:null,
     localScore:6,highlights:[],dailyPlans:[{day:1,activities:[{name:'Walk'}]}],insights:[]});
   const query={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),single:vi.fn().mockResolvedValue({
     data:{id:'source',title:'Source trip',city:'Seoul',days:1,activities:[],highlights:[]},error:null})};
@@ -34,7 +35,7 @@ afterEach(()=>{process.env=env;vi.clearAllMocks();});
 describe('candidate itinerary page and metadata',()=>{
   it('renders owned candidate content without source, tier, mutation or provider controls',async()=>{
     const html=renderToStaticMarkup(await Page(input('d1')));
-    expect(html).toContain('Private trip');expect(html).toContain('Owned day schedule');
+    expect(html).toContain('Preview email link');expect(html).toContain('data-owner="a@preview.localley.test"');expect(html).toContain('Private trip');expect(html).toContain('Owned day schedule');
     expect(html).toContain('/itineraries?data_candidate=d1');
     expect(html).not.toMatch(/Generate story|<button[^>]*>Email|<button[^>]*>Share|Provider map|Provider suggestions|\/export|\/edit|application\/ld\+json/);
     expect(mocks.read).toHaveBeenCalledWith('owned','a');
@@ -59,10 +60,10 @@ describe('candidate itinerary page and metadata',()=>{
   });
   it('preserves normal preview and flagged www source reads and normal controls',async()=>{
     let html=renderToStaticMarkup(await Page(input()));
-    expect(html).toContain('Source trip');expect(html).toContain('Generate story');
+    expect(html).toContain('Source trip');expect(html).toContain('Generate story');expect(html).not.toContain('Preview email link');
     mocks.headers.mockResolvedValue(new Headers({host:'www.localley.io'}));
     html=renderToStaticMarkup(await Page(input('d1')));
-    expect(html).toContain('Source trip');expect(html).toContain('Provider suggestions');
+    expect(html).toContain('Source trip');expect(html).toContain('Provider suggestions');expect(html).not.toContain('Preview email link');
     expect(mocks.read).not.toHaveBeenCalled();expect(mocks.admin).toHaveBeenCalledTimes(2);
   });
 });

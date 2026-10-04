@@ -24,7 +24,7 @@ afterEach(() => { db.sqlite.close(); vi.clearAllMocks(); });
 describe('private candidate itinerary page data', () => {
   it('reads owned real SQLite data with display normalization and excludes image/provider payloads', async () => {
     const value = await previewItineraryPage(id.toUpperCase(),'a');
-    expect(value).toMatchObject({id,title:'Owned trip',city:'Seoul',days:1,highlights:['Quiet lanes'],
+    expect(value).toMatchObject({ownerEmail:'a@preview.localley.test',id,title:'Owned trip',city:'Seoul',days:1,highlights:['Quiet lanes'],
       dailyPlans:[{day:1,theme:'Local food',activities:[{name:'Walk',time:'09:00',description:'Owned stop'}]}]});
     expect(JSON.stringify(value)).not.toMatch(/paid\.test|private\.test|thumbnail/);
   });

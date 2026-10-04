@@ -12,6 +12,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
+import { OwnerEmailPreviewDialog } from "@/components/itineraries/owner-email-preview-dialog";
 import { EmailDialog } from "@/components/itineraries/email-dialog";
 import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
@@ -193,7 +194,10 @@ export default async function ItineraryViewPage({
       <HeroSection title={candidate.title} subtitle={candidate.subtitle ?? undefined} city={candidate.city}
         days={candidate.days} localScore={candidate.localScore ? candidate.localScore * 10 : undefined}
         highlights={candidate.highlights} />
-      <p role="status" className="text-sm text-muted-foreground">This view is read-only. Editing, sharing and email are unavailable.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p role="status" className="text-sm text-muted-foreground">This view is read-only. Editing and sharing are unavailable.</p>
+        <OwnerEmailPreviewDialog itineraryId={candidate.id} ownerEmail={candidate.ownerEmail} />
+      </div>
       <ItineraryInsightsPanel insights={candidate.insights} title="Trip notes" />
       <div data-testid="itinerary-day-schedule" className="space-y-4">
         {candidate.dailyPlans.map((day, index) => <DayRouteSection key={day.day} dayPlan={day}

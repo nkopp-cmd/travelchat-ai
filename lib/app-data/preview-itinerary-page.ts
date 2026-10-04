@@ -52,6 +52,6 @@ export async function previewItineraryPage(id: string, userId: string | null) {
         time: typeof activity.time === "string" ? activity.time.slice(0, 100) : undefined,
         address: typeof activity.address === "string" ? activity.address.slice(0, 500) : undefined };
     }) }));
-  return { id: row.id, title: row.title, city: row.city, days: row.days, subtitle: row.subtitle,
+  return { ownerEmail: email, id: row.id, title: row.title, city: row.city, days: row.days, subtitle: row.subtitle,
     localScore: row.local_score, highlights: highlights as string[], dailyPlans: safeDays, insights };
 }
