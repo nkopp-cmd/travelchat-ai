@@ -1,3 +1,4 @@
+import { hasPreviewGuideIntent } from "@/lib/app-data/preview-guide-intent";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -88,6 +89,14 @@ export async function PATCH(req: NextRequest) {
             console.error("[ADMIN_GUIDE_REJECTION_PREVIEW] Review unavailable", error);
             return NextResponse.json({ error: "Guide review unavailable" }, { status: 503, headers });
         }
+    }
+
+    // Candidate review intent must not fall through to source or Stripe writes.
+    if (hasPreviewGuideIntent(req)) {
+        return NextResponse.json({ error: "Guide review unavailable" }, {
+            status: 503,
+            headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+        });
     }
 
     try {
