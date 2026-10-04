@@ -53,6 +53,34 @@ describe("Connect earnings candidate route", () => {
     expect(mocks.supabase).not.toHaveBeenCalled();
   });
 
+  it.each([
+    { AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: undefined },
+    { AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: undefined },
+    { AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: "true" },
+    { AUTH_MAIL_MODE: "send", SUPABASE_READ_ONLY: "true" },
+    { AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "false" },
+  ])("refuses lost or unsafe settings before source and engagement reads", async settings => {
+    process.env = { ...originalEnvironment, ...settings };
+    mocks.auth.mockResolvedValue({ userId: "owner-1" });
+    const response = await GET(request("localley-next-preview.nkopp.workers.dev", true, "25"));
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: "Guide revenue archive unavailable" });
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
+    expect(mocks.earnings).not.toHaveBeenCalled();
+    expect(mocks.supabase).not.toHaveBeenCalled();
+    expect(mocks.engagement).not.toHaveBeenCalled();
+  });
+
+  it("keeps unsigned refusal before all readers when settings are missing", async () => {
+    process.env = { ...originalEnvironment, AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: undefined };
+    mocks.auth.mockResolvedValue({ userId: null });
+    expect((await GET(request("localley-next-preview.nkopp.workers.dev"))).status).toBe(401);
+    expect(mocks.earnings).not.toHaveBeenCalled();
+    expect(mocks.supabase).not.toHaveBeenCalled();
+    expect(mocks.engagement).not.toHaveBeenCalled();
+  });
+
   it("keeps normal preview and www on Supabase", async () => {
     preview();
     mocks.auth.mockResolvedValue({ userId: "owner-1" });
@@ -66,12 +94,16 @@ describe("Connect earnings candidate route", () => {
         : { eq: summary } });
     mocks.supabase.mockReturnValue({ from });
     mocks.engagement.mockResolvedValue({ totalPoints: 0 });
-    const normal = await GET(request("localley-next-preview.nkopp.workers.dev", false));
-    const www = await GET(request("www.localley.io"));
-    expect(normal.status).toBe(200);
-    expect(www.status).toBe(200);
-    expect(normal.headers.get("X-Localley-Data-Source")).toBeNull();
-    expect(mocks.supabase).toHaveBeenCalledTimes(2);
+    const requests = [request("localley-next-preview.nkopp.workers.dev", false), request("www.localley.io"),
+      request("localley.io"), request("localley-next-preview.nkopp.workers.dev.attacker.test"),
+      new NextRequest("https://localley-next-preview.nkopp.workers.dev/api/connect/earnings?data_candidate=other"),
+      new NextRequest("https://localley-next-preview.nkopp.workers.dev/api/connect/earnings?data_candidate=other&data_candidate=d1")];
+    for (const req of requests) {
+      const response = await GET(req);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("X-Localley-Data-Source")).toBeNull();
+    }
+    expect(mocks.supabase).toHaveBeenCalledTimes(requests.length);
     expect(mocks.earnings).not.toHaveBeenCalled();
   });
 });
