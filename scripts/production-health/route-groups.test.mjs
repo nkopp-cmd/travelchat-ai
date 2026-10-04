@@ -69,7 +69,7 @@ test('actual CLI groups multiple private IDs and retains event totals/status/cov
     const report=JSON.parse(await readFile(reportPath,'utf8'));
     assert.equal(report.logs.observedEvents,4);assert.equal(report.logs.matchingEventsReported,4);
     assert.equal(report.logs.top5.reduce((n,x)=>n+x.count,0),4);
-    assert.deepEqual(report.logs.top5[0],{path:'/api/spots/:id/photos',errorClass:'venue_photos_failed',message:'Venue photo request failed; source reason unavailable',status:502,count:2});
+    assert.deepEqual(report.logs.top5[0],{path:'/api/spots/:id/photos',errorClass:'venue_photos_failed',message:'Venue photo request failed; source reason unavailable',status:502,count:2,eventTimes:{firstSeen:null,lastSeen:null,knownCount:0,unknownCount:2,scope:'returned_events_only'}});
     assert.equal(report.logs.errorClasses[0].count,2);
     assert.equal(report.logs.countingUnit,'log_events_not_requests_or_users');
     assert.ok(report.logs.coverageWarnings.includes('ingestion_sampling_not_audited'));
