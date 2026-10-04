@@ -32,6 +32,9 @@ on:
       - '__tests__/api/story-render-access.test.tsx'
       - 'app/api/itineraries/[id]/story/persist/route.ts'
       - 'app/api/itineraries/[id]/story/media/**'
+      - 'app/api/subscription/checkout/route.ts'
+      - 'app/api/subscription/portal/route.ts'
+      - '__tests__/api/subscription-action-candidate.test.ts'
       - 'app/api/subscription/status/route.ts'
       - 'app/api/subscription/webhook/route.ts'
       - 'app/api/cron/cleanup-stories/route.ts'
@@ -164,6 +167,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/api/subscription-action-candidate.test.ts --maxWorkers=1
+            npx eslint lib/app-data/preview-billing-action.ts app/api/subscription/checkout/route.ts app/api/subscription/portal/route.ts __tests__/api/subscription-action-candidate.test.ts
             npx eslint lib/app-data/preview-subscription-state.ts lib/app-data/preview-subscription-read.ts lib/app-data/preview-stripe-errors.ts
             npx vitest run __tests__/api/story-background-cache-candidate.test.ts --maxWorkers=1
             npx eslint lib/app-data/preview-story-background-cache.ts lib/app-data/preview-story-usage.ts app/api/images/story-background/route.ts "app/api/images/story-background/media/[id]/route.ts" app/api/test-app-data/story-background/route.ts __tests__/api/story-background-cache-candidate.test.ts
