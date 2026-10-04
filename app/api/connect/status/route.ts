@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getAccountStatus } from "@/lib/stripe-connect";
+import { hasPreviewGuideIntent } from "@/lib/app-data/preview-guide-intent";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
 import { isPreviewGuideStatusCandidate, previewGuideStatus } from "@/lib/app-data/preview-guide-status";
 
@@ -29,6 +30,12 @@ export async function GET(req: NextRequest) {
             }
         }
 
+        if (hasPreviewGuideIntent(req)) {
+            return NextResponse.json({ error: "Guide archive unavailable" }, {
+                status: 503,
+                headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
+        }
         const supabase = createSupabaseAdmin();
 
         const { data: guide } = await supabase

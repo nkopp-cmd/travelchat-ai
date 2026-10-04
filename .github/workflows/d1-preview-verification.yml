@@ -58,6 +58,7 @@ on:
       - 'app/api/connect/status/route.ts'
       - 'app/api/connect/dashboard/route.ts'
       - '__tests__/api/connect-dashboard-candidate.test.ts'
+      - '__tests__/lib/preview-guide-intent.test.ts'
       - 'app/api/connect/earnings/route.ts'
       - 'app/api/connect/onboard/route.ts'
       - 'migrations/app-preview/**'
@@ -230,7 +231,7 @@ jobs:
             npx vitest run __tests__/api/notifications-candidate-route.test.ts __tests__/hooks/notification-inbox-candidate.test.tsx __tests__/pages/notification-center-candidate.test.tsx --maxWorkers=1
             npx eslint components/notifications/notification-center.tsx __tests__/hooks/notification-inbox-candidate.test.tsx __tests__/pages/notification-center-candidate.test.tsx
             npx vitest run __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts --maxWorkers=1
-            npx vitest run __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/preview-guide-intent.test.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts --maxWorkers=1
             npx vitest run __tests__/api/admin-guide-reject-candidate-route.test.ts --maxWorkers=1
             npx eslint app/api/admin/guides/route.ts lib/app-data/preview-admin-guides.ts lib/app-data/preview-guide-application.ts __tests__/api/admin-guides-candidate-route.test.ts __tests__/lib/app-data-preview-admin-guides.test.ts
             npx eslint app/api/connect/status/route.ts lib/app-data/preview-guide-status.ts __tests__/api/connect-status-candidate-route.test.ts __tests__/lib/app-data-preview-guide-status.test.ts
@@ -241,7 +242,7 @@ jobs:
             npx eslint app/api/user/email-preferences/route.ts lib/app-data/preview-email-preferences.ts __tests__/api/email-preferences-candidate-route.test.ts __tests__/lib/app-data-preview-email-preferences.test.ts
             npx eslint app/api/notifications/route.ts 'app/api/notifications/[id]/route.ts' lib/app-data/preview-notifications.ts __tests__/api/notifications-candidate-route.test.ts
             npx eslint app/api/admin/payouts/approve/route.ts lib/app-data/preview-payout-approval.ts __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts
-            npx eslint app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
+            npx eslint lib/app-data/preview-guide-intent.ts __tests__/lib/preview-guide-intent.test.ts app/api/connect/onboard/route.ts lib/app-data/preview-guide-application.ts __tests__/api/connect-onboard-candidate-route.test.ts __tests__/lib/app-data-preview-guide-application.test.ts
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
             node --test scripts/d1-migration/notification-inventory.test.mjs
             node --check scripts/d1-migration/notification-inventory.mjs
