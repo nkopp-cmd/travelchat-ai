@@ -92,6 +92,7 @@ beforeEach(() => {
   for (const file of [
     "0014_preview_stripe_events.sql",
     "0029_preview_subscription_state.sql",
+    "0030_preview_subscription_event_receipts.sql",
   ])
     db.sqlite.exec(readFileSync(`migrations/app-preview/${file}`, "utf8"));
   // Actual serialized SQLite transactions, rather than the shared shim's Promise.all batch.
@@ -225,6 +226,7 @@ describe("transactional candidate subscription application", () => {
       Array.from({ length: 8 }, () => apply(events[0])),
     );
     expect(results.every((x) => !x.applied && !x.recorded)).toBe(true);
+    expect(db.sqlite.prepare("SELECT * FROM preview_subscription_event_receipts").all()).toHaveLength(8);
   });
   it("rejects customer and owner rebinding without acknowledging the event", async () => {
     await apply(event());
@@ -413,6 +415,7 @@ describe("transactional candidate subscription application", () => {
     await expect(apply(event())).rejects.toThrow("forced_storage_failure");
     expect(ledger()).toHaveLength(0);
     expect(state()).toHaveLength(0);
+    expect(db.sqlite.prepare("SELECT * FROM preview_subscription_event_receipts").all()).toHaveLength(0);
   });
   it("uses immutable legacy state until newer events and refuses incomplete imports", async () => {
     db.sqlite
@@ -458,10 +461,50 @@ describe("transactional candidate subscription application", () => {
       )
       .run(e.id, e.type, e.created, "sub_one", hash);
     expect(await apply(e)).toEqual({ recorded: false, applied: true });
+    expect(await apply(e)).toEqual({ recorded: false, applied: false });
+    expect(db.sqlite.prepare("SELECT * FROM preview_subscription_event_receipts").all()).toHaveLength(1);
     expect(await apply(event("ignored.event"))).toEqual({
       recorded: true,
       applied: false,
     });
+  });
+  it("acknowledges completed snapshots and invoices after cancellation and replacement without reviving state", async () => {
+    const first = event();
+    await apply(first);
+    const invoice = event("invoice.paid", { id: "in_retry", subscription: "sub_one", customer: "cus_one", paid: true }, t + 1);
+    await apply(invoice);
+    await apply(event("customer.subscription.deleted", sub(), t + 2));
+    const canceled = JSON.stringify(state());
+    expect(await apply(invoice)).toEqual({ recorded: false, applied: false });
+    expect(await apply(first)).toEqual({ recorded: false, applied: false });
+    expect(JSON.stringify(state())).toBe(canceled);
+    await readers("free", "canceled");
+    await apply(event(undefined, sub("one", { id: "sub_replacement" }), t + 3));
+    const replaced = JSON.stringify(state());
+    process.env.PREVIEW_STRIPE_PRICE_TIERS = "{}";
+    expect(await apply(first)).toEqual({ recorded: false, applied: false });
+    expect(await apply(invoice)).toEqual({ recorded: false, applied: false });
+    expect(JSON.stringify(state())).toBe(replaced);
+    await readers("pro", "active");
+  });
+  it("refuses a changed completed event even after its subscription becomes terminal", async () => {
+    const first = event();
+    await apply(first);
+    await apply(event("customer.subscription.deleted", sub(), t + 1));
+    const before = JSON.stringify(state()), count = ledger().length;
+    await expect(apply({ ...first, data: { object: sub("one", { status: "past_due" }) } } as Stripe.Event)).rejects.toThrow("ID conflict");
+    await expect(recordPreviewStripeEvent({ ...first, created: first.created + 1 } as Stripe.Event, JSON.stringify(first))).rejects.toThrow("ID conflict");
+    expect(JSON.stringify(state())).toBe(before);
+    expect(ledger()).toHaveLength(count);
+  });
+  it("rolls back ledger and entitlement if completion receipt insertion fails", async () => {
+    db.sqlite.exec("CREATE TRIGGER receipt_fault BEFORE INSERT ON preview_subscription_event_receipts BEGIN SELECT RAISE(ABORT,'forced_receipt_failure'); END;");
+    await expect(apply(event())).rejects.toThrow("forced_receipt_failure");
+    expect(ledger()).toHaveLength(0);
+    expect(state()).toHaveLength(0);
+    expect(db.sqlite.prepare("SELECT * FROM preview_subscription_event_receipts").all()).toHaveLength(0);
+    await expect(apply(event("ignored.event"))).rejects.toThrow("forced_receipt_failure");
+    expect(ledger()).toHaveLength(0);
   });
   it("shows candidate weighted counters instead of double-counting imported baselines", async () => {
     const month = new Date().toISOString().slice(0, 7) + "-01",
