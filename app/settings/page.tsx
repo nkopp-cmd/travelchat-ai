@@ -1,3 +1,4 @@
+import { PreviewEmailPreferences } from "@/components/settings/preview-email-preferences";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -129,6 +130,10 @@ export default async function SettingsPage({ searchParams }: {
         return (
             <div className="mx-auto w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8">
                 <PreviewBillingSummary summary={billing} />
+                <Card className={LIQUID_CARD}>
+                    <CardHeader><CardTitle>Email preferences</CardTitle></CardHeader>
+                    <CardContent>{eligible ? <PreviewEmailPreferences /> : <p role="status">Preview email preferences are unavailable for this account.</p>}</CardContent>
+                </Card>
                 <Card className={LIQUID_CARD}>
                     <CardHeader>
                         <CardTitle>Notification settings</CardTitle>
