@@ -1,3 +1,4 @@
+import { previewBillingActionRefusal } from "@/lib/app-data/preview-billing-action";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
@@ -6,6 +7,9 @@ import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 
 export async function POST(req: NextRequest) {
     try {
+        const previewRefusal = await previewBillingActionRefusal(req);
+        if (previewRefusal) return previewRefusal;
+
         // Check if Stripe is configured
         if (!isStripeConfigured()) {
             return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Payment system is not configured");
