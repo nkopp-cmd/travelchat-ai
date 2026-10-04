@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
+import { hasPreviewGuideIntent } from "@/lib/app-data/preview-guide-intent";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { getGuideEngagement } from "@/lib/engagement-tracking";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
@@ -33,6 +34,14 @@ export async function GET(req: NextRequest) {
                 console.error("[GUIDE_EARNINGS_PREVIEW] Archive unavailable", error);
                 return NextResponse.json({ error: "Guide revenue archive unavailable" }, { status: 503, headers });
             }
+        }
+
+        // Explicit candidate intent survives missing safety settings.
+        if (hasPreviewGuideIntent(req)) {
+            return NextResponse.json({ error: "Guide revenue archive unavailable" }, {
+                status: 503,
+                headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
         }
 
         const supabase = createSupabaseAdmin();
