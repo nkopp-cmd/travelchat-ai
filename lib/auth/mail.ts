@@ -102,8 +102,20 @@ export function authMailMode(): "outbox" | "cloudflare" {
   return "outbox";
 }
 
+export interface StoryReadyMail { kind: "story-ready"; to: string; url: string }
+
+/** Fixed transactional copy excludes client city/name/HTML from every message part. */
+export function renderStoryReadyMail(mail: StoryReadyMail): { subject: string; html: string; text: string } {
+  const url = escapeHtml(mail.url);
+  return {
+    subject: "Your Localley story slides are ready",
+    html: `<!doctype html><html><body><p>Your story slides are ready.</p><p><a href="${url}">View your trip</a></p><p>Localley</p></body></html>`,
+    text: `Your story slides are ready.\n\nView your trip: ${mail.url}\n\nLocalley\n`,
+  };
+}
+
 export function createMailSender(database: OutboxDatabase | undefined, emailBinding?: AuthEmailBinding) {
-  return async (mail: AuthMail) => {
+  return async (mail: AuthMail | StoryReadyMail) => {
     if (authMailMode() === "outbox") {
       if (!database) throw new Error("Auth outbox database is not configured");
       await database
@@ -117,7 +129,7 @@ export function createMailSender(database: OutboxDatabase | undefined, emailBind
       throw new Error("FROM_EMAIL must use hello@localley.io");
     }
     if (!isLocalleyAuthLink(mail.url)) throw new Error("Auth email link must use HTTPS on localley.io");
-    const { subject, html, text } = renderAuthMail(mail);
+    const { subject, html, text } = mail.kind === "story-ready" ? renderStoryReadyMail(mail) : renderAuthMail(mail);
     try {
       await emailBinding.send({
         from: { email: "hello@localley.io", name: "Localley" },
