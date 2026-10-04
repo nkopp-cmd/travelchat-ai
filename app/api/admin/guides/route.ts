@@ -34,6 +34,14 @@ export async function GET(req: NextRequest) {
         }
     }
 
+    // Explicit candidate reads must not use the source when safety settings are unavailable.
+    if (hasPreviewGuideIntent(req)) {
+        return NextResponse.json({ error: "Guide archive unavailable" }, {
+            status: 503,
+            headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+        });
+    }
+
     const supabase = createSupabaseAdmin();
     const status = req.nextUrl.searchParams.get("status"); // filter by status
 
