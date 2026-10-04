@@ -48,7 +48,7 @@ export function PreviewGuideApplication({ state }: { state: PreviewGuideApplicat
   const saved = state.kind === "pending";
   const disabled = pending || uncertain;
   return <AppBackground ambient className="min-h-screen">
-    <main className="mx-auto max-w-3xl space-y-6 px-4 pb-28 pt-8 sm:px-6 sm:pb-12">
+    <section aria-label="Guide application preview" className="mx-auto max-w-3xl space-y-6 px-4 pb-28 pt-8 sm:px-6 sm:pb-12">
       <Link href="/settings?data_candidate=d1" className="inline-flex min-h-11 items-center text-sm text-white/75 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300">
         <ArrowLeft className="mr-2 h-4 w-4" /> Preview settings
       </Link>
@@ -78,6 +78,6 @@ export function PreviewGuideApplication({ state }: { state: PreviewGuideApplicat
             </form>}
         </CardContent>
       </Card>
-    </main>
+    </section>
   </AppBackground>;
 }
