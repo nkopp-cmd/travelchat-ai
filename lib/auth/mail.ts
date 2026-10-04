@@ -103,6 +103,16 @@ export function authMailMode(): "outbox" | "cloudflare" {
 }
 
 export interface StoryReadyMail { kind: "story-ready"; to: string; url: string }
+export interface ItineraryCopyMail { kind: "itinerary-copy"; to: string; url: string }
+
+/** Owner copy links to a private detail view; it never creates a public share. */
+export function renderItineraryCopyMail(mail: ItineraryCopyMail): { subject: string; html: string; text: string } {
+  return {
+    subject: "Your saved Localley itinerary",
+    html: `<!doctype html><html><body><p>Your saved itinerary is ready to view.</p><p><a href="${escapeHtml(mail.url)}">View your itinerary</a></p><p>Sign in with your Localley account to view this private trip.</p><p>Localley</p></body></html>`,
+    text: `Your saved itinerary is ready to view.\n\nView your itinerary: ${mail.url}\n\nSign in with your Localley account to view this private trip.\n\nLocalley\n`,
+  };
+}
 
 /** Fixed transactional copy excludes client city/name/HTML from every message part. */
 export function renderStoryReadyMail(mail: StoryReadyMail): { subject: string; html: string; text: string } {
@@ -115,7 +125,7 @@ export function renderStoryReadyMail(mail: StoryReadyMail): { subject: string; h
 }
 
 export function createMailSender(database: OutboxDatabase | undefined, emailBinding?: AuthEmailBinding) {
-  return async (mail: AuthMail | StoryReadyMail) => {
+  return async (mail: AuthMail | StoryReadyMail | ItineraryCopyMail) => {
     if (authMailMode() === "outbox") {
       if (!database) throw new Error("Auth outbox database is not configured");
       await database
@@ -129,7 +139,8 @@ export function createMailSender(database: OutboxDatabase | undefined, emailBind
       throw new Error("FROM_EMAIL must use hello@localley.io");
     }
     if (!isLocalleyAuthLink(mail.url)) throw new Error("Auth email link must use HTTPS on localley.io");
-    const { subject, html, text } = mail.kind === "story-ready" ? renderStoryReadyMail(mail) : renderAuthMail(mail);
+    const { subject, html, text } = mail.kind === "story-ready" ? renderStoryReadyMail(mail)
+      : mail.kind === "itinerary-copy" ? renderItineraryCopyMail(mail) : renderAuthMail(mail);
     try {
       await emailBinding.send({
         from: { email: "hello@localley.io", name: "Localley" },

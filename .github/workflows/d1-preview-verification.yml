@@ -9,6 +9,8 @@ on:
       - 'app/itineraries/[id]/stories/**'
       - '__tests__/app/story-gallery-candidate.test.tsx'
       - 'lib/auth/mail.ts'
+      - 'app/api/itineraries/[id]/email/route.ts'
+      - '__tests__/api/itinerary-mail-candidate.test.ts'
       - 'app/api/itineraries/[id]/notify-story-ready/route.ts'
       - '__tests__/api/story-mail-candidate.test.ts'
       - '__tests__/lib/auth-mail.test.ts'
@@ -221,6 +223,8 @@ jobs:
             node --check scripts/d1-migration/notification-inventory.mjs
             node --test scripts/d1-migration/owner-rehearsal.test.mjs
             node --import tsx --test scripts/d1-migration/compare-cities.test.mjs
+            npx vitest run __tests__/api/itinerary-mail-candidate.test.ts __tests__/lib/app-data-preview-itinerary-mail.test.ts --maxWorkers=1
+            npx eslint lib/app-data/preview-itinerary-mail.ts "app/api/itineraries/[id]/email/route.ts" __tests__/api/itinerary-mail-candidate.test.ts __tests__/lib/app-data-preview-itinerary-mail.test.ts
             npx vitest run __tests__/api/story-mail-candidate.test.ts __tests__/lib/app-data-preview-story-mail.test.ts __tests__/lib/auth-mail.test.ts --maxWorkers=1
             npx eslint lib/auth/mail.ts lib/app-data/preview-story-mail.ts "app/api/itineraries/[id]/notify-story-ready/route.ts" __tests__/api/story-mail-candidate.test.ts __tests__/lib/app-data-preview-story-mail.test.ts
             npx vitest run __tests__/lib/app-data-preview-story-gallery.test.ts __tests__/app/story-gallery-candidate.test.tsx __tests__/api/story-media-candidate-route.test.ts --maxWorkers=1
