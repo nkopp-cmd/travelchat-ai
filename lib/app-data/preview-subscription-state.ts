@@ -198,10 +198,25 @@ export async function applyPreviewSubscriptionEvent(
   event: Stripe.Event,
   payload: string,
 ): Promise<{ recorded: boolean; applied: boolean }> {
-  const state = await eventState(event),
-    db = previewAppDataReader(),
-    hash = createHash("sha256").update(payload).digest("hex");
-  const objectId = String(object(event.data.object).id);
+  const db = previewAppDataReader(),
+    hash = createHash("sha256").update(payload).digest("hex"),
+    objectId = String(object(event.data.object).id);
+  // A committed receipt survives later cancellation, replacement or price-map changes.
+  // Old metadata-only ledger rows deliberately have no receipt and still need handling.
+  const completed = await db.prepare(`SELECT e.eventType,e.stripeCreated,e.objectId,e.payloadSha256
+    FROM preview_subscription_event_receipts r JOIN preview_stripe_events e ON e.id=r.eventId
+    WHERE r.eventId=?`).bind(event.id).first<{
+      eventType: string; stripeCreated: number; objectId: string; payloadSha256: string;
+    }>();
+  if (completed) {
+    if (completed.eventType !== event.type || completed.stripeCreated !== event.created
+      || completed.objectId !== objectId || completed.payloadSha256 !== hash)
+      reject("Stripe event ID conflict");
+    return { recorded: false, applied: false };
+  }
+  const state = await eventState(event);
+  const receipt = db.prepare("INSERT OR IGNORE INTO preview_subscription_event_receipts(eventId) VALUES(?)")
+    .bind(event.id);
   const ledger = db
     .prepare(
       `INSERT OR IGNORE INTO preview_stripe_events(id,eventType,stripeCreated,livemode,objectId,payloadSha256) VALUES(?,?,?,0,?,?)`,
@@ -209,8 +224,8 @@ export async function applyPreviewSubscriptionEvent(
     .bind(event.id, event.type, event.created, objectId, hash);
   if (!state) {
     try {
-      const result = await ledger.run();
-      return { recorded: result.meta.changes === 1, applied: false };
+      const result = await db.batch([ledger, receipt]);
+      return { recorded: result[0].meta.changes === 1, applied: false };
     } catch (error) {
       if (error instanceof Error && /preview_billing_/.test(error.message))
         reject("Stripe event ID conflict");
@@ -301,6 +316,7 @@ export async function applyPreviewSubscriptionEvent(
           state.stripeSubscriptionId,
         ),
     );
+  statements.push(receipt);
   try {
     const result = await db.batch(statements);
     return {
