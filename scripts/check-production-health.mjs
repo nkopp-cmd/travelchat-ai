@@ -7,6 +7,7 @@ import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
 import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
 import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
 import { auditIngestionSettings } from './production-health/ingestion-settings.mjs';
+import { errorRouteGroup } from './production-health/route-groups.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -18,16 +19,6 @@ const args = process.argv.slice(2);
 const reportIndex = args.indexOf('--report');
 const destination = reportIndex < 0 ? join(homedir(), '.local/state/localley/production-health.json') : args[reportIndex + 1];
 if (!destination) throw new Error('--report needs a path');
-const sanitize = value => String(value || '')
-  .replace(/https?:\/\/[^\s]+/g, '[URL]')
-  .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]')
-  .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, ':id')
-  .replace(/\buser_[A-Za-z0-9]+\b/g, ':user')
-  .replace(/\b(?:Bearer|token|password|secret|api[_-]?key)\s*[:= ]\s*[^\s,;]+/gi, '[redacted]')
-  .slice(0, 400);
-const pathOf = value => {
-  try { return sanitize(new URL(value).pathname); } catch { return ''; }
-};
 const health = await Promise.all(['/', '/sign-in', '/api/cities?noCache=true&includeHidden=true'].map(async path => {
   try {
     const response = await fetch(`https://www.localley.io${path}`, { signal: AbortSignal.timeout(25000) });
@@ -63,7 +54,7 @@ try {
     const metadata = event.$metadata || {}, worker = event.$workers || {};
     // Refuse unrelated service events even if the provider filter changes.
     if (metadata.service !== service) throw new Error('unexpected service');
-    const path = pathOf(metadata.url || worker.event?.request?.url);
+    const path = errorRouteGroup(metadata.url || worker.event?.request?.url);
     // Never persist raw log text: an upstream exception can contain a credential
     // without a recognizable label. Keep diagnostic classes, not payloads.
     const raw = String(metadata.error || metadata.message || '');
