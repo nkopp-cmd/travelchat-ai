@@ -62,6 +62,8 @@ on:
       - 'app/api/notifications/**'
       - 'app/api/admin/guides/route.ts'
       - 'app/api/admin/payouts/approve/route.ts'
+      - 'app/api/admin/payouts/execute/route.ts'
+      - '__tests__/api/admin-payout-execution-candidate.test.ts'
       - 'app/api/connect/status/route.ts'
       - 'app/api/connect/dashboard/route.ts'
       - '__tests__/api/connect-dashboard-candidate.test.ts'
@@ -183,8 +185,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
-            npx vitest run __tests__/api/connect-dashboard-candidate.test.ts --maxWorkers=1
-            npx eslint app/api/connect/dashboard/route.ts __tests__/api/connect-dashboard-candidate.test.ts
+            npx vitest run __tests__/api/connect-dashboard-candidate.test.ts __tests__/api/admin-payout-execution-candidate.test.ts --maxWorkers=1
+            npx eslint app/api/connect/dashboard/route.ts __tests__/api/connect-dashboard-candidate.test.ts app/api/admin/payouts/execute/route.ts __tests__/api/admin-payout-execution-candidate.test.ts
             npx vitest run __tests__/lib/app-data-preview-profile.test.ts __tests__/pages/profile-candidate.test.tsx --maxWorkers=1
             npx eslint lib/app-data/preview-profile.ts components/profile/preview-profile.tsx app/profile/page.tsx __tests__/lib/app-data-preview-profile.test.ts __tests__/pages/profile-candidate.test.tsx
             npx vitest run __tests__/components/preview-email-preferences.test.tsx __tests__/lib/email-preferences-candidate-url.test.ts --maxWorkers=1
