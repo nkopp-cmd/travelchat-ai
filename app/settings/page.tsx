@@ -17,6 +17,8 @@ import { BillingPortalButton } from "@/components/subscription/billing-portal-bu
 import { EmailPreferencesSection } from "@/components/settings/email-preferences";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences";
 import { headers } from "next/headers";
+import { PreviewBillingSummary } from "@/components/settings/preview-billing-summary";
+import { previewBillingSettings } from "@/lib/app-data/preview-billing-settings";
 import { assertPreviewNotificationUser } from "@/lib/app-data/preview-notifications";
 
 const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
@@ -121,12 +123,16 @@ export default async function SettingsPage({ searchParams }: {
         let eligible = false;
         try { await assertPreviewNotificationUser(user.id); eligible = true; }
         catch { /* No source fallback for unimported or unverified accounts. */ }
+        let billing = null;
+        try { billing = await previewBillingSettings(user.id); }
+        catch { /* Keep unavailable distinct from a free plan, without source fallback. */ }
         return (
             <div className="mx-auto w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8">
+                <PreviewBillingSummary summary={billing} />
                 <Card className={LIQUID_CARD}>
                     <CardHeader>
                         <CardTitle>Notification settings</CardTitle>
-                        <CardDescription>Preview choices only. Billing and other account settings use the existing site.</CardDescription>
+                        <CardDescription>Preview choices only. Delivery and other account changes are unavailable here.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {eligible ? <NotificationPreferencesSection /> : <p role="status">Preview notification settings are unavailable for this account.</p>}
