@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/d1-preview-verification.yml'
       - 'lib/app-data/**'
+      - 'app/profile/page.tsx'
+      - 'components/profile/preview-profile.tsx'
+      - '__tests__/pages/profile-candidate.test.tsx'
       - 'app/itineraries/[id]/stories/**'
       - '__tests__/app/story-gallery-candidate.test.tsx'
       - 'lib/auth/mail.ts'
@@ -170,6 +173,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/lib/app-data-preview-profile.test.ts __tests__/pages/profile-candidate.test.tsx --maxWorkers=1
+            npx eslint lib/app-data/preview-profile.ts components/profile/preview-profile.tsx app/profile/page.tsx __tests__/lib/app-data-preview-profile.test.ts __tests__/pages/profile-candidate.test.tsx
             npx vitest run __tests__/components/preview-email-preferences.test.tsx __tests__/lib/email-preferences-candidate-url.test.ts --maxWorkers=1
             npx eslint components/settings/preview-email-preferences.tsx lib/app-data/email-preferences-candidate-url.ts __tests__/components/preview-email-preferences.test.tsx __tests__/lib/email-preferences-candidate-url.test.ts
             npx vitest run __tests__/api/subscription-action-candidate.test.ts --maxWorkers=1
