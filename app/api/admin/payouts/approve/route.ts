@@ -1,3 +1,4 @@
+import { hasPreviewGuideIntent } from "@/lib/app-data/preview-guide-intent";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -33,6 +34,14 @@ export async function POST(req: NextRequest) {
             console.error("[PREVIEW_PAYOUT_APPROVAL] Approval unavailable", error);
             return NextResponse.json({ error: "Payout approval unavailable" }, { status: 503, headers });
         }
+    }
+
+    // Explicit candidate intent cannot fall through when safety settings are unavailable.
+    if (hasPreviewGuideIntent(req)) {
+        return NextResponse.json({ error: "Payout approval unavailable" }, {
+            status: 503,
+            headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
+        });
     }
 
     try {
