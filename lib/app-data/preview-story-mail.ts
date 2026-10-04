@@ -3,6 +3,7 @@ import { currentUser } from "@/lib/auth/server";
 import { authMailMode, createMailSender, type OutboxDatabase } from "@/lib/auth/mail";
 import { newOwnerId, ownerIds } from "./preview-conversations";
 import { previewAppDataReader } from "./preview-db";
+import { previewStoryReady } from "./preview-story-readiness";
 
 const previewHost = "localley-next-preview.nkopp.workers.dev";
 const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
@@ -26,10 +27,11 @@ export async function queuePreviewStoryMail(userId: string, id: string): Promise
     .bind(id.toLowerCase(), owners.fresh, userId).first<{ id: string }>();
   if (!row) return false;
   if (row.id !== id.toLowerCase()) throw new Error("Invalid story itinerary");
+  if (!await previewStoryReady(row.id, userId)) return false;
   const context = (globalThis as Record<symbol, { env?: { AUTH_DB?: OutboxDatabase } } | undefined>)
     [Symbol.for("__cloudflare-context__")];
   // Never pass a provider binding: this increment records only reserved preview mail.
   await createMailSender(context?.env?.AUTH_DB)({ kind: "story-ready", to: email,
-    url: `https://${previewHost}/itineraries/${row.id}?data_candidate=d1` });
+    url: `https://${previewHost}/itineraries/${row.id}/stories?data_candidate=d1` });
   return true;
 }
