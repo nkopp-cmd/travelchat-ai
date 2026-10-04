@@ -7,6 +7,7 @@ import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
 import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
 import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
 import { auditIngestionSettings } from './production-health/ingestion-settings.mjs';
+import { checkCityCatalog } from './production-health/city-catalog.mjs';
 import { errorRouteGroup } from './production-health/route-groups.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
@@ -21,9 +22,10 @@ const destination = reportIndex < 0 ? join(homedir(), '.local/state/localley/pro
 if (!destination) throw new Error('--report needs a path');
 const health = await Promise.all(['/', '/sign-in', '/api/cities?noCache=true&includeHidden=true'].map(async path => {
   try {
-    const response = await fetch(`https://www.localley.io${path}`, { signal: AbortSignal.timeout(25000) });
-    await response.body?.cancel();
-    return { path: path.split('?')[0], status: response.status };
+    const response = await fetch(`https://www.localley.io${path}`, { redirect: 'error', signal: AbortSignal.timeout(25000) });
+    const catalog = path.startsWith('/api/cities?') ? await checkCityCatalog(response) : undefined;
+    if (!catalog) await response.body?.cancel();
+    return { path: path.split('?')[0], status: response.status, ...(catalog ? { catalog } : {}) };
   } catch { return { path: path.split('?')[0], status: null, error: 'request failed or timed out' }; }
 }));
 const query = {
@@ -85,4 +87,4 @@ const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, servic
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
 console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, report: destination }));
-if (!logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200)) process.exitCode = 1;
+if (!logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false)) process.exitCode = 1;

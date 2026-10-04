@@ -87,7 +87,7 @@ test('daily CLI persists failed configuration, preserves event coverage and exit
     const preloader = `globalThis.fetch = async url => {
       if (String(url).endsWith('/script-settings')) return new Response(JSON.stringify({success:true,result:{observability:{enabled:true,head_sampling_rate:1,logs:{enabled:false,head_sampling_rate:1,invocation_logs:true,persist:true},bindings:[{secret:'private-token'}]}}}));
       if (String(url).includes('/telemetry/query')) return new Response(JSON.stringify({success:true,result:{run:{status:'COMPLETED'},statistics:{abr_level:1},events:{count:0,events:[]}}}));
-      return new Response('ok');
+      if(String(url).includes('/api/cities?'))return new Response(JSON.stringify({success:true,total:1,cities:[{slug:'seoul',spotCount:150,status:'recommended'}]}));return new Response('ok');
     };`;
     const path = join(dir, 'report.json');
     const run = spawnSync(process.execPath, ['--import', 'data:text/javascript;base64,' + Buffer.from(preloader).toString('base64'),

@@ -61,7 +61,7 @@ test('actual CLI groups multiple private IDs and retains event totals/status/cov
         const paths=['/api/spots/PRIVATEALPHA/photos','/api/spots/PRIVATEBETA/photos','/users/person%40example.com','/PRIVATEBYTES'];
         const events=paths.map(path=>({$metadata:{service:'localley-next',url:'https://www.localley.io'+path+'?token=PRIVATEBYTES',message:'GET PRIVATEBYTES'},$workers:{event:{response:{status:502}}}}));
         return new Response(JSON.stringify({success:true,result:{run:{status:'COMPLETED'},statistics:{abr_level:1},events:{count:events.length,events}}}));
-      }return new Response('ok');};`;
+      }if(String(url).includes('/api/cities?'))return new Response(JSON.stringify({success:true,total:1,cities:[{slug:'seoul',spotCount:150,status:'recommended'}]}));return new Response('ok');};`;
     const reportPath=join(dir,'report.json');
     const run=spawnSync(process.execPath,['--import','data:text/javascript;base64,'+Buffer.from(preloader).toString('base64'),
       'scripts/check-production-health.mjs','--report',reportPath],{env:{...process.env,CLOUDFLARE_API_TOKEN:'fixture-token'},encoding:'utf8'});
