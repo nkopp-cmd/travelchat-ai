@@ -26,10 +26,11 @@ const input = { systemPrompt: 'Return JSON only', userPrompt: 'Synthetic request
 
 describe('GLM JSON request body through the real SDK with intercepted HTTP', () => {
   it('dispatches a bounded opted-out JSON request once on an upstream 500', async () => {
-    const { provider } = intercept();
+    intercept();
     const failure = vi.fn(async () => new Response(JSON.stringify({ error: { message: 'synthetic upstream failure' } }),
       { status: 500, headers: { 'content-type': 'application/json' } }));
     vi.stubGlobal('fetch', failure);
+    const provider = new GLMProvider();
     await expect(provider.generateText(input)).rejects.toThrow('Failed to generate text');
     expect(failure).toHaveBeenCalledTimes(1);
   });
