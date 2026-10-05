@@ -131,6 +131,9 @@ on:
       - 'app/api/itineraries/generate/**'
       - '__tests__/api/itinerary-private-diagnostics.test.ts'
       - '__tests__/api/itinerary-provider-fallback.test.ts'
+      - '__tests__/lib/glm-json-request.test.ts'
+      - 'lib/llm/providers/glm.ts'
+      - 'lib/llm/types.ts'
       - 'docs/AUTH_BETTER_AUTH.md'
       - 'docs/PRODUCTION_USER_HEALTH.md'
       - 'docs/SOURCE_PHOTO_REPAIR.md'
@@ -200,7 +203,7 @@ jobs:
             npx eslint lib/app-data/preview-story-background-cache.ts lib/app-data/preview-story-usage.ts app/api/images/story-background/route.ts "app/api/images/story-background/media/[id]/route.ts" app/api/test-app-data/story-background/route.ts __tests__/api/story-background-cache-candidate.test.ts
             npx vitest run __tests__/api/story-render-access.test.tsx --maxWorkers=1
             npx eslint "app/api/itineraries/[id]/story/route.tsx" __tests__/api/story-render-access.test.tsx
-            npx vitest run __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/itinerary-sanitize.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/glm-json-request.test.ts __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/itinerary-sanitize.test.ts --maxWorkers=1
             npx eslint app/api/itineraries/generate/diagnostics.ts app/api/itineraries/generate/provider-fallback.ts app/api/itineraries/generate/shared.ts app/api/itineraries/generate/corridor-generation.ts app/api/itineraries/generate/route.ts __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts
             npx vitest run __tests__/hooks/use-place-photo.test.tsx --maxWorkers=1
             npx eslint hooks/use-place-photo.ts __tests__/hooks/use-place-photo.test.tsx

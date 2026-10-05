@@ -84,6 +84,8 @@ export class GLMProvider
       throw new ProviderNotAvailableError('glm');
     }
 
+    const boundedJson = options.responseFormat === 'json' && options.disableThinking === true
+      && this.config.model === 'glm-5.2';
     const { result, latencyMs } = await this.measureLatency(async () => {
       try {
         const completion = await this.client!.chat.completions.create({
@@ -96,7 +98,10 @@ export class GLMProvider
           max_tokens: options.maxTokens ?? 3000,
           response_format:
             options.responseFormat === 'json' ? { type: 'json_object' } : undefined,
-        });
+          // GLM-5.3 forces thinking. Keep unknown/other models and normal chat unchanged.
+          ...(boundedJson
+            ? { thinking: { type: 'disabled' as const } } : {}),
+        }, boundedJson ? { maxRetries: 0 } : undefined);
 
         this.recordSuccess();
         return completion;
