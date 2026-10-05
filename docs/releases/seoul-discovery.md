@@ -6,7 +6,19 @@ Cloudflare OpenNext Worker `localley-next` serves www, apex and next.localley.io
 
 One fresh received-email login and one actual live generation200 prove GLM5.2 primary/no fallback, automatic owned save and desktop/mobile reload. Scrolled screenshots inspected;40cleanup checks preserve both admins/source hashes and clear fixtures. Browser media/provider endpoints were blocked; precise pins/photo providers are not part of this acceptance. Public roots200 and anonymous normal-host/spoof checks pass; daily health service exits0. [Exact acceptance and limits](../GLM_JSON_REQUEST_ACCEPTANCE.md).
 
-Production application data remains on Supabase; Better Auth uses D1 AUTH_DB. Candidate D1/R2 development resumed under Nils's October3 direction; production data switch still requires full parity, rollback and canary gates. Production bindings remain unchanged, with no candidate application binding. Preview08d5a10a/deploymentb09577ff stays unchanged. Notification SQL fallback PR283 remains draft; history/disposition and production cutover gates remain open. Native sync stays disabled/inactive because its legacy import is obsolete.
+Production application data remains on Supabase; Better Auth uses D1 AUTH_DB. Candidate D1/R2 development resumed under Nils's October3 direction; production data switch still requires full parity, rollback and canary gates. Production bindings remain unchanged, with no candidate application binding. The current preview release appears below. Notification SQL fallback PR283 remains draft; history/disposition and production cutover gates remain open. Native sync stays disabled/inactive because its legacy import is obsolete.
+
+## Current preview — candidate FLUX submission boundary, 2026-10-05
+
+PR373 / source `21dd7990f8984dfb7edcc3c4c86ff18988d1c917` passed required CI `37308365875`.
+Preview version `fe7b1671-1f4a-4c07-86c4-fae9a0f84332`, deployment `2a00c196-bf76-45dc-9591-d3f97425f5b4`, runs100%.
+Rollback `08d5a10a-a3e3-4842-ae90-1acef64121e1` remains available.
+Production stays on the GLM release above.
+Eleven real-SDK and thirteen handler tests, TypeScript, lint, pinned build and focused review passed.
+Hosted owned/anonymous/normal boundary checks and exact auth cleanup passed.
+Source/APP fingerprints, both admins and preview safety settings remained unchanged.
+Paid generation stays disabled; real paid acceptance remains open.
+See [the D1 release evidence](../CLOUDFLARE_D1_PROJECT.md#candidate-flux-submission-boundary--2026-10-05) for exact scope and limits.
 
 ## Historical production — users first, 2026-10-01
 
