@@ -42,6 +42,24 @@ NEED545 requires authorized physical source/history/installed writer evidence.
 External writers, historical consent, source compatibility and activation remain unproven.
 Private receipts and review remain in `~/.local/state/localley/notification-review-20261005/`.
 
+## Real story acceptance preflight — stopped, 2026-10-05
+
+Pinned install and OpenNext build passed on main `57dbda5b5ac16f805141a055692dce59c82a9ce5`.
+The read-only activation-plan review found no P0/P1, subject to its entitlement, overlay and no-retry conditions.
+It reviewed source only. No hosted entitlement or generation acceptance occurred.
+
+Two baseline attempts stopped the test. The first tried to count D1's protected `_cf_KV` relation.
+Schema inspection identified that internal relation; the supported snapshot covers55application tables.
+The second stopped because the preview Worker has no `FAL_KEY` binding.
+The shared credential store also has no FAL key. The existing application credential remains unchanged.
+No key was copied, no test user or fixture was created, and no paid request or Worker upload occurred.
+Generation remains disabled; normal production and preview versions above remain unchanged.
+
+The spend guard passed atUSD4.95/week andUSD18.24/month. This preflight added no paid usage or reservation.
+The new FAL credential/binding request is in root NEEDS.md. Do not retry the stopped baseline until it clears.
+Notification source SQL/history and activation remain separately blocked by NEED545.
+Private `story-real-acceptance-20261005/blocked-preflight.json` retains counted tables, source/auth fingerprints and release identities.
+
 ## Historical preview — fresh saved-slide capacity, 2026-10-05
 
 PR377 / runtime source `978a1dc051ae9ae90dbf7c5e23f7c1a09ea971b5` passed required CI `37321893022`.
