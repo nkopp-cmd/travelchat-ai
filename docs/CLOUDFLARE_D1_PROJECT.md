@@ -970,3 +970,10 @@ No paid request, spend receipt, generation activation or production application-
 An older2MiB Worker would reject large candidate cache objects; clean exact owned oversized fixtures before rollback.
 The accepted fixture is already removed; no source fallback is introduced.
 Real paid story acceptance, historical parity, full rehearsal and production cutover remain open.
+
+## Fresh candidate saved-slide capacity — 2026-10-05
+
+[PR377 release evidence](CANDIDATE_STORY_SLIDE_CAPACITY.md) records exact commit, CI, preview/rollback and hosted proof.
+Fresh verified reserved owners can persist actual rendered PNGs above2MiB with bounded8MiB/64MiB capacity.
+The hosted full application accepted64MiB; owned galleries/readiness and exact fixture cleanup passed.
+Normal routing and production data remain unchanged. Paid generation and full cutover remain separate gates.

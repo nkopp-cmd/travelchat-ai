@@ -8,7 +8,19 @@ One fresh received-email login and one actual live generation200 prove GLM5.2 pr
 
 Production application data remains on Supabase; Better Auth uses D1 AUTH_DB. Candidate D1/R2 development resumed under Nils's October3 direction; production data switch still requires full parity, rollback and canary gates. Production bindings remain unchanged, with no candidate application binding. The current preview release appears below. Notification SQL fallback PR283 remains draft; history/disposition and production cutover gates remain open. Native sync stays disabled/inactive because its legacy import is obsolete.
 
-## Current preview — candidate FLUX submission boundary, 2026-10-05
+## Current preview — fresh saved-slide capacity, 2026-10-05
+
+PR377 / runtime source `978a1dc051ae9ae90dbf7c5e23f7c1a09ea971b5` passed required CI `37321893022`.
+Preview version `6bb33686-6b1d-44c4-982a-a740ecda1167`, deployment `ead473e7-3af0-40ba-a949-5c85e3783d35`, runs100%.
+Rollback `e13812dc-1c24-4c19-9aa5-bd7ecefc2cdf` remains available.
+Twenty-seven focused tests, TypeScript, lint, pinned build and scoped review passed.
+Hosted proof covers three real5751967-byte PNGs, full64MiB persistence, private readiness and inspected desktop/mobile galleries.
+Exact fixture cleanup restores55APP counts, source/auth fingerprints and both admins; production remains unchanged.
+Generation stays disabled. No paid provider call occurred.
+See [exact scope and acceptance](../CANDIDATE_STORY_SLIDE_CAPACITY.md).
+Later evidence-only main commits do not change the runtime source above.
+
+## Historical preview — candidate FLUX submission boundary, 2026-10-05
 
 PR373 / source `21dd7990f8984dfb7edcc3c4c86ff18988d1c917` passed required CI `37308365875`.
 Preview version `fe7b1671-1f4a-4c07-86c4-fae9a0f84332`, deployment `2a00c196-bf76-45dc-9591-d3f97425f5b4`, runs100%.
