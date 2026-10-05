@@ -20,6 +20,28 @@ No provider call or external email occurred. Generation remains disabled.
 See [scope, exact tests and acceptance](../CANDIDATE_FRESH_STORY_BACKGROUNDS.md).
 Later evidence-only main commits do not change this runtime source.
 
+## Host artifact — notification history report, 2026-10-05
+
+PR372 tested head `05cd70ececa19d0984983ec9b9356e31f87bfd7b` passed required self-hosted CI `37337852319` in9m17s.
+Merge `51272e984b6346f8fc0cdd73e409a968920b94f3` matches tested tree `3419be13136b8b85a7c733690b4ef7942fd11cff`.
+Stable main contains the [read-only SQL report and run instructions](../notification-history-sql.md).
+SQL SHA256: `9f284160a27c1b5bbd6bb3532b87038b077837a070058d6a524759ffab98447a`.
+
+Ten real PostgreSQL checks pass on the feature and stable main through `run-heavy.sh`.
+They cover absent relations, counts, privacy, blank owners, inherited rows, missing fields, refused views, restricted RLS/user lookup and no writes.
+Syntax/diff checks pass. Final supplied-source review found no concrete P0/P1; the reviewer ran no database queries.
+Blank source IDs remain missing, never matched owners.
+Inherited counts, incomplete writer coverage and unverified SQL Editor result handling remain explicit.
+
+Read-only checks at16:14:55UTC match the baseline. Both production AUTH/source admins remain. Public roots return200.
+Isolated preview AUTH retains20users/22sessions/20accounts/1verification/24outbox.
+Current Worker/deployment/rollback identities remain unchanged, as recorded above.
+This releases a host artifact. It changes no Worker runtime and creates no source/candidate rows.
+The three source notification tables still return404/PGRST205 with unknown physical counts. Candidate notification tables remain empty.
+NEED545 requires authorized physical source/history/installed writer evidence.
+External writers, historical consent, source compatibility and activation remain unproven.
+Private receipts and review remain in `~/.local/state/localley/notification-review-20261005/`.
+
 ## Historical preview — fresh saved-slide capacity, 2026-10-05
 
 PR377 / runtime source `978a1dc051ae9ae90dbf7c5e23f7c1a09ea971b5` passed required CI `37321893022`.
