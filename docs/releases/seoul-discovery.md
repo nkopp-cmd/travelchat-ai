@@ -1,6 +1,14 @@
 # Seoul Discovery Release
 
-## Current production — users first, 2026-10-01
+## Current production — bounded GLM correction, 2026-10-05
+
+Cloudflare OpenNext Worker `localley-next` serves www, apex and next.localley.io. Runtime source `ccf23a78dfea795a575a142402823cbf81dc0210` (PR295), tested head3a5f537, required self-hosted CI37299980586 SUCCESS10m12s and equal tree5b9b1383. Pinned production build and independent scoped release review passed. Worker `b42e8926-6b15-4875-85ec-44d39513832d` at100%, deployment `6f22f0cb-a8b8-4e8f-bf76-19965611b471`; rollback `a548f24e-1f17-4021-a830-219074baa337`.
+
+One fresh received-email login and one actual live generation200 prove GLM5.2 primary/no fallback, automatic owned save and desktop/mobile reload. Scrolled screenshots inspected;40cleanup checks preserve both admins/source hashes and clear fixtures. Browser media/provider endpoints were blocked; precise pins/photo providers are not part of this acceptance. Public roots200 and anonymous normal-host/spoof checks pass; daily health service exits0. [Exact acceptance and limits](../GLM_JSON_REQUEST_ACCEPTANCE.md).
+
+Production application data remains on Supabase; Better Auth uses D1 AUTH_DB. Candidate D1/R2 development resumed under Nils's October3 direction; production data switch still requires full parity, rollback and canary gates. Production bindings remain unchanged, with no candidate application binding. Preview08d5a10a/deploymentb09577ff stays unchanged. Notification SQL fallback PR283 remains draft; history/disposition and production cutover gates remain open. Native sync stays disabled/inactive because its legacy import is obsolete.
+
+## Historical production — users first, 2026-10-01
 
 The current target is Cloudflare OpenNext Worker `localley-next`, serving apex, www and next.localley.io. Repository `nkopp-cmd/travelchat-ai`, merged main code `2177fa7` (PR #284), required self-hosted CI `36847108837`. Deployment `a1b6362a-817a-42c3-aec5-3c38dd53fc17` serves version `58e7dadb-406b-4e48-a7da-f25683cbf30c` at 100%, released 10:30:23 UTC. Rollback `b66a792d-fa68-4db4-acda-3e60d9ed3329`. Supabase application data and D1 Better Auth remain unchanged apart from the explicitly authorized one-row wrong-photo quarantine.
 
