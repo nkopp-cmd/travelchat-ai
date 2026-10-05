@@ -15,8 +15,8 @@ const environment = process.env;
 const id = "11111111-1111-4111-8111-111111111111";
 const params = { params: Promise.resolve({ id }) };
 const preview = "localley-next-preview.nkopp.workers.dev";
-const request = (host: string, method = "GET", candidate = true, body?: object) => new NextRequest(
-  `https://${host}/api/itineraries/${id}/ai-backgrounds${candidate ? "?data_candidate=d1" : ""}`,
+const request = (host: string, method = "GET", candidate = true, body?: object, fresh = false) => new NextRequest(
+  `https://${host}/api/itineraries/${id}/ai-backgrounds${candidate ? "?data_candidate=d1" : ""}${fresh ? "&background_candidate=fresh" : ""}`,
   { method, ...(body ? { body: JSON.stringify(body) } : {}) },
 );
 
@@ -61,10 +61,10 @@ describe("existing story backgrounds route candidate", () => {
       single: vi.fn().mockResolvedValue({ data: { id, clerk_user_id: "owner-id", ai_backgrounds: { cover: "/images/live.png" } }, error: null }),
     };
     mocks.supabase.mockReturnValue({ from: vi.fn().mockReturnValue(query) });
-    const liveGet = await GET(request("www.localley.io"), params);
+    const liveGet = await GET(request("www.localley.io", "GET", true, undefined, true), params);
     expect(liveGet.status).toBe(200);
     expect(await liveGet.json()).toEqual({ success: true, backgrounds: { cover: "/images/live.png" } });
-    const livePatch = await PATCH(request("www.localley.io", "PATCH", true, { cover: "/images/live.png" }), params);
+    const livePatch = await PATCH(request("www.localley.io", "PATCH", true, { cover: "/images/live.png" }, true), params);
     expect(livePatch.status).toBe(200);
     const previewGet = await GET(request(preview, "GET", false), params);
     expect(previewGet.status).toBe(200);

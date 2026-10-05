@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { parsePreviewStoryPatch, previewStoryBackgrounds, updatePreviewStoryBackgrounds } from "@/lib/app-data/preview-story-metadata";
+import { previewFreshStoryBackgrounds, updatePreviewFreshStoryBackgrounds, readPreviewFreshBackgroundPatch } from "@/lib/app-data/preview-fresh-story-backgrounds";
 
 /** Explicit candidate opt-in. Production and normal preview requests keep the existing repository. */
 function isPreviewStoryDataCandidate(req: NextRequest): boolean {
@@ -10,6 +11,12 @@ function isPreviewStoryDataCandidate(req: NextRequest): boolean {
         && req.nextUrl.searchParams.get("data_candidate") === "d1"
         && process.env.AUTH_MAIL_MODE === "outbox"
         && process.env.SUPABASE_READ_ONLY === "true";
+}
+
+function isFreshBackgroundRequest(req: NextRequest): boolean {
+    return req.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
+        && req.nextUrl.searchParams.get("data_candidate") === "d1"
+        && req.nextUrl.searchParams.get("background_candidate") === "fresh";
 }
 
 /**
@@ -55,24 +62,29 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        if (isFreshBackgroundRequest(req) && !isPreviewStoryDataCandidate(req)) return Errors.databaseError();
         const { userId } = await auth();
         if (!userId) {
             return Errors.unauthorized();
         }
 
         const { id } = await params;
-        const body = await req.json();
+        const candidate = isPreviewStoryDataCandidate(req);
+        const fresh = isFreshBackgroundRequest(req);
+        const body = fresh ? await readPreviewFreshBackgroundPatch(req) : await req.json();
 
-        if (isPreviewStoryDataCandidate(req)) {
+        if (candidate) {
             const patch = parsePreviewStoryPatch(body);
             if (!patch) return Errors.validationError("Invalid backgrounds");
             try {
-                const backgrounds = await updatePreviewStoryBackgrounds(id, userId, patch);
+                const backgrounds = fresh ? await updatePreviewFreshStoryBackgrounds(id, userId, patch)
+                    : await updatePreviewStoryBackgrounds(id, userId, patch);
                 if (!backgrounds) return Errors.notFound("Itinerary");
                 return NextResponse.json({ success: true, itinerary: { id, ai_backgrounds: backgrounds } }, {
                     headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
                 });
-            } catch {
+            } catch (error) {
+                if (fresh && error instanceof RangeError) return Errors.validationError(error.message);
                 return Errors.databaseError();
             }
         }
@@ -193,12 +205,14 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        if (isFreshBackgroundRequest(req) && !isPreviewStoryDataCandidate(req)) return Errors.databaseError();
         const { id } = await params;
         if (isPreviewStoryDataCandidate(req)) {
             const { userId } = await auth();
             if (!userId) return Errors.unauthorized();
             try {
-                const backgrounds = await previewStoryBackgrounds(id, userId);
+                const backgrounds = req.nextUrl.searchParams.get("background_candidate") === "fresh"
+                    ? await previewFreshStoryBackgrounds(id, userId) : await previewStoryBackgrounds(id, userId);
                 if (!backgrounds) return Errors.notFound("Itinerary");
                 return NextResponse.json({ success: true, backgrounds }, {
                     headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
