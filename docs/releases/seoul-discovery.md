@@ -151,3 +151,16 @@ Real verified reserved sessions proved D1 preference writes/readback, concurrent
 PR302 `44d74c4375eb433f45da07cedae224bb1f849142`, exact head `d0a93392a178368da8e01d554115de538b062fcc`, required CI37143273975 passed6m53s. Thirty local real-render/access/repository tests, TypeScript/lint, pinned installation and OpenNext build passed. Preview Worker `110a575a-3799-4594-a426-1ee47608989c` / deployment `49cc5410-9fee-4c42-a279-97310ee4ed34`, rollback `3f377307-15bf-4d88-9d36-6a26ad8be6f5`; no app schema migration.
 
 Two real outbox-verified sessions proved full cover/day/summary PNGs1080x1920, cross-owner/private404, public rendering200, expired stored-slide access semantics, a controlled public JPEG background prefetch, invalid-background500, missing404 and exact cleanup0. Counts7owners/85itineraries/85media restored, both production admins intact, two PNGs inspected. Unflagged preview500/no D1 remains a preexisting limitation. Production Worker `a548f24e`100%/deployment `d39a5358`/rollback `93f34779` unchanged; www/apex/preview200. Actual private report `d1-story-hosted-20261003.json`; details in CLOUDFLARE_D1_PROJECT. Harness removed; no paid call or source write. Background R2 writes, fresh-data parity, tested rollback and signed-in1% canary remain open.
+
+## 2026-10-05 — Candidate background capacity preview
+
+PR375 / merged source `d2111d0cc7fde752922128b6fc783d56d6c38ab2`; required CI37314744402 passed11m11s.
+Twenty-six focused tests, TypeScript/lint, pinned OpenNext build and scoped review passed.
+Preview-only0031 raises background cache limits to8MiB with preserved constraints and empty-table preflight.
+Preview Worker `e13812dc-1c24-4c19-9aa5-bd7ecefc2cdf`, deployment `d987f582-d51c-4405-aa01-089122f9d2a4`, rollback `fe7b1671-1f4a-4c07-86c4-fae9a0f84332`.
+Real verified owners prove a4515442-byte PNG/hash/cache hit/no credits, foreign404/anonymous401 and unchanged normal routing.
+Exact R2/D1/AUTH cleanup0,55APP counts/import/FK/source fingerprints and both admins are restored.
+Productionb42e8926/deployment6f22f0cb remains unchanged; all three public roots200.
+Generation stays disabled. No paid call, source write or production data switch.
+Candidate saved-slide2MiB capacity remains a separate follow-up before paid acceptance.
+Exact limits, evidence paths and rollback conditions are in docs/CLOUDFLARE_D1_PROJECT.md.

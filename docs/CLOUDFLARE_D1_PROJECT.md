@@ -927,3 +927,46 @@ Private mode600 receipts use prefix `candidate-flux-` and date `20261005`.
 The first baseline read failed because script-settings omits bindings; the settings API correction passed.
 Post-merge local branch cleanup reported main was already checked out; the merge itself succeeded and was verified.
 Real paid generation, historical parity, notification SQL history, full rehearsal and production cutover remain open.
+
+## 2026-10-05 — Candidate background PNG capacity
+
+Code PR375: feature `3ddb8280dc89749c5869b2caf51d7e07de6ae596`, merged source `d2111d0cc7fde752922128b6fc783d56d6c38ab2`.
+Required self-hosted CI37314744402 passed in11m11s on the exact feature head.
+Feature and squash trees both equal `a0deef4ff35a0070006002b17549f0efb9375879`.
+Twenty-six focused tests, TypeScript, focused lint, pinned OpenNext build and scoped read-only review passed.
+The tests consume a real RGB1080x1920PNG around6.2MB through R2/D1 and ImageResponse.arrayBuffer.
+They preserve populated migration rows, owner cascade, uniqueness, foreign keys, WebP and oversize refusals.
+The first fixture comparison exhausted resources; native Buffer.equals replaced byte-wise deep comparison before the passing run.
+
+Only candidate cache MIME/metadata limits change from2MiB to8MiB.
+Preview-only migration0031 copies all seven columns before replacing the CHECK.
+Actual preview preflight proved zero cache rows and no inbound FK, view, trigger or explicit index dependency.
+Only0031 was applied to candidate D1 `6f5b1df7-2eb5-479f-8803-8095e72c7053`;8MiB CHECK and FK0 passed.
+No production database, source row, provider prompt, image format, image dimensions or normal routing changed.
+
+Preview Worker `e13812dc-1c24-4c19-9aa5-bd7ecefc2cdf` runs100%, deployment `d987f582-d51c-4405-aa01-089122f9d2a4`, runtime tagd2111d0.
+Rollback Worker `fe7b1671-1f4a-4c07-86c4-fae9a0f84332` remains available.
+Generation and tier-bypass flags remain absent; preview retains outbox and source read-only settings.
+
+Two actual verified reserved owners tested a controlled4515442-byte existing PNG in candidate R2/D1.
+Owned media returned200/private-no-store with matching MIME, length and SHA256.
+The explicit candidate POST returned the owned cache without provider dispatch or usage rows.
+Foreign media returned404, anonymous media401 and unflagged preview media404.
+Flagged www refused without a D1 header.
+The exact R2 object was read and hash-checked before deletion; its subsequent GET proved absence.
+Both owned users, sessions, accounts, outbox messages, verification records, owner and cache rows returned0 after cleanup.
+All55APP table counts, import metadata, FK0, preview AUTH fingerprints and source fingerprints were restored.
+Source retained8users/5subscriptions/33usage rows/3295spots; both production admins remained present.
+All three public roots returned200.
+Production Worker `b42e8926-6b15-4875-85ec-44d39513832d` and deployment `6f22f0cb-a8b8-4e8f-bf76-19965611b471` remained unchanged.
+Production rollback `a548f24e-1f17-4021-a830-219074baa337` remains available.
+
+Private mode600 receipts use prefix `story-capacity-live-` and date `20261005`.
+The independent source measurement retained `story-measured-existing-20261005.json`.
+It rendered an existing1072x1920PNG locally to1080x1920 and5751967bytes.
+Candidate saved-slide persistence/readiness still cap at2MiB and need a separate fix.
+This measurement does not prove actual story overlays or hosted saved-slide persistence.
+No paid request, spend receipt, generation activation or production application-data switch occurred.
+An older2MiB Worker would reject large candidate cache objects; clean exact owned oversized fixtures before rollback.
+The accepted fixture is already removed; no source fallback is introduced.
+Real paid story acceptance, historical parity, full rehearsal and production cutover remain open.
