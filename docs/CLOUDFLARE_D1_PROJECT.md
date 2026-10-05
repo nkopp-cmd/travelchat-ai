@@ -879,3 +879,51 @@ Read-only preflight passed10checks. After at least60seconds of propagation, host
 Each response was retained before assertions. Both exact fresh AUTH session/account/user/outbox/verification cleanups returned0. Both temporary admin rows were removed; all AUTH counts and original admin hash were restored. All55APP table counts, import metadata hash, FK0, source user/subscription/usage/guide/revenue/engagement hashes, spots3295, production admins1each, Worker deployments, rollback availability and safety settings matched before/after snapshots. www, apex-follow and preview roots returned200. No source write, payment, external mail, paid provider, schema change or production switch occurred.
 
 Mode600 private receipts: guide-list-intent-before/build/release/accept-20261004.json and install/local/build/release/accept logs. Final read-only checks and owned cleanup follow the evidence merge. Full current-data parity, accounting/history, executed rollback and signed-in canary remain separate gates.
+
+## Candidate FLUX submission boundary — 2026-10-05
+
+PR373 feature `a72445fbdc78d5b5e7ff8a91befbf81c0092f78a` passed required self-hosted CI `37308365875` in9m25s.
+Squash source `21dd7990f8984dfb7edcc3c4c86ff18988d1c917` has the same tree `e242aaa33e8d2abe08f6cfe296dbcfdbd49925ed`.
+
+The pinned FAL SDK overrides configured retry limits for queue submissions.
+Explicit preview D1 story requests now select a separate FLUX client.
+It claims before dispatch and permits one physical submission per client.
+It refuses redirects and failed replies without retaining provider bodies.
+Read-only status polling keeps its SDK retries.
+Normal FLUX generation, provider selection, prompts, formats, quota and media rules remain unchanged.
+This claim does not persist across HTTP requests.
+Existing automatic provider fallback remains unchanged; the paid acceptance must select one explicit provider.
+Do not retry an ambiguous paid reply.
+
+Eleven real pinned-SDK tests and thirteen handler tests passed.
+They cover retryable HTTP errors, redirects, lost and malformed replies, concurrent submissions, separate clients and successful polling.
+They also prove normal SDK retries, candidate cover/day selection and normal www dispatch.
+TypeScript, focused lint and the pinned OpenNext build passed.
+Lint retained two existing warnings and no errors.
+Focused independent review found no concrete P0/P1 risk and recorded the request/fallback limits above.
+
+The account guard and normal preview release passed.
+Preview version `fe7b1671-1f4a-4c07-86c4-fae9a0f84332` runs100%, deployment `2a00c196-bf76-45dc-9591-d3f97425f5b4`.
+Runtime source is the squash commit above.
+Rollback `08d5a10a-a3e3-4842-ae90-1acef64121e1` remains available.
+Restore that preview version and verify the prior candidate contract if reversal is needed.
+This reference does not complete the full-data rollback drill.
+Production remains `b42e8926-6b15-4875-85ec-44d39513832d` / deployment `6f22f0cb-a8b8-4e8f-bf76-19965611b471`.
+No production Worker release or application-data switch occurred.
+
+Actual reserved preview signup, HTTPS outbox verification and a verified fresh session passed.
+Owned candidate and normal model reads returned200.
+Owned invalid input returned400 with `d1-preview` and private/no-store.
+Anonymous candidate and flagged-www submissions returned401 before generation.
+Responses were saved before assertions.
+No valid background submission, paid dispatch, R2 object or APP owner row was created.
+Exact user/session/account/outbox/verification cleanup returned0.
+Original preview AUTH fingerprints and all55APP table counts were restored.
+Import metadata, FK0, source8users/5subscriptions/33usage/3295spots fingerprints and both production admins remained unchanged.
+All three public roots returned200.
+Preview retains outbox/read-only settings; paid generation remains disabled.
+
+Private mode600 receipts use prefix `candidate-flux-` and date `20261005`.
+The first baseline read failed because script-settings omits bindings; the settings API correction passed.
+Post-merge local branch cleanup reported main was already checked out; the merge itself succeeded and was verified.
+Real paid generation, historical parity, notification SQL history, full rehearsal and production cutover remain open.
