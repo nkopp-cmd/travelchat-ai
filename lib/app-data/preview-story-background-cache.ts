@@ -5,6 +5,7 @@ import { ensureOwnerId, ownerIds } from "./preview-conversations";
 import { previewAppDataReader } from "./preview-db";
 import { previewStoryBucket } from "./preview-story-media";
 
+const maxBackgroundBytes = 8 * 1024 * 1024;
 const origin = "https://localley-next-preview.nkopp.workers.dev";
 const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 export class PreviewBackgroundUnavailable extends Error {}
@@ -57,10 +58,10 @@ interface Row { id:string; ownerId:string; cacheHash:string; objectKey:string; c
 function checkRow(row:Row):void {
   if(!uuid.test(row.id) || !/^[0-9a-f]{64}$/.test(row.cacheHash) || !["image/png","image/jpeg"].includes(row.contentType)
     || row.objectKey!==`story-backgrounds/${row.id}.${row.contentType==="image/jpeg"?"jpg":"png"}`
-    || !Number.isSafeInteger(row.byteSize) || row.byteSize<500 || row.byteSize>2*1024*1024 || !/^[0-9a-f]{64}$/.test(row.sha256))throw new PreviewBackgroundUnavailable("Malformed cache metadata");
+    || !Number.isSafeInteger(row.byteSize) || row.byteSize<500 || row.byteSize>maxBackgroundBytes || !/^[0-9a-f]{64}$/.test(row.sha256))throw new PreviewBackgroundUnavailable("Malformed cache metadata");
 }
 export function previewBackgroundMime(bytes: Uint8Array): "image/png" | "image/jpeg" | null {
-  if(bytes.length<500 || bytes.length>2*1024*1024)return null;
+  if(bytes.length<500 || bytes.length>maxBackgroundBytes)return null;
   if([137,80,78,71,13,10,26,10].every((b,i)=>bytes[i]===b))return "image/png";
   if(bytes[0]===255 && bytes[1]===216 && bytes[2]===255)return "image/jpeg";
   return null; // Includes WebP: never let Satori interpret it as PNG.
