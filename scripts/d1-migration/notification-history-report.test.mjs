@@ -44,6 +44,17 @@ test('physical history report on real PostgreSQL',async t=>{
    assert.equal(r.triggers.length,1);assert.equal(r.triggers[0].enabled,'O');assert.equal(r.functions.length,1);assert.match(r.functions[0].definition_hash,/^[a-f0-9]{32}$/);
    assert.equal(sql('SELECT row_to_json(t) FROM notification_preferences t ORDER BY clerk_user_id NULLS LAST;',db),before,'report fired trigger or changed rows');
   });
+  await t.test('blank owners stay missing even when source users contain matching blank IDs',()=>{
+   const db=fresh('blank_owners',"CREATE TABLE users(clerk_id text); INSERT INTO users VALUES(''),('   '),('owner-a'); CREATE TABLE notifications(clerk_user_id text); INSERT INTO notifications VALUES(''),('   '),(NULL),('owner-a'),('orphan');");
+   const n=table(report(db),'notifications');
+   assert.equal(n.counts.rows,5);assert.equal(n.counts.missing_owners,3);assert.equal(n.counts.matched_user_rows,1);assert.equal(n.counts.unmatched_user_rows,1);
+   assert.equal(n.counts.missing_owners+n.counts.matched_user_rows+n.counts.unmatched_user_rows,n.counts.rows);
+  });
+  await t.test('inherited rows are counted with an explicit descendant limitation',()=>{
+   const db=fresh('inherited',"CREATE TABLE notifications(clerk_user_id text); CREATE TABLE notification_child(extra text) INHERITS(notifications); INSERT INTO notifications VALUES('parent'); INSERT INTO notification_child VALUES('child','private');");
+   const r=report(db);assert.equal(table(r,'notifications').counts.rows,2);
+   assert.ok(r.limits.some(x=>x.includes('inherited descendants') && x.includes('unaudited')));
+  });
   await t.test('missing fields and nonboolean consent never invent owner or consent zeros',()=>{
    const r=report(fresh('missing','CREATE TABLE notifications(id int); INSERT INTO notifications VALUES(1); CREATE TABLE notification_preferences(clerk_user_id text,push_enabled text); INSERT INTO notification_preferences VALUES(\'orphan\',\'true\');'));
    assert.equal(table(r,'notifications').counts.rows,1);assert.equal(table(r,'notifications').counts.distinct_owners,null);assert.equal(table(r,'notification_preferences').counts.matched_user_rows,null);assert.equal(table(r,'notification_preferences').counts.push_true,null);assert.equal(table(r,'notification_preferences').push_boolean_supported,false);

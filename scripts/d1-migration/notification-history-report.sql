@@ -55,7 +55,7 @@ WITH actor AS (
         ''email_true'',%s,''email_false'',%s,''email_null'',%s) AS report FROM public.%I t',
       CASE WHEN r.owner_column THEN 'count(DISTINCT t.clerk_user_id::text)' ELSE 'NULL' END,
       CASE WHEN r.owner_column THEN 'count(*) FILTER (WHERE t.clerk_user_id IS NULL OR btrim(t.clerk_user_id::text)='''')' ELSE 'NULL' END,
-      CASE WHEN r.owner_column AND u.available THEN 'count(*) FILTER (WHERE EXISTS (SELECT FROM public.users u WHERE u.clerk_id::text=t.clerk_user_id::text))' ELSE 'NULL' END,
+      CASE WHEN r.owner_column AND u.available THEN 'count(*) FILTER (WHERE t.clerk_user_id IS NOT NULL AND btrim(t.clerk_user_id::text)<>'''' AND EXISTS (SELECT FROM public.users u WHERE u.clerk_id::text=t.clerk_user_id::text))' ELSE 'NULL' END,
       CASE WHEN r.owner_column AND u.available THEN 'count(*) FILTER (WHERE t.clerk_user_id IS NOT NULL AND btrim(t.clerk_user_id::text)<>'''' AND NOT EXISTS (SELECT FROM public.users u WHERE u.clerk_id::text=t.clerk_user_id::text))' ELSE 'NULL' END,
       CASE WHEN r.push_column THEN 'count(*) FILTER (WHERE t.push_enabled IS TRUE)' ELSE 'NULL' END,
       CASE WHEN r.push_column THEN 'count(*) FILTER (WHERE t.push_enabled IS FALSE)' ELSE 'NULL' END,
@@ -96,9 +96,10 @@ SELECT jsonb_build_object(
     ORDER BY nspname,relname,tgname) FROM relevant_triggers),'[]'::jsonb),
   'external_writers_audited',false,'historical_consent_proven',false,'activation_ready',false,
   'limits',jsonb_build_array('Verify the project selector or connection before running; the literal project ref is not proof.',
+    'Counts include inherited descendants under parent-table policies; descendant schemas and remote visibility remain unaudited.',
     'Counts and exact clerk-ID equality do not prove authentication ownership, historical opt-in or row-value parity.',
     'Stored boolean consent counts do not establish how consent was obtained.',
-    'Function text matching and attached trigger metadata do not exhaust dynamic SQL, cron or external writers.',
+    'Function text matching and attached trigger metadata do not exhaust dynamic SQL, rules, event triggers, cron or external writers.',
     'Absent columns, unsupported relations, RLS-restricted counts and unavailable user lookup yield null counts, never invented zeros.',
     'Timeout or permission failure is incomplete evidence; do not create tables or enable delivery.')) AS notification_history_report;
 ROLLBACK;
