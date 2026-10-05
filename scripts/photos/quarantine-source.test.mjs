@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
-import {repairFilters,targetId,marketTargetId,validateSnapshot,sourceFields,run} from './quarantine-source.mjs';
+import {repairFilters,targetId,marketTargetId,caveTargetId,bookTargetId,gyozaTargetId,validateSnapshot,sourceFields,run} from './quarantine-source.mjs';
 const row={id:targetId,name:{en:'Daesin-dong Old Town',ko:'대신동 구시가'},google_place_id:null,location:'0101000020E61000003FC6DCB584BC5F404694F6065FC84240',photos:['a','b','c'].map(x=>'/api/places/photo?name=places%2FChIJTwlXpoSifDURJOCAoUd4JoM%2Fphotos%2F'+x+'&w=1200')};
 test('CAS scopes one known row, exact geography, name, NULL listing and TEXT[] original photos',()=>{const f=repairFilters(row);assert.equal(f.id,'eq.'+targetId);assert.equal(f.google_place_id,'is.null');assert.equal(f.location,'eq.'+row.location);assert.ok(f.photos.startsWith('eq.{"'));assert.ok(!f.photos.startsWith('eq.['));assert.equal(f.name,'eq.'+JSON.stringify(row.name));});
 test('rollback only matches empty photos and the unchanged source identity',()=>{const f=repairFilters(row,true);assert.equal(f.photos,'eq.{}');assert.equal(f.id,'eq.'+targetId);assert.equal(f.location,'eq.'+row.location);});
@@ -12,11 +12,11 @@ test('preservation check detects nested source changes while allowing photos onl
 
 const market={...row,id:marketTargetId,name:{en:'Janghanpyeong Antique Market',ko:'장한평 골동품시장'},location:'0101000020E610000095D4096822C45F401D5A643BDFC74240',tips:{en:'preserve'},photos:['a','b','c'].map(x=>'/api/places/photo?name=places%2FChIJk7CYh6ujfDURBm5z-rXPgbE%2Fphotos%2F'+x)};
 const env={NEXT_PUBLIC_SUPABASE_URL:'https://llehrhqeolfprutcaopi.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test-only'};
-function backup(t){const dir=fs.mkdtempSync(path.join(process.cwd(),'.quarantine-test-'));t.after(()=>fs.rmSync(dir,{recursive:true}));const file=path.join(dir,'before.json');fs.writeFileSync(file,JSON.stringify(market),{mode:0o600});return file;}
-function server(t,{initial=market,beforePatch,lostReply=false}={}){
+function backup(t,source=market){const dir=fs.mkdtempSync(path.join(process.cwd(),'.quarantine-test-'));t.after(()=>fs.rmSync(dir,{recursive:true}));const file=path.join(dir,'before.json');fs.writeFileSync(file,JSON.stringify(source),{mode:0o600});return file;}
+function server(t,{initial=market,beforePatch,lostReply=false,expectedId=marketTargetId}={}){
  let current=structuredClone(initial);const calls=[];
  t.mock.method(globalThis,'fetch',async(url,options)=>{
-  const u=new URL(url);assert.equal(u.hostname,'llehrhqeolfprutcaopi.supabase.co');assert.equal(u.pathname,'/rest/v1/spots');assert.equal(u.searchParams.get('id'),'eq.'+marketTargetId);
+  const u=new URL(url);assert.equal(u.hostname,'llehrhqeolfprutcaopi.supabase.co');assert.equal(u.pathname,'/rest/v1/spots');assert.equal(u.searchParams.get('id'),'eq.'+expectedId);
   const matchesPhotos=()=>!u.searchParams.has('photos')||u.searchParams.get('photos')==='eq.{'+current.photos.map(x=>'"'+x.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"').join(',')+'}';
   const method=options.method;calls.push({method,body:options.body,filters:Object.fromEntries(u.searchParams)});
   assert.equal(options.headers.Prefer,'return=representation,handling=strict,max-affected=1');
@@ -63,3 +63,51 @@ test('lost write reply is not retried; retained backup allows readback reconcili
  const file=backup(t);const api=server(t,{lostReply:true});await assert.rejects(run('--apply',file,env,marketTargetId),/Lost reply/);
  assert.deepEqual(api.current().photos,[]);assert.equal(api.calls.filter(c=>c.method==='PATCH').length,1);assert.deepEqual(JSON.parse(fs.readFileSync(file)),market);
 });
+const cave={...row,id:caveTargetId,name:{en:'Okutama Nippara Caves',ja:'奥多摩日原鍾乳洞'},location:'0101000020E6100000DBF97E6ABC626140E25817B7D1E84140',tips:{en:'preserve cave fields'},photos:['a','b','c'].map(x=>'/api/places/photo?name=places%2FChIJU39aEIo1GWARC-QtJQ0DPqg%2Fphotos%2F'+x)};
+test('cave incident pins name, point, null identity and rejected listing',()=>{
+ validateSnapshot(cave);assert.equal(repairFilters(cave).id,'eq.'+caveTargetId);
+ for(const change of [{name:market.name},{location:row.location},{google_place_id:'new verified listing'},{photos:market.photos}])assert.throws(()=>validateSnapshot({...cave,...change}));
+});
+test('cave apply and rollback preserve fields and accept only the selected backup',async t=>{
+ const file=backup(t,cave);const api=server(t,{initial:cave,expectedId:caveTargetId});
+ await assert.rejects(run('--apply',file,env,marketTargetId),/another incident/);assert.equal(api.calls.length,0);
+ const applied=await run('--apply',file,env,caveTargetId);assert.equal(applied.afterPhotos,0);assert.equal(sourceFields(api.current()),sourceFields(cave));
+ const restored=await run('--rollback',file,env,caveTargetId);assert.equal(restored.afterPhotos,3);assert.deepEqual(api.current(),cave);
+});
+test('cave rollback refuses changed fields or replacement photos before a write',async t=>{
+ const file=backup(t,cave);
+ for(const initial of [{...cave,photos:[],tips:{en:'later change'}},{...cave,photos:['new verified photo']}]){
+  const api=server(t,{initial,expectedId:caveTargetId});await assert.rejects(run('--rollback',file,env,caveTargetId));assert.equal(api.calls.filter(c=>c.method==='PATCH').length,0);
+ }
+});
+test('cave lost reply is never retried automatically',async t=>{
+ const file=backup(t,cave);const api=server(t,{initial:cave,expectedId:caveTargetId,lostReply:true});
+ await assert.rejects(run('--apply',file,env,caveTargetId),/Lost reply/);assert.deepEqual(api.current().photos,[]);assert.equal(api.calls.filter(c=>c.method==='PATCH').length,1);
+});
+
+
+for(const incident of [
+ {id:bookTargetId,name:'Book Off',listing:'ChIJgxLkXxPnAGARWJN8WxTACJI',location:'0101000020E61000008CB96B09F9EE6040371AC05B20494140'},
+ {id:gyozaTargetId,name:'Gyoza no Ohsho',listing:'ChIJGf7pKhfnAGARNHAmUvCD7C0',location:'0101000020E6100000A779C7293AF06040386744696F484140'},
+]){
+ const fixture={...row,id:incident.id,name:{en:incident.name},location:incident.location,tips:{en:'keep nested source data'},photos:['a','b','c'].map(x=>'/api/places/photo?name='+encodeURIComponent('places/'+incident.listing+'/photos/'+x))};
+ test(incident.name+' pins exact name, point, null identity and rejected listing',()=>{
+  validateSnapshot(fixture);assert.equal(repairFilters(fixture).id,'eq.'+incident.id);
+  for(const change of [{name:{en:'Other branch'}},{location:row.location},{google_place_id:'verified replacement'},{photos:row.photos},{photos:fixture.photos.slice(0,2)}])assert.throws(()=>validateSnapshot({...fixture,...change}));
+ });
+ test(incident.name+' apply and guarded rollback preserve every other field',async t=>{
+  const file=backup(t,fixture),api=server(t,{initial:fixture,expectedId:incident.id});
+  const applied=await run('--apply',file,env,incident.id);assert.equal(applied.afterPhotos,0);assert.equal(sourceFields(api.current()),sourceFields(fixture));
+  const restored=await run('--rollback',file,env,incident.id);assert.equal(restored.afterPhotos,3);assert.deepEqual(api.current(),fixture);
+ });
+ test(incident.name+' race refuses a changed source without overwriting it',async t=>{
+  const file=backup(t,fixture),api=server(t,{initial:fixture,expectedId:incident.id,beforePatch:r=>({...r,photos:['new verified photo']})});
+  await assert.rejects(run('--apply',file,env,incident.id),/Post-write row mismatch/);assert.deepEqual(api.current().photos,['new verified photo']);assert.equal(api.calls.filter(x=>x.method==='PATCH').length,1);
+ });
+ test(incident.name+' lost reply never retries and rollback refuses changed data',async t=>{
+  const file=backup(t,fixture),api=server(t,{initial:fixture,expectedId:incident.id,lostReply:true});
+  await assert.rejects(run('--apply',file,env,incident.id),/Lost reply/);assert.deepEqual(api.current().photos,[]);assert.equal(api.calls.filter(x=>x.method==='PATCH').length,1);
+  const changed=server(t,{initial:{...fixture,photos:[],tips:{en:'changed after repair'}},expectedId:incident.id});
+  await assert.rejects(run('--rollback',file,env,incident.id));assert.equal(changed.calls.filter(x=>x.method==='PATCH').length,0);
+ });
+}

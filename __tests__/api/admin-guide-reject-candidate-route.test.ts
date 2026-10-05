@@ -79,6 +79,41 @@ describe("admin guide rejection candidate", () => {
     expect(mocks.supabase).not.toHaveBeenCalled();
   });
 
+  it.each([
+    { AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: undefined },
+    { AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: "true" },
+    { AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: undefined },
+    { AUTH_MAIL_MODE: "send", SUPABASE_READ_ONLY: "true" },
+    { AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "false" },
+  ])("refuses unsafe settings before parsing, D1, source or Stripe writes", async vars => {
+    allow(); process.env = { ...process.env, ...vars };
+    for (const action of ["approve", "reject", "suspend"]) {
+      const req = request("localley-next-preview.nkopp.workers.dev", { clerkUserId: "owner-1", action });
+      const parse = vi.spyOn(req, "json"), text = vi.spyOn(req, "text");
+      const response = await PATCH(req);
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({ error: "Guide review unavailable" });
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
+      expect(parse).not.toHaveBeenCalled(); expect(text).not.toHaveBeenCalled();
+      expect(mocks.archive).not.toHaveBeenCalled(); expect(mocks.reject).not.toHaveBeenCalled();
+      expect(mocks.supabase).not.toHaveBeenCalled(); expect(mocks.stripe).not.toHaveBeenCalled();
+    }
+  });
+
+  it("refuses malformed unsafe intent but preserves normal malformed refusal", async () => {
+    allow(); process.env = { ...process.env, AUTH_MAIL_MODE: undefined };
+    for (const candidate of [true, false]) {
+      const req = new NextRequest(`https://localley-next-preview.nkopp.workers.dev/api/admin/guides${candidate ? "?data_candidate=d1" : ""}`, { method: "PATCH", body: "{" });
+      const response = await PATCH(req);
+      expect(response.status).toBe(candidate ? 503 : 500);
+      expect(await response.json()).toEqual({ error: candidate ? "Guide review unavailable" : "Failed to manage guide" });
+      expect(response.headers.get("X-Localley-Data-Source")).toBe(candidate ? "d1-preview" : null);
+    }
+    expect(mocks.archive).not.toHaveBeenCalled(); expect(mocks.reject).not.toHaveBeenCalled();
+    expect(mocks.supabase).not.toHaveBeenCalled(); expect(mocks.stripe).not.toHaveBeenCalled();
+  });
+
   it("keeps normal preview and www on the existing Supabase route", async () => {
     allow();
     const eq = vi.fn().mockResolvedValue({ error: null });

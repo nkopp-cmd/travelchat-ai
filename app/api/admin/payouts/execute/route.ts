@@ -1,3 +1,4 @@
+import { previewBillingActionRefusal } from "@/lib/app-data/preview-billing-action";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -16,6 +17,9 @@ import { createTransfer } from "@/lib/stripe-connect";
 export async function POST(req: NextRequest) {
     const adminCheck = await requireAdmin("/api/admin/payouts/execute", "execute_payouts");
     if (adminCheck.response) return adminCheck.response;
+
+    const candidate = await previewBillingActionRefusal(req);
+    if (candidate) return candidate;
 
     try {
         const body = await req.json().catch(() => ({}));

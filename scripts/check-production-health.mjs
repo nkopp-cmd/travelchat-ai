@@ -6,31 +6,27 @@ import { dirname, join } from 'node:path';
 import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
 import { classifyUserError, summarizeErrorClasses } from './production-health/error-classes.mjs';
 import { summarizeQueryCoverage } from './production-health/query-coverage.mjs';
+import { auditIngestionSettings } from './production-health/ingestion-settings.mjs';
+import { recordEventTime, summarizeEventTime } from './production-health/event-times.mjs';
+import { checkCityCatalog } from './production-health/city-catalog.mjs';
+import { errorRouteGroup } from './production-health/route-groups.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
 const token = process.env.CLOUDFLARE_API_TOKEN;
 if (!token) throw new Error('CLOUDFLARE_API_TOKEN is required');
 const now = Date.now();
+const ingestionSettings = await auditIngestionSettings(token);
 const args = process.argv.slice(2);
 const reportIndex = args.indexOf('--report');
 const destination = reportIndex < 0 ? join(homedir(), '.local/state/localley/production-health.json') : args[reportIndex + 1];
 if (!destination) throw new Error('--report needs a path');
-const sanitize = value => String(value || '')
-  .replace(/https?:\/\/[^\s]+/g, '[URL]')
-  .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]')
-  .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, ':id')
-  .replace(/\buser_[A-Za-z0-9]+\b/g, ':user')
-  .replace(/\b(?:Bearer|token|password|secret|api[_-]?key)\s*[:= ]\s*[^\s,;]+/gi, '[redacted]')
-  .slice(0, 400);
-const pathOf = value => {
-  try { return sanitize(new URL(value).pathname); } catch { return ''; }
-};
 const health = await Promise.all(['/', '/sign-in', '/api/cities?noCache=true&includeHidden=true'].map(async path => {
   try {
-    const response = await fetch(`https://www.localley.io${path}`, { signal: AbortSignal.timeout(25000) });
-    await response.body?.cancel();
-    return { path: path.split('?')[0], status: response.status };
+    const response = await fetch(`https://www.localley.io${path}`, { redirect: 'error', signal: AbortSignal.timeout(25000) });
+    const catalog = path.startsWith('/api/cities?') ? await checkCityCatalog(response) : undefined;
+    if (!catalog) await response.body?.cancel();
+    return { path: path.split('?')[0], status: response.status, ...(catalog ? { catalog } : {}) };
   } catch { return { path: path.split('?')[0], status: null, error: 'request failed or timed out' }; }
 }));
 const query = {
@@ -57,29 +53,32 @@ try {
   if (!Array.isArray(events)) throw new Error('missing events');
   const groups = new Map();
   const photoGroups = new Map();
+  let totalEventTimes = null;
   for (const event of events) {
     const metadata = event.$metadata || {}, worker = event.$workers || {};
+    totalEventTimes = recordEventTime(totalEventTimes, event.timestamp, query.timeframe);
     // Refuse unrelated service events even if the provider filter changes.
     if (metadata.service !== service) throw new Error('unexpected service');
-    const path = pathOf(metadata.url || worker.event?.request?.url);
+    const path = errorRouteGroup(metadata.url || worker.event?.request?.url);
     // Never persist raw log text: an upstream exception can contain a credential
     // without a recognizable label. Keep diagnostic classes, not payloads.
     const raw = String(metadata.error || metadata.message || '');
     const photoFailure = parsePhotoFailure(raw);
     if (photoFailure) {
       const key = JSON.stringify(photoFailure);
-      photoGroups.set(key, (photoGroups.get(key) || 0) + 1);
+      photoGroups.set(key, recordEventTime(photoGroups.get(key), event.timestamp, query.timeframe));
     }
     const candidateStatus = photoFailure?.status ?? worker.event?.response?.status;
     const status = Number.isInteger(candidateStatus) && candidateStatus >= 100 && candidateStatus <= 599 ? candidateStatus : null;
     const classification = classifyUserError(raw, path, status);
     const key = JSON.stringify({ path, ...classification, status });
-    groups.set(key, (groups.get(key) || 0) + 1);
+    groups.set(key, recordEventTime(groups.get(key), event.timestamp, query.timeframe));
   }
-  const classifiedGroups = [...groups].map(([key, count]) => ({ ...JSON.parse(key), count }));
+  const classifiedGroups = [...groups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }));
   logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
     countingUnit: 'log_events_not_requests_or_users',
-    photoFailures: [...photoGroups].sort((a, b) => b[1] - a[1]).slice(0, 20).map(([key, count]) => ({ ...JSON.parse(key), count })),
+    eventTimes: totalEventTimes ? summarizeEventTime(totalEventTimes).eventTimes : { firstSeen: null, lastSeen: null, knownCount: 0, unknownCount: 0, scope: 'returned_events_only' },
+    photoFailures: [...photoGroups].sort((a, b) => b[1].count - a[1].count).slice(0, 20).map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) })),
     errorClasses: summarizeErrorClasses(classifiedGroups),
     top5: classifiedGroups.sort((a, b) => b.count - a.count).slice(0, 5) };
 
@@ -88,8 +87,8 @@ try {
   logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)
     ? message : 'Query failed or timed out' };
 }
-const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs };
+const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings };
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
-console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, report: destination }));
-if (!logs.available || health.some(check => check.status !== 200)) process.exitCode = 1;
+console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, report: destination }));
+if (!logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false)) process.exitCode = 1;

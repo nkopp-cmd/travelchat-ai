@@ -22,7 +22,7 @@ describe("preview story retention tier", () => {
     const { prepare, bind } = rows([{ tier: "pro", status: "active" }]);
     expect(await previewStoryTier("owner-id", "ordinary@example.test")).toBe("pro");
     expect(prepare.mock.calls[0][0]).toContain("o.clerkUserId = ?");
-    expect(bind).toHaveBeenCalledWith("owner-id");
+    expect(bind).toHaveBeenCalledWith("owner-id", "auth:owner-id");
     rows([{ tier: "premium", status: "trialing" }]);
     expect(await previewStoryTier("owner-id", null)).toBe("premium");
   });

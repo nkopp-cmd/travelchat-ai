@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check, CheckCheck, Trash2, X } from "lucide-react";
+import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Popover,
@@ -21,11 +21,13 @@ import { cn } from "@/lib/utils";
 
 function NotificationItem({
     notification,
+    isPreviewCandidate,
     onRead,
     onDelete,
     onClick,
 }: {
     notification: Notification;
+    isPreviewCandidate: boolean;
     onRead: () => void;
     onDelete: () => void;
     onClick: () => void;
@@ -62,11 +64,13 @@ function NotificationItem({
             </div>
 
             {/* Actions */}
-            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+            <div className={cn("flex-shrink-0 transition-opacity flex gap-1",
+                isPreviewCandidate ? "opacity-100 sm:opacity-0 sm:group-hover:opacity-100" : "opacity-0 group-hover:opacity-100")}>
                 {!notification.read && (
                     <Button
                         variant="ghost"
                         size="icon"
+                        aria-label="Mark notification read"
                         className="h-7 w-7"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -79,6 +83,7 @@ function NotificationItem({
                 <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Delete notification"
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={(e) => {
                         e.stopPropagation();
@@ -109,6 +114,8 @@ export function NotificationCenter() {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const {
+        isPreviewCandidate,
+        error,
         notifications,
         unreadCount,
         isLoading,
@@ -131,7 +138,7 @@ export function NotificationCenter() {
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
+                <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
                         <Badge
@@ -164,7 +171,11 @@ export function NotificationCenter() {
 
                 {/* Content */}
                 <ScrollArea className="h-[400px]">
-                    {isLoading && notifications.length === 0 ? (
+                    {isPreviewCandidate && error ? (
+                        <p role="status" className="p-4 text-sm text-muted-foreground">
+                            Preview notifications are currently unavailable.
+                        </p>
+                    ) : isLoading && notifications.length === 0 ? (
                         <div className="divide-y">
                             {[...Array(5)].map((_, i) => (
                                 <NotificationSkeleton key={i} />
@@ -181,6 +192,7 @@ export function NotificationCenter() {
                                 <NotificationItem
                                     key={notification.id}
                                     notification={notification}
+                                    isPreviewCandidate={isPreviewCandidate}
                                     onRead={() => markAsRead(notification.id)}
                                     onDelete={() => deleteNotification(notification.id)}
                                     onClick={() => handleNotificationClick(notification)}
@@ -213,7 +225,7 @@ export function NotificationCenter() {
                         className="w-full"
                         onClick={() => {
                             setIsOpen(false);
-                            router.push("/settings");
+                            router.push(isPreviewCandidate ? "/settings?data_candidate=d1" : "/settings");
                         }}
                     >
                         Notification settings

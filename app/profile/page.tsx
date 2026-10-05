@@ -1,3 +1,6 @@
+import { headers } from "next/headers";
+import { previewProfile } from "@/lib/app-data/preview-profile";
+import { PreviewProfile } from "@/components/profile/preview-profile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -163,11 +166,23 @@ async function getUserProgress() {
     };
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ data_candidate?: string }> }) {
     const user = await currentUser();
 
     if (!user) {
         redirect("/sign-in");
+    }
+
+    const params = await searchParams;
+    const host = (await headers()).get("host");
+    // Explicit candidate intent must not fall back when isolation configuration is unavailable.
+    if (host === "localley-next-preview.nkopp.workers.dev" && params.data_candidate === "d1") {
+        let profile = null;
+        if (process.env.AUTH_MAIL_MODE === "outbox" && process.env.SUPABASE_READ_ONLY === "true") {
+            try { profile = await previewProfile(user.id); }
+            catch { /* Keep private failures generic and never enter the source path. */ }
+        }
+        return <PreviewProfile profile={profile} />;
     }
 
     const { progress, completedChallenges, itineraries, savedSpots, subscription, usage } = await getUserProgress();

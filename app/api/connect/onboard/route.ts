@@ -6,6 +6,7 @@ import {
     createOnboardingLink,
     isConnectConfigured,
 } from "@/lib/stripe-connect";
+import { hasPreviewGuideIntent } from "@/lib/app-data/preview-guide-intent";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
 import { previewAdminGuides } from "@/lib/app-data/preview-admin-guides";
 import { createPreviewGuideApplication, isPreviewGuideApplicationCandidate,
@@ -59,6 +60,15 @@ export async function POST(req: NextRequest) {
                 console.error("[GUIDE_APPLICATION_PREVIEW] Candidate unavailable", error);
                 return NextResponse.json({ error: "Guide application unavailable" }, { status: 503, headers });
             }
+        }
+        // A lost preview safety setting must not create source applications or Stripe accounts.
+        if (hasPreviewGuideIntent(req)) {
+            const { userId } = await auth();
+            if (!userId) return Errors.unauthorized();
+            return NextResponse.json({ error: "Guide application unavailable" }, {
+                status: 503,
+                headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
+            });
         }
         if (!isConnectConfigured()) {
             return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Connect is not configured");

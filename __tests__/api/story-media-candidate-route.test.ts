@@ -2,12 +2,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), currentUser: vi.fn(), story: vi.fn(), bucket: vi.fn(), owner: vi.fn(), save: vi.fn(), tier: vi.fn(), candidateTier: vi.fn(), supabase: vi.fn() }));
+const mocks = vi.hoisted(() => ({ gallery: vi.fn(), auth: vi.fn(), currentUser: vi.fn(), story: vi.fn(), bucket: vi.fn(), owner: vi.fn(), save: vi.fn(), tier: vi.fn(), candidateTier: vi.fn(), supabase: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: mocks.currentUser }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.supabase }));
 vi.mock("@/lib/usage-tracking", () => ({ getUserTier: mocks.tier }));
 vi.mock("@/lib/app-data/preview-story-tier", () => ({ previewStoryTier: mocks.candidateTier }));
 vi.mock("@/lib/subscription", () => ({ hasFeature: () => 7 }));
+vi.mock("@/lib/app-data/preview-story-gallery", () => ({ previewStoryGallery: mocks.gallery }));
 vi.mock("@/lib/app-data/preview-story-slides", () => ({ previewStorySlides: mocks.story }));
 vi.mock("@/lib/app-data/preview-story-media", async (importOriginal) => ({
   ...await importOriginal<typeof import("@/lib/app-data/preview-story-media")>(),
@@ -112,4 +113,20 @@ describe("preview story media routes", () => {
     expect(mocks.owner).not.toHaveBeenCalled();
     expect(mocks.save).not.toHaveBeenCalled();
   });
+});
+
+it("authorizes fresh gallery media independently and never falls back to the legacy/public reader", async () => {
+  process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
+  mocks.auth.mockResolvedValue({ userId: "fresh" });
+  const url = `${mediaUrl}&gallery_candidate=fresh`;
+  mocks.gallery.mockResolvedValue({ story_slides: { slides: { cover: url } } });
+  const get = vi.fn().mockResolvedValue({ arrayBuffer: async () => new Uint8Array([137,80,78,71,13,10,26,10]).buffer });
+  mocks.bucket.mockReturnValue({ get });
+  expect((await GET(new NextRequest(url), mediaParams)).status).toBe(200);
+  expect(mocks.gallery).toHaveBeenCalledWith(id, "fresh");
+  mocks.gallery.mockResolvedValue(null);
+  expect((await GET(new NextRequest(url), mediaParams)).status).toBe(404);
+  mocks.gallery.mockResolvedValue({ story_slides: null, expired: true });
+  expect((await GET(new NextRequest(url), mediaParams)).status).toBe(404);
+  expect(mocks.story).not.toHaveBeenCalled(); expect(get).toHaveBeenCalledTimes(1);
 });

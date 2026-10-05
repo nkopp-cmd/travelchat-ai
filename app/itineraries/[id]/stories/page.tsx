@@ -1,3 +1,7 @@
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/server";
+import { isPreviewItineraryListCandidate } from "@/lib/app-data/preview-itinerary-list";
+import { previewStoryGallery } from "@/lib/app-data/preview-story-gallery";
 import { Metadata } from "next";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
@@ -30,7 +34,16 @@ function extractSlideUrls(raw: unknown): Record<string, string> | null {
     return null;
 }
 
-async function getItinerary(id: string) {
+async function getItinerary(id: string, candidate: boolean) {
+    if (candidate) {
+        try {
+            const { userId } = await auth();
+            return await previewStoryGallery(id, userId);
+        } catch {
+            console.error("[STORIES_PREVIEW] Gallery unavailable");
+            return null;
+        }
+    }
     const supabase = createSupabaseAdmin();
     // Use select("*") — safe even if story_slides column doesn't exist yet
     // (select("*") returns whatever columns exist, unlike named selects which error on missing columns)
@@ -60,16 +73,24 @@ async function getItinerary(id: string) {
     return data;
 }
 
+type GalleryProps = { params: Promise<{ id: string }>; searchParams?: Promise<{ data_candidate?: string }> };
+async function candidateGallery(searchParams: GalleryProps["searchParams"]): Promise<boolean> {
+    const incoming = await headers();
+    return isPreviewItineraryListCandidate(incoming.get("host"), (await searchParams)?.data_candidate);
+}
+
 export async function generateMetadata(
-    { params }: { params: Promise<{ id: string }> }
+    { params, searchParams }: GalleryProps
 ): Promise<Metadata> {
     const { id } = await params;
-    const itinerary = await getItinerary(id);
+    const candidate = await candidateGallery(searchParams);
+    const itinerary = await getItinerary(id, candidate);
 
     if (!itinerary) {
         return { title: "Stories Not Found | Localley" };
     }
 
+    if (candidate) return { title: "Stored Story Slides | Localley", robots: { index: false, follow: false } };
     const title = `${itinerary.city} Story Slides | Localley`;
     const description = `Download ${itinerary.days}-day ${itinerary.city} travel story slides — ready to share on Instagram & TikTok.`;
 
@@ -98,12 +119,11 @@ export async function generateMetadata(
 }
 
 export default async function StoriesPage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
+    params, searchParams,
+}: GalleryProps) {
     const { id } = await params;
-    const itinerary = await getItinerary(id);
+    const candidate = await candidateGallery(searchParams);
+    const itinerary = await getItinerary(id, candidate);
 
     if (!itinerary) {
         notFound();
@@ -120,7 +140,7 @@ export default async function StoriesPage({
                         Story slides for this {itinerary.city} trip haven&apos;t been generated yet.
                     </p>
                     <Link
-                        href={`/itineraries/${id}`}
+                        href={`/itineraries/${id}${candidate ? "?data_candidate=d1" : ""}`}
                         className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
                     >
                         Go to Itinerary
@@ -171,6 +191,7 @@ export default async function StoriesPage({
                 city={itinerary.city}
                 days={itinerary.days}
                 itineraryId={id}
+                candidate={candidate}
             />
         </div>
     );

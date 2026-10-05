@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { Errors } from "@/lib/api-errors";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
+import { previewStoryGallery } from "@/lib/app-data/preview-story-gallery";
 import { previewStorySlides } from "@/lib/app-data/preview-story-slides";
 import { previewStoryBucket, previewStoryMediaKey, previewStoryMediaUrl } from "@/lib/app-data/preview-story-media";
 
@@ -16,9 +17,12 @@ export async function GET(
   if (!key) return Errors.notFound("Story media");
   try {
     const { userId } = await auth();
-    const story = await previewStorySlides(id, userId);
+    const fresh = req.nextUrl.searchParams.get("gallery_candidate") === "fresh";
+    const gallery = fresh ? await previewStoryGallery(id, userId) : null;
+    const story = fresh ? gallery && { available: !!gallery.story_slides, slides: gallery.story_slides?.slides }
+      : await previewStorySlides(id, userId);
     if (!story || !("slides" in story) || !story.available || !story.slides
-      || story.slides[slide] !== previewStoryMediaUrl(id, `r2://${key}`)) {
+      || story.slides[slide] !== `${previewStoryMediaUrl(id, `r2://${key}`)}${fresh ? "&gallery_candidate=fresh" : ""}`) {
       return Errors.notFound("Story media");
     }
     const object = await previewStoryBucket().get(key);
@@ -28,8 +32,8 @@ export async function GET(
         "X-Localley-Data-Source": "r2-preview", "X-Content-Type-Options": "nosniff",
         "Content-Security-Policy": "default-src 'none'" },
     });
-  } catch (error) {
-    console.error("[STORY_PREVIEW] Media read failed", error);
+  } catch {
+    console.error("[STORY_PREVIEW] Media read failed");
     return Errors.databaseError();
   }
 }

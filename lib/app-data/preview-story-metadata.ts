@@ -1,10 +1,13 @@
 import "server-only";
+import { ownerIds } from "./preview-conversations";
+import { previewBackgroundId, previewBackgroundData } from "./preview-story-background-cache";
 import { previewAppDataReader } from "./preview-db";
 
 const imageHosts = ["unsplash.com", "pexels.com", "supabase.co", "tripadvisor.com", "fal.media",
   "fal.run", "googleusercontent.com", "googleapis.com"];
 
 function validImage(value: string): boolean {
+  if (previewBackgroundId(value)) return true;
   if (value.startsWith("/images/")) {
     try { return !decodeURIComponent(value).split("/").includes(".."); } catch { return false; }
   }
@@ -27,11 +30,11 @@ export function parsePreviewStoryPatch(body: unknown): Record<string, string> | 
 
 const storySelect = `SELECT m.aiBackgrounds AS backgrounds FROM legacy_itinerary_media m
   JOIN itineraries i ON i.id = m.itineraryId
-  JOIN legacy_owners o ON o.ownerId = i.ownerId
-  WHERE m.itineraryId = ? AND o.clerkUserId = ?`;
+  WHERE m.itineraryId = ? AND i.ownerId IN (?, ?)`;
 
 export async function previewStoryBackgrounds(id: string, userId: string): Promise<Record<string, string> | null> {
-  const row = await previewAppDataReader().prepare(storySelect).bind(id, userId)
+  const ids = await ownerIds(userId);
+  const row = await previewAppDataReader().prepare(storySelect).bind(id, ids.legacy ?? "", ids.fresh ?? "")
     .first<{ backgrounds: string | null }>();
   if (!row) return null;
   const parsed: unknown = row.backgrounds ? JSON.parse(row.backgrounds) : {};
@@ -44,12 +47,16 @@ export async function updatePreviewStoryBackgrounds(
   id: string, userId: string, patch: Record<string, string>,
 ): Promise<Record<string, string> | null> {
   const db = previewAppDataReader();
+  const ids = await ownerIds(userId);
+  for (const url of Object.values(patch)) {
+    if (previewBackgroundId(url) && !await previewBackgroundData(url, userId)) throw new RangeError("Background not owned");
+  }
   const result = await db.prepare(`UPDATE legacy_itinerary_media SET
     aiBackgrounds = json_patch(coalesce(aiBackgrounds, '{}'), ?)
     WHERE itineraryId = ? AND EXISTS (
-      SELECT 1 FROM itineraries i JOIN legacy_owners o ON o.ownerId = i.ownerId
-      WHERE i.id = legacy_itinerary_media.itineraryId AND o.clerkUserId = ?
-    )`).bind(JSON.stringify(patch), id, userId).run();
+      SELECT 1 FROM itineraries i
+      WHERE i.id = legacy_itinerary_media.itineraryId AND i.ownerId IN (?, ?)
+    )`).bind(JSON.stringify(patch), id, ids.legacy ?? "", ids.fresh ?? "").run();
   if (result.meta.changes !== 1) return null;
   return previewStoryBackgrounds(id, userId);
 }

@@ -3,6 +3,7 @@ import { isBetaMode } from "@/lib/early-adopters";
 import { isLifetimePremiumEmail } from "@/lib/lifetime-premium";
 import type { SubscriptionTier } from "@/lib/subscription";
 import { previewAppDataReader } from "./preview-db";
+import { previewSubscriptionRows, previewSubscriptionTier } from "./preview-subscription-read";
 
 /** Match getUserTier's source-profile email and active-subscription rules. No auth-email fallback. */
 export async function previewUserTier(userId: string): Promise<SubscriptionTier> {
@@ -32,9 +33,7 @@ export async function previewUserTier(userId: string): Promise<SubscriptionTier>
     db.prepare(`SELECT e.email FROM legacy_profile_emails e JOIN profiles p ON p.id=e.profileId
       JOIN legacy_owners o ON o.ownerId=p.ownerId WHERE o.clerkUserId=? LIMIT 2`)
       .bind(userId).all<{ email: string | null }>(),
-    db.prepare(`SELECT s.tier, s.status FROM legacy_subscriptions s
-      JOIN legacy_owners o ON o.ownerId=s.ownerId WHERE o.clerkUserId=? LIMIT 2`)
-      .bind(userId).all<{ tier: string | null; status: string | null }>(),
+    previewSubscriptionRows(userId),
   ]);
   if (!Array.isArray(profiles.results) || profiles.results.length > 1
     || !Array.isArray(subscriptions.results) || subscriptions.results.length > 1) {
@@ -43,8 +42,5 @@ export async function previewUserTier(userId: string): Promise<SubscriptionTier>
   const email = profiles.results[0]?.email;
   if (email != null && typeof email !== "string") throw new Error("Invalid source profile email");
   if (isBetaMode() || isLifetimePremiumEmail(email)) return "premium";
-  const subscription = subscriptions.results[0];
-  if (!subscription || !["active", "trialing"].includes(subscription.status ?? "")) return "free";
-  if (["free", "pro", "premium"].includes(subscription.tier ?? "")) return subscription.tier as SubscriptionTier;
-  throw new Error("Invalid preview tier");
+  return previewSubscriptionTier(subscriptions.results[0]);
 }

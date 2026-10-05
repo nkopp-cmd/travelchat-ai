@@ -16,6 +16,7 @@ export function NotificationPreferencesSection() {
     const { toast } = useToast();
     const {
         preferences,
+        isPreviewCandidate,
         isLoading: prefsLoading,
         error: preferencesError,
         updatePreferences,
@@ -54,6 +55,7 @@ export function NotificationPreferencesSection() {
     };
 
     const handlePushToggle = async () => {
+        if (isPreviewCandidate) return;
         if (isSubscribed) {
             const success = await unsubscribe();
             if (success) {
@@ -104,6 +106,10 @@ export function NotificationPreferencesSection() {
 
     return (
         <div className="space-y-6">
+            {isPreviewCandidate && <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+                Your choices are saved. Notifications are not sent from this preview.
+            </div>}
+            {!isPreviewCandidate && <>
             {/* Push Notification Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
                 <div className="flex items-center gap-3">
@@ -151,6 +157,7 @@ export function NotificationPreferencesSection() {
 
             <Separator />
 
+            </>}
             {/* Notification Categories */}
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -158,10 +165,10 @@ export function NotificationPreferencesSection() {
                 </h4>
 
                 {/* Achievements & Progress */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Trophy className="h-4 w-4 text-amber-500" />
-                        <div>
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <Trophy className="h-4 w-4 shrink-0 text-amber-500" />
+                        <div className="min-w-0 flex-1">
                             <Label htmlFor="achievements">Achievements & Level Ups</Label>
                             <p className="text-xs text-muted-foreground">
                                 When you unlock achievements or level up
@@ -177,10 +184,10 @@ export function NotificationPreferencesSection() {
                 </div>
 
                 {/* New Spots */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Star className="h-4 w-4 text-violet-500" />
-                        <div>
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <Star className="h-4 w-4 shrink-0 text-violet-500" />
+                        <div className="min-w-0 flex-1">
                             <Label htmlFor="newSpots">New Spots</Label>
                             <p className="text-xs text-muted-foreground">
                                 When new hidden gems are discovered in your saved areas
@@ -196,10 +203,10 @@ export function NotificationPreferencesSection() {
                 </div>
 
                 {/* Social */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Users className="h-4 w-4 text-indigo-500" />
-                        <div>
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <Users className="h-4 w-4 shrink-0 text-indigo-500" />
+                        <div className="min-w-0 flex-1">
                             <Label htmlFor="social">Social Activity</Label>
                             <p className="text-xs text-muted-foreground">
                                 Friend requests, likes, and when someone finds your review helpful
@@ -215,10 +222,10 @@ export function NotificationPreferencesSection() {
                 </div>
 
                 {/* Challenges */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Target className="h-4 w-4 text-orange-500" />
-                        <div>
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <Target className="h-4 w-4 shrink-0 text-orange-500" />
+                        <div className="min-w-0 flex-1">
                             <Label htmlFor="challenges">Challenges</Label>
                             <p className="text-xs text-muted-foreground">
                                 New challenges available and reminders when challenges are ending
@@ -234,10 +241,10 @@ export function NotificationPreferencesSection() {
                 </div>
 
                 {/* Weekly Digest */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Calendar className="h-4 w-4 text-cyan-500" />
-                        <div>
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <Calendar className="h-4 w-4 shrink-0 text-cyan-500" />
+                        <div className="min-w-0 flex-1">
                             <Label htmlFor="weeklyDigest">Weekly Recap</Label>
                             <p className="text-xs text-muted-foreground">
                                 Summary of your activity and discoveries each week
@@ -255,6 +262,7 @@ export function NotificationPreferencesSection() {
 
             <Separator />
 
+            {!isPreviewCandidate && <>
             {/* Delivery Methods */}
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -297,6 +305,7 @@ export function NotificationPreferencesSection() {
                     />
                 </div>
             </div>
+            </>}
         </div>
     );
 }

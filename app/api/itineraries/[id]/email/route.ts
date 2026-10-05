@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
+import { queuePreviewItineraryMail } from "@/lib/app-data/preview-itinerary-mail";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { resend, FROM_EMAIL } from "@/lib/resend";
@@ -13,6 +15,50 @@ export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    if (isPreviewStoryCandidate(req)) {
+        const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+        try {
+            const { userId } = await auth();
+            if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+            const reader = req.body?.getReader();
+            if (!reader) return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+            const chunks: Uint8Array[] = [];
+            let size = 0;
+            try {
+                while (true) {
+                    const part = await reader.read();
+                    if (part.done) break;
+                    size += part.value.byteLength;
+                    if (size > 512) {
+                        await reader.cancel();
+                        return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+                    }
+                    chunks.push(part.value);
+                }
+            } finally { reader.releaseLock(); }
+            const bytes = new Uint8Array(size);
+            let offset = 0;
+            for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+            let value: unknown;
+            try { value = JSON.parse(new TextDecoder().decode(bytes)); }
+            catch { return NextResponse.json({ error: "Invalid request" }, { status: 400, headers }); }
+            if (!value || typeof value !== "object" || Array.isArray(value)
+                || !("recipientEmail" in value) || typeof value.recipientEmail !== "string"
+                || !value.recipientEmail || value.recipientEmail.length > 200
+                || Object.entries(value).some(([key, v]) => !["recipientEmail", "recipientName"].includes(key)
+                    || typeof v !== "string" || v.length > (key === "recipientName" ? 100 : 200)
+                    || /[\x00-\x1f\x7f]/.test(v))) {
+                return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+            }
+            const { id } = await params;
+            const queued = await queuePreviewItineraryMail(userId, id, value.recipientEmail);
+            return NextResponse.json(queued ? { success: true, sent: false, queued: true, reason: "preview_outbox" }
+                : { error: "Not found" }, { status: queued ? 200 : 404, headers });
+        } catch (error) {
+            return NextResponse.json({ error: error instanceof RangeError ? "Invalid request" : "Itinerary mail unavailable" },
+                { status: error instanceof RangeError ? 400 : 503, headers });
+        }
+    }
     try {
         const { userId } = await auth();
         if (!userId) {

@@ -94,3 +94,28 @@ describe("auth mail", () => {
     expect(isProductionAuthHost("https://notlocalley.io")).toBe(false);
   });
 });
+
+describe("story mail transport", () => {
+  it("sends fixed HTML and text through the existing binding without city or name input", async () => {
+    process.env.FROM_EMAIL = "hello@localley.io";
+    const send = vi.fn(async () => ({ messageId: "story-id" }));
+    await createMailSender(undefined, binding(send))({ kind: "story-ready", to: "owned@example.com",
+      url: "https://www.localley.io/itineraries/owned-id" });
+    expect(send).toHaveBeenCalledOnce();
+    expect(send.mock.calls[0][0]).toMatchObject({ from: { email: "hello@localley.io", name: "Localley" },
+      subject: "Your Localley story slides are ready", text: expect.stringContaining("View your trip:"),
+      html: expect.stringContaining('href="https://www.localley.io/itineraries/owned-id"') });
+  });
+  it("never retries suppression or leaks hostile provider fields", async () => {
+    process.env.FROM_EMAIL = "hello@localley.io";
+    for (const code of ["E_RECIPIENT_SUPPRESSED", "E_DELIVERY_FAILED", "private@example.com"]) {
+      const send = vi.fn(async () => { throw Object.assign(new Error("private token URL"), { code }); });
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      await expect(createMailSender(undefined, binding(send))({ kind: "story-ready", to: "owned@example.com",
+        url: "https://www.localley.io/itineraries/owned-id" })).rejects.toThrow("Auth email could not be sent");
+      expect(send).toHaveBeenCalledOnce();
+      expect(log).toHaveBeenCalledWith("[auth] Cloudflare email send failed:", code.startsWith("E_") ? code : "unknown");
+      log.mockRestore();
+    }
+  });
+});

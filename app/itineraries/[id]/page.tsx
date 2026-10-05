@@ -1,3 +1,6 @@
+import { headers } from "next/headers";
+import { isPreviewItineraryListCandidate } from "@/lib/app-data/preview-itinerary-list";
+import { previewItineraryPage } from "@/lib/app-data/preview-itinerary-page";
 import { Button } from "@/components/ui/button";
 import {
   Download,
@@ -9,6 +12,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
+import { OwnerEmailPreviewDialog } from "@/components/itineraries/owner-email-preview-dialog";
 import { EmailDialog } from "@/components/itineraries/email-dialog";
 import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
@@ -106,10 +110,14 @@ async function getUserSubscriptionTier(): Promise<SubscriptionTier> {
 
 // Generate metadata for SEO
 export async function generateMetadata({
-  params,
+  params, searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ data_candidate?: string }>;
 }): Promise<Metadata> {
+  if (isPreviewItineraryListCandidate((await headers()).get("host"), (await searchParams)?.data_candidate)) {
+    return { title: "Your itinerary - Localley", robots: { index: false, follow: false } };
+  }
   const { id } = await params;
   const itinerary = await getItinerary(id);
 
@@ -165,11 +173,39 @@ export async function generateMetadata({
 }
 
 export default async function ItineraryViewPage({
-  params,
+  params, searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ data_candidate?: string }>;
 }) {
   const { id } = await params;
+  if (isPreviewItineraryListCandidate((await headers()).get("host"), (await searchParams)?.data_candidate)) {
+    const { userId } = await auth();
+    let candidate;
+    try { candidate = await previewItineraryPage(id, userId); }
+    catch {
+      return <div role="status" className="rounded-xl border p-6">Your itinerary is currently unavailable.</div>;
+    }
+    if (!candidate) notFound();
+    return <div className="mx-auto w-full max-w-5xl space-y-5 px-3 py-4 sm:px-4">
+      <Link href="/itineraries?data_candidate=d1" className="inline-flex min-h-10 items-center text-violet-200">
+        <ArrowLeft className="mr-2 h-4 w-4" />My trips
+      </Link>
+      <HeroSection title={candidate.title} subtitle={candidate.subtitle ?? undefined} city={candidate.city}
+        days={candidate.days} localScore={candidate.localScore ? candidate.localScore * 10 : undefined}
+        highlights={candidate.highlights} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p role="status" className="text-sm text-muted-foreground">This view is read-only. Editing and sharing are unavailable.</p>
+        <OwnerEmailPreviewDialog itineraryId={candidate.id} ownerEmail={candidate.ownerEmail} />
+      </div>
+      <ItineraryInsightsPanel insights={candidate.insights} title="Trip notes" />
+      <div data-testid="itinerary-day-schedule" className="space-y-4">
+        {candidate.dailyPlans.map((day, index) => <DayRouteSection key={day.day} dayPlan={day}
+          dayIndex={index} city={candidate.city} userTier="free" />)}
+        {!candidate.dailyPlans.length && <p>No activities planned yet.</p>}
+      </div>
+    </div>;
+  }
   const [itinerary, userTier] = await Promise.all([
     getItinerary(id),
     getUserSubscriptionTier(),

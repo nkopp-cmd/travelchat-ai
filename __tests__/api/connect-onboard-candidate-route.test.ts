@@ -103,4 +103,37 @@ describe("Connect guide application candidate", () => {
     expect(mocks.configured).toHaveBeenCalledTimes(2);
     expect(mocks.guides).not.toHaveBeenCalled();
   });
+  it.each([
+    { AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: "true" },
+    { AUTH_MAIL_MODE: "send", SUPABASE_READ_ONLY: "true" },
+    { AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: undefined },
+    { AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "false" },
+  ])("refuses candidate intent with unsafe settings %j before source/provider/body access", async (settings) => {
+    preview();
+    process.env = { ...originalEnvironment, ...settings };
+    const req = request("localley-next-preview.nkopp.workers.dev");
+    const body = vi.spyOn(req, "text");
+    const response = await POST(req);
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: "Guide application unavailable" });
+    expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
+    expect(response.headers.get("Cache-Control")).toContain("no-store");
+    expect(body).not.toHaveBeenCalled();
+    expect(mocks.guides).not.toHaveBeenCalled();
+    expect(mocks.supabase).not.toHaveBeenCalled();
+    expect(mocks.configured).not.toHaveBeenCalled();
+    expect(mocks.account).not.toHaveBeenCalled();
+    expect(mocks.link).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.read).not.toHaveBeenCalled();
+  });
+
+  it("keeps signed-out denial when preview safety settings are absent", async () => {
+    process.env = { ...originalEnvironment, AUTH_MAIL_MODE: undefined, SUPABASE_READ_ONLY: undefined };
+    mocks.auth.mockResolvedValue({ userId: null });
+    expect((await POST(request("localley-next-preview.nkopp.workers.dev"))).status).toBe(401);
+    expect(mocks.supabase).not.toHaveBeenCalled();
+    expect(mocks.guides).not.toHaveBeenCalled();
+  });
+
 });

@@ -4,10 +4,16 @@ import { pathToFileURL } from 'node:url';
 import dotenv from 'dotenv';
 export const targetId='42726b65-cba8-4266-97f4-eca6a9dc7d9b';
 export const marketTargetId='00fa7ad9-3ef8-43ae-849b-fafd8c0b7ac0';
+export const caveTargetId='036dd3e6-0e81-4a4d-bcc1-956c79b1677a';
+export const bookTargetId='027edc15-caf8-44a4-96f3-df791e81483d';
+export const gyozaTargetId='07f5f5e3-3dd8-47bc-b5e6-ab43e7e7861a';
 // Explicit, reviewed incidents only. This command must never accept arbitrary venues.
 const targets=new Map([
+ [bookTargetId,{name:'Book Off',listing:'ChIJgxLkXxPnAGARWJN8WxTACJI',location:'0101000020E61000008CB96B09F9EE6040371AC05B20494140'}],
+ [gyozaTargetId,{name:'Gyoza no Ohsho',listing:'ChIJGf7pKhfnAGARNHAmUvCD7C0',location:'0101000020E6100000A779C7293AF06040386744696F484140'}],
  [targetId,{name:'Daesin-dong Old Town',listing:'ChIJTwlXpoSifDURJOCAoUd4JoM'}],
  [marketTargetId,{name:'Janghanpyeong Antique Market',listing:'ChIJk7CYh6ujfDURBm5z-rXPgbE',location:'0101000020E610000095D4096822C45F401D5A643BDFC74240'}],
+ [caveTargetId,{name:'Okutama Nippara Caves',listing:'ChIJU39aEIo1GWARC-QtJQ0DPqg',location:'0101000020E6100000DBF97E6ABC626140E25817B7D1E84140'}],
 ]);
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,ordered(value[key])])):value;
 const canonical=value=>JSON.stringify(ordered(value));
