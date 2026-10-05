@@ -1,4 +1,8 @@
 // @vitest-environment node
+import { createElement } from "react";
+import { ImageResponse } from "next/og";
+import { deflateSync, inflateSync } from "node:zlib";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
 import { NextRequest } from "next/server";
@@ -36,6 +40,7 @@ beforeEach(()=>{
  CREATE TABLE itineraries(id TEXT PRIMARY KEY,ownerId TEXT);
  CREATE TABLE legacy_itinerary_media(itineraryId TEXT PRIMARY KEY,aiBackgrounds TEXT);`);
  db.sqlite.exec(readFileSync("migrations/app-preview/0028_preview_story_backgrounds.sql","utf8"));
+ db.sqlite.exec(readFileSync("migrations/app-preview/0031_preview_story_background_capacity.sql","utf8"));
  objects=new Map();put=vi.fn(async(key:string,bytes:Uint8Array)=>{objects.set(key,new Uint8Array(bytes));return{key};});
  (globalThis as Record<symbol,unknown>)[symbol]={env:{APP_DATA_PREVIEW_DB:db,STORY_PREVIEW_MEDIA:{put,get:async(key:string)=>objects.has(key)?{arrayBuffer:async()=>new Uint8Array(objects.get(key)!).buffer}:null,delete:async(key:string)=>{objects.delete(key);}}}};
  user();mocks.provider.mockReturnValue("flux");mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");mocks.available.mockReturnValue(true);mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
@@ -143,4 +148,33 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   mocks.auth.mockResolvedValue({userId:null});expect((await POST(req())).status).toBe(401);
   expect((await GET(new NextRequest(`https://${host}/api/images/story-background?data_candidate=d1`))).status).toBe(200);
  });
+});
+
+// A real RGB PNG with uncompressed scanlines, not a header plus padding fixture.
+function fullSizePng() {
+ const crc=(data:Buffer)=>{let value=0xffffffff;for(const byte of data){value^=byte;for(let i=0;i<8;i++)value=(value>>>1)^((value&1)?0xedb88320:0);}return(value^0xffffffff)>>>0;};
+ const chunk=(type:string,data:Buffer)=>{const name=Buffer.from(type),length=Buffer.alloc(4),checksum=Buffer.alloc(4);length.writeUInt32BE(data.length);checksum.writeUInt32BE(crc(Buffer.concat([name,data])));return Buffer.concat([length,name,data,checksum]);};
+ const width=1080,height=1920,scanlines=Buffer.alloc((width*3+1)*height);for(let y=0;y<height;y++){for(let x=0;x<width;x++){const at=y*(width*3+1)+1+x*3;scanlines[at]=(x+y)%256;scanlines[at+1]=x%256;scanlines[at+2]=y%256;}}
+ const header=Buffer.alloc(13);header.writeUInt32BE(width,0);header.writeUInt32BE(height,4);header[8]=8;header[9]=2;
+ const compressed=deflateSync(scanlines,{level:0});expect(inflateSync(compressed).equals(scanlines)).toBe(true);
+ return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",header),chunk("IDAT",compressed),chunk("IEND",Buffer.alloc(0))]);
+}
+it("stores and renders a valid full-size PNG above the old cap while retaining bounded refusals",async()=>{
+ await owner();const bytes=fullSizePng(),cacheHash="a".repeat(64);expect(bytes.length).toBeGreaterThan(2*1024*1024);expect(bytes.length).toBeLessThan(8*1024*1024);
+ const url=await savePreviewBackground("auth:one",cacheHash,bytes);expect(await cachedPreviewBackground("auth:one",cacheHash)).toBe(url);
+ const read=await previewBackgroundData(url,"one");expect(Buffer.from(read!.bytes).equals(bytes)).toBe(true);expect(read!.contentType).toBe("image/png");expect(await previewBackgroundData(url,"foreign")).toBeNull();
+ expect(db.sqlite.prepare("SELECT byteSize,sha256 FROM preview_story_backgrounds").get()).toEqual({byteSize:bytes.length,sha256:createHash("sha256").update(bytes).digest("hex")});
+ const rendered=Buffer.from(await new ImageResponse(createElement("div",{style:{display:"flex",width:"100%",height:"100%"}},createElement("img",{src:`data:image/png;base64,${bytes.toString("base64")}`,width:1080,height:1920})),{width:1080,height:1920}).arrayBuffer());
+ expect(rendered.subarray(0,8)).toEqual(bytes.subarray(0,8));expect(rendered.readUInt32BE(16)).toBe(1080);expect(rendered.readUInt32BE(20)).toBe(1920);
+ const before=objects.size;await expect(savePreviewBackground("auth:one","b".repeat(64),Buffer.concat([bytes,Buffer.alloc(8*1024*1024+1-bytes.length)]))).rejects.toThrow();
+ const webp=Buffer.concat([Buffer.from("RIFFxxxxWEBP"),Buffer.alloc(3*1024*1024)]);expect(previewBackgroundMime(webp)).toBeNull();expect(objects.size).toBe(before);
+},15000);
+it("migrates populated candidate metadata without changing values, uniqueness or ownership constraints",()=>{
+ const prior=new D1Sqlite();try{prior.sqlite.exec("PRAGMA foreign_keys=ON;CREATE TABLE owners(id TEXT PRIMARY KEY);INSERT INTO owners VALUES('old')");prior.sqlite.exec(readFileSync("migrations/app-preview/0028_preview_story_backgrounds.sql","utf8"));
+ prior.sqlite.prepare("INSERT INTO preview_story_backgrounds VALUES(?,?,?,?,?,?,?)").run("old-id","old","a".repeat(64),"story-backgrounds/old.png","image/png",2097152,"b".repeat(64));
+ const before=prior.sqlite.prepare("SELECT * FROM preview_story_backgrounds").all();prior.sqlite.exec("BEGIN;"+readFileSync("migrations/app-preview/0031_preview_story_background_capacity.sql","utf8")+"COMMIT;");expect(prior.sqlite.prepare("SELECT * FROM preview_story_backgrounds").all()).toEqual(before);
+ const insert=prior.sqlite.prepare("INSERT INTO preview_story_backgrounds VALUES(?,?,?,?,?,?,?)");
+ for(const [id,ownerId,cacheHash,key,mime,size]of[["duplicate","old","a".repeat(64),"different","image/png",600],["orphan","foreign","c".repeat(64),"orphan","image/png",600],["oversize","old","d".repeat(64),"big","image/png",8388609],["webp","old","e".repeat(64),"webp","image/webp",600]]as const)expect(()=>insert.run(id,ownerId,cacheHash,key,mime,size,"f".repeat(64))).toThrow();
+ insert.run("large","old","c".repeat(64),"large","image/png",8388608,"f".repeat(64));expect(prior.sqlite.prepare("SELECT count(*) AS n FROM preview_story_backgrounds").get()).toEqual({n:2});prior.sqlite.exec("DELETE FROM owners WHERE id='old'");expect(prior.sqlite.prepare("SELECT count(*) AS n FROM preview_story_backgrounds").get()).toEqual({n:0});
+ }finally{prior.sqlite.close();}
 });
