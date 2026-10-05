@@ -25,6 +25,15 @@ const input = { systemPrompt: 'Return JSON only', userPrompt: 'Synthetic request
   disableThinking: true, maxTokens: 1200, temperature: 0.3 };
 
 describe('GLM JSON request body through the real SDK with intercepted HTTP', () => {
+  it('dispatches a bounded opted-out JSON request once on an upstream 500', async () => {
+    const { provider } = intercept();
+    const failure = vi.fn(async () => new Response(JSON.stringify({ error: { message: 'synthetic upstream failure' } }),
+      { status: 500, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', failure);
+    await expect(provider.generateText(input)).rejects.toThrow('Failed to generate text');
+    expect(failure).toHaveBeenCalledTimes(1);
+  });
+
   it('serializes the supported opt-out while preserving model, prompt and token ceiling', async () => {
     const { provider, requests, fetch } = intercept();
     const result = await provider.generateText(input);
