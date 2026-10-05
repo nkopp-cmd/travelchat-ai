@@ -1,6 +1,7 @@
 import "server-only";
 import { previewStoryGallery } from "./preview-story-gallery";
 import { previewStoryMediaKey } from "./preview-story-media";
+import { previewStorySlideBytes, previewStoryTotalBytes } from "./preview-story-upload";
 
 interface StoredObject { key: string; size: number; httpMetadata?: { contentType?: string } }
 
@@ -30,10 +31,13 @@ export async function previewStoryReady(id: string, userId: string): Promise<boo
     throw new Error("Story readiness storage unavailable");
   }
   const head = bucket.head.bind(bucket) as (key: string) => Promise<StoredObject | null>;
+  let totalBytes = 0;
   for (const key of keys) {
     const object = await head(key);
     if (!object || object.key !== key || !Number.isSafeInteger(object.size) || object.size < 8
-      || object.size > 2 * 1024 * 1024 || object.httpMetadata?.contentType !== "image/png") return false;
+      || object.size > previewStorySlideBytes || object.httpMetadata?.contentType !== "image/png") return false;
+    totalBytes += object.size;
+    if (totalBytes > previewStoryTotalBytes) return false;
   }
   // Recheck ownership, expiry and gallery references after R2 reads. Refuse a changed generation.
   const current = await previewStoryGallery(id, userId);
