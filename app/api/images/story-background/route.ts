@@ -260,7 +260,8 @@ async function storyBackgroundPost(req: NextRequest) {
                             city,
                             dayNumber,
                             theme || `Day ${dayNumber} adventures`,
-                            activities || []
+                            activities || [],
+                            candidate ? { singleSubmission: true } : undefined
                         );
                     } else {
                         const bgTheme = type === "cover"
@@ -269,7 +270,7 @@ async function storyBackgroundPost(req: NextRequest) {
                                 ? "beautiful travel scenery"
                                 : theme || "travel destination";
 
-                        aiImage = await generateStoryBackground(currentProvider, city, bgTheme, "vibrant");
+                        aiImage = await generateStoryBackground(currentProvider, city, bgTheme, "vibrant", candidate ? { singleSubmission: true } : undefined);
                     }
 
                     // Check for empty string (Gemini returns "" on failure)

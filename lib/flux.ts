@@ -5,6 +5,9 @@
  * Requires FAL_KEY environment variable.
  */
 import { fal } from "@fal-ai/client";
+import { previewFluxClient } from "@/lib/app-data/preview-flux-client";
+
+export type FluxSubmissionOptions = { singleSubmission?: boolean };
 
 const apiKey = process.env.FAL_KEY;
 
@@ -24,7 +27,7 @@ const FLUX_MODEL = "fal-ai/flux-2-flex";
  * Generate an image using FLUX.2 [flex] via fal.ai
  * Returns base64-encoded PNG image data (no data URI prefix)
  */
-async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16"): Promise<string> {
+async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9" = "9:16", options?: FluxSubmissionOptions): Promise<string> {
     if (!apiKey) {
         throw new Error("FLUX is not configured. Please add FAL_KEY.");
     }
@@ -42,7 +45,8 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
 
     let images: Array<{ url: string; content_type: string; width: number; height: number }>;
     try {
-        const result = await fal.subscribe(FLUX_MODEL, {
+        const client = options?.singleSubmission ? previewFluxClient(apiKey) : fal;
+        const result = await client.subscribe(FLUX_MODEL, {
             input: {
                 prompt,
                 image_size: imageSize as { width: number; height: number },
@@ -100,7 +104,8 @@ async function generateImage(prompt: string, aspectRatio: "9:16" | "1:1" | "16:9
 export async function generateStoryBackground(
     city: string,
     theme: string,
-    style: "vibrant" | "minimal" | "artistic" = "vibrant"
+    style: "vibrant" | "minimal" | "artistic" = "vibrant",
+    options?: FluxSubmissionOptions
 ): Promise<string> {
     const styleDescriptions = {
         vibrant: "rich saturated colors, golden hour warm lighting, professional DSLR quality",
@@ -117,7 +122,7 @@ Golden hour natural light, warm tones, atmospheric haze.
 8K resolution, tack sharp focus, vibrant realistic colors, HDR.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure landscape/cityscape photography.`;
 
-    return generateImage(prompt, "9:16");
+    return generateImage(prompt, "9:16", options);
 }
 
 /**
@@ -127,7 +132,8 @@ export async function generateDayBackground(
     city: string,
     dayNumber: number,
     theme: string,
-    activities: string[]
+    activities: string[],
+    options?: FluxSubmissionOptions
 ): Promise<string> {
     const activityContext = activities.slice(0, 3).join(", ");
 
@@ -140,7 +146,7 @@ Vertical portrait, balanced framing, depth and layers.
 Natural ambient light, warm color temperature.
 NO text, words, letters, watermarks. NO people or crowds. NO logos. Pure scenic/architectural photography.`;
 
-    return generateImage(prompt, "9:16");
+    return generateImage(prompt, "9:16", options);
 }
 
 /**

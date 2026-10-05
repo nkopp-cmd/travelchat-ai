@@ -53,7 +53,7 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
  it("stores actual byte format privately and cache hits preserve credits and skip tier/provider calls",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
   const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
-  const first=await POST(req());expect(first.status).toBe(200);const result=await first.json();expect(result).toMatchObject({success:true,cached:false,provider:"flux"});
+  const first=await POST(req());expect(first.status).toBe(200);expect(mocks.generate.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});const result=await first.json();expect(result).toMatchObject({success:true,cached:false,provider:"flux"});
   expect([...objects.keys()][0]).toMatch(/\.jpg$/);expect(usage()[0].count).toBe(1);
   mocks.tier.mockRejectedValue(new Error("must not need entitlement on owned cache hit"));
   const hit=await POST(req());expect(await hit.json()).toMatchObject({success:true,image:result.image,source:"cache",cached:true});
@@ -61,6 +61,11 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   expect(await previewBackgroundData(result.image,"other")).toBeNull();
   const response=await media(new NextRequest(result.image),{params:Promise.resolve({id:previewBackgroundId(result.image)!})});
   expect(Buffer.from(await response.arrayBuffer())).toEqual(jpeg);expect(response.headers.get("content-type")).toBe("image/jpeg");
+ });
+ it("passes the submission boundary to candidate day backgrounds",async()=>{
+  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.day.mockResolvedValue(png.toString("base64"));
+  expect((await POST(req({...input,type:"day",dayNumber:1,activities:["Controlled walk"]}))).status).toBe(200);
+  expect(mocks.day.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});expect(mocks.generate).not.toHaveBeenCalled();
  });
  it("uses the selected model only and charges each automatic fallback its real weight",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("premium");mocks.generate.mockRejectedValueOnce(new Error("flux failed")).mockResolvedValueOnce(png.toString("base64"));
@@ -129,7 +134,7 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   expect(response.status).toBe(200);expect(await response.json()).toMatchObject({success:true,source:"ai",provider:"flux"});
   expect(upload).toHaveBeenCalledWith(expect.stringMatching(/\.jpg$/),jpeg,{contentType:"image/jpeg",upsert:true});
   expect(mocks.weighted).toHaveBeenCalledWith("one","ai_images_generated",1);
-  expect(mocks.generate).toHaveBeenCalledTimes(1);expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);
+  expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.generate.mock.calls[0]?.at(-1)).toBeUndefined();expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);
  });
  it("keeps normal preview/www on source and rejects anonymous candidate callers",async()=>{
   mocks.available.mockReturnValue(false);
