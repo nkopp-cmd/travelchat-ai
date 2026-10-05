@@ -1,6 +1,8 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { previewAppDataReader } from "./preview-db";
+import { previewFreshStoryWriteOwner } from "./preview-story-write-owner";
+import { previewStorySlideBytes, previewStoryTotalBytes } from "./preview-story-upload";
 
 const contextSymbol = Symbol.for("__cloudflare-context__");
 const previewHost = "https://localley-next-preview.nkopp.workers.dev";
@@ -46,7 +48,8 @@ export function previewStoryMediaKey(id: string, generationId: string, slide: st
 
 interface StoryInput { slide: string; value: Blob }
 
-export async function previewStoryOwner(id: string, userId: string): Promise<boolean> {
+export async function previewStoryOwner(id: string, userId: string, fresh = false): Promise<boolean> {
+  if (fresh) return !!await previewFreshStoryWriteOwner(id, userId);
   const row = await previewAppDataReader().prepare(`SELECT 1 AS owned FROM legacy_itinerary_media m
     JOIN itineraries i ON i.id = m.itineraryId
     JOIN legacy_owners o ON o.ownerId = i.ownerId
@@ -55,10 +58,12 @@ export async function previewStoryOwner(id: string, userId: string): Promise<boo
 }
 
 export async function savePreviewStoryMedia(
-  id: string, userId: string, form: FormData, tier: string, retentionDays: number,
+  id: string, userId: string, form: FormData, tier: string, retentionDays: number, fresh = false,
 ): Promise<{ slides: Record<string, string>; expiresAt: string; retentionDays: number; tier: string } | null> {
   const db = previewAppDataReader();
-  const row = await db.prepare(`SELECT m.storySlides AS storySlides FROM legacy_itinerary_media m
+  const freshOwner = fresh ? await previewFreshStoryWriteOwner(id, userId) : null;
+  if (fresh && !freshOwner) return null;
+  const row = freshOwner ?? await db.prepare(`SELECT m.storySlides AS storySlides FROM legacy_itinerary_media m
     JOIN itineraries i ON i.id = m.itineraryId
     JOIN legacy_owners o ON o.ownerId = i.ownerId
     WHERE m.itineraryId = ? AND o.clerkUserId = ?`).bind(id, userId).first<{ storySlides: string | null }>();
@@ -68,9 +73,15 @@ export async function savePreviewStoryMedia(
   if (!entries.length || entries.length > 32) throw new RangeError("Invalid story slide count");
   const inputs: StoryInput[] = [];
   const seen = new Set<string>();
+  let totalBytes = 0;
   for (const [slide, value] of entries) {
     if (!slidePattern.test(slide) || seen.has(slide) || !(value instanceof Blob)
-      || value.size < 8 || value.size > 2 * 1024 * 1024) throw new RangeError("Invalid story slide");
+      || value.size < 8 || value.size > previewStorySlideBytes
+      || (freshOwner && slide.startsWith("day") && Number(slide.slice(3)) > freshOwner.days)) {
+      throw new RangeError("Invalid story slide");
+    }
+    totalBytes += value.size;
+    if (totalBytes > previewStoryTotalBytes) throw new RangeError("Story upload is too large");
     seen.add(slide);
     const header = new Uint8Array(await value.slice(0, 8).arrayBuffer());
     if (!pngHeader.every((byte, index) => header[index] === byte)) throw new RangeError("Invalid PNG slide");
@@ -114,9 +125,15 @@ export async function savePreviewStoryMedia(
     const record = { generated_at: now.toISOString(), expires_at: expiresAt, tier, slides: rawSlides };
     recordJson = JSON.stringify(record);
     const slides = Object.fromEntries(Object.entries(rawSlides).map(([slide, source]) =>
-      [slide, previewStoryMediaUrl(id, source)]));
+      [slide, `${previewStoryMediaUrl(id, source)}${fresh ? "&gallery_candidate=fresh" : ""}`]));
     writeAttempted = true;
-    const result = await db.prepare(`UPDATE legacy_itinerary_media SET storySlides = ?
+    const result = freshOwner ? await db.prepare(`INSERT INTO legacy_itinerary_media(itineraryId, storySlides)
+      SELECT i.id, ? FROM itineraries i JOIN owners o ON o.id = i.ownerId
+      WHERE i.id = ? AND i.ownerId = ? AND o.source = 'new'
+        AND NOT EXISTS (SELECT 1 FROM legacy_owners l WHERE l.clerkUserId = ? OR l.ownerId = o.id)
+      ON CONFLICT(itineraryId) DO UPDATE SET storySlides = excluded.storySlides`)
+      .bind(recordJson, id, freshOwner.ownerId, userId).run()
+      : await db.prepare(`UPDATE legacy_itinerary_media SET storySlides = ?
       WHERE itineraryId = ? AND EXISTS (
         SELECT 1 FROM itineraries i JOIN legacy_owners o ON o.ownerId = i.ownerId
         WHERE i.id = legacy_itinerary_media.itineraryId AND o.clerkUserId = ?

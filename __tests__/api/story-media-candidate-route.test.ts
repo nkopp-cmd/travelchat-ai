@@ -31,6 +31,16 @@ const persistParams = { params: Promise.resolve({ id }) };
 afterEach(() => { process.env = originalEnvironment; vi.clearAllMocks(); });
 
 describe("preview story media routes", () => {
+  it("preserves the normal2MiB upload cap even when www carries both candidate flags", async () => {
+    process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
+    mocks.auth.mockResolvedValue({ userId: "owner-id" }); mocks.tier.mockResolvedValue("free");
+    const query = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), single: vi.fn().mockResolvedValue({ data: { clerk_user_id: "owner-id" }, error: null }) };
+    const upload = vi.fn(); mocks.supabase.mockReturnValue({ from: vi.fn().mockReturnValue(query), storage: { from: vi.fn().mockReturnValue({ upload }) } });
+    const form = new FormData(); form.append("cover", new Blob([new Uint8Array(2 * 1024 * 1024 + 1)]));
+    const request = new NextRequest(`https://www.localley.io/api/itineraries/${id}/story/persist?data_candidate=d1&gallery_candidate=fresh`, { method: "POST", body: form });
+    expect((await POST(request, persistParams)).status).toBe(400);
+    expect(upload).not.toHaveBeenCalled(); expect(mocks.owner).not.toHaveBeenCalled(); expect(mocks.save).not.toHaveBeenCalled();
+  });
   it("writes only the exact preview owner's story and keeps Supabase out of the candidate", async () => {
     process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
     mocks.auth.mockResolvedValue({ userId: "owner-id" });

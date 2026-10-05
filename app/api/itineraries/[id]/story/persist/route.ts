@@ -8,6 +8,7 @@ import { previewStorySlides } from "@/lib/app-data/preview-story-slides";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewStoryOwner, savePreviewStoryMedia } from "@/lib/app-data/preview-story-media";
 import { previewStoryTier } from "@/lib/app-data/preview-story-tier";
+import { readPreviewStoryForm } from "@/lib/app-data/preview-story-upload";
 
 // Uploading multiple slide PNGs can take time
 export const maxDuration = 30;
@@ -31,16 +32,16 @@ export async function POST(
         const { id } = await params;
         if (isPreviewStoryCandidate(req)) {
             try {
-                if (!await previewStoryOwner(id, userId)) return Errors.notFound("Itinerary");
-                const contentLength = Number(req.headers.get("content-length"));
-                if (Number.isFinite(contentLength) && contentLength > 32 * 2 * 1024 * 1024 + 128 * 1024) {
-                    return Errors.validationError("Story upload is too large");
-                }
+                const fresh = req.nextUrl.searchParams.get("gallery_candidate") === "fresh";
+                const owned = fresh ? await previewStoryOwner(id, userId, true) : await previewStoryOwner(id, userId);
+                if (!owned) return Errors.notFound("Itinerary");
                 const user = await currentUser();
                 if (!user || user.id !== userId) return Errors.unauthorized();
                 const tier = await previewStoryTier(userId, user.primaryEmailAddress?.emailAddress ?? null);
                 const retentionDays = hasFeature(tier, "storyRetentionDays");
-                const saved = await savePreviewStoryMedia(id, userId, await req.formData(), tier, retentionDays);
+                const form = await readPreviewStoryForm(req);
+                const saved = fresh ? await savePreviewStoryMedia(id, userId, form, tier, retentionDays, true)
+                    : await savePreviewStoryMedia(id, userId, form, tier, retentionDays);
                 if (!saved) return Errors.notFound("Itinerary");
                 return NextResponse.json({ success: true, ...saved }, {
                     headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
