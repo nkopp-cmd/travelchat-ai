@@ -37,7 +37,8 @@ export async function generateStoryBackground(
     provider: ImageProvider,
     city: string,
     theme: string,
-    style: "vibrant" | "minimal" | "artistic" = "vibrant"
+    style: "vibrant" | "minimal" | "artistic" = "vibrant",
+    options?: flux.FluxSubmissionOptions
 ): Promise<string> {
     console.log(`[IMAGE_PROVIDER] Using ${provider} for story background, city: ${city}`);
     const start = Date.now();
@@ -45,7 +46,7 @@ export async function generateStoryBackground(
     try {
         let result: string;
         if (provider === "flux") {
-            result = await flux.generateStoryBackground(city, theme, style);
+            result = await flux.generateStoryBackground(city, theme, style, options);
         } else if (provider === "seedream") {
             result = await seedream.generateStoryBackground(city, theme, style);
         } else {
@@ -67,7 +68,8 @@ export async function generateDayBackground(
     city: string,
     dayNumber: number,
     theme: string,
-    activities: string[]
+    activities: string[],
+    options?: flux.FluxSubmissionOptions
 ): Promise<string> {
     console.log(`[IMAGE_PROVIDER] Using ${provider} for day ${dayNumber} background, city: ${city}`);
     const start = Date.now();
@@ -75,7 +77,7 @@ export async function generateDayBackground(
     try {
         let result: string;
         if (provider === "flux") {
-            result = await flux.generateDayBackground(city, dayNumber, theme, activities);
+            result = await flux.generateDayBackground(city, dayNumber, theme, activities, options);
         } else if (provider === "seedream") {
             result = await seedream.generateDayBackground(city, dayNumber, theme, activities);
         } else {

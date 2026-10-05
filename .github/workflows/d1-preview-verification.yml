@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/d1-preview-verification.yml'
       - 'lib/app-data/**'
+      - 'lib/flux.ts'
+      - 'lib/image-provider.ts'
+      - '__tests__/lib/preview-flux-client.test.ts'
       - 'app/guide/apply/page.tsx'
       - 'app/guide/dashboard/page.tsx'
       - '__tests__/pages/guide-dashboard-candidate.test.tsx'
@@ -199,7 +202,7 @@ jobs:
             npx vitest run __tests__/api/subscription-action-candidate.test.ts --maxWorkers=1
             npx eslint lib/app-data/preview-billing-action.ts app/api/subscription/checkout/route.ts app/api/subscription/portal/route.ts __tests__/api/subscription-action-candidate.test.ts
             npx eslint lib/app-data/preview-subscription-state.ts lib/app-data/preview-subscription-read.ts lib/app-data/preview-stripe-errors.ts
-            npx vitest run __tests__/api/story-background-cache-candidate.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/preview-flux-client.test.ts __tests__/api/story-background-cache-candidate.test.ts --maxWorkers=1
             npx eslint lib/app-data/preview-story-background-cache.ts lib/app-data/preview-story-usage.ts app/api/images/story-background/route.ts "app/api/images/story-background/media/[id]/route.ts" app/api/test-app-data/story-background/route.ts __tests__/api/story-background-cache-candidate.test.ts
             npx vitest run __tests__/api/story-render-access.test.tsx --maxWorkers=1
             npx eslint "app/api/itineraries/[id]/story/route.tsx" __tests__/api/story-render-access.test.tsx
