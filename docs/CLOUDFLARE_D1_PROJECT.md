@@ -977,3 +977,10 @@ Real paid story acceptance, historical parity, full rehearsal and production cut
 Fresh verified reserved owners can persist actual rendered PNGs above2MiB with bounded8MiB/64MiB capacity.
 The hosted full application accepted64MiB; owned galleries/readiness and exact fixture cleanup passed.
 Normal routing and production data remain unchanged. Paid generation and full cutover remain separate gates.
+
+## Fresh candidate background links — 2026-10-05
+
+[PR379 release evidence](CANDIDATE_FRESH_STORY_BACKGROUNDS.md) records exact commit, CI, preview/rollback and hosted proof.
+An explicit fresh verified reserved owner can link owned R2 backgrounds before slide persistence creates a media row.
+Fresh body limits, atomic owner/cache guards, actual hosted read/render and exact cleanup passed.
+No provider call or production data switch occurred. Full paid-story and cutover gates remain separate.

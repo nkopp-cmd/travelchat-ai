@@ -8,7 +8,19 @@ One fresh received-email login and one actual live generation200 prove GLM5.2 pr
 
 Production application data remains on Supabase; Better Auth uses D1 AUTH_DB. Candidate D1/R2 development resumed under Nils's October3 direction; production data switch still requires full parity, rollback and canary gates. Production bindings remain unchanged, with no candidate application binding. The current preview release appears below. Notification SQL fallback PR283 remains draft; history/disposition and production cutover gates remain open. Native sync stays disabled/inactive because its legacy import is obsolete.
 
-## Current preview — fresh saved-slide capacity, 2026-10-05
+## Current preview — fresh story background links, 2026-10-05
+
+PR379 / runtime source `8e33fd00e3f669b0143fdce822a28fc9c2c467a8` passed required CI `37330608378`.
+Preview version `b3e8a3ef-10b3-45ce-a28a-23144d3b2ea8`, deployment `21cbffc9-e5e7-4ec5-b109-64c0bec59c66`, runs100%.
+Rollback `6bb33686-6b1d-44c4-982a-a740ecda1167` remains available.
+Nineteen focused tests, TypeScript, lint, pinned build and scoped source review passed.
+Hosted fresh missing-media row creation/link/reload, real owned cache bytes and4438668-byte rendered PNG pass.
+Exact fixture cleanup restores55APP/source/auth fingerprints and both admins; production stays unchanged.
+No provider call or external email occurred. Generation remains disabled.
+See [scope, exact tests and acceptance](../CANDIDATE_FRESH_STORY_BACKGROUNDS.md).
+Later evidence-only main commits do not change this runtime source.
+
+## Historical preview — fresh saved-slide capacity, 2026-10-05
 
 PR377 / runtime source `978a1dc051ae9ae90dbf7c5e23f7c1a09ea971b5` passed required CI `37321893022`.
 Preview version `6bb33686-6b1d-44c4-982a-a740ecda1167`, deployment `ead473e7-3af0-40ba-a949-5c85e3783d35`, runs100%.
