@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GET, POST } from '@/app/api/spots/[id]/reviews/route';
 
@@ -24,7 +25,7 @@ function query(result: object) {
 }
 
 function get() {
-    return GET(new Request('https://localley.io/api/spots/spot-1/reviews?sort=helpful'), {
+    return GET(new NextRequest('https://localley.io/api/spots/spot-1/reviews?sort=helpful'), {
         params: Promise.resolve({ id: 'spot-1' }),
     });
 }
@@ -107,7 +108,7 @@ describe('Review GET schema alignment', () => {
     });
 
     it('rejects anonymous writes before database access', async () => {
-        const response = await POST(new Request('https://localley.io/api/spots/spot-1/reviews', { method: 'POST' }), {
+        const response = await POST(new NextRequest('https://localley.io/api/spots/spot-1/reviews', { method: 'POST' }), {
             params: Promise.resolve({ id: 'spot-1' }),
         });
         expect(response.status).toBe(401);

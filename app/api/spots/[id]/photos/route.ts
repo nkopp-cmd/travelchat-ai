@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseAdmin, createSupabaseClient } from "@/lib/supabase";
 import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 import { inferCityFromAddress } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
@@ -69,7 +69,11 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
                 return failureForRequest(503, "source_unavailable");
             }
         } else {
-            const result = await createSupabaseAdmin().from("spots").select("*").eq("id", id)
+            // Normal preview reads only public rows; never provision an admin key for this public endpoint.
+            const publicPreview = req.nextUrl.hostname === "localley-next-preview.nkopp.workers.dev"
+                && process.env.AUTH_MAIL_MODE === "outbox" && process.env.SUPABASE_READ_ONLY === "true";
+            const source = publicPreview ? createSupabaseClient() : createSupabaseAdmin();
+            const result = await source.from("spots").select("*").eq("id", id)
                 .abortSignal(controller.signal).maybeSingle();
             if (result.error) return failureForRequest(503, "source_unavailable");
             spot = result.data as RawSpot | null;

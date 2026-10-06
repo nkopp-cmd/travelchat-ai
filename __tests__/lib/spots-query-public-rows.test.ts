@@ -28,6 +28,15 @@ function makeSpot(overrides: Partial<RawSpot> = {}): RawSpot {
 }
 
 describe("public visible spot rows", () => {
+  it("collapses punctuation variants only for the same trusted listing and pin", () => {
+    const rows = getPublicVisibleSpotRows([
+      makeSpot({ id: "first", name: { en: "Ladies’ Market" } }),
+      makeSpot({ id: "duplicate", name: { en: "Ladies Market" }, address: { en: "17 Supyo-ro 28 gil, Jongno-gu, Seoul" } }),
+      makeSpot({ id: "branch", name: { en: "Ladies Market" }, address: { en: "20 Supyo-ro, Jongno-gu, Seoul" }, google_place_id: "ChIJbranch", photos: ["/api/places/photo?name=places%2FChIJbranch%2Fphotos%2Fphoto456&w=1200"] }),
+      makeSpot({ id: "different_pin", name: { en: "Ladies Market" }, address: { en: "22 Supyo-ro, Jongno-gu, Seoul" }, location: { type: "Point", coordinates: [126.999, 37.58] } }),
+    ]);
+    expect(rows.map(row => row.id)).toEqual(["first", "branch", "different_pin"]);
+  });
   it("deduplicates visible rows by localized name and address", () => {
     const rows = getPublicVisibleSpotRows([
       makeSpot({ id: "spot_1" }),

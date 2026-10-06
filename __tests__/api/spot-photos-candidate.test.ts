@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const mocks = vi.hoisted(() => ({ read: vi.fn(), admin: vi.fn(), limit: vi.fn(), platform: vi.fn() }));
+const mocks = vi.hoisted(() => ({ read: vi.fn(), admin: vi.fn(), publicReader: vi.fn(), limit: vi.fn(), platform: vi.fn() }));
 vi.mock("@/lib/app-data/preview-spot-photos", async original => ({
   ...await original<typeof import("@/lib/app-data/preview-spot-photos")>(),
   previewSpotPhotoSource: mocks.read,
 }));
-vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
+vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin, createSupabaseClient: mocks.publicReader }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit, strictPlatformLimit: mocks.platform }));
 import { GET } from "@/app/api/spots/[id]/photos/route";
 
@@ -29,6 +29,7 @@ beforeEach(() => {
   const query = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(),
     abortSignal: vi.fn().mockReturnThis(), maybeSingle: vi.fn().mockResolvedValue({ data: spot, error: null }) };
   mocks.admin.mockReturnValue({ from: vi.fn().mockReturnValue(query) });
+  mocks.publicReader.mockReturnValue({ from: vi.fn().mockReturnValue(query) });
   vi.stubGlobal("fetch", vi.fn());
 });
 afterEach(() => { process.env = environment; vi.unstubAllGlobals(); vi.clearAllMocks(); });
@@ -62,7 +63,20 @@ describe("spot photo source candidate", () => {
     expect([preview.status, www.status]).toEqual([200, 200]);
     expect(preview.headers.get("X-Localley-Data-Source")).toBeNull();
     expect(www.headers.get("X-Localley-Data-Source")).toBeNull();
-    expect(mocks.admin).toHaveBeenCalledTimes(2);
+    expect(mocks.admin).toHaveBeenCalledTimes(1);
+    expect(mocks.publicReader).toHaveBeenCalledTimes(1);
+    expect(mocks.read).not.toHaveBeenCalled();
+  });
+
+  it("does not use the public-preview reader on foreign hosts or without safety flags", async () => {
+    await request("preview.example.com", false);
+    process.env.SUPABASE_READ_ONLY = "false";
+    await request("localley-next-preview.nkopp.workers.dev", false);
+    process.env.SUPABASE_READ_ONLY = "true";
+    process.env.AUTH_MAIL_MODE = "live";
+    await request("localley-next-preview.nkopp.workers.dev", false);
+    expect(mocks.publicReader).not.toHaveBeenCalled();
+    expect(mocks.admin).toHaveBeenCalledTimes(3);
     expect(mocks.read).not.toHaveBeenCalled();
   });
 
