@@ -228,3 +228,13 @@ Productionb42e8926/deployment6f22f0cb remains unchanged; all three public roots2
 Generation stays disabled. No paid call, source write or production data switch.
 Candidate saved-slide2MiB capacity remains a separate follow-up before paid acceptance.
 Exact limits, evidence paths and rollback conditions are in docs/CLOUDFLARE_D1_PROJECT.md.
+
+## 2026-10-06 — Explicit itinerary Cloudflare mail
+
+PR386 source0ad0b530; required exact-head CI37494333854 passed11m13s;33tests, public-only build, artifact audit and scoped review passed.
+Previewb9086f9a100%/deployment69cb9786; production043e1752100%/deploymentec5dd29c; rollbackb42e8926 retained.
+Only AUTH0003 adds atomic owner/shared copy limits; no APP database switch.
+Controlled received login, full itinerary and reset messages passed, with owned200/anonymous401/missing404.
+Exact cleanup restores55candidate table counts and selected four source/five auth hashes; both admins remain.
+Correct quoted version overrides and merged preview100% replay replace earlier unattributed1% reads.
+Details and limits: docs/ITINERARY_CLOUDFLARE_MAIL.md. Story-ready/subscription mail and full data cutover remain open.
