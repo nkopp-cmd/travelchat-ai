@@ -11,21 +11,23 @@ type Photo = PhotoGalleryResponse["photos"][number];
 export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false }: {
   photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean;
 }) {
-  // A new source gets a new load state, including after navigation to another spot.
-  return <PhotoImage key={photo?.url || "unavailable"} photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero}>{children}</PhotoImage>;
+  // Reset only the image state on source changes; keep hero interactions mounted.
+  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero}>{children}</PhotoImage>;
 }
 
 function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero }: {
   photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean;
 }) {
-  const [state, setState] = useState<"loading" | "loaded" | "failed">("loading");
+  const [imageState, setImageState] = useState<{ url?: string; status: "loading" | "loaded" | "failed" }>({ url: photo?.url, status: "loading" });
+  if (imageState.url !== photo?.url) setImageState({ url: photo?.url, status: "loading" });
+  const state = imageState.url === photo?.url ? imageState.status : "loading";
   const unavailable = !photo || state === "failed";
   return <figure className="flex h-full w-full flex-col">
     <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
       {unavailable ? <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-violet-950/60 p-2 text-center text-xs text-white">
         {loading ? "Loading venue photos..." : "Photo unavailable"}
-      </div> : <Image src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
-        onLoad={() => setState("loaded")} onError={() => setState("failed")} />}
+      </div> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
+        onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>
     {!unavailable && photo && <figcaption tabIndex={0} aria-label="Photo source and author credits" className={`relative z-10 max-h-[40%] shrink-0 overflow-auto border-t border-white/10 bg-[#100b1c] px-2 py-1 text-xs leading-4 text-violet-100 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>

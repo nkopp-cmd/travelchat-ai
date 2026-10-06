@@ -28,8 +28,9 @@ Further listing conflicts and missing photos require individual evidence before 
 
 ## Verification
 
-20focused component/list tests pass, including source reset, unsafe author links, empty/error imagery and duplicate/branch guards.
+21focused component/list tests pass, including source reset, unsafe author links, empty/error imagery and duplicate/branch guards.
 Before screenshots: six loaded first-page photos per viewport, no page errors or horizontal overflow.
 Release, visible card screenshots, build, exact CI and scoped review remain pending.
 
 Review found a hero-caption overlap before activation. The hero now owns its overlay inside a separate image frame; credits flow below that frame. A multi-author/error-state regression test preserves the title and controls. The first uploaded draft version was not activated.
+The reviewed interaction-remount concern is fixed: only the image resets on source changes. A retained open interaction test covers metadata loading.
