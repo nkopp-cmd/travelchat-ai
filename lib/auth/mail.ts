@@ -23,6 +23,24 @@ export interface AuthEmailBinding {
   }): Promise<{ messageId: string }>;
 }
 
+/** Shared transport for explicit transactional messages. Never retries suppression. */
+export async function sendCloudflareMail(emailBinding: AuthEmailBinding | undefined,
+  mail: { to: string; url: string; subject: string; html: string; text: string }) {
+  if (!emailBinding) throw new Error("AUTH_EMAIL binding is not configured");
+  if (process.env.FROM_EMAIL !== "Localley <hello@localley.io>" && process.env.FROM_EMAIL !== "hello@localley.io") {
+    throw new Error("FROM_EMAIL must use hello@localley.io");
+  }
+  if (!isLocalleyAuthLink(mail.url)) throw new Error("Auth email link must use HTTPS on localley.io");
+  try {
+    return await emailBinding.send({ from: { email: "hello@localley.io", name: "Localley" },
+      to: mail.to, subject: mail.subject, html: mail.html, text: mail.text });
+  } catch (error) {
+    const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "unknown";
+    console.error("[auth] Cloudflare email send failed:", /^E_[A-Z_]+$/.test(code) ? code : "unknown");
+    throw new Error("Auth email could not be sent");
+  }
+}
+
 const SUBJECTS: Record<AuthMail["kind"], string> = {
   "verify-email": "Confirm your email for Localley",
   "reset-password": "Set your Localley password",
@@ -134,27 +152,8 @@ export function createMailSender(database: OutboxDatabase | undefined, emailBind
         .run();
       return;
     }
-    if (!emailBinding) throw new Error("AUTH_EMAIL binding is not configured");
-    if (process.env.FROM_EMAIL !== "Localley <hello@localley.io>" && process.env.FROM_EMAIL !== "hello@localley.io") {
-      throw new Error("FROM_EMAIL must use hello@localley.io");
-    }
-    if (!isLocalleyAuthLink(mail.url)) throw new Error("Auth email link must use HTTPS on localley.io");
     const { subject, html, text } = mail.kind === "story-ready" ? renderStoryReadyMail(mail)
       : mail.kind === "itinerary-copy" ? renderItineraryCopyMail(mail) : renderAuthMail(mail);
-    try {
-      await emailBinding.send({
-        from: { email: "hello@localley.io", name: "Localley" },
-        to: mail.to,
-        subject,
-        html,
-        text,
-      });
-    } catch (error) {
-      const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "unknown";
-      // Cloudflare enforces account and sender-domain suppression lists. Never retry
-      // a suppressed recipient or reveal the email or token in a log or response.
-      console.error("[auth] Cloudflare email send failed:", /^E_[A-Z_]+$/.test(code) ? code : "unknown");
-      throw new Error("Auth email could not be sent");
-    }
+    await sendCloudflareMail(emailBinding, { to: mail.to, url: mail.url, subject, html, text });
   };
 }

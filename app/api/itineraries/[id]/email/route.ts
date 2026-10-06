@@ -3,9 +3,11 @@ import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate"
 import { queuePreviewItineraryMail } from "@/lib/app-data/preview-itinerary-mail";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
-import { resend, FROM_EMAIL } from "@/lib/resend";
+import { sendItineraryEmail } from "@/lib/itinerary-mail";
+import { reserveItineraryMail } from "@/lib/itinerary-mail-limit";
+import { authMailMode } from "@/lib/auth/mail";
 import { ItineraryEmail } from "@/emails/itinerary-email";
-import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
+import { Errors, handleApiError } from "@/lib/api-errors";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -68,8 +70,11 @@ export async function POST(
         const { id } = await params;
         const { recipientEmail, recipientName } = await req.json();
 
-        if (!recipientEmail) {
-            return Errors.validationError("Recipient email is required");
+        if (typeof recipientEmail !== "string" || !recipientEmail || recipientEmail.length > 254
+            || /[\x00-\x1f\x7f,;]/.test(recipientEmail)
+            || (recipientName !== undefined && (typeof recipientName !== "string"
+                || recipientName.length > 100 || /[\x00-\x1f\x7f]/.test(recipientName)))) {
+            return Errors.validationError("Invalid recipient details");
         }
 
         // Validate email format
@@ -90,6 +95,11 @@ export async function POST(
 
         if (error || !itinerary) {
             return Errors.notFound("Itinerary");
+        }
+        if (authMailMode() !== "outbox") {
+            const limit = await reserveItineraryMail(userId);
+            if (limit === "limited") return Errors.rateLimited();
+            if (limit !== "allowed") return Errors.externalServiceError("email");
         }
 
         const { dailyPlans, insights } = normalizeDailyPlansForDisplay<{
@@ -120,20 +130,13 @@ export async function POST(
 
         // Generate share URL if itinerary is shared
         const shareUrl = itinerary.share_code
-            ? `${req.nextUrl.origin}/shared/${itinerary.share_code}`
-            : `${req.nextUrl.origin}/itineraries/${id}`;
-
-        // Check if Resend is configured
-        if (!resend) {
-            return apiError(ErrorCodes.EXTERNAL_SERVICE_ERROR, "Email service not configured");
-        }
+            ? `https://localley.io/shared/${encodeURIComponent(itinerary.share_code)}`
+            : `https://localley.io/itineraries/${encodeURIComponent(id)}`;
 
         // Send the email
-        const { data: emailData, error: emailError } = await resend.emails.send({
-            from: FROM_EMAIL,
-            to: recipientEmail,
-            subject: `Your ${itinerary.city} Itinerary from Localley`,
-            react: ItineraryEmail({
+        let delivery: Awaited<ReturnType<typeof sendItineraryEmail>>;
+        try {
+            delivery = await sendItineraryEmail(recipientEmail, {
                 itineraryTitle: itinerary.title,
                 city: itinerary.city,
                 days,
@@ -141,13 +144,13 @@ export async function POST(
                 shareUrl,
                 highlights: itinerary.highlights,
                 insights,
-            }),
-        });
-
-        if (emailError) {
-            console.error("Email send error:", emailError);
+            });
+        } catch {
+            // The transport logs only a sanitized provider code, never recipient/content.
+            console.error("[itinerary-email] Delivery unavailable");
             return Errors.externalServiceError("email");
         }
+        if (!delivery.sent) return NextResponse.json({ success: true, ...delivery });
 
         // Award XP for sharing (fire and forget)
         try {
@@ -167,8 +170,9 @@ export async function POST(
 
         return NextResponse.json({
             success: true,
+            sent: true,
             message: "Itinerary sent successfully",
-            emailId: emailData?.id,
+            emailId: delivery.emailId,
         });
     } catch (error) {
         return handleApiError(error, "itinerary-email");

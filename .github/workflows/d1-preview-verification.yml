@@ -21,6 +21,11 @@ on:
       - '__tests__/pages/profile-candidate.test.tsx'
       - 'app/itineraries/[id]/stories/**'
       - '__tests__/app/story-gallery-candidate.test.tsx'
+      - 'lib/itinerary-mail-limit.ts'
+      - '__tests__/lib/itinerary-mail-limit.test.ts'
+      - 'migrations/auth/**'
+      - 'lib/itinerary-mail.ts'
+      - '__tests__/lib/itinerary-mail.test.ts'
       - 'lib/auth/mail.ts'
       - 'app/api/itineraries/[id]/email/route.ts'
       - '__tests__/api/itinerary-mail-candidate.test.ts'
@@ -193,6 +198,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/lib/itinerary-mail-limit.test.ts __tests__/lib/itinerary-mail.test.ts __tests__/lib/auth-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts __tests__/api/story-mail-candidate.test.ts --maxWorkers=1
+            npx eslint lib/itinerary-mail-limit.ts __tests__/lib/itinerary-mail-limit.test.ts lib/itinerary-mail.ts lib/auth/mail.ts "app/api/itineraries/[id]/email/route.ts" __tests__/lib/itinerary-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts
             npx vitest run __tests__/api/connect-dashboard-candidate.test.ts __tests__/api/admin-payout-execution-candidate.test.ts __tests__/api/admin-payout-calculation-candidate.test.ts --maxWorkers=1
             npx eslint app/api/connect/dashboard/route.ts __tests__/api/connect-dashboard-candidate.test.ts app/api/admin/payouts/execute/route.ts __tests__/api/admin-payout-execution-candidate.test.ts app/api/admin/payouts/calculate/route.ts __tests__/api/admin-payout-calculation-candidate.test.ts
             npx vitest run __tests__/lib/app-data-preview-profile.test.ts __tests__/pages/profile-candidate.test.tsx --maxWorkers=1
