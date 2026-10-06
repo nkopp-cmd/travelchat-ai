@@ -61,6 +61,10 @@
     "NEXTJS_ENV": "production",
     // Auth emails go to the auth_mail_outbox table, never to a real inbox.
     "AUTH_MAIL_MODE": "outbox",
+    // OpenNext bundles private build defaults. Override local development tier
+    // flags explicitly so hosted candidate acceptance uses saved entitlements.
+    "BETA_MODE": "false",
+    "BYPASS_IMAGE_TIER_CHECK": "false",
     // Synthetic signed preview event fixtures only. Real test checkout remains gated.
     "PREVIEW_STRIPE_PRICE_TIERS": "{\"price_localley_preview_pro\":\"pro\",\"price_localley_preview_premium\":\"premium\"}",
     "BETTER_AUTH_URL": "https://localley-next-preview.nkopp.workers.dev",
