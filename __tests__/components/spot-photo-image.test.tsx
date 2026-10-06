@@ -15,6 +15,22 @@ const response = (ids: string[]) => ({ ok: true, json: async () => ({ status: "a
 afterEach(() => vi.unstubAllGlobals());
 
 describe("venue photos", () => {
+  it("keeps multi-author hero credits outside overlays and retains overlays on image failure", () => {
+    render(<SpotPhotoImage photo={{ ...photo("hero"), attributions: [{displayName:"Alice"},{displayName:"Bob"}] }} alt="Hero" sizes="100vw" hero frameClassName="aspect-[4/3]">
+      <h1>Owned venue title</h1>
+    </SpotPhotoImage>);
+    const frame = screen.getByTestId("spot-detail-hero");
+    const caption = screen.getByLabelText("Photo source and author credits");
+    expect(frame.contains(screen.getByRole("heading", {name:"Owned venue title"}))).toBe(true);
+    expect(frame.contains(caption)).toBe(false);
+    expect(frame.nextElementSibling).toBe(caption);
+    expect(caption.textContent).toContain("Alice");
+    expect(caption.textContent).toContain("Bob");
+    fireEvent.error(screen.getByAltText("Hero"));
+    expect(screen.getByRole("heading", {name:"Owned venue title"})).toBeTruthy();
+    expect(screen.getByText("Photo unavailable")).toBeTruthy();
+    expect(screen.queryByLabelText("Photo source and author credits")).toBeNull();
+  });
   it("shows failure without a stock substitute and resets on source change", () => {
     const { rerender } = render(<SpotPhotoImage photo={photo("a")} alt="Venue" sizes="320px" />);
     const image = screen.getByAltText("Venue");
