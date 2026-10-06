@@ -9,7 +9,7 @@ let db: D1Sqlite;
 beforeEach(() => {
   db = createAuthTestDatabase();
   db.sqlite.exec("PRAGMA foreign_keys=ON");
-  for (const id of ["owner", "other"]) db.sqlite.prepare('INSERT INTO user (id,name,email,emailVerified,createdAt,updatedAt) VALUES (?,?,?,1,0,0)')
+  for (const id of ["owner", "other", "third"]) db.sqlite.prepare('INSERT INTO user (id,name,email,emailVerified,createdAt,updatedAt) VALUES (?,?,?,1,0,0)')
     .run(id, id, `${id}@example.test`);
   globals[symbol] = { env: { AUTH_DB: db } };
   vi.spyOn(Date, "now").mockReturnValue(Date.UTC(2026, 9, 6, 10));
@@ -49,5 +49,18 @@ describe("atomic itinerary mail reservations", () => {
     expect(await reserveItineraryMail("other")).toBe("allowed");
     db.sqlite.prepare('DELETE FROM user WHERE id=?').run("owner");
     expect(db.sqlite.prepare('SELECT userId FROM itinerary_mail_limits').all()).toEqual([{ userId: "other" }]);
+  });
+  it("caps all owners at forty per UTC day without bypass through fresh accounts", async () => {
+    for (let hour = 0; hour < 4; hour++) {
+      vi.mocked(Date.now).mockReturnValue(Date.UTC(2026, 9, 6, 10 + hour));
+      for (const user of ["owner", "other"]) for (let i = 0; i < 5; i++)
+        expect(await reserveItineraryMail(user)).toBe("allowed");
+      expect(await reserveItineraryMail("third")).toBe("limited");
+    }
+    vi.mocked(Date.now).mockReturnValue(Date.UTC(2026, 9, 6, 14));
+    expect(await reserveItineraryMail("third")).toBe("limited");
+    expect(db.sqlite.prepare('SELECT dayCount FROM itinerary_mail_global_limit').get()).toEqual({ dayCount: 40 });
+    vi.mocked(Date.now).mockReturnValue(Date.UTC(2026, 9, 7));
+    expect(await reserveItineraryMail("third")).toBe("allowed");
   });
 });

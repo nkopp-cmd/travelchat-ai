@@ -25,6 +25,21 @@ export async function reserveItineraryMail(userId: string): Promise<"allowed" | 
         AND (itinerary_mail_limits.dayStart<excluded.dayStart
           OR (itinerary_mail_limits.dayStart=excluded.dayStart AND itinerary_mail_limits.dayCount<20))
       RETURNING userId`).bind(userId, hour, day).first<{ userId: string }>();
-    return row?.userId === userId ? "allowed" : "limited";
+    if (row?.userId !== userId) return "limited";
+    // Reserve the shared cap only after the owner passes. A later refusal keeps
+    // the owner's reservation; it cannot cause an uncharged or duplicate send.
+    const global = await context.env.AUTH_DB.prepare(`INSERT INTO itinerary_mail_global_limit
+      (id,hourStart,hourCount,dayStart,dayCount) VALUES (1, ?, 1, ?, 1)
+      ON CONFLICT(id) DO UPDATE SET
+        hourStart=excluded.hourStart,
+        hourCount=CASE WHEN itinerary_mail_global_limit.hourStart<excluded.hourStart THEN 1 ELSE itinerary_mail_global_limit.hourCount+1 END,
+        dayStart=excluded.dayStart,
+        dayCount=CASE WHEN itinerary_mail_global_limit.dayStart<excluded.dayStart THEN 1 ELSE itinerary_mail_global_limit.dayCount+1 END
+      WHERE (itinerary_mail_global_limit.hourStart<excluded.hourStart
+          OR (itinerary_mail_global_limit.hourStart=excluded.hourStart AND itinerary_mail_global_limit.hourCount<10))
+        AND (itinerary_mail_global_limit.dayStart<excluded.dayStart
+          OR (itinerary_mail_global_limit.dayStart=excluded.dayStart AND itinerary_mail_global_limit.dayCount<40))
+      RETURNING id`).bind(hour, day).first<{ id: number }>();
+    return global?.id === 1 ? "allowed" : "limited";
   } catch { return "unavailable"; }
 }
