@@ -30,7 +30,18 @@ Further listing conflicts and missing photos require individual evidence before 
 
 21focused component/list tests pass, including source reset, unsafe author links, empty/error imagery and duplicate/branch guards.
 Before screenshots: six loaded first-page photos per viewport, no page errors or horizontal overflow.
-Release, visible card screenshots, build, exact CI and scoped review remain pending.
+Final code6ea354ef passed21focused tests, ESLint and required self-hosted verify37502766249.
+Pinned OpenNext build and85private-key artifact checks passed with zero hits. Scoped review passed after the hero correction.
+Two hosted preview checks failed the real-photo gate: all sampled gallery responses returned502 on desktop and mobile.
+The first failure also occurs on previous previewb9086f9a. Preview lacked the server GOOGLE_PLACES_API_KEY.
+A new version with the approved existing shared key still failed. Stop after two attempts; do not promote this PR.
+Both failed checks preserved44px save controls, signed-out login routing and zero page errors/horizontal overflow.
+Photo credits, actual hero geometry and production duplicate rendering remain unverified on this release.
+Preview routing restored to b9086f9a100%, deployment180a5e01-d68a-450d-88e1-c6cee9b2930a.
+Production stays043e1752-23d6-4378-be1b-96a48f86f995100%, rollbackb42e8926 retained.
+PR388 remains draft. The added preview key exists only on inactive version548e53c6.
+Private receipts/screenshots: /home/dev/.local/state/localley/spot-card-quality-20261006.
+Next attempt must inspect provider failure telemetry and actual version bindings before repeating browser requests.
 
 Review found a hero-caption overlap before activation. The hero now owns its overlay inside a separate image frame; credits flow below that frame. A multi-author/error-state regression test preserves the title and controls. The first uploaded draft version was not activated.
 The reviewed interaction-remount concern is fixed: only the image resets on source changes. A retained open interaction test covers metadata loading.
