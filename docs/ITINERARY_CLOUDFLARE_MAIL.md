@@ -5,6 +5,9 @@
 The explicit itinerary-copy action keeps its source ownership query and full React Email template.
 Production sends through the existing AUTH_EMAIL binding, with HTML and plain text.
 The sender is Localley <hello@localley.io>; links use HTTPS on localley.io.
+An atomic AUTH_DB reservation permits five copies per UTC hour and twenty per UTC day.
+Failed or ambiguous sends consume their reservation. Missing bindings/schema fail closed.
+Apply the additive0003 auth migration before activation; rollback code ignores the empty new table.
 Suppressed recipients produce a sanitized failure without retry or XP.
 Normal preview queues a private link and reports sent:false without XP or delivery.
 The explicit D1 candidate path retains its reserved owner-only outbox policy.
@@ -13,7 +16,7 @@ Dormant notification producers remain inactive. No production data migration is 
 
 ## Verification
 
-27 focused tests pass across itinerary sender, auth mail, itinerary route and story route.
+32 focused tests pass across itinerary sender, auth mail, itinerary route and story route.
 ESLint and git diff --check pass. The new tests run in required candidate CI.
 Pinned public-only OpenNext build and hosted release checks remain required before readiness.
 No received-mail claim follows from HTTP200 alone.

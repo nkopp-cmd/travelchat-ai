@@ -4,6 +4,8 @@ import { queuePreviewItineraryMail } from "@/lib/app-data/preview-itinerary-mail
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { sendItineraryEmail } from "@/lib/itinerary-mail";
+import { reserveItineraryMail } from "@/lib/itinerary-mail-limit";
+import { authMailMode } from "@/lib/auth/mail";
 import { ItineraryEmail } from "@/emails/itinerary-email";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import {
@@ -69,10 +71,10 @@ export async function POST(
         const { recipientEmail, recipientName } = await req.json();
 
         if (typeof recipientEmail !== "string" || !recipientEmail || recipientEmail.length > 254
-            || /[\x00-\x1f\x7f]/.test(recipientEmail)
+            || /[\x00-\x1f\x7f,;]/.test(recipientEmail)
             || (recipientName !== undefined && (typeof recipientName !== "string"
                 || recipientName.length > 100 || /[\x00-\x1f\x7f]/.test(recipientName)))) {
-            return Errors.validationError("Recipient email is required");
+            return Errors.validationError("Invalid recipient details");
         }
 
         // Validate email format
@@ -93,6 +95,11 @@ export async function POST(
 
         if (error || !itinerary) {
             return Errors.notFound("Itinerary");
+        }
+        if (authMailMode() !== "outbox") {
+            const limit = await reserveItineraryMail(userId);
+            if (limit === "limited") return Errors.rateLimited();
+            if (limit !== "allowed") return Errors.externalServiceError("email");
         }
 
         const { dailyPlans, insights } = normalizeDailyPlansForDisplay<{
@@ -140,6 +147,7 @@ export async function POST(
             });
         } catch {
             // The transport logs only a sanitized provider code, never recipient/content.
+            console.error("[itinerary-email] Delivery unavailable");
             return Errors.externalServiceError("email");
         }
         if (!delivery.sent) return NextResponse.json({ success: true, ...delivery });

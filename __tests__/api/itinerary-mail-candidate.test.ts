@@ -1,9 +1,10 @@
 import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
 import { NextRequest } from "next/server";
-const mocks=vi.hoisted(()=>({auth:vi.fn(),queue:vi.fn(),send:vi.fn(),source:vi.fn(),single:vi.fn()}));
+const mocks=vi.hoisted(()=>({auth:vi.fn(),queue:vi.fn(),send:vi.fn(),source:vi.fn(),single:vi.fn(),limit:vi.fn()}));
 vi.mock("@/lib/auth/server",()=>({auth:mocks.auth}));
 vi.mock("@/lib/app-data/preview-itinerary-mail",()=>({queuePreviewItineraryMail:mocks.queue}));
 vi.mock("@/lib/supabase-server",()=>({createSupabaseServerClient:mocks.source}));
+vi.mock("@/lib/itinerary-mail-limit",()=>({reserveItineraryMail:mocks.limit}));
 vi.mock("@/lib/itinerary-mail",()=>({sendItineraryEmail:mocks.send}));
 vi.mock("@/emails/itinerary-email",()=>({ItineraryEmail:()=>null}));
 import { POST } from "@/app/api/itineraries/[id]/email/route";
@@ -12,7 +13,7 @@ const context={params:Promise.resolve({id:'owned-id'})};
 const req=(body:BodyInit=JSON.stringify({recipientEmail:'a@preview.localley.test'}),hostname=host,flag=true)=>new NextRequest(
   `https://${hostname}/api/itineraries/owned-id/email${flag?'?data_candidate=d1':''}`,{method:'POST',body});
 beforeEach(()=>{process.env={...environment,AUTH_MAIL_MODE:'outbox',SUPABASE_READ_ONLY:'true'};
-  mocks.auth.mockResolvedValue({userId:'a'});mocks.queue.mockResolvedValue(true);});
+  mocks.auth.mockResolvedValue({userId:'a'});mocks.queue.mockResolvedValue(true);mocks.limit.mockResolvedValue('allowed');});
 afterEach(()=>{process.env=environment;vi.clearAllMocks();vi.unstubAllGlobals();});
 describe('candidate itinerary mail route',()=>{
   it('records only an owner request honestly without source, XP or real send',async()=>{
@@ -77,11 +78,20 @@ describe('candidate itinerary mail route',()=>{
     expect(fetchMock).not.toHaveBeenCalled();
   });
   it('refuses malformed normal recipient metadata before source or sender',async()=>{
-    for(const value of [{recipientEmail:3},{recipientEmail:'a\n@b.test'},{recipientEmail:'a@b.test',recipientName:{}},
+    for(const value of [{recipientEmail:3},{recipientEmail:'a\n@b.test'},{recipientEmail:'a@b.test',recipientName:{}},{recipientEmail:'a@b.test,c.test'},
       {recipientEmail:'a@b.test',recipientName:'x'.repeat(101)}]){
       expect((await POST(req(JSON.stringify(value),'www.localley.io',false),context)).status).toBe(400);
     }
     expect(mocks.source).not.toHaveBeenCalled();expect(mocks.send).not.toHaveBeenCalled();
+  });
+
+  it('fails closed on exhausted or unavailable durable limits before send or XP',async()=>{
+    process.env.AUTH_MAIL_MODE='cloudflare';process.env.BETTER_AUTH_URL='https://www.localley.io';
+    const chain={select:vi.fn(),eq:vi.fn(),single:mocks.single};chain.select.mockReturnValue(chain);chain.eq.mockReturnValue(chain);
+    mocks.source.mockResolvedValue({from:()=>chain});mocks.single.mockResolvedValue({data:{title:'Source',city:'Seoul',activities:[]},error:null});
+    mocks.limit.mockResolvedValue('limited');expect((await POST(req(JSON.stringify({recipientEmail:'real@example.com'}),'www.localley.io',false),context)).status).toBe(429);
+    mocks.limit.mockResolvedValue('unavailable');expect((await POST(req(JSON.stringify({recipientEmail:'real@example.com'}),'www.localley.io',false),context)).status).toBe(502);
+    expect(mocks.send).not.toHaveBeenCalled();expect(mocks.limit).toHaveBeenCalledWith('a');
   });
 
 });
