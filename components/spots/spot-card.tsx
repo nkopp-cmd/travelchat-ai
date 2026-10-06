@@ -237,7 +237,7 @@ export function SpotCard({
               >
                 <h3
                   data-testid="spot-card-title"
-                  className="line-clamp-1 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base"
+                  className="line-clamp-2 text-sm font-semibold leading-tight text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-base"
                 >
                   {spot.name}
                 </h3>
@@ -252,7 +252,7 @@ export function SpotCard({
                 spotId={spot.id}
                 spotName={spot.name}
                 size="sm"
-                className="h-7 w-7 bg-white/10 p-0 hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
+                className="h-11 w-11 bg-white/10 p-0 hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
               />
             </div>
           </div>
@@ -294,7 +294,7 @@ export function SpotCard({
       data-testid="spot-card"
       data-spot-card="grid"
       className={cn(
-        "group relative flex min-h-[4.5rem] flex-row items-stretch overflow-hidden rounded-lg !gap-0 !py-0 md:min-h-0 md:flex-col",
+        "group relative flex flex-col items-stretch overflow-hidden rounded-xl !gap-0 !py-0",
         "bg-[#100b1c]/92 text-white backdrop-blur-xl",
         "border border-violet-200/15",
         "transition-all duration-300 ease-out",
@@ -306,7 +306,7 @@ export function SpotCard({
     >
       <div
         data-testid="spot-card-photo"
-        className="relative w-[4.75rem] shrink-0 overflow-hidden bg-violet-950/60 min-[390px]:w-24 md:aspect-[2/1] md:w-full"
+        className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-violet-950/60 md:aspect-[2/1]"
       >
         <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority} directPhotos={spot.googlePlaceId ? [] : spot.photos} />
       </div>
@@ -315,12 +315,12 @@ export function SpotCard({
           <SaveSpotButton
             spotId={spot.id}
             spotName={spot.name}
-            className="h-7 w-7 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-8 md:w-8"
+            className="h-11 w-11 bg-white/90 p-0 text-slate-900 hover:bg-white md:h-11 md:w-11"
           />
         </div>
       </div>
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-3.5">
         <div className="mb-1.5 hidden min-w-0 md:block">
           <div className="min-w-0">
             <CategoryTrendRow
@@ -337,7 +337,7 @@ export function SpotCard({
           >
             <h3
               data-testid="spot-card-title"
-              className="line-clamp-1 text-sm font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-[15px]"
+              className="line-clamp-2 text-base font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-violet-100 sm:text-[15px]"
             >
               {spot.name}
             </h3>
@@ -346,7 +346,7 @@ export function SpotCard({
             <SaveSpotButton
               spotId={spot.id}
               spotName={spot.name}
-              className="h-7 w-7 bg-white/10 p-0 text-white hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
+              className="h-11 w-11 bg-white/10 p-0 text-white hover:bg-white/20 [&_svg]:h-3.5 [&_svg]:w-3.5"
             />
           </div>
         </div>
@@ -356,7 +356,7 @@ export function SpotCard({
           <span className="truncate">{spot.location.address}</span>
         </p>
 
-        <p className="mt-1 hidden text-xs leading-5 text-violet-50/58 min-[390px]:line-clamp-1 md:line-clamp-2">
+        <p className="mt-1 line-clamp-2 text-sm leading-5 text-violet-100/75">
           {spot.description}
         </p>
 

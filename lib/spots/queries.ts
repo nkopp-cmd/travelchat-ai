@@ -21,8 +21,12 @@ import {
   SCORE_LABELS,
 } from "./types";
 
+import { getTrustedSpotGooglePlaceId } from "./detail-normalization";
+import { getSpotCoordinateValues } from "./coordinates";
+
 const SPOTS_QUERY_PAGE_SIZE = 1000;
 const COMMUNITY_PROVENANCE_CACHE_VERSION = "community-provenance-v1";
+const DISCOVERY_LISTING_CACHE_VERSION = "discovery-listing-identity-v1";
 export const DEFAULT_SPOTS_QUERY_TIMEOUT_MS = 8000;
 
 function getSpotTextFieldValue(
@@ -255,12 +259,22 @@ async function fetchPublicCandidateRows(): Promise<{
 
 export function getPublicVisibleSpotRows(rows: RawSpot[]): RawSpot[] {
   const seen = new Map<string, boolean>();
+  const seenListings = new Set<string>();
   return rows.filter((spot) => {
     if (!shouldShowPublicSpot(spot)) return false;
 
     // Safety net: deduplicate by (name + address) in case DB has dupes.
     const key = `${getSpotTextFieldValue(spot.name).toLowerCase().trim()}|${getSpotTextFieldValue(spot.address).toLowerCase().trim()}`;
     if (seen.has(key)) return false;
+    const placeId = getTrustedSpotGooglePlaceId({ photos: spot.photos || [], storedGooglePlaceId: spot.google_place_id });
+    const { lat, lng } = getSpotCoordinateValues(spot.location);
+    const name = getSpotTextFieldValue(spot.name).normalize("NFKC").toLowerCase().replace(/[\p{P}\p{Z}\s]/gu, "");
+    // Collapse spelling variants only with the same trusted listing, name and pin.
+    // Keep all source rows and saved references; different branches stay separate.
+    const listingKey = placeId && Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)
+      ? `${placeId}|${name}|${lat.toFixed(5)}|${lng.toFixed(5)}` : null;
+    if (listingKey && seenListings.has(listingKey)) return false;
+    if (listingKey) seenListings.add(listingKey);
     seen.set(key, true);
     return true;
   });
@@ -392,6 +406,7 @@ export async function fetchFilteredSpots(
   const cacheKey = JSON.stringify({
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
     provenance: COMMUNITY_PROVENANCE_CACHE_VERSION,
+    listingIdentity: DISCOVERY_LISTING_CACHE_VERSION,
     city: filters.city,
     category: filters.category,
     score: filters.score,
@@ -467,7 +482,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
 export async function fetchFilterOptions(): Promise<FilterOptions> {
   const cachedFetch = unstable_cache(
     fetchFilterOptionsInternal,
-    ["spots-filter-options", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
+    ["spots-filter-options", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, DISCOVERY_LISTING_CACHE_VERSION],
     {
       revalidate: 600, // 10 minutes
       tags: ["spots"],
