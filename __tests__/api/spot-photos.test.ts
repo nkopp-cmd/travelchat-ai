@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/spots/[id]/photos/route";
 
 const mocks = vi.hoisted(() => ({ select: vi.fn(), single: vi.fn(), admin: vi.fn(), limit: vi.fn(), productionLimit: vi.fn() }));
-vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
+vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin, createSupabaseClient: vi.fn() }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit, strictPlatformLimit: mocks.productionLimit }));
 
 const id = "550e8400-e29b-41d4-a716-446655440000";
