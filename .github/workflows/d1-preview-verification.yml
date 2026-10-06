@@ -6,6 +6,12 @@ on:
     paths:
       - '.github/workflows/d1-preview-verification.yml'
       - 'lib/app-data/**'
+      - 'components/spots/spot-card.tsx'
+      - 'components/spots/spot-photo-image.tsx'
+      - 'lib/spots/queries.ts'
+      - '__tests__/components/spot-card.test.tsx'
+      - '__tests__/components/spot-photo-image.test.tsx'
+      - '__tests__/lib/spots-query-public-rows.test.ts'
       - 'lib/flux.ts'
       - 'lib/image-provider.ts'
       - '__tests__/lib/preview-flux-client.test.ts'
@@ -198,6 +204,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/components/spot-card.test.tsx __tests__/components/spot-photo-image.test.tsx __tests__/lib/spots-query-public-rows.test.ts --maxWorkers=1
+            npx eslint components/spots/spot-card.tsx components/spots/spot-photo-image.tsx lib/spots/queries.ts __tests__/components/spot-card.test.tsx __tests__/components/spot-photo-image.test.tsx __tests__/lib/spots-query-public-rows.test.ts
             npx vitest run __tests__/lib/itinerary-mail-limit.test.ts __tests__/lib/itinerary-mail.test.ts __tests__/lib/auth-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts __tests__/api/story-mail-candidate.test.ts --maxWorkers=1
             npx eslint lib/itinerary-mail-limit.ts __tests__/lib/itinerary-mail-limit.test.ts lib/itinerary-mail.ts lib/auth/mail.ts "app/api/itineraries/[id]/email/route.ts" __tests__/lib/itinerary-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts
             npx vitest run __tests__/api/connect-dashboard-candidate.test.ts __tests__/api/admin-payout-execution-candidate.test.ts __tests__/api/admin-payout-calculation-candidate.test.ts --maxWorkers=1

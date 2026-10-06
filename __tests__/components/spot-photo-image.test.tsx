@@ -20,10 +20,11 @@ describe("venue photos", () => {
     const image = screen.getByAltText("Venue");
     expect(image.getAttribute("src")).not.toContain("/_next/image");
     fireEvent.load(image);
-    expect(screen.getByText("Google listing photo")).toBeTruthy();
+    expect(screen.getByText("Google Maps")).toBeTruthy();
+    expect(screen.getByText("Google Maps").closest("figcaption")).toBeTruthy();
     fireEvent.error(image);
     expect(screen.getByText("Photo unavailable")).toBeTruthy();
-    expect(screen.queryByText("Google listing photo")).toBeNull();
+    expect(screen.queryByText("Google Maps")).toBeNull();
     rerender(<SpotPhotoImage photo={photo("b")} alt="Venue" sizes="320px" />);
     expect(screen.getByAltText("Venue").getAttribute("src")).toContain("name=b");
   });

@@ -23,11 +23,13 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
       {loading ? "Loading venue photos..." : "Photo unavailable"}
     </div>
   );
-  return <>
+  return <figure className="flex h-full w-full flex-col">
+    <div className="relative min-h-0 flex-1">
     <Image src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
       onLoad={() => setState("loaded")} onError={() => setState("failed")} />
-    <div tabIndex={0} aria-label="Photo source and author credits" className={`absolute inset-x-0 top-0 z-10 max-h-full overflow-auto bg-black/80 p-1.5 text-xs leading-5 text-white focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
-      <p>{state === "loaded" ? photo.sourceLabel : "Loading photo..."}</p>
+    </div>
+    <figcaption tabIndex={0} aria-label="Photo source and author credits" className={`relative z-10 max-h-[40%] shrink-0 overflow-auto border-t border-white/10 bg-[#100b1c] px-2 py-1 text-xs leading-4 text-violet-100 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
+      <span translate="no" className="whitespace-nowrap font-normal not-italic tracking-normal text-white">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
       {photo.attributions?.map((author, index) => {
         let href: string | undefined;
         try { const url = new URL(author.uri || ""); if (url.protocol === "https:" && !url.username && !url.password) href = url.href; } catch {}
@@ -35,13 +37,13 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
           ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a>
           : author.displayName}</span>;
       })}
-    </div>
-  </>;
+    </figcaption>
+  </figure>;
 }
 
 export function VenueHeroPhoto({ name }: { name: string }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
-  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} creditClassName="!right-28" />;
+  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} />;
 }
 
 export function VenuePhotoThumbnails({ name }: { name: string }) {
