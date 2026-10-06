@@ -45,3 +45,20 @@ Next attempt must inspect provider failure telemetry and actual version bindings
 
 Review found a hero-caption overlap before activation. The hero now owns its overlay inside a separate image frame; credits flow below that frame. A multi-author/error-state regression test preserves the title and controls. The first uploaded draft version was not activated.
 The reviewed interaction-remount concern is fixed: only the image resets on source changes. A retained open interaction test covers metadata loading.
+
+## Recovery verification — 2026-10-06
+
+Source02a8ec84, required verify37507911935 passed11m06s.
+Normal preview photo requests now use the anon reader only on the exact preview host with outbox/read-only flags.
+The D1 branch and normal production admin path remain unchanged. Preview needs no service-role credential.
+Public-only build4cb7f22 passed TypeScript;2316files76567658bytes/82private-key values/zero artifact hits.
+The runtime source differs from02a8ec84 only in a corrected review test fixture and workflow.
+Full Vitest invocation initially passed1646assertions and failed9stale review assertions; corrected NextRequest fixture replay passes10.
+The17script suites need Node, not Vitest:95assertions pass under Node;4catalog assertions pass under tsx.
+These are aggregate verified results, not a second clean all-run invocation. Scoped review found noP0/P1.
+Real preview gallery returns200/available/four photos after deployment settles.
+Actual390/1440 card screenshots show six loaded real photos each, captions below images, no page errors/overflow and mobile save redirects to sign-in.
+Two visual harness failures keep this release blocked: normal preview detail lacks an admin reader by design, and the first mobile save button selected is the hidden desktop control.
+Use the existing explicit D1 detail page for preview refusal/layout checks; verify source hero geometry through guarded production canary only after corrected visible-control checks.
+No third browser attempt, ready/merge or production release is claimed. Production043e1752 remains unchanged.
+All source rows and saved references remain. Individual missing-photo repairs and full migration gates remain open.
