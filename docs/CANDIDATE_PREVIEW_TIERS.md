@@ -54,3 +54,19 @@ Private receipts and images: `~/.local/state/localley/preview-tier-flags-2026100
 The$0.50 reservation remains counted; actual provider billing is not reconciled.
 Full current-data parity, remaining product adapters, executed rollback and signed-in canary remain open.
 Production application data continues to use Supabase.
+
+## Permanent default release
+
+PR384 head `3ba42517a1b4e75c17ba4eeb612abb6ebc4ecb38` merged as `8601a39e847b86b476bb415a2e985622b83958d6`.
+Required CI37488571870 passed9m57s; feature and merge trees equal `3fae2d05f3728b2727011a4b6b95caee6b2f454d`.
+Only configuration and this document changed; application source and dependencies match the validated public-only build.
+
+Current preview version `e57f957e-f43e-4501-91f4-0de6ca98611c` serves100%.
+Deployment `e913a0d4-317c-4d44-8b6a-507fe1d8106e` uses source `8601a39e847b86b476bb415a2e985622b83958d6`.
+All three flags explicitly readfalse in active version bindings.
+Safe preview rollback `ceff1750-8fa5-4d4a-a28c-2963ddbf0b61` remains available with all flagsfalse.
+The real generation ran on application source `82d30d299f521241f5e1f68256d6219627306ffe`.
+
+Final release checks repeat APP55/import/source/AUTH fingerprints, foreign keys, both admins and public200 checks.
+The remote R2 object remains absent. Production deployment and rollback remain unchanged.
+Private `real-generation-acceptance.json` preserves the original58 checkpoints separately from final release checks.
