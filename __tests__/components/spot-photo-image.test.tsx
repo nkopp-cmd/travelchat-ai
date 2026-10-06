@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails } from "@/components/spots/spot-photo-image";
 import { getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
-import type { ImgHTMLAttributes } from "react";
+import { useState, type ImgHTMLAttributes } from "react";
 
 vi.mock("next/image", () => ({
   default: ({ src, alt, onLoad, onError }: ImgHTMLAttributes<HTMLImageElement>) =>
@@ -15,6 +15,14 @@ const response = (ids: string[]) => ({ ok: true, json: async () => ({ status: "a
 afterEach(() => vi.unstubAllGlobals());
 
 describe("venue photos", () => {
+  it("keeps an active hero interaction when metadata changes the image source", () => {
+    function Interaction() { const [open, setOpen] = useState(false); return <button onClick={()=>setOpen(true)}>{open ? "Details open" : "Open details"}</button>; }
+    const {rerender} = render(<SpotPhotoImage alt="Hero" sizes="100vw" hero><Interaction /></SpotPhotoImage>);
+    fireEvent.click(screen.getByRole("button", {name:"Open details"}));
+    rerender(<SpotPhotoImage photo={photo("ready")} alt="Hero" sizes="100vw" hero><Interaction /></SpotPhotoImage>);
+    expect(screen.getByRole("button", {name:"Details open"})).toBeTruthy();
+    expect(screen.getByAltText("Hero")).toBeTruthy();
+  });
   it("keeps multi-author hero credits outside overlays and retains overlays on image failure", () => {
     render(<SpotPhotoImage photo={{ ...photo("hero"), attributions: [{displayName:"Alice"},{displayName:"Bob"}] }} alt="Hero" sizes="100vw" hero frameClassName="aspect-[4/3]">
       <h1>Owned venue title</h1>
