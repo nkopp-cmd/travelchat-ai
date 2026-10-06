@@ -1032,11 +1032,7 @@ export default async function SpotPage({
           Back to spots
         </Link>
 
-        <div
-          data-testid="spot-detail-hero"
-          className="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]"
-        >
-          <VenueHeroPhoto name={spot.name} />
+        <VenueHeroPhoto name={spot.name}>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
             {!candidate && <SpotInteractions spotId={spot.id} spotName={spot.name} />}
@@ -1107,7 +1103,7 @@ export default async function SpotPage({
               </div>
             </div>
           </div>
-        </div>
+        </VenueHeroPhoto>
 
         <section
           className={`${LIQUID_CARD} space-y-2 p-3 sm:hidden`}

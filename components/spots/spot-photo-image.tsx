@@ -1,34 +1,34 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { getDirectVenuePhotos, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
 
 type Photo = PhotoGalleryResponse["photos"][number];
 
-export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "" }: {
-  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string;
+export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false }: {
+  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean;
 }) {
   // A new source gets a new load state, including after navigation to another spot.
-  return <PhotoImage key={photo?.url || "unavailable"} photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} />;
+  return <PhotoImage key={photo?.url || "unavailable"} photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero}>{children}</PhotoImage>;
 }
 
-function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName }: {
-  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string;
+function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero }: {
+  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean;
 }) {
   const [state, setState] = useState<"loading" | "loaded" | "failed">("loading");
-  if (!photo || state === "failed") return (
-    <div role="status" className="flex h-full w-full items-center justify-center bg-violet-950/60 p-2 text-center text-xs text-white">
-      {loading ? "Loading venue photos..." : "Photo unavailable"}
-    </div>
-  );
+  const unavailable = !photo || state === "failed";
   return <figure className="flex h-full w-full flex-col">
-    <div className="relative min-h-0 flex-1">
-    <Image src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
-      onLoad={() => setState("loaded")} onError={() => setState("failed")} />
+    <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
+      {unavailable ? <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-violet-950/60 p-2 text-center text-xs text-white">
+        {loading ? "Loading venue photos..." : "Photo unavailable"}
+      </div> : <Image src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
+        onLoad={() => setState("loaded")} onError={() => setState("failed")} />}
+      {children}
     </div>
-    <figcaption tabIndex={0} aria-label="Photo source and author credits" className={`relative z-10 max-h-[40%] shrink-0 overflow-auto border-t border-white/10 bg-[#100b1c] px-2 py-1 text-xs leading-4 text-violet-100 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
+    {!unavailable && photo && <figcaption tabIndex={0} aria-label="Photo source and author credits" className={`relative z-10 max-h-[40%] shrink-0 overflow-auto border-t border-white/10 bg-[#100b1c] px-2 py-1 text-xs leading-4 text-violet-100 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
       <span translate="no" className="whitespace-nowrap font-normal not-italic tracking-normal text-white">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
       {photo.attributions?.map((author, index) => {
         let href: string | undefined;
@@ -37,13 +37,13 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
           ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a>
           : author.displayName}</span>;
       })}
-    </figcaption>
+    </figcaption>}
   </figure>;
 }
 
-export function VenueHeroPhoto({ name }: { name: string }) {
+export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
-  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} />;
+  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 
 export function VenuePhotoThumbnails({ name }: { name: string }) {
