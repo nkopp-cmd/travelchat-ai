@@ -176,9 +176,6 @@ on:
       - 'lib/auth/server.ts'
       - '__tests__/lib/auth-mail.test.ts'
       - 'docs/CLOUDFLARE_D1_PROJECT.md'
-  push:
-    branches: [feature/opennext-d1-preview]
-
       - 'app/api/itineraries/generate-v2/stream/route.ts'
       - '__tests__/api/generate-v2-stream-route.test.ts'
       - 'lib/llm/**'
@@ -189,6 +186,9 @@ on:
       - 'components/itineraries/story-dialog.tsx'
       - '__tests__/lib/current-image-generation.test.ts'
       - '__tests__/components/story-generation-options.test.tsx'
+  push:
+    branches: [feature/opennext-d1-preview]
+
 
 permissions:
   contents: read
