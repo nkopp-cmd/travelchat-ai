@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isCronRequestAuthorized } from "@/lib/cron-auth";
-import { refreshApifySpotDiscovery } from "@/lib/apify-spot-discovery";
+import { collectActiveApifySpotDiscovery, refreshApifySpotDiscovery } from "@/lib/apify-spot-discovery";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -10,7 +10,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const summary = await refreshApifySpotDiscovery();
+    const summary = request.nextUrl.searchParams.get("mode") === "collect"
+      ? await collectActiveApifySpotDiscovery()
+      : await refreshApifySpotDiscovery();
     return NextResponse.json({ success: true, summary });
   } catch (error) {
     console.error(

@@ -33,7 +33,7 @@ describe("Cloudflare cron parity", () => {
 
 describe("runScheduledRoute", () => {
   function selfReference(status = 200) {
-    return { fetch: vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status })) };
+    return { fetch: vi.fn().mockImplementation(async () => new Response(JSON.stringify({ ok: true }), { status })) };
   }
 
   it("calls the mapped route with the cron bearer token", async () => {
@@ -44,7 +44,24 @@ describe("runScheduledRoute", () => {
       method: "GET",
       headers: { Authorization: "Bearer s3cret", "User-Agent": "cloudflare-cron/1.0" },
     });
+    expect(self.fetch).toHaveBeenCalledWith("https://localley.internal/api/cron/discover-spots-with-apify?mode=collect", {
+      method: "GET",
+      headers: { Authorization: "Bearer s3cret", "User-Agent": "cloudflare-cron/1.0" },
+    });
+    expect(self.fetch).toHaveBeenCalledTimes(2);
     log.mockRestore();
+  });
+
+  it("still collects discovery when daily cleanup fails", async () => {
+    const self = { fetch: vi.fn().mockImplementation(async (url: string) =>
+      new Response("{}", { status: url.includes("cleanup-stories") ? 500 : 200 })) };
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    await expect(runScheduledRoute({ cron: "0 3 * * *", scheduledTime: 0 },
+      { CRON_SECRET: "s", WORKER_SELF_REFERENCE: self })).rejects.toThrow("cleanup-stories failed");
+    expect(self.fetch).toHaveBeenCalledTimes(2);
+    expect(self.fetch.mock.calls[1][0]).toContain("mode=collect");
+    error.mockRestore(); log.mockRestore();
   });
 
   it("throws when the route fails so the invocation is marked failed", async () => {

@@ -42,17 +42,26 @@ export async function runScheduledRoute(controller: ScheduledController, env: Sc
     return;
   }
 
-  const started = Date.now();
-  const response = await env.WORKER_SELF_REFERENCE.fetch(`https://localley.internal${path}`, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${env.CRON_SECRET}`, "User-Agent": "cloudflare-cron/1.0" },
-  });
-  const body = await response.text();
-  const log = `[cron] ${path} status=${response.status} ms=${Date.now() - started} body=${body.slice(0, 500)}`;
-  if (!response.ok) {
-    console.error(log);
-    // Throwing marks the Cron Trigger invocation as failed in Workers observability.
-    throw new Error(`[cron] ${path} failed with status ${response.status}`);
-  }
-  console.log(log);
+  // Reuse the daily cleanup invocation to collect asynchronous monthly discovery.
+  // The explicit mode cannot start a new paid actor or publish a candidate.
+  const paths = controller.cron === "0 3 * * *"
+    ? [path, "/api/cron/discover-spots-with-apify?mode=collect"] : [path];
+  const self = env.WORKER_SELF_REFERENCE;
+  const results = await Promise.allSettled(paths.map(async (route) => {
+    const started = Date.now();
+    const response = await self.fetch(`https://localley.internal${route}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${env.CRON_SECRET}`, "User-Agent": "cloudflare-cron/1.0" },
+    });
+    const body = await response.text();
+    const log = `[cron] ${route} status=${response.status} ms=${Date.now() - started} body=${body.slice(0, 500)}`;
+    if (!response.ok) {
+      console.error(log);
+      // Throwing marks the Cron Trigger invocation as failed in Workers observability.
+      throw new Error(`[cron] ${route} failed with status ${response.status}`);
+    }
+    console.log(log);
+  }));
+  const failed = results.find((result) => result.status === "rejected");
+  if (failed?.status === "rejected") throw failed.reason;
 }
