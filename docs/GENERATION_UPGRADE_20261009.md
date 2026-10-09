@@ -45,3 +45,7 @@ Keep this PR draft until those checks, production build, release review and host
 Use the server's existing OPENAI_API_KEY and GEMINI_API_KEY at release; never put private keys into build assets.
 Record the current Worker and rollback before changing runtime configuration.
 Verify signed-in desktop/mobile story controls and actual PNG/JPEG generation/storage/rendering, then clean exact fixtures.
+
+## Final progress-event correction
+
+Removed the stale provider-name list from public itinerary progress events. The existing stream regression now uses the requested primary fixture, verifies saved normalized/geocoded content and refuses provider names in progress. Its first replay exposed an old GLM fixture expectation; the corrected replay and scoped lint pass. This brings focused coverage to92 assertions. Required exact-head CI is rerun after this correction and rebasing onto the released cron source; paid activation remains blocked.
