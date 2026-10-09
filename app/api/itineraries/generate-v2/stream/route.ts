@@ -240,7 +240,6 @@ export async function POST(req: NextRequest) {
             ? 'Generating itinerary with AI team...'
             : 'Generating itinerary...',
           progress: 20,
-          providers: useMultiLLM ? ['GLM', 'Gemini'] : ['GLM'],
         },
       });
 
