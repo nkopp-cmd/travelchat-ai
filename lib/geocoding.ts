@@ -1,3 +1,4 @@
+import { TEXT_MODEL } from "@/lib/llm/env";
 /**
  * Multi-Provider Geocoding System
  *
@@ -204,7 +205,7 @@ const translationCache = new Map<string, string | null>();
 function getTranslationClient(): OpenAI | null {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return null;
-    return new OpenAI({ apiKey });
+    return new OpenAI({ apiKey, maxRetries: 0 });
 }
 
 /**
@@ -237,7 +238,7 @@ export async function translateForGeocoding(
 
     try {
         const response = await client.chat.completions.create({
-            model: 'gpt-4o-mini',
+            model: TEXT_MODEL,
             messages: [
                 {
                     role: 'system',
@@ -245,8 +246,8 @@ export async function translateForGeocoding(
                 },
                 { role: 'user', content: query },
             ],
-            temperature: 0,
-            max_tokens: 100,
+            reasoning_effort: "none",
+            max_completion_tokens: 100,
         });
 
         const translated = response.choices[0]?.message?.content?.trim();

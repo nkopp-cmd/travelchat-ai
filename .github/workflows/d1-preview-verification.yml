@@ -179,6 +179,17 @@ on:
   push:
     branches: [feature/opennext-d1-preview]
 
+      - 'app/api/itineraries/generate-v2/stream/route.ts'
+      - '__tests__/api/generate-v2-stream-route.test.ts'
+      - 'lib/llm/**'
+      - 'lib/imagen.ts'
+      - 'lib/model-credits.ts'
+      - 'lib/social-spot-submissions.ts'
+      - 'app/api/itineraries/[id]/revise/route.ts'
+      - 'components/itineraries/story-dialog.tsx'
+      - '__tests__/lib/current-image-generation.test.ts'
+      - '__tests__/components/story-generation-options.test.tsx'
+
 permissions:
   contents: read
 
@@ -204,6 +215,7 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/api/generate-v2-stream-route.test.ts __tests__/lib/chat-provider-fallback.test.ts __tests__/lib/chat-readiness.test.ts __tests__/lib/itinerary-provider-meta.test.ts __tests__/lib/llm-orchestrator.test.ts __tests__/lib/current-image-generation.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/story-background-cache-candidate.test.ts __tests__/components/story-generation-options.test.tsx __tests__/lib/geocoding.test.ts __tests__/lib/social-spot-submissions.test.ts --maxWorkers=1
             npx vitest run __tests__/cloudflare-cron-routes.test.ts __tests__/lib/apify-spot-discovery.test.ts __tests__/lib/apify-discovery-collection.test.ts __tests__/api/discover-spots-with-apify-route.test.ts --maxWorkers=1
             npx eslint cloudflare/opennext/cron-routes.ts lib/apify-spot-discovery.ts app/api/cron/discover-spots-with-apify/route.ts __tests__/lib/apify-discovery-collection.test.ts
             npx vitest run __tests__/lib/itinerary-mail-limit.test.ts __tests__/lib/itinerary-mail.test.ts __tests__/lib/auth-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts __tests__/api/story-mail-candidate.test.ts --maxWorkers=1

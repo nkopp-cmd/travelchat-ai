@@ -1,3 +1,6 @@
+export const TEXT_MODEL = "gpt-6-luna";
+export const IMAGE_MODEL = "gemini-nano-banana-2.1";
+
 export const DEFAULT_GLM_MODEL = "glm-5.2";
 export const DEFAULT_GLM_BASE_URL = "https://api.z.ai/api/paas/v4/";
 
