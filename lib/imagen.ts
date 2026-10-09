@@ -1,3 +1,4 @@
+import { IMAGE_MODEL } from "@/lib/llm/env";
 import { GoogleGenAI } from "@google/genai";
 
 // Support both GEMINI_API_KEY (official) and GOOGLE_AI_API_KEY (legacy)
@@ -7,19 +8,12 @@ if (!apiKey) {
     console.warn("GEMINI_API_KEY or GOOGLE_AI_API_KEY is not set. Image generation will be disabled.");
 }
 
-// Gemini model with native image generation
-// Options:
-// - "gemini-2.5-flash-image" - Current recommended model for image generation
-// - "gemini-3-pro-image-preview" - Advanced model (higher quality, higher cost)
-// Using the flash image model which is optimized for image generation
-const IMAGE_MODEL = "gemini-2.5-flash-image";
-
 // Create Google GenAI client
 const getGoogleAI = () => {
     if (!apiKey) {
         throw new Error("Google AI API key is not configured");
     }
-    return new GoogleGenAI({ apiKey });
+    return new GoogleGenAI({ apiKey, httpOptions: { timeout: 55000 } });
 };
 
 export interface ImageGenerationOptions {
@@ -50,7 +44,8 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
         // Use generateContent with responseModalities for image generation
         // Per docs: responseModalities should be ['TEXT', 'IMAGE'] (uppercase)
         const config: Record<string, unknown> = {
-            responseModalities: ['TEXT', 'IMAGE'], // Enable both text and image output
+            responseModalities: ['TEXT', 'IMAGE'],
+            imageConfig: { aspectRatio: aspectRatio ?? '9:16' },
         };
 
         console.log("[IMAGEN] Generating image with model:", IMAGE_MODEL, "config:", JSON.stringify(config));
@@ -88,7 +83,7 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Ge
 
         if (images.length === 0) {
             // Log the full response for debugging
-            console.error("[IMAGEN] No images in response. Full response:", JSON.stringify(response, null, 2));
+            console.error("[IMAGEN] No image parts in response");
             throw new Error("No images were generated - check model response format");
         }
 

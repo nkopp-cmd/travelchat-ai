@@ -43,7 +43,7 @@ beforeEach(()=>{
  db.sqlite.exec(readFileSync("migrations/app-preview/0031_preview_story_background_capacity.sql","utf8"));
  objects=new Map();put=vi.fn(async(key:string,bytes:Uint8Array)=>{objects.set(key,new Uint8Array(bytes));return{key};});
  (globalThis as Record<symbol,unknown>)[symbol]={env:{APP_DATA_PREVIEW_DB:db,STORY_PREVIEW_MEDIA:{put,get:async(key:string)=>objects.has(key)?{arrayBuffer:async()=>new Uint8Array(objects.get(key)!).buffer}:null,delete:async(key:string)=>{objects.delete(key);}}}};
- user();mocks.provider.mockReturnValue("flux");mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");mocks.available.mockReturnValue(true);mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
+ user();mocks.provider.mockReturnValue("gemini");mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");mocks.available.mockReturnValue(true);mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
 });
 afterEach(()=>{db.sqlite.close();process.env=original;delete(globalThis as Record<symbol,unknown>)[symbol];vi.restoreAllMocks();});
 async function owner(){await db.prepare("INSERT OR IGNORE INTO owners VALUES('auth:one','new')").run();}
@@ -58,11 +58,11 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
  it("stores actual byte format privately and cache hits preserve credits and skip tier/provider calls",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
   const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
-  const first=await POST(req());expect(first.status).toBe(200);expect(mocks.generate.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});const result=await first.json();expect(result).toMatchObject({success:true,cached:false,provider:"flux"});
-  expect([...objects.keys()][0]).toMatch(/\.jpg$/);expect(usage()[0].count).toBe(1);
+  const first=await POST(req());expect(first.status).toBe(200);expect(mocks.generate.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});const result=await first.json();expect(result).toMatchObject({success:true,cached:false,provider:"gemini"});
+  expect([...objects.keys()][0]).toMatch(/\.jpg$/);expect(usage()[0].count).toBe(3);
   mocks.tier.mockRejectedValue(new Error("must not need entitlement on owned cache hit"));
   const hit=await POST(req());expect(await hit.json()).toMatchObject({success:true,image:result.image,source:"cache",cached:true});
-  expect(usage()[0].count).toBe(1);expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.source).not.toHaveBeenCalled();
+  expect(usage()[0].count).toBe(3);expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.source).not.toHaveBeenCalled();
   expect(await previewBackgroundData(result.image,"other")).toBeNull();
   const response=await media(new NextRequest(result.image),{params:Promise.resolve({id:previewBackgroundId(result.image)!})});
   expect(Buffer.from(await response.arrayBuffer())).toEqual(jpeg);expect(response.headers.get("content-type")).toBe("image/jpeg");
@@ -72,23 +72,27 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   expect((await POST(req({...input,type:"day",dayNumber:1,activities:["Controlled walk"]}))).status).toBe(200);
   expect(mocks.day.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});expect(mocks.generate).not.toHaveBeenCalled();
  });
- it("uses the selected model only and charges each automatic fallback its real weight",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("premium");mocks.generate.mockRejectedValueOnce(new Error("flux failed")).mockResolvedValueOnce(png.toString("base64"));
-  expect((await POST(req())).status).toBe(200);expect(usage()[0].count).toBe(3);expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["flux","seedream"]);
-  user("two");mocks.tier.mockResolvedValue("premium");mocks.generate.mockRejectedValue(new Error("selected model failed"));
+ it("uses one provider without automatic fallback and charges its actual weight",async()=>{
+  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("pro");mocks.generate.mockRejectedValue(new Error("provider unavailable"));
+  const r=await POST(req());expect(r.status).toBe(200);expect(await r.json()).toMatchObject({success:false});
+  expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["gemini"]);expect(usage()[0].count).toBe(3);
+  user("two");mocks.tier.mockResolvedValue("premium");
   await POST(req({...input,provider:"gemini"}));expect(mocks.generate.mock.calls.at(-1)?.[0]).toBe("gemini");
   expect(db.sqlite.prepare("SELECT count FROM preview_story_usage WHERE ownerId='auth:two'").get()).toEqual({count:3});
  });
- it("does not authorize Premium fallback models for a Pro candidate",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("pro");mocks.generate.mockRejectedValue(new Error("flux unavailable"));
-  const r=await POST(req());expect(r.status).toBe(200);expect(await r.json()).toMatchObject({success:false});
-  expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["flux"]);expect(usage()[0].count).toBe(1);
-  mocks.provider.mockReturnValue("seedream");mocks.generate.mockClear();await POST(req({...input,cacheKey:"pro-priority"}));
-  expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["flux"]);expect(usage()[0].count).toBe(2);
+ it("refuses retired options before usage or provider work",async()=>{
+  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
+  for(const provider of ["flux","seedream"])expect((await POST(req({...input,provider}))).status).toBe(400);
+  expect(mocks.generate).not.toHaveBeenCalled();expect(usage()).toEqual([]);
+ });
+ it("refuses production generation if atomic usage accounting is unavailable",async()=>{
+  mocks.weighted.mockRejectedValue(new Error("usage unavailable"));
+  const r=await POST(req({...input,cacheKey:undefined},"www.localley.io",true));
+  expect(r.status).toBeGreaterThanOrEqual(500);expect(mocks.generate).not.toHaveBeenCalled();
  });
  it("never treats WebP as PNG and does not retry generation after storage failure",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.generate.mockResolvedValue(Buffer.concat([Buffer.from("RIFFxxxxWEBP"),Buffer.alloc(600)]).toString("base64"));
-  await POST(req({...input,provider:"flux"}));expect(put).not.toHaveBeenCalled();expect(mocks.generate).toHaveBeenCalledTimes(1);
+  await POST(req({...input,provider:"gemini"}));expect(put).not.toHaveBeenCalled();expect(mocks.generate).toHaveBeenCalledTimes(1);
   mocks.generate.mockResolvedValue(png.toString("base64"));put.mockRejectedValue(new Error("R2 failure"));
   const response=await POST(req({...input,cacheKey:"failure"}));expect(response.status).toBe(503);expect(mocks.generate).toHaveBeenCalledTimes(2);expect(mocks.source).not.toHaveBeenCalled();
  });
@@ -135,10 +139,10 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   mocks.weighted.mockResolvedValue({allowed:true,usage:{}});
   const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);
   mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
-  const response=await POST(req({...input,cacheKey:undefined,provider:"flux"},"www.localley.io",true));
-  expect(response.status).toBe(200);expect(await response.json()).toMatchObject({success:true,source:"ai",provider:"flux"});
+  const response=await POST(req({...input,cacheKey:undefined,provider:"gemini"},"www.localley.io",true));
+  expect(response.status).toBe(200);expect(await response.json()).toMatchObject({success:true,source:"ai",provider:"gemini"});
   expect(upload).toHaveBeenCalledWith(expect.stringMatching(/\.jpg$/),jpeg,{contentType:"image/jpeg",upsert:true});
-  expect(mocks.weighted).toHaveBeenCalledWith("one","ai_images_generated",1);
+  expect(mocks.weighted).toHaveBeenCalledWith("one","ai_images_generated",3);
   expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.generate.mock.calls[0]?.at(-1)).toBeUndefined();expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);
  });
  it("keeps normal preview/www on source and rejects anonymous candidate callers",async()=>{

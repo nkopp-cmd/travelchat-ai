@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import OpenAI from "openai";
-import { GLMProvider } from "@/lib/llm";
+import { TEXT_MODEL } from "@/lib/llm/env";
 import { addThumbnailsToItinerary } from "@/lib/activity-images";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import {
@@ -11,14 +11,14 @@ import {
   sanitizeGeneratedDailyPlans,
 } from "@/lib/itineraries/normalize-daily-plans";
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-2024-08-06";
+const OPENAI_MODEL = TEXT_MODEL;
 
 const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error('OpenAI API key is not configured');
   }
-  return new OpenAI({ apiKey });
+  return new OpenAI({ apiKey, maxRetries: 0 });
 };
 
 async function generateRevisionWithOpenAI(userPrompt: string): Promise<string> {
@@ -30,8 +30,8 @@ async function generateRevisionWithOpenAI(userPrompt: string): Promise<string> {
       { role: "user", content: userPrompt },
     ],
     response_format: { type: "json_object" },
-    temperature: 0.7,
-    max_tokens: 3000,
+    reasoning_effort: "none",
+    max_completion_tokens: 6000,
   });
 
   const rawContent = completion.choices[0].message.content;
@@ -46,31 +46,6 @@ async function generateRevision(userPrompt: string): Promise<{
   rawContent: string;
   provider: "glm" | "openai";
 }> {
-  const glm = new GLMProvider();
-
-  if (glm.isAvailable()) {
-    try {
-      const response = await glm.generateText({
-        systemPrompt: REVISION_SYSTEM_PROMPT,
-        userPrompt,
-        responseFormat: "json",
-        temperature: 0.7,
-        maxTokens: 3000,
-      });
-
-      if (!response.content) {
-        throw new Error("GLM returned an empty revision response");
-      }
-
-      return {
-        rawContent: response.content,
-        provider: "glm",
-      };
-    } catch (glmError) {
-      console.error("[revise] GLM primary failed; falling back to OpenAI:", glmError);
-    }
-  }
-
   return {
     rawContent: await generateRevisionWithOpenAI(userPrompt),
     provider: "openai",

@@ -1,6 +1,5 @@
 import { getOpenAIChatModel } from "./chat-provider";
-import { getTrimmedEnv, readGLMProviderConfig } from "./env";
-import { GLMProvider } from "./providers/glm";
+import { getTrimmedEnv, readGLMProviderConfig, TEXT_MODEL } from "./env";
 import type { BaseLLMProvider } from "./providers/base";
 
 export type ChatProviderReadinessIssue =
@@ -10,8 +9,8 @@ export type ChatProviderReadinessIssue =
   | "openai_itinerary_fallback_missing";
 
 export interface ChatProviderReadiness {
-  primary: "glm";
-  fallback: "openai";
+  primary: "openai";
+  fallback: null;
   readyForGlmPrimary: boolean;
   readyForProductionChat: boolean;
   readyForProductionItinerary: boolean;
@@ -71,12 +70,12 @@ export function getChatProviderReadinessActions(
         break;
       case "openai_chat_fallback_missing":
         actions.push(
-          "Keep OPENAI_API_KEY configured so chat can fall back to OpenAI when GLM is unavailable or returns an empty response.",
+          "Configure OPENAI_API_KEY for production chat.",
         );
         break;
       case "openai_itinerary_fallback_missing":
         actions.push(
-          "Keep OPENAI_API_KEY configured so itinerary generation has a paid OpenAI fallback behind the GLM primary path.",
+          "Configure OPENAI_API_KEY for production itinerary generation.",
         );
         break;
     }
@@ -92,25 +91,16 @@ export async function getChatProviderReadiness({
   runGlmHealthCheck?: boolean;
   glmProvider?: Pick<BaseLLMProvider, "isAvailable" | "healthCheck">;
 } = {}): Promise<ChatProviderReadiness> {
-  const glm = glmProvider ?? new GLMProvider();
+  void runGlmHealthCheck;
+  void glmProvider;
   const glmConfig = readGLMProviderConfig();
-  const glmConfigured = glm.isAvailable();
-  let glmHealthy: boolean | null = null;
-
-  if (runGlmHealthCheck && glmConfigured) {
-    glmHealthy = await glm.healthCheck();
-  }
+  const glmConfigured = Boolean(glmConfig.apiKey);
+  const glmHealthy: boolean | null = null;
 
   const chatFallbackConfigured = Boolean(getTrimmedEnv("OPENAI_API_KEY"));
   const openaiItineraryFallbackConfigured = Boolean(getTrimmedEnv("OPENAI_API_KEY"));
-  const readyForGlmPrimary =
-    glmConfigured && (!runGlmHealthCheck || glmHealthy === true);
+  const readyForGlmPrimary = false;
   const issues: ChatProviderReadiness["issues"] = [];
-
-  if (!glmConfigured) issues.push("glm_api_key_missing");
-  if (runGlmHealthCheck && glmConfigured && glmHealthy !== true) {
-    issues.push("glm_health_failed");
-  }
   if (!chatFallbackConfigured) {
     issues.push("openai_chat_fallback_missing");
   }
@@ -118,13 +108,13 @@ export async function getChatProviderReadiness({
     issues.push("openai_itinerary_fallback_missing");
   }
 
-  const readyForProductionChat = readyForGlmPrimary && chatFallbackConfigured;
+  const readyForProductionChat = chatFallbackConfigured;
   const readyForProductionItinerary =
-    readyForGlmPrimary && openaiItineraryFallbackConfigured;
+    openaiItineraryFallbackConfigured;
 
   return {
-    primary: "glm",
-    fallback: "openai",
+    primary: "openai",
+    fallback: null,
     readyForGlmPrimary,
     readyForProductionChat,
     readyForProductionItinerary,
@@ -132,7 +122,7 @@ export async function getChatProviderReadiness({
     issues,
     glm: {
       configured: glmConfigured,
-      healthChecked: runGlmHealthCheck,
+      healthChecked: false,
       healthy: glmHealthy,
       model: glmConfig.model,
       baseUrl: glmConfig.baseURL,
@@ -149,7 +139,7 @@ export async function getChatProviderReadiness({
     itineraryFallback: {
       provider: "openai",
       configured: openaiItineraryFallbackConfigured,
-      model: getTrimmedEnv("OPENAI_MODEL") || "gpt-4o",
+      model: TEXT_MODEL,
     },
   };
 }
