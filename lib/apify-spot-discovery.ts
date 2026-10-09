@@ -35,7 +35,7 @@ type DiscoveryRun = {
 export type ApifySpotDiscoverySummary = {
   date: string;
   citySlug: string | null;
-  state: "started" | "pending" | "processed" | "failed" | "already_processed";
+  state: "started" | "pending" | "processed" | "failed" | "already_processed" | "idle" | "disabled";
   candidates: number;
   skippedExisting: number;
 };
@@ -550,6 +550,25 @@ async function processDailyRun(token: string, run: DiscoveryRun): Promise<ApifyS
     .eq("id", run.id);
   if (error) throw new Error(`Could not complete Apify discovery run: ${error.message}`);
   return { date: run.discovery_date, citySlug: run.city_slug, state: "processed", ...stored };
+}
+
+/** Collect an existing run only. Never starts or aborts an actor, or imports public spots. */
+export async function collectActiveApifySpotDiscovery(now: Date = new Date()): Promise<ApifySpotDiscoverySummary> {
+  const empty = { date: now.toISOString().slice(0, 10), citySlug: null, candidates: 0, skippedExisting: 0 };
+  if (process.env.APIFY_SPOT_DISCOVERY_ENABLED !== "true") return { ...empty, state: "disabled" };
+  const token = process.env.APIFY_API_TOKEN?.trim();
+  if (!token) throw new Error("APIFY_API_TOKEN is not configured.");
+  const { data, error } = await createSupabaseAdmin()
+    .from("apify_spot_discovery_runs")
+    .select("*")
+    .in("state", ["starting", "running"])
+    .order("started_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(`Could not load active Apify discovery run: ${error.message}`);
+  // Read the actor's actual status even when the local row is old. A successful
+  // asynchronous run must not be aborted merely because collection was delayed.
+  return data ? processDailyRun(token, data as DiscoveryRun) : { ...empty, state: "idle" };
 }
 
 export async function refreshApifySpotDiscovery(now: Date = new Date()): Promise<ApifySpotDiscoverySummary> {
