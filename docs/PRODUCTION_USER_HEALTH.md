@@ -467,3 +467,11 @@ Removing the query flag through browser history before another action produced a
 Finally cleanup removed the exact itinerary and two fresh owner fixtures. Both reserved users have zero users, sessions, accounts, mail and verification rows under their exact cleanup predicates. All54known APP table counts and import receipt hash returned to baseline, with zero foreign-key violations. Source spots remained206/count3295. Both production admin IDs retained one auth row each, both Workers remained unchanged and both rollback versions remained available at05:53:15UTC.
 
 The prior session stopped after an ambiguous local Close query and a premature read of the pending receipt. The already-running hosted harness subsequently completed successfully; this evidence review preserves its result without repeating hosted actions or deleting failure history. Private mode600 receipts: `itinerary-mail-caller-predeploy-20261004.json`, `itinerary-mail-caller-hosted-20261004.json`, build/deploy/hosted logs and desktop/mobile PNGs. Required evidence CI, documentation merge, final readback and evidence-worktree cleanup follow in the canonical plan.
+
+## 2026-10-09 — Discovery collection health
+
+Production source de5ab5b / PR390 now collects existing research daily through the existing03UTC invocation.
+Hosted collect200/processed adds30pending review candidates; repeated collect200/idle and unsigned401 prove the bounded path.
+Public root, spots, sign-in and city API each200;3295public spots and both admins remain unchanged.
+All four Cloudflare schedules remain unchanged. See [release evidence](releases/seoul-discovery.md#2026-10-09--daily-collection-of-existing-spot-research).
+Pending candidates are not public spots.83await the existing quality-review gate; no automatic publication is enabled.

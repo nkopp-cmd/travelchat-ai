@@ -238,3 +238,27 @@ Controlled received login, full itinerary and reset messages passed, with owned2
 Exact cleanup restores55candidate table counts and selected four source/five auth hashes; both admins remain.
 Correct quoted version overrides and merged preview100% replay replace earlier unattributed1% reads.
 Details and limits: docs/ITINERARY_CLOUDFLARE_MAIL.md. Story-ready/subscription mail and full data cutover remain open.
+
+## 2026-10-09 — Daily collection of existing spot research
+
+PR390 / merged runtime source `de5ab5b9eb406e57234a40b341cd036f6981bc43`; required CI37954783163 passed14m38s.
+Twenty-two focused collection/auth/schedule tests, TypeScript/lint, pinned public-only OpenNext production build and scoped advisor review passed.
+Artifact audit2316files/84private values/0hits; nilskopp account guard passed.
+Production Worker `0a81e48c-8490-4dbc-a311-c187789f8b94` at100%, deployment `969998b6-cdc4-4864-96ba-31bc884d51e2`.
+Rollback Worker `043e1752-23d6-4378-be1b-96a48f86f995` from source0ad0b530 is retained.
+Preview `b9086f9a-768a-487a-8e93-bba8fca88220` at100% remains unchanged; both production admin IDs remain present.
+
+The four schedules are unchanged. Existing daily03UTC cleanup also calls authenticated collect-only discovery.
+Monthly research starts remain monthly; collection never starts or aborts an actor, prunes rows or imports public spots.
+Read-only server-token checks proved October1 Jeju actor200/SUCCEEDED and dataset200/46items.
+Actual hosted collect returned200/processed/30candidates; its saved source run is succeeded with zero active runs.
+Candidate totals56→86:83pending/3rejected/0imported. Public spots remain3295.
+A second authorized collection returned200/idle; unsigned collection401. Root/spots/sign-in/cities each200 after release.
+No paid actor start, new schedule, public candidate approval, credential rotation or production application-data switch occurred.
+The obsolete native importer remains disabled; source data still uses Supabase pending the separate cutover gates.
+
+Private before/after row backups and exact hosted proof are under `/home/dev/.local/state/localley/discovery-completion-{before,after,live-collect,public-after}.json`.
+Build/deploy/review logs and the artifact audit use the same prefix.
+Rollback deploys the retained Worker version; collected pending candidates remain in the review queue, so no automatic source reversal is needed.
+Future terminal404 handling for expired actor datasets is separate; this retained dataset was readable and processed.
+The requested generation upgrade remains isolated in draftPR391:91focused tests and required CI37957191790 pass, but paid activation acceptance remains blocked by the weekly spend guard.
