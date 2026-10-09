@@ -18,8 +18,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, Lock, ExternalLink, X } from "lucide-react";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -134,7 +133,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
     const [availableModels, setAvailableModels] = useState<ModelOption[]>([]);
     const [savedSlides, setSavedSlides] = useState<Record<string, string> | null>(null);
-    const [usedProviders, setUsedProviders] = useState<string[]>([]);
+    const [, setUsedProviders] = useState<string[]>([]);
     const { toast } = useToast();
 
     const handleImageError = (index: number) => {
@@ -152,9 +151,10 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setAiAvailable(data.sources?.ai ?? false);
                 // Load model options from the API
                 if (data.models && Array.isArray(data.models)) {
-                    setAvailableModels(data.models);
+                    const currentModels = data.models.filter((m: ModelOption) => m.provider === "gemini");
+                    setAvailableModels(currentModels);
                     // Auto-select the first available model
-                    const firstAvailable = data.models.find((m: ModelOption) => m.available);
+                    const firstAvailable = currentModels.find((m: ModelOption) => m.available);
                     if (firstAvailable) {
                         setSelectedModel(firstAvailable.provider);
                     }
@@ -385,9 +385,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     slotIndex: 0,
                 });
                 completedCount++;
-                const coverProvider = coverResult?.provider;
-                const providerHint = coverProvider ? ` via ${coverProvider === "flux" ? "FLUX" : coverProvider === "seedream" ? "Seedream" : coverProvider === "gemini" ? "Gemini" : coverProvider}` : "";
-                setGenerationProgress(`Generated ${completedCount}/${totalSlides}${providerHint}...`);
+                setGenerationProgress(`Generated ${completedCount}/${totalSlides}...`);
                 if (coverResult) {
                     backgrounds.cover = coverResult.image;
                     usedUrls.push(coverResult.image);
@@ -412,8 +410,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             slotIndex: dayNumber,
                         }).then(result => {
                             completedCount++;
-                            const hint = result?.provider ? ` via ${result.provider === "flux" ? "FLUX" : result.provider === "seedream" ? "Seedream" : result.provider === "gemini" ? "Gemini" : result.provider}` : "";
-                            setGenerationProgress(`Generated ${completedCount}/${totalSlides}${hint || providerHint}...`);
+                            setGenerationProgress(`Generated ${completedCount}/${totalSlides}...`);
                             if (result) {
                                 backgrounds[`day${dayNumber}`] = result.image;
                                 usedUrls.push(result.image);
@@ -430,8 +427,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         slotIndex: totalDays + 1,
                     }).then(result => {
                         completedCount++;
-                        const hint = result?.provider ? ` via ${result.provider === "flux" ? "FLUX" : result.provider === "seedream" ? "Seedream" : result.provider === "gemini" ? "Gemini" : result.provider}` : "";
-                        setGenerationProgress(`Generated ${completedCount}/${totalSlides}${hint || providerHint}...`);
+                        setGenerationProgress(`Generated ${completedCount}/${totalSlides}...`);
                         if (result) {
                             backgrounds.summary = result.image;
                             usedUrls.push(result.image);
@@ -522,14 +518,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                 // Show accurate toast based on actual results
                 const bgCount = Object.keys(bgToSave).length;
-                const uniqueSources = [...new Set(imageSources)];
-                // Build a descriptive source text: prefer showing provider name (e.g. "FLUX") over generic "ai"
-                const providerLabel = usedProviders.length > 0
-                    ? usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")
-                    : null;
-                const sourceDisplay = providerLabel || "";
-                const sourceText = sourceDisplay ? ` (${sourceDisplay})` : "";
-
                 if (bgCount === 0) {
                     toast({
                         title: "Stories ready (gradient fallback)",
@@ -539,13 +527,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 } else if (saveFailed) {
                     toast({
                         title: "Stories generated",
-                        description: `${bgCount} backgrounds created but failed to save${sourceText}`,
+                        description: `${bgCount} backgrounds created but failed to save`,
                         variant: "destructive",
                     });
                 } else {
                     toast({
                         title: "Stories generated!",
-                        description: `${generatedSlides.length} slides ready${sourceText}`,
+                        description: `${generatedSlides.length} slides ready`,
                     });
                 }
             } else {
@@ -793,55 +781,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     </Label>
                                 </div>
 
-                                {/* Model picker (shown when AI toggle is ON) */}
-                                {useAiBackgrounds && availableModels.length > 0 && (
-                                    <div className="w-full max-w-xs mt-2">
-                                        <RadioGroup
-                                            value={selectedModel || ""}
-                                            onValueChange={setSelectedModel}
-                                            className="gap-2"
-                                        >
-                                            {availableModels.map((model) => (
-                                                <label
-                                                    key={model.provider}
-                                                    className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all cursor-pointer ${
-                                                        selectedModel === model.provider
-                                                            ? "border-violet-400 bg-violet-50 dark:bg-violet-950/40"
-                                                            : "border-border hover:border-violet-200"
-                                                    } ${!model.available ? "opacity-50 cursor-not-allowed" : ""}`}
-                                                >
-                                                    <RadioGroupItem
-                                                        value={model.provider}
-                                                        disabled={!model.available}
-                                                    />
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-1.5">
-                                                            <span className="text-sm font-medium">{model.label}</span>
-                                                            {model.tierLocked && (
-                                                                <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
-                                                                    <Lock className="h-2.5 w-2.5" />
-                                                                    Premium
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-xs text-muted-foreground">{model.description}</p>
-                                                    </div>
-                                                    <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 whitespace-nowrap">
-                                                        {model.credits} {model.credits === 1 ? "credit" : "credits"}
-                                                    </span>
-                                                </label>
-                                            ))}
-                                        </RadioGroup>
-                                        {/* Credit cost summary */}
-                                        {selectedModel && (
-                                            <p className="text-xs text-muted-foreground text-center mt-2">
-                                                This story will use ~{(availableModels.find(m => m.provider === selectedModel)?.credits || 1) * (totalDays + 2)} credits ({totalDays + 2} slides)
-                                            </p>
-                                        )}
-                                    </div>
+                                {useAiBackgrounds && selectedModel && (
+                                    <p className="text-xs text-muted-foreground text-center mt-2">
+                                        This story will use ~{(availableModels.find(m => m.provider === selectedModel)?.credits || 3) * (totalDays + 2)} credits ({totalDays + 2} slides)
+                                    </p>
                                 )}
 
-                                {/* Quota display */}
                                 {aiQuota && isPaidUser && (
                                     <p className="text-xs text-muted-foreground">
                                         {aiQuota.limit - aiQuota.used > 0
@@ -955,11 +900,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                 {isMobileShare && (
                                     <p className="text-xs text-muted-foreground mt-1">
                                         Tap image to open full size
-                                    </p>
-                                )}
-                                {usedProviders.length > 0 && (
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        Backgrounds by {usedProviders.map(p => p === "flux" ? "FLUX" : p === "seedream" ? "Seedream" : p === "gemini" ? "Gemini" : p).join(", ")}
                                     </p>
                                 )}
                             </div>

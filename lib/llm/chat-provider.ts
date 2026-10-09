@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 
-import { getTrimmedEnv, readGLMProviderConfig } from "./env";
-import { GLMProvider } from "./providers/glm";
+import { getTrimmedEnv, TEXT_MODEL } from "./env";
 import type { TextGenerationProvider } from "./providers/base";
 
 export type ChatProviderName = "glm" | "openai";
@@ -22,6 +21,7 @@ interface OpenAIChatClient {
       create(input: {
         model: string;
         max_completion_tokens: number;
+        reasoning_effort: "none";
         messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
       }): Promise<{ choices: Array<{ message?: { content?: string | null } }> }>;
     };
@@ -34,7 +34,7 @@ export interface ChatProviderResult {
   model: string;
   fallbackUsed: boolean;
   fallbackReason: ChatFallbackReason;
-  primaryProvider: "glm";
+  primaryProvider: "openai";
   primaryModel: string;
   primaryConfigured: boolean;
 }
@@ -46,12 +46,11 @@ interface ChatProviderDependencies {
   logger?: Pick<Console, "error">;
 }
 
-// Chat fallback moved from Anthropic to OpenAI (2026-09-23): the Anthropic key had no
-// credit and its SDK failed on Cloudflare Workers; the OpenAI SDK works there (GLM uses it).
-export const DEFAULT_OPENAI_CHAT_MODEL = "gpt-5.6-luna";
+// One text model is used for production chat. No silent provider fallback.
+export const DEFAULT_OPENAI_CHAT_MODEL = TEXT_MODEL;
 
 export function getOpenAIChatModel(): string {
-  return getTrimmedEnv("OPENAI_CHAT_MODEL") || DEFAULT_OPENAI_CHAT_MODEL;
+  return DEFAULT_OPENAI_CHAT_MODEL;
 }
 
 export function buildChatTranscript(messages: ChatMessage[]): string {
@@ -79,52 +78,7 @@ export async function generateChatReplyWithFallback(
   },
   dependencies: ChatProviderDependencies = {}
 ): Promise<ChatProviderResult> {
-  const glm = dependencies.glm ?? new GLMProvider();
-  const primaryModel = readGLMProviderConfig().model;
   const maxTokens = input.maxTokens ?? 2048;
-  const temperature = input.temperature ?? 0.7;
-  const primaryConfigured = glm.isAvailable();
-  let glmWasAttempted = false;
-  let fallbackReason: ChatFallbackReason = null;
-
-  if (primaryConfigured) {
-    glmWasAttempted = true;
-
-    try {
-      const response = await glm.generateText({
-        systemPrompt: input.systemPrompt,
-        userPrompt: buildChatTranscript(input.messages),
-        maxTokens,
-        temperature,
-      });
-      const content = response.content.trim();
-
-      if (!content) {
-        fallbackReason = "glm_empty_response";
-        throw new Error("GLM returned an empty chat response");
-      }
-
-      return {
-        content,
-        provider: "glm",
-        model: primaryModel,
-        fallbackUsed: false,
-        fallbackReason: null,
-        primaryProvider: "glm",
-        primaryModel,
-        primaryConfigured,
-      };
-    } catch (glmError) {
-      fallbackReason = fallbackReason || "glm_error";
-      (dependencies.logger ?? console).error(
-        "[CHAT] GLM primary failed; falling back to OpenAI:",
-        glmError
-      );
-    }
-  } else {
-    fallbackReason = "glm_unavailable";
-  }
-
   const fallbackMessages = input.messages
     .filter((message) => message.role === "user" || message.role === "assistant")
     .map((message) => ({
@@ -138,6 +92,7 @@ export async function generateChatReplyWithFallback(
   const response = await client.chat.completions.create({
     model: fallbackModel,
     max_completion_tokens: maxTokens,
+    reasoning_effort: "none",
     messages: [{ role: "system", content: input.systemPrompt }, ...fallbackMessages],
   });
 
@@ -150,10 +105,10 @@ export async function generateChatReplyWithFallback(
     content: reply,
     provider: "openai",
     model: fallbackModel,
-    fallbackUsed: glmWasAttempted,
-    fallbackReason,
-    primaryProvider: "glm",
-    primaryModel,
-    primaryConfigured,
+    fallbackUsed: false,
+    fallbackReason: null,
+    primaryProvider: "openai",
+    primaryModel: fallbackModel,
+    primaryConfigured: Boolean(dependencies.openai || getTrimmedEnv("OPENAI_API_KEY")),
   };
 }

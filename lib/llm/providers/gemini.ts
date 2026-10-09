@@ -1,3 +1,4 @@
+import { IMAGE_MODEL } from "../env";
 /**
  * Gemini Provider
  *
@@ -36,7 +37,6 @@ import {
 // Support both environment variable names
 const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
 const TEXT_MODEL = 'gemini-2.0-flash';
-const IMAGE_MODEL = 'gemini-2.5-flash-image';
 
 export class GeminiProvider
   extends AbstractLLMProvider

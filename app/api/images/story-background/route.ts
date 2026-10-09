@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { isImagenAvailable } from "@/lib/imagen";
-import { isSeedreamAvailable } from "@/lib/seedream";
-import { isFluxAvailable } from "@/lib/flux";
 import {
     getImageProvider,
     isAnyProviderAvailable,
@@ -14,7 +12,6 @@ import {
     getAvailableModels,
     getModelCredits,
     canUseTierModel,
-    MODEL_CREDITS,
 } from "@/lib/model-credits";
 
 // AI image generation can take 10-20s per image
@@ -81,15 +78,6 @@ function detectImageContentType(buffer: Buffer): string {
     return "image/png";
 }
 
-/** Check if a specific AI provider has its API key configured */
-function isProviderKeyAvailable(provider: ImageProvider): boolean {
-    switch (provider) {
-        case "flux": return isFluxAvailable();
-        case "seedream": return isSeedreamAvailable();
-        case "gemini": return isImagenAvailable();
-    }
-}
-
 async function storyBackgroundPost(req: NextRequest) {
     const candidate = isPreviewStoryCandidate(req);
     try {
@@ -113,7 +101,10 @@ async function storyBackgroundPost(req: NextRequest) {
             if (cached) return NextResponse.json({ success: true, image: cached, source: "cache", cached: true });
         }
         const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
-        const requestedProvider = requestedProviderRaw;
+        if (requestedProviderRaw && requestedProviderRaw !== "gemini") {
+            return Errors.validationError("This image option is no longer available");
+        }
+        const requestedProvider: ImageProvider = "gemini";
 
         if (!city) {
             return Errors.validationError("city is required");
@@ -132,8 +123,6 @@ async function storyBackgroundPost(req: NextRequest) {
             hasAiFeature,
             anyProviderAvailable,
             bypassTierCheck,
-            fluxKey: isFluxAvailable(),
-            seedreamKey: isSeedreamAvailable(),
             geminiKey: isImagenAvailable(),
         });
 
@@ -144,17 +133,17 @@ async function storyBackgroundPost(req: NextRequest) {
             if (!canUseTierModel(tier, requestedProvider)) {
                 return NextResponse.json({
                     success: false,
-                    error: `Your ${tier} plan does not include access to ${MODEL_CREDITS[requestedProvider].label}. Upgrade to Premium for all models.`,
+                    error: "Your plan does not include AI backgrounds. Upgrade to Pro to create them.",
                     _debug: { tier, hasAiFeature, anyProviderAvailable, bypassTierCheck },
                 }, { status: 403 });
             }
         }
 
         // Determine credit cost based on provider
-        const creditCost = requestedProvider ? getModelCredits(requestedProvider) : 1;
+        const creditCost = getModelCredits("gemini");
 
         // Check AI usage quota before attempting generation
-        // Permissive: if usage tracking fails, allow generation anyway (don't block user)
+        // Refuse paid generation when the atomic usage check cannot complete.
         if (canUseAI && !candidate) {
             try {
                 const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
@@ -167,8 +156,8 @@ async function storyBackgroundPost(req: NextRequest) {
                     canUseAI = false;
                 }
             } catch (usageError) {
-                // Usage tracking failure should NOT block AI generation
-                console.error("[STORY_BG] Usage tracking error (allowing generation anyway):", usageError);
+                console.error("[STORY_BG] Usage tracking unavailable");
+                throw usageError;
             }
         }
 
@@ -227,21 +216,7 @@ async function storyBackgroundPost(req: NextRequest) {
             if (candidate && process.env.PREVIEW_STORY_GENERATION_ENABLED !== "true") {
                 return NextResponse.json({ success: false, error: "Preview generation is disabled" }, { status: 503 });
             }
-            const providerOrder: ImageProvider[] = [];
-            if (requestedProvider) {
-                // User explicitly chose a model — use ONLY that provider.
-                // If it fails, skip stock photos too → branded gradient fallback.
-                providerOrder.push(imageProvider!);
-            } else {
-                // Auto-select mode: try all available providers in priority order
-                if (imageProvider && (!candidate || canUseTierModel(tier, imageProvider))) providerOrder.push(imageProvider);
-                const allProviders: ImageProvider[] = ["flux", "seedream", "gemini"];
-                for (const p of allProviders) {
-                    if (!providerOrder.includes(p) && isProviderKeyAvailable(p) && (!candidate || canUseTierModel(tier, p))) {
-                        providerOrder.push(p);
-                    }
-                }
-            }
+            const providerOrder: ImageProvider[] = ["gemini"];
 
             for (const currentProvider of providerOrder) {
                 if (candidateOwner) {
@@ -363,9 +338,7 @@ async function storyBackgroundPost(req: NextRequest) {
         // NO IMAGE — branded gradient fallback will be used by story renderer
         // =====================================================================
         if (!imageUrl) {
-            const reason = requestedProvider
-                ? `${requestedProvider} failed — branded gradient will be used`
-                : "All image providers failed";
+            const reason = "Background generation failed — branded gradient will be used";
             console.error("[STORY_BG] No image:", {
                 reason,
                 requestedProvider,
@@ -373,8 +346,6 @@ async function storyBackgroundPost(req: NextRequest) {
                 imageProvider,
                 tier,
                 failedProviders,
-                hasFluxKey: isFluxAvailable(),
-                hasSeedreamKey: isSeedreamAvailable(),
                 hasGeminiKey: isImagenAvailable(),
             });
 
@@ -389,9 +360,7 @@ async function storyBackgroundPost(req: NextRequest) {
                     hasAiFeature,
                     anyProviderAvailable,
                     bypassTierCheck,
-                    fluxKey: isFluxAvailable(),
-                    seedreamKey: isSeedreamAvailable(),
-                    geminiKey: isImagenAvailable(),
+                                    geminiKey: isImagenAvailable(),
                 },
             });
         }
@@ -441,8 +410,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
         sources: {
             ai: isAnyProviderAvailable(),
-            flux: isFluxAvailable(),
-            seedream: isSeedreamAvailable(),
             gemini: isImagenAvailable(),
         },
         models,

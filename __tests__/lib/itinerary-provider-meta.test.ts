@@ -13,7 +13,7 @@ function createResult(
     validationReport: null,
     metrics: {
       totalLatencyMs: 120,
-      providersUsed: ["glm"],
+      providersUsed: ["openai"],
       cacheHits: 0,
       retryCount: 0,
     },
@@ -31,26 +31,26 @@ describe("buildItineraryProviderMeta", () => {
     clearGLMEnv();
   });
 
-  it("reports GLM as the primary itinerary provider when GLM generated structure", () => {
+  it("reports the active primary provider accurately", () => {
     clearGLMEnv();
 
     expect(buildItineraryProviderMeta(createResult({}))).toMatchObject({
-      provider: "glm",
-      model: "glm-5.2",
+      provider: "openai",
+      model: "gpt-6-luna",
       fallbackUsed: false,
       fallbackReason: null,
-      primaryProvider: "glm",
-      primaryModel: "glm-5.2",
+      primaryProvider: "openai",
+      primaryModel: "gpt-6-luna",
       primaryConfigured: true,
       metrics: {
-        providersUsed: ["glm"],
+        providersUsed: ["openai"],
         cacheHits: 0,
         retryCount: 0,
       },
     });
   });
 
-  it("reports OpenAI fallback when GLM did not generate structure", () => {
+  it("retains historical fallback diagnostics", () => {
     clearGLMEnv();
 
     expect(
@@ -68,11 +68,11 @@ describe("buildItineraryProviderMeta", () => {
       ),
     ).toMatchObject({
       provider: "openai",
-      model: "gpt-4o",
+      model: "gpt-6-luna",
       fallbackUsed: true,
       fallbackReason: "chatgpt_fallback",
-      primaryProvider: "glm",
-      primaryConfigured: false,
+      primaryProvider: "openai",
+      primaryConfigured: true,
       metrics: {
         providersUsed: ["openai"],
         cacheHits: 1,
@@ -82,7 +82,7 @@ describe("buildItineraryProviderMeta", () => {
     });
   });
 
-  it("keeps primaryConfigured true when configured GLM fails and OpenAI succeeds", () => {
+  it("keeps active provider configuration accurate", () => {
     clearGLMEnv();
     process.env.GLM_API_KEY = "glm-live";
 
@@ -103,7 +103,7 @@ describe("buildItineraryProviderMeta", () => {
       provider: "openai",
       fallbackUsed: true,
       fallbackReason: "chatgpt_fallback",
-      primaryProvider: "glm",
+      primaryProvider: "openai",
       primaryConfigured: true,
       metrics: {
         providersUsed: ["openai"],

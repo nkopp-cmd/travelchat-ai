@@ -177,7 +177,7 @@ describe("/api/itineraries/generate-v2/stream", () => {
       },
       metrics: {
         totalLatencyMs: 100,
-        providersUsed: ["glm"],
+        providersUsed: ["openai"],
         cacheHits: 0,
         retryCount: 0,
       },
@@ -191,17 +191,18 @@ describe("/api/itineraries/generate-v2/stream", () => {
     const events = parseSSE(await response.text());
     const completeEvent = events.find((event) => event.type === "complete");
 
+    expect(events.find((event) => event.type === "phase1")?.data).not.toHaveProperty("providers");
     expect(completeEvent?.data.success).toBe(true);
     expect(completeEvent?.data.meta).toMatchObject({
-      provider: "glm",
-      model: "glm-5.2",
+      provider: "openai",
+      model: "gpt-6-luna",
       fallbackUsed: false,
       fallbackReason: null,
-      primaryProvider: "glm",
-      primaryModel: "glm-5.2",
+      primaryProvider: "openai",
+      primaryModel: "gpt-6-luna",
       primaryConfigured: true,
       metrics: {
-        providersUsed: ["glm"],
+        providersUsed: ["openai"],
         cacheHits: 0,
         retryCount: 0,
       },

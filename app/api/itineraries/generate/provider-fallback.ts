@@ -1,6 +1,5 @@
-import { GLMProvider } from '@/lib/llm';
 import type { TextGenerationProvider } from '@/lib/llm/providers/base';
-import { getTrimmedEnv, readGLMProviderConfig } from '@/lib/llm/env';
+import { getTrimmedEnv, TEXT_MODEL } from '@/lib/llm/env';
 
 export type ItineraryTextProviderName = 'glm' | 'openai';
 export type ItineraryFallbackReason =
@@ -30,74 +29,28 @@ interface GenerateItineraryTextResult {
   model: string;
   fallbackUsed: boolean;
   fallbackReason: ItineraryFallbackReason;
-  primaryProvider: 'glm';
+  primaryProvider: 'openai';
   primaryModel: string;
   primaryConfigured: boolean;
 }
 
 export function getOpenAIItineraryFallbackModel(): string {
-  return getTrimmedEnv('OPENAI_MODEL') || 'gpt-4o';
+  return TEXT_MODEL;
 }
 
 export async function generateItineraryTextWithFallback(
   input: GenerateItineraryTextInput,
   dependencies: GenerateItineraryTextDependencies
 ): Promise<GenerateItineraryTextResult> {
-  const glm = dependencies.glm ?? new GLMProvider();
-  const primaryModel = readGLMProviderConfig().model;
-  const openaiModel =
-    dependencies.openaiModel ?? getOpenAIItineraryFallbackModel();
-  let glmWasAttempted = false;
-  let fallbackReason: ItineraryFallbackReason = null;
-
-  if (glm.isAvailable()) {
-    glmWasAttempted = true;
-
-    try {
-      const response = await glm.generateText({
-        systemPrompt: input.systemPrompt,
-        userPrompt: input.userPrompt,
-        responseFormat: 'json',
-        disableThinking: true,
-        temperature: input.temperature ?? 0.8,
-        maxTokens: input.maxTokens ?? 3000,
-      });
-      const rawContent = response.content.trim();
-
-      if (!rawContent) {
-        fallbackReason = 'glm_empty_response';
-        throw new Error('GLM returned an empty itinerary response');
-      }
-
-      return {
-        rawContent,
-        provider: 'glm',
-        model: primaryModel,
-        fallbackUsed: false,
-        fallbackReason: null,
-        primaryProvider: 'glm',
-        primaryModel,
-        primaryConfigured: true,
-      };
-    } catch {
-      fallbackReason = fallbackReason || 'glm_error';
-      (dependencies.logger ?? console).error(
-        '[generate] GLM primary failed; falling back to OpenAI:',
-        { reason: fallbackReason }
-      );
-    }
-  } else {
-    fallbackReason = 'glm_unavailable';
-  }
-
+  const model = dependencies.openaiModel ?? TEXT_MODEL;
   return {
     rawContent: await dependencies.generateWithOpenAI(input.systemPrompt, input.userPrompt),
     provider: 'openai',
-    model: openaiModel,
-    fallbackUsed: glmWasAttempted,
-    fallbackReason,
-    primaryProvider: 'glm',
-    primaryModel,
-    primaryConfigured: glmWasAttempted,
+    model,
+    fallbackUsed: false,
+    fallbackReason: null,
+    primaryProvider: 'openai',
+    primaryModel: model,
+    primaryConfigured: Boolean(getTrimmedEnv('OPENAI_API_KEY')),
   };
 }

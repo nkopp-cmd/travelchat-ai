@@ -6,7 +6,7 @@
  */
 
 import type { FallbackConfig, FallbackRoute, LLMProviderName, UserTier } from './types';
-import { readGLMProviderConfig } from './env';
+import { readGLMProviderConfig, TEXT_MODEL, IMAGE_MODEL } from './env';
 
 const glmProviderConfig = readGLMProviderConfig();
 
@@ -62,7 +62,7 @@ export const featureFlags = {
 
 export const providerConfig = {
   openai: {
-    model: process.env.OPENAI_MODEL || 'gpt-4o-2024-08-06',
+    model: TEXT_MODEL,
     maxTokens: 3000,
     temperature: 0.8,
   },
@@ -76,7 +76,7 @@ export const providerConfig = {
 
   gemini: {
     textModel: 'gemini-2.0-flash',
-    imageModel: 'gemini-2.5-flash-image',
+    imageModel: IMAGE_MODEL,
     maxTokens: 3000,
     temperature: 0.8,
   },
@@ -103,7 +103,7 @@ export interface TierLLMConfig {
 
 export const tierLLMConfigs: Record<UserTier, TierLLMConfig> = {
   free: {
-    providers: ['glm', 'openai'],
+    providers: ['openai'],
     claudeSupervision: 'none',
     locationValidation: false,
     maxRetries: 1,
@@ -112,7 +112,7 @@ export const tierLLMConfigs: Record<UserTier, TierLLMConfig> = {
   },
 
   pro: {
-    providers: ['glm', 'openai', 'gemini'],
+    providers: ['openai', 'gemini'],
     claudeSupervision: 'basic',
     locationValidation: true,
     maxRetries: 2,
@@ -121,7 +121,7 @@ export const tierLLMConfigs: Record<UserTier, TierLLMConfig> = {
   },
 
   premium: {
-    providers: ['glm', 'openai', 'gemini', 'claude'],
+    providers: ['openai', 'gemini', 'claude'],
     claudeSupervision: 'full',
     locationValidation: true,
     maxRetries: 3,
@@ -142,7 +142,7 @@ export const tierLLMConfigs: Record<UserTier, TierLLMConfig> = {
 export const fallbackRoutes: Record<FallbackRoute, FallbackConfig> = {
   primary: {
     route: 'primary',
-    providers: ['glm', 'gemini', 'claude'],
+    providers: ['openai', 'gemini', 'claude'],
     skipValidation: false,
     reducedQuality: false,
     userNotification: '',
@@ -150,7 +150,7 @@ export const fallbackRoutes: Record<FallbackRoute, FallbackConfig> = {
 
   gemini_fallback: {
     route: 'gemini_fallback',
-    providers: ['glm', 'claude'],
+    providers: ['openai', 'claude'],
     skipValidation: false,
     reducedQuality: false,
     userNotification: 'Using alternative validation method',
@@ -158,7 +158,7 @@ export const fallbackRoutes: Record<FallbackRoute, FallbackConfig> = {
 
   claude_fallback: {
     route: 'claude_fallback',
-    providers: ['glm', 'gemini'],
+    providers: ['openai', 'gemini'],
     skipValidation: false,
     reducedQuality: true,
     userNotification: 'Quality checks temporarily simplified',
@@ -174,7 +174,7 @@ export const fallbackRoutes: Record<FallbackRoute, FallbackConfig> = {
 
   emergency: {
     route: 'emergency',
-    providers: ['glm', 'openai'], // Will use whichever is available
+    providers: ['openai'], // Will use whichever is available
     skipValidation: true,
     reducedQuality: true,
     userNotification: 'Some features temporarily unavailable',
