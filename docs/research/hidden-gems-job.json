@@ -1,0 +1,21 @@
+{
+  "contract_version": 1,
+  "job_name": "localley-hidden-gems-database-builder",
+  "existing_job_id": "ce47f4e1f43c",
+  "schedule": {
+    "cron": "17 3 * * *",
+    "timezone": "Asia/Seoul",
+    "utc_cron": "17 18 * * *"
+  },
+  "daily_target": 15,
+  "batch_count": 3,
+  "batch_target": 5,
+  "allow_fewer": true,
+  "dataset_path_reference": "CoreMachine/01 - Projects/Cowork/Localley/Data/",
+  "prompt_file": "hidden-gems-prompt.md",
+  "activation_status": "blocked_pending_existing_scheduler_and_dataset_access",
+  "production_writes": false,
+  "paid_apis": false,
+  "public_posting": false,
+  "social_job_changes": false
+}
