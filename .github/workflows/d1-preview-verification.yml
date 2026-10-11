@@ -280,6 +280,8 @@ jobs:
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
             node --test scripts/d1-migration/notification-history-report.test.mjs
             node --check scripts/d1-migration/notification-history-report.test.mjs
+            node --test scripts/d1-migration/runtime-inventory.test.mjs
+            node --check scripts/d1-migration/runtime-inventory.mjs
             node --test scripts/d1-migration/notification-inventory.test.mjs
             node --check scripts/d1-migration/notification-inventory.mjs
             node --test scripts/d1-migration/owner-rehearsal.test.mjs
