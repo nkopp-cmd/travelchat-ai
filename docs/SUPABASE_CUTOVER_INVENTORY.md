@@ -34,12 +34,12 @@ Installed SQL, external writers, physical tables, grants, triggers and media-obj
 
 ## 2026-10-11 baseline
 
-The first expanded scan covers 550 source files, 459 possible access sites and 111 modules with direct access.
+The first expanded scan covers 551 source files, 459 possible access sites and 111 modules with direct access.
 It finds 43 table names across application source and operational scripts, 18 RPC names and one storage bucket.
-There are 105 application entrypoints with possible source access and 21 operational scripts.
-Among application entrypoints, 61 reach candidate modules and 44 do not.
+There are 106 application entrypoints with possible source access and 21 operational scripts.
+Among application entrypoints, 62 reach candidate modules and 44 do not.
 Neither count measures completed migration: imported candidates can cover only part of a handler.
-There are 31 unresolved receivers, zero dynamic resources and one unresolved generated Worker import.
+There are 31 unresolved receivers, zero dynamic resources and two unresolved local imports (including generated Worker code).
 These are source findings, not current physical table counts or confirmed execution.
 
 ### Remaining feature groups

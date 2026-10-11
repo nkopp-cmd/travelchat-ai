@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runtimeInventory } from './runtime-inventory.mjs';
+import { runtimeInventory, inventoryCheckout } from './runtime-inventory.mjs';
 
 const client = 'import { createSupabaseAdmin as make } from "@/lib/supabase"; const db = make();';
 test('finds reads, writes, RPCs and storage without comments, string text or built-in from calls', () => {
@@ -73,4 +73,19 @@ test('includes explicit bracket methods and separates operational scripts from a
   assert.equal(result.summary.operationalSourceEntrypoints, 1);
   assert.equal(result.resources['table:spots'][0].evidence, 'source_client');
   assert.equal(result.resources['rpc:find_spots'][0].evidence, 'source_client');
+});
+
+test('includes root layouts and storage aliases, auth, functions, realtime and raw HTTP', () => {
+  const r = runtimeInventory({'app/layout.tsx': `${client}
+    const bucket = db.storage; bucket.from('media').download('key');
+    db.auth.admin.getUserById('id'); db.functions.invoke('worker'); db.channel('spots');
+    fetch(\`\${process.env.SUPABASE_URL}/rest/v1/users\`);`});
+  assert.equal(r.summary.applicationSourceEntrypoints, 1);
+  assert.ok(r.resources['storage:media']); assert.ok(r.resources['auth:getUserById']);
+  assert.ok(r.resources['function:worker']); assert.ok(r.resources['realtime:spots']);
+  assert.ok(r.resources['raw-http:source-http']); assert.equal(r.cutoverReady, false);
+});
+
+test('refuses a misplaced checkout instead of reporting an empty inventory', async () => {
+  await assert.rejects(inventoryCheckout('/nonexistent-localley-checkout-for-inventory'));
 });

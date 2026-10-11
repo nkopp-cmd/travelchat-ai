@@ -5,7 +5,7 @@ import { resolve, relative, dirname, posix } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
-const ROOTS = ['app', 'lib', 'hooks', 'providers', 'components', 'cloudflare', 'emails', 'types', 'scripts', 'ops'];
+const ROOTS = ['src', 'app', 'lib', 'hooks', 'providers', 'components', 'cloudflare', 'emails', 'types', 'scripts', 'ops'];
 const BUILTINS = new Set(['Array', 'Buffer', 'Uint8Array', 'Int8Array', 'Uint16Array', 'Int16Array', 'Uint32Array', 'Int32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array']);
 const METHODS = new Set(['select', 'insert', 'upsert', 'update', 'delete', 'upload', 'download', 'remove', 'list', 'getPublicUrl', 'createSignedUrl', 'createSignedUrls']);
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -29,7 +29,7 @@ function methods(node) {
 }
 function moduleAnalysis(path, text) {
   const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
-  const imports = []; const clients = new Set(); const accesses = []; const dynamicImports = [];
+  const imports = []; const clients = new Set(); const storageClients = new Set(); const accesses = []; const dynamicImports = [];
   const literal = node => node && (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) ? node.text : null;
   const walk = (node, visit) => { visit(node); ts.forEachChild(node, child => walk(child, visit)); };
   walk(file, n => {
@@ -58,21 +58,33 @@ function moduleAnalysis(path, text) {
       if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.initializer) {
         const root = rootName(n.initializer);
         if (clients.has(root) && !clients.has(n.name.text)) { clients.add(n.name.text); changed = true; }
+        if (clients.has(root) && (storageClients.has(root) || /\.storage\b/.test(n.initializer.getText(file)))
+          && !storageClients.has(n.name.text)) { storageClients.add(n.name.text); changed = true; }
       }
     });
   }
   walk(file, n => {
     if (!ts.isCallExpression(n) || !(ts.isPropertyAccessExpression(n.expression) || ts.isElementAccessExpression(n.expression))) return;
     const method = ts.isPropertyAccessExpression(n.expression) ? n.expression.name.text : literal(n.expression.argumentExpression);
-    if (!['from', 'rpc'].includes(method)) return;
-    const root = rootName(n.expression.expression);
-    if (BUILTINS.has(root)) return;
     const receiver = n.expression.expression.getText(file);
-    const kind = method === 'rpc' ? 'rpc' : /\.storage(?:\b|\[)/.test(receiver) ? 'storage' : 'table';
-    const resource = literal(n.arguments[0]);
+    const root = rootName(n.expression.expression);
+    const subsystem = /\.auth\b/.test(receiver) ? 'auth' : /\.functions\b/.test(receiver) ? 'function' : null;
+    if (!['from', 'rpc', 'channel', 'removeChannel', 'removeAllChannels', 'getChannels'].includes(method)
+      && !(subsystem && clients.has(root))) return;
+    if (BUILTINS.has(root)) return;
+    const kind = subsystem ?? (method === 'rpc' ? 'rpc' : ['channel','removeChannel','removeAllChannels','getChannels'].includes(method)
+      ? 'realtime' : storageClients.has(root) || /\.storage(?:\b|\[)/.test(receiver) ? 'storage' : 'table');
+    const resource = subsystem === 'auth' ? method : literal(n.arguments[0]);
     accesses.push({ line: file.getLineAndCharacterOfPosition(n.getStart(file)).line + 1,
       kind, resource, operations: methods(n), evidence: clients.has(root) ? 'source_client' : 'unresolved_receiver',
       dynamicResource: resource === null });
+  });
+  walk(file, n => {
+    if (ts.isCallExpression(n) && rootName(n.expression) === 'fetch' && n.arguments[0]
+      && /supabase|\/rest\/v1|\/storage\/v1|\/auth\/v1|\/functions\/v1/i.test(n.arguments[0].getText(file))) {
+      accesses.push({ line: file.getLineAndCharacterOfPosition(n.getStart(file)).line + 1,
+        kind: 'raw-http', resource: 'source-http', operations: [], evidence: 'unresolved_receiver', dynamicResource: true });
+    }
   });
   return { path, sha256: sha(text), imports: [...new Set(imports)].sort(), accesses, dynamicImports };
 }
@@ -101,8 +113,8 @@ export function runtimeInventory(sources) {
     }
     return [...seen].sort();
   }
-  const entrypoints = modules.filter(m => /^app\/.*\/(?:route|page|layout)\.tsx?$/.test(m.path)
-    || /^(cloudflare|scripts|ops)\/.*\.(ts|mjs|js)$/.test(m.path) || m.path === 'middleware.ts').map(m => {
+  const entrypoints = modules.filter(m => /^(?:src\/)?app\/(?:.*\/)?(?:route|page|layout)\.(?:ts|tsx|js|jsx)$/.test(m.path)
+    || /^(cloudflare|scripts|ops)\/.*\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(m.path) || m.path === 'middleware.ts').map(m => {
     const reachable = closure(m.path);
     const sourceModules = reachable.filter(p => byPath.get(p).accesses.length);
     return { path: m.path, role: m.path.startsWith('scripts/') || m.path.startsWith('ops/') ? 'operational_script' : 'application', sourceModules,
@@ -133,17 +145,19 @@ export function runtimeInventory(sources) {
       dynamicResources: modules.flatMap(m => m.accesses).filter(a => a.dynamicResource).length,
       unresolvedImports: unresolvedImports.length, dynamicImports: modules.reduce((n, m) => n + m.dynamicImports.length, 0) },
     sourceDigest: sha(modules.map(m => `${m.path}\0${m.sha256}`).join('\n')),
-    modules, resources, entrypoints,
+    modules, resources, entrypoints, unresolvedImports,
     limits: ['Static imports are possible reachability, not executed runtime paths.',
       'Candidate imports do not prove a route gate, data parity or production readiness.',
       'Unresolved receivers/resources/imports require manual review; they are never treated as migrated.',
       'Operational scripts are included without assuming they are scheduled or currently executed.',
       'This covers checked-in source only, not generated OpenNext code, installed SQL, external writers, physical tables or media parity.',
-      'Computed member names, reflection and clients passed through untracked aliases can need further manual review.'] };
+      'SDK auth/functions/realtime calls and explicit source HTTP fetches are included where recognized; dynamic client/member/URL indirection still needs manual review.'] };
 }
 
 export async function inventoryCheckout(root) {
   const sources = {};
+  const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
+  if (!pkg.dependencies?.next || !(await readdir(root)).includes('app')) throw Error('invalid_localley_checkout');
   async function visit(folder) {
     let entries;
     try { entries = await readdir(folder, { withFileTypes: true }); }
@@ -151,7 +165,7 @@ export async function inventoryCheckout(root) {
     for (const entry of entries) {
       const path = resolve(folder, entry.name);
       if (entry.isDirectory()) { if (!['node_modules', '__tests__', '.next', '.open-next'].includes(entry.name)) await visit(path); }
-      else if (entry.isFile() && /\.(ts|tsx|mjs|js)$/.test(entry.name) && !/\.(test|spec|d)\.(ts|tsx|mjs|js)$/.test(entry.name)) {
+      else if (entry.isFile() && /\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(entry.name) && !/\.(test|spec|d)\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(entry.name)) {
         sources[relative(root, path).split('\\').join('/')] = await readFile(path, 'utf8');
       }
     }
