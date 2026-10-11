@@ -48,18 +48,24 @@ describe('private D1 export', () => {
     expect(mocks.server).toHaveBeenCalledTimes(3); expect(mocks.read).not.toHaveBeenCalled();
   });
   it('requires both runtime isolation flags',async()=>{
-    for(const change of [{AUTH_MAIL_MODE:'cloudflare'}, {SUPABASE_READ_ONLY:'false'}]) {
+    for(const change of [{AUTH_MAIL_MODE:'cloudflare'}, {SUPABASE_READ_ONLY:'false'}, {SUPABASE_READ_ONLY:undefined}]) {
       process.env={...prior,AUTH_MAIL_MODE:'outbox',SUPABASE_READ_ONLY:'true',...change};
       expect((await request()).headers.get('X-Localley-Data-Source')).toBeNull();
     }
     expect(mocks.read).not.toHaveBeenCalled();
   });
+  it('retains private candidate headers on unexpected auth errors',async()=>{
+    mocks.auth.mockRejectedValue(Error('private failure')); const r=await request();
+    expect(r.status).toBe(500); expect(r.headers.get('Cache-Control')).toBe('private, no-store');
+    expect(await r.text()).not.toContain('private failure'); expect(mocks.server).not.toHaveBeenCalled();
+  });
   it('escapes all user text and keeps inert HTML printable',async()=>{
-    const bad='<img src=x onerror=alert(1)> & "quote"';
+    const bad='<script>alert(1)</script><img src=x onerror=alert(1)> & "quote"';
     mocks.read.mockResolvedValue({...fixture,title:bad,city:bad,estimated_cost:bad,highlights:[bad],activities:[{day:1,theme:bad,
       activities:[{name:bad,time:bad,address:bad,description:bad,duration:bad,cost:bad}]}]});
     const r=await request(); const html=await r.text(); expect(r.status).toBe(200); expect(html).not.toContain(bad);
-    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt; &amp; &quot;quote&quot;');
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=alert(1)&gt; &amp; &quot;quote&quot;');
+    expect(html).not.toContain('<script>');
     expect(r.headers.get('Content-Security-Policy')).toContain("default-src 'none'");
     expect(r.headers.get('X-Content-Type-Options')).toBe('nosniff');
   });
