@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { isPreviewItineraryDetailCandidate } from "@/lib/app-data/preview-itinerary-detail";
+import { previewItineraryExport } from "@/lib/app-data/preview-itinerary-export";
+
+const escapeHtml = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g,
+  character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!);
 import {
   normalizeDailyPlansForDisplay,
   parseDailyPlans,
@@ -29,28 +34,34 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const candidate = isPreviewItineraryDetailCandidate(req);
+    const withSource = (response: NextResponse) => {
+      if (candidate) {
+        response.headers.set("X-Localley-Data-Source", "d1-preview");
+        response.headers.set("Cache-Control", "private, no-store");
+        response.headers.set("X-Robots-Tag", "noindex, nofollow");
+      }
+      return response;
+    };
   try {
     const { id } = await params;
-    const supabase = await createSupabaseServerClient();
-
-    // Fetch itinerary
-    const { data: itinerary, error } = await supabase
-      .from("itineraries")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error || !itinerary) {
-      return Errors.notFound("Itinerary");
-    }
-
-    // Check if user has access (either owner or itinerary is shared)
     const { userId } = await auth();
-    const isOwner = userId && itinerary.clerk_user_id === userId;
-    const isShared = itinerary.shared;
-
-    if (!isOwner && !isShared) {
-      return Errors.forbidden();
+    let itinerary;
+    if (candidate) {
+      if (!userId) return withSource(Errors.unauthorized());
+      try {
+        itinerary = await previewItineraryExport(id, userId);
+      } catch {
+        return withSource(Errors.databaseError());
+      }
+      if (!itinerary) return withSource(Errors.notFound("Itinerary"));
+    } else {
+      const supabase = await createSupabaseServerClient();
+      const { data, error } = await supabase.from("itineraries").select("*").eq("id", id).single();
+      if (error || !data) return Errors.notFound("Itinerary");
+      itinerary = data;
+      const isOwner = userId && itinerary.clerk_user_id === userId;
+      if (!isOwner && !itinerary.shared) return Errors.forbidden();
     }
 
     const { dailyPlans, insights: itineraryInsights } =
@@ -62,7 +73,7 @@ export async function GET(
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>${itinerary.title}</title>
+  <title>${escapeHtml(itinerary.title)}</title>
   <style>
     * {
       margin: 0;
@@ -253,13 +264,13 @@ export async function GET(
   </style>
 </head>
 <body>
-  <h1>${itinerary.title}</h1>
+  <h1>${escapeHtml(itinerary.title)}</h1>
 
   <div class="meta">
-    <span>📍 ${itinerary.city}</span>
-    <span>📅 ${itinerary.days} ${itinerary.days === 1 ? "Day" : "Days"}</span>
-    ${itinerary.local_score ? `<span>⭐ Local Score: ${itinerary.local_score}/10</span>` : ""}
-    ${itinerary.estimated_cost ? `<span>💰 ${itinerary.estimated_cost}</span>` : ""}
+    <span>📍 ${escapeHtml(itinerary.city)}</span>
+    <span>📅 ${escapeHtml(itinerary.days)} ${itinerary.days === 1 ? "Day" : "Days"}</span>
+    ${itinerary.local_score ? `<span>⭐ Local Score: ${escapeHtml(itinerary.local_score)}/10</span>` : ""}
+    ${itinerary.estimated_cost ? `<span>💰 ${escapeHtml(itinerary.estimated_cost)}</span>` : ""}
   </div>
 
   ${
@@ -268,7 +279,7 @@ export async function GET(
   <div class="highlights">
     <h2>✨ Trip Highlights</h2>
     <ul>
-      ${itinerary.highlights.map((h: string) => `<li>${h}</li>`).join("")}
+      ${itinerary.highlights.map((h: string) => `<li>${escapeHtml(h)}</li>`).join("")}
     </ul>
   </div>
   `
@@ -286,7 +297,7 @@ export async function GET(
           (insight) => `
       <div class="tip">
         <h4>${insight.kind === "transport" ? "🚌 Getting Around" : "💡 Local Tip"}</h4>
-        <p>${insight.text}</p>
+        <p>${escapeHtml(insight.text)}</p>
       </div>
       `
         )
@@ -302,8 +313,8 @@ export async function GET(
       (day: ExportDay) => `
   <div class="day">
     <div class="day-header">
-      <h2>Day ${day.day || ""}</h2>
-      ${day.theme ? `<div class="day-theme">${day.theme}</div>` : ""}
+      <h2>Day ${escapeHtml(day.day || "")}</h2>
+      ${day.theme ? `<div class="day-theme">${escapeHtml(day.theme)}</div>` : ""}
     </div>
     <div class="day-content">
       ${(day.activities || [])
@@ -311,14 +322,14 @@ export async function GET(
           (activity: ExportActivity) => `
       <div class="activity">
         <div class="activity-header">
-          <div class="activity-name">${activity.name || "Activity"}</div>
-          ${activity.time ? `<div class="activity-time">${activity.time}</div>` : ""}
+          <div class="activity-name">${escapeHtml(activity.name || "Activity")}</div>
+          ${activity.time ? `<div class="activity-time">${escapeHtml(activity.time)}</div>` : ""}
         </div>
-        ${activity.address ? `<div class="activity-address">📍 ${activity.address}</div>` : ""}
-        ${activity.description ? `<div class="activity-description">${activity.description}</div>` : ""}
+        ${activity.address ? `<div class="activity-address">📍 ${escapeHtml(activity.address)}</div>` : ""}
+        ${activity.description ? `<div class="activity-description">${escapeHtml(activity.description)}</div>` : ""}
         <div class="activity-details">
-          ${activity.duration ? `<span>⏱️ ${activity.duration}</span>` : ""}
-          ${activity.cost ? `<span>💵 ${activity.cost}</span>` : ""}
+          ${activity.duration ? `<span>⏱️ ${escapeHtml(activity.duration)}</span>` : ""}
+          ${activity.cost ? `<span>💵 ${escapeHtml(activity.cost)}</span>` : ""}
         </div>
       </div>
       `
@@ -341,13 +352,15 @@ export async function GET(
     `;
 
     // Return HTML that will trigger browser print dialog
-    return new NextResponse(html, {
+    return withSource(new NextResponse(html, {
       headers: {
         "Content-Type": "text/html",
         "Content-Disposition": `inline; filename="${itinerary.title.replace(/[^a-z0-9]/gi, "-")}.html"`,
+        "X-Content-Type-Options": "nosniff",
+        "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
       },
-    });
+    }));
   } catch (error) {
-    return handleApiError(error, "itinerary-export");
+    return withSource(handleApiError(error, "itinerary-export"));
   }
 }
