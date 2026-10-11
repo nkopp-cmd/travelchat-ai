@@ -89,16 +89,18 @@ function moduleAnalysis(path, text) {
     const method = ts.isPropertyAccessExpression(n.expression) ? n.expression.name.text : literal(n.expression.argumentExpression);
     const root = rootName(n.expression.expression);
     const aliasKind = subsystemAliases.get(root);
-    const subsystem = memberNames(n.expression.expression).includes('auth') || aliasKind === 'auth' ? 'auth'
-      : memberNames(n.expression.expression).includes('functions') || aliasKind === 'functions' ? 'function' : null;
+    const receiverMembers = memberNames(n.expression.expression);
+    const subsystem = receiverMembers.includes('auth') || aliasKind === 'auth' ? 'auth'
+      : receiverMembers.includes('functions') || aliasKind === 'functions' ? 'function'
+        : (receiverMembers.includes('storage') || aliasKind === 'storage') && ['getBucket','listBuckets','createBucket','updateBucket','emptyBucket','deleteBucket'].includes(method) ? 'storage-api' : null;
     if (!['from', 'rpc', 'channel', 'removeChannel', 'removeAllChannels', 'getChannels'].includes(method)
       && !subsystem) return;
     if (BUILTINS.has(root)) return;
     const kind = subsystem ?? (method === 'rpc' ? 'rpc' : ['channel','removeChannel','removeAllChannels','getChannels'].includes(method)
       ? 'realtime' : aliasKind === 'storage' || storageClients.has(root) || memberNames(n.expression.expression).includes('storage') ? 'storage' : 'table');
-    const resource = subsystem === 'auth' ? method : literal(n.arguments[0]);
+    const resource = subsystem === 'auth' || subsystem === 'storage-api' ? method : literal(n.arguments[0]);
     accesses.push({ line: file.getLineAndCharacterOfPosition(n.getStart(file)).line + 1,
-      kind, resource, operations: methods(n), evidence: clients.has(root) ? 'source_client' : 'unresolved_receiver',
+      kind, resource, operations: subsystem === 'storage-api' ? [method] : methods(n), evidence: clients.has(root) ? 'source_client' : 'unresolved_receiver',
       dynamicResource: resource === null });
   });
   walk(file, n => {

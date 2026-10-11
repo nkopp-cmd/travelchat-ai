@@ -105,3 +105,9 @@ test('subsystem words in strings and regex do not turn data values into clients'
   const r=runtimeInventory({'lib/data.ts': `const text = '.auth .functions'; const regex = /\\.auth|\\.storage/; text.slice(); regex.test('x');`});
   assert.equal(r.summary.accessSites,0);
 });
+
+test('includes direct storage bucket operations used by the live diagnostic route', () => {
+ const r=runtimeInventory({'app/api/debug/route.ts':`${client} db.storage.listBuckets(); db.storage.createBucket('new');`});
+ assert.ok(r.resources['storage-api:listBuckets']);assert.ok(r.resources['storage-api:createBucket']);
+ assert.equal(r.summary.applicationSourceEntrypoints,1);assert.equal(r.cutoverReady,false);
+});
