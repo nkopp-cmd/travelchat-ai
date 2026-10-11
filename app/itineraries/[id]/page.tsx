@@ -196,7 +196,14 @@ export default async function ItineraryViewPage({
         highlights={candidate.highlights} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p role="status" className="text-sm text-muted-foreground">This view is read-only. Editing and sharing are unavailable.</p>
-        <OwnerEmailPreviewDialog itineraryId={candidate.id} ownerEmail={candidate.ownerEmail} />
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <a href={`/api/itineraries/${candidate.id}/export?data_candidate=d1`} target="_blank" rel="noopener">
+              <Download className="mr-2 h-4 w-4" />Export trip
+            </a>
+          </Button>
+          <OwnerEmailPreviewDialog itineraryId={candidate.id} ownerEmail={candidate.ownerEmail} />
+        </div>
       </div>
       <ItineraryInsightsPanel insights={candidate.insights} title="Trip notes" />
       <div data-testid="itinerary-day-schedule" className="space-y-4">
