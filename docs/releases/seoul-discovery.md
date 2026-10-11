@@ -262,3 +262,28 @@ Build/deploy/review logs and the artifact audit use the same prefix.
 Rollback deploys the retained Worker version; collected pending candidates remain in the review queue, so no automatic source reversal is needed.
 Future terminal404 handling for expired actor datasets is separate; this retained dataset was readable and processed.
 The requested generation upgrade remains isolated in draftPR391:91focused tests and required CI37957191790 pass, but paid activation acceptance remains blocked by the weekly spend guard.
+
+## 2026-10-11 — Candidate export preparation and safe preview rollback
+
+PR394 final head `bae523f6769268ec384f13ec3fb43e0005c7f16e` merged as `bab461bf2ef2b5c3da67ec0bb4f462e79053b431`.
+Required CI38170933866 passed9m27s; seventeen API/SQLite/page tests, typecheck, lint and public-only OpenNext build passed.
+Scoped independent review found noP0/P1. Artifact scan2316files/84private values/0hits passed.
+Preview Worker `80f3f002-9aba-4c1e-8676-2b4f24138327` was released for isolated acceptance only.
+
+The first driver failed before fixtures because it counted protected `_cf_KV`.
+The second passed37checks: owned API200, full export fields, private/no-store/noindex, foreign404, missing404 and anonymous401.
+Normal preview returned404 without D1; desktop detail returned200 with the explicit candidate export link.
+A popup URL assertion then failed without retaining the actual URL. Its cause remains unproved.
+Mobile, popup content/reload and hosted escaping acceptance remain open. The actual desktop detail screenshot was inspected.
+All55APP table counts returned to baseline, FK checks were zero and both fresh AUTH fixture sets were removed.
+The two-attempt rule stopped further hosted acceptance. No production application data switched.
+
+Preview was restored to `b9086f9a-768a-487a-8e93-bba8fca88220`, deployment `5a3fbdee-a516-4a3f-a09d-09c19b3ed30e`.
+Production stayed `0a81e48c-8490-4dbc-a311-c187789f8b94` at100%; rollback `043e1752-23d6-4378-be1b-96a48f86f995` remains retained.
+Final read-only proof at20:31UTC confirms both production admin IDs and six public HTTP200 responses.
+Full hashes match for8users/5subscriptions/33usage/3295spots. The85itinerary check covers IDs only, not row-value parity.
+Evidence: private `candidate-export-*20261011*`, `cutover-final-safety-20261011.json` and bounded source receipts under `/home/dev/.local/state/localley/`.
+
+PR393 delivered the offline dependency inventory; its stable-host audit exposed ignored legacy copies.
+The follow-up restricts scanning to tracked source and adds a real Git regression fixture.
+Static access counts never certify migration, physical SQL history, or source-free runtime acceptance.
