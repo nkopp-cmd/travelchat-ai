@@ -1,4 +1,8 @@
 import test from 'node:test';
+import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { runtimeInventory, inventoryCheckout } from './runtime-inventory.mjs';
 
@@ -110,4 +114,21 @@ test('includes direct storage bucket operations used by the live diagnostic rout
  const r=runtimeInventory({'app/api/debug/route.ts':`${client} db.storage.listBuckets(); db.storage.createBucket('new');`});
  assert.ok(r.resources['storage-api:listBuckets']);assert.ok(r.resources['storage-api:createBucket']);
  assert.equal(r.summary.applicationSourceEntrypoints,1);assert.equal(r.cutoverReady,false);
+});
+
+test('ignores legacy/generated source copies outside the Git index on stable main', async () => {
+ const cache=join(homedir(),'.cache','localley-tests');
+ await mkdir(cache,{recursive:true});
+ const root=await mkdtemp(join(cache,'localley-inventory-'));
+ try {
+  await mkdir(join(root,'app'));
+  await writeFile(join(root,'package.json'), JSON.stringify({dependencies:{next:'16.3.4'}}));
+  await writeFile(join(root,'app/page.ts'), `${client} db.from('spots').select('*');`);
+  execFileSync('git',['init','--quiet',root]);
+  execFileSync('git',['-C',root,'add','package.json','app/page.ts']);
+  await writeFile(join(root,'app/legacy.ts'), `${client} db.from('not_main').delete();`);
+  const r=await inventoryCheckout(root);
+  assert.equal(r.checkoutPolicy,'git_tracked_source');
+  assert.equal(r.summary.modules,1);assert.ok(r.resources['table:spots']);assert.ok(!r.resources['table:not_main']);
+ } finally { await rm(root,{recursive:true,force:true}); }
 });

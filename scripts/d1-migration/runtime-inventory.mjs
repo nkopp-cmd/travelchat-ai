@@ -1,8 +1,10 @@
 /** Offline migration inventory. Static reachability never certifies a live cutover. */
 import { createHash } from 'node:crypto';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { resolve, relative, dirname, posix } from 'node:path';
+import { resolve, dirname, posix } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import ts from 'typescript';
 
 const ROOTS = ['src', 'app', 'lib', 'hooks', 'providers', 'components', 'cloudflare', 'emails', 'types', 'scripts', 'ops', 'supabase/functions'];
@@ -182,24 +184,16 @@ export async function inventoryCheckout(root) {
   const sources = {};
   const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
   if (!pkg.dependencies?.next || !(await readdir(root)).includes('app')) throw Error('invalid_localley_checkout');
-  async function visit(folder) {
-    let entries;
-    try { entries = await readdir(folder, { withFileTypes: true }); }
-    catch (error) { if (error.code === 'ENOENT') return; throw error; }
-    for (const entry of entries) {
-      const path = resolve(folder, entry.name);
-      if (entry.isDirectory()) { if (!['node_modules', '__tests__', '.next', '.open-next'].includes(entry.name)) await visit(path); }
-      else if (entry.isFile() && /\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(entry.name) && !/\.(test|spec|d)\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(entry.name)) {
-        sources[relative(root, path).split('\\').join('/')] = await readFile(path, 'utf8');
-      }
-    }
+  const { stdout } = await promisify(execFile)('git', ['-C', root, 'ls-files', '-z', '--',
+    ...ROOTS, 'middleware.ts', 'proxy.ts', 'instrumentation.ts', 'instrumentation-client.ts'], { maxBuffer: 4 * 1024 * 1024 });
+  for (const path of stdout.split('\0').filter(Boolean)) {
+    if (!/\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(path)
+      || /\.(test|spec|d)\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(path)
+      || path.split('/').some(part => ['node_modules', '__tests__', '.next', '.open-next'].includes(part))) continue;
+    if (posix.isAbsolute(path) || path.split('/').includes('..')) throw Error('invalid_tracked_path');
+    sources[path] = await readFile(resolve(root, path), 'utf8');
   }
-  for (const folder of ROOTS) await visit(resolve(root, folder));
-  for (const path of ['middleware.ts','proxy.ts','instrumentation.ts','instrumentation-client.ts']) {
-    try { sources[path] = await readFile(resolve(root, path), 'utf8'); }
-    catch (error) { if (error.code !== 'ENOENT') throw error; }
-  }
-  return runtimeInventory(sources);
+  return { ...runtimeInventory(sources), checkoutPolicy: "git_tracked_source" };
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2);

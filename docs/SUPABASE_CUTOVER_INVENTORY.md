@@ -14,7 +14,7 @@ node --test scripts/d1-migration/runtime-inventory.test.mjs
 ```
 
 The output uses exclusive creation and mode 0600. Existing evidence is never overwritten.
-The scanner reads source files only. It does not read `.env`, database exports or credentials.
+The scanner reads only source paths in the Git index. Ignored legacy copies are excluded. It does not read `.env`, database exports or credentials.
 No network call or paid model is needed.
 
 ## Evidence fields
@@ -34,7 +34,7 @@ Installed SQL, external writers, physical tables, grants, triggers and media-obj
 
 ## 2026-10-11 baseline
 
-The first expanded scan covers 551 source files, 460 possible access sites and 111 modules with direct access.
+The corrected Git-index scan covers 552 source files, 460 possible access sites and 111 modules with direct access.
 It finds 43 table names across application source and operational scripts, 18 RPC names and one storage bucket.
 There are 107 application entrypoints with possible source access and 21 operational scripts.
 Among application entrypoints, 62 reach candidate modules and 45 do not.
@@ -68,3 +68,14 @@ Normal `www` must remain on its current source until all cutover gates pass.
 
 The notification SQL/history report remains requested in the shared NEEDS list.
 This inventory provides no substitute for that report and does not require enabling dormant notifications.
+
+## Stable-host scope correction
+
+The first stable checkout run included ignored legacy Worker files. Its report is superseded.
+`git ls-files -z` now defines the source scope. A real Git fixture proves untracked legacy access is excluded.
+Fourteen focused tests pass. Source files on other branches are preserved and are not current-main findings.
+
+PR393 merged as `2f5c6dedd2debb348130b7a06797f65a4665ca98`; required CI38171565684 passed.
+The inventory is an offline host tool. It requires no Worker deployment or database mutation.
+The candidate export preparation in PR394 merged as `bab461bf2ef2b5c3da67ec0bb4f462e79053b431`.
+Its required CI38170933866 and seventeen focused tests passed. Hosted acceptance remains incomplete.
