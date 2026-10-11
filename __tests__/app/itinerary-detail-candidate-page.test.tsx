@@ -33,11 +33,13 @@ beforeEach(()=>{
 });
 afterEach(()=>{process.env=env;vi.clearAllMocks();});
 describe('candidate itinerary page and metadata',()=>{
-  it('renders owned candidate content without source, tier, mutation or provider controls',async()=>{
+  it('renders owned candidate content and explicit export without source, tier, mutation or provider controls',async()=>{
     const html=renderToStaticMarkup(await Page(input('d1')));
     expect(html).toContain('Preview email link');expect(html).toContain('data-owner="a@preview.localley.test"');expect(html).toContain('Private trip');expect(html).toContain('Owned day schedule');
     expect(html).toContain('/itineraries?data_candidate=d1');
-    expect(html).not.toMatch(/Generate story|<button[^>]*>Email|<button[^>]*>Share|Provider map|Provider suggestions|\/export|\/edit|application\/ld\+json/);
+    expect(html).toContain('/api/itineraries/owned/export?data_candidate=d1');
+    expect(html).toContain('Export trip');
+    expect(html).not.toMatch(/Generate story|<button[^>]*>Email|<button[^>]*>Share|Provider map|Provider suggestions|\/edit|application\/ld\+json/);
     expect(mocks.read).toHaveBeenCalledWith('owned','a');
     expect(mocks.admin).not.toHaveBeenCalled();expect(mocks.tier).not.toHaveBeenCalled();
   });

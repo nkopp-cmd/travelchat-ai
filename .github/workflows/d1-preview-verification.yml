@@ -206,8 +206,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
-            npx vitest run __tests__/api/itinerary-export-candidate.test.ts __tests__/lib/app-data-preview-itinerary-export.test.ts --maxWorkers=1
-            npx eslint "app/api/itineraries/[id]/export/route.ts" lib/app-data/preview-itinerary-export.ts __tests__/api/itinerary-export-candidate.test.ts __tests__/lib/app-data-preview-itinerary-export.test.ts
+            npx vitest run __tests__/api/itinerary-export-candidate.test.ts __tests__/lib/app-data-preview-itinerary-export.test.ts __tests__/app/itinerary-detail-candidate-page.test.tsx --maxWorkers=1
+            npx eslint "app/api/itineraries/[id]/export/route.ts" lib/app-data/preview-itinerary-export.ts __tests__/api/itinerary-export-candidate.test.ts __tests__/lib/app-data-preview-itinerary-export.test.ts "app/itineraries/[id]/page.tsx" __tests__/app/itinerary-detail-candidate-page.test.tsx
             npx vitest run __tests__/cloudflare-cron-routes.test.ts __tests__/lib/apify-spot-discovery.test.ts __tests__/lib/apify-discovery-collection.test.ts __tests__/api/discover-spots-with-apify-route.test.ts --maxWorkers=1
             npx eslint cloudflare/opennext/cron-routes.ts lib/apify-spot-discovery.ts app/api/cron/discover-spots-with-apify/route.ts __tests__/lib/apify-discovery-collection.test.ts
             npx vitest run __tests__/lib/itinerary-mail-limit.test.ts __tests__/lib/itinerary-mail.test.ts __tests__/lib/auth-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts __tests__/api/story-mail-candidate.test.ts --maxWorkers=1
