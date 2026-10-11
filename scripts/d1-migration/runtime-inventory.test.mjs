@@ -89,3 +89,19 @@ test('includes root layouts and storage aliases, auth, functions, realtime and r
 test('refuses a misplaced checkout instead of reporting an empty inventory', async () => {
   await assert.rejects(inventoryCheckout('/nonexistent-localley-checkout-for-inventory'));
 });
+
+test('keeps injected and destructured subsystem calls and metadata/proxy callers visible', () => {
+  const r=runtimeInventory({ 'proxy.ts': `function hook(client) { client.auth.admin.listUsers(); client.functions.invoke('job'); }`,
+    'app/sitemap.ts': `const { auth, storage } = unknown; auth.signOut(); storage.from('media').download('key');`,
+    'src/middleware.ts': `${client} db.from('users').select('*');`,
+    'app/error.jsx': `${client} export default () => <div>{db.from('users').select('*')}</div>;` });
+  assert.equal(r.summary.applicationSourceEntrypoints,4);
+  assert.ok(r.resources['auth:listUsers']); assert.ok(r.resources['auth:signOut']);
+  assert.ok(r.resources['function:job']); assert.ok(r.resources['storage:media']);
+  assert.equal(r.resources['auth:listUsers'][0].evidence,'unresolved_receiver');
+});
+
+test('subsystem words in strings and regex do not turn data values into clients', () => {
+  const r=runtimeInventory({'lib/data.ts': `const text = '.auth .functions'; const regex = /\\.auth|\\.storage/; text.slice(); regex.test('x');`});
+  assert.equal(r.summary.accessSites,0);
+});

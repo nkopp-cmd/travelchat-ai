@@ -5,7 +5,7 @@ import { resolve, relative, dirname, posix } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
-const ROOTS = ['src', 'app', 'lib', 'hooks', 'providers', 'components', 'cloudflare', 'emails', 'types', 'scripts', 'ops'];
+const ROOTS = ['src', 'app', 'lib', 'hooks', 'providers', 'components', 'cloudflare', 'emails', 'types', 'scripts', 'ops', 'supabase/functions'];
 const BUILTINS = new Set(['Array', 'Buffer', 'Uint8Array', 'Int8Array', 'Uint16Array', 'Int16Array', 'Uint32Array', 'Int32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array']);
 const METHODS = new Set(['select', 'insert', 'upsert', 'update', 'delete', 'upload', 'download', 'remove', 'list', 'getPublicUrl', 'createSignedUrl', 'createSignedUrls']);
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -16,6 +16,13 @@ function rootName(node) {
   if (ts.isPropertyAccessExpression(n) || ts.isElementAccessExpression(n)) return rootName(n.expression);
   if (ts.isCallExpression(n)) return rootName(n.expression);
   return null;
+}
+function memberNames(node) {
+  const n = unwrap(node);
+  if (ts.isPropertyAccessExpression(n)) return [...memberNames(n.expression), n.name.text];
+  if (ts.isElementAccessExpression(n)) return [...memberNames(n.expression), ts.isStringLiteral(n.argumentExpression) ? n.argumentExpression.text : '<computed>'];
+  if (ts.isCallExpression(n)) return memberNames(n.expression);
+  return [];
 }
 function methods(node) {
   const found = [];
@@ -28,8 +35,8 @@ function methods(node) {
   return [...new Set(found)].sort();
 }
 function moduleAnalysis(path, text) {
-  const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
-  const imports = []; const clients = new Set(); const storageClients = new Set(); const accesses = []; const dynamicImports = [];
+  const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, /\.(tsx|jsx)$/.test(path) ? ts.ScriptKind.TSX : /\.(mjs|cjs|js)$/.test(path) ? ts.ScriptKind.JS : ts.ScriptKind.TS);
+  const imports = []; const clients = new Set(); const storageClients = new Set(); const subsystemAliases = new Map(); const accesses = []; const dynamicImports = [];
   const literal = node => node && (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) ? node.text : null;
   const walk = (node, visit) => { visit(node); ts.forEachChild(node, child => walk(child, visit)); };
   walk(file, n => {
@@ -58,22 +65,37 @@ function moduleAnalysis(path, text) {
       if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.initializer) {
         const root = rootName(n.initializer);
         if (clients.has(root) && !clients.has(n.name.text)) { clients.add(n.name.text); changed = true; }
-        if (clients.has(root) && (storageClients.has(root) || /\.storage\b/.test(n.initializer.getText(file)))
+        for (const kind of ['auth', 'functions', 'storage']) {
+          if (memberNames(n.initializer).includes(kind) || subsystemAliases.get(root) === kind) {
+            if (!subsystemAliases.has(n.name.text)) { subsystemAliases.set(n.name.text, kind); changed = true; }
+          }
+        }
+        if ((storageClients.has(root) || memberNames(n.initializer).includes('storage'))
           && !storageClients.has(n.name.text)) { storageClients.add(n.name.text); changed = true; }
+      }
+      if (ts.isVariableDeclaration(n) && ts.isObjectBindingPattern(n.name) && n.initializer) {
+        for (const element of n.name.elements) {
+          const property = element.propertyName?.getText(file) ?? element.name.getText(file);
+          if (['auth','functions','storage'].includes(property) && ts.isIdentifier(element.name)
+            && subsystemAliases.get(element.name.text) !== property) {
+            subsystemAliases.set(element.name.text, property); changed = true;
+          }
+        }
       }
     });
   }
   walk(file, n => {
     if (!ts.isCallExpression(n) || !(ts.isPropertyAccessExpression(n.expression) || ts.isElementAccessExpression(n.expression))) return;
     const method = ts.isPropertyAccessExpression(n.expression) ? n.expression.name.text : literal(n.expression.argumentExpression);
-    const receiver = n.expression.expression.getText(file);
     const root = rootName(n.expression.expression);
-    const subsystem = /\.auth\b/.test(receiver) ? 'auth' : /\.functions\b/.test(receiver) ? 'function' : null;
+    const aliasKind = subsystemAliases.get(root);
+    const subsystem = memberNames(n.expression.expression).includes('auth') || aliasKind === 'auth' ? 'auth'
+      : memberNames(n.expression.expression).includes('functions') || aliasKind === 'functions' ? 'function' : null;
     if (!['from', 'rpc', 'channel', 'removeChannel', 'removeAllChannels', 'getChannels'].includes(method)
-      && !(subsystem && clients.has(root))) return;
+      && !subsystem) return;
     if (BUILTINS.has(root)) return;
     const kind = subsystem ?? (method === 'rpc' ? 'rpc' : ['channel','removeChannel','removeAllChannels','getChannels'].includes(method)
-      ? 'realtime' : storageClients.has(root) || /\.storage(?:\b|\[)/.test(receiver) ? 'storage' : 'table');
+      ? 'realtime' : aliasKind === 'storage' || storageClients.has(root) || memberNames(n.expression.expression).includes('storage') ? 'storage' : 'table');
     const resource = subsystem === 'auth' ? method : literal(n.arguments[0]);
     accesses.push({ line: file.getLineAndCharacterOfPosition(n.getStart(file)).line + 1,
       kind, resource, operations: methods(n), evidence: clients.has(root) ? 'source_client' : 'unresolved_receiver',
@@ -113,8 +135,8 @@ export function runtimeInventory(sources) {
     }
     return [...seen].sort();
   }
-  const entrypoints = modules.filter(m => /^(?:src\/)?app\/(?:.*\/)?(?:route|page|layout)\.(?:ts|tsx|js|jsx)$/.test(m.path)
-    || /^(cloudflare|scripts|ops)\/.*\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(m.path) || m.path === 'middleware.ts').map(m => {
+  const entrypoints = modules.filter(m => /^(?:src\/)?app\/(?:.*\/)?(?:route|page|layout|sitemap|robots|opengraph-image|twitter-image|icon|apple-icon|error|global-error|not-found|loading|template|default)\.(?:ts|tsx|js|jsx)$/.test(m.path)
+    || /^(cloudflare|scripts|ops)\/.*\.(ts|tsx|mts|cts|mjs|cjs|js|jsx)$/.test(m.path) || /^(?:src\/)?(?:middleware|proxy|instrumentation|instrumentation-client)\.ts$/.test(m.path) || m.path.startsWith('supabase/functions/')).map(m => {
     const reachable = closure(m.path);
     const sourceModules = reachable.filter(p => byPath.get(p).accesses.length);
     return { path: m.path, role: m.path.startsWith('scripts/') || m.path.startsWith('ops/') ? 'operational_script' : 'application', sourceModules,
@@ -171,8 +193,10 @@ export async function inventoryCheckout(root) {
     }
   }
   for (const folder of ROOTS) await visit(resolve(root, folder));
-  try { sources['middleware.ts'] = await readFile(resolve(root, 'middleware.ts'), 'utf8'); }
-  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  for (const path of ['middleware.ts','proxy.ts','instrumentation.ts','instrumentation-client.ts']) {
+    try { sources[path] = await readFile(resolve(root, path), 'utf8'); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
   return runtimeInventory(sources);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
