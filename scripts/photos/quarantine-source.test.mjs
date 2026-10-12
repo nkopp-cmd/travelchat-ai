@@ -111,3 +111,37 @@ for(const incident of [
   await assert.rejects(run('--rollback',file,env,incident.id));assert.equal(changed.calls.filter(x=>x.method==='PATCH').length,0);
  });
 }
+
+const october12Incidents=[{"id": "040f2f34-6fc1-4133-a0fc-b0c31d90e55a", "name": {"en": "Don Muang Night Market", "th": "ตลาดกลางคืนดอนเมือง"}, "location": "0101000020E6100000D1915CFE432659406A4DF38E53D42B40", "listing": "ChIJH82FA02C4jAR674urr_0PMA"}, {"id": "0a71e061-d220-478c-b959-409de2cdbcdd", "name": {"en": "Popiah Cart (Jalan Hang Lekir)"}, "location": "0101000020E6100000AC10A0F0239059405B1D948B8C990140", "listing": "ChIJne3Wqdnx0TERbmnfVaGgKLs"}, {"id": "4b3b1600-9b3a-4021-b77c-32629445c6f2", "name": {"en": "Jurong Lake Gardens", "zh": "裕廊湖花园"}, "location": "0101000020E61000006DC5FEB27BEE59401B2FDD240681F53F", "listing": "ChIJWQLwKP0P2jER-AOMrDbkIW8"}];
+for (const incident of october12Incidents) {
+ const source={...row,id:incident.id,name:incident.name,location:incident.location,tips:{en:'preserve incident fields'},photos:['a','b','c'].map(x=>'/api/places/photo?name='+encodeURIComponent(`places/${incident.listing}/photos/${x}`))};
+ test(`${incident.id} pins exact name, point, NULL identity and rejected listing`,()=>{
+  validateSnapshot(source);assert.equal(repairFilters(source).id,'eq.'+incident.id);
+  for(const change of [{name:market.name},{location:row.location},{google_place_id:'verified-replacement'},{photos:market.photos}])assert.throws(()=>validateSnapshot({...source,...change}));
+ });
+ test(`${incident.id} apply and mock rollback preserve all non-photo fields`,async t=>{
+  const file=backup(t,source),api=server(t,{initial:source,expectedId:incident.id});
+  assert.equal((await run('--apply',file,env,incident.id)).afterPhotos,0);
+  assert.equal(sourceFields(api.current()),sourceFields(source));
+  assert.equal((await run('--rollback',file,env,incident.id)).afterPhotos,3);
+  assert.deepEqual(api.current(),source);
+ });
+ test(`${incident.id} refuses changed fields and later enrichment on rollback`,async t=>{
+  const file=backup(t,source);
+  for(const initial of [{...source,photos:[],tips:{en:'later change'}},{...source,photos:['verified replacement']}]){
+   const api=server(t,{initial,expectedId:incident.id});await assert.rejects(run('--rollback',file,env,incident.id));
+   assert.equal(api.calls.filter(c=>c.method==='PATCH').length,0);
+  }
+ });
+ test(`${incident.id} refuses a photo race without retry`,async t=>{
+  const file=backup(t,source),api=server(t,{initial:source,expectedId:incident.id,beforePatch:r=>({...r,photos:['verified replacement']})});
+  await assert.rejects(run('--apply',file,env,incident.id),/reconcile before retry/);
+  assert.equal(api.calls.filter(c=>c.method==='PATCH').length,1);assert.deepEqual(api.current().photos,['verified replacement']);
+ });
+ test(`${incident.id} retains backup after a lost reply and never retries`,async t=>{
+  const file=backup(t,source),api=server(t,{initial:source,expectedId:incident.id,lostReply:true});
+  await assert.rejects(run('--apply',file,env,incident.id),/Lost reply/);
+  assert.equal(api.calls.filter(c=>c.method==='PATCH').length,1);assert.deepEqual(api.current().photos,[]);
+  assert.deepEqual(JSON.parse(fs.readFileSync(file)),source);
+ });
+}
