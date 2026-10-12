@@ -984,3 +984,52 @@ Normal routing and production data remain unchanged. Paid generation and full cu
 An explicit fresh verified reserved owner can link owned R2 backgrounds before slide persistence creates a media row.
 Fresh body limits, atomic owner/cache guards, actual hosted read/render and exact cleanup passed.
 No provider call or production data switch occurred. Full paid-story and cutover gates remain separate.
+
+## Private candidate HTML export acceptance — 2026-10-12
+
+PR394 (`bae523f`, merge `bab461b`) passed 17 focused API/SQLite/page tests,
+TypeScript, lint, the pinned OpenNext build, and required self-hosted CI
+[38170933866](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/38170933866).
+Its first hosted driver stopped before fixtures on a protected-table count.
+Its second driver retained API proof and exact cleanup but did not retain the
+popup response before its navigation assertion. Neither run closed this gate.
+
+The new diagnostic retains browser status, URL, redirect chain, D1 response
+header and bounded HTML before assertions. It uses desktop click and mobile
+`tap`, plus the quoted Worker version override. An external recovery timer was
+armed before deployment. The admitted job checked the exact baseline, used a
+1% preview split, and checked its own deployment before rollback. Eight recovery
+guards passed, including changed-deployment refusal and SIGTERM recovery.
+
+At 15:48:52 UTC, preview version `78cf5737-631c-4e38-be8a-1bf8fa14c529`
+received 1% through deployment `8e4241f6-e53b-4622-be97-7fc5bb6a7a83`.
+The remaining 99% stayed on `b9086f9a-768a-487a-8e93-bba8fca88220`.
+This reuses the checked 3046ed9 Worker artifact, which includes PR394.
+Runtime app, library and middleware sources match its later evidence commits.
+The uploaded preview has outbox mail, explicit source read-only mode, disabled
+beta/image bypass/paid generation, and no source service-role binding.
+
+The hosted run passed **49 checks**. Two real outbox-verified fresh owners proved
+owned HTML 200, foreign and missing 404, anonymous 401, private/no-store and
+no-index headers, complete trip content, and inert escaped HTML. Normal preview
+without opt-in returned its source 404 without a D1 header. Desktop1440 and
+mobile390 opened the actual Export trip link, retained the expected response,
+and reloaded its content. All four detail/export screenshots were inspected.
+The existing print-oriented HTML layout remains unchanged; this is not a new
+responsive export design or a PDF-generation claim.
+
+Exact cleanup removed the itinerary, fresh owner, both auth users, accounts,
+sessions and outbox messages. All **55 application table counts** returned to
+their baseline; foreign-key checks returned zero violations. No paid call,
+external message, historical ownership assignment or source write occurred.
+At 15:49:26 UTC, verified rollback restored b9086f9a at100% through deployment
+`a25ac5d9-83f5-44b9-b27d-08bd01ae0f9c`; the external timer was removed.
+
+Final readback at15:49:40 confirmed production `5af2a5f3`/`14f3664b` unchanged,
+both admin IDs retained, four public HTTP200 responses, and source counts
+8 users /5 subscriptions /33 usage rows /85 itineraries /3295 spots.
+Private receipts: `candidate-export-hosted-proof-20261012-diagnostic.json`,
+`export-guarded-window-state-20261012.json`, `export-final-release-after-20261012.json`
+and four dated PNGs under the private Localley state directory.
+Full current-data rehearsal, production canary, rollback drill and cutover
+remain open. This candidate release was restored after acceptance.
