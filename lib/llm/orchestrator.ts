@@ -142,7 +142,7 @@ export class LLMOrchestrator {
       this.circuitBreakers.isAvailable('claude');
 
     // Determine best route
-    if (glmAvailable && geminiAvailable && claudeAvailable) {
+    if (openaiAvailable && geminiAvailable && claudeAvailable) {
       return 'primary';
     }
 
@@ -459,7 +459,7 @@ export class LLMOrchestrator {
     for (const suggestion of supervisionResult.suggestions) {
       if (suggestion.suggestedAction === 'replace') {
         try {
-          const revisionProvider = this.glm.isAvailable() ? this.glm : this.openai;
+          const revisionProvider = this.openai;
           const newActivity = await revisionProvider.generateSingleActivity({
             city: params.city,
             dayTheme: revisedItinerary.dailyPlans[suggestion.dayIndex].theme,
@@ -561,7 +561,6 @@ export class LLMOrchestrator {
     startTime: number
   ): Promise<OrchestrationResult> {
     const providers = [
-      { name: 'glm' as const, provider: this.glm },
       { name: 'openai' as const, provider: this.openai },
     ];
     let lastError: unknown;
@@ -581,7 +580,7 @@ export class LLMOrchestrator {
           data: itinerary,
           qualityScore: null,
           validationReport: null,
-          fallbackUsed: name === 'openai' ? 'chatgpt_fallback' : undefined,
+          fallbackUsed: undefined,
           metrics,
         };
       } catch (error) {
@@ -617,9 +616,7 @@ export class LLMOrchestrator {
 
     // Try each provider in order
     const providers = [
-      { name: 'glm' as const, provider: this.glm },
       { name: 'openai' as const, provider: this.openai },
-      { name: 'gemini' as const, provider: this.gemini },
     ];
 
     for (const { name, provider } of providers) {

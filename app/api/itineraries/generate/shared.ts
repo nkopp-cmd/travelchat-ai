@@ -1,17 +1,18 @@
+import { TEXT_MODEL } from "@/lib/llm/env";
 import { parsePrivateItineraryJSON } from "./diagnostics";
 import { OpenAI } from "openai";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isTipLikeActivity, sanitizeGeneratedDailyPlans } from "./sanitize-itinerary";
 import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 
-export const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o";
+export const OPENAI_MODEL = TEXT_MODEL;
 
 export const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error('OpenAI API key is not configured');
   }
-  return new OpenAI({ apiKey });
+  return new OpenAI({ apiKey, maxRetries: 0 });
 };
 
 export const SYSTEM_PROMPT = `
@@ -153,8 +154,8 @@ export async function generateWithOpenAI(systemPrompt: string, userPrompt: strin
       { role: "user", content: userPrompt },
     ],
     response_format: { type: "json_object" },
-    temperature: 0.8,
-    max_tokens: 3000,
+    reasoning_effort: "none",
+    max_completion_tokens: 6000,
   });
 
   return completion.choices[0].message.content || "{}";

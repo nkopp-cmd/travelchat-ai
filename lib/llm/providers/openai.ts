@@ -1,3 +1,4 @@
+import { TEXT_MODEL } from "../env";
 /**
  * OpenAI (ChatGPT) Provider
  *
@@ -25,7 +26,7 @@ import type {
 } from '../types';
 import { OPENAI_ITINERARY_PROMPT, OPENAI_SINGLE_ACTIVITY_PROMPT } from './prompts/openai';
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-2024-08-06';
+const OPENAI_MODEL = TEXT_MODEL;
 
 export class OpenAIProvider
   extends AbstractLLMProvider
@@ -42,7 +43,7 @@ export class OpenAIProvider
   private initializeClient(): void {
     const apiKey = process.env.OPENAI_API_KEY;
     if (apiKey) {
-      this.client = new OpenAI({ apiKey });
+      this.client = new OpenAI({ apiKey, maxRetries: 0 });
     }
   }
 
@@ -81,8 +82,8 @@ export class OpenAIProvider
             { role: 'system', content: options.systemPrompt },
             { role: 'user', content: options.userPrompt },
           ],
-          temperature: options.temperature ?? 0.8,
-          max_tokens: options.maxTokens ?? 3000,
+          reasoning_effort: "none",
+          max_completion_tokens: options.maxTokens ?? 6000,
           response_format:
             options.responseFormat === 'json' ? { type: 'json_object' } : undefined,
         });

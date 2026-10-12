@@ -1,11 +1,11 @@
-import { getTrimmedEnv, readGLMProviderConfig } from "./env";
+import { getTrimmedEnv, readGLMProviderConfig, TEXT_MODEL } from "./env";
 import type { LLMProviderName, OrchestrationResult } from "./types";
 
 function getProviderModel(provider: LLMProviderName | null): string | null {
   if (!provider) return null;
 
   if (provider === "glm") return readGLMProviderConfig().model;
-  if (provider === "openai") return getTrimmedEnv("OPENAI_MODEL") || "gpt-4o";
+  if (provider === "openai") return TEXT_MODEL;
   if (provider === "gemini") return getTrimmedEnv("GEMINI_MODEL") || "gemini-1.5-flash";
   if (provider === "claude") {
     return (
@@ -29,21 +29,20 @@ function getPrimaryStructureProvider(
 }
 
 export function buildItineraryProviderMeta(result: OrchestrationResult) {
-  const primaryConfig = readGLMProviderConfig();
-  const primaryModel = primaryConfig.model;
+  const primaryModel = TEXT_MODEL;
   const providersUsed = result.metrics.providersUsed;
   const provider = getPrimaryStructureProvider(providersUsed);
   const primaryConfigured =
-    Boolean(primaryConfig.apiKey) || providersUsed.includes("glm");
+    Boolean(getTrimmedEnv("OPENAI_API_KEY")) || providersUsed.includes("openai");
   const fallbackReason =
-    result.fallbackUsed || (provider && provider !== "glm" ? "glm_not_used" : null);
+    result.fallbackUsed || (provider && provider !== "openai" ? "primary_not_used" : null);
 
   return {
     provider,
     model: getProviderModel(provider),
     fallbackUsed: Boolean(fallbackReason),
     fallbackReason,
-    primaryProvider: "glm" as const,
+    primaryProvider: "openai" as const,
     primaryModel,
     primaryConfigured,
     qualityScore: result.qualityScore ?? null,

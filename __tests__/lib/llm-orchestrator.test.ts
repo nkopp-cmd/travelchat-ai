@@ -105,7 +105,7 @@ function createOrchestrator(glm: ReturnType<typeof createProvider>, openai: Retu
 }
 
 describe("LLMOrchestrator single-LLM provider routing", () => {
-  it("uses GLM first when GLM is available", async () => {
+  it("uses the active provider even when legacy credentials are available", async () => {
     const glm = createProvider("glm", true, "success");
     const openai = createProvider("openai", true, "success");
     const orchestrator = createOrchestrator(glm, openai);
@@ -118,12 +118,12 @@ describe("LLMOrchestrator single-LLM provider routing", () => {
 
     expect(result.success).toBe(true);
     expect(result.data?.title).toBe("Tokyo Food Trail");
-    expect(result.metrics.providersUsed).toEqual(["glm"]);
+    expect(result.metrics.providersUsed).toEqual(["openai"]);
     expect(result.fallbackUsed).toBeUndefined();
-    expect(openai.generateItineraryStructure).not.toHaveBeenCalled();
+    expect(glm.generateItineraryStructure).not.toHaveBeenCalled();
   });
 
-  it("falls back to OpenAI when GLM generation fails", async () => {
+  it("does not invoke a failing legacy provider", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const glm = createProvider("glm", true, "fail");
     const openai = createProvider("openai", true, "success");
@@ -138,8 +138,8 @@ describe("LLMOrchestrator single-LLM provider routing", () => {
     expect(result.success).toBe(true);
     expect(result.data?.title).toBe("Tokyo Food Trail");
     expect(result.metrics.providersUsed).toEqual(["openai"]);
-    expect(result.metrics.retryCount).toBe(1);
-    expect(result.fallbackUsed).toBe("chatgpt_fallback");
+    expect(result.metrics.retryCount).toBe(0);
+    expect(result.fallbackUsed).toBeUndefined();
     expect(openai.generateItineraryStructure).toHaveBeenCalledTimes(1);
 
     consoleError.mockRestore();

@@ -1,3 +1,4 @@
+import { TEXT_MODEL } from "@/lib/llm/env";
 import OpenAI from "openai";
 import { z } from "zod";
 import { getCanonicalSocialPostPath } from "@/lib/social-share-target";
@@ -1579,11 +1580,12 @@ export async function analyzeSocialImage(input: {
 }): Promise<string | null> {
   if (!isTrustedSocialImageUrl(input.imageUrl)) return null;
   const apiKey = process.env.OPENAI_API_KEY;
-  const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
+  const client = input.openai || (apiKey ? new OpenAI({ apiKey, maxRetries: 0 }) : null);
   if (!client || !hasExternalRequestBudget(input.deadlineAt)) return null;
 
   const response = await client.responses.create({
-    model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
+    model: TEXT_MODEL,
+    reasoning: { effort: "none" },
     input: [
       {
         role: "system",
@@ -1628,7 +1630,7 @@ export async function analyzeSocialImagesBatch(input: {
     .slice(0, SOCIAL_RESEARCH_MAX_VISUALS);
   if (items.length === 0) return [];
   const apiKey = process.env.OPENAI_API_KEY;
-  const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
+  const client = input.openai || (apiKey ? new OpenAI({ apiKey, maxRetries: 0 }) : null);
   if (!client || !hasExternalRequestBudget(input.deadlineAt)) return [];
 
   const content: Array<
@@ -1648,7 +1650,8 @@ export async function analyzeSocialImagesBatch(input: {
   }
 
   const response = await client.responses.create({
-    model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
+    model: TEXT_MODEL,
+    reasoning: { effort: "none" },
     input: [
       {
         role: "system",
@@ -2001,7 +2004,7 @@ export async function researchSocialSpotLink(input: {
   deadlineAt?: number;
 }): Promise<SocialSpotResearchResult> {
   const apiKey = process.env.OPENAI_API_KEY;
-  const client = input.openai || (apiKey ? new OpenAI({ apiKey }) : null);
+  const client = input.openai || (apiKey ? new OpenAI({ apiKey, maxRetries: 0 }) : null);
 
   if (!client) {
     return buildFallbackResearch(input);
@@ -2104,7 +2107,8 @@ export async function researchSocialSpotLink(input: {
       return buildFallbackResearch(input);
     }
     const response = await client.responses.create({
-      model: process.env.SOCIAL_SPOT_RESEARCH_MODEL || "gpt-5.4-mini",
+      model: TEXT_MODEL,
+    reasoning: { effort: "none" },
       tools: [
         {
           type: "web_search",

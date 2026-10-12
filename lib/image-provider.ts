@@ -2,13 +2,12 @@
  * Image generation provider router
  *
  * Routes image generation requests to the appropriate provider.
- * Priority: FLUX (FAL AI) → Seedream (ARK API) → Gemini
+ * One image service for all new generation. Legacy provider names remain only for stored metadata compatibility.
  */
 
 import type { SubscriptionTier } from "@/lib/subscription";
 import * as gemini from "@/lib/imagen";
-import * as seedream from "@/lib/seedream";
-import * as flux from "@/lib/flux";
+import type * as flux from "@/lib/flux";
 
 export type ImageProvider = "flux" | "seedream" | "gemini";
 
@@ -17,17 +16,15 @@ export type ImageProvider = "flux" | "seedream" | "gemini";
  * Priority: FLUX (cheapest) → Seedream → Gemini (fallback).
  */
 export function getImageProvider(tier: SubscriptionTier): ImageProvider {
-    if (flux.isFluxAvailable()) return "flux";
-    if (seedream.isSeedreamAvailable()) return "seedream";
-    if (gemini.isImagenAvailable()) return "gemini";
-    return "gemini"; // Will fail with appropriate error if none available
+    void tier;
+    return "gemini";
 }
 
 /**
  * Check if any AI image provider is available
  */
 export function isAnyProviderAvailable(): boolean {
-    return flux.isFluxAvailable() || seedream.isSeedreamAvailable() || gemini.isImagenAvailable();
+    return gemini.isImagenAvailable();
 }
 
 /**
@@ -44,14 +41,9 @@ export async function generateStoryBackground(
     const start = Date.now();
 
     try {
-        let result: string;
-        if (provider === "flux") {
-            result = await flux.generateStoryBackground(city, theme, style, options);
-        } else if (provider === "seedream") {
-            result = await seedream.generateStoryBackground(city, theme, style);
-        } else {
-            result = await gemini.generateStoryBackground(city, theme, style);
-        }
+        void options;
+        if (provider !== "gemini") throw new Error("Image option is no longer available");
+        const result = await gemini.generateStoryBackground(city, theme, style);
         console.log(`[IMAGE_PROVIDER] ${provider} story background succeeded in ${Date.now() - start}ms`);
         return result;
     } catch (error) {
@@ -75,14 +67,9 @@ export async function generateDayBackground(
     const start = Date.now();
 
     try {
-        let result: string;
-        if (provider === "flux") {
-            result = await flux.generateDayBackground(city, dayNumber, theme, activities, options);
-        } else if (provider === "seedream") {
-            result = await seedream.generateDayBackground(city, dayNumber, theme, activities);
-        } else {
-            result = await gemini.generateDayBackground(city, dayNumber, theme, activities);
-        }
+        void options;
+        if (provider !== "gemini") throw new Error("Image option is no longer available");
+        const result = await gemini.generateDayBackground(city, dayNumber, theme, activities);
         console.log(`[IMAGE_PROVIDER] ${provider} day ${dayNumber} background succeeded in ${Date.now() - start}ms`);
         return result;
     } catch (error) {
