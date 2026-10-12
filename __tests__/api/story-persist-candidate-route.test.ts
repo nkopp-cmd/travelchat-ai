@@ -33,7 +33,7 @@ describe("story persist GET candidate", () => {
   it("keeps www and normal preview on Supabase", async () => {
     process.env = { ...environment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
     const query = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { story_slides: null, shared: false }, error: null }) };
+      single: vi.fn().mockResolvedValue({ data: { story_slides: null, shared: true }, error: null }) };
     mocks.supabase.mockReturnValue({ from: vi.fn().mockReturnValue(query) });
     expect((await GET(request("www.localley.io"), params)).status).toBe(200);
     expect((await GET(request("localley-next-preview.nkopp.workers.dev", false), params)).status).toBe(200);
