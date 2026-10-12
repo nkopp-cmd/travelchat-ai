@@ -287,3 +287,22 @@ Evidence: private `candidate-export-*20261011*`, `cutover-final-safety-20261011.
 PR393 delivered the offline dependency inventory; its stable-host audit exposed ignored legacy copies.
 The follow-up restricts scanning to tracked source and adds a real Git regression fixture.
 Static access counts never certify migration, physical SQL history, or source-free runtime acceptance.
+
+
+## 2026-10-12 — Optional Korean local-search references
+
+PR396 (`ccf8ca19`) and runtime correction PR397 (`4990d725`) passed reference acceptance; final delivery is held.
+Required CI38257530031 and38261980776 passed;14focused tests,41health tests, exact OpenNext build and scoped artifact audit passed.
+Worker `d37e80b7-c717-49a7-98a4-11bde0ea7dc3`, deployment `a79d8a19-bf10-4df0-b589-397574f5ba5d`, was withdrawn.
+Stable pre-feature rollback: `0a81e48c-8490-4dbc-a311-c187789f8b94`. Keep native quota/cache holds intact.
+Eighty-six live checks pass for Seoul/Busan/Jeju references, repeats, invalid cities, strict IP limit and nonpublic server key values.
+Dedicated reference D1 `44b8b59c-a44d-4b42-ac03-40508c3eee89` shares atomic2000UTCday admission and seven-day holds.
+Four earlier reservations preceded two new public reservations; counter6. Cached repeats added zero calls.
+The temporary protected probe is deleted. Existing spots, map providers, admin IDs and source counts are unchanged.
+Preview remainsb9086f9a. Production app data still uses Supabase; full data cutover remains gated.
+See [Korean local-search references](../NAVER_LOCAL_REFERENCES.md) for exact tests, review scope, runtime diagnosis and receipts.
+
+The release safety audit found an embedded preview read-only default without a production override.
+Production was restored to stable0a81e48c. Reference results alone did not prove source-write safety.
+An explicit productionfalse/previewtrue configuration and regression now await CI and signed-in write acceptance.
+No reference gate is closed from the withdrawn release; the native cache/counters and source snapshots remain retained.
