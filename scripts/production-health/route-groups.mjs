@@ -66,6 +66,7 @@ const routes = [
   "/api/notifications/preferences",
   "/api/notifications/push/subscribe",
   "/api/og",
+  "/api/places/naver-local",
   "/api/places/photo",
   "/api/places/photos",
   "/api/recommendations",

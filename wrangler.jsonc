@@ -27,6 +27,12 @@
     { "binding": "STORY_PREVIEW_MEDIA", "bucket_name": "localley-story-preview-media", "jurisdiction": "eu" }
   ],
   "d1_databases": [{
+    // Shared preview/production reference quota; never application or auth data.
+    "binding": "NAVER_REFERENCE_DB",
+    "database_name": "localley-reference-cache",
+    "database_id": "44b8b59c-a44d-4b42-ac03-40508c3eee89",
+    "migrations_dir": "migrations/references"
+  }, {
     "binding": "NEXT_TAG_CACHE_D1",
     "database_name": "localley-next-preview-tags",
     "database_id": "d0abdd88-2dc4-47c1-a40e-14b0dcb64e30"
@@ -91,6 +97,11 @@
       // Created 2026-09-23 (step P2, approved by Nils).
       "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" }],
       "d1_databases": [{
+        "binding": "NAVER_REFERENCE_DB",
+        "database_name": "localley-reference-cache",
+        "database_id": "44b8b59c-a44d-4b42-ac03-40508c3eee89",
+        "migrations_dir": "migrations/references"
+      }, {
         "binding": "NEXT_TAG_CACHE_D1",
         "database_name": "localley-next-tags",
         "database_id": "ca1dc3b6-b8cc-49a6-b299-f5d1965cf18c"
