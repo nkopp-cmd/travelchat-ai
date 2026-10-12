@@ -374,3 +374,16 @@ The first lacked the package-default browser; the second selected two responsive
 Both attempts removed their exact fixtures; neither started a paid call.
 No screenshot or UI acceptance is claimed. Next verification needs an explicit installed browser and visible-control selection.
 Private receipts are retained under `/home/dev/.local/state/localley/generation-upgrade-*20261012*`.
+
+## Story-ready Cloudflare mail — 2026-10-12
+
+PR4040bc01b1 / requiredCI38281236657SUCCESS / merge206476e.
+Runtime Worker5814fa95-8fd2-45b9-8d85-243fc8de49b2 at100%.
+Deployment6abdf686-fe5e-4a58-9af5-ce8251ea32cf; rollbackc166de78-32b6-46f9-a3c5-afae8e6ebd42.
+Pinned build,29 tests/type/lint and scoped noP0/P1 review passed.
+Guarded preview29 checks passed; exact R2/D1/auth cleanup and stable preview restoration passed.
+Production37 checks include one received story email, real owned saved slides and received-link access.
+Receipt171719a7559a records estimatedUSD0.01; there was no resend.
+Exact Source storage/rows/auth/quota cleanup passed. Both admins, counts8/5/33/85/3295 and four public200 remain.
+See docs/STORY_CLOUDFLARE_MAIL.md for scoped proof and limits.
+Subscription mail still uses Resend. Application data remains Supabase; no D1 production switch occurred.
