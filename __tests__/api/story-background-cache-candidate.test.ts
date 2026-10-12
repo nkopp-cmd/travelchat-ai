@@ -65,6 +65,7 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   }
   expect(mocks.generate).not.toHaveBeenCalled();expect(mocks.day).not.toHaveBeenCalled();expect(usage()).toEqual([]);
   expect(mocks.tier).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();expect(mocks.weighted).not.toHaveBeenCalled();
+  user();expect((await POST(req())).status).toBe(200);expect(mocks.generate).toHaveBeenCalledTimes(1);expect(usage()[0].count).toBe(3);
  });
  it("stores actual byte format privately and cache hits preserve credits and skip tier/provider calls",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
