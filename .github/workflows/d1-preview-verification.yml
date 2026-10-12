@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'docs/NAVER_LOCAL_REFERENCES.md'
+      - 'docs/releases/seoul-discovery.md'
       - 'lib/naver/**'
       - 'app/api/places/naver-local/**'
       - '__tests__/lib/naver-local.test.ts'

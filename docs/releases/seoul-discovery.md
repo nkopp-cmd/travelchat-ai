@@ -297,7 +297,7 @@ Production Worker `d37e80b7-c717-49a7-98a4-11bde0ea7dc3`, deployment `a79d8a19-b
 Stable pre-feature rollback: `0a81e48c-8490-4dbc-a311-c187789f8b94`. Keep native quota/cache holds intact.
 Eighty-six live checks pass for Seoul/Busan/Jeju references, repeats, invalid cities, strict IP limit and nonpublic server key values.
 Dedicated reference D1 `44b8b59c-a44d-4b42-ac03-40508c3eee89` shares atomic2000UTCday admission and seven-day holds.
-Four failed/probe reservations preceded two new public reservations; counter6. Cached repeats added zero calls.
+Four earlier reservations preceded two new public reservations; counter6. Cached repeats added zero calls.
 The temporary protected probe is deleted. Existing spots, map providers, admin IDs and source counts are unchanged.
 Preview remainsb9086f9a. Production app data still uses Supabase; full data cutover remains gated.
 See [Korean local-search references](../NAVER_LOCAL_REFERENCES.md) for exact tests, review scope, runtime diagnosis and receipts.
