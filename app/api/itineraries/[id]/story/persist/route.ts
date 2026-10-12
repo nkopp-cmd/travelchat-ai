@@ -8,7 +8,7 @@ import { previewStorySlides } from "@/lib/app-data/preview-story-slides";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewStoryOwner, savePreviewStoryMedia } from "@/lib/app-data/preview-story-media";
 import { previewStoryTier } from "@/lib/app-data/preview-story-tier";
-import { readPreviewStoryForm } from "@/lib/app-data/preview-story-upload";
+import { readPreviewStoryForm, previewStorySlideBytes } from "@/lib/app-data/preview-story-upload";
 
 // Uploading multiple slide PNGs can take time
 export const maxDuration = 30;
@@ -73,7 +73,16 @@ export async function POST(
         const tier = await getUserTier(userId);
         const retentionDays = hasFeature(tier, "storyRetentionDays");
 
-        const formData = await req.formData();
+        let formData: FormData;
+        try {
+            formData = await readPreviewStoryForm(req);
+        } catch (error) {
+            if (error instanceof RangeError) return Errors.validationError(error.message);
+            throw error;
+        }
+        if ([...formData.entries()].length > 32) {
+            return Errors.validationError("Invalid story slide count");
+        }
         const slides: Record<string, string> = {};
         const errors: string[] = [];
         const now = new Date();
@@ -90,14 +99,19 @@ export async function POST(
                 continue;
             }
 
-            // Validate file size (max 2MB per slide)
-            if (value.size > 2 * 1024 * 1024) {
-                errors.push(`${key}: exceeds 2MB limit`);
+            // Match the rendered-image bound already used by the candidate upload.
+            if (value.size < 8 || value.size > previewStorySlideBytes) {
+                errors.push(`${key}: invalid size (maximum 8MiB)`);
                 continue;
             }
 
             try {
                 const buffer = Buffer.from(await value.arrayBuffer());
+                const pngHeader = [137, 80, 78, 71, 13, 10, 26, 10];
+                if (!pngHeader.every((byte, index) => buffer[index] === byte)) {
+                    errors.push(`${key}: invalid PNG slide`);
+                    continue;
+                }
                 const storageKey = `story-slides/${id}/${key}.png`;
 
                 const { error: uploadError } = await supabase.storage
