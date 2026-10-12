@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), queue: vi.fn(), send: vi.fn(), user: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), queue: vi.fn(), send: vi.fn(), user: vi.fn(), source: vi.fn(), limit: vi.fn(), mode: vi.fn(), eq: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: mocks.user }));
 vi.mock("@/lib/app-data/preview-story-mail", () => ({ queuePreviewStoryMail: mocks.queue }));
-vi.mock("@/lib/resend", () => ({ resend: { emails: { send: mocks.send } }, FROM_EMAIL: "Localley <hello@localley.io>" }));
-vi.mock("@/emails/story-ready-email", () => ({ StoryReadyEmail: () => null }));
+vi.mock("@/lib/story-mail", () => ({ sendStoryReadyEmail: mocks.send }));
+vi.mock("@/lib/auth/mail", () => ({ authMailMode: mocks.mode }));
+vi.mock("@/lib/itinerary-mail-limit", () => ({ reserveItineraryMail: mocks.limit }));
+vi.mock("@/lib/supabase-server", () => ({ createSupabaseServerClient: mocks.source }));
 import { POST } from "@/app/api/itineraries/[id]/notify-story-ready/route";
 const environment = process.env;
 const host = "localley-next-preview.nkopp.workers.dev";
@@ -13,7 +15,9 @@ const req = (body: string = "{}", hostname = host, flag = true) => new NextReque
   `https://${hostname}/api/itineraries/owned-id/notify-story-ready${flag ? "?data_candidate=d1" : ""}`,
   { method: "POST", body });
 beforeEach(() => { process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
-  mocks.auth.mockResolvedValue({ userId: "a" }); mocks.queue.mockResolvedValue(true); });
+  mocks.auth.mockResolvedValue({ userId: "a" }); mocks.queue.mockResolvedValue(true);
+  mocks.mode.mockReturnValue("cloudflare"); mocks.limit.mockResolvedValue("allowed");
+  mocks.user.mockResolvedValue({ id: "a", emailVerified: true, primaryEmailAddress: { emailAddress: "a@example.com" } }); });
 afterEach(() => { process.env = environment; vi.clearAllMocks(); });
 
 describe("story mail route", () => {
@@ -45,14 +49,21 @@ describe("story mail route", () => {
     }
     expect(mocks.queue).not.toHaveBeenCalled(); expect(mocks.send).not.toHaveBeenCalled();
   });
-  it("preserves normal preview and www legacy behavior", async () => {
-    mocks.user.mockResolvedValue({ emailAddresses: [{ emailAddress: "a@example.com" }] });
-    mocks.send.mockResolvedValue({ data: { id: "legacy-id" }, error: null });
-    for (const request of [req('{"city":"Seoul"}', host, false), req('{"city":"Seoul"}', "www.localley.io")]) {
-      const response = await POST(request, context);
-      expect(await response.json()).toEqual({ success: true, sent: true, emailId: "legacy-id" });
+  it("uses Cloudflare with verified source ownership on www and normal preview", async () => {
+    const id = "12345678-1234-1234-1234-123456789abc";
+    const query = { select: vi.fn().mockReturnThis(), eq: mocks.eq.mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: { id, clerk_user_id: "a", story_slides: { cover: "https://storage.test/cover.png" } }, error: null }) };
+    mocks.source.mockResolvedValue({ from: vi.fn().mockReturnValue(query) });
+    mocks.send.mockResolvedValue({ sent: true, emailId: "cf-id" });
+    for (const hostname of [host, "www.localley.io"]) {
+      const request = new NextRequest(`https://${hostname}/api/itineraries/${id}/notify-story-ready`, { method: "POST", body: '{"city":"Seoul"}' });
+      const response = await POST(request, { params: Promise.resolve({ id }) });
+      expect(await response.json()).toEqual({ success: true, sent: true, emailId: "cf-id" });
       expect(response.headers.get("X-Localley-Data-Source")).toBeNull();
+      expect(response.headers.get("Cache-Control")).toContain("private");
     }
-    expect(mocks.queue).not.toHaveBeenCalled(); expect(mocks.send).toHaveBeenCalledTimes(2);
+    expect(mocks.eq).toHaveBeenCalledWith("clerk_user_id", "a");
+    expect(mocks.send).toHaveBeenCalledWith("a@example.com", `https://localley.io/itineraries/${id}/stories`);
+    expect(mocks.queue).not.toHaveBeenCalled();
   });
 });
