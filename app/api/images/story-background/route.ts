@@ -96,6 +96,7 @@ async function storyBackgroundPost(req: NextRequest) {
         if (!body) return Errors.validationError("Invalid bounded background request");
         const candidateOwner = candidate ? await previewBackgroundOwner(userId) : null;
         const candidateHash = candidate ? backgroundCacheHash(body) : null;
+        if (candidate && (!candidateOwner || !candidateHash)) return Errors.forbidden();
         if (candidateOwner && candidateHash) {
             const cached = await cachedPreviewBackground(candidateOwner, candidateHash);
             if (cached) return NextResponse.json({ success: true, image: cached, source: "cache", cached: true });

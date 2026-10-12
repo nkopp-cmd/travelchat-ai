@@ -55,6 +55,17 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   expect(previewBackgroundMime(png.subarray(0,499))).toBeNull();
   expect(mocks.source).not.toHaveBeenCalled();expect(mocks.weighted).not.toHaveBeenCalled();expect(mocks.sourceTier).not.toHaveBeenCalled();
  });
+ it("refuses unverified, nonreserved and mismatched candidate identities before any paid call or credit write",async()=>{
+  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
+  for(const value of [null,{id:"one",emailVerified:false,primaryEmailAddress:{emailAddress:"one@preview.localley.test"}},
+    {id:"one",emailVerified:true,primaryEmailAddress:{emailAddress:"one@example.com"}},
+    {id:"other",emailVerified:true,primaryEmailAddress:{emailAddress:"other@preview.localley.test"}}]) {
+   mocks.user.mockResolvedValue(value);
+   expect((await POST(req())).status).toBe(503);
+  }
+  expect(mocks.generate).not.toHaveBeenCalled();expect(mocks.day).not.toHaveBeenCalled();expect(usage()).toEqual([]);
+  expect(mocks.tier).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();expect(mocks.weighted).not.toHaveBeenCalled();
+ });
  it("stores actual byte format privately and cache hits preserve credits and skip tier/provider calls",async()=>{
   process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
   const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
