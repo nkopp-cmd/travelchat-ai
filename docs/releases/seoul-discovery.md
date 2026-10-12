@@ -321,3 +321,14 @@ Final reference/cache/400/429/key-scope proof passes84checks; native counter6to6
 Both admins, source counts8/5/33/85/3295 and four public200 pass. Preview remainsb9086f9a.
 This replaces the withdrawn d37e80b7 release. The photo source repairs remain separate; source data still uses Supabase.
 See [Korean local-search references](../NAVER_LOCAL_REFERENCES.md) for the baseline, final write proof and known limits.
+
+### Candidate export acceptance — 2026-10-12
+
+PR394's private D1 HTML export passed49 hosted checks through preview78cf5737
+at1%/deployment8e4241f6, using quoted version overrides. Actual desktop/mobile
+links and reloads passed; four screenshots were inspected. Exact cleanup
+restored55 table counts and removed both temporary auth fixtures. Guarded
+rollback restored previewb9086f9a100%/deploymenta25ac5d9. Production5af2a5f3/
+14f3664b, two admin IDs, source counts8/5/33/85/3295 and four public200 remain
+unchanged. See `docs/CLOUDFLARE_D1_PROJECT.md` for scope and private receipts.
+No production D1 switch or paid generation occurred.
