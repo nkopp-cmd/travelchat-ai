@@ -98,3 +98,43 @@ Private mode600 evidence in the excluded auth-proof directory: `u3-two-photo-con
 A fresh read-only advisor review inspected quarantine-source.mjs, its tests and this release evidence. It found no concrete P0/P1 requiring follow-up for PR298. It did not rerun historical receipts or change source data. This closes the missing review evidence retrospectively; no independent approval was claimed at the original release. Private review: cave-retrospective-review-20261005.txt.
 
 Nonblocking hardening remains separate: bind an expected backup hash, add a bounded fetch timeout without retrying ambiguous writes, and consider an updated_at predicate for concurrent non-photo edits. The existing PATCH changes only photos; its post-readback refuses changed non-photo fields. Never restore rejected photos merely to test rollback. Current later incident tests already cover shared concurrency/refusal behavior.
+
+
+## Don Muang, Popiah and Jurong — delivered 2026-10-12
+
+The daily report at13:40UTC returned six events in three classes.
+They were three generic venue failures, two coordinate conflicts and one city conflict.
+These counts represent returned events, not six users or five distinct error types.
+The existing identity guard remains unchanged. No replacement lookup or coordinate guess was made.
+
+Three fresh source snapshots pinned the rejected incidents:
+
+| Source ID | Venue | Original backup SHA256 | Apply receipt |
+| --- | --- | --- | --- |
+| 040f2f34-6fc1-4133-a0fc-b0c31d90e55a | Don Muang Night Market | 1c5683c102ab8a39c3ea0a9d45a8817df29b7b795dca88014235e8cd65695640 | afb8de6c6b45 |
+| 0a71e061-d220-478c-b959-409de2cdbcdd | Popiah Cart (Jalan Hang Lekir) | cacdd743dfc5548a7512a27c09f83aaa9470edbc0d4a837a5f4edf1947d72079 | 126a4d742cc6 |
+| 4b3b1600-9b3a-4021-b77c-32629445c6f2 | Jurong Lake Gardens | 3d8dbebd0d417d8680a31db824830ee46a336cf924db5484b7d843b520aeda9d | e19d6027437b |
+
+PR398 exact4438f3f passed required CI38263105515 in11m58s and merged5d41d9e.
+The merged host scripts match the tested source files exactly.
+Thirty-seven tests pass, including exact identity/listing refusal, deep preservation, apply and mocked rollback.
+Each incident also tests changed-field rollback refusal, a concurrent enrichment race and a lost reply without retry.
+Node syntax and Git whitespace checks pass. The established repair algorithm is unchanged.
+This routine allowlist extension claims no new independent architecture review.
+
+Each live dry run matched one unchanged row before merge. Each durable zero-cost receipt preceded its single source write.
+The stable main command cleared only the three rejected references per row. All non-photo fields passed readback.
+Live proof at14:44:57UTC passed32checks: three gallery404/unavailable/empty responses, source preservation and exact rollback predicates.
+The application's nonempty-photo filters exclude the three repaired records. Source total remains3295.
+Root/spots/sign-in/cities returned200. No paid provider request or replacement image was used for these checks.
+These venues stay retained until verified enrichment supplies safe photos. This does not prove complete photo coverage.
+
+This host operation deploys no new Worker code.
+Production was on stable0a81e48c, deployment3ff82c33, after the separate Naver safety rollback.
+The retained prior stable rollback is043e1752. Full D1 cutover remains gated.
+The original private backups, three apply receipts and live proof stay under `/home/dev/.local/state/localley/`.
+The receipt file is `photo-incidents-live-proof-20261012.json`.
+
+Future authorized rollback must use the corresponding private backup and exact incident ID with `--rollback`.
+It must refuse changed fields or later enrichment. Read-only live predicates each match exactly one unchanged empty-photo row.
+Rejected images were not restored. This mock/source-predicate proof does not satisfy the full cutover rollback drill.
