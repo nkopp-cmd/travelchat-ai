@@ -306,3 +306,18 @@ The release safety audit found an embedded preview read-only default without a p
 Production was restored to stable0a81e48c. Reference results alone did not prove source-write safety.
 An explicit productionfalse/previewtrue configuration and regression now await CI and signed-in write acceptance.
 No reference gate is closed from the withdrawn release; the native cache/counters and source snapshots remain retained.
+
+
+## 2026-10-12 — Production write safety and final reference release
+
+PR399 exact9ba1838/requiredCI38264796013SUCCESS13m59s mergedd0159b2.
+It pins productionSUPABASE_READ_ONLY=false and previewtrue;23focused tests pass.
+The unchanged verified3046ed9 Worker artifact serves with the new explicit deployment flag.
+Worker `5af2a5f3-5a6f-4edc-96d8-9c157f8f4db0` runs100%, deployment `14f3664b-f20e-47f3-a52f-f94a025f7ece`.
+Stable rollback is `0a81e48c-8490-4dbc-a311-c187789f8b94`; preserve native reference holds and counters.
+Native metadata confirmsfalse, both NCP secrets and no preview application DB binding.
+Fresh verified nonadmin profile writes plus normal trip save/readback/API reload pass19checks and exact cleanup.
+Final reference/cache/400/429/key-scope proof passes84checks; native counter6to6, no external query repeat.
+Both admins, source counts8/5/33/85/3295 and four public200 pass. Preview remainsb9086f9a.
+This replaces the withdrawn d37e80b7 release. The photo source repairs remain separate; source data still uses Supabase.
+See [Korean local-search references](../NAVER_LOCAL_REFERENCES.md) for the baseline, final write proof and known limits.

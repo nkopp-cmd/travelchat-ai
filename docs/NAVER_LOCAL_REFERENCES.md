@@ -70,3 +70,32 @@ The audit identified a possible source-write refusal before claiming full releas
 Production was restored to stable `0a81e48c-8490-4dbc-a311-c187789f8b94`; the reference gate is open again.
 The configuration now explicitly pins productionfalse and previewtrue, with a parsed-config and writable-client regression.
 Reactivation requires exact CI, binding readback and a controlled signed-in write proof. Keep all six reservations and holds intact.
+
+
+## Final guarded release — 2026-10-12 15:03UTC
+
+PR399 exact9ba1838 passed required CI38264796013 in13m59s and mergedd0159b2.
+Twenty-three focused tests pass, including parsed preview/production flags and normal writable client options.
+Production now explicitly overrides embedded build defaults with `SUPABASE_READ_ONLY=false`.
+The unchanged3046ed9 Worker artifact is reused; the only runtime deployment configuration change is that explicit flag.
+The earlier exact build, secret-scope audit and fourteen Naver tests remain valid for those unchanged runtime files.
+
+Active production Worker: `5af2a5f3-5a6f-4edc-96d8-9c157f8f4db0` at100%.
+Deployment: `14f3664b-f20e-47f3-a52f-f94a025f7ece`. Stable rollback: `0a81e48c-8490-4dbc-a311-c187789f8b94`.
+Native version metadata confirms the explicitfalse flag, both NCP secret bindings and no preview application database binding.
+No token or provider key changed. Preview remainsb9086f9a.
+
+A controlled fresh verified nonadmin authenticated with its own test password.
+Its real profile hook saved one app user and free subscription. Normal trip save, source readback and API reload returned200.
+Sign-out and exact source/auth cleanup passed. Nineteen checks pass on both the stable baseline and final release.
+These tests sent no email and generated no model output. The private marker already had coordinates, so no geocoding call was needed.
+This proves source-write safety; it does not claim a new browser signup, generation or complete U2 acceptance.
+
+Eighty-four final public reference checks pass. All three city queries hit retained cache; counter6 stayed6.
+Four public routes returned200, both admin IDs remained and source counts restored to8/5/33/85/3295.
+The separate three known-photo quarantines changed only authorized source photos; their proof is in SOURCE_PHOTO_REPAIR.md.
+All failed-query holds remain. Full source schema/history, D1/R2 migration and Maps subscription remain separate gates.
+
+Final receipts: `production-write-baseline-proof-20261012.json`, `production-write-final-proof-20261012.json`,
+`naver-production-flag-binding-proof-20261012.json`, `naver-final-live-proof-20261012.json`,
+`naver-final-release-after-20261012.json` under the private state directory.
