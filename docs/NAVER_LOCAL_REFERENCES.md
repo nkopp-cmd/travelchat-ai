@@ -40,7 +40,7 @@ Fourteen focused tests pass, including credential-preserving redirect refusal an
 Required CI38261980776 passed11m55s. The exact pinned OpenNext build and supplied-source review passed.
 The merged and tested Git trees match `8d2f7a07d84f54e530f3363fa3e31fcdb83ba46c`.
 
-Production Worker `d37e80b7-c717-49a7-98a4-11bde0ea7dc3` runs at100%.
+Worker `d37e80b7-c717-49a7-98a4-11bde0ea7dc3` passed reference acceptance but was withdrawn after a safety audit.
 Deployment `a79d8a19-bf10-4df0-b589-397574f5ba5d` started14:32:51UTC.
 The stable pre-feature rollback is `0a81e48c-8490-4dbc-a311-c187789f8b94`.
 The immediately preceding version `e1987f4d-4a7a-478e-a278-75a18fb47a44` has the rejected redirect mode.
@@ -63,3 +63,10 @@ Maps subscription and the full D1/R2 cutover gates remain separate.
 Private receipts: `/home/dev/.local/state/localley/naver-live-proof-corrected-20261012.json`,
 `naver-redirect-release-after-20261012.json`, `naver-redirect-artifact-audit-20261012.json`,
 `naver-native-probe-result2-20261012.json` and `naver-native-probe-delete-20261012.log`.
+
+Safety correction: the public-only build embedded `SUPABASE_READ_ONLY=true`.
+OpenNext fills missing runtime variables from those build defaults. Production lacked an explicit override.
+The audit identified a possible source-write refusal before claiming full release safety.
+Production was restored to stable `0a81e48c-8490-4dbc-a311-c187789f8b94`; the reference gate is open again.
+The configuration now explicitly pins productionfalse and previewtrue, with a parsed-config and writable-client regression.
+Reactivation requires exact CI, binding readback and a controlled signed-in write proof. Keep all six reservations and holds intact.

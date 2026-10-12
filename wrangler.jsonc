@@ -124,6 +124,8 @@
       // FROM_EMAIL remains the existing Worker secret: Localley <hello@localley.io>.
       // AUTH_EMAIL uses Cloudflare Email Sending. Auth no longer uses RESEND_API_KEY.
       "vars": {
+        // Override any preview-only default embedded by an OpenNext build.
+        "SUPABASE_READ_ONLY": "false",
         "NEXTJS_ENV": "production",
         "BETTER_AUTH_URL": "https://www.localley.io",
         "AUTH_ALLOWED_HOSTS": "www.localley.io,localley.io,next.localley.io"
