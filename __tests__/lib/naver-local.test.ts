@@ -34,7 +34,7 @@ it("uses the real SQLite cache, safe reference fields, and one call for seven da
  expect(first).toMatchObject({ cacheHit: false, referenceOnly: true, items: [{ name: "광장시장", address: item.address, sourceUrl: item.link }] });
  expect(first.items[0]).not.toHaveProperty("description"); expect(first.items[0]).not.toHaveProperty("verified");
  const [url,options] = request.mock.calls[0]; expect(url.origin).toBe("https://naverapihub.apigw.ntruss.com");
- expect(options.redirect).toBe("error"); expect(options.headers["X-NCP-APIGW-API-KEY"]).toBe("key");
+ expect(options.redirect).toBe("manual"); expect(options.headers["X-NCP-APIGW-API-KEY"]).toBe("key");
  expect(await searchLocalReferences({ ...args(), now: now + 6 * 86400000, request })).toMatchObject({ cacheHit: true });
  expect(request).toHaveBeenCalledTimes(1); expect(db.sqlite.prepare("SELECT calls FROM naver_daily_budget WHERE day=?").get(day)).toEqual({ calls: 1 });
  await searchLocalReferences({ ...args(), now: now + 7 * 86400000, request }); expect(request).toHaveBeenCalledTimes(2);
@@ -88,4 +88,13 @@ it("an uncertain cache write keeps the original pending hold and never repeats",
 it("missing keys prevent storage and provider work", async () => {
  const request=vi.fn();await expect(searchLocalReferences({...args(),key:'',request})).rejects.toThrow('unavailable');
  expect(request).not.toHaveBeenCalled();expect(db.sqlite.prepare('SELECT count(*) AS n FROM naver_local_cache').get()).toEqual({n:0});
+});
+
+it("refuses redirect responses without forwarding credentials or repeating the query", async () => {
+ const request = vi.fn().mockResolvedValue(new Response(null, {status:302,headers:{Location:"https://other.example/"}}));
+ await expect(searchLocalReferences({...args(),request})).rejects.toThrow("unavailable");
+ await expect(searchLocalReferences({...args(),request,now:now+86400000})).rejects.toThrow("unavailable");
+ expect(request).toHaveBeenCalledTimes(1);
+ expect(request.mock.calls[0][1].redirect).toBe("manual");
+ expect(db.sqlite.prepare("SELECT calls FROM naver_daily_budget WHERE day=?").get(day)).toEqual({calls:1});
 });

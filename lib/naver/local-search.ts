@@ -120,7 +120,7 @@ export async function searchLocalReferences(options: {
     url.search = new URLSearchParams({ query, display: "5", start: "1", sort: "random", format: "json" }).toString();
     const response = await (options.request ?? fetch)(url, {
       headers: { "X-NCP-APIGW-API-KEY-ID": options.keyId, "X-NCP-APIGW-API-KEY": options.key },
-      signal: AbortSignal.timeout(10000), redirect: "error",
+      signal: AbortSignal.timeout(10000), redirect: "manual",
     });
     if (!response.ok) { await response.body?.cancel(); throw new Error("reference_provider_unavailable"); }
     const result: LocalSearchResult = { query, items: normalizeItems(await boundedBody(response), query),
