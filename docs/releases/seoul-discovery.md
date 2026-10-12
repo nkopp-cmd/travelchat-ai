@@ -332,3 +332,45 @@ rollback restored previewb9086f9a100%/deploymenta25ac5d9. Production5af2a5f3/
 14f3664b, two admin IDs, source counts8/5/33/85/3295 and four public200 remain
 unchanged. See `docs/CLOUDFLARE_D1_PROJECT.md` for scope and private receipts.
 No production D1 switch or paid generation occurred.
+
+## 2026-10-12 — Generation runtime upgrade
+
+PR391 head `0559441bf5f3670c81a71fbcf21fc7e48728ac13` merged as `bb76387`.
+Required self-hosted CI38274196099 passed13m57s;93 focused tests, TypeScript and pinned OpenNext build passed.
+The merged runtime files equal the checked artifact source. Scoped owner review resolves its original premise finding.
+
+Production Worker `c166de78-32b6-46f9-a3c5-afae8e6ebd42` serves100%.
+Deployment `2f501bf1-c829-4075-8009-fbf77c74fff3` retains normal source writes.
+Rollback is `5af2a5f3-5a6f-4edc-96d8-9c157f8f4db0`.
+Production application data remains Supabase. No application-data switch occurred.
+
+The text primary is gpt-6-luna; new generated images use gemini-nano-banana-2.1.
+Story controls have generic labels and no provider selector. Existing media format, storage and quota rules remain.
+Local SDK receipts7055ef468ba4/fac443ad7662 passed one text and one image request, estimatedUSD1.02.
+The real JPEG rendered through prefetched dataURI and consumed ImageResponse locally.
+Artifact scan checked2328files/76761734bytes against92 private values with zero unexpected hits.
+Five exact existing public Kakao server aliases were retained; no browser alias match was found.
+Artifact tree SHA256 is `7f556d80b0a0f5beb3605f9f48c8ce2d922a1cc90b6af71dc95a1656e1359c41`.
+
+Preview acceptance used `6dca825c-9e72-4073-976e-8da7e5efa168` at1% with quoted overrides.
+The candidate had explicit generation enabled, readonly source, outbox mail and false tier bypasses.
+The existing server Gemini key was bound to that inactive version without rotation.
+Thirty-five hosted checks passed. Receipt1215c0ad3e2c records the single paid hosted image, estimatedUSD1.00.
+Private R2 JPEG980908bytes/hash/MIME, exact3credit use, cache-only repeat, owner denial and actual story rendering passed.
+The final consumed PNG was1080x1920/3518698bytes; its screenshot was inspected.
+PNG SHA256: `1e46cb5118710affb3e869230f68081757ac46b0a3a65b23f54c711d31741de0`.
+Exact55 application table counts, foreign keys and both auth fixtures were restored.
+The actual test endpoint awaited R2 deletion; no independent physical R2 HEAD proof is claimed.
+Eight watchdog guards passed; preview returned to b9086f9a100%, deployment315632a9, and its timer stopped.
+
+Production acceptance passed23 checks with a real verified fresh nonadmin login.
+Actual profile/subscription hooks, trip save/read/reload and one chat reply passed; chat usage persisted.
+Receipt522b61add6cb records the live chat call, estimatedUSD0.02; it returned114characters without fallback.
+The temporary Pro entitlement affected only the fresh test owner; no Stripe request or customer charge occurred.
+Exact source/auth fixture cleanup passed. Both admins,8/5/33/85/3295 source counts and four public200 remain.
+
+Desktop/mobile story UI acceptance remains open after two setup failures.
+The first lacked the package-default browser; the second selected two responsive Stories buttons.
+Both attempts removed their exact fixtures; neither started a paid call.
+No screenshot or UI acceptance is claimed. Next verification needs an explicit installed browser and visible-control selection.
+Private receipts are retained under `/home/dev/.local/state/localley/generation-upgrade-*20261012*`.
