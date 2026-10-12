@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@/lib/auth/server";
-import { resend, FROM_EMAIL } from "@/lib/resend";
-import { StoryReadyEmail } from "@/emails/story-ready-email";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { sendStoryReadyEmail } from "@/lib/story-mail";
+import { authMailMode } from "@/lib/auth/mail";
+import { reserveItineraryMail } from "@/lib/itinerary-mail-limit";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { queuePreviewStoryMail } from "@/lib/app-data/preview-story-mail";
-import { Errors } from "@/lib/api-errors";
 
 /**
  * POST /api/itineraries/[id]/notify-story-ready
@@ -56,53 +57,72 @@ export async function POST(
                 { status: error instanceof RangeError ? 400 : 503, headers });
         }
     }
+    const headers = { "Cache-Control": "private, no-store" };
     try {
         const { userId } = await auth();
-        if (!userId) {
-            return Errors.unauthorized();
-        }
-
-        if (!resend) {
-            console.log("[NOTIFY_STORY] Resend not configured, skipping email");
-            return NextResponse.json({ success: true, sent: false, reason: "email_not_configured" });
-        }
-
-        const { id } = await params;
-        const { city } = await req.json();
-
-        // Get user email from the auth session
+        if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
         const user = await currentUser();
-        const email = user?.emailAddresses?.[0]?.emailAddress;
-        const firstName = user?.firstName;
-
-        if (!email) {
-            console.log("[NOTIFY_STORY] No email found for user, skipping");
-            return NextResponse.json({ success: true, sent: false, reason: "no_email" });
+        const email = user?.primaryEmailAddress?.emailAddress;
+        if (user?.id !== userId || !user.emailVerified || !email || email.length > 200) {
+            return NextResponse.json({ error: "Verified email required" }, { status: 403, headers });
         }
-
-        const itineraryUrl = `https://localley.io/itineraries/${id}/stories`;
-
-        const { data, error } = await resend.emails.send({
-            from: FROM_EMAIL,
-            to: email,
-            subject: `Your ${city || "travel"} story slides are ready!`,
-            react: StoryReadyEmail({
-                city: city || "your trip",
-                itineraryUrl,
-                recipientName: firstName || undefined,
-            }),
-        });
-
-        if (error) {
-            console.error("[NOTIFY_STORY] Email send error:", error);
-            return NextResponse.json({ success: true, sent: false, reason: "send_failed" });
+        const { id } = await params;
+        if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) {
+            return NextResponse.json({ error: "Invalid itinerary" }, { status: 400, headers });
         }
-
-        console.log("[NOTIFY_STORY] Email sent successfully:", data?.id);
-        return NextResponse.json({ success: true, sent: true, emailId: data?.id });
-    } catch (error) {
-        console.error("[NOTIFY_STORY] Error:", error);
-        // Don't fail the request if email notification fails
-        return NextResponse.json({ success: true, sent: false, reason: "error" });
+        // Retain the existing city-only caller contract; never use its content in mail.
+        const reader = req.body?.getReader();
+        if (!reader) return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+        const chunks: Uint8Array[] = [];
+        let size = 0;
+        try {
+            while (true) {
+                const part = await reader.read();
+                if (part.done) break;
+                size += part.value.byteLength;
+                if (size > 512) {
+                    await reader.cancel();
+                    return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+                }
+                chunks.push(part.value);
+            }
+        } finally { reader.releaseLock(); }
+        const bytes = new Uint8Array(size);
+        let offset = 0;
+        for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+        const body = new TextDecoder().decode(bytes);
+        let value: unknown;
+        try { value = JSON.parse(body); } catch {
+            return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+        }
+        if (!value || typeof value !== "object" || Array.isArray(value)
+            || Object.entries(value).some(([key, v]) => key !== "city" || typeof v !== "string"
+                || v.length > 100 || /[\x00-\x1f\x7f]/.test(v))) {
+            return NextResponse.json({ error: "Invalid request" }, { status: 400, headers });
+        }
+        const supabase = await createSupabaseServerClient();
+        const { data: trip, error } = await supabase.from("itineraries").select("*")
+            .eq("id", id.toLowerCase()).eq("clerk_user_id", userId).single();
+        if (error && error.code !== "PGRST116") throw new Error("Story lookup unavailable");
+        if (!trip || trip.id !== id.toLowerCase() || trip.clerk_user_id !== userId) {
+            return NextResponse.json({ error: "Not found" }, { status: 404, headers });
+        }
+        const raw = trip.story_slides;
+        const slides = raw && typeof raw === "object" && !Array.isArray(raw)
+            ? (raw.slides && typeof raw.slides === "object" ? raw.slides : raw) : null;
+        if (!slides || !Object.entries(slides).some(([key, url]) =>
+            /^(cover|day[1-9]\d?|summary)$/.test(key) && typeof url === "string" && url.startsWith("https://"))) {
+            return NextResponse.json({ success: true, sent: false, reason: "stories_not_ready" }, { headers });
+        }
+        if (authMailMode() !== "outbox") {
+            const limit = await reserveItineraryMail(userId);
+            if (limit === "limited") return NextResponse.json({ error: "Email limit reached" }, { status: 429, headers });
+            if (limit !== "allowed") throw new Error("Story mail limit unavailable");
+        }
+        const result = await sendStoryReadyEmail(email, `https://localley.io/itineraries/${trip.id}/stories`);
+        return NextResponse.json({ success: true, ...result }, { headers });
+    } catch {
+        // No retry, recipient/address logging, or false delivery claim on suppression/unknown failure.
+        return NextResponse.json({ success: true, sent: false, reason: "send_failed" }, { status: 503, headers });
     }
 }
