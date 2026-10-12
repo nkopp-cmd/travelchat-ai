@@ -26,7 +26,7 @@ afterEach(() => { db.sqlite.close(); vi.restoreAllMocks(); });
 it("normalizes queries and refuses non-KR or unsafe names", () => {
  expect(localQuery("SEOUL", "  광장시장  ")).toBe("서울 광장시장");
  expect(localQuery("seoul", "ＡＢＣ")).toBe("서울 abc");
- for (const [city,name] of [["tokyo","cafe"],["seoul","x"],["seoul","<script>"],["seoul","a".repeat(101)]]) expect(() => localQuery(city,name)).toThrow("invalid_query");
+ for (const [city,name] of [["constructor","cafe"],["__proto__","cafe"],["tokyo","cafe"],["seoul","x"],["seoul","<script>"],["seoul","a".repeat(101)]]) expect(() => localQuery(city,name)).toThrow("invalid_query");
 });
 it("uses the real SQLite cache, safe reference fields, and one call for seven days", async () => {
  const request = vi.fn().mockImplementation(response);

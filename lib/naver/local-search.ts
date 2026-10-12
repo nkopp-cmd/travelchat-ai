@@ -32,7 +32,9 @@ export class ReferenceUnavailable extends Error {
 const TTL = 7 * 86400;
 const cities: Record<string, string> = { seoul: "서울", busan: "부산", jeju: "제주", gyeongju: "경주" };
 export function localQuery(city: string, name: string): string {
-  const prefix = cities[city.toLowerCase()];
+  const slug = city.toLowerCase();
+  const prefix = Object.hasOwn(cities, slug) ? cities[slug] : undefined;
+  if (name.length > 400) throw new ReferenceUnavailable("invalid_query");
   const normalized = name.normalize("NFKC").trim().replace(/\s+/g, " ");
   if (!prefix || normalized.length < 2 || normalized.length > 100 || /[\u0000-\u001f\u007f<>]/.test(normalized)) {
     throw new ReferenceUnavailable("invalid_query");
