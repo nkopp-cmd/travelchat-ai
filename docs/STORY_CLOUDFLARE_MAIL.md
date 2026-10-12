@@ -41,4 +41,3 @@ Both admins, source counts8/5/33/85/3295 and four public200 remain unchanged.
 This controlled receipt does not certify Gmail spam placement, full media parity or subscription mail.
 Production application data remains Supabase.
 Private receipts remain under /home/dev/.local/state/localley/story-mail-*20261012*.
-
