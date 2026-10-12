@@ -387,3 +387,17 @@ Receipt171719a7559a records estimatedUSD0.01; there was no resend.
 Exact Source storage/rows/auth/quota cleanup passed. Both admins, counts8/5/33/85/3295 and four public200 remain.
 See docs/STORY_CLOUDFLARE_MAIL.md for scoped proof and limits.
 Subscription mail still uses Resend. Application data remains Supabase; no D1 production switch occurred.
+
+## Source story serving and upload capacity — 2026-10-12
+
+PR407442183c / CI38288943823SUCCESS10m08s / merge5f0e6d8.
+PR406f76ddb0 / CI38290914810SUCCESS11m56s / merge4a030a7.
+Scoped reviews,21 and38 focused tests/type/lint, pinned builds and zero-unexpected-private-key audits passed.
+Current Workerb4d426e2-1952-4f7b-9989-67142b47053f serves100%.
+Deployment0385cd50-8091-4ab4-aec7-f208d15cb496; rollback8b4db9c2-8117-46e1-a2a4-f887942c5b4f.
+Three retained actual3.5MiB PNG parts saved in one request, with signed URLs and exact Source media hashes.
+The final independent API acceptance passed53 checks, including two-owner denial and exact storage/Source/Auth cleanup.
+Both admins, source counts8/5/33/85/3295 and four public200 remain unchanged.
+Source gallery device proof stopped after two harness failures; no screenshots or device pass are claimed.
+Legacy public saved links, gallery expiry/orphans, subscription Resend and full D1 cutover remain open.
+See docs/STORY_SOURCE_ACCESS.md and docs/STORY_UPLOAD_CAPACITY.md for scoped evidence.
