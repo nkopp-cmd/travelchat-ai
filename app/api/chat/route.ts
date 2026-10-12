@@ -11,7 +11,9 @@ import {
 } from "@/lib/spots/public-quality";
 import { ALL_CITIES } from "@/lib/cities";
 import { generateChatReplyWithFallback } from "@/lib/llm/chat-provider";
-import { isPreviewChatUsageCandidate } from "@/lib/app-data/preview-chat-usage";
+import { incrementPreviewChatUsage, isPreviewChatUsageCandidate } from "@/lib/app-data/preview-chat-usage";
+import { previewChatSpotContext } from "@/lib/app-data/preview-chat-spots";
+import { admitFreshPreviewChatOwner, readPreviewChatRequest } from "@/lib/app-data/preview-chat-request";
 import { formatChatSpotContext, matchedChatCategories } from "@/lib/chat/spot-context";
 
 // Rate limit: 20 requests per minute per user
@@ -185,15 +187,37 @@ ${spotsContext}`;
 
 export async function POST(req: NextRequest) {
     try {
-        // The counter has a candidate adapter, but spot context still needs its D1 projection.
-        // Never send an explicit candidate request to Redis, Supabase, or a paid model meanwhile.
+        // Explicit preview opt-in never reaches Redis or Supabase, including on failure.
         if (isPreviewChatUsageCandidate(req)) {
+            const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
             const { userId } = await auth();
-            if (!userId) return Errors.unauthorized();
-            return NextResponse.json({ error: "Candidate chat context unavailable" }, {
-                status: 503,
-                headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" },
-            });
+            if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+            if (process.env.PREVIEW_CHAT_GENERATION !== "true" || !process.env.OPENAI_API_KEY?.trim()) {
+                return NextResponse.json({ error: "Candidate chat unavailable" }, { status: 503, headers });
+            }
+            const input = await readPreviewChatRequest(req);
+            if (!input) return NextResponse.json({ error: "Invalid chat request" }, { status: 400, headers });
+            try {
+                await admitFreshPreviewChatOwner(userId);
+                const city = input.city || detectCityFromMessages(input.messages);
+                const question = input.messages.filter(message => message.role === "user").pop()!.content;
+                // Import/visibility failures occur before any quota write or model submission.
+                const context = city ? await previewChatSpotContext(city, question) : null;
+                const usage = await incrementPreviewChatUsage(userId);
+                if (!usage.allowed) return NextResponse.json({ error: "Chat limit reached", usage }, { status: 429, headers });
+                // A failed or lost model reply consumes this reservation. Never retry or refund it here.
+                const reply = await generateChatReplyWithFallback({
+                    systemPrompt: buildSystemPrompt(context?.city ?? null, context?.context ?? ""),
+                    messages: input.messages, maxTokens: 2048, temperature: 0.7,
+                });
+                return NextResponse.json({ message: reply.content, provider: reply.provider, model: reply.model,
+                    fallbackUsed: reply.fallbackUsed, fallbackReason: reply.fallbackReason,
+                    primaryProvider: reply.primaryProvider, primaryModel: reply.primaryModel,
+                    primaryConfigured: reply.primaryConfigured }, { headers });
+            } catch (error) {
+                return NextResponse.json({ error: error instanceof RangeError ? "Invalid chat city" : "Candidate chat unavailable" },
+                    { status: error instanceof RangeError ? 400 : 503, headers });
+            }
         }
 
         // Check rate limit

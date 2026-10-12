@@ -37,7 +37,7 @@ function sourceSpot(row: SourceRow): ChatContextSpot & { id: string } {
 
 /** Read full source fields through the counted archive; normalized D1 controls visibility. */
 export async function previewChatSpotContext(city: string, userMessage: string) {
-  if (city.length > 100 || userMessage.length > 200) throw new RangeError("Invalid chat spot query");
+  if (city.length > 100 || userMessage.length > 10000) throw new RangeError("Invalid chat spot query");
   const cityConfig = ALL_CITIES.find(item => item.name.toLowerCase() === city.toLowerCase());
   if (!cityConfig) throw new RangeError("Unknown chat city");
   const db = previewAppDataReader();

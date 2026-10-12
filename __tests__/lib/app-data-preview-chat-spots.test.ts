@@ -85,7 +85,9 @@ Use these REAL spots in your recommendations when relevant. These are verified, 
   });
 
   it("bounds city and query input before reading D1", async () => {
+    const longQuestion = await previewChatSpotContext("Seoul", `${"x".repeat(201)} coffee`);
+    expect(longQuestion.categories).toContain("cafe");
     await expect(previewChatSpotContext("Unknown", "coffee")).rejects.toThrow(RangeError);
-    await expect(previewChatSpotContext("Seoul", "x".repeat(201))).rejects.toThrow(RangeError);
+    await expect(previewChatSpotContext("Seoul", "x".repeat(10001))).rejects.toThrow(RangeError);
   });
 });
