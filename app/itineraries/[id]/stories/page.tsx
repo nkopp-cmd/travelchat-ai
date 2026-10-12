@@ -62,6 +62,11 @@ async function getItinerary(id: string, candidate: boolean) {
         return null;
     }
 
+    if (data.shared !== true) {
+        const { userId } = await auth();
+        if (!userId || data.clerk_user_id !== userId) return null;
+    }
+
     console.log("[STORIES_PAGE] Loaded itinerary:", {
         id: data.id,
         city: data.city,
@@ -91,6 +96,9 @@ export async function generateMetadata(
     }
 
     if (candidate) return { title: "Stored Story Slides | Localley", robots: { index: false, follow: false } };
+    if (itinerary.shared !== true) {
+        return { title: "Stored Story Slides | Localley", robots: { index: false, follow: false } };
+    }
     const title = `${itinerary.city} Story Slides | Localley`;
     const description = `Download ${itinerary.days}-day ${itinerary.city} travel story slides — ready to share on Instagram & TikTok.`;
 

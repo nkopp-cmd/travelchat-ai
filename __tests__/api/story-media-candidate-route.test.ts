@@ -109,7 +109,7 @@ describe("preview story media routes", () => {
       single: vi.fn().mockResolvedValue({ data: { clerk_user_id: "owner-id" }, error: null }),
       update: vi.fn().mockReturnThis() };
     const storage = { upload: vi.fn().mockResolvedValue({ error: null }),
-      getPublicUrl: vi.fn().mockReturnValue({ data: { publicUrl: "https://example.com/cover.png" } }) };
+      createSignedUrl: vi.fn().mockResolvedValue({ data: { signedUrl: "https://example.com/cover.png" }, error: null }) };
     mocks.supabase.mockReturnValue({ from: vi.fn().mockReturnValue(query), storage: { from: vi.fn().mockReturnValue(storage) } });
     for (const host of ["www.localley.io", preview]) {
       const form = new FormData(); form.append("cover", new Blob(["png"]));

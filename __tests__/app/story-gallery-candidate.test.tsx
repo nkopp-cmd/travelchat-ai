@@ -18,7 +18,7 @@ beforeEach(()=>{
   mocks.headers.mockResolvedValue(new Headers({host:"localley-next-preview.nkopp.workers.dev"}));
   mocks.auth.mockResolvedValue({userId:"a"}); mocks.gallery.mockResolvedValue(row);
   mocks.notFound.mockImplementation(()=>{throw new Error("not found");});
-  mocks.source.mockReturnValue({from:()=>({select:()=>({eq:()=>({single:async()=>({data:{...row,title:"Source gallery"},error:null})})})})});
+  mocks.source.mockReturnValue({from:()=>({select:()=>({eq:()=>({single:async()=>({data:{...row,title:"Source gallery",shared:true},error:null})})})})});
 });
 afterEach(()=>{process.env=environment;vi.clearAllMocks();});
 describe("story gallery candidate page and metadata",()=>{
@@ -53,5 +53,21 @@ describe("story gallery candidate page and metadata",()=>{
       expect((await generateMetadata(p)).title).toBe("Seoul Story Slides | Localley");
     }
     expect(mocks.gallery).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("normal Source private gallery access",()=>{
+  beforeEach(()=>{
+    mocks.headers.mockResolvedValue(new Headers({host:"www.localley.io"}));
+    mocks.source.mockReturnValue({from:()=>({select:()=>({eq:()=>({single:async()=>({data:{...row,title:"Private source story",shared:false,clerk_user_id:"a"},error:null})})})})});
+  });
+  it("allows the owner but keeps private media out of public metadata",async()=>{
+    expect(renderToStaticMarkup(await Page(props()))).toContain("Private source story");
+    expect(await generateMetadata(props())).toEqual({title:"Stored Story Slides | Localley",robots:{index:false,follow:false}});
+  });
+  it.each([null,"b"])("hides private content and metadata from other readers",async userId=>{
+    mocks.auth.mockResolvedValue({userId});await expect(Page(props())).rejects.toThrow("not found");
+    expect(await generateMetadata(props())).toEqual({title:"Stories Not Found | Localley"});
   });
 });

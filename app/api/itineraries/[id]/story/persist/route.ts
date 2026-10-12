@@ -76,6 +76,7 @@ export async function POST(
         const formData = await req.formData();
         const slides: Record<string, string> = {};
         const errors: string[] = [];
+        const now = new Date();
 
         // Process each slide from FormData
         for (const [key, value] of formData.entries()) {
@@ -112,13 +113,15 @@ export async function POST(
                     continue;
                 }
 
-                const { data: urlData } = supabase.storage
+                const { data: urlData, error: urlError } = await supabase.storage
                     .from("generated-images")
-                    .getPublicUrl(storageKey);
+                    .createSignedUrl(storageKey, retentionDays * 24 * 60 * 60);
 
-                if (urlData?.publicUrl) {
-                    slides[key] = urlData.publicUrl;
+                if (urlError || !urlData?.signedUrl) {
+                    errors.push(`${key}: media link unavailable`);
+                    continue;
                 }
+                slides[key] = urlData.signedUrl;
             } catch (err) {
                 console.error(`[STORY_PERSIST] Error processing ${key}:`, err);
                 errors.push(`${key}: processing error`);
@@ -129,8 +132,7 @@ export async function POST(
             return Errors.validationError("No valid slides were uploaded");
         }
 
-        // Calculate expiry
-        const now = new Date();
+        // Calculate expiry from the time captured before link signing.
         const expiresAt = new Date(now.getTime() + retentionDays * 24 * 60 * 60 * 1000);
 
         const storySlides = {
@@ -197,12 +199,17 @@ export async function GET(
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")
-            .select("story_slides, shared")
+            .select("story_slides, shared, clerk_user_id")
             .eq("id", id)
             .single();
 
         if (error || !itinerary) {
             return Errors.notFound("Itinerary");
+        }
+
+        if (itinerary.shared !== true) {
+            const { userId } = await auth();
+            if (!userId || itinerary.clerk_user_id !== userId) return Errors.notFound("Itinerary");
         }
 
         const storySlides = itinerary.story_slides as {
@@ -227,7 +234,7 @@ export async function GET(
             generatedAt: storySlides.generated_at,
             expiresAt: storySlides.expires_at,
             tier: storySlides.tier,
-        });
+        }, { headers: { "Cache-Control": "private, no-store" } });
     } catch (error) {
         console.error("[STORY_PERSIST_GET] Error:", error);
         return handleApiError(error, "story-persist-get");
