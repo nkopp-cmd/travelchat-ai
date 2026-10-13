@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,readFile,writeFile,stat,rm} from 'node:fs/promises';
+import {mkdtemp,readFile,writeFile,stat,rm,mkdir,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {snapshotSource,sourceTables,verifySnapshot,SOURCE} from './cloudflare-source-snapshot.mjs';
+import {snapshotSource,sourceTables,verifySnapshot,SOURCE,privateOutput} from './cloudflare-source-snapshot.mjs';
 
 const key = ['eyJhbGciOiJIUzI1NiJ9', Buffer.from(JSON.stringify({ role: 'service_role', ref: 'llehrhqeolfprutcaopi' })).toString('base64url'), 'fixture'].join('.');
 const schema = {paths:{'/spots':{get:{}},'/spatial_ref_sys':{get:{}},'/rpc/mutate':{post:{}}},definitions:{spots:{properties:{id:{description:'Primary Key.<pk/>'},email:{type:'string'}}}}};
@@ -47,4 +47,29 @@ test('public credentials refuse before creating evidence or reading source',asyn
   let calls=0;
   await assert.rejects(snapshotSource({key:'sb_publishable_fixture',output:'/unused',request:async()=>{calls++;}}),/invalid_source_credential/);
   assert.equal(calls,0);
+});
+
+test('private output refuses repository and symlink escapes',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'localley-path-'));
+  try {
+    const privateRoot=join(root,'private');await mkdir(privateRoot);
+    assert.equal(await privateOutput(join(privateRoot,'new'),privateRoot),join(privateRoot,'new'));
+    await assert.rejects(privateOutput('/home/dev/projects/CyberLink/new',privateRoot),/private_output_required/);
+    await symlink(root,join(privateRoot,'escape'));
+    await assert.rejects(privateOutput(join(privateRoot,'escape','new'),privateRoot),/private_output_required/);
+  }finally{await rm(root,{recursive:true,force:true});}
+});
+test('empty tables and schema changes retain the correct completeness claim',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'localley-empty-'));let schemas=0;
+  try{
+    const empty=join(root,'empty');
+    await snapshotSource({key,output:empty,request:async url=>url.endsWith('/rest/v1/')?Response.json(schema):Response.json([],{headers:{'content-range':'*/0'}})});
+    assert.equal((await verifySnapshot(empty)).rows,0);
+    const changed=join(root,'changed');
+    await assert.rejects(snapshotSource({key,output:changed,request:async url=>{
+      if(url.endsWith('/rest/v1/'))return Response.json(++schemas===1?schema:{...schema,info:{version:'changed'}});
+      return Response.json([],{headers:{'content-range':'*/0'}});
+    }}),/source_schema_changed/);
+    assert.equal(JSON.parse(await readFile(join(changed,'manifest.json'))).complete,false);
+  }finally{await rm(root,{recursive:true,force:true});}
 });

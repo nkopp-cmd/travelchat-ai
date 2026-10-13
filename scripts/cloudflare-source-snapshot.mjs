@@ -1,6 +1,6 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, realpath } from 'node:fs/promises';
 import { parseEnv } from 'node:util';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { privilegedSourceKey } from './d1-migration/source-availability.mjs';
@@ -41,6 +41,16 @@ async function boundedText(response) {
     }
     return text + decoder.decode();
   } finally { await reader.cancel().catch(()=>{}); reader.releaseLock(); }
+}
+
+// CLI exports stay in the dedicated private receipt directory, including through symlinks.
+export async function privateOutput(output, privateRoot = '/home/dev/.local/state/localley') {
+  try {
+    const parent = await realpath(dirname(resolve(output)));
+    const root = await realpath(privateRoot);
+    if (root.startsWith('/home/dev/projects/') || (parent !== root && !parent.startsWith(root + '/'))) throw Error('private_output_required');
+    return join(parent, resolve(output).split('/').at(-1));
+  } catch { throw Error('private_output_required'); }
 }
 
 export async function snapshotSource({ key, output, request = fetch }) {
@@ -112,7 +122,7 @@ export async function snapshotSource({ key, output, request = fetch }) {
     await saveManifest();
     return manifest;
   } catch (error) {
-    manifest.failure = error instanceof Error && /^[a-z_]+(?::[a-z_]+)?$/.test(error.message) ? error.message : 'snapshot_failed';
+    manifest.failure = error instanceof Error && /^[a-z0-9_]+(?::[a-z0-9_]+)?$/.test(error.message) ? error.message : 'snapshot_failed';
     await saveManifest();
     throw new Error(manifest.failure);
   }
@@ -152,7 +162,7 @@ async function main() {
   if(args.length===2 && args[0]==='--verify'){console.log(JSON.stringify(await verifySnapshot(resolve(args[1]))));return;}
   if (args.length !== 2 || args[0] !== '--out') throw new Error('usage: node scripts/cloudflare-source-snapshot.mjs --out PRIVATE_NEW_DIRECTORY or --verify DIRECTORY');
   const checkout = resolve('/home/dev/projects/CyberLink/apps/Localley');
-  const output = resolve(args[1]);
+  const output = await privateOutput(args[1]);
   if (output === checkout || output.startsWith(checkout + '/') || output === process.cwd() || output.startsWith(process.cwd() + '/')) throw new Error('private_output_required');
   const env = parseEnv(await readFile(join(checkout, '.env.local'),'utf8'));
   if (env.NEXT_PUBLIC_SUPABASE_URL !== SOURCE) throw new Error('unexpected_source');
