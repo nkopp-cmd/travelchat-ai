@@ -401,3 +401,9 @@ Both admins, source counts8/5/33/85/3295 and four public200 remain unchanged.
 Source gallery device proof stopped after two harness failures; no screenshots or device pass are claimed.
 Legacy public saved links, gallery expiry/orphans, subscription Resend and full D1 cutover remain open.
 See docs/STORY_SOURCE_ACCESS.md and docs/STORY_UPLOAD_CAPACITY.md for scoped evidence.
+
+## 2026-10-13 — candidate chat backend
+
+PR409fe38850/CI38342593336SUCCESS17m47s/merge4b4e305 passed45focused tests, type/lint/pinned build and scoped reviews. Guarded candidate0f81bd62 at1% passed36hosted API checks: one real reply, saved history/reload, foreign/unverified/conflicting denials, atomic quota/isolation and exact55APP/Auth cleanup. Receipt67824a9d2719USD0.05 retained. Eight recovery tests and actual restoreb908/c4380814 passed.
+
+Default preview9cf5bafd/deploymentec239595 released04:11:41UTC with generationfalse; rollbackb908. Final default-disabled proof passed12checks at04:23:07UTC: actual503, no counter/owner writes, exact Auth cleanup, all55application counts and foreign keys restored. Productionb4d426e2/0385cd50 remains unchanged; source/admin/fourpublic200 proof passes. See `docs/D1_CHAT_CANDIDATE.md`. This is backend acceptance, not candidate browser chat or a full application-data switch.
