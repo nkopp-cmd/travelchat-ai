@@ -317,6 +317,8 @@ jobs:
             node --check scripts/d1-migration/notification-history-report.test.mjs
             node --test scripts/d1-migration/runtime-inventory.test.mjs
             node --check scripts/d1-migration/runtime-inventory.mjs
+            node --test scripts/d1-migration/source-availability.test.mjs
+            node --check scripts/d1-migration/source-availability.mjs
             node --test scripts/d1-migration/notification-inventory.test.mjs
             node --check scripts/d1-migration/notification-inventory.mjs
             node --test scripts/d1-migration/owner-rehearsal.test.mjs
