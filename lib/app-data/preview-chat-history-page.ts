@@ -5,7 +5,7 @@ import { previewConversations } from "./preview-conversations";
 
 export type PreviewChatHistoryState =
   | { kind: "unavailable" }
-  | { kind: "history"; conversations: { id: string; title: string }[]; selected: null | {
+  | { kind: "history"; actorId: string; canSend: boolean; conversations: { id: string; title: string }[]; selected: null | {
     id: string; title: string; messages: { id: string; role: "user" | "assistant"; content: string }[];
   } };
 const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
@@ -26,7 +26,8 @@ export async function previewChatHistoryPage(conversation?: string | string[]): 
     || (message.role !== "user" && message.role !== "assistant")
     || typeof message.content !== "string" || !message.content || Buffer.byteLength(message.content, "utf8") > 65536))
     throw new Error("Preview chat unavailable");
-  return { kind: "history", conversations: conversations.map(row => ({ id: row.id, title: row.title || "Untitled conversation" })),
+  return { kind: "history", actorId: user.id, canSend: process.env.PREVIEW_CHAT_GENERATION === "true",
+    conversations: conversations.map(row => ({ id: row.id, title: row.title || "Untitled conversation" })),
     selected: selected ? { id: selected.id, title: selected.title || "Untitled conversation",
       messages: selected.messages.map(message => ({ id: message.id, role: message.role as "user" | "assistant", content: message.content })) } : null };
 }

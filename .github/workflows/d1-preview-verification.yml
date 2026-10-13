@@ -238,6 +238,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/components/preview-chat-composer.test.tsx --maxWorkers=1
+            npx eslint components/chat/preview-chat-composer.tsx lib/app-data/preview-actor.ts __tests__/components/preview-chat-composer.test.tsx
             npx vitest run __tests__/lib/app-data-preview-chat-history-page.test.ts __tests__/pages/chat-history-candidate.test.tsx --maxWorkers=1
             npx eslint app/chat/page.tsx components/chat/source-chat-page.tsx components/chat/preview-chat-history.tsx lib/app-data/preview-chat-history-page.ts __tests__/lib/app-data-preview-chat-history-page.test.ts __tests__/pages/chat-history-candidate.test.tsx
             npx vitest run __tests__/api/chat-candidate-route.test.ts __tests__/api/chat-route-provider.test.ts __tests__/lib/app-data-preview-chat-request.test.ts __tests__/lib/app-data-preview-chat-spots.test.ts __tests__/lib/app-data-preview-chat-usage.test.ts --maxWorkers=1

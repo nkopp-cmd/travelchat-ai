@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
+import { matchesPreviewActor } from "@/lib/app-data/preview-actor";
 import { createPreviewConversation, isPreviewConversationCandidate, linkPreviewConversation,
     previewConversations } from "@/lib/app-data/preview-conversations";
 
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
         const { title } = body;
 
         if (isPreviewConversationCandidate(req)) {
+            if (!matchesPreviewActor(req, userId)) return Errors.unauthorized();
             try {
                 const result = await createPreviewConversation(userId, title);
                 return NextResponse.json(result, {

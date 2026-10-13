@@ -77,3 +77,25 @@ Private receipts remain under `/home/dev/.local/state/localley/`:
 `chat-history-release-readback-20261013.json`, `chat-history-after-20261013.json`
 and `chat-history-{desktop,mobile}-20261013-visual{,-scrolled}.png`.
 Evidence-only edits do not deploy a new Worker.
+
+## Candidate sending preparation — 2026-10-13
+
+The admitted history page can render a composer only when
+`PREVIEW_CHAT_GENERATION=true`. The default preview keeps that flag false.
+Normal Source chat remains unchanged. Composer requests carry the admitted
+page actor; candidate handlers reject a different session actor before usage,
+provider or history writes. Existing header-free candidate callers remain compatible.
+
+Each explicit submission locks immediately. The context contains at most20
+saved messages within40KiB, plus a question of at most4,000 characters. The
+existing backend64KiB admission and atomic daily quota remain authoritative.
+The model request comes before any conversation/message write. A generation
+refusal therefore cannot create saved history. The caller makes no automatic retry.
+
+After a reply arrives, the caller confirms the conversation and both saved
+messages by ID, role and content before refreshing the owned flagged page.
+An uncertain save leaves the received reply visible with an honest warning,
+and keeps submission locked until reload. Account changes hide local reply/input.
+The page remounts the composer when owned selection or saved message count changes.
+Hosted sending acceptance and release remain pending; saved fixture-history proof
+above does not certify this new flow.
