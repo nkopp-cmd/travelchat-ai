@@ -1033,3 +1033,58 @@ Private receipts: `candidate-export-hosted-proof-20261012-diagnostic.json`,
 and four dated PNGs under the private Localley state directory.
 Full current-data rehearsal, production canary, rollback drill and cutover
 remain open. This candidate release was restored after acceptance.
+
+
+## Released Source availability audit — 2026-10-13
+
+PR410 source `d3b299fce47d4986d4145c9729fdb8787f19b146` passed nine tests, syntax checks and scoped review without P0/P1. Required CI `38344666019` passed12m48s; merge `ffb08d7ad700a9fa4e011ab9a18c6886a7ae15fc` installed the CLI on stable main. The released command ran through run-heavy with one900second admission. It made GETs only; no row values, RPCs, object changes or Source writes. No Worker release applies to this offline/operations tooling. Rollback reverts the tool commit, never Source data.
+
+The released report at 2026-10-13T04:42:48.091Z covers43resources referenced by tracked runtime code. Forty are readable:30nonempty and10empty, with6001visible rows in total. Three notification resources return404/PGRST205. Counts are separate current API reads, not a transactional snapshot, complete physical inventory, runtime caller proof or row/value parity. Empty API results never authorize deletion. Existing SQL/history NEED545 remains open.
+
+| Source resource | Visible row count | API state |
+| --- | ---: | --- |
+| `affiliate_clicks` | 17 | available |
+| `affiliate_earnings` | 0 | available |
+| `apify_spot_candidates` | 86 | available |
+| `apify_spot_discovery_runs` | 11 | available |
+| `challenges` | 10 | available |
+| `content_engagement` | 0 | available |
+| `contribution_token_ledger` | 4 | available |
+| `conversations` | 115 | available |
+| `follows` | 0 | available |
+| `geo_aliases` | 276 | available |
+| `geo_countries` | 12 | available |
+| `geo_destinations` | 30 | available |
+| `geo_local_area_vibe_scores` | 857 | available |
+| `geo_local_areas` | 212 | available |
+| `geo_vibe_taxonomy` | 15 | available |
+| `guide_earnings` | 0 | available |
+| `guide_profiles` | 0 | available |
+| `itineraries` | 85 | available |
+| `messages` | 173 | available |
+| `notification_preferences` | unknown | unavailable_in_data_api |
+| `notifications` | unknown | unavailable_in_data_api |
+| `push_subscriptions` | unknown | unavailable_in_data_api |
+| `review_helpful_votes` | 0 | available |
+| `saved_itineraries` | 0 | available |
+| `saved_spots` | 0 | available |
+| `social_spot_submission_aliases` | 6 | available |
+| `social_spot_submission_candidates` | 7 | available |
+| `social_spot_submission_media_jobs` | 11 | available |
+| `social_spot_submissions` | 4 | available |
+| `spot_contributors` | 4 | available |
+| `spot_reviews` | 0 | available |
+| `spots` | 3295 | available |
+| `subscriptions` | 5 | available |
+| `transfer_edges` | 24 | available |
+| `usage_tracking` | 33 | available |
+| `user_challenges` | 6 | available |
+| `user_progress` | 0 | available |
+| `users` | 8 | available |
+| `weekly_city_spot_rankings` | 3 | available |
+| `weekly_social_content` | 450 | available |
+| `weekly_social_spot_leads` | 50 | available |
+| `weekly_social_trend_city_builds` | 150 | available |
+| `weekly_social_trend_runs` | 42 | available |
+
+Private0600 report: `/home/dev/.local/state/localley/source-availability-released-20261013.json`. Source digest: `ba114c43331b058753b009af1b2f835cf5596951d6b31865a60f7631cade8e50`. Complete feature, physical-history, media, rollback and production-switch gates remain open. Native sync remains disabled/inactive; canonical Attempt62 records its retirement.

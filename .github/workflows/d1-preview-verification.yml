@@ -160,6 +160,7 @@ on:
       - 'components/chat/chat-interface.tsx'
       - '__tests__/app/chat-history-pair.test.tsx'
       - 'scripts/d1-migration/**'
+      - 'scripts/cloudflare-source-snapshot*.mjs'
       - 'wrangler.jsonc'
       - 'app/api/itineraries/generate/**'
       - '__tests__/api/itinerary-private-diagnostics.test.ts'
@@ -317,7 +318,7 @@ jobs:
             node --check scripts/d1-migration/notification-history-report.test.mjs
             node --test scripts/d1-migration/runtime-inventory.test.mjs
             node --check scripts/d1-migration/runtime-inventory.mjs
-            node --test scripts/d1-migration/source-availability.test.mjs
+            node --test scripts/d1-migration/source-availability.test.mjs scripts/cloudflare-source-snapshot.test.mjs
             node --check scripts/d1-migration/source-availability.mjs
             node --test scripts/d1-migration/notification-inventory.test.mjs
             node --check scripts/d1-migration/notification-inventory.mjs
