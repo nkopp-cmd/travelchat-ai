@@ -16,7 +16,7 @@ export function isPreviewChatUsageCandidate(req: NextRequest): boolean {
 }
 
 /** Only reserved verified proof accounts may exercise candidate writes. */
-async function previewChatOwner(userId: string): Promise<string> {
+async function previewChatOwner(userId: string, freshOnly: boolean): Promise<string> {
   const user = await currentUser();
   if (user?.id !== userId || !user.emailVerified
     || !user.primaryEmailAddress?.emailAddress.toLowerCase().endsWith("@preview.localley.test")) {
@@ -24,6 +24,7 @@ async function previewChatOwner(userId: string): Promise<string> {
   }
   const owners = await ownerIds(userId);
   if (owners.legacy && owners.fresh) throw new Error("Conflicting preview chat owner");
+  if (owners.legacy && freshOnly) throw new Error("Fresh preview chat owner required");
   if (owners.legacy) return owners.legacy;
   const ownerId = owners.fresh ?? await ensureOwnerId(userId);
   if (ownerId !== newOwnerId(userId)) throw new Error("Invalid preview chat owner");
@@ -31,9 +32,9 @@ async function previewChatOwner(userId: string): Promise<string> {
 }
 
 /** Atomic bounded increment; no paid model or Supabase call occurs here. */
-export async function incrementPreviewChatUsage(userId: string, now = new Date()) {
+export async function incrementPreviewChatUsage(userId: string, now = new Date(), freshOnly = false) {
   if (!Number.isFinite(now.getTime())) throw new Error("Invalid chat counter time");
-  const ownerId = await previewChatOwner(userId);
+  const ownerId = await previewChatOwner(userId, freshOnly);
   const day = now.toISOString().slice(0, 10);
   const reset = new Date(`${day}T00:00:00.000Z`);
   reset.setUTCDate(reset.getUTCDate() + 1);
@@ -59,11 +60,14 @@ export async function incrementPreviewChatUsage(userId: string, now = new Date()
   await db.prepare(`INSERT OR IGNORE INTO preview_chat_usage(ownerId, periodStart, count, baselineCount)
     SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM owners WHERE id = ?)`)
     .bind(ownerId, day, initial, initial, ownerId).run();
+  const freshCondition = freshOnly ? ` AND EXISTS (SELECT 1 FROM owners o
+    WHERE o.id = preview_chat_usage.ownerId AND o.source = 'new'
+      AND NOT EXISTS (SELECT 1 FROM legacy_owners l WHERE l.ownerId = o.id OR l.clerkUserId = ?))` : "";
   const updated = await db.prepare(`UPDATE preview_chat_usage SET count = count + 1
     WHERE ownerId = ? AND periodStart = ? AND count < ?
       AND baselineCount = ?
-      AND EXISTS (SELECT 1 FROM owners WHERE id = ?)
-    RETURNING count, baselineCount`).bind(ownerId, day, dailyLimit, initial, ownerId).first<CountRow>();
+      AND EXISTS (SELECT 1 FROM owners WHERE id = ?)${freshCondition}
+    RETURNING count, baselineCount`).bind(ownerId, day, dailyLimit, initial, ownerId, ...(freshOnly ? [userId] : [])).first<CountRow>();
   const row = updated ?? await db.prepare(`SELECT count, baselineCount FROM preview_chat_usage
     WHERE ownerId = ? AND periodStart = ?`).bind(ownerId, day).first<CountRow>();
   if (!row || !Number.isSafeInteger(row.count) || row.count < initial || row.baselineCount !== initial) {

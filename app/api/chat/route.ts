@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
                 const question = input.messages.filter(message => message.role === "user").pop()!.content;
                 // Import/visibility failures occur before any quota write or model submission.
                 const context = city ? await previewChatSpotContext(city, question) : null;
-                const usage = await incrementPreviewChatUsage(userId);
+                const usage = await incrementPreviewChatUsage(userId, new Date(), true);
                 if (!usage.allowed) return NextResponse.json({ error: "Chat limit reached", usage }, { status: 429, headers });
                 // A failed or lost model reply consumes this reservation. Never retry or refund it here.
                 const reply = await generateChatReplyWithFallback({
