@@ -1,0 +1,28 @@
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+const mocks = vi.hoisted(() => ({ host: "localley-next-preview.nkopp.workers.dev", read: vi.fn() }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers({ host: mocks.host }) }));
+vi.mock("@/components/chat/source-chat-page", () => ({ default: () => <p>Normal source chat</p> }));
+vi.mock("@/lib/app-data/preview-chat-history-page", () => ({ previewChatHistoryPage: mocks.read }));
+vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
+vi.mock("next/link", () => ({ default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => <a href={href} {...props}>{children}</a> }));
+import ChatPage from "@/app/chat/page";
+const id = "12345678-1234-1234-1234-123456789abc";
+const page = (data_candidate?: string | string[], conversation?: string | string[]) => ChatPage({ searchParams: Promise.resolve({ data_candidate, conversation }) });
+beforeEach(() => { vi.resetAllMocks(); mocks.host = "localley-next-preview.nkopp.workers.dev"; vi.stubEnv("AUTH_MAIL_MODE", "outbox"); vi.stubEnv("SUPABASE_READ_ONLY", "true"); mocks.read.mockResolvedValue({ kind: "history", conversations: [], selected: null }); vi.stubGlobal("fetch", vi.fn(() => { throw new Error("No browser writes or paid calls"); })); });
+afterEach(() => { cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+describe("chat history candidate page", () => {
+  it("shows honest empty history and flagged real reload without a composer", async () => { render(await page("d1")); expect(screen.getByRole("status").textContent).toContain("no saved preview conversations"); expect(screen.getByRole("link", { name: "Reload history" }).getAttribute("href")).toBe("/chat?data_candidate=d1"); expect(screen.queryByRole("textbox")).toBeNull(); expect(fetch).not.toHaveBeenCalled(); });
+  it("preserves selected links and escapes saved hostile text", async () => {
+    const text = '<script>private()&</script>';
+    mocks.read.mockResolvedValue({ kind: "history", conversations: [{ id, title: text }], selected: { id, title: text, messages: [{ id: "message", role: "user", content: text }, { id: "answer", role: "assistant", content: "Owned answer" }] } });
+    const { container } = render(await page("d1", id));
+    expect(mocks.read).toHaveBeenCalledWith(id); expect(container.querySelector("script")).toBeNull(); expect(screen.getByText("Owned answer")).not.toBeNull();
+    const links = screen.getAllByRole("link"); expect(links.every(link => link.getAttribute("href") === `/chat?data_candidate=d1&conversation=${id}`)).toBe(true);
+    expect(links.find(link => link.getAttribute("aria-current") === "page")).toBeDefined(); expect(screen.getByText("You")).not.toBeNull(); expect(screen.queryByText("Normal source chat")).toBeNull(); expect(fetch).not.toHaveBeenCalled();
+  });
+  it.each(["AUTH_MAIL_MODE", "SUPABASE_READ_ONLY"])("refuses unsafe %s without source fallback or private reads", async key => { vi.stubEnv(key, "false"); render(await page("d1")); expect(screen.getByRole("status").textContent).toContain("unavailable"); expect(mocks.read).not.toHaveBeenCalled(); expect(screen.queryByText("Normal source chat")).toBeNull(); });
+  it("contains actor/storage failure text without source fallback", async () => { mocks.read.mockRejectedValue(new Error("foreign private secret")); render(await page("d1")); expect(screen.getByRole("status").textContent).toContain("unavailable"); expect(screen.queryByText("foreign private secret")).toBeNull(); expect(screen.queryByText("Normal source chat")).toBeNull(); });
+  it.each(["www.localley.io", "localley.io", "localley-next-preview.nkopp.workers.dev.attacker.test", "localley-next-preview.nkopp.workers.dev:443"])("preserves normal %s routing even with the flag", async host => { mocks.host = host; render(await page("d1")); expect(screen.getByText("Normal source chat")).not.toBeNull(); expect(mocks.read).not.toHaveBeenCalled(); });
+  it.each([undefined, "", "D1", ["source", "d1"]])("preserves normal preview without first explicit opt-in", async flag => { render(await page(flag)); expect(screen.getByText("Normal source chat")).not.toBeNull(); expect(mocks.read).not.toHaveBeenCalled(); });
+});
