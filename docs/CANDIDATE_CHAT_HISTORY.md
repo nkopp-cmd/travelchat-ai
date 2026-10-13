@@ -51,8 +51,8 @@ Supabase; this page does not complete the broader migration.
   retains the byte-identical normal Source chat component.
 - Preview Worker `ae129c85-c6b0-431d-a87a-02c788604bcd` at100%, deployment
   `1a1a1a82-76f5-49f3-9c15-ddafba16d0f4`, released07:27:26UTC. Rollback
-  `9cf5bafd-0b75-4990-a2ff-4554fbd6a51c`. API version readback proves outbox,
-  Source read-only and chat/story generation, beta and bypass all explicitly false.
+  `9cf5bafd-0b75-4990-a2ff-4554fbd6a51c`. API version readback proves outbox
+  and Source read-only true. Chat/story generation, beta and bypass are explicitly false.
 - First hosted proof passes49 checks. Strengthened proof passes51 checks with
   two actual verified reserved users, saved fixture messages, conversation
   selection and reload, foreign API404, foreign/missing/malformed page refusal,
