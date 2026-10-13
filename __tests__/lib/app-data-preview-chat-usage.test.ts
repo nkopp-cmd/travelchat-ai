@@ -64,6 +64,14 @@ describe("preview daily chat counter", () => {
     expect(db.sqlite.prepare("SELECT count(*) AS n FROM preview_chat_usage").get()).toEqual({ n: 3 });
   });
 
+  it("keeps paid admission fresh-only while historical counter probes remain available", async () => {
+    expect(await incrementPreviewChatUsage("user-1", now, true)).toMatchObject({ allowed: true, currentUsage: 1 });
+    mocks.currentUser.mockResolvedValue({ id: "legacy-1", emailVerified: true,
+      primaryEmailAddress: { emailAddress: "legacy@preview.localley.test" } });
+    await expect(incrementPreviewChatUsage("legacy-1", now, true)).rejects.toThrow("Fresh");
+    expect(db.sqlite.prepare("SELECT count(*) AS n FROM preview_chat_usage").get()).toEqual({ n: 1 });
+  });
+
   it("seeds history once, preserves source rows and rejects changed baselines", async () => {
     db.sqlite.exec("INSERT INTO legacy_usage VALUES ('legacy-1','chat_messages','daily','2026-09-30',8); UPDATE legacy_import_batches SET counts='{\"legacy_usage\":1}'");
     mocks.currentUser.mockResolvedValue({ id: "legacy-1", emailVerified: true,
