@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sourceAvailability, sourceAvailabilityInventory } from './source-availability.mjs';
-const credentials = { sourceUrl: 'https://llehrhqeolfprutcaopi.supabase.co', sourceKey: 'private-test-key' };
+import { sourceAvailability, sourceAvailabilityInventory, privilegedSourceKey } from './source-availability.mjs';
+const jwt = payload => `e30.${Buffer.from(JSON.stringify(payload)).toString('base64url')}.testsignature`;
+const credentials = { sourceUrl: 'https://llehrhqeolfprutcaopi.supabase.co', sourceKey: jwt({ role: 'service_role', ref: 'llehrhqeolfprutcaopi' }) };
 const response = (body, status = 200, range = '*/5') => new Response(JSON.stringify(body), { status, headers: { 'Content-Range': range } });
 test('reads only bounded zero-row exact counts without certifying physical schema', async () => {
   const result = await sourceAvailability('users', credentials, async (url, init) => {
@@ -15,7 +16,7 @@ test('missing Data API and denied access keep counts unknown and exclude provide
   for (const status of [401,403,404,500]) {
     const result = await sourceAvailability('notifications', credentials, async () => response({ code: 'PGRST205', message: 'private-test-key' }, status));
     assert.equal(result.count, null); assert.equal(result.physicalState, 'not_audited');
-    assert.equal(result.state, status === 404 ? 'unavailable_in_data_api' : [401,403].includes(status) ? 'access_denied' : 'unavailable');
+    assert.equal(result.state, status === 404 ? 'unavailable_in_data_api' : [401,403].includes(status) ? 'access_denied' : 'http_error');
     assert(!JSON.stringify(result).includes('private-test-key'));
   }
 });
@@ -50,8 +51,22 @@ test('covers derived tables once with bounded concurrency and explicit unknown s
     await new Promise(resolve => setTimeout(resolve, 5)); active--;
     return table === 'notifications' ? response({ code: 'PGRST205' }, 404) : response([], 200, table === 'spots' ? '*/3295' : '*/0');
   });
-  assert.equal(peak, 4); assert.equal(new Set(seen).size, 7); assert.equal(seen.length, 7);
+  assert.equal(peak, 2); assert.equal(new Set(seen).size, 7); assert.equal(seen.length, 7);
   assert.equal(result.summary.available, 6); assert.equal(result.summary.unavailable_in_data_api, 1);
   assert.equal(result.cutoverReady, false); assert.equal(result.readOnly, true);
   assert(result.tables.every(row => row.physicalState === 'not_audited'));
+});
+
+test('requires privileged keys before HTTP, including rejecting anon and foreign project claims', async () => {
+  let calls = 0;
+  for (const key of [jwt({ role: 'anon' }), jwt({ role: 'authenticated' }), jwt({ role: 'service_role', ref: 'foreign' }), 'sb_publishable_test', 'invalid']) {
+    assert.equal(privilegedSourceKey(key), false);
+    await assert.rejects(sourceAvailability('spots', { ...credentials, sourceKey: key }, async () => { calls++; return response([]); }));
+  }
+  assert.equal(calls, 0); assert.equal(privilegedSourceKey('sb_secret_test'), true);
+});
+test('keeps safe HTTP error codes and rejects unknown ranges without absence claims', async () => {
+  const failed = await sourceAvailability('users', credentials, async () => response({ code: '57014', message: 'private' }, 500));
+  assert.equal(failed.state, 'http_error'); assert.equal(failed.code, '57014'); assert.equal(failed.count, null);
+  assert.equal((await sourceAvailability('users', credentials, async () => response([], 200, '*/*'))).state, 'invalid_count_response');
 });

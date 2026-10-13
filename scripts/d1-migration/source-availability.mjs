@@ -2,7 +2,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { parseEnv } from 'node:util';
 import { resolve, dirname } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { inventoryCheckout } from './runtime-inventory.mjs';
 const PROJECT = 'https://llehrhqeolfprutcaopi.supabase.co';
 
@@ -19,10 +19,20 @@ async function boundedJson(response) {
     return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks)));
   } catch { return null; } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
 }
+export function privilegedSourceKey(key) {
+  if (typeof key !== 'string' || key.length > 16384) return false;
+  if (/^sb_secret_[A-Za-z0-9_-]+$/.test(key)) return true;
+  try {
+    const parts = key.split('.');
+    if (parts.length !== 3 || parts.some(part => !/^[A-Za-z0-9_-]+$/.test(part))) return false;
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    return payload?.role === 'service_role' && (!payload.ref || payload.ref === 'llehrhqeolfprutcaopi');
+  } catch { return false; }
+}
 export async function sourceAvailability(table, credentials, request = fetch) {
   if (!/^[a-z][a-z0-9_]{0,62}$/.test(table) || credentials.sourceUrl !== PROJECT
-    || typeof credentials.sourceKey !== 'string' || !credentials.sourceKey) throw Error('invalid_source_inventory_input');
-  const result = { table, state: 'unavailable', status: null, count: null, physicalState: 'not_audited' };
+    || !privilegedSourceKey(credentials.sourceKey)) throw Error('invalid_source_inventory_input');
+  const result = { table, state: 'http_error', status: null, count: null, physicalState: 'not_audited' };
   let response;
   try {
     response = await request(`${PROJECT}/rest/v1/${table}?select=*&limit=0`, {
@@ -35,7 +45,8 @@ export async function sourceAvailability(table, credentials, request = fetch) {
   if ([401, 403].includes(response.status)) return { ...result, state: 'access_denied' };
   if (!response.ok) {
     return response.status === 404 && body?.code === 'PGRST205'
-      ? { ...result, state: 'unavailable_in_data_api', code: 'PGRST205' } : result;
+      ? { ...result, state: 'unavailable_in_data_api', code: 'PGRST205' }
+      : { ...result, ...(/^(?:[0-9A-Z]{5}|PGRST\d{3})$/.test(body?.code ?? '') ? { code: body.code } : {}) };
   }
   const match = /^\*\/(0|[1-9][0-9]*)$/.exec(response.headers.get('content-range') || '');
   const count = match ? Number(match[1]) : NaN;
@@ -55,17 +66,18 @@ export async function sourceAvailabilityInventory(inventory, credentials, reques
   if (control.state !== 'available' || control.count < 1) throw Error('source_control_unavailable');
   const results = [control];
   const rest = names.filter(name => name !== 'spots');
-  for (let offset = 0; offset < rest.length; offset += 4) {
-    results.push(...await Promise.all(rest.slice(offset, offset + 4).map(name => sourceAvailability(name, credentials, request))));
+  for (let offset = 0; offset < rest.length; offset += 2) {
+    results.push(...await Promise.all(rest.slice(offset, offset + 2).map(name => sourceAvailability(name, credentials, request))));
   }
   results.sort((a, b) => a.table.localeCompare(b.table));
   return { checkedAt: new Date().toISOString(), readOnly: true, cutoverReady: false,
     sourceDigest: inventory.sourceDigest, checkoutPolicy: inventory.checkoutPolicy,
     staticResources: names.length, tables: results,
-    summary: Object.fromEntries(['available','unavailable','unavailable_in_data_api','request_failed','access_denied','invalid_count_response']
+    summary: Object.fromEntries(['available','http_error','unavailable_in_data_api','request_failed','access_denied','invalid_count_response']
       .map(state => [state, results.filter(row => row.state === state).length])),
     limits: ['Data API counts do not prove physical relation types, triggers, external writers or complete history.',
       'Static references do not prove current callers; classify each resource with runtime evidence.',
+      'Counts represent rows visible to this authorized key at checkedAt; they never authorize deletion.',
       'No row values, RPC executions, storage changes, source writes or cutover occurred.'] };
 }
 
@@ -73,13 +85,15 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   (async () => {
     const args = process.argv.slice(2);
     if (args.length !== 2 || args[0] !== '--out') throw Error('usage: source-availability.mjs --out NEW_PRIVATE_REPORT');
-    const root = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+    const output = resolve(args[1]);
+    if (output === root || output.startsWith(root + '/')) throw Error('report_must_be_outside_checkout');
     const env = parseEnv(await readFile('/home/dev/projects/CyberLink/apps/Localley/.env.local', 'utf8'));
     const inventory = await inventoryCheckout(root);
     const report = await sourceAvailabilityInventory(inventory, {
       sourceUrl: env.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, ''), sourceKey: env.SUPABASE_SERVICE_ROLE_KEY,
     });
-    await writeFile(resolve(args[1]), JSON.stringify(report, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
+    await writeFile(output, JSON.stringify(report, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
     console.log(JSON.stringify({ readOnly: true, staticResources: report.staticResources, summary: report.summary, cutoverReady: false }));
   })().catch(() => { console.error('Source availability report incomplete; no source writes occurred.'); process.exitCode = 1; });
 }
