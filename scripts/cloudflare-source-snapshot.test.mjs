@@ -50,7 +50,7 @@ test('public credentials refuse before creating evidence or reading source',asyn
 });
 
 test('private output refuses repository and symlink escapes',async()=>{
-  const root=await mkdtemp(join(tmpdir(),'localley-path-'));
+  const root=await mkdtemp('/tmp/localley-path-');
   try {
     const privateRoot=join(root,'private');await mkdir(privateRoot);
     assert.equal(await privateOutput(join(privateRoot,'new'),privateRoot),join(privateRoot,'new'));
