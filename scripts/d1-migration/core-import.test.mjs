@@ -89,8 +89,10 @@ test('legacy import builds exact, idempotent D1 rows with the complete current s
       const result = await rehearseCoreD1(built);
       assert.equal(result.mismatchCount, 0); assert.equal(result.repeatChanges, 0);
       assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 31);
-      assert.equal(result.localOnly, true); assert.equal(result.networkDisabled, true);
+      assert.equal(result.localOnly, true); assert.equal(result.noOutboundCode, true);
       assert.equal(result.servingApiVerified, false);
+      const sqlite = await rehearse(built.sql, built.expected);
+      assert.equal(JSON.stringify(result.schemaObjects), JSON.stringify(sqlite.schemaObjects));
     });
     await t.test('corrupt pages, unknown tables and projection drift are refused', async () => {
       const corrupt = join(root, 'corrupt'); await mkdir(corrupt);

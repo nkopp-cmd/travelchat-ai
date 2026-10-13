@@ -52,9 +52,10 @@ export async function rehearseCoreD1(built) {
     }
     const batches = (await db.prepare('SELECT id,counts FROM legacy_import_batches').all()).results;
     if (batches.length !== 1 || batches[0].id !== built.batchId || JSON.stringify(JSON.parse(batches[0].counts)) !== JSON.stringify(built.counts)) mismatchCount++;
+    const schemaObjects = (await db.prepare("SELECT type,name,tbl_name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").all()).results;
     const foreignKeyViolations = (await db.prepare('PRAGMA foreign_key_check').all()).results.length;
-    return { localOnly: true, networkDisabled: true, migrations: migrations.length, insertedRows,
-      repeatChanges, counts, mismatchCount, foreignKeyViolations, servingApiVerified: false };
+    return { localOnly: true, noOutboundCode: true, migrations: migrations.length, insertedRows,
+      repeatChanges, counts, schemaObjects, mismatchCount, foreignKeyViolations, servingApiVerified: false };
   } finally {
     await mf?.dispose();
     await rm(state, { recursive: true, force: true });

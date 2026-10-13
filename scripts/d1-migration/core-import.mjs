@@ -2,7 +2,7 @@
 // It never contacts Supabase, Clerk, Stripe or Cloudflare. Output is private data: keep it in
 // .preview-private or another private directory, never in Git.
 //
-//   node scripts/legacy-import.mjs --snapshot DIR --projection DIR --out FILE.sql --report FILE.json
+//   node scripts/d1-migration/core-import.mjs --snapshot DIR --projection DIR --out FILE.sql --report FILE.json
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -218,6 +218,7 @@ export async function rehearse(sqlText, expected) {
   }
   const result = { migrations: migrations.length, counts: first, repeatChanges, mismatches: mismatches.slice(0, 20), mismatchCount: mismatches.length,
     foreignKeyViolations: db.prepare('PRAGMA foreign_key_check').all().length, integrity: db.prepare('PRAGMA integrity_check').get().integrity_check,
+    schemaObjects: db.prepare("SELECT type,name,tbl_name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").all(),
     largestRowBytes: Math.max(...['itineraries', 'legacy_spot_source', 'legacy_itinerary_media', 'messages'].map(name =>
       db.prepare(`SELECT max(length(CAST(${name === 'itineraries' ? 'activities' : name === 'messages' ? 'content' : name === 'legacy_spot_source' ? 'payload' : 'aiBackgrounds'} AS BLOB))) AS n FROM ${name}`).get().n ?? 0)) };
   db.close();
@@ -235,12 +236,15 @@ async function main() {
   writeFileSync(args.out, built.sql, { mode: 0o600, flag: 'wx' });
   const rehearsal = await rehearse(built.sql, built.expected);
   const d1 = await (await import('./core-import-d1.mjs')).rehearseCoreD1(built);
-  const report = { batchId: built.batchId, sqlSha256: sha256(built.sql), statements: built.statements, longestStatementBytes: built.longestStatementBytes,
+  const schemaObjectsMatch = JSON.stringify(rehearsal.schemaObjects) === JSON.stringify(d1.schemaObjects);
+  const passed = schemaObjectsMatch && d1.mismatchCount === 0 && d1.repeatChanges === 0 && d1.foreignKeyViolations === 0
+    && rehearsal.mismatchCount === 0 && rehearsal.repeatChanges === 0 && rehearsal.foreignKeyViolations === 0 && rehearsal.integrity === 'ok';
+  const report = { passed, schemaObjectsMatch, batchId: built.batchId, sqlSha256: sha256(built.sql), statements: built.statements, longestStatementBytes: built.longestStatementBytes,
     scope: 'current core serving projection only; physical history, archived feature parity, media serving and cutover remain open', localOnly: true, counts: built.counts, archivedOnly: built.archived, spotIssues: built.spotIssues, rehearsal, d1 };
   writeFileSync(args.report, JSON.stringify(report, null, 2), { mode: 0o600, flag: 'wx' });
-  console.log(JSON.stringify({ batchId: report.batchId, sqlSha256: report.sqlSha256, counts: report.counts, visibleSpots: built.expected.spots.filter(s => s.visible).length,
+  console.log(JSON.stringify({ passed, schemaObjectsMatch, d1: { ...d1, schemaObjects: undefined }, batchId: report.batchId, sqlSha256: report.sqlSha256, counts: report.counts, visibleSpots: built.expected.spots.filter(s => s.visible).length,
     listings: built.counts.spot_listing_places, rehearsal: { ...rehearsal, mismatches: undefined } }));
-  if (d1.mismatchCount || d1.repeatChanges || d1.foreignKeyViolations || rehearsal.mismatchCount || rehearsal.repeatChanges || rehearsal.foreignKeyViolations || rehearsal.integrity !== 'ok') process.exitCode = 1;
+  if (!passed) process.exitCode = 1;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
