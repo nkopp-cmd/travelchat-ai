@@ -99,3 +99,50 @@ and keeps submission locked until reload. Account changes hide local reply/input
 The page remounts the composer when owned selection or saved message count changes.
 Hosted sending acceptance and release remain pending; saved fixture-history proof
 above does not certify this new flow.
+
+## Delivered sending preview — 2026-10-14
+
+- PR416 source `89c427ccb0713aaff1663a8edb62f4ccfa6b75c5` passed
+  required self-hosted CI38418856780 in11m13s. Merge
+  `af6deadf0aab0b71d11cc8c637b779dbd02bc896` has the same tree.
+  All68 focused tests and scoped lint pass. The bounded read-only review found
+  no confirmed P0/P1. Its save-state finding was fixed and tested before merge.
+- A clean pinned install, TypeScript and OpenNext build pass. Artifact SHA256
+  `728b5527d29d610061664a876cd8084fc7b23656c6180ad0d1ed841905b69cec`
+  covers2,328 files/76,802,538 bytes. The scan checked93 private values with
+  zero unexpected hits and the five existing server-only public Kakao aliases.
+- Inactive version `386b740c-744f-4877-b929-ccf6296112eb` retained the approved
+  provider binding. No secret was changed. Eight rollback-guard tests pass.
+  First hosted attempt stopped on an invalid denial fixture before any paid call;
+  its cleanup and rollback passed. The corrected second attempt passed49 checks.
+- Guarded1% deployment `5ecf7d87-e421-4a24-9848-8fd98b68d357` proved the actual
+  form at desktop1440x900 and touch mobile390x844. Each explicit action made
+  one model request, confirmed two owned messages, refreshed and reloaded the
+  same saved content. Duplicate submit events did not repeat the paid request.
+  Owner mismatch, anonymous, malformed and foreign-owner denials pass.
+- Receipts `187600454aa5` and `d882147cc6cf` each record estimatedUSD0.05.
+  Raw replies were retained before assertions. No fallback or paid retry occurred.
+  Each owner had exactly one daily usage increment. Four top/scrolled screenshots
+  were inspected; text wraps and the scrolled mobile reply is fully visible.
+  No model name appears in the interface. There were no browser page errors.
+- All55 application table counts, foreign keys, owned Auth/session/account/outbox
+  rows and verification count returned to baseline. Recovery restored
+  `ae129c85-c6b0-431d-a87a-02c788604bcd` at100%, deployment
+  `c56edfac-9941-464d-845f-e5917b354688`; the recovery timer is inactive.
+- Released default preview `b010d40b-5023-4fdb-b4ea-a626715dd3be` at100%,
+  deployment `2e305896-852b-423f-bc21-777e0d606711`,03:08:06UTC.
+  Rollback is `ae129c85-c6b0-431d-a87a-02c788604bcd`. API readback confirms
+  outbox/read-only true, and chat/story generation, beta and bypass false.
+  Final default-disabled proof passes13 checks: actual503, no owner/counter
+  writes, no rendered composer, exact Auth cleanup,55 restored counts and FK0.
+  Its first invocation had a duplicate local declaration and made no requests.
+- Production remains `b4d426e2-1952-4f7b-9989-67142b47053f`, deployment
+  `0385cd50-8091-4ab4-aec7-f208d15cb496`. Both admins, Source counts
+  users8/subscriptions5/usage33/itineraries85/spots3295 and four public200 remain.
+  Evidence: private `chat-composer-hosted-20261014-v2.json`, raw replies,
+  four PNGs, window-state, release-readback, default acceptance and final probe.
+
+This scoped flow does not certify recommendation accuracy or every shell API.
+Shared navigation still uses its existing subscription path. The candidate
+renders escaped plain text, including literal Markdown markers. Production
+application data stays in Supabase; the full cutover gates remain open.
