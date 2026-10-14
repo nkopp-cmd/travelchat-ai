@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /** Daily read-only user health check. Never records request headers or URL queries. */
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { parseEnv } from 'node:util';
+import { checkSourceDatabase } from './production-health/source-database.mjs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { parsePhotoFailure } from './production-health/photo-diagnostics.mjs';
@@ -21,6 +23,12 @@ const args = process.argv.slice(2);
 const reportIndex = args.indexOf('--report');
 const destination = reportIndex < 0 ? join(homedir(), '.local/state/localley/production-health.json') : args[reportIndex + 1];
 if (!destination) throw new Error('--report needs a path');
+let sourceDatabase;
+if (args.includes('--source-check')) {
+  let configuration;
+  try { configuration = parseEnv(await readFile(join(process.cwd(), '.env.local'), 'utf8')); } catch {}
+  sourceDatabase = await checkSourceDatabase(configuration);
+}
 const health = await Promise.all(['/', '/sign-in', '/api/cities?noCache=true&includeHidden=true'].map(async path => {
   try {
     const response = await fetch(`https://www.localley.io${path}`, { redirect: 'error', signal: AbortSignal.timeout(25000) });
@@ -87,8 +95,8 @@ try {
   logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)
     ? message : 'Query failed or timed out' };
 }
-const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings };
+const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings, ...(sourceDatabase ? { sourceDatabase } : {}) };
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
-console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, report: destination }));
-if (!logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false)) process.exitCode = 1;
+console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, ...(sourceDatabase ? { sourceDatabase } : {}), report: destination }));
+if (sourceDatabase?.usable === false || !logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false)) process.exitCode = 1;
