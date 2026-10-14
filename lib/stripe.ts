@@ -88,6 +88,8 @@ export async function getOrCreateStripeCustomer(
     return customer.id;
 }
 
+export class StripePlanAlreadyExistsError extends Error {}
+
 // Create a checkout session for subscription
 export async function createCheckoutSession({
     customerId,
@@ -105,6 +107,12 @@ export async function createCheckoutSession({
     trialDays?: number;
 }): Promise<Stripe.Checkout.Session | null> {
     if (!stripe) return null;
+
+    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 });
+    if (subscriptions.has_more || subscriptions.data.some(subscription =>
+        !["canceled", "incomplete_expired"].includes(subscription.status))) {
+        throw new StripePlanAlreadyExistsError("Use billing settings to manage your current Stripe plan.");
+    }
 
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
         customer: customerId,

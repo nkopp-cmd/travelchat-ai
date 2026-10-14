@@ -22,6 +22,7 @@ All four controlled checkout sessions must prove the actual price IDs before def
 A verified session must match the current user before checkout.
 A product ID cannot pass as a price ID.
 Existing paid active/trialing/past-due plans use billing settings instead of another checkout.
+A provider lookup also refuses any non-terminal subscription, covering delayed or incomplete app records.
 Starting checkout updates only the stored customer association, preserving tier and status.
 Absent rows initialize with ignoreDuplicates, preserving any concurrent insert.
 A stored customer association is verified against its owner metadata.

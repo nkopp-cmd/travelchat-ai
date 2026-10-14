@@ -4,6 +4,7 @@ import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import {
     stripe,
+    StripePlanAlreadyExistsError,
     getOrCreateStripeCustomer,
     createCheckoutSession,
     getPriceId,
@@ -120,6 +121,9 @@ export async function POST(req: NextRequest) {
             sessionId: session.id,
         }, { headers: { "Cache-Control": "private, no-store", "X-Localley-Billing-Contract": "2026-10-14" } });
     } catch (error) {
+        if (error instanceof StripePlanAlreadyExistsError) return NextResponse.json({ error: {
+            code: "existing_subscription", message: error.message,
+        } }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
         return handleApiError(error, "subscription-checkout");
     }
 }

@@ -8,7 +8,7 @@ vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: mocks.user 
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
 vi.mock("@/lib/supabase-server", () => ({ createSupabaseServerClient: mocks.source }));
 vi.mock("@/lib/stripe", () => ({
-  stripe: {}, isStripeConfigured: mocks.configured, getOrCreateStripeCustomer: mocks.customer,
+  StripePlanAlreadyExistsError: class extends Error {}, stripe: {}, isStripeConfigured: mocks.configured, getOrCreateStripeCustomer: mocks.customer,
   createCheckoutSession: mocks.checkout, createBillingPortalSession: mocks.portal, getPriceId: mocks.price,
 }));
 import { POST as checkout } from "@/app/api/subscription/checkout/route";

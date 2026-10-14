@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 const m = vi.hoisted(() => ({ auth: vi.fn(), user: vi.fn(), read: vi.fn(), update: vi.fn(), upsert: vi.fn(), customer: vi.fn(), checkout: vi.fn(), price: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: m.auth, currentUser: m.user }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: m.read }) }), update: (data: unknown) => { m.update(data); return { eq: async () => ({ error: null }) }; }, upsert: m.upsert }) }) }));
-vi.mock("@/lib/stripe", () => ({ stripe: {}, isStripeConfigured: () => true, getPriceId: m.price, getOrCreateStripeCustomer: m.customer, createCheckoutSession: m.checkout }));
+vi.mock("@/lib/stripe", () => ({ StripePlanAlreadyExistsError: class extends Error {}, stripe: {}, isStripeConfigured: () => true, getPriceId: m.price, getOrCreateStripeCustomer: m.customer, createCheckoutSession: m.checkout }));
 import { POST } from "@/app/api/subscription/checkout/route";
 const request = () => new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier: "pro", billingCycle: "monthly" }) });
 beforeEach(() => { vi.resetAllMocks(); m.auth.mockResolvedValue({ userId: "a" }); m.user.mockResolvedValue({ id: "a", emailVerified: true, emailAddresses: [{ emailAddress: "a@preview.localley.test" }] }); m.read.mockResolvedValue({ data: null, error: null }); m.upsert.mockResolvedValue({ error: null }); m.price.mockReturnValue("price_live"); m.customer.mockResolvedValue("cus_owned"); m.checkout.mockResolvedValue({ id: "cs_live", url: "https://checkout.stripe.com/pay/owned" }); });
