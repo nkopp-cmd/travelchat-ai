@@ -62,6 +62,6 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
 export function VenueCardPhoto({ spotId, name, priority = false, directPhotos = [] }: { spotId: string; name: string; priority?: boolean; directPhotos?: string[] }) {
   const { ref, data, loading } = useVenuePhotos(spotId, priority, getDirectVenuePhotos(directPhotos));
   return <div ref={ref} className="relative h-full w-full">
-    <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 128px, 400px" priority={priority} loading={loading} />
+    <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 400px" priority={priority} loading={loading} />
   </div>;
 }

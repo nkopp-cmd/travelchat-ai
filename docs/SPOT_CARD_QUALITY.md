@@ -62,3 +62,19 @@ Two visual harness failures keep this release blocked: normal preview detail lac
 Use the existing explicit D1 detail page for preview refusal/layout checks; verify source hero geometry through guarded production canary only after corrected visible-control checks.
 No third browser attempt, ready/merge or production release is claimed. Production043e1752 remains unchanged.
 All source rows and saved references remain. Individual missing-photo repairs and full migration gates remain open.
+
+## Resume on current main — 2026-10-14
+
+Rebased the existing draft on main32acea6 without dropping current runtime or CI changes.
+All74 focused photo/card/query/review tests and scoped lint pass.
+The preview b010d40b has the approved Google binding and no Source service-role binding.
+The normal preview reader change uses only public rows under exact host/outbox/read-only checks.
+Production b4d426e2 retains its existing admin reader and provider binding.
+No secret change is needed. Generation stays disabled in preview.
+
+New real-photo checks require a fresh spending guard and per-request receipts.
+Never replay an uncertain request. Old photo references are not reused as current evidence.
+Test visible mobile controls; inspect source hero geometry only through the guarded production version override.
+The previous two-attempt stop remains historical. Current build/review/CI and live gates must pass before promotion.
+Keep required photographer links below each photo. Official reference:
+https://developers.google.com/maps/documentation/places/web-service/place-photos
