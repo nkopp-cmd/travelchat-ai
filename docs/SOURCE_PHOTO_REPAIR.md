@@ -138,3 +138,41 @@ The receipt file is `photo-incidents-live-proof-20261012.json`.
 Future authorized rollback must use the corresponding private backup and exact incident ID with `--rollback`.
 It must refuse changed fields or later enrichment. Read-only live predicates each match exactly one unchanged empty-photo row.
 Rejected images were not restored. This mock/source-predicate proof does not satisfy the full cutover rollback drill.
+
+## Observed Seoul incidents — 2026-10-14
+
+The daily report found four returned log events for two photo requests.
+Two structured events report `listing_coordinate_conflict`; event counts do not count affected users.
+This report does not prove complete ingestion coverage.
+
+The exact source records are:
+
+| Venue | Source ID | Backup SHA256 |
+| --- | --- | --- |
+| Hongje-dong Gimbap Alley | `2f9a76e1-2ad6-4126-89bc-e8f9ca6debfd` | `3734528778acd24c39b7f8aea52ccb6fa129f4aee5b94e71e05c6a145b71448e` |
+| Suyu-ri Bossam Street | `3359704a-6786-44bb-a137-9833427b460b` | `1f271ee3ab493b5d70a3ab8dde3c613d225b3c0b7f7fc5318a974100fa8c56cb` |
+
+Both have a null stored listing ID and three references to their rejected listing.
+The command pins each name, UUID, source point and photo listing.
+All41 guard tests pass. Read-only review found no confirmed P0/P1.
+Each live dry run matched one unchanged record and retained its original backup privately.
+No paid provider lookup was needed.
+
+After exact green CI and merge, use the retained backup and explicit target ID with `--apply`.
+Clear only the original photo array. Preserve every other source field and an unrelated control.
+Retain a durable operation receipt before each write. Never retry an uncertain write.
+Verify the hosted `unavailable` response only after the empty-array source readback passes.
+A null listing and empty photos exit before any paid provider request.
+
+Backups are private `photo-{hongje,suyu}-backup-20261014.json` files under `/home/dev/.local/state/localley/`.
+Receipts use `photo-{hongje,suyu}-operation-20261014.json`; hosted replies use the corresponding `-hosted-` filename.
+Explicit rollback uses the same backup/ID with `--rollback`, only while fields remain unchanged and photos stay empty.
+Mock rollback tests pass. Do not restore rejected photos as a live test.
+
+PR418 and canonical `shared/plans/localley-full-cutover.md` Attempt534 record final CI, apply and live outcomes.
+Preparation alone does not certify delivery. This host operation needs no new Worker bundle.
+Production Worker is `b4d426e2-1952-4f7b-9989-67142b47053f` at100%, deployment `0385cd50-8091-4ab4-aec7-f208d15cb496`.
+Its retained Worker rollback is `8b4db9c2-8117-46e1-a2a4-f887942c5b4f`.
+This quarantine does not verify replacement photos or complete U3.
+Discovery caches and the old candidate import require separate refresh evidence.
+Production application data remains Supabase; the full D1 cutover gates still apply.
