@@ -10,8 +10,12 @@ export const gyozaTargetId='07f5f5e3-3dd8-47bc-b5e6-ab43e7e7861a';
 export const donMuangTargetId="040f2f34-6fc1-4133-a0fc-b0c31d90e55a";
 export const popiahTargetId="0a71e061-d220-478c-b959-409de2cdbcdd";
 export const jurongTargetId="4b3b1600-9b3a-4021-b77c-32629445c6f2";
+export const hongjeTargetId='2f9a76e1-2ad6-4126-89bc-e8f9ca6debfd';
+export const suyuTargetId='3359704a-6786-44bb-a137-9833427b460b';
 // Explicit, reviewed incidents only. This command must never accept arbitrary venues.
 const targets=new Map([
+ [hongjeTargetId,{name:'Hongje-dong Gimbap Alley',listing:'ChIJv8RchhSjfDURufEcsZHjwhA',location:'0101000020E610000094F6065F98BC5F40A5BDC11726CB4240'}],
+ [suyuTargetId,{name:'Suyu-ri Bossam Street',listing:'ChIJa97inWu8fDURmaPCx9FLATY',location:'0101000020E61000008E06F01648C05F401A51DA1B7CD14240'}],
  [donMuangTargetId,{"name": "Don Muang Night Market", "listing": "ChIJH82FA02C4jAR674urr_0PMA", "location": "0101000020E6100000D1915CFE432659406A4DF38E53D42B40"}],
  [popiahTargetId,{"name": "Popiah Cart (Jalan Hang Lekir)", "listing": "ChIJne3Wqdnx0TERbmnfVaGgKLs", "location": "0101000020E6100000AC10A0F0239059405B1D948B8C990140"}],
  [jurongTargetId,{"name": "Jurong Lake Gardens", "listing": "ChIJWQLwKP0P2jER-AOMrDbkIW8", "location": "0101000020E61000006DC5FEB27BEE59401B2FDD240681F53F"}],
