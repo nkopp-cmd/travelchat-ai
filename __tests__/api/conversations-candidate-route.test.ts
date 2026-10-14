@@ -19,6 +19,14 @@ const request = (host: string, method: "GET" | "POST", flag = true) => new NextR
 afterEach(() => { process.env = environment; vi.clearAllMocks(); });
 
 describe("conversation repository candidate route", () => {
+  it("refuses a changed actor before any candidate write", async () => {
+    process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
+    mocks.auth.mockResolvedValue({ userId: "user-b" });
+    const req = request(preview, "POST"); req.headers.set("X-Localley-Preview-Actor", "user-a");
+    expect((await POST(req)).status).toBe(401);
+    expect(mocks.create).not.toHaveBeenCalled(); expect(mocks.supabase).not.toHaveBeenCalled();
+  });
+
   it("requires a signed-in user before D1", async () => {
     process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
     mocks.auth.mockResolvedValue({ userId: null });

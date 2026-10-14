@@ -1,0 +1,35 @@
+import {cleanup,fireEvent,render,screen,waitFor} from "@testing-library/react";
+import {afterEach,beforeEach,describe,expect,it,vi} from "vitest";
+const mocks=vi.hoisted(()=>({user:{isLoaded:true,isSignedIn:true,user:{id:"fresh"}},replace:vi.fn(),refresh:vi.fn()}));
+vi.mock("@/lib/auth/client",()=>({useUser:()=>mocks.user}));
+vi.mock("next/navigation",()=>({useRouter:()=>({replace:mocks.replace,refresh:mocks.refresh})}));
+import {PreviewChatComposer} from "@/components/chat/preview-chat-composer";
+const id="12345678-1234-1234-1234-123456789abc",messageId="22345678-1234-1234-1234-123456789abc";
+const question="Seoul neighborhood cafes";
+function response(value:unknown,status=200,source="d1-preview"){return new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json","X-Localley-Data-Source":source}});}
+function start(){fireEvent.change(screen.getByRole("textbox",{name:"Ask Alley"}),{target:{value:question}});fireEvent.submit(screen.getByRole("form",{name:"Message Alley"}));}
+beforeEach(()=>{vi.resetAllMocks();mocks.user={isLoaded:true,isSignedIn:true,user:{id:"fresh"}};});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+describe("candidate chat submission",()=>{
+ it("makes one paid request, then confirms both owned saves before navigation",async()=>{
+  const call=vi.fn(async(input:string,init:RequestInit)=>{const body=JSON.parse(init.body as string);expect(init.method).toBe("POST");expect(init.headers).toMatchObject({"X-Localley-Preview-Actor":"fresh"});expect(input.endsWith("?data_candidate=d1")).toBe(true);
+   if(input.startsWith("/api/chat?"))return response({message:"Owned reply",model:"private-model-name"});if(input.startsWith("/api/conversations?"))return response({conversation:{id}});return response({message:{id:messageId,conversation_id:body.conversationId,role:body.role,content:body.content}});
+  });vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={null}/>);start();
+  await waitFor(()=>expect(mocks.refresh).toHaveBeenCalledOnce());expect(call).toHaveBeenCalledTimes(4);expect(mocks.replace).toHaveBeenCalledWith(`/chat?data_candidate=d1&conversation=${id}`);expect(screen.queryByText("private-model-name")).toBeNull();
+  expect((screen.getByRole("button",{name:"Saved"}) as HTMLButtonElement).disabled).toBe(true);
+  expect((screen.getByRole("textbox") as HTMLTextAreaElement).disabled).toBe(true);
+  expect(screen.getByRole("status").textContent).toContain("messages are saved");
+  expect(screen.getByRole("link",{name:"Reload history"}).getAttribute("href")).toBe(`/chat?data_candidate=d1&conversation=${id}`);
+  fireEvent.submit(screen.getByRole("form",{name:"Message Alley"}));expect(call).toHaveBeenCalledTimes(4);
+ });
+ it("keeps Enter/click duplicates locked while the first request is pending",async()=>{
+  let release!:(r:Response)=>void;const call=vi.fn(()=>new Promise<Response>(r=>release=r));vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={null}/>);start();start();expect(call).toHaveBeenCalledOnce();release(response({},503));await screen.findByRole("alert");start();expect(call).toHaveBeenCalledOnce();expect(mocks.replace).not.toHaveBeenCalled();
+ });
+ it.each([503,429,401])("refuses HTTP%s before saving any conversation or messages",async status=>{const call=vi.fn(async()=>response({},status));vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={null}/>);start();await screen.findByRole("alert");expect(call).toHaveBeenCalledOnce();expect(screen.getByRole("link",{name:"Reload history"}).getAttribute("href")).toBe("/chat?data_candidate=d1");});
+ it("does not retry a lost paid reply",async()=>{const call=vi.fn(async()=>{throw new Error("network reply lost");});vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={null}/>);start();await screen.findByRole("alert");start();expect(call).toHaveBeenCalledOnce();});
+ it("retains the received reply on an uncertain saved response, without replay",async()=>{const call=vi.fn().mockResolvedValueOnce(response({message:"Received <script>safe text</script>"})).mockResolvedValueOnce(response({conversation:{id}})).mockRejectedValueOnce(new Error("save reply lost"));vi.stubGlobal("fetch",call);const {container,rerender}=render(<PreviewChatComposer actorId="fresh" conversation={null}/>);start();await screen.findByRole("alert");expect(screen.getByText("Received <script>safe text</script>")).not.toBeNull();expect(container.querySelector("script")).toBeNull();start();expect(call).toHaveBeenCalledTimes(3);expect(mocks.refresh).not.toHaveBeenCalled();expect(screen.getByRole("link",{name:"Reload history"}).getAttribute("href")).toBe(`/chat?data_candidate=d1&conversation=${id}`);mocks.user={isLoaded:true,isSignedIn:true,user:{id:"second"}};rerender(<PreviewChatComposer actorId="fresh" conversation={null}/>);expect(screen.queryByText("Received <script>safe text</script>")).toBeNull();expect(screen.queryByRole("textbox")).toBeNull();});
+ it("rejects a Source response and never writes or navigates",async()=>{const call=vi.fn(async()=>response({message:"Source reply"},200,"source"));vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={null}/>);start();await screen.findByRole("alert");expect(call).toHaveBeenCalledOnce();expect(screen.queryByText("Source reply")).toBeNull();});
+ it("keeps saved context and uses the owned conversation without creating another",async()=>{const call=vi.fn(async(input:string,init:RequestInit)=>{const b=JSON.parse(init.body as string);if(input.startsWith("/api/chat?")){expect(b.messages).toEqual([{role:"assistant",content:"Saved prior answer"},{role:"user",content:question}]);return response({message:"Next answer"});}return response({message:{id:messageId,conversation_id:id,role:b.role,content:b.content}});});vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={{id,title:"Saved",messages:[{id:messageId,role:"assistant",content:"Saved prior answer"}]}}/>);start();await waitFor(()=>expect(mocks.refresh).toHaveBeenCalledOnce());expect(call).toHaveBeenCalledTimes(3);});
+ it("bounds long saved context before a paid call",()=>{const call=vi.fn();vi.stubGlobal("fetch",call);render(<PreviewChatComposer actorId="fresh" conversation={{id,title:"Long",messages:[{id:messageId,role:"user",content:"x".repeat(10001)}]}}/>);start();expect(call).not.toHaveBeenCalled();expect(screen.getByRole("status").textContent).toContain("too long");});
+ it("does not expose a form to another actor",()=>{const call=vi.fn();vi.stubGlobal("fetch",call);mocks.user={isLoaded:true,isSignedIn:true,user:{id:"second"}};render(<PreviewChatComposer actorId="fresh" conversation={null}/>);expect(screen.queryByRole("textbox")).toBeNull();expect(call).not.toHaveBeenCalled();});
+});

@@ -15,6 +15,7 @@ import { incrementPreviewChatUsage, isPreviewChatUsageCandidate } from "@/lib/ap
 import { previewChatSpotContext } from "@/lib/app-data/preview-chat-spots";
 import { admitFreshPreviewChatOwner, readPreviewChatRequest } from "@/lib/app-data/preview-chat-request";
 import { formatChatSpotContext, matchedChatCategories } from "@/lib/chat/spot-context";
+import { matchesPreviewActor } from "@/lib/app-data/preview-actor";
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -191,7 +192,7 @@ export async function POST(req: NextRequest) {
         if (isPreviewChatUsageCandidate(req)) {
             const headers = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
             const { userId } = await auth();
-            if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+            if (!userId || !matchesPreviewActor(req, userId)) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
             if (process.env.PREVIEW_CHAT_GENERATION !== "true" || !process.env.OPENAI_API_KEY?.trim()) {
                 return NextResponse.json({ error: "Candidate chat unavailable" }, { status: 503, headers });
             }

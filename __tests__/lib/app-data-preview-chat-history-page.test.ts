@@ -7,16 +7,17 @@ import { previewChatHistoryPage } from "@/lib/app-data/preview-chat-history-page
 const id = "12345678-1234-1234-1234-123456789abc";
 const messageId = "22345678-1234-1234-1234-123456789abc";
 const row = () => ({ id, title: "Owned Seoul chat", messages: [{ id: messageId, role: "assistant", content: "Keep daylight for the river walk." }] });
-beforeEach(() => { vi.resetAllMocks(); mocks.user.mockResolvedValue({ id: "fresh" }); mocks.admit.mockResolvedValue(undefined); mocks.read.mockResolvedValue({ conversations: [row()] }); });
+beforeEach(() => { vi.resetAllMocks(); vi.stubEnv("PREVIEW_CHAT_GENERATION", "false"); mocks.user.mockResolvedValue({ id: "fresh" }); mocks.admit.mockResolvedValue(undefined); mocks.read.mockResolvedValue({ conversations: [row()] }); });
 describe("fresh candidate chat history", () => {
+  it("enables the composer only for an explicit true generation flag after admission", async () => { vi.stubEnv("PREVIEW_CHAT_GENERATION", "true"); expect(await previewChatHistoryPage()).toMatchObject({ actorId: "fresh", canSend: true }); expect(mocks.admit).toHaveBeenCalledWith("fresh"); });
   it("admits the actor before reading and returns only message display fields", async () => {
     const state = await previewChatHistoryPage(id);
     expect(mocks.admit).toHaveBeenCalledWith("fresh"); expect(mocks.read).toHaveBeenCalledWith("fresh");
     expect(mocks.admit.mock.invocationCallOrder[0]).toBeLessThan(mocks.read.mock.invocationCallOrder[0]);
-    expect(state).toEqual({ kind: "history", conversations: [{ id, title: "Owned Seoul chat" }], selected: row() });
+    expect(state).toEqual({ kind: "history", actorId: "fresh", canSend: false, conversations: [{ id, title: "Owned Seoul chat" }], selected: row() });
   });
   it("uses the first owned conversation when no selection is supplied", async () => { expect(await previewChatHistoryPage()).toMatchObject({ selected: { id } }); });
-  it("returns the real empty state without owner creation", async () => { mocks.read.mockResolvedValue({ conversations: [] }); expect(await previewChatHistoryPage()).toEqual({ kind: "history", conversations: [], selected: null }); });
+  it("returns the real empty state without owner creation", async () => { mocks.read.mockResolvedValue({ conversations: [] }); expect(await previewChatHistoryPage()).toEqual({ kind: "history", actorId: "fresh", canSend: false, conversations: [], selected: null }); });
   it("refuses an anonymous actor before any admission or read", async () => { mocks.user.mockResolvedValue(null); await expect(previewChatHistoryPage()).rejects.toThrow(); expect(mocks.admit).not.toHaveBeenCalled(); expect(mocks.read).not.toHaveBeenCalled(); });
   it.each(["unverified", "historical owner", "conflicting owner", "D1 missing"])("contains %s admission failures", async message => { mocks.admit.mockRejectedValue(new Error(message)); await expect(previewChatHistoryPage()).rejects.toThrow(); expect(mocks.read).not.toHaveBeenCalled(); });
   it.each(["foreign", "", [id], "x".repeat(1000)])("refuses malformed selection before private reads", async value => { await expect(previewChatHistoryPage(value)).rejects.toThrow(); expect(mocks.user).not.toHaveBeenCalled(); expect(mocks.read).not.toHaveBeenCalled(); });

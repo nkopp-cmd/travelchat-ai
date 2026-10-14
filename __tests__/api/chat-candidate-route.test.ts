@@ -39,6 +39,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 describe("candidate chat admission and submission", () => {
+  it("binds asynchronous requests to their admitted page actor before usage or model calls", async () => { const req=request(); req.headers.set("X-Localley-Preview-Actor", "other"); expect((await POST(req)).status).toBe(401); expect(mocks.admit).not.toHaveBeenCalled(); expect(mocks.usage).not.toHaveBeenCalled(); expect(mocks.model).not.toHaveBeenCalled(); });
   it("uses counted context and one D1 reservation, without Source or Redis", async () => {
     const response = await POST(request());
     expect(response.status).toBe(200);

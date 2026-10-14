@@ -4,6 +4,7 @@ import { AppBackground } from "@/components/layout/app-background";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PreviewChatHistoryState } from "@/lib/app-data/preview-chat-history-page";
+import { PreviewChatComposer } from "./preview-chat-composer";
 
 const base = "/chat?data_candidate=d1";
 export function PreviewChatHistory({ state }: { state: PreviewChatHistoryState }) {
@@ -16,7 +17,9 @@ export function PreviewChatHistory({ state }: { state: PreviewChatHistoryState }
         <a className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
           href={selected ? `${base}&conversation=${selected.id}` : base}><RefreshCw className="h-4 w-4" /> Reload history</a>
       </header>
-      <p className="text-sm text-muted-foreground">Saved history only. Sending new messages is unavailable in this preview.</p>
+      <p className="text-sm text-muted-foreground">{state.kind === "history" && state.canSend
+        ? "Ask Alley about your next stop. Your messages will be saved here."
+        : "Saved history only. Sending new messages is unavailable in this preview."}</p>
       {state.kind === "unavailable" ? <Card className="liquid-panel"><CardContent className="pt-6"><p role="status">Chat history is unavailable for this account or conversation.</p></CardContent></Card>
         : <div className="grid min-w-0 gap-5 md:grid-cols-[16rem_minmax(0,1fr)]">
           <Card className="liquid-panel min-w-0"><CardHeader><CardTitle className="text-lg">Conversations</CardTitle></CardHeader>
@@ -34,6 +37,9 @@ export function PreviewChatHistory({ state }: { state: PreviewChatHistoryState }
                   <p className="whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere]">{message.content}</p>
                 </li>)}</ol>}</CardContent></Card>
         </div>}
+      {state.kind === "history" && state.canSend && <PreviewChatComposer
+        key={`${state.actorId}:${state.selected?.id ?? "new"}:${state.selected?.messages.length ?? 0}`}
+        actorId={state.actorId} conversation={state.selected} />}
     </section>
   </AppBackground>;
 }

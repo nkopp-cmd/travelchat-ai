@@ -6,12 +6,14 @@ vi.mock("@/components/chat/source-chat-page", () => ({ default: () => <p>Normal 
 vi.mock("@/lib/app-data/preview-chat-history-page", () => ({ previewChatHistoryPage: mocks.read }));
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 vi.mock("next/link", () => ({ default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => <a href={href} {...props}>{children}</a> }));
+vi.mock("@/components/chat/preview-chat-composer", () => ({ PreviewChatComposer: () => <p>Candidate send form</p> }));
 import ChatPage from "@/app/chat/page";
 const id = "12345678-1234-1234-1234-123456789abc";
 const page = (data_candidate?: string | string[], conversation?: string | string[]) => ChatPage({ searchParams: Promise.resolve({ data_candidate, conversation }) });
 beforeEach(() => { vi.resetAllMocks(); mocks.host = "localley-next-preview.nkopp.workers.dev"; vi.stubEnv("AUTH_MAIL_MODE", "outbox"); vi.stubEnv("SUPABASE_READ_ONLY", "true"); mocks.read.mockResolvedValue({ kind: "history", conversations: [], selected: null }); vi.stubGlobal("fetch", vi.fn(() => { throw new Error("No browser writes or paid calls"); })); });
 afterEach(() => { cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 describe("chat history candidate page", () => {
+  it("shows a composer only when the admitted server history allows sending", async () => { mocks.read.mockResolvedValue({ kind: "history", actorId: "fresh", canSend: true, conversations: [], selected: null }); render(await page("d1")); expect(screen.getByText("Candidate send form")).not.toBeNull(); expect(screen.queryByText(/Saved history only/)).toBeNull(); });
   it("shows honest empty history and flagged real reload without a composer", async () => { render(await page("d1")); expect(screen.getByRole("status").textContent).toContain("no saved preview conversations"); expect(screen.getByRole("link", { name: "Reload history" }).getAttribute("href")).toBe("/chat?data_candidate=d1"); expect(screen.queryByRole("textbox")).toBeNull(); expect(fetch).not.toHaveBeenCalled(); });
   it("preserves selected links and escapes saved hostile text", async () => {
     const text = '<script>private()&</script>';
