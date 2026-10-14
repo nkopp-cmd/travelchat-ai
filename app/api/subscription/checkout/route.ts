@@ -33,6 +33,10 @@ export async function POST(req: NextRequest) {
             return Errors.notFound("User");
         }
 
+        if (user.id !== userId || user.emailVerified !== true) {
+            return Errors.forbidden("Verify your email before checkout");
+        }
+
         // Parse request body
         const body = await req.json();
         const { tier, billingCycle = "monthly" } = body;
@@ -49,8 +53,19 @@ export async function POST(req: NextRequest) {
 
         // Get price ID
         const priceId = getPriceId(tier as "pro" | "premium", billingCycle as "monthly" | "yearly");
-        if (!priceId) {
+        if (!/^price_[A-Za-z0-9]+$/.test(priceId)) {
             return Errors.validationError("Price not configured for this tier");
+        }
+
+        const supabase = createSupabaseAdmin();
+        const { data: existing, error: lookupError } = await supabase.from("subscriptions")
+            .select("stripe_customer_id,stripe_subscription_id,tier,status")
+            .eq("clerk_user_id", userId).maybeSingle();
+        if (lookupError) return Errors.databaseError();
+        if (existing && (existing.tier === "pro" || existing.tier === "premium")
+            && ["active", "trialing", "past_due"].includes(existing.status)) {
+            return NextResponse.json({ error: { code: "existing_subscription",
+                message: "Use billing settings to manage your current plan." } }, { status: 409 });
         }
 
         // Get or create Stripe customer
@@ -62,30 +77,23 @@ export async function POST(req: NextRequest) {
         const customerId = await getOrCreateStripeCustomer(
             userId,
             email,
-            `${user.firstName || ""} ${user.lastName || ""}`.trim() || undefined
+            `${user.firstName || ""} ${user.lastName || ""}`.trim() || undefined,
+            existing?.stripe_customer_id || undefined
         );
 
         if (!customerId) {
             return Errors.externalServiceError("Stripe");
         }
 
-        // Update or create subscription record in Supabase
-        const supabase = createSupabaseAdmin();
-        const { error: subscriptionError } = await supabase.from("subscriptions").upsert(
-            {
-                clerk_user_id: userId,
-                stripe_customer_id: customerId,
-                tier: "free",
-                status: "active",
-                updated_at: new Date().toISOString(),
-            },
-            {
-                onConflict: "clerk_user_id",
-            }
-        );
-
-        if (subscriptionError) {
-            console.error("Error upserting subscription customer before checkout:", subscriptionError);
+        // Only the customer association changes here. A checkout is not a paid subscription.
+        const customerValues = { stripe_customer_id: customerId, updated_at: new Date().toISOString() };
+        const result = existing
+            ? await supabase.from("subscriptions").update(customerValues).eq("clerk_user_id", userId)
+            : await supabase.from("subscriptions").upsert({ clerk_user_id: userId,
+                ...customerValues, tier: "free", status: "active" },
+                { onConflict: "clerk_user_id", ignoreDuplicates: true });
+        if (result.error) {
+            console.error("Error binding subscription customer before checkout:", result.error);
             return Errors.databaseError();
         }
 

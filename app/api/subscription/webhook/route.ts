@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Verify webhook signature
-        const event = constructWebhookEvent(body, signature, webhookSecret);
+        const event = await constructWebhookEvent(body, signature, webhookSecret);
 
         if (!event) {
             return NextResponse.json(
@@ -81,8 +81,12 @@ export async function POST(req: NextRequest) {
 
             case "customer.subscription.created":
             case "customer.subscription.updated": {
-                const subscription = event.data.object as Stripe.Subscription;
-                await handleSubscriptionUpdate(supabase, subscription);
+                const envelope = event.data.object as Stripe.Subscription;
+                // Reconcile current provider state rather than replaying an older snapshot.
+                const subscription = await stripe.subscriptions.retrieve(envelope.id);
+                if (subscription.id !== envelope.id) throw new Error("Subscription identity mismatch");
+                if (subscription.status === "canceled") await handleSubscriptionDeleted(supabase, subscription);
+                else await handleSubscriptionUpdate(supabase, subscription);
                 break;
             }
 
@@ -131,18 +135,19 @@ async function handleCheckoutComplete(
     }
 
     // Update subscription record
-    await supabase.from("subscriptions").upsert(
+    const { error: writeError } = await supabase.from("subscriptions").upsert(
         {
             clerk_user_id: clerkUserId,
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
-            status: "active",
             updated_at: new Date().toISOString(),
         },
         {
             onConflict: "clerk_user_id",
         }
     );
+
+    if (writeError) throw new Error("Checkout subscription write failed");
 
     console.log(`Checkout completed for user ${clerkUserId}`);
 }
@@ -170,11 +175,16 @@ async function handleSubscriptionUpdate(
         return;
     }
 
+    if (subscription.items.data.length !== 1) throw new Error("Subscription price is ambiguous");
     const priceId = subscription.items.data[0]?.price.id || "";
     const tier = getTierFromPriceId(priceId);
+    if (tier === "free") throw new Error("Subscription price is not configured");
 
     // Cast to extended type for period properties
-    const sub = subscription as SubscriptionWithPeriods;
+    const legacy = subscription as SubscriptionWithPeriods;
+    const item = subscription.items.data[0];
+    const sub = { ...legacy, current_period_start: legacy.current_period_start ?? item?.current_period_start,
+        current_period_end: legacy.current_period_end ?? item?.current_period_end };
 
     // Map Stripe status to our status
     let status: string;
@@ -196,7 +206,7 @@ async function handleSubscriptionUpdate(
             status = subscription.status;
     }
 
-    await supabase.from("subscriptions").upsert(
+    const { error: writeError } = await supabase.from("subscriptions").upsert(
         {
             clerk_user_id: clerkUserId,
             stripe_customer_id: subscription.customer as string,
@@ -227,6 +237,8 @@ async function handleSubscriptionUpdate(
         }
     );
 
+    if (writeError) throw new Error("Subscription update failed");
+
     console.log(`Subscription updated for user ${clerkUserId}: ${tier} (${status})`);
 
     // Invalidate user tier cache so changes take effect immediately
@@ -234,7 +246,7 @@ async function handleSubscriptionUpdate(
     invalidateUserCache(clerkUserId, "subscription");
 
     // Send upgrade email if moving to a paid tier
-    if (tier !== "free" && status === "active") {
+    if (status === "active") {
         await sendSubscriptionEmail(supabase, clerkUserId, "upgrade", tier);
     }
 }
@@ -251,18 +263,16 @@ async function handleSubscriptionDeleted(
     }
 
     // Downgrade to free tier
-    await supabase.from("subscriptions").upsert(
+    const { error: writeError } = await supabase.from("subscriptions").update(
         {
-            clerk_user_id: clerkUserId,
             tier: "free",
             status: "canceled",
             cancel_at_period_end: false,
             updated_at: new Date().toISOString(),
-        },
-        {
-            onConflict: "clerk_user_id",
         }
-    );
+    ).eq("clerk_user_id", clerkUserId).eq("stripe_subscription_id", subscription.id);
+
+    if (writeError) throw new Error("Subscription deletion write failed");
 
     console.log(`Subscription deleted for user ${clerkUserId}`);
 
@@ -280,9 +290,8 @@ async function handlePaymentSucceeded(
     invoice: Stripe.Invoice
 ) {
     const inv = invoice as InvoiceWithSubscription;
-    const subscriptionId = typeof inv.subscription === "string"
-        ? inv.subscription
-        : inv.subscription?.id;
+    const reference = inv.subscription ?? inv.parent?.subscription_details?.subscription;
+    const subscriptionId = typeof reference === "string" ? reference : reference?.id;
     if (!subscriptionId) return;
 
     // Get the subscription to find the user
@@ -293,10 +302,12 @@ async function handlePaymentSucceeded(
     if (!clerkUserId) return;
 
     // Update status to active
-    await supabase.from("subscriptions").update({
-        status: "active",
+    const { error: writeError } = await supabase.from("subscriptions").update({
+        status: subscription.status === "unpaid" ? "canceled" : subscription.status,
         updated_at: new Date().toISOString(),
-    }).eq("clerk_user_id", clerkUserId);
+    }).eq("clerk_user_id", clerkUserId).eq("stripe_subscription_id", subscriptionId);
+
+    if (writeError) throw new Error("Invoice subscription write failed");
 
     // Invalidate user tier cache
     invalidateUserCache(clerkUserId, "user-tier");
@@ -311,9 +322,8 @@ async function handlePaymentFailed(
     invoice: Stripe.Invoice
 ) {
     const inv = invoice as InvoiceWithSubscription;
-    const subscriptionId = typeof inv.subscription === "string"
-        ? inv.subscription
-        : inv.subscription?.id;
+    const reference = inv.subscription ?? inv.parent?.subscription_details?.subscription;
+    const subscriptionId = typeof reference === "string" ? reference : reference?.id;
     if (!subscriptionId) return;
 
     // Get the subscription to find the user
@@ -324,10 +334,12 @@ async function handlePaymentFailed(
     if (!clerkUserId) return;
 
     // Update status to past_due
-    await supabase.from("subscriptions").update({
-        status: "past_due",
+    const { error: writeError } = await supabase.from("subscriptions").update({
+        status: subscription.status === "unpaid" ? "canceled" : subscription.status,
         updated_at: new Date().toISOString(),
-    }).eq("clerk_user_id", clerkUserId);
+    }).eq("clerk_user_id", clerkUserId).eq("stripe_subscription_id", subscriptionId);
+
+    if (writeError) throw new Error("Invoice subscription write failed");
 
     // Invalidate user tier cache
     invalidateUserCache(clerkUserId, "user-tier");
@@ -336,7 +348,8 @@ async function handlePaymentFailed(
     console.log(`Payment failed for user ${clerkUserId}`);
 
     // Send payment failed email
-    await sendSubscriptionEmail(supabase, clerkUserId, "payment_failed");
+    if (subscription.status === "past_due" || subscription.status === "unpaid")
+        await sendSubscriptionEmail(supabase, clerkUserId, "payment_failed");
 }
 
 // Helper function to send subscription emails

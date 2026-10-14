@@ -421,3 +421,9 @@ writes, absent composer and exact cleanup. Productionb4d426e2/0385cd50,
 Source8/5/33/85/3295,twoadmins and fourpublic200 remain. See
 `docs/CANDIDATE_CHAT_HISTORY.md` for exact identities, attempts and scope limits.
 No production application-data switch occurred.
+
+## Stripe live billing — 2026-10-14
+
+Nils selected live mode and removed the sandbox setup prerequisite.
+See [the Stripe live receipt](../STRIPE_LIVE.md) for configuration, safety checks, release and rollback evidence.
+Production application data remains Supabase until the full cutover gates pass.

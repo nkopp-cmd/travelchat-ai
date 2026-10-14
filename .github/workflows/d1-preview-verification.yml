@@ -31,6 +31,13 @@ on:
       - '__tests__/api/chat-candidate-route.test.ts'
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
+      - 'lib/stripe.ts'
+      - 'config/stripe-live-prices.json'
+      - 'app/api/connect/webhook/route.ts'
+      - '__tests__/api/subscription-checkout-live.test.ts'
+      - '__tests__/api/subscription-webhook-live.test.ts'
+      - '__tests__/lib/stripe-customer-ownership.test.ts'
+      - '__tests__/lib/stripe-webhook-crypto.test.ts'
       - 'lib/flux.ts'
       - 'lib/image-provider.ts'
       - '__tests__/lib/preview-flux-client.test.ts'
@@ -242,7 +249,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
-            npx vitest run __tests__/components/preview-save-spot-button.test.tsx __tests__/lib/saved-spot-candidate-url.test.ts __tests__/lib/preview-saved-spot-actor.test.ts __tests__/components/preview-chat-composer.test.tsx --maxWorkers=1
+            npx vitest run __tests__/api/subscription-checkout-live.test.ts __tests__/api/subscription-webhook-live.test.ts __tests__/lib/stripe-customer-ownership.test.ts __tests__/lib/stripe-webhook-crypto.test.ts __tests__/components/preview-save-spot-button.test.tsx __tests__/lib/saved-spot-candidate-url.test.ts __tests__/lib/preview-saved-spot-actor.test.ts __tests__/components/preview-chat-composer.test.tsx --maxWorkers=1
+            npx eslint __tests__/api/subscription-webhook-live.test.ts lib/stripe.ts app/api/subscription/checkout/route.ts app/api/subscription/webhook/route.ts app/api/connect/webhook/route.ts __tests__/api/subscription-checkout-live.test.ts __tests__/lib/stripe-customer-ownership.test.ts __tests__/lib/stripe-webhook-crypto.test.ts
             npx eslint components/spots/preview-save-spot-button.tsx lib/app-data/preview-saved-spot-actor.ts lib/app-data/saved-spot-candidate-url.ts __tests__/components/preview-save-spot-button.test.tsx __tests__/lib/preview-saved-spot-actor.test.ts __tests__/lib/saved-spot-candidate-url.test.ts
             npx eslint components/chat/preview-chat-composer.tsx lib/app-data/preview-actor.ts __tests__/components/preview-chat-composer.test.tsx
             npx vitest run __tests__/lib/app-data-preview-chat-history-page.test.ts __tests__/pages/chat-history-candidate.test.tsx --maxWorkers=1
