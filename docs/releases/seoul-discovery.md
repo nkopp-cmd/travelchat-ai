@@ -407,3 +407,17 @@ See docs/STORY_SOURCE_ACCESS.md and docs/STORY_UPLOAD_CAPACITY.md for scoped evi
 PR409fe38850/CI38342593336SUCCESS17m47s/merge4b4e305 passed45focused tests, type/lint/pinned build and scoped reviews. Guarded candidate0f81bd62 at1% passed36hosted API checks: one real reply, saved history/reload, foreign/unverified/conflicting denials, atomic quota/isolation and exact55APP/Auth cleanup. Receipt67824a9d2719USD0.05 retained. Eight recovery tests and actual restoreb908/c4380814 passed.
 
 Default preview9cf5bafd/deploymentec239595 released04:11:41UTC with generationfalse; rollbackb908. Final default-disabled proof passed12checks at04:23:07UTC: actual503, no counter/owner writes, exact Auth cleanup, all55application counts and foreign keys restored. Productionb4d426e2/0385cd50 remains unchanged; source/admin/fourpublic200 proof passes. See `docs/D1_CHAT_CANDIDATE.md`. This is backend acceptance, not candidate browser chat or a full application-data switch.
+
+## 2026-10-14 — candidate browser chat
+
+PR41689c427c/CI38418856780SUCCESS11m13s/mergeaf6dead passed68focused tests,
+scoped review, type/lint/pinned build and zero-unexpected-private-value audit.
+Guarded1% version386b740c passed49hosted checks: actual desktop/mobile submissions,
+one paid request each, owned history/reload, denials and exact55APP/Auth cleanup.
+Four screenshots were inspected. Receipts187600454aa5/d882147cc6cf total estimatedUSD0.10.
+Recovery restoredae129c85/c56edfac. Default previewb010d40b/deployment2e305896
+keeps generationfalse; rollbackae129c85. Final13checks prove503, no quota/owner
+writes, absent composer and exact cleanup. Productionb4d426e2/0385cd50,
+Source8/5/33/85/3295,twoadmins and fourpublic200 remain. See
+`docs/CANDIDATE_CHAT_HISTORY.md` for exact identities, attempts and scope limits.
+No production application-data switch occurred.
