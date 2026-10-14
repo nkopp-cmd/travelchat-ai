@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
-import {repairFilters,targetId,marketTargetId,caveTargetId,bookTargetId,gyozaTargetId,validateSnapshot,sourceFields,run} from './quarantine-source.mjs';
+import {repairFilters,hongjeTargetId,suyuTargetId,targetId,marketTargetId,caveTargetId,bookTargetId,gyozaTargetId,validateSnapshot,sourceFields,run} from './quarantine-source.mjs';
 const row={id:targetId,name:{en:'Daesin-dong Old Town',ko:'대신동 구시가'},google_place_id:null,location:'0101000020E61000003FC6DCB584BC5F404694F6065FC84240',photos:['a','b','c'].map(x=>'/api/places/photo?name=places%2FChIJTwlXpoSifDURJOCAoUd4JoM%2Fphotos%2F'+x+'&w=1200')};
 test('CAS scopes one known row, exact geography, name, NULL listing and TEXT[] original photos',()=>{const f=repairFilters(row);assert.equal(f.id,'eq.'+targetId);assert.equal(f.google_place_id,'is.null');assert.equal(f.location,'eq.'+row.location);assert.ok(f.photos.startsWith('eq.{"'));assert.ok(!f.photos.startsWith('eq.['));assert.equal(f.name,'eq.'+JSON.stringify(row.name));});
 test('rollback only matches empty photos and the unchanged source identity',()=>{const f=repairFilters(row,true);assert.equal(f.photos,'eq.{}');assert.equal(f.id,'eq.'+targetId);assert.equal(f.location,'eq.'+row.location);});
@@ -144,4 +144,13 @@ for (const incident of october12Incidents) {
   assert.equal(api.calls.filter(c=>c.method==='PATCH').length,1);assert.deepEqual(api.current().photos,[]);
   assert.deepEqual(JSON.parse(fs.readFileSync(file)),source);
  });
+}
+
+for(const [id,name,listing,location]of [
+ [hongjeTargetId,'Hongje-dong Gimbap Alley','ChIJv8RchhSjfDURufEcsZHjwhA','0101000020E610000094F6065F98BC5F40A5BDC11726CB4240'],
+ [suyuTargetId,'Suyu-ri Bossam Street','ChIJa97inWu8fDURmaPCx9FLATY','0101000020E61000008E06F01648C05F401A51DA1B7CD14240'],
+]){
+ const incident={...row,id,name:{en:name},location,tips:{en:'keep nested source fields'},photos:['a','b','c'].map(x=>'/api/places/photo?name=places%2F'+listing+'%2Fphotos%2F'+x)};
+ test(name+' pins identity, point and rejected listing',()=>{validateSnapshot(incident);assert.equal(repairFilters(incident).id,'eq.'+id);for(const delta of [{id:marketTargetId},{name:row.name},{location:row.location},{google_place_id:listing},{photos:row.photos}])assert.throws(()=>validateSnapshot({...incident,...delta}));});
+ test(name+' applies and rolls back only its pinned photo array',async t=>{const file=backup(t,incident),api=server(t,{initial:incident,expectedId:id});await assert.rejects(run('--apply',file,env,marketTargetId));assert.equal(api.calls.length,0);const applied=await run('--apply',file,env,id);assert.equal(applied.afterPhotos,0);assert.equal(sourceFields(api.current()),sourceFields(incident));const restored=await run('--rollback',file,env,id);assert.equal(restored.afterPhotos,3);assert.deepEqual(api.current(),incident);assert.equal(api.calls.filter(c=>c.method==='PATCH').length,2);});
 }
