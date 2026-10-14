@@ -78,3 +78,44 @@ Test visible mobile controls; inspect source hero geometry only through the guar
 The previous two-attempt stop remains historical. Current build/review/CI and live gates must pass before promotion.
 Keep required photographer links below each photo. Official reference:
 https://developers.google.com/maps/documentation/places/web-service/place-photos
+
+## Current release stop — 2026-10-14
+
+Runtime source `cdeeca9a6d67eb026d13e3c3474557295e112f98` passed74 focused tests,
+scoped lint, TypeScript, pinned build and requiredCI38530295359.
+Artifact SHA256 `0d0a3c795552bd795eb387c3b6c4beef83c5a9ef85e8492ba0b3385fb1604620`
+has2,328files/76,799,689bytes,93 private values and zero unexpected hits.
+Five existing server occurrences are the already-public Kakao alias.
+The first review timed out without a verdict. The narrower review found no confirmed P0/P1.
+Eight recovery tests pass. No provider secret was changed.
+
+Fresh read-only Source audit retained3,295 rows,97 empty stored photo arrays and zero Source writes.
+The offline public-eligibility projection changes3,014 to2,964 display rows.
+Its50 collapses require the same inferred trusted listing, normalized name and rounded pin.
+These projection counts are not complete live-catalog or current-photo verification.
+All Source rows, saved IDs and branch distinctions remain intact.
+
+Preview version `88c7e769-79c7-43b3-9892-4cb49c8ef1c5` passed29 functional checkpoints.
+Actual desktop/mobile photos, captions below images, visible44px save controls, signed-out redirects and duplicate results passed.
+Four normal-photo screenshots were inspected. Two error-state screenshots caught an intermediate transition.
+Free isolated checks measured a settled322x201.25px placeholder with the title below it.
+The subsequent harness checks settled bounds and disables screenshot animations.
+The layout diagnostic used a synthetic test pixel only; it is not real venue-photo evidence.
+
+Production version `53ad5ced-57a1-4a89-a76f-6f603e940a53` remains unpromoted.
+The first canary timed out finding the filtered card despite four returned photo responses.
+A free controlled page load found the expected card; the original timeout cause remains unresolved.
+The second attempt pinned the browser-context version but used incorrect sampled venue IDs.
+It blocked the expected photo request and timed out waiting for the image. No paid call ran in that attempt.
+Correct Source IDs are067bacc4-825e-4e60-bab8-2720785c15bf and48d93835-ca17-49d3-8308-0f59871e4618.
+The prepared next harness derives sample IDs from the retained Source snapshot and validates ambiguity.
+It has not run. Stop after these two failed production attempts; do not promote PR388.
+
+All12 metered requests have retained responses and receipts, totaling estimatedUSD0.60, with no unknown result or retry.
+Both Workers restored their prior versions at100%: productionb4d426e2 and previewb010d40b.
+Production restore deployment is `cc14dc7a-0f99-4a0c-8f63-65a97499c384`.
+Preview restore deployment is `ae2d8acf-9f23-49cf-8c37-5fc33405d3ec`.
+The retained production rollback remains8b4db9c2; preview rollback remainsae129c85.
+No Source mutation, D1 switch, ready/merge or production UI release is claimed.
+Final runtime/admin/public/count proof is `spot-cards-final-20261014.json` under private Localley state.
+Source records and retired native-sync timer remain unchanged. PR388 stays draft.
