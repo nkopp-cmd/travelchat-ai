@@ -4,7 +4,15 @@ Nils paused the application-data D1 move on 2026-10-01. Production remains OpenN
 
 ## Daily check
 
-The installed daily service also passes `--source-check`. This reads the existing stable checkout `.env.local`, pins the Localley source origin and sends one read-only subscriptions query with `limit=0`. It never retries or writes data. A ten-second timeout, HTTP544 or any non-200 response makes the command fail, even when public pages return200. Missing configuration also fails honestly. Reports contain only the fixed reason, status and limited scope; no credentials, rows or provider error text. This checks server-to-source reachability, not Workers connectivity, checkout completion or full data parity.
+The installed daily service also passes `--source-check`.
+It reads the stable checkout `.env.local` and pins the Localley source origin.
+One read-only subscriptions query uses `limit=0` and a ten-second deadline.
+The probe never retries or writes data.
+Missing configuration, timeout, HTTP544 and other non-200 responses make the command fail.
+Public HTTP200 cannot override this failure.
+Reports retain only a fixed reason, status and limited scope.
+They exclude credentials, rows and provider error text.
+This checks server-to-source reachability, not Workers connectivity, checkout completion or data parity.
 
 Run `node scripts/check-production-health.mjs` from the stable main checkout, with `CLOUDFLARE_API_TOKEN` in the environment. The dependency-free command reads three public production routes and the last 24 hours of Cloudflare Workers Observability for exactly `localley-next`. It includes console errors and HTTP 5xx responses. It writes a private report at `~/.local/state/localley/production-health.json` and returns nonzero if public health fails or logs cannot be read. Existing recorded errors remain visible in the report even when public uptime passes. A limit-sized result, or a reported match count above the returned count, is marked truncated. Read query sampling and coverage warnings before interpreting any ranking; fewer than500 events does not prove complete coverage.
 
@@ -477,3 +485,38 @@ Hosted collect200/processed adds30pending review candidates; repeated collect200
 Public root, spots, sign-in and city API each200;3295public spots and both admins remain unchanged.
 All four Cloudflare schedules remain unchanged. See [release evidence](releases/seoul-discovery.md#2026-10-09--daily-collection-of-existing-spot-research).
 Pending candidates are not public spots.83await the existing quality-review gate; no automatic publication is enabled.
+
+
+## Source database monitoring release — 2026-10-14
+
+PR422 source `b906a5ae737a6cdced981458ab07de4ab169cfbb` passed required CI38560997777.
+Merge `7a82e90d88fb4c43e88d3a7d054f001b629bc15c` has the same tree.
+All48production-health tests passed, including seven new dependency, privacy and CLI checks.
+The read-only reviewer found no P0/P1.
+
+The existing daily unit now uses `--source-check` from stable main.
+Its timer stays enabled and active. The retired native import timer stays inactive.
+The server `.env.local` permissions changed from644to600; values did not change.
+The previous unit and daily report remain in the private release receipt.
+
+The actual service ran once at12:16:55UTC.
+Its report correctly records `sourceDatabase.usable=false` and `billing_query_failed_or_timed_out`.
+The service exits1, as intended for this failure.
+Root and sign-in return200; uncached cities time out.
+The report and accessible service journal contain no private credential values.
+This verifies monitoring delivery; it does not report restored database health.
+
+Production Worker `b4d426e2-1952-4f7b-9989-67142b47053f` remains100% at deployment `2f2bd3fb-bf3d-435f-9731-9446fb769e1b`.
+Preview `dc5b3560-68ee-4a31-88a9-13cf49cfdae3` remains100% at deployment `8040001b-0d3d-45d9-8602-13e57d22fc90`.
+This server-only release does not deploy a Worker or change application data.
+
+Private evidence: `~/.local/state/localley/source-health-installed-20261014.json`,
+`source-health-tests-20261014.log` and `source-health-review-20261014.log`.
+A separate authenticated Storage probe returned544/DatabaseTimeout.
+Billing reads also time out. Stripe PR421 remains draft pending database recovery and hosted acceptance.
+A project management access request is recorded in shared NEEDS.
+No sandbox, customer charge, trial repair, portal change or full data cutover is claimed.
+
+To roll back this monitoring change, first confirm the installed unit still matches this release.
+Restore its retained previous unit, reload the user daemon and keep the existing daily timer enabled.
+This unit rollback does not satisfy the separate production-data rollback gate.

@@ -421,3 +421,15 @@ writes, absent composer and exact cleanup. Productionb4d426e2/0385cd50,
 Source8/5/33/85/3295,twoadmins and fourpublic200 remain. See
 `docs/CANDIDATE_CHAT_HISTORY.md` for exact identities, attempts and scope limits.
 No production application-data switch occurred.
+
+
+### 2026-10-14 — server database health monitoring
+
+PR422/b906a5ae, requiredCI38560997777 and merge7a82e90d deliver the existing daily service update.
+All48focused health checks and the read-only review passed.
+The service now performs one bounded, read-only database probe from stable main.
+Its real12:16:55UTC run correctly returns nonzero for the Source timeout.
+Root/sign-in remain200; uncached city reads fail. No database recovery is claimed.
+Productionb4d426e2/2f2bd3fb and previewdc5b3560/8040001b remain100%; no Worker deployment occurs.
+See [Production user health](../PRODUCTION_USER_HEALTH.md#source-database-monitoring-release--2026-10-14) for evidence and unit rollback.
+Stripe421 stays draft. Supabase management access and successful hosted billing checks remain required.
