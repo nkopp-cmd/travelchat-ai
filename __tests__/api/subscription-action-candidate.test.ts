@@ -8,7 +8,7 @@ vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: mocks.user 
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
 vi.mock("@/lib/supabase-server", () => ({ createSupabaseServerClient: mocks.source }));
 vi.mock("@/lib/stripe", () => ({
-  stripe: {}, isStripeConfigured: mocks.configured, getOrCreateStripeCustomer: mocks.customer,
+  StripePlanAlreadyExistsError: class extends Error {}, stripe: {}, isStripeConfigured: mocks.configured, getOrCreateStripeCustomer: mocks.customer,
   createCheckoutSession: mocks.checkout, createBillingPortalSession: mocks.portal, getPriceId: mocks.price,
 }));
 import { POST as checkout } from "@/app/api/subscription/checkout/route";
@@ -21,9 +21,9 @@ function request(action: string, host = preview, query = "?data_candidate=d1", b
 beforeEach(() => {
   vi.resetAllMocks(); process.env = { ...originalEnv, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
   mocks.auth.mockResolvedValue({ userId: "owner" }); mocks.configured.mockReturnValue(true);
-  mocks.user.mockResolvedValue({ emailAddresses: [{ emailAddress: "owner@example.test" }], firstName: "Owner" });
+  mocks.user.mockResolvedValue({ id: "owner", emailVerified: true, emailAddresses: [{ emailAddress: "owner@example.test" }], firstName: "Owner" });
   mocks.price.mockReturnValue("price_test"); mocks.customer.mockResolvedValue("cus_test");
-  mocks.admin.mockReturnValue({ from: () => ({ upsert: async () => ({ error: null }) }) });
+  mocks.admin.mockReturnValue({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }), upsert: async () => ({ error: null }) }) });
   mocks.source.mockResolvedValue({ from: () => ({ select: () => ({ eq: () => ({ single: async () => ({ data: { stripe_customer_id: "cus_test" } }) }) }) }) });
   mocks.checkout.mockResolvedValue({ url: "https://checkout.stripe.test/session", id: "cs_test" });
   mocks.portal.mockResolvedValue({ url: "https://billing.stripe.test/session" });

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
         let event: Stripe.Event;
         try {
-            event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+            event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret, undefined, Stripe.createSubtleCryptoProvider());
         } catch {
             return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
         }

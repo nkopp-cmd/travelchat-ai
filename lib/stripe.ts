@@ -11,6 +11,7 @@ if (!stripeSecretKey) {
 export const stripe = stripeSecretKey
     ? new Stripe(stripeSecretKey, {
           typescript: true,
+          maxNetworkRetries: 0,
           // The default Node HTTP client hangs on Cloudflare Workers (error 1101);
           // the fetch client works on Workers and on Node alike.
           httpClient: Stripe.createFetchHttpClient(),
@@ -64,38 +65,30 @@ export function isStripeConfigured(): boolean {
 export async function getOrCreateStripeCustomer(
     clerkUserId: string,
     email: string,
-    name?: string
+    name?: string,
+    existingCustomerId?: string
 ): Promise<string | null> {
     if (!stripe) return null;
 
-    // First, try to find existing customer by metadata
-    const existingCustomers = await stripe.customers.list({
-        limit: 1,
-        email,
-    });
-
-    if (existingCustomers.data.length > 0) {
-        const customer = existingCustomers.data[0];
-        // Update metadata if needed
-        if (customer.metadata.clerk_user_id !== clerkUserId) {
-            await stripe.customers.update(customer.id, {
-                metadata: { clerk_user_id: clerkUserId },
-            });
-        }
+    // A stored app association is stronger than an email search. Never claim another owner.
+    if (existingCustomerId) {
+        const customer = await stripe.customers.retrieve(existingCustomerId);
+        if (customer.deleted || (customer.metadata.clerk_user_id
+            && customer.metadata.clerk_user_id !== clerkUserId)) throw new Error("Billing customer owner mismatch");
         return customer.id;
     }
-
-    // Create new customer
+    const existing = await stripe.customers.list({ limit: 100, email });
+    const owned = existing.data.filter(customer => customer.metadata.clerk_user_id === clerkUserId);
+    if (existing.has_more || owned.length > 1) throw new Error("Billing customer lookup is ambiguous");
+    if (owned.length === 1) return owned[0].id;
     const customer = await stripe.customers.create({
-        email,
-        name,
-        metadata: {
-            clerk_user_id: clerkUserId,
-        },
-    });
+        email, name, metadata: { clerk_user_id: clerkUserId },
+    }, { idempotencyKey: `localley-customer-v1-${clerkUserId}` });
 
     return customer.id;
 }
+
+export class StripePlanAlreadyExistsError extends Error {}
 
 // Create a checkout session for subscription
 export async function createCheckoutSession({
@@ -114,6 +107,12 @@ export async function createCheckoutSession({
     trialDays?: number;
 }): Promise<Stripe.Checkout.Session | null> {
     if (!stripe) return null;
+
+    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 });
+    if (subscriptions.has_more || subscriptions.data.some(subscription =>
+        !["canceled", "incomplete_expired"].includes(subscription.status))) {
+        throw new StripePlanAlreadyExistsError("Use billing settings to manage your current Stripe plan.");
+    }
 
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
         customer: customerId,
@@ -198,17 +197,17 @@ export async function resumeSubscription(
 }
 
 // Verify webhook signature
-export function constructWebhookEvent(
+export async function constructWebhookEvent(
     payload: string | Buffer,
     signature: string,
     webhookSecret: string
-): Stripe.Event | null {
+): Promise<Stripe.Event | null> {
     if (!stripe) return null;
 
     try {
-        return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-    } catch (err) {
-        console.error("Webhook signature verification failed:", err);
+        return await stripe.webhooks.constructEventAsync(payload, signature, webhookSecret, undefined, Stripe.createSubtleCryptoProvider());
+    } catch {
+        console.error("Webhook signature verification failed");
         return null;
     }
 }
