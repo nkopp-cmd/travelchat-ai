@@ -8,6 +8,8 @@ import { trackEngagement } from "@/lib/engagement-tracking";
 import { createPreviewSavedSpot, deletePreviewSavedSpot, isPreviewSavedSpotCandidate,
   previewSavedSpot, previewSavedSpots } from "@/lib/app-data/preview-saved-spots";
 
+import { matchesPreviewActor } from "@/lib/app-data/preview-actor";
+
 const spotIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(req: NextRequest) {
@@ -16,6 +18,10 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return Errors.unauthorized();
     }
+
+    if (req.headers.has("X-Localley-Preview-Actor") && !isPreviewSavedSpotCandidate(req))
+      return NextResponse.json({ error: "Candidate save unavailable" },
+        { status: 503, headers: { "Cache-Control": "private, no-store" } });
 
     const body = await req.json().catch(() => null);
     const spotId = body?.spotId;
@@ -29,6 +35,8 @@ export async function POST(req: NextRequest) {
     }
 
     if (isPreviewSavedSpotCandidate(req)) {
+      if (!matchesPreviewActor(req, userId)) return NextResponse.json({ error: "Save owner changed" },
+        { status: 403, headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" } });
       const result = await createPreviewSavedSpot(userId, spotId.toLowerCase());
       if (result.kind === "missing") return Errors.notFound("Spot");
       if (result.kind === "limit") return Errors.limitExceeded("saved spots", result.current, result.limit);
@@ -143,6 +151,10 @@ export async function DELETE(req: NextRequest) {
       return Errors.unauthorized();
     }
 
+    if (req.headers.has("X-Localley-Preview-Actor") && !isPreviewSavedSpotCandidate(req))
+      return NextResponse.json({ error: "Candidate save unavailable" },
+        { status: 503, headers: { "Cache-Control": "private, no-store" } });
+
     const body = await req.json().catch(() => null);
     const spotId = body?.spotId;
 
@@ -155,6 +167,8 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (isPreviewSavedSpotCandidate(req)) {
+      if (!matchesPreviewActor(req, userId)) return NextResponse.json({ error: "Save owner changed" },
+        { status: 403, headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" } });
       await deletePreviewSavedSpot(userId, spotId.toLowerCase());
       return NextResponse.json({ success: true, saved: false, message: "Spot removed from saved" }, {
         headers: { "Cache-Control": "no-store", "X-Localley-Data-Source": "d1-preview" },
@@ -191,6 +205,10 @@ export async function GET(req: NextRequest) {
       return Errors.unauthorized();
     }
 
+    if (req.headers.has("X-Localley-Preview-Actor") && !isPreviewSavedSpotCandidate(req))
+      return NextResponse.json({ error: "Candidate save unavailable" },
+        { status: 503, headers: { "Cache-Control": "private, no-store" } });
+
     const { searchParams } = new URL(req.url);
     const spotId = searchParams.get("spotId");
 
@@ -199,6 +217,8 @@ export async function GET(req: NextRequest) {
     }
 
     if (isPreviewSavedSpotCandidate(req)) {
+      if (!matchesPreviewActor(req, userId)) return NextResponse.json({ error: "Save owner changed" },
+        { status: 403, headers: { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" } });
       const result = spotId
         ? { saved: await previewSavedSpot(userId, spotId.toLowerCase()) }
         : await previewSavedSpots(userId);

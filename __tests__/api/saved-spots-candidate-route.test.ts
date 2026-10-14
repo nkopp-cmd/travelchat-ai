@@ -73,3 +73,22 @@ describe("saved spot candidate route", () => {
     expect(mocks.one).not.toHaveBeenCalled();
   });
 });
+
+describe("candidate save actor binding", () => {
+  it.each([GET, POST, DELETE])("refuses a changed actor before any D1 operation", async handler => {
+    process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
+    mocks.auth.mockResolvedValue({ userId: "owner-b" });
+    const req = request(preview, handler === GET ? "GET" : handler === POST ? "POST" : "DELETE");
+    req.headers.set("X-Localley-Preview-Actor", "owner-a");
+    expect((await handler(req)).status).toBe(403);
+    expect(mocks.one).not.toHaveBeenCalled(); expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.remove).not.toHaveBeenCalled(); expect(mocks.supabase).not.toHaveBeenCalled();
+  });
+  it.each([GET, POST, DELETE])("refuses lost opt-in without a Source fallback", async handler => {
+    process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
+    mocks.auth.mockResolvedValue({ userId: "owner-a" });
+    const req = request(preview, handler === GET ? "GET" : handler === POST ? "POST" : "DELETE", false);
+    req.headers.set("X-Localley-Preview-Actor", "owner-a");
+    expect((await handler(req)).status).toBe(503); expect(mocks.supabase).not.toHaveBeenCalled();
+  });
+});

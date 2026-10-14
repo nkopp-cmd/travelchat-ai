@@ -70,6 +70,8 @@ import {
   normalizeSpotTips,
 } from "@/lib/spots/detail-normalization";
 import type { Metadata } from "next";
+import { PreviewSaveSpotButton } from "@/components/spots/preview-save-spot-button";
+import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
 
 const LIQUID_CARD =
@@ -976,6 +978,11 @@ export default async function SpotPage({
     locationTone: locationConfidence.tone,
   });
   const relatedSpots = candidate ? [] : await getRelatedSpots(spot, city);
+  let saveActor: string | null = null;
+  if (candidate) {
+    try { saveActor = await previewSavedSpotActor(); }
+    catch { /* Candidate owner lookup failures never fall back to source writes. */ }
+  }
   const hasDistanceRankedRelatedSpots = relatedSpots.some(
     (related) => related.distanceKm !== null,
   );
@@ -1040,6 +1047,7 @@ export default async function SpotPage({
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
             {!candidate && <SpotInteractions spotId={spot.id} spotName={spot.name} />}
+            {candidate && saveActor && <PreviewSaveSpotButton spotId={spot.id} spotName={spot.name} actorId={saveActor} />}
           </div>
 
           <div className="absolute inset-x-0 bottom-0 w-full p-4 sm:p-6 md:p-8">
