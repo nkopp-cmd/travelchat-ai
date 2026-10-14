@@ -46,7 +46,7 @@ function candidateRequest({control=true,hostile=false}={}) {
     const sql=JSON.parse(options.body).sql;
     assert.match(sql,/^(SELECT|PRAGMA) /);assert.equal(options.method,'POST');assert.equal(options.redirect,'error');
     let rows;
-    if(sql.includes('sqlite_master')) rows=[{name:'preview_notification_preferences'},{name:'preview_notifications'}];
+    if(sql.includes('sqlite_master')) rows=[{name:'preview_notification_preferences'},{name:'preview_notifications'},{name:'preview_push_subscriptions'}];
     else if(sql.startsWith('PRAGMA')) rows=[{name:hostile?'private email@host.test':'ownerId',type:'TEXT'}];
     else if(sql.includes('GROUP BY'))rows=[{source:'legacy-fixture',n:35}];
     else if(sql.includes('unclaimed'))rows=[{total:35,unclaimed:2}];
@@ -58,7 +58,7 @@ function candidateRequest({control=true,hostile=false}={}) {
 test('inventories isolated schema/owners without approving parity or reading row values', async()=>{
   const {request,calls}=candidateRequest();const r=await notificationInventory(credentials,request);
   assert.equal(r.control.count,3295);assert.equal(r.source.length,3);assert.ok(r.source.every(x=>x.count===null));
-  assert.equal(r.candidate.length,2);assert.equal(r.candidate[0].scope,'isolated_preview_only');
+  assert.equal(r.candidate.length,3);assert.equal(r.candidate[0].scope,'isolated_preview_only');
   assert.deepEqual(r.legacyOwners,{total:35,unclaimed:2});assert.deepEqual(r.historicalTablesPresent,[]);
   assert.equal(r.historicalParity,'unproven');assert.equal(r.cutoverReady,false);assert.equal(r.readOnly,true);
   assert.ok(calls.filter(x=>x.method==='GET').every(x=>new URL(x.url).searchParams.get('limit')==='0'));

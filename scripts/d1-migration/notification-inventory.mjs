@@ -9,7 +9,7 @@ const PROJECT = 'https://llehrhqeolfprutcaopi.supabase.co';
 const ACCOUNT = '664f242340bcec2f32daaeee15f58bde';
 const DATABASE = '6f5b1df7-2eb5-479f-8803-8095e72c7053';
 const SOURCE_TABLES = ['notifications', 'notification_preferences', 'push_subscriptions'];
-const CANDIDATE_TABLES = ['preview_notifications', 'preview_notification_preferences'];
+const CANDIDATE_TABLES = ['preview_notifications', 'preview_notification_preferences', 'preview_push_subscriptions'];
 const HISTORY_TABLES = ['legacy_notifications', 'legacy_notification_preferences', 'legacy_push_subscriptions'];
 const safeCount = n => Number.isSafeInteger(n) && n >= 0;
 
@@ -67,7 +67,7 @@ export async function notificationInventory(credentials, request = fetch) {
       || body.result[0].success !== true || !Array.isArray(body.result[0].results)) throw Error('candidate_inventory_unavailable');
     return body.result[0].results;
   };
-  const tables = await query("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('preview_notifications','preview_notification_preferences','legacy_notifications','legacy_notification_preferences','legacy_push_subscriptions') ORDER BY name");
+  const tables = await query("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('preview_notifications','preview_notification_preferences','preview_push_subscriptions','legacy_notifications','legacy_notification_preferences','legacy_push_subscriptions') ORDER BY name");
   if (tables.some(row => ![...CANDIDATE_TABLES, ...HISTORY_TABLES].includes(row.name))
     || new Set(tables.map(row => row.name)).size !== tables.length) throw Error('invalid_candidate_tables');
   const candidate = [];
