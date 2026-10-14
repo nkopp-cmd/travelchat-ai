@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), source: vi.fn() }));
+const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), owner: vi.fn(), source: vi.fn() }));
 vi.mock("@/lib/stripe", () => ({ stripe: { subscriptions: { retrieve: m.retrieve } }, constructWebhookEvent: m.verify, getTierFromPriceId: m.tier }));
 vi.mock("@/lib/resend", () => ({ resend: null, FROM_EMAIL: "Localley <hello@localley.io>" }));
 vi.mock("@/lib/cache", () => ({ invalidateUserCache: vi.fn() }));
@@ -13,8 +13,8 @@ const request = () => new NextRequest("https://www.localley.io/api/subscription/
 beforeEach(async () => {
   vi.resetAllMocks(); vi.resetModules(); vi.stubEnv("STRIPE_WEBHOOK_SECRET", "whsec_offline");
   const q = { eq: (key: string, value: string) => { m.eq(key, value); return q; }, then: (resolve: (value: unknown) => unknown) => Promise.resolve(m.write()).then(resolve) };
-  m.source.mockReturnValue({ from: () => ({ upsert: m.upsert, update: (data: unknown) => { m.update(data); return q; } }) });
-  m.upsert.mockResolvedValue({ error: null }); m.write.mockReturnValue({ error: null }); m.retrieve.mockResolvedValue(sub); m.tier.mockReturnValue("pro");
+  m.source.mockReturnValue({ from: () => ({ select: () => ({ eq: (key: string, value: string) => { m.eq(key, value); return { limit: m.owner }; } }), upsert: m.upsert, update: (data: unknown) => { m.update(data); return q; } }) });
+  m.owner.mockResolvedValue({ data: [{ clerk_user_id: "a" }], error: null }); m.upsert.mockResolvedValue({ error: null }); m.write.mockReturnValue({ error: null }); m.retrieve.mockResolvedValue(sub); m.tier.mockReturnValue("pro");
   post = (await import("@/app/api/subscription/webhook/route")).POST;
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -45,6 +45,27 @@ describe("live subscription webhook compatibility", () => {
     m.verify.mockResolvedValue(event("customer.subscription.updated", sub));
     expect((await post(request())).status).toBe(200); expect(m.upsert).not.toHaveBeenCalled();
     expect(m.update.mock.calls[0][0].status).toBe("canceled");
+  });
+  it("recovers absent metadata through one exact stored customer association", async () => {
+    m.retrieve.mockResolvedValue({ ...sub, metadata: {} });
+    m.verify.mockResolvedValue(event("customer.subscription.updated", { ...sub, metadata: {} }));
+    expect((await post(request())).status).toBe(200);
+    expect(m.eq).toHaveBeenCalledWith("stripe_customer_id", "cus_owned");
+    expect(m.owner).toHaveBeenCalledWith(2); expect(m.upsert.mock.calls[0][0].clerk_user_id).toBe("a");
+  });
+  it("refuses ambiguous customer associations without an email lookup or entitlement write", async () => {
+    m.retrieve.mockResolvedValue({ ...sub, metadata: {} }); m.owner.mockResolvedValue({ data: [{ clerk_user_id: "a" }, { clerk_user_id: "b" }], error: null });
+    m.verify.mockResolvedValue(event("customer.subscription.updated", sub));
+    expect((await post(request())).status).toBe(500); expect(m.upsert).not.toHaveBeenCalled();
+  });
+  it("leaves an unknown customer unclaimed", async () => {
+    m.retrieve.mockResolvedValue({ ...sub, metadata: {} }); m.owner.mockResolvedValue({ data: [], error: null });
+    m.verify.mockResolvedValue(event("customer.subscription.updated", sub));
+    expect((await post(request())).status).toBe(200); expect(m.upsert).not.toHaveBeenCalled();
+  });
+  it.each(["incomplete", "incomplete_expired", "paused"])("maps non-serving Stripe status %s to a supported inactive state", async status => {
+    m.retrieve.mockResolvedValue({ ...sub, status }); m.verify.mockResolvedValue(event("customer.subscription.updated", sub));
+    expect((await post(request())).status).toBe(200); expect(m.upsert.mock.calls[0][0].status).toBe("canceled");
   });
   it("does not promote payment status from a checkout completion alone", async () => {
     m.verify.mockResolvedValue(event("checkout.session.completed", { metadata: { clerk_user_id: "a" }, customer: "cus_owned", subscription: "sub_owned" }));

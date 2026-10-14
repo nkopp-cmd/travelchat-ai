@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             url: session.url,
             sessionId: session.id,
-        });
+        }, { headers: { "Cache-Control": "private, no-store", "X-Localley-Billing-Contract": "2026-10-14" } });
     } catch (error) {
         return handleApiError(error, "subscription-checkout");
     }

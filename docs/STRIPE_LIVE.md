@@ -34,11 +34,14 @@ New customer creation uses an actor-specific idempotency key. Provider transport
 Both webhook routes use asynchronous SubtleCrypto signature verification on Workers.
 Signature failures do not log raw payloads or signatures.
 Subscription updates retrieve current provider state instead of replaying older snapshots.
+Missing owner metadata uses one exact trusted Source customer association; ambiguous links fail closed.
+No identity is assigned by email. One existing live trial subscription needs this compatibility path.
 Current item-level periods and invoice parent subscription references are supported.
 Invoice status follows the current subscription and cannot reactivate a canceled subscription from an old paid invoice.
 Deletion and invoice writes match the exact subscription ID.
 Checkout completion alone does not grant a paid status or tier.
 Unknown prices and database errors fail honestly, allowing provider retries.
+Provider states outside the four supported app states map to an inactive canceled state.
 
 This does not certify complete historical billing reconciliation or cross-system atomicity.
 Subscription notification activation remains behind the existing source schema/consent audit.
@@ -46,7 +49,7 @@ Candidate checkout remains disabled; production application data remains Supabas
 
 ## Delivery
 
-Preparation:48 focused tests pass, including real offline HMAC verification.
+Preparation: focused checks include real offline HMAC verification.
 Pinned build, scoped lint, TypeScript, exact CI, independent review and hosted release gates remain required.
 A controlled live checkout may verify the hosted form, followed by expiry and exact owned cleanup.
 That check is not a completed purchase or a test-mode transaction.

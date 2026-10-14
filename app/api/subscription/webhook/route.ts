@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
                 console.log(`Unhandled event type: ${event.type}`);
         }
 
-        return NextResponse.json({ received: true });
+        return NextResponse.json({ received: true }, { headers: { "Cache-Control": "no-store", "X-Localley-Billing-Contract": "2026-10-14" } });
     } catch (error) {
         console.error("Webhook error:", error);
         return NextResponse.json(
@@ -121,6 +121,24 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+/** Recover older app subscriptions through an exact trusted customer binding only. */
+async function subscriptionOwner(
+    supabase: ReturnType<typeof createSupabaseAdmin>,
+    record: { metadata?: Record<string, string> | null; customer: string | { id: string } | null }
+): Promise<string | null> {
+    const explicit = record.metadata?.clerk_user_id;
+    if (explicit) return explicit;
+    const customerId = typeof record.customer === "string" ? record.customer : record.customer?.id;
+    if (!customerId) return null;
+    const { data, error } = await supabase.from("subscriptions").select("clerk_user_id")
+        .eq("stripe_customer_id", customerId).limit(2);
+    if (error || !Array.isArray(data) || data.length > 1) throw new Error("Billing owner binding unavailable");
+    const owner = data[0]?.clerk_user_id;
+    if (owner !== undefined && (typeof owner !== "string" || !owner || owner.length > 256))
+        throw new Error("Invalid billing owner binding");
+    return owner ?? null;
 }
 
 // Handle checkout completion
@@ -164,12 +182,17 @@ type InvoiceWithSubscription = Stripe.Invoice & {
     subscription?: string | Stripe.Subscription | null;
 };
 
+/** The application schema and entitlement reader support these four states. */
+function appBillingStatus(status: string): "active" | "trialing" | "past_due" | "canceled" {
+    return status === "active" || status === "trialing" || status === "past_due" ? status : "canceled";
+}
+
 // Handle subscription updates
 async function handleSubscriptionUpdate(
     supabase: ReturnType<typeof createSupabaseAdmin>,
     subscription: Stripe.Subscription
 ) {
-    const clerkUserId = subscription.metadata?.clerk_user_id;
+    const clerkUserId = await subscriptionOwner(supabase, subscription);
     if (!clerkUserId) {
         console.error("No clerk_user_id in subscription metadata");
         return;
@@ -186,25 +209,7 @@ async function handleSubscriptionUpdate(
     const sub = { ...legacy, current_period_start: legacy.current_period_start ?? item?.current_period_start,
         current_period_end: legacy.current_period_end ?? item?.current_period_end };
 
-    // Map Stripe status to our status
-    let status: string;
-    switch (subscription.status) {
-        case "active":
-            status = "active";
-            break;
-        case "trialing":
-            status = "trialing";
-            break;
-        case "past_due":
-            status = "past_due";
-            break;
-        case "canceled":
-        case "unpaid":
-            status = "canceled";
-            break;
-        default:
-            status = subscription.status;
-    }
+    const status = appBillingStatus(subscription.status);
 
     const { error: writeError } = await supabase.from("subscriptions").upsert(
         {
@@ -256,7 +261,7 @@ async function handleSubscriptionDeleted(
     supabase: ReturnType<typeof createSupabaseAdmin>,
     subscription: Stripe.Subscription
 ) {
-    const clerkUserId = subscription.metadata?.clerk_user_id;
+    const clerkUserId = await subscriptionOwner(supabase, subscription);
     if (!clerkUserId) {
         console.error("No clerk_user_id in subscription metadata");
         return;
@@ -298,12 +303,12 @@ async function handlePaymentSucceeded(
     const subscription = await stripe?.subscriptions.retrieve(subscriptionId);
     if (!subscription) return;
 
-    const clerkUserId = subscription.metadata?.clerk_user_id;
+    const clerkUserId = await subscriptionOwner(supabase, subscription);
     if (!clerkUserId) return;
 
     // Update status to active
     const { error: writeError } = await supabase.from("subscriptions").update({
-        status: subscription.status === "unpaid" ? "canceled" : subscription.status,
+        status: appBillingStatus(subscription.status),
         updated_at: new Date().toISOString(),
     }).eq("clerk_user_id", clerkUserId).eq("stripe_subscription_id", subscriptionId);
 
@@ -330,12 +335,12 @@ async function handlePaymentFailed(
     const subscription = await stripe?.subscriptions.retrieve(subscriptionId);
     if (!subscription) return;
 
-    const clerkUserId = subscription.metadata?.clerk_user_id;
+    const clerkUserId = await subscriptionOwner(supabase, subscription);
     if (!clerkUserId) return;
 
     // Update status to past_due
     const { error: writeError } = await supabase.from("subscriptions").update({
-        status: subscription.status === "unpaid" ? "canceled" : subscription.status,
+        status: appBillingStatus(subscription.status),
         updated_at: new Date().toISOString(),
     }).eq("clerk_user_id", clerkUserId).eq("stripe_subscription_id", subscriptionId);
 

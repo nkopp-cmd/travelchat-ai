@@ -10,7 +10,8 @@ beforeEach(() => { vi.resetAllMocks(); m.auth.mockResolvedValue({ userId: "a" })
 describe("live checkout preserves billing state", () => {
   it("updates only the customer association on an existing free row", async () => {
     m.read.mockResolvedValue({ data: { tier: "free", status: "canceled", stripe_customer_id: "cus_owned" }, error: null });
-    expect((await POST(request())).status).toBe(200);
+    const response = await POST(request());
+    expect(response.status).toBe(200); expect(response.headers.get("X-Localley-Billing-Contract")).toBe("2026-10-14");
     expect(m.update).toHaveBeenCalledWith({ stripe_customer_id: "cus_owned", updated_at: expect.any(String) });
     expect(m.upsert).not.toHaveBeenCalled(); expect(m.customer.mock.calls[0][3]).toBe("cus_owned");
     expect(m.checkout.mock.calls[0][0]).toMatchObject({ customerId: "cus_owned", priceId: "price_live", clerkUserId: "a" });
