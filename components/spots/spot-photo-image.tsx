@@ -31,11 +31,11 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
       {children}
     </div>
     {!unavailable && photo && <figcaption aria-label="Photo source and author credits" className={`relative z-10 shrink-0 break-words border-t border-white/5 bg-[#15111f] px-3 py-1.5 text-[11px] leading-4 text-violet-100/65 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
-      <span translate="no" className="whitespace-nowrap font-normal not-italic tracking-normal text-violet-100/75">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
+      <span translate="no" className="whitespace-nowrap text-[11px] font-normal not-italic tracking-normal text-violet-100/75">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
       {photo.attributions?.map((author, index) => {
         let href: string | undefined;
         try { const url = new URL(author.uri || ""); if (url.protocol === "https:" && !url.username && !url.password) href = url.href; } catch {}
-        return <span key={index} className="mr-2 inline-block">{href
+        return <span key={index} className="mr-2 inline-block text-[11px]">{href
           ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a>
           : author.displayName}</span>;
       })}
