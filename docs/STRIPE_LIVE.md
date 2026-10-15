@@ -8,7 +8,9 @@ Its four active USD recurring prices match the application: Pro9monthly/79yearly
 Both enabled subscription and Connect endpoints already point directly to www.localley.io.
 No catalog, webhook URL, API credential or customer subscription needs replacement for this rollout.
 
-The local server environment contains obsolete product IDs in price fields.
+The release audit found obsolete product IDs in the local server price fields.
+On2026-10-15, those four fields were synchronized with the verified live price registry.
+A private backup and parse/readback checks preserve every other environment value.
 Current Worker secret values cannot be read back, so their previous values are not inferred.
 `config/stripe-live-prices.json` declares the verified public live price IDs.
 Use `wrangler versions secret bulk` after the inactive code upload. This preserves existing binding types.
@@ -143,4 +145,5 @@ Private evidence under `/home/dev/.local/state/localley/`:
 - `stripe-live-reconcile-20261015.json` — exact trial backup, canonical state and provider preservation.
 - `stripe-live-portal-enable-20261015.json` and `stripe-live-portal-expanded-read-20261015.json` — configuration and catalog proof.
 - `stripe-live-final-proof-20261015.json` — final22checks.
+- `stripe-server-price-sync-20261015.json` — four local price fields synchronized; all other values preserved.
 - `stripe-live-account-rollback-20261015.mjs` — scoped recovery and six offline guards.
