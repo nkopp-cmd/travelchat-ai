@@ -439,3 +439,19 @@ Root/sign-in remain200; uncached city reads fail. No database recovery is claime
 Productionb4d426e2/2f2bd3fb and previewdc5b3560/8040001b remain100%; no Worker deployment occurs.
 See [Production user health](../PRODUCTION_USER_HEALTH.md#source-database-monitoring-release--2026-10-14) for evidence and unit rollback.
 Stripe421 stays draft. Supabase management access and successful hosted billing checks remain required.
+
+
+## 2026-10-15 — live Stripe checkout release
+
+PR421185a8716/requiredCI38574737099SUCCESS/mergeee7336b4 passed62focused tests, lint/type/pinned build and independent code review.
+Audited immutable production versionc674089a-8f92-4f7e-b4a1-dca4c7685e32 now serves100%.
+Deployment4cd627fe-f874-4520-a458-6817d4c3e931 activated11:27:01UTC; default health and signature checks passed.
+Guarded live acceptance passed77checks across four prices and actual desktop/mobile hosted payment forms.
+All four unpaid sessions expired; empty owned customer and exact Source/Auth fixture cleanup passed.
+Four screenshots were inspected. No card or charge was used.
+The existing Premium trial was reconciled from canonical provider state without changing Stripe or other Source rows.
+The actual default billing portal now offers all four existing live choices; expanded catalog readback passed.
+Final22checks preserve both admins, Source counts8/5/33/85/3295 and all unrelated billing data.
+All release timers are inactive. The prior Workerb4d426e2 remains retained, subject to combined account rollback.
+See [Stripe live billing](../STRIPE_LIVE.md#production-release--2026-10-15) for exact evidence, review limits and recovery order.
+This is live unpaid checkout acceptance, not a completed purchase or full D1 cutover.
