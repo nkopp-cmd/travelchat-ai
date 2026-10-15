@@ -1571,12 +1571,12 @@ export default async function SpotPage({
                   key={related.id}
                   className="group relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/35 hover:bg-white/[0.075]"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-violet-950/50">
-                    <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} />
-                    <span className="absolute left-2 bottom-2 rounded-full border border-white/15 bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
+                  <div className="relative overflow-hidden bg-violet-950/50">
+                    <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
+                    <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
                       {related.category}
                     </span>
-                    <span className="absolute bottom-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
+                    <span className="absolute top-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
                       {related.localleyScore}/6
                     </span>
                   </div>
