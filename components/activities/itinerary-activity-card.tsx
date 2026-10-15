@@ -225,10 +225,10 @@ export function ItineraryActivityCard({
         <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
-            <div ref={photoRef} className="relative h-16 w-16 overflow-hidden rounded-lg bg-violet-950/20 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28 sm:rounded-xl">
+            <div ref={photoRef} className={cn("relative overflow-hidden rounded-lg bg-violet-950/20 sm:rounded-xl", storedProxy ? "w-24 sm:w-28" : "h-16 w-16 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28")}>
               {storedProxy ? (
                 <SpotPhotoImage photo={venuePhotoData?.photos[0]} alt={activity.name}
-                  sizes="(max-width: 419px) 64px, (max-width: 640px) 76px, 112px"
+                  sizes="(max-width: 640px) 96px, 112px" frameClassName="aspect-square w-full"
                   loading={Boolean(sourceSpotId) && venuePhotosLoading} />
               ) : displayImage ? (
                 isStoredActivityImage ? (
@@ -266,7 +266,7 @@ export function ItineraryActivityCard({
                 </div>
               )}
               {activity.time && (
-                <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+                <span className={cn("absolute left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur", storedProxy ? "top-1.5" : "bottom-1.5")}>
                   {activity.time}
                 </span>
               )}

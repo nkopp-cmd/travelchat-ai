@@ -1039,11 +1039,7 @@ export default async function SpotPage({
           Back to spots
         </Link>
 
-        <div
-          data-testid="spot-detail-hero"
-          className="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]"
-        >
-          <VenueHeroPhoto name={spot.name} />
+        <VenueHeroPhoto name={spot.name}>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
             {!candidate && <SpotInteractions spotId={spot.id} spotName={spot.name} />}
@@ -1115,7 +1111,7 @@ export default async function SpotPage({
               </div>
             </div>
           </div>
-        </div>
+        </VenueHeroPhoto>
 
         <section
           className={`${LIQUID_CARD} space-y-2 p-3 sm:hidden`}
@@ -1575,12 +1571,12 @@ export default async function SpotPage({
                   key={related.id}
                   className="group relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/35 hover:bg-white/[0.075]"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-violet-950/50">
-                    <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} />
-                    <span className="absolute left-2 bottom-2 rounded-full border border-white/15 bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
+                  <div className="relative overflow-hidden bg-violet-950/50">
+                    <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
+                    <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
                       {related.category}
                     </span>
-                    <span className="absolute bottom-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
+                    <span className="absolute top-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
                       {related.localleyScore}/6
                     </span>
                   </div>
