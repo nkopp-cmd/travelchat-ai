@@ -455,3 +455,41 @@ Final22checks preserve both admins, Source counts8/5/33/85/3295 and all unrelate
 All release timers are inactive. The prior Workerb4d426e2 remains retained, subject to combined account rollback.
 See [Stripe live billing](../STRIPE_LIVE.md#production-release--2026-10-15) for exact evidence, review limits and recovery order.
 This is live unpaid checkout acceptance, not a completed purchase or full D1 cutover.
+
+## Spot card photos — 2026-10-15
+
+The default discovery cards now use full-width 16:10 photos on mobile.
+Photo credits use 11px text below the image, with Google Maps and photographer links preserved.
+Rounded cards, visible 44px save controls, and two-line titles improve the mobile layout.
+List cards also use full-width mobile photos. Related spots and stored itinerary thumbnails retain readable credits.
+
+- Code: [PR426](https://github.com/nkopp-cmd/travelchat-ai/pull/426), tested `3f7b5deeecae167ec323083e5a6ec044f711225c`, merged `e8cb792fdb26fc16873acf2623f2decef2c428d4`.
+- Required self-hosted CI: [38738468249](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/38738468249), success for the exact tested commit.
+- Production Worker: `localley-next`, version `ca4dfaf3-1d5d-4798-9957-257738fb7c01`, 100%.
+- Deployment: `7942f312-bcae-4b0e-973a-838864596ba1`, activated 13:20:31 UTC; health passed at 13:21 UTC.
+- Rollback: retain `c674089a-8f92-4f7e-b4a1-dca4c7685e32` and deploy it at 100% if required.
+- All 55 production binding definitions match that rollback version. Billing configuration and application data remain unchanged.
+- Preview candidate `b6f07d6d-6a21-4660-a085-f8ebe543faa5` passed and restored prior `dc5b3560-68ee-4a31-88a9-13cf49cfdae3`.
+- Production canary `8c9b9e73-12a7-4bc7-a577-a08cb7908697` passed and restored the prior Worker before the merge and promotion.
+
+### Checks
+
+Run `npx vitest run __tests__/components/itinerary-activity-card.test.tsx __tests__/components/spot-card.test.tsx __tests__/components/spot-photo-image.test.tsx __tests__/components/spots-scroll-layout.test.tsx __tests__/components/preview-save-spot-button.test.tsx --maxWorkers=1`: 32 tests pass.
+Focused ESLint, TypeScript and the pinned `npm run cf:build` pass.
+Artifact tree `e3dcbac75e1a59725fe70604b06c7347b5648b42bc5acb1b4463677a412bc95a` scans 2,330 files and 94 private values with zero new hits.
+Five existing public server alias exceptions remain unchanged.
+
+Local layout checks pass 31 assertions with retained real photo bytes.
+Hosted preview passes 37 checks and nine screenshots at 320px, 390px and 1440px.
+The production canary passes 41 checks and twelve screenshots, including real gallery/image acquisition and detail heroes.
+Exactly two controlled Google requests cost an estimated $0.10. Subsequent sizes reuse those received bytes.
+Default production passes 40 checks and twelve screenshots without a version override, using the retained current photo responses.
+These checks cover full-width photos, computed 11px credits, author links, 44px controls, list/grid views, sign-out save redirects, hero layout, no overflow, and controlled image failures.
+Mobile and desktop screenshots were opened and inspected.
+Public pages, cities and a harmless signed webhook probe return 200; the billing contract remains `2026-10-14`.
+
+Private evidence remains under `/home/dev/.local/state/localley/spot-polish-*20261015*`.
+The first immediate preview probe saw the previous layout and restored safely.
+The second probe normalized the override header and waited 60 seconds for propagation; it passed.
+Local auth interaction is excluded because the local process lacks `AUTH_DB`; hosted checks prove the real save redirect.
+Draft388 retains its separate backend deduplication work. This release changes photo presentation and performs no data migration.
