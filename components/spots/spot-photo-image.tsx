@@ -30,7 +30,7 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
         onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>
-    {!unavailable && photo && <figcaption tabIndex={0} aria-label="Photo source and author credits" className={`relative z-10 shrink-0 break-words border-t border-white/5 bg-[#15111f] px-3 py-1.5 text-[11px] leading-4 text-violet-100/65 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
+    {!unavailable && photo && <figcaption aria-label="Photo source and author credits" className={`relative z-10 shrink-0 break-words border-t border-white/5 bg-[#15111f] px-3 py-1.5 text-[11px] leading-4 text-violet-100/65 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
       <span translate="no" className="whitespace-nowrap font-normal not-italic tracking-normal text-violet-100/75">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
       {photo.attributions?.map((author, index) => {
         let href: string | undefined;
@@ -53,8 +53,8 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
   const photos = data?.photos.slice(1) || [];
   if (!photos.length) return null;
   return <div data-testid="venue-thumbnails" className="grid gap-2 sm:gap-3" style={{ gridTemplateColumns: `repeat(${photos.length}, minmax(0, 1fr))` }}>
-    {photos.map((photo, index) => <div key={`${spotId}:${photo.id}`} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40">
-      <SpotPhotoImage photo={photo} alt={`${name} photo ${index + 2}`} sizes="(max-width: 768px) 33vw, 320px" />
+    {photos.map((photo, index) => <div key={`${spotId}:${photo.id}`} className="relative overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40">
+      <SpotPhotoImage photo={photo} alt={`${name} photo ${index + 2}`} frameClassName="aspect-[4/3] w-full" sizes="(max-width: 768px) 33vw, 320px" />
     </div>)}
   </div>;
 }

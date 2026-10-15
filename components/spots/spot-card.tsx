@@ -206,13 +206,13 @@ export function SpotCard({
   priority = false,
 }: SpotCardProps) {
   if (compact) {
-    // Premium compact horizontal card for list view
+    // Keep mobile list photos large; use a horizontal layout on wider screens.
     return (
       <Card
         data-testid="spot-card"
         data-spot-card="list"
         className={cn(
-          "group relative flex flex-row overflow-hidden rounded-lg !gap-0 !py-0",
+          "group relative flex flex-col overflow-hidden rounded-2xl !gap-0 !py-0 sm:flex-row",
           "bg-[#100b1c]/92 text-white backdrop-blur-xl",
           "border border-violet-200/15",
           "transition-all duration-300 ease-out",
@@ -223,9 +223,9 @@ export function SpotCard({
       >
         <div
           data-testid="spot-card-photo"
-          className="relative aspect-[4/3] w-[4.75rem] flex-shrink-0 overflow-hidden bg-violet-950/60 min-[390px]:w-24 sm:w-32 md:w-36"
+          className="relative w-full flex-shrink-0 overflow-hidden bg-violet-950/60 sm:w-40"
         >
-          <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority} directPhotos={spot.googlePlaceId ? [] : spot.photos} />
+          <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority} directPhotos={spot.googlePlaceId ? [] : spot.photos} frameClassName="aspect-[16/10] w-full" />
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col p-2 sm:p-2.5">
@@ -304,7 +304,7 @@ export function SpotCard({
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-4">
         <div className="flex min-w-0 items-center justify-between gap-2">
-          <CategoryTrendRow category={spot.category} trending={spot.trending} />
+          <CategoryTrendRow category={spot.category} trending={spot.trending} className="min-w-0 flex-1" />
           <SpotScoreChip score={spot.localleyScore} className="shrink-0" />
         </div>
         <Link href={`/spots/${spot.id}`}
