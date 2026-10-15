@@ -32,3 +32,12 @@ This isolated fresh-owner increment cannot establish historical parity or full n
 The current Source helper upserts globally by endpoint without an owner predicate.
 A caller who knows another endpoint can replace its owner. This candidate adapter does not copy that behavior.
 A separate guarded Source fix and its own verified release remain required.
+
+## 2026-10-15 follow-up
+
+CI38579382055 failed because two complete-schema rehearsals still expected31migrations after adding0032.
+The corrected expectation is32. Required CI and hosted preview release remain pending.
+A project-pinned Management API read-only SQL query returned201 with transaction_read_only=on.
+Catalog inspection proves public.notifications, public.notification_preferences and public.push_subscriptions are physically absent.
+This resolves the public-table existence question; external writers, other schemas and historical consent are not established.
+Private receipt: notification-physical-read-20261015.json.
