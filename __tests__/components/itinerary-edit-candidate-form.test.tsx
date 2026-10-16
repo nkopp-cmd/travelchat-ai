@@ -1,0 +1,22 @@
+import React from "react";
+import {render,screen,fireEvent,act,cleanup} from "@testing-library/react";
+import {beforeEach,afterEach,describe,it,expect,vi} from "vitest";
+const mocks=vi.hoisted(()=>({push:vi.fn(),toast:vi.fn()}));
+vi.mock('next/navigation',()=>({useRouter:()=>({push:mocks.push})}));
+vi.mock('@/hooks/use-toast',()=>({useToast:()=>({toast:mocks.toast})}));
+vi.mock('@/components/itineraries/day-editor',()=>({DayEditor:()=> <p>Day controls</p>}));
+import {EditForm} from '@/components/itineraries/edit-form';
+const itinerary={id:'00000000-0000-4000-8000-000000000011',title:'Tea route',city:'Seoul',days:1,highlights:['Courtyards'],estimated_cost:'$50',activities:{dailyPlans:[{day:1,activities:[{name:'Ikseon tea house',address:'Seoul',lat:37.57,cost:'$10',duration:'60 min',custom:{kept:true}}]}],insights:[{id:'note',label:'Local note',kind:'local',text:'Seasonal tea'}]}};
+let fetchMock:ReturnType<typeof vi.fn>;
+beforeEach(()=>{vi.useFakeTimers();fetchMock=vi.fn().mockResolvedValue({ok:true});vi.stubGlobal('fetch',fetchMock);vi.stubGlobal('confirm',vi.fn(()=>true));});
+afterEach(()=>{cleanup();vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();vi.clearAllMocks();});
+const edit=()=>fireEvent.change(screen.getByLabelText('Itinerary Title'),{target:{value:'Edited tea route'}});
+const save=()=>screen.getByRole('button',{name:'Save',exact:true});
+describe('candidate editor transport',()=>{
+ it('saves once with explicit routing/actor and complete activity fields',async()=>{render(<EditForm itinerary={itinerary} dataCandidate="d1" previewActor="a"/>);edit();await act(async()=>{fireEvent.click(save());});expect(fetchMock).toHaveBeenCalledTimes(1);const[url,request]=fetchMock.mock.calls[0];expect(url).toBe(`/api/itineraries/${itinerary.id}/update?data_candidate=d1`);expect(request.headers['X-Localley-Preview-Actor']).toBe('a');const body=JSON.parse(request.body);expect(body.days[0].activities[0]).toMatchObject({lat:37.57,cost:'$10',duration:'60 min',custom:{kept:true}});expect(body.insights[0].text).toBe('Seasonal tea');expect(save().matches(":disabled")).toBe(true);});
+ it('autosaves after30seconds using the same candidate transport',async()=>{render(<EditForm itinerary={itinerary} dataCandidate="d1" previewActor="a"/>);edit();await act(async()=>{await vi.advanceTimersByTimeAsync(30000);});expect(fetchMock).toHaveBeenCalledTimes(1);expect(fetchMock.mock.calls[0][0]).toContain('?data_candidate=d1');});
+ it('locks candidate controls while saving and refuses a second pending submit',async()=>{let resolve!:(r:{ok:boolean})=>void;fetchMock.mockReturnValue(new Promise(r=>{resolve=r;}));render(<EditForm itinerary={itinerary} dataCandidate="d1" previewActor="a"/>);edit();const button=save();act(()=>{fireEvent.click(button);fireEvent.click(button);});expect(fetchMock).toHaveBeenCalledTimes(1);expect(screen.getByLabelText('City').matches(':disabled')).toBe(true);await act(async()=>{resolve({ok:true});});expect(screen.getByLabelText('City').matches(':disabled')).toBe(false);});
+ it('retains opt-in on cancel and discards nothing when cancellation is declined',()=>{render(<EditForm itinerary={itinerary} dataCandidate="d1" previewActor="a"/>);edit();vi.mocked(confirm).mockReturnValueOnce(false);fireEvent.click(screen.getAllByRole('button',{name:'Cancel'})[0]);expect(mocks.push).not.toHaveBeenCalled();fireEvent.click(screen.getAllByRole('button',{name:'Cancel'})[0]);expect(mocks.push).toHaveBeenCalledWith(`/itineraries/${itinerary.id}?data_candidate=d1`);expect(fetchMock).not.toHaveBeenCalled();});
+ it('shows failed save without a Source fallback or successful state',async()=>{fetchMock.mockResolvedValue({ok:false});render(<EditForm itinerary={itinerary} dataCandidate="d1" previewActor="a"/>);edit();await act(async()=>{fireEvent.click(save());});expect(fetchMock).toHaveBeenCalledTimes(1);expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({title:'Save failed',variant:'destructive'}));expect(save().matches(":disabled")).toBe(false);});
+ it('preserves normal Source URLs and headers',async()=>{render(<EditForm itinerary={itinerary}/>);edit();await act(async()=>{fireEvent.click(save());});expect(fetchMock.mock.calls[0][0]).toBe(`/api/itineraries/${itinerary.id}/update`);expect(fetchMock.mock.calls[0][1].headers).toEqual({'Content-Type':'application/json'});fireEvent.click(screen.getAllByRole('button',{name:'Cancel'})[0]);expect(mocks.push).toHaveBeenCalledWith(`/itineraries/${itinerary.id}`);});
+});

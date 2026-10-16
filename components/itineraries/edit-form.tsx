@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { DayEditor } from "./day-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,9 +44,11 @@ interface Itinerary {
 
 interface EditFormProps {
     itinerary: Itinerary;
+    dataCandidate?: "d1";
+    previewActor?: string;
 }
 
-export function EditForm({ itinerary }: EditFormProps) {
+export function EditForm({ itinerary, dataCandidate, previewActor }: EditFormProps) {
     const router = useRouter();
     const { toast } = useToast();
 
@@ -66,6 +68,11 @@ export function EditForm({ itinerary }: EditFormProps) {
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
+    const saving = useRef(false);
+    const payload = { title, city, days: dayPlans, insights, highlights, estimated_cost: estimatedCost };
+    const savedCandidate = useRef(JSON.stringify(payload));
+    const detailUrl = `/itineraries/${encodeURIComponent(itinerary.id)}${dataCandidate === "d1" ? "?data_candidate=d1" : ""}`;
+
     // Track changes
     useEffect(() => {
         const hasChanges =
@@ -76,8 +83,8 @@ export function EditForm({ itinerary }: EditFormProps) {
             JSON.stringify(insights) !== JSON.stringify(parsedPlan.insights) ||
             JSON.stringify(highlights) !== JSON.stringify(itinerary.highlights || []);
 
-        setHasUnsavedChanges(hasChanges);
-    }, [title, city, dayPlans, insights, highlights, estimatedCost, itinerary, parsedPlan]);
+        setHasUnsavedChanges(dataCandidate === "d1" ? JSON.stringify({title, city, days: dayPlans, insights, highlights, estimated_cost: estimatedCost}) !== savedCandidate.current : hasChanges);
+    }, [title, city, dayPlans, insights, highlights, estimatedCost, itinerary, parsedPlan, dataCandidate]);
 
     // Warn on navigation if unsaved changes
     useEffect(() => {
@@ -106,29 +113,27 @@ export function EditForm({ itinerary }: EditFormProps) {
     }, [title, city, dayPlans, insights, highlights, estimatedCost, hasUnsavedChanges]);
 
     const handleSave = async (isAutoSave = false) => {
+        if (dataCandidate === "d1" && saving.current) return;
+        saving.current = true;
+        const submitted = JSON.stringify(payload);
         setIsSaving(true);
         setSaveStatus("saving");
 
         try {
-            const response = await fetch(`/api/itineraries/${itinerary.id}/update`, {
+            const response = await fetch(`/api/itineraries/${encodeURIComponent(itinerary.id)}/update${dataCandidate === "d1" ? "?data_candidate=d1" : ""}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    ...(dataCandidate === "d1" && previewActor ? {"X-Localley-Preview-Actor": previewActor} : {}),
                 },
-                body: JSON.stringify({
-                    title,
-                    city,
-                    days: dayPlans,
-                    insights,
-                    highlights,
-                    estimated_cost: estimatedCost,
-                }),
+                body: submitted,
             });
 
             if (!response.ok) {
                 throw new Error("Failed to save itinerary");
             }
 
+            if (dataCandidate === "d1") savedCandidate.current = submitted;
             setSaveStatus("saved");
             setHasUnsavedChanges(false);
 
@@ -155,6 +160,7 @@ export function EditForm({ itinerary }: EditFormProps) {
                 setSaveStatus("idle");
             }, 3000);
         } finally {
+            saving.current = false;
             setIsSaving(false);
         }
     };
@@ -162,14 +168,15 @@ export function EditForm({ itinerary }: EditFormProps) {
     const handleCancel = () => {
         if (hasUnsavedChanges) {
             if (confirm("You have unsaved changes. Are you sure you want to cancel?")) {
-                router.push(`/itineraries/${itinerary.id}`);
+                router.push(detailUrl);
             }
         } else {
-            router.push(`/itineraries/${itinerary.id}`);
+            router.push(detailUrl);
         }
     };
 
     const handleDayUpdate = (index: number, updatedDay: DayPlan) => {
+        if (dataCandidate === "d1" && saving.current) return;
         const updatedDays = [...dayPlans];
         updatedDays[index] = updatedDay;
         setDayPlans(updatedDays);
@@ -200,12 +207,12 @@ export function EditForm({ itinerary }: EditFormProps) {
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6">
+        <fieldset disabled={dataCandidate === "d1" && isSaving} className="min-w-0 max-w-5xl mx-auto space-y-6">
             {/* Header with Save/Cancel */}
             <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 -mx-4">
-                <div className="flex items-center justify-between max-w-5xl mx-auto">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-w-5xl mx-auto">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold">Edit Itinerary</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold">Edit Itinerary</h1>
                         {saveStatus === "saving" && (
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -265,40 +272,40 @@ export function EditForm({ itinerary }: EditFormProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <label className="text-sm font-medium mb-1 block">
+                        <label htmlFor="edit-title" className="text-sm font-medium mb-1 block">
                             Itinerary Title
                         </label>
-                        <Input
+                        <Input id="edit-title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="e.g., 3-Day Seoul Adventure"
                         />
                     </div>
                     <div>
-                        <label className="text-sm font-medium mb-1 block">
+                        <label htmlFor="edit-city" className="text-sm font-medium mb-1 block">
                             City
                         </label>
-                        <Input
+                        <Input id="edit-city"
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
                             placeholder="e.g., Seoul"
                         />
                     </div>
                     <div>
-                        <label className="text-sm font-medium mb-1 block">
+                        <label htmlFor="edit-cost" className="text-sm font-medium mb-1 block">
                             Estimated Cost
                         </label>
-                        <Input
+                        <Input id="edit-cost"
                             value={estimatedCost}
                             onChange={(e) => setEstimatedCost(e.target.value)}
                             placeholder="e.g., $500-800"
                         />
                     </div>
                     <div>
-                        <label className="text-sm font-medium mb-1 block">
+                        <label htmlFor="edit-highlights" className="text-sm font-medium mb-1 block">
                             Highlights (comma-separated)
                         </label>
-                        <Textarea
+                        <Textarea id="edit-highlights"
                             value={highlights.join(", ")}
                             onChange={(e) => handleHighlightsChange(e.target.value)}
                             placeholder="e.g., Traditional markets, K-pop culture, Street food"
@@ -313,10 +320,10 @@ export function EditForm({ itinerary }: EditFormProps) {
                     <CardTitle>Trip insights</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <label className="text-sm font-medium mb-1 block">
+                    <label htmlFor="edit-insights" className="text-sm font-medium mb-1 block">
                         Tips and getting-around notes
                     </label>
-                    <Textarea
+                    <Textarea id="edit-insights"
                         value={insights.map((insight) => insight.text).join("\n")}
                         onChange={(e) => handleInsightsChange(e.target.value)}
                         placeholder="Add one trip-level insight per line. These stay outside the day sections."
@@ -366,6 +373,6 @@ export function EditForm({ itinerary }: EditFormProps) {
                     )}
                 </Button>
             </div>
-        </div>
+        </fieldset>
     );
 }

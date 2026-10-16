@@ -195,8 +195,9 @@ export default async function ItineraryViewPage({
         days={candidate.days} localScore={candidate.localScore ? candidate.localScore * 10 : undefined}
         highlights={candidate.highlights} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p role="status" className="text-sm text-muted-foreground">This view is read-only. Editing and sharing are unavailable.</p>
+        <p role="status" className="text-sm text-muted-foreground">Your private itinerary. Public sharing is unavailable.</p>
         <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline"><Link href={`/itineraries/${candidate.id}/edit?data_candidate=d1`}>Edit itinerary</Link></Button>
           <Button asChild variant="outline">
             <a href={`/api/itineraries/${candidate.id}/export?data_candidate=d1`} target="_blank" rel="noopener">
               <Download className="mr-2 h-4 w-4" />Export trip
