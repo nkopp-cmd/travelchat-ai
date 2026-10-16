@@ -493,3 +493,24 @@ The first immediate preview probe saw the previous layout and restored safely.
 The second probe normalized the override header and waited 60 seconds for propagation; it passed.
 Local auth interaction is excluded because the local process lacks `AUTH_DB`; hosted checks prove the real save redirect.
 Draft388 retains its separate backend deduplication work. This release changes photo presentation and performs no data migration.
+
+
+## 2026-10-16 — isolated D1 push storage, preview only
+
+PR424bd569813/requiredCI38760992592SUCCESS merged d53367f0; exact tested and squash trees match31d4599e.
+Local14route/14Node tests, focused lint, TypeScript, pinned OpenNext build and bounded reviews passed.
+Artifact scan2328files/94private values found0private matches; five existing public Kakao server aliases remain documented.
+Candidate-only0032 passes66checks with a saved Time Travel bookmark and demonstrated failed-batch schema rollback.
+Existing table schemas/counts/FK0 remain intact except the intended ledger entry. Do not reapply0031 or blanket migrations.
+
+Preview6d621d4b-0747-4ace-afe9-14b987402037 runs100%, deployment69c96bf1-a014-4599-adbc-155b6ff0c069.
+Rollbackdc5b3560-68ee-4a31-88a9-13cf49cfdae3 was actually restored after the1% canary.
+Canary44checks and default44checks verify actual signed-in storage, concurrent ownership/cap, isolation and exact cleanup.
+All56candidate table counts, verification count, both production admins and Source users/subscription hashes remain unchanged.
+Both recovery timers are inactive. No delivery, VAPID, producer, Source schema or production Worker change occurred.
+Production still runs ca4dfaf3-1d5d-4798-9957-257738fb7c01, deployment7942f312-bcae-4b0e-973a-838864596ba1.
+
+Fresh Stripe read-only15checks confirm the existing four-price hosted proof and default portal choices.
+All four proof sessions remain expired and unpaid. No new session, card, charge or purchase was created.
+Fresh Source REST/auth/storage return200in480/460/461ms. Full application-data migration remains gated.
+See docs/D1_PUSH_STORAGE.md for exact commands, receipts, schema hazard and remaining scope.
