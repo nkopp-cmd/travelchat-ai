@@ -16,9 +16,17 @@ export function expectedSchema(root = '.') {
     const names = execFileSync('git', ['ls-tree', '-r', '--name-only', BASE_COMMIT, 'cloudflare/auth-proof/migrations'], { encoding: 'utf8' })
       .trim().split('\n').filter(n => /\/00(?:0[1-9]|1[0-3])_[^/]+\.sql$/.test(n)).sort();
     if (names.length !== 13) throw new Error('Missing pinned base migrations');
-    for (const name of names) db.exec(execFileSync('git', ['show', `${BASE_COMMIT}:${name}`], { encoding: 'utf8' }));
     const files = readdirSync(`${root}/migrations/app-preview`).filter(n => /^\d{4}_[a-z_]+\.sql$/.test(n)).sort();
     const migrations = files.map(name => ({ name, sha256: digest(readFileSync(`${root}/migrations/app-preview/${name}`)) }));
+    // The canonical chain now includes the original 13 migrations. Pin their
+    // contents for provenance, but execute the complete chain only once.
+    for (const path of names) {
+      const name = path.split('/').at(-1);
+      const pinned = digest(execFileSync('git', ['show', `${BASE_COMMIT}:${path}`]));
+      if (migrations.find(m => m.name === name)?.sha256 !== pinned) {
+        throw new Error(`Base migration differs from pinned source: ${name}`);
+      }
+    }
     for (const name of files) db.exec(readFileSync(`${root}/migrations/app-preview/${name}`, 'utf8'));
     const schema = db.prepare("SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
     return { schema, migrations };

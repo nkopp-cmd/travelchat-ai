@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { reconcileLedger, CANDIDATE } from './reconcile-ledger.mjs';
+import { mkdtempSync, mkdirSync, cpSync, appendFileSync, unlinkSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { reconcileLedger, expectedSchema, CANDIDATE } from './reconcile-ledger.mjs';
 const sha = 'a'.repeat(64);
 function setup() {
  const db = new DatabaseSync(':memory:');
@@ -44,4 +46,28 @@ test('guards a complete large schema as a set and refuses later drift',()=>{
  db.exec('DELETE FROM d1_migrations; ALTER TABLE extra_89 ADD COLUMN drift TEXT');db.exec(sql);
  assert.equal(db.prepare('SELECT count(*) n FROM d1_migrations').get().n,0);
  }finally{db.close();}
+});
+
+// Exercise the real checked-in chain. Synthetic schemas cannot catch duplicate
+// execution of the copied 0001-0013 base before the complete canonical chain.
+test('builds the complete canonical schema once and retains the latest capacity/storage', () => {
+ const expected = expectedSchema();
+ assert.equal(expected.migrations.length, 32);
+ assert(expected.schema.some(r => r.type === 'table' && r.name === 'user'));
+ assert(expected.schema.some(r => r.type === 'table' && r.name === 'preview_push_subscriptions'));
+ assert(expected.schema.find(r => r.name === 'preview_story_backgrounds').sql.includes('8388608'));
+ assert.equal(new Set(expected.schema.map(r => r.name)).size, expected.schema.length);
+});
+
+test('refuses modified or missing pinned base migrations before schema execution', () => {
+ for (const missing of [false, true]) {
+  const root = mkdtempSync(join(process.env.TMPDIR ?? process.cwd(), '.localley-ledger-test-'));
+  try {
+   mkdirSync(join(root, 'migrations'));
+   cpSync('migrations/app-preview', join(root, 'migrations/app-preview'), { recursive: true });
+   const first = join(root, 'migrations/app-preview/0001_local.sql');
+   if (missing) unlinkSync(first); else appendFileSync(first, '\n-- unexpected historical edit\n');
+   assert.throws(() => expectedSchema(root), /Base migration differs from pinned source: 0001_local.sql/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+ }
 });
