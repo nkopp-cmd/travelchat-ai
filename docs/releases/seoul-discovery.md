@@ -514,3 +514,19 @@ Fresh Stripe read-only15checks confirm the existing four-price hosted proof and 
 All four proof sessions remain expired and unpaid. No new session, card, charge or purchase was created.
 Fresh Source REST/auth/storage return200in480/460/461ms. Full application-data migration remains gated.
 See docs/D1_PUSH_STORAGE.md for exact commands, receipts, schema hazard and remaining scope.
+
+
+## 2026-10-16 — candidate ledger reconciliation
+
+PR4295cd35b6f/requiredCI38972957408SUCCESS merged3aca92f7 with the exact tested tree3c7f6a25.
+The tool validates thirteen original hashes and executes the canonical schema once, fixing duplicate base execution.
+Eight focused tests, scoped lint, complete87object comparison and remote32286byte EXPLAIN849rows pass.
+The actual11853219byte export restores locally;10rehearsal checks restore rows and sequences through rollback.
+Protected engine rows remain outside the exported-data claim.
+
+The guarded metadata operation passes17checks, adds only0001–0013/0031, and repeats with0changes.
+All55application table hashes/counts, all old ledger rows, schemas, foreign keys, workers, admins and Source hashes remain intact.
+Ledger entries and the intended sequence advance18to32. Wrangler reports0pending at the pinned candidate binding/directory.
+Immediate bookmark000000de-00000000-00005106-3bf100b1ff5aaa1112770457ed483a6a is retained privately with operation receipts.
+Preview6d621d4b/69c96bf1 and productionca4dfaf3/7942f312 remain unchanged. No runtime deploy or Source write occurred.
+See [the ledger procedure and evidence](../D1_LEDGER_RECONCILIATION.md). Full production data migration remains open.
