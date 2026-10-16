@@ -89,7 +89,8 @@ Candidate0032 passed66checks. Time Travel bookmark:
 `000000d6-00000000-00005106-388d6b8b7b649e63398144d9e8353bd8`.
 An intentionally failing CREATE/INSERT/query batch left no probe table, establishing remote batch rollback.
 The real table/index/0032ledger batch succeeded. Existing schemas and counts stayed unchanged except ledger+1; FK0 passed.
-Migration0031 remains absent from the ledger despite its existing capacity schema. Never run blanket migrations apply.
+At the push release,0031 was absent despite its existing capacity schema. Later metadata reconciliation registered it safely.
+See [candidate ledger evidence](D1_LEDGER_RECONCILIATION.md). Do not re-run its media-table rebuild.
 
 Preview Worker6d621d4b-0747-4ace-afe9-14b987402037 now runs100%, deployment69c96bf1-a014-4599-adbc-155b6ff0c069.
 Rollback isdc5b3560-68ee-4a31-88a9-13cf49cfdae3. Actual guarded rollback succeeded at deployment6c8b6f01-50da-40d3-ac48-c0192509097d.
