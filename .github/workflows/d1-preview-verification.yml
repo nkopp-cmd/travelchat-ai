@@ -286,7 +286,7 @@ jobs:
             npm ci
             node scripts/d1-migration/source-owner-policy-proof.mjs --out "$RUNNER_TEMP/localley-source-owner-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
             npx vitest run __tests__/api/source-owner-readers.test.ts __tests__/lib/source-lifetime-authority.test.ts --maxWorkers=1
-            npx eslint scripts/d1-migration/source-owner-policy-guard.mjs scripts/d1-migration/source-owner-policy-proof.mjs __tests__/api/source-owner-readers.test.ts __tests__/api/source-owner-postgres.test.ts lib/source-itinerary-access.ts
+            npx eslint scripts/d1-migration/source-owner-policy-guard.mjs scripts/d1-migration/source-owner-policy-proof.mjs scripts/d1-migration/source-owner-saved-policy.mjs __tests__/api/source-owner-readers.test.ts __tests__/api/source-owner-postgres.test.ts lib/source-itinerary-access.ts
             npx eslint scripts/d1-migration/affiliate-policy-guard.mjs scripts/d1-migration/affiliate-policy-proof.mjs
             node scripts/d1-migration/affiliate-policy-proof.mjs --out "$RUNNER_TEMP/localley-affiliate-policy-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
             node scripts/d1-migration/atomic-usage-proof.mjs --out "$RUNNER_TEMP/localley-quota-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"

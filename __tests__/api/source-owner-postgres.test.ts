@@ -28,7 +28,7 @@ class PgQuery{
   if(this.op==='delete')command='DELETE FROM '+table+where+' RETURNING '+fields;
   try{
    const text=sql(`BEGIN; SET LOCAL ROLE ${this.role}; SET LOCAL request.jwt.claims=${literal(JSON.stringify({sub:m.actor}))}; WITH q AS (${command}) SELECT json_build_object('data',COALESCE(json_agg(q),'[]'::json),'count',count(*)) FROM q; COMMIT;`);
-   const j=JSON.parse(text.split('\n').at(-1)!);return {data:this.head?null:single?(j.data[0]??null):j.data,count:j.count,error:null};
+   const j=JSON.parse(text);return {data:this.head?null:single?(j.data[0]??null):j.data,count:j.count,error:null};
   }catch{return {data:null,count:null,error:{code:'fixture_query_failed'}};}
  }
  single(){return Promise.resolve(this.execute(true));}maybeSingle(){return Promise.resolve(this.execute(true));}
@@ -60,6 +60,16 @@ describe.skipIf(!enabled)('actual handlers against disposable owner RLS',()=>{
   const params={params:Promise.resolve({id:id(2)})};expect((await like(request('POST'),params)).status).toBe(200);
   expect(sql(`SELECT like_count FROM itineraries WHERE id='${id(2)}'`)).toBe('1');expect(sql('SELECT clerk_user_id FROM saved_itineraries')).toBe('owner-a');
   expect((await unlike(request('DELETE'),params)).status).toBe(200);expect(sql(`SELECT like_count FROM itineraries WHERE id='${id(2)}'`)).toBe('0');expect(sql('SELECT count(*) FROM saved_itineraries')).toBe('0');
+ });
+ it('counts all owners through the server after personal saved rows become private',async()=>{
+  sql(`INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('owner-c','${id(2)}')`);
+  const r=await like(request('POST'),{params:Promise.resolve({id:id(2)})});expect(r.status).toBe(200);expect((await r.json()).likeCount).toBe(2);
+  expect(sql(`SELECT like_count FROM itineraries WHERE id='${id(2)}'`)).toBe('2');
+ });
+ it('removes an old private like without leaking other owners or deleting their rows',async()=>{
+  sql(`INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('owner-a','${id(2)}'),('owner-c','${id(2)}'); UPDATE itineraries SET shared=false WHERE id='${id(2)}'`);
+  const r=await unlike(request('DELETE'),{params:Promise.resolve({id:id(2)})});expect(r.status).toBe(200);expect((await r.json()).likeCount).toBe(0);
+  expect(sql('SELECT clerk_user_id FROM saved_itineraries')).toBe('owner-c');expect(sql(`SELECT like_count FROM itineraries WHERE id='${id(2)}'`)).toBe('1');
  });
  it('duplicates shared content through an actual owner insert without invented columns',async()=>{
   const r=await duplicate(request('POST'),{params:Promise.resolve({id:id(2)})});expect(r.status).toBe(200);expect(sql("SELECT count(*) FROM itineraries WHERE clerk_user_id='owner-a' AND shared=false AND is_public=false")).toBe('1');
