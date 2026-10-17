@@ -259,7 +259,7 @@ export default async function ItineraryViewPage({
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       <div className="mx-auto w-full max-w-5xl space-y-5 px-3 pb-8 pt-3 sm:px-4 sm:pb-10 md:space-y-6 md:px-0 md:pt-0">

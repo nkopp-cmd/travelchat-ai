@@ -39,10 +39,12 @@ on:
       - '__tests__/api/chat-candidate-route.test.ts'
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
+      - 'components/seo/json-ld.tsx'
       - 'lib/source-itinerary-access.ts'
       - 'scripts/d1-migration/source-owner-*'
       - 'app/api/user/saved-itineraries/route.ts'
       - '__tests__/api/source-owner-postgres.test.ts'
+      - '__tests__/lib/source-lifetime-authority.test.ts'
       - '__tests__/api/source-owner-readers.test.ts'
       - 'supabase/rls-policies.sql'
       - 'app/api/friends/route.ts'
@@ -283,7 +285,7 @@ jobs:
             set -e
             npm ci
             node scripts/d1-migration/source-owner-policy-proof.mjs --out "$RUNNER_TEMP/localley-source-owner-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
-            npx vitest run __tests__/api/source-owner-readers.test.ts --maxWorkers=1
+            npx vitest run __tests__/api/source-owner-readers.test.ts __tests__/lib/source-lifetime-authority.test.ts --maxWorkers=1
             npx eslint scripts/d1-migration/source-owner-policy-guard.mjs scripts/d1-migration/source-owner-policy-proof.mjs __tests__/api/source-owner-readers.test.ts __tests__/api/source-owner-postgres.test.ts lib/source-itinerary-access.ts
             npx eslint scripts/d1-migration/affiliate-policy-guard.mjs scripts/d1-migration/affiliate-policy-proof.mjs
             node scripts/d1-migration/affiliate-policy-proof.mjs --out "$RUNNER_TEMP/localley-affiliate-policy-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"

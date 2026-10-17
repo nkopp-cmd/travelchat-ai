@@ -147,7 +147,7 @@ export async function PATCH(
         // Fetch existing backgrounds to merge with new ones
         const { data: existing } = await supabase
             .from("itineraries")
-            .select("ai_backgrounds, clerk_user_id, is_public")
+            .select("ai_backgrounds")
             .eq("id", id)
             .single();
 
@@ -238,7 +238,7 @@ export async function GET(
         return NextResponse.json({
             success: true,
             backgrounds: itinerary.ai_backgrounds || {},
-        });
+        }, { headers: { "Cache-Control": "private, no-store" } });
     } catch (error) {
         console.error("[AI_BACKGROUNDS_GET_ERROR]", error);
         return handleApiError(error, "ai-backgrounds-get");

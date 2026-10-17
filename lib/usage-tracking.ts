@@ -195,8 +195,10 @@ async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
         return "premium";
     }
 
-    // Check lifetime premium emails (admin/dev team)
-    {
+    // A mutable Source profile email is not an authority to grant paid access.
+    // Both approved owner IDs remain in the existing server allowlist.
+    const lifetimeOwnerIds = (process.env.ADMIN_USER_IDS || "").split(",").map(id => id.trim()).filter(Boolean);
+    if (lifetimeOwnerIds.includes(clerkUserId)) {
         const supabase = createSupabaseAdmin();
         const { data: userData } = await supabase
             .from("users")
@@ -245,7 +247,7 @@ async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
 export async function getUserTier(clerkUserId: string): Promise<SubscriptionTier> {
     const cachedFetch = unstable_cache(
         () => fetchUserTier(clerkUserId),
-        cacheKeys.userTier(clerkUserId),
+        [...cacheKeys.userTier(clerkUserId), "owner-authority-v1"],
         {
             revalidate: cacheConfig.userTier.revalidate,
             tags: [...cacheConfig.userTier.tags, `user-tier:${clerkUserId}`],
