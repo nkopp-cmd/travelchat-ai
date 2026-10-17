@@ -110,3 +110,18 @@ Private page-completion-tests/review/candidate/differential/release-20261017 rec
 All14historical network URLs carry an RSC query, but their missing headers/status/causal stacks prevent a cancellation claim.
 This repairs a proven monitoring false-positive; it does not establish those historical application causes.
 U1 remains verified. U2 and its original conditional test-checkout skip remain unchanged. U3 remains open.
+
+
+## Subsequent production dependency inventory — 2026-10-17
+
+The current read-only audit targets exact deployed sourcea38fe649 and unchanged Worker3132337f/6a17bf4b.
+It covers582modules/463access sites,48application tables/6181rows,35custom functions,8triggers and175private media objects.
+All17literal RPCs are installed. All94application/provider relations are included in the document coverage check.
+Disposition is47retained serving-scope tables and one retired early-adopter table; all48retain raw snapshots and schema.
+Zero archive-only approvals or deletion approvals were issued. Provider implementation exclusions do not retire product data or media.
+The current four Worker schedules and additional ten-minute host monitor are recorded alongside the daily health timer and disabled native-sync timer.
+The14unchanged scanner tests pass from the stable checkout with identical scanner/test bytes; the fresh docs worktree lacks TypeScript dependencies.
+The corrected native audit and document coverage checks pass; two Source full-row count/hash snapshots match.
+This is a documentation-only inventory release, with no Worker, data, credential, provider, email or payment change.
+Full candidate parity, media verification, rollback/canary, freeze/switch and retention gates remain open.
+[Exact table dispositions, write paths, SQL effects, host jobs and evidence](SUPABASE_CUTOVER_INVENTORY.md#current-production-inventory--2026-10-17).
