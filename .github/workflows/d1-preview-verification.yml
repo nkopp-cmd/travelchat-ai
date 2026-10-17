@@ -39,6 +39,8 @@ on:
       - '__tests__/api/chat-candidate-route.test.ts'
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
+      - 'scripts/d1-migration/affiliate-*'
+      - 'supabase/subscriptions-schema.sql'
       - 'scripts/d1-migration/atomic-usage-proof.mjs'
       - 'scripts/d1-migration/editor-proof-contract.mjs'
       - 'scripts/d1-migration/editor-proof-contract.test.mjs'
@@ -272,6 +274,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx eslint scripts/d1-migration/affiliate-policy-guard.mjs scripts/d1-migration/affiliate-policy-proof.mjs
+            node scripts/d1-migration/affiliate-policy-proof.mjs --out "$RUNNER_TEMP/localley-affiliate-policy-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
             node scripts/d1-migration/atomic-usage-proof.mjs --out "$RUNNER_TEMP/localley-quota-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
             npx vitest run __tests__/lib/usage-tracking-atomic.test.ts --maxWorkers=1
             npx eslint scripts/d1-migration/atomic-usage-proof.mjs lib/usage-tracking.ts __tests__/lib/usage-tracking-atomic.test.ts
@@ -404,5 +408,17 @@ jobs:
         with:
           name: localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Clean only this job's affiliate proof container
+        if: always()
+        run: node scripts/d1-migration/affiliate-policy-proof.mjs --cleanup-only
+      - name: Retain affiliate policy proof report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localley-affiliate-policy-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/localley-affiliate-policy-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
           if-no-files-found: warn
           retention-days: 7

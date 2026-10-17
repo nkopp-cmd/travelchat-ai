@@ -141,10 +141,11 @@ CREATE POLICY "Users can view own usage"
     ON usage_tracking FOR SELECT
     USING (clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub');
 
--- Affiliate clicks - allow inserts from anyone (including anonymous)
+-- Affiliate clicks - server collector only; never grant direct public inserts
 DROP POLICY IF EXISTS "Allow affiliate click inserts" ON affiliate_clicks;
 CREATE POLICY "Allow affiliate click inserts"
     ON affiliate_clicks FOR INSERT
+    TO service_role
     WITH CHECK (true);
 
 -- Affiliate earnings - admin only (service role)
