@@ -18,7 +18,8 @@ export function anonymousKey(key) {
     const parts = key.split('.');
     if (parts.length !== 3 || parts.some(x => !/^[A-Za-z0-9_-]+$/.test(x))) return false;
     const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
-    return payload.role === 'anon' && payload.ref === project;
+    return payload.role === 'anon' && payload.ref === project
+      && Number.isSafeInteger(payload.exp) && payload.exp * 1000 > Date.now();
   } catch { return false; }
 }
 
@@ -62,7 +63,11 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
       });
       row.status = response.status;
       await response.body?.cancel();
-      if ([401,403].includes(response.status)) row.state = 'access_denied';
+      if ([401,403].includes(response.status)) {
+        const proxyStatus = response.headers.get('proxy-status')?.trim() ?? '';
+        // JWT failures also return401. Only PostgreSQL permission error42501 proves denial.
+        if (/^PostgREST; error="?42501"?$/i.test(proxyStatus)) row.state = 'access_denied';
+      }
       else if ([200,206].includes(response.status)) {
         const match = /^\*\/(0|[1-9][0-9]*)$/.exec(response.headers.get('content-range') ?? '');
         const count = match ? Number(match[1]) : NaN;

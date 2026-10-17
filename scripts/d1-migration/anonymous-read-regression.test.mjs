@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { anonymousKey, anonymousCatalogSql, checkAnonymousReads } from './anonymous-read-regression.mjs';
 
 const token = payload => ['e30',Buffer.from(JSON.stringify(payload)).toString('base64url'),'signature'].join('.');
-const anonKey = token({ role: 'anon', ref: 'llehrhqeolfprutcaopi' });
+const anonKey = token({ role: 'anon', ref: 'llehrhqeolfprutcaopi', exp: 4102444800 });
 const credentials = { anonKey, accessToken: 'not-a-real-management-token' };
 const table = name => ({ name, kind: 'r', rls: true });
-function fixture({ tables = [table('users'),table('messages')], counts = {}, statuses = {}, control = 200, catalogStatus = 200, catalogBody } = {}) {
+function fixture({ tables = [table('users'),table('messages')], counts = {}, statuses = {}, control = 200, catalogStatus = 200, catalogBody, permissionCodes = {} } = {}) {
   const calls = [];
   const request = async (url, options) => {
     calls.push({ url, options });
@@ -25,7 +25,7 @@ function fixture({ tables = [table('users'),table('messages')], counts = {}, sta
     const name = new URL(url).pathname.split('/').at(-1);
     if (statuses[name] === 'throw') throw Error('private upstream error must not appear');
     return new Response(null,{ status: statuses[name] ?? 200,
-      headers: counts[name] === null ? {} : { 'content-range': counts[name] ?? '*/0' } });
+      headers: { ...(counts[name] === null ? {} : { 'content-range': counts[name] ?? '*/0' }), ...(permissionCodes[name] ? { 'proxy-status': `PostgREST; error=${permissionCodes[name]}` } : {}) } });
   };
   return { calls, request };
 }
@@ -48,7 +48,7 @@ test('one visible row fails the entire run, including an intended public catalog
   assert.equal(r.state,'failed');assert.deepEqual(r.results.map(t=>t.state),['zero_rows','exposed_rows']);assert.equal(r.results[1].count,3295);assert.equal(r.results[1].status,206);
 });
 test('permission denial is explicit and is never called a zero count', async () => {
-  const f=fixture({statuses:{users:403,messages:401}}),r=await checkAnonymousReads(credentials,f.request);
+  const f=fixture({statuses:{users:403,messages:401},permissionCodes:{users:'42501',messages:'42501'}}),r=await checkAnonymousReads(credentials,f.request);
   assert.equal(r.state,'passed');assert(r.results.every(t=>t.state==='access_denied'&&t.count===null));
 });
 for (const count of [null,'*/*','0-0/0','*/-1','*/01','*/9007199254740992','*/0 garbage']) {
@@ -81,3 +81,15 @@ test('catalog includes ordinary, partitioned, foreign, view and materialized rel
   const tables=['r','p','f','v','m'].map((kind,i)=>({...table('relation_'+i),kind}));
   const r=await checkAnonymousReads(credentials,fixture({tables}).request);assert.equal(r.relationCount,5);assert.equal(r.state,'passed');
 });
+
+test('expired and missing-expiry anonymous tokens fail before any request',async()=>{
+  for(const exp of [undefined,0,1,Math.floor(Date.now()/1000)-1,'4102444800']){
+    let calls=0;await assert.rejects(checkAnonymousReads({...credentials,anonKey:token({role:'anon',ref:'llehrhqeolfprutcaopi',exp})},async()=>{calls++;}),/invalid_credentials/);assert.equal(calls,0);
+  }
+});
+for(const code of ['PGRST301','PGRST303',undefined]){
+  test(`JWT failure or missing permission proof cannot pass: ${code}`,async()=>{
+    const f=fixture({statuses:{users:401,messages:401},permissionCodes:{users:code,messages:code}}),r=await checkAnonymousReads(credentials,f.request);
+    assert.equal(r.state,'failed');assert(r.results.every(x=>x.state==='unknown'&&x.count===null));
+  });
+}

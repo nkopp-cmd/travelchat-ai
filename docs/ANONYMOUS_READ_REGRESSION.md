@@ -11,10 +11,11 @@ node scripts/d1-migration/anonymous-read-regression.mjs \
 ```
 
 The stable server secret files supply the anonymous key and Management read-only token.
-The script pins the project, checks the JWT role/ref and verifies a key-authenticated control.
+The script pins the project, checks the JWT role/ref/expiry and verifies a key-authenticated control.
 It discovers every public application table/view from the physical catalog, excluding extension-owned relations only.
 It probes every relation with HEAD, limit=0 and count=exact; no row body is retrieved.
-Permission denials are explicit, not fabricated zero counts.
+Permission denials require the PostgREST42501 Proxy-Status header. JWT failures and absent error proof remain unknown.
+The Auth settings control alone cannot prove PostgREST accepted its JWT; permission headers prevent that false pass.
 Unknown counts, absent relations, HTTP errors and transport failures fail the regression.
 The script never retries a request or changes Source, policies, mail, credentials or a Worker.
 The report is created privately with mode600 and cannot overwrite an existing file.
@@ -49,7 +50,10 @@ Do not report all48as private or claim that all anonymous table access is blocke
 No record contents were downloaded.
 The first calibration conservatively classified PostgREST206as unknown.
 The corrected parser recognizes206with an exact total; the offline regression covers that case.
-Both private receipts are retained; no third live attempt is needed without changed scope or state.
+Both initial receipts are retained. Review then found a possible invalid-JWT false pass in denied responses.
+The corrected implementation rejects expired/missing-expiry keys and requires42501for denial.
+A focused real denied-table HEAD returned401with `PostgREST; error=42501`; no body was retrieved.
+The final release proof must use this stricter implementation.
 
 Current RLS intentionally permits public catalogs.
 The owner scope question asks whether to preserve that access or block all direct reads while retaining public application pages.
