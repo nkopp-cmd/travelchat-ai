@@ -12,7 +12,9 @@ export const publicCatalogs = Object.freeze([
   'challenges','geo_aliases','geo_countries','geo_destinations','geo_local_area_vibe_scores',
   'geo_local_areas','geo_vibe_taxonomy','spots','transfer_edges',
 ]);
-export const anonymousCatalogSql = `SELECT c.relname AS name,c.relkind AS kind,c.relrowsecurity AS rls
+export const anonymousCatalogSql = `SELECT c.relname AS name,c.relkind AS kind,c.relrowsecurity AS rls,
+ pg_catalog.has_table_privilege('anon',c.oid,'SELECT') AS anon_table_select,
+ pg_catalog.has_any_column_privilege('anon',c.oid,'SELECT') AS anon_column_select
  FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
  WHERE n.nspname='public' AND c.relkind IN('r','p','v','m','f')
  AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_depend d WHERE d.classid='pg_catalog.pg_class'::regclass
@@ -54,7 +56,7 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
   const tables = await catalogResponse(catalog);
   if (!Array.isArray(tables) || tables.length < 1 || tables.length > 200
     || tables.some(t => !/^[a-z][a-z0-9_]{0,62}$/.test(t.name) || !['r','p','v','m','f'].includes(t.kind)
-      || typeof t.rls !== 'boolean') || new Set(tables.map(t => t.name)).size !== tables.length) throw Error('invalid_catalog');
+      || typeof t.rls !== 'boolean' || typeof t.anon_table_select !== 'boolean' || typeof t.anon_column_select !== 'boolean') || new Set(tables.map(t => t.name)).size !== tables.length) throw Error('invalid_catalog');
   const headers = { apikey: anonKey, Authorization: `Bearer ${anonKey}` };
   // A successful key-authenticated control prevents a revoked/bad key from making all tables appear protected.
   const control = await request(`${origin}/auth/v1/settings`, { ...options, method: 'GET', headers });
@@ -63,6 +65,7 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
   const results = [];
   for (const table of tables) {
     const row = { table: table.name, relationKind: table.kind, rls: table.rls,
+      anon_table_select: table.anon_table_select, anon_column_select: table.anon_column_select,
       expectedAccess: publicCatalogs.includes(table.name) ? 'public_catalog' : 'private', status: null, count: null, state: 'unknown' };
     try {
       const response = await request(`${origin}/rest/v1/${table.name}?select=*&limit=0`, {
@@ -73,7 +76,8 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
       if ([401,403].includes(response.status)) {
         const proxyStatus = response.headers.get('proxy-status')?.trim() ?? '';
         // JWT failures also return401. Only PostgreSQL permission error42501 proves denial.
-        if (/^PostgREST; error="?42501"?$/i.test(proxyStatus)) row.state = 'access_denied';
+        if (/^PostgREST; error="?42501"?$/i.test(proxyStatus)
+          && !table.anon_table_select && !table.anon_column_select) row.state = 'access_denied';
       }
       else if ([200,206].includes(response.status)) {
         const match = /^\*\/(0|[1-9][0-9]*)$/.exec(response.headers.get('content-range') ?? '');
@@ -88,7 +92,8 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
     privateRelationCount: results.filter(r => r.expectedAccess === 'private').length,
     publicExceptions: results.filter(r => r.expectedAccess === 'public_catalog').map(r => r.table), rowsRetrieved: 0,
     limits: ['A zero count proves current visibility only; seeded policy tests are required for empty tables.',
-      'Permission denial is recorded separately from an exact zero count.',
+      'Permission denial requires42501 and no anonymous table or column SELECT privilege; partial column access fails closed.',
+      'Coverage excludes extension-owned relations, RPC functions, other schemas and Storage buckets.',
       'No policy, row, secret, mail, provider or Worker change occurred.'] };
 }
 

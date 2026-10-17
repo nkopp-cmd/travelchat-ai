@@ -5,7 +5,8 @@ import { anonymousKey, anonymousCatalogSql, checkAnonymousReads, publicCatalogs 
 const token = payload => ['e30',Buffer.from(JSON.stringify(payload)).toString('base64url'),'signature'].join('.');
 const anonKey = token({ role: 'anon', ref: 'llehrhqeolfprutcaopi', exp: 4102444800 });
 const credentials = { anonKey, accessToken: 'not-a-real-management-token' };
-const table = name => ({ name, kind: 'r', rls: true });
+const table = name => ({ name, kind: 'r', rls: true, anon_table_select: true, anon_column_select: true });
+const deniedTable = name => ({ ...table(name), anon_table_select: false, anon_column_select: false });
 function fixture({ tables = [table('users'),table('messages')], counts = {}, statuses = {}, control = 200, catalogStatus = 200, catalogBody, permissionCodes = {} } = {}) {
   const calls = [];
   const request = async (url, options) => {
@@ -48,7 +49,7 @@ test('one visible PRIVATE row fails the entire run', async () => {
   assert.equal(r.state,'failed');assert.deepEqual(r.results.map(t=>t.state),['zero_rows','exposed_rows']);assert.equal(r.results[1].count,1);assert.equal(r.results[1].status,206);
 });
 test('permission denial is explicit and is never called a zero count', async () => {
-  const f=fixture({statuses:{users:403,messages:401},permissionCodes:{users:'42501',messages:'42501'}}),r=await checkAnonymousReads(credentials,f.request);
+  const f=fixture({tables:[deniedTable('users'),deniedTable('messages')],statuses:{users:403,messages:401},permissionCodes:{users:'42501',messages:'42501'}}),r=await checkAnonymousReads(credentials,f.request);
   assert.equal(r.state,'passed');assert(r.results.every(t=>t.state==='access_denied'&&t.count===null));
 });
 for (const count of [null,'*/*','0-0/0','*/-1','*/01','*/9007199254740992','*/0 garbage']) {
@@ -108,6 +109,22 @@ test('new or lookalike relations stay private and cannot use a public exception'
   assert.equal(r.state,'failed');assert.equal(r.privateRelationCount,3);assert.deepEqual(r.publicExceptions,[]);assert(r.results.every(x=>x.state==='exposed_rows'));
 });
 test('public catalog denial fails the availability contract instead of hiding it as protected',async()=>{
-  const r=await checkAnonymousReads(credentials,fixture({tables:[table('spots')],statuses:{spots:401},permissionCodes:{spots:'42501'}}).request);
+  const r=await checkAnonymousReads(credentials,fixture({tables:[deniedTable('spots')],statuses:{spots:401},permissionCodes:{spots:'42501'}}).request);
   assert.equal(r.state,'failed');assert.equal(r.results[0].state,'access_denied');assert.equal(r.results[0].expectedAccess,'public_catalog');
 });
+
+test('SELECT-star denial cannot hide an anonymously readable column',async()=>{
+  const r=await checkAnonymousReads(credentials,fixture({tables:[{...table('users'),anon_table_select:false,anon_column_select:true}],statuses:{users:401},permissionCodes:{users:'42501'}}).request);
+  assert.equal(r.state,'failed');assert.equal(r.results[0].state,'unknown');assert.equal(r.results[0].anon_column_select,true);
+});
+test('contradictory table/column grants fail closed on permission denial',async()=>{
+  const r=await checkAnonymousReads(credentials,fixture({tables:[{...table('users'),anon_table_select:true,anon_column_select:false}],statuses:{users:401},permissionCodes:{users:'42501'}}).request);
+  assert.equal(r.state,'failed');assert.equal(r.results[0].state,'unknown');
+});
+for(const field of ['anon_table_select','anon_column_select']){
+  test(`missing or nonboolean privilege metadata refuses the catalog: ${field}`,async()=>{
+    for(const value of [undefined,null,'false',0]){
+      const f=fixture({tables:[{...table('users'),[field]:value}]});await assert.rejects(checkAnonymousReads(credentials,f.request),/invalid_catalog/);assert.equal(f.calls.length,1);
+    }
+  });
+}

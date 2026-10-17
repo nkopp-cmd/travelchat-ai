@@ -14,7 +14,8 @@ The stable server secret files supply the anonymous key and Management read-only
 The script pins the project, checks the JWT role/ref/expiry and verifies a key-authenticated control.
 It discovers every public application table/view from the physical catalog, excluding extension-owned relations only.
 It probes every relation with HEAD, limit=0 and count=exact; no row body is retrieved.
-Permission denials require the PostgREST42501 Proxy-Status header. JWT failures and absent error proof remain unknown.
+Permission denials require the PostgREST42501 Proxy-Status header and catalog proof of no anonymous table or column SELECT grant.
+This prevents a SELECT-star denial from hiding a readable individual column. JWT failures and absent proof remain unknown.
 The Auth settings control alone cannot prove PostgREST accepted its JWT; permission headers prevent that false pass.
 Unknown counts, absent relations, HTTP errors and transport failures fail the regression.
 The script never retries a request or changes Source, policies, mail, credentials or a Worker.
@@ -27,6 +28,7 @@ and every approved public catalog remains readable with a valid exact count.
 The report lists every public exception explicitly. No environment flag can expand it.
 This is a current visibility check. Empty tables also need seeded policy tests to prove future-row isolation.
 Existing source-owner PostgreSQL policy tests retain that seeded coverage for their repaired tables.
+This check excludes extension-owned relations, RPCs, other schemas and Storage buckets. It is not a full anonymous attack-surface audit.
 The sole required workflow runs the new adversarial offline suite and the existing policy proof.
 
 ## First production run —2026-10-17
