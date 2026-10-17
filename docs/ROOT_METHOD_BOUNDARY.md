@@ -162,3 +162,18 @@ Fresh26finalguards preserve all48Source hashes, both admins, all33preview bindin
 Production and preview root/sign-in/cities return200 with complete bodies; preview keeps0cron schedules.
 [Exact browser scope, tests and rollback IDs](CANDIDATE_TRIP_DUPLICATION.md#browser-copy-control-accepted--2026-10-17).
 Full migration gates remain open. No production data switch or provider/payment/external-mail action occurs.
+
+
+## Candidate delete guard stopped after hosted failure — 2026-10-17
+
+PR4586bf96f7c/requiredCI39046048782SUCCESS15m47s/mergef782e37a adds reserved fresh-owner and required-actor guards.
+All50focused tests/type/lint/pinned public-only build/private71value scan0hits, focused review and eight cleanup safety cases pass.
+Inactive candidate578f9ef8 passes13uploadguards/all33bindings unchanged.
+First1% verifier stops on an incorrect anonymous-header assertion after21checks; middleware correctly returns401 without the D1 header.
+Second bounded run fixes that verifier contract and passes27checks, then the owned DELETE returns500 with the D1 header.
+The cause remains unproved; no successful delete/default promotion is claimed and no third retry occurs.
+Actual rollbacka21838f8 restores66e84452 at100%; both55APP/8Auth business-table snapshots restore/FK0/closedleases/inactiveunits.
+Fresh23stopped guards preserve all48Source hashes/bothadmins/productionAuth/production3132337f-6a17bf4b.
+Bothhosts root/sign-in/cities return200 complete bodies; preview keeps0cron schedules.
+[Exact stopped attempt and rollback evidence](CANDIDATE_TRIP_DELETION.md#release-attempt-stopped--2026-10-17).
+The candidate feature and full migration gates remain open. Production is unchanged.
