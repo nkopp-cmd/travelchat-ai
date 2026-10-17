@@ -66,7 +66,7 @@ It covers additive schema preservation, false defaults, owner isolation, partial
 verified-user races, bounded inbox reads, idempotent actions, unsafe link removal, push caps and ownership,
 overlapping registrations, canonical key and point validation, and account-delete cascade.
 Overlapping JavaScript calls share one real SQLite connection; this is not a remote D1 concurrency claim.
-Hosted concurrency, compatible rollback, and production acceptance remain open. Backup/restore proof is recorded below.
+Hosted concurrency, compatible rollback, and production acceptance passed in the release below. Backup/restore proof is recorded below.
 
 ## Retained preparation evidence
 
@@ -89,3 +89,48 @@ The existing theme, controls, and typography remain. Mobile inbox actions are vi
 The local harness uses controlled API fixtures and proves component behavior only. It does not prove hosted D1 acceptance.
 The first harness run loaded Better Fetch before its fixture. A later exact-text locator rejected the correct nested error message.
 Both failed receipts remain; the saved DOM and remaining successful cases resolve the test defects without claiming an application fix.
+
+## Production activation — 2026-10-17
+
+Foundation PR441: source333ae736, required self-hosted CI39007525997 SUCCESS, merge13f44792, equal tree.
+Routing PR442: sourcea457b490be496ac6f3b04e4938dbf1f6e71fbef1, required CI39009760822 SUCCESS,
+merge44eacd2a1e12e78f9d181bc462a9ecc560a72a04, equal tree.
+Local140focused tests and final47affected tests/type/lint passed. Independent SQL/store, HTTP/client and release reviews passed.
+The encrypted complete Auth backup and real restore, additive schema receipt and twelve local images are recorded above.
+
+Production Worker83366b0c-6a7f-4173-b569-3e4ad6f24780 serves100%, deploymentbaae783c-7d4c-4b80-929c-cd529c04187e.
+The actual Worker flag is `AUTH_NOTIFICATION_STORAGE=active`. All55 previous complete binding definitions remain unchanged.
+Read-only rollback70a278a5-2e68-44dd-99c5-50be5f09ee68 uses the same source and artifact.
+Its actual restoration at86bd8150-3acc-4490-9abf-dd5a6227d8bf retained new rows and readable inbox/preferences, while refusing writes503.
+Never automatically restore an older Source-only notification reader or drop these tables after live writes.
+The source artifact manifest is07e7ca3a2f10e13726f03182de59affb0e4516a9220a6cd516b4b0eb93f08501;
+build IDwkGiupXJaFPe_uX1RB6Cm, pinned Wrangler4.136.3. Fresh byte checks passed before each upload and after both.
+
+The successful private receipt `auth-notification-live-attempt2-20261017.json` passes127checks:
+
+- Explicit1% read-only and active canaries, normal read-only default, actual compatible rollback, and active default.
+- Two real verified non-reserved controlled owners, native login, partial preference writes/reload and account isolation.
+- Actual inbox paging, read, mark-all, delete, foreign denials, and preserved second-owner unread state.
+- Fifteen overlapping native device registrations: ten accepted and five bounded refusals; rotation at cap and foreign ownership checks.
+- Cached unverified-owner refusal; signed-in desktop/mobile DOM actions and persisted preference readback.
+- Exact owned Auth cascade cleanup; all48 Source table counts/full row hashes and both real administrators preserved.
+
+Ten hosted screenshots were opened and inspected. They show upper settings sections and inboxes on desktop/mobile.
+Mobile inbox actions are visible; rollback actions are disabled. These images do not show the lower preference panel.
+Actual DOM/API assertions prove the lower-panel changes and reload; local fixture images separately show the component states.
+All owned users, accounts, sessions, preferences, notices and device registrations were removed.
+Both safety timers/services are inactive. Previewe08db2c5/7cdc7953 remains unchanged.
+A fresh final receipt passes20read-only guards, including current deployment, all prior bindings, administrator hashes,
+Source full hashes, owned absence, Auth counts, four public200 responses, and anonymous401/no-store denial.
+
+The first canary verifier wrongly required `private` on the anonymous middleware401 response, which already had `no-store`.
+It safely restored the previous Worker before any fixture existed. No application defect or schema retry was needed.
+Its failed receipt remains unchanged; the second verifier accepts effective no-store for middleware denials.
+The first upload review required fresh artifact validation; real byte-tamper and manifest-mismatch checks then passed.
+The lifecycle review found a lease collision bug in the one-off controller; exclusive-create refusal preserved old lease bytes after correction.
+All release-blocking findings were resolved before activation. Expected capacity/denial503 responses are not unexpected production errors.
+
+No Source records were migrated. Unknown deleted/external notification history remains intact and unclaimed.
+All nine preferences default false. Push/email senders, dormant producers, and external delivery remain inactive.
+This completes independent production notification storage, not the full Supabase migration or broad U3 closure.
+Supabase remains required. Common current-data parity, rollback, freeze, full switch and retention gates remain open.
