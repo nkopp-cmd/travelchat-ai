@@ -62,6 +62,7 @@ This public proof does not replace U2's retained signed-in journey acceptance.
 Actual compatible rollback passed10checks before promotion. Normal100% default verification passed25checks,
 including GET/HEAD, canonical RSC GET, all five refused mutation/OPTIONS methods, JSONPOST,
 apex301, anonymous private API/checkout401 and preserved auth POST validation4xx.
+Both actual billing webhook POST routes also returned400/Missing signature before event processing; no provider request or charge occurred.
 
 All48 Source table counts/full row hashes, Auth user/session/notification counts and both full admin-row hashes remain equal.
 All56binding definitions, previewe08db2c5/7cdc7953 and four production cron schedules remain unchanged; preview has0schedules.
