@@ -70,9 +70,37 @@ test('actual CLI preserves route/class/status counts and coverage while adding p
     assert.deepEqual(report.logs.errorClasses, [{ errorClass: 'network_connection_lost', message: 'Network connection lost', count: 4, statuses: { '502': 1, unknown: 3 } }]);
     assert.equal(report.logs.workerVersions.unknownVersionEvents, 2);
     assert.equal(report.logs.workerVersions.versions.reduce((n, x) => n + x.count, 0), 4);
+    const byVersion = new Map(report.logs.workerVersions.versions.map(v => [v.versionId, v]));
+    assert.equal(byVersion.get(old).top5[0].status, 502);
+    assert.equal(byVersion.get(current).top5[0].status, null);
+    assert.equal(byVersion.get(null).top5[0].count, 2);
+    for (const version of byVersion.values()) {
+      assert.equal(version.top5.reduce((n, group) => n + group.count, version.omittedErrorEvents), version.count);
+      assert.ok(version.top5.every(group => group.path === '/dashboard' && group.errorClass === 'network_connection_lost'));
+    }
     assert.equal(report.logs.querySampling.abrLevel, 10);
     assert.ok(report.logs.coverageWarnings.includes('query_sampled'));
     assert.equal(report.logs.countingUnit, 'log_events_not_requests_or_users');
     assert.doesNotMatch(JSON.stringify(report) + run.stdout, /PRIVATEBYTES|fixture-token/);
   } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('per-version rankings bound five groups, account for omitted events and keep versions separate', () => {
+  const groups = Array.from({length: 7}, (_, i) => ({versionId: old, path: '/route-' + i,
+    errorClass: 'server_error_unclassified', message: 'Server error', status: 503, count: i + 1,
+    eventTimes: {}, privateExtra: 'PRIVATEBYTES'}));
+  groups.push({versionId: current, path: '/current', errorClass: 'network_connection_lost',
+    message: 'Network connection lost', status: null, count: 2, eventTimes: {}});
+  const events = groups.flatMap(group => Array.from({length: group.count}, () => event(group.versionId)));
+  const result = summarizeWorkerVersions(events, window, groups);
+  const previous = result.versions.find(v => v.versionId === old);
+  assert.equal(previous.top5.length, 5);
+  assert.deepEqual(previous.top5.map(g => g.count), [7,6,5,4,3]);
+  assert.equal(previous.omittedErrorEvents, 3);
+  assert.equal(result.versions.find(v => v.versionId === current).top5[0].path, '/current');
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATEBYTES|privateExtra/);
+  assert.deepEqual(result, summarizeWorkerVersions(events.reverse(), window, groups.reverse()));
+});
+test('a missing version classification fails visibly instead of silently dropping errors', () => {
+  assert.throws(() => summarizeWorkerVersions([event(old)], window, []), /version_error_count_mismatch/);
 });

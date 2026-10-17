@@ -12,7 +12,7 @@ import { auditIngestionSettings } from './production-health/ingestion-settings.m
 import { recordEventTime, summarizeEventTime } from './production-health/event-times.mjs';
 import { checkCityCatalog } from './production-health/city-catalog.mjs';
 import { errorRouteGroup } from './production-health/route-groups.mjs';
-import { summarizeWorkerVersions } from './production-health/worker-versions.mjs';
+import { summarizeWorkerVersions, workerVersionId } from './production-health/worker-versions.mjs';
 import { checkPageBody } from './production-health/page-body.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
@@ -62,6 +62,7 @@ try {
   const events = data.result?.events?.events;
   if (!Array.isArray(events)) throw new Error('missing events');
   const groups = new Map();
+  const versionGroups = new Map();
   const photoGroups = new Map();
   let totalEventTimes = null;
   for (const event of events) {
@@ -83,10 +84,13 @@ try {
     const classification = classifyUserError(raw, path, status);
     const key = JSON.stringify({ path, ...classification, status });
     groups.set(key, recordEventTime(groups.get(key), event.timestamp, query.timeframe));
+    const versionKey = JSON.stringify({ versionId: workerVersionId(event), ...JSON.parse(key) });
+    versionGroups.set(versionKey, recordEventTime(versionGroups.get(versionKey), event.timestamp, query.timeframe));
   }
   const classifiedGroups = [...groups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }));
   logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
-    workerVersions: summarizeWorkerVersions(events, query.timeframe),
+    workerVersions: summarizeWorkerVersions(events, query.timeframe,
+      [...versionGroups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }))),
     countingUnit: 'log_events_not_requests_or_users',
     eventTimes: totalEventTimes ? summarizeEventTime(totalEventTimes).eventTimes : { firstSeen: null, lastSeen: null, knownCount: 0, unknownCount: 0, scope: 'returned_events_only' },
     photoFailures: [...photoGroups].sort((a, b) => b[1].count - a[1].count).slice(0, 20).map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) })),

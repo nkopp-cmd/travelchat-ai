@@ -653,3 +653,19 @@ Release this host-only checker after exact green CI, then run the existing stabl
 Record final installation and complete deployment readbacks in ROOT_METHOD_BOUNDARY.md and the root blocker plan.
 Monitor rollback source is2f10a327, through a verified revert PR; application rollback remains83366b0c.
 U1 remains verified. U2 retains its original conditional checkout skip. U3 stays open for unresolved application causes.
+
+## Error rankings by Worker version
+
+The monitor adds a bounded top-five path/class/status ranking inside each reported Worker version.
+It uses the same sanitized classification pass as the existing global ranking.
+Only the provider scriptVersion.id supplies version identity; missing or malformed IDs remain unknown.
+Each version includes omittedErrorEvents for groups outside its top five.
+Those omitted events plus ranked counts must equal that version's event count.
+A mismatch fails the log check visibly instead of silently dropping errors.
+The existing twenty-version limit and omittedEvents accounting remain unchanged.
+
+These are returned log events, not requests, users, current-deployment status or proof of error causes.
+Old-version errors remain visible; the monitor does not identify the active version from recent log traffic.
+Global rankings, sampling warnings, timestamps, public checks and Source checks retain their existing contracts.
+The daily host service uses this report after release from stable main; no Worker deployment is required.
+U1 remains verified. U2 retains its conditional test-checkout skip. U3 remains open for unresolved historical causes.
