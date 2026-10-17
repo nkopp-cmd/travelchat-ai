@@ -5,12 +5,13 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), remove: vi.fn(), server: vi.fn(
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/app-data/preview-itinerary-delete", () => ({ deletePreviewItinerary: mocks.remove }));
 vi.mock("@/lib/supabase-server", () => ({ createSupabaseServerClient: mocks.server }));
+import { PreviewEditorDeniedError } from "@/lib/app-data/preview-itinerary-editor";
 import { DELETE } from "@/app/api/itineraries/[id]/route";
 
 const id = "550e8400-e29b-41d4-a716-446655440000";
 const environment = process.env;
-const request = (host: string, flag = "?data_candidate=d1") => DELETE(new NextRequest(
-  `https://${host}/api/itineraries/${id}${flag}`, { method: "DELETE" }), { params: Promise.resolve({ id }) });
+const request = (host: string, flag = "?data_candidate=d1", actor: string | null = "user_one") => DELETE(new NextRequest(
+  `https://${host}/api/itineraries/${id}${flag}`, { method: "DELETE", headers: actor === null ? {} : {"X-Localley-Preview-Actor": actor} }), { params: Promise.resolve({ id }) });
 
 beforeEach(() => {
   process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
@@ -29,7 +30,7 @@ describe("itinerary delete candidate route", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true });
     expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
     expect(mocks.remove).toHaveBeenCalledWith(id, "user_one");
     expect(mocks.server).not.toHaveBeenCalled();
   });
@@ -64,3 +65,20 @@ describe("itinerary delete candidate route", () => {
     expect(mocks.remove).not.toHaveBeenCalled();
   });
 });
+
+ it.each([null, "user_two"])("denies missing or mismatched actor %s without writes", async actor => {
+  const response=await request("localley-next-preview.nkopp.workers.dev","?data_candidate=d1",actor);
+  expect(response.status).toBe(403);expect(response.headers.get("X-Localley-Data-Source")).toBe("d1-preview");
+  expect(mocks.remove).not.toHaveBeenCalled();expect(mocks.server).not.toHaveBeenCalled();
+ });
+ it.each(["AUTH_MAIL_MODE","SUPABASE_READ_ONLY"])("refuses explicit intent if %s is disabled",async setting=>{
+  process.env[setting]="disabled";const response=await request("localley-next-preview.nkopp.workers.dev");
+  expect(response.status).toBe(503);expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+  expect(mocks.remove).not.toHaveBeenCalled();expect(mocks.server).not.toHaveBeenCalled();
+ });
+ it("keeps identity refusal and auth errors bounded without Source",async()=>{
+  mocks.remove.mockRejectedValueOnce(new PreviewEditorDeniedError());
+  expect((await request("localley-next-preview.nkopp.workers.dev")).status).toBe(403);
+  mocks.auth.mockRejectedValueOnce(new Error("private auth failure"));const r=await request("localley-next-preview.nkopp.workers.dev");
+  expect(r.status).toBe(500);expect(await r.text()).not.toContain("private auth failure");expect(mocks.server).not.toHaveBeenCalled();
+ });

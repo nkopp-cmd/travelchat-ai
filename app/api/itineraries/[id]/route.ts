@@ -4,32 +4,38 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
 import { isPreviewItineraryDetailCandidate, previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
+import { isPreviewEditorIntent, PreviewEditorDeniedError } from "@/lib/app-data/preview-itinerary-editor";
 import { deletePreviewItinerary } from "@/lib/app-data/preview-itinerary-delete";
 
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    try {
-        const { userId } = await auth();
-        if (!userId) {
-            return Errors.unauthorized();
+    const intent = isPreviewEditorIntent(request.nextUrl.hostname, request.nextUrl.searchParams.get("data_candidate"));
+    const candidate = isPreviewItineraryDetailCandidate(request);
+    const reply = (response: NextResponse) => {
+        if (intent || candidate) {
+            response.headers.set("X-Localley-Data-Source", "d1-preview");
+            response.headers.set("Cache-Control", "private, no-store");
         }
-
+        return response;
+    };
+    try {
+        if ((intent || candidate) && (!intent || !candidate)) {
+            return reply(NextResponse.json({ error: "Itinerary unavailable" }, { status: 503 }));
+        }
+        const { userId } = await auth();
+        if (!userId) return reply(Errors.unauthorized());
         const { id } = await params;
-        if (isPreviewItineraryDetailCandidate(request)) {
-            const withSource = (response: NextResponse) => {
-                response.headers.set("X-Localley-Data-Source", "d1-preview");
-                response.headers.set("Cache-Control", "no-store");
-                return response;
-            };
+        if (candidate) {
+            if (request.headers.get("X-Localley-Preview-Actor") !== userId) return reply(Errors.forbidden());
             try {
                 const result = await deletePreviewItinerary(id, userId);
-                if (result === "missing") return withSource(Errors.notFound("Itinerary"));
-                if (result === "forbidden") return withSource(Errors.forbidden());
-                return withSource(NextResponse.json({ success: true }));
-            } catch {
-                return withSource(Errors.databaseError());
+                if (result === "missing") return reply(Errors.notFound("Itinerary"));
+                if (result === "forbidden") return reply(Errors.forbidden());
+                return reply(NextResponse.json({ success: true }));
+            } catch (error) {
+                return reply(error instanceof PreviewEditorDeniedError ? Errors.forbidden() : Errors.databaseError());
             }
         }
         const supabase = await createSupabaseServerClient();
@@ -62,7 +68,7 @@ export async function DELETE(
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        return handleApiError(error, "itinerary-delete");
+        return (intent || candidate) ? reply(Errors.databaseError()) : handleApiError(error, "itinerary-delete");
     }
 }
 
