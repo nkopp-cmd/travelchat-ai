@@ -1,4 +1,5 @@
 import "server-only";
+import { assertPreviewEditorOwner, validatePreviewEditorContent } from "./preview-itinerary-editor";
 import { previewAppDataReader } from "./preview-db";
 import { previewItineraryDetail } from "./preview-itinerary-detail";
 
@@ -23,18 +24,20 @@ export async function updatePreviewItinerary(
   }
   const activities = JSON.stringify(input.activities);
   if (!activities || activities.length > 128_000) throw new RangeError("Invalid itinerary activities");
+  const ownerId = await assertPreviewEditorOwner(userId);
   const before = await previewItineraryDetail(id, userId);
   if (before.state !== "found") return before;
   if (before.itinerary.clerk_user_id !== userId) return { state: "forbidden" };
 
+  validatePreviewEditorContent(input, before.itinerary.days as number);
   const result = await previewAppDataReader().prepare(`UPDATE itineraries SET
     title = ?, city = ?, activities = ?, highlights = ?, estimated_cost = ?
-    WHERE id = ? AND ownerId IN (SELECT o.id FROM owners o
-      LEFT JOIN legacy_owners l ON l.ownerId = o.id
-      WHERE (o.source = 'legacy-fixture' AND l.clerkUserId = ? AND o.id = l.clerkUserId)
-        OR (o.source = 'new' AND o.id = ? AND l.ownerId IS NULL))`)
+    WHERE id = ? AND ownerId = ?
+    AND EXISTS(SELECT 1 FROM owners o WHERE o.id=itineraries.ownerId AND o.source='new')
+    AND NOT EXISTS(SELECT 1 FROM legacy_owners l WHERE l.clerkUserId=? OR l.ownerId=itineraries.ownerId)`)
     .bind(input.title, input.city, activities, JSON.stringify(input.highlights), input.estimatedCost as string | null,
-      id.toLowerCase(), userId, `auth:${userId}`).run();
+      id.toLowerCase(), ownerId, userId).run();
+  if (result.meta.changes === 0) return { state: "forbidden" };
   if (result.meta.changes !== 1) throw new Error("Preview itinerary update failed");
   return { state: "found", itinerary: { ...before.itinerary, title: input.title, city: input.city,
     activities: input.activities, highlights: input.highlights, estimated_cost: input.estimatedCost } };

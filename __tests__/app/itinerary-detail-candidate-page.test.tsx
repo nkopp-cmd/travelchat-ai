@@ -38,8 +38,8 @@ describe('candidate itinerary page and metadata',()=>{
     expect(html).toContain('Preview email link');expect(html).toContain('data-owner="a@preview.localley.test"');expect(html).toContain('Private trip');expect(html).toContain('Owned day schedule');
     expect(html).toContain('/itineraries?data_candidate=d1');
     expect(html).toContain('/api/itineraries/owned/export?data_candidate=d1');
-    expect(html).toContain('Export trip');
-    expect(html).not.toMatch(/Generate story|<button[^>]*>Email|<button[^>]*>Share|Provider map|Provider suggestions|\/edit|application\/ld\+json/);
+    expect(html).toContain('Export trip');expect(html).toContain('/itineraries/owned/edit?data_candidate=d1');expect(html).toContain('Edit itinerary');
+    expect(html).not.toMatch(/Generate story|<button[^>]*>Email|<button[^>]*>Share|Provider map|Provider suggestions|application\/ld\+json/);
     expect(mocks.read).toHaveBeenCalledWith('owned','a');
     expect(mocks.admin).not.toHaveBeenCalled();expect(mocks.tier).not.toHaveBeenCalled();
   });
