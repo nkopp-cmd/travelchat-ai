@@ -67,5 +67,63 @@ No default preview promotion, production upload, payment, provider generation or
 Private `d1-duplicate-resume-upload`, `hosted`, `hosted-attempt2`, both fixture-cleanup receipts,
 and `final` retain the exact native results. The inactive candidate remains available for diagnosis.
 
-Remaining: diagnose the hosted500, prove the candidate copy/readback and denied cases, then complete the preview release.
+The following repair completes this API acceptance. Browser copy controls and the full production data cutover remain open.
 Production application data remains on Source. This increment does not authorize a full data switch or Source deletion.
+
+
+## Hosted repair accepted — 2026-10-17
+
+PR454 source `82d7ce186e572bf032d52fd22549428ff3e58141` removes the redundant incoming-request constructor.
+Merge `10181b8b73640be4586663506309b63465311fbf` has the same tested tree.
+Required self-hosted CI39037202818 passes17m41s. The focused repair review reports PASS with no P0/P1 risk.
+The review uses the supplied exact repair and verification facts; it performs no separate file inspection.
+
+The exact private test command runs these four suites with `--maxWorkers=1`:
+
+- `__tests__/api/itinerary-duplicate-candidate.test.ts`
+- `__tests__/lib/app-data-preview-itinerary-duplicate.test.ts`
+- `__tests__/api/source-owner-readers.test.ts`
+- `__tests__/lib/app-data-preview-itinerary-editor.test.ts`
+
+All52tests, focused ESLint, `tsc --noEmit` and `git diff --check` pass.
+The route regression simulates Workerd rejecting reconstructed incoming requests.
+A native pinned Workerd probe confirms the underlying behavior: reconstruction of a proxied Request throws TypeError/Invalid URL.
+Direct access to that wrapped request's URL succeeds. The first probe used outdated Miniflare options;
+the corrected probe uses its installed `convertV4MiniflareOptions` adapter and passes.
+The fresh public-only pinned `npm run cf:build` passes; its71private-value scan finds0hits.
+All six direct cleanup safety cases pass.
+
+### Actual preview result
+
+- Worker version: `9354e5af-9824-419e-bed4-0e4e18a0af37`.
+- Initial1% candidate deployment: `3c735355-0f5f-4b3f-b357-c0cf5acf82d0`.
+- Executed rollback deployment: `cf7f201c-35b5-43fe-90bd-f632e1315fc3`, restoring `e08db2c5-5788-4fbb-94d8-3bd373f33420` at100%.
+- Verified default preview deployment: `f08a4f4a-3ad6-4aec-bff4-048c3e20839a`, serving the new version at100%.
+
+The first repaired canary passes33checks, including actual copy/reload, private defaults and denied cases.
+Its immediate default request returns404 without the D1 header. A narrow native ABR1 log confirms that
+old versione08db2c5 served the request three seconds after promotion. This is deployment propagation,
+not another observed failure of the repaired candidate. The operator restores preview and cleans the fixtures.
+It never retries the uncertain write automatically.
+
+The second attempt first verifies prior cleanup, Source preservation, administrators and the known restored preview.
+It uses fresh reserved fixtures and waits60seconds after default promotion before one new controlled copy.
+All47hosted checks pass. Canary and default POSTs each create exactly one owned private draft.
+GET reloads match the saved response. Subtitle, day plans, nested activity fields, score, highlights and cost survive.
+The original remains unchanged; story metadata, sharing codes, likes and counters do not transfer.
+Foreign public trips, actor mismatch, signed-out calls and missing IDs receive their actual403/401/404contracts.
+Every denied request preserves all candidate rows and exposes no private subtitle.
+Unverified/imported-owner refusal and normal preview/www routing remain covered by the focused local tests.
+No new browser copy control is activated by this API increment.
+
+Both attempts restore all55candidate and8preview Auth business-table hashes/counts; foreign-key checks return0errors.
+Both fixture leases close and both watchdog timers stop. Shared auth rate counters and mailbox sequences remain monotonic.
+All33preview binding definitions,48Source table hashes, production Auth counts and both full administrator rows remain unchanged.
+Production3132337f/6a17bf4b remains at100%; preview has0cron schedules.
+Final root, sign-in and city API checks return200 with complete bodies.
+No production data switch, Source deletion, external email, paid generation or payment occurs.
+
+Private `d1-copy-fix-final`, `hosted-attempt2`, both fixture-cleanup receipts, `review`, `ci`,
+`build` and `default-version-audit` retain exact tests, source, deployment, cleanup and failure evidence.
+This closes only the isolated owned-trip duplicate API gate. Remaining routes, browser actions,
+full current-data/media parity, executed production rollback and the final switch remain separate gates.
