@@ -177,3 +177,15 @@ Fresh23stopped guards preserve all48Source hashes/bothadmins/productionAuth/prod
 Bothhosts root/sign-in/cities return200 complete bodies; preview keeps0cron schedules.
 [Exact stopped attempt and rollback evidence](CANDIDATE_TRIP_DELETION.md#release-attempt-stopped--2026-10-17).
 The candidate feature and full migration gates remain open. Production is unchanged.
+
+
+## Candidate delete repair accepted — 2026-10-17
+
+PR460751b9bd7/requiredCI39049002104SUCCESS17m52s/mergeb2f3a789 replaces aggregate-change validation with DELETE RETURNING exact ID.
+The actual Workerd app-helper regression proves changes2for one trip plus cascaded like;52focused tests/type/lint/build/private71value scan0hits/review/eight safety cases pass.
+Previewa397be3d serves100% on deployment3268b368 after66hosted checks.
+Owned liked/unliked deletes succeed, reload/repeat404, denied requests preserve rows, and conversation messages survive with only their trip link detached.
+Actual rollbackad9afeaf restores66e84452 before final promotion and60second default wait.
+All55APP/8Auth business-table snapshots restore/FK0/closedlease/inactiveunits; all48Source hashes/fulladmins/productionAuth/33bindings are preserved.
+Production3132337f/6a17bf4b remains unchanged. No browser delete control or production data switch is activated.
+[Exact repair, native contract reproduction and hosted evidence](CANDIDATE_TRIP_DELETION.md#returned-primary-key-repair--2026-10-17).

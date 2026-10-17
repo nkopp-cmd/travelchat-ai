@@ -83,7 +83,74 @@ Both hosts return200 with complete root/sign-in/city API bodies. Preview keeps0c
 
 Private `d1-delete-{local-checks,build,review,ci,upload,reference-check,safety-test-final,hosted-attempt1,hosted,retry-reconciliation,fixture-cleanup-attempt1,fixture-cleanup,stopped-final}` receipts
 and the inert full-source helper archive retain the exact tests, failures, rollback and cleanup evidence.
-The candidate remains inactive for diagnosis. This feature is not accepted or released as default preview.
+At this stopped stage, candidate578f9ef8 remains inactive for diagnosis. No feature acceptance or default release was claimed.
 No production data switch, Source mutation, R2 operation, provider call, external email or payment occurs.
 Remaining D1/R2 routes, media parity, full current-data rehearsal, production rollback/canary and final switch remain open.
 Supabase is still required.
+
+
+## Returned-primary-key repair — 2026-10-17
+
+The previous hosted failure had a seeded like on the deleted trip, but no causal exception was retained.
+A new actual app-helper Workerd D1 regression reproduces the relevant runtime contract:
+`meta.changes` is2 after one trip and its cascaded like are deleted.
+The old exactly-one check therefore throws after a committed delete in that reproduction.
+Use `DELETE ... RETURNING id` and validate exactly one returned requested primary key instead.
+Zero returned rows remain forbidden. All identity, ownership, media and transactional gates are unchanged.
+Both the bound ID and comparison use lowercase. The existing SQLite suite also tests an uppercase UUID.
+
+The six focused suites run with `--maxWorkers=1`:
+
+- `__tests__/api/itinerary-delete-candidate.test.ts`
+- `__tests__/lib/app-data-preview-itinerary-delete.test.ts`
+- `__tests__/lib/app-data-preview-itinerary-delete-workerd.test.ts`
+- `__tests__/api/itinerary-detail-candidate.test.ts`
+- `__tests__/lib/app-data-preview-itinerary-detail.test.ts`
+- `__tests__/api/source-owner-readers.test.ts`
+
+All52tests, focused ESLint, `tsc --noEmit` and `git diff --check` pass.
+The new native test loads every candidate migration and calls the real helper through Workerd D1.
+It proves returned trip1/aggregate changes2/like cascade/history unlink/repeated missing response.
+Its second case proves media-blocked zero returned rows retain the history link and like.
+Remote bindings, telemetry and outbound network are disabled. Temporary native state is removed in cleanup.
+The committed CI workflow now runs and lints this native regression explicitly.
+An earlier standalone optional Miniflare probe stalled; its exact owned Node/Workerd processes and disposable state were removed.
+The successful committed native regression supplies the result; the standalone probe is not claimed as passing.
+The focused supplied-source review reports PASS/noP0P1; it performs no separate file inspection.
+Eight direct cleanup safety cases pass.
+
+PR460 source `751b9bd7ace7330482c176a2d22c1ed09e4ce334` merges as `b2f3a7896b03b06806b5bd42736927ca3d7f9d36` with the same tested tree.
+Required self-hosted [CI39049002104](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/39049002104) passes17m52s.
+The fresh public-only pinned build passes with71private values scanned and0artifact hits.
+The inactive upload passes13guards and preserves every one of the33preview binding definitions.
+
+### Repaired hosted acceptance
+
+- Preview Worker: `a397be3d-8798-4c72-9abd-4975f4e6d855`.
+- 1% candidate deployment: `3ddf53b8-e93e-4f83-8c8e-753e8c624f03`.
+- Executed rollback: `ad9afeaf-15cc-4a1e-9766-9d4f72911d2c`, restoring `66e84452-82e7-4702-9c5c-95cf87e6fdde` at100%.
+- Final default preview: `3268b368-4be2-43d6-a22d-fd4b976a46cf`, serving the repaired version at100%.
+
+All66hosted checks pass with two real reserved verified users.
+The canary deletes one owned trip with a seeded like. The settled default preview deletes one owned trip without likes.
+Each returns200/success, a D1 source header and private/no-store caching. GET reload and repeat DELETE return404.
+Native SQL proves the target and empty metadata are removed, likes cascade, and the unrelated foreign trip remains unchanged.
+Conversation messages survive exactly; their conversation rows change only the deleted itinerary link to null.
+In both phases, foreign public-trip, mismatched/absent actor, anonymous, missing and attached-media requests are denied.
+Denied requests preserve all candidate rows and expose no private subtitle.
+Anonymous401comes from middleware without the route D1 header; the verifier now tests that actual contract.
+The operator executes the real prior-version rollback before promoting the repaired version.
+It waits60seconds after promotion before the default write. It never retries an uncertain write automatically.
+This increment verifies the API only; it does not activate a new browser delete control.
+
+All55candidate and8preview Auth business-table hashes/counts restore exactly, with0foreign-key errors.
+The fixture lease closes and the independent cleanup timer/service stop.
+Shared rate counters and mailbox sequences remain monotonic.
+All48Source full-row hashes, production Auth counts, both full administrator rows and all33preview bindings remain unchanged.
+Production Worker3132337f/deployment6a17bf4b remains unchanged. Preview keeps0cron schedules.
+Fresh18guard final read-only verification and exact owned hygiene are retained in the private final and delivery-cleanup receipts.
+No Source data change, R2 operation, provider call, external email, payment or production switch occurs.
+
+Private `d1-delete-fix-{checks,local-checks,build,review,safety-test,ci,upload,hosted,fixture-cleanup,final,delivery-cleanup}` receipts
+and the inert full-source helper archive retain the accepted scope and the earlier stopped-probe evidence.
+This closes only the fresh-owner candidate DELETE API gate. Full data/media parity and production cutover remain open.
