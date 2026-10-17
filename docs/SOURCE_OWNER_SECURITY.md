@@ -104,7 +104,7 @@ Post-policy live proof passes51checks: two real verified controlled logins, priv
 
 Final read-only guard passes35checks. Production remains Worker2c328128/b5efe6f6 at100%; previewe08db2c5/7cdc7953 is unchanged. All55complete binding definitions match the prior Worker, four production schedules remain unchanged, preview has none, and all four proof cleanup timers plus the rollback timer/service are inactive. Current public home/spots/pricing/cities return200; protected explore retains its307login redirect. The security advisor scan falls44to36findings; the remaining RLS-disabled relation is the PostGIS extension table spatial_ref_sys. Other advisories are not closed by this repair.
 
-The full48table role audit also finds three permissive PUBLIC saved_itineraries policies, with0current rows. Restricting those personal saved-trip rows is a separate builder follow-up. Subscriptions/usage retain owner SELECT-only policies, and saved_spots already requires authenticated ownership. No historical incident conclusion follows from empty current tables. Nils owns the existing historical exposure NEED; no external notice has been sent.
+The dated full48table role audit also found three permissive PUBLIC saved_itineraries policies, with0current rows. Follow-up439 now restricts those personal rows; see [the exact delivery evidence](SAVED_ITINERARY_SECURITY.md). Subscriptions/usage retain owner SELECT-only policies, and saved_spots already requires authenticated ownership. No historical incident conclusion follows from empty current tables. Nils owns the existing historical exposure NEED; no external notice has been sent.
 
 ### Recovery and retained proof
 
