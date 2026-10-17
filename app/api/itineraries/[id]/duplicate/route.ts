@@ -28,7 +28,7 @@ async function previewDuplicate(request: Request, id: string, userId: string) {
 }
 
 export async function POST(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -38,7 +38,7 @@ export async function POST(
         }
 
         const { id } = await params;
-        if (isPreviewItineraryDetailCandidate(new NextRequest(request))) {
+        if (isPreviewItineraryDetailCandidate(request)) {
             return previewDuplicate(request, id, userId);
         }
         const supabase = await createSupabaseServerClient();
