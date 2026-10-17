@@ -465,6 +465,14 @@ jobs:
         run: |
           node scripts/d1-migration/source-owner-policy-proof.mjs --cleanup-only
           node scripts/d1-migration/anonymous-read-postgres-proof.mjs --cleanup-only
+      - name: Retain anonymous access proof report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: ignore
+
       - name: Retain Source owner proof report
         if: always()
         uses: actions/upload-artifact@v4
