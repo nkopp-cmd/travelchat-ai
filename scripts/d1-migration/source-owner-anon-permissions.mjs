@@ -10,7 +10,7 @@ export function anonymousPermissionSql({ expectedCatalogMd5, expectedRelations =
   if(!/^[a-f0-9]{32}$/.test(expectedCatalogMd5??'') || !Number.isSafeInteger(expectedRelations) || expectedRelations<1 || expectedRelations>200)throw Error('invalid_anonymous_permission_precondition');
   const projections=publicCatalogs.map(t=>`('${t}',ARRAY[${publicColumns[t].map(c=>`'${c}'`).join(',')}]::text[])`).join(',');
   return `BEGIN;
-SET LOCAL lock_timeout='2s';SET LOCAL statement_timeout='10s';
+SET LOCAL lock_timeout='2s';SET LOCAL statement_timeout='15s';
 DO $anon$
 DECLARE r record; proj record; cols text; observed text; before_rows text; after_rows text;
  before_policy text; after_policy text; before_server text; after_server text; aggregate_rows text:=''; aggregate_server text:=''; h text; bad boolean;
