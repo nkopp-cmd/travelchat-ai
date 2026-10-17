@@ -30,7 +30,8 @@ export async function readProductionReviewsForPreview(request: NextRequest, spot
     if (!service || typeof service !== "object" || !("fetch" in service) || typeof service.fetch !== "function") return unavailable("binding_missing");
     // The binding targets the existing public projection. Never use a public-network or Source fallback.
     // Never forward cookies, authorization, candidate flags or version overrides across hosts.
-    const response = await (service as { fetch: typeof fetch }).fetch(url, { method: "GET", redirect: "error", cache: "no-store", credentials: "omit",
+    // Workerd rejects redirect: "error". Manual keeps redirects visible to the non-2xx refusal below.
+    const response = await (service as { fetch: typeof fetch }).fetch(url, { method: "GET", redirect: "manual", cache: "no-store", credentials: "omit",
       headers: { Accept: "application/json" }, signal: AbortSignal.timeout(15000) });
     if (!response.ok) { await response.body?.cancel(); return unavailable("upstream_http", response.status); }
     reader = response.body?.getReader(); if (!reader) return unavailable("missing_body");

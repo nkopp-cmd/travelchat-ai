@@ -17,7 +17,7 @@ describe("normal preview public review projection", () => {
     const response = await readProductionReviewsForPreview(request("?sort=helpful&limit=10&offset=2&ignored=secret"), id);
     expect(response.status).toBe(200); expect(await response.json()).toEqual(body); expect(response.headers.get("cache-control")).toBe("no-store");
     const [url, options] = fetcher.mock.calls[0]; expect(String(url)).toBe(`https://www.localley.io/api/spots/${id}/reviews?sort=helpful&limit=10&offset=2`);
-    expect(options.headers).toEqual({ Accept: "application/json" }); expect(options.method).toBe("GET"); expect(options.redirect).toBe("error"); expect(options.cache).toBe("no-store"); expect(options.credentials).toBe("omit"); expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(options.headers).toEqual({ Accept: "application/json" }); expect(options.method).toBe("GET"); expect(options.redirect).toBe("manual"); expect(options.cache).toBe("no-store"); expect(options.credentials).toBe("omit"); expect(globalThis.fetch).not.toHaveBeenCalled();
   });
   it("adds only a preview service binding and keeps production services explicit", () => {
     const config = parse(readFileSync("wrangler.jsonc", "utf8"));

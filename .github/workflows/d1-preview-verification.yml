@@ -47,6 +47,7 @@ on:
       - 'lib/source-itinerary-access.ts'
       - 'lib/source-public-reviews.ts'
       - '__tests__/lib/source-public-reviews.test.ts'
+      - '__tests__/lib/source-public-reviews-workerd.test.ts'
       - 'lib/spots/queries.ts'
       - '__tests__/lib/spots-query-public-rows.test.ts'
       - 'scripts/d1-migration/source-owner-*'
@@ -407,7 +408,8 @@ jobs:
             node --test scripts/d1-migration/notification-history-report.test.mjs
             node --check scripts/d1-migration/notification-history-report.test.mjs
             node --test scripts/d1-migration/anonymous-read-regression.test.mjs scripts/d1-migration/source-owner-anon-permissions.test.mjs
-            npx vitest run __tests__/lib/spots-query-public-rows.test.ts __tests__/lib/spots-query-timeout.test.ts __tests__/lib/source-public-reviews.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/spots-query-public-rows.test.ts __tests__/lib/spots-query-timeout.test.ts __tests__/lib/source-public-reviews.test.ts __tests__/lib/source-public-reviews-workerd.test.ts --maxWorkers=1
+            npx eslint lib/source-public-reviews.ts __tests__/lib/source-public-reviews.test.ts __tests__/lib/source-public-reviews-workerd.test.ts
             node --check scripts/d1-migration/anonymous-read-regression.mjs
             node scripts/d1-migration/anonymous-read-postgres-proof.mjs --out "$RUNNER_TEMP/localley-anon-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json" --permissions
             node --test scripts/d1-migration/runtime-inventory.test.mjs
