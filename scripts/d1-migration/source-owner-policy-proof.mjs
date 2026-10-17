@@ -104,6 +104,17 @@ if (cleanupOnly) {
     const roleQuery = (role,subject,statement) => sql(`BEGIN; SET LOCAL ROLE ${role}; SET LOCAL request.jwt.claims='${JSON.stringify({sub:subject,user_metadata:{sub:'owner-b'}})}'; ${statement}; ROLLBACK;`);
     const count = async(role,subject,table,where='true') => (await roleQuery(role,subject,`SELECT count(*) FROM public.${table} WHERE ${where}`)).split('\n').find(x=>/^[0-9]+$/.test(x));
     for(const table of ownerTables.filter(t=>!['spots','challenges'].includes(t))) check(await count('anon','',table)==='2', table+'_public_exposure_reproduced');
+    // A DDL trigger simulates an unexpected row write inside the guarded transaction.
+    // This verifies the digest guard, rather than only checking an unchanged happy path.
+    await sql(`CREATE FUNCTION fixture_policy_row_change() RETURNS event_trigger LANGUAGE plpgsql AS $fixture$
+      BEGIN UPDATE public.users SET email='unexpected@preview.localley.test' WHERE clerk_id='owner-a'; END $fixture$;
+      CREATE EVENT TRIGGER fixture_policy_row_change ON ddl_command_end WHEN TAG IN ('CREATE POLICY') EXECUTE FUNCTION fixture_policy_row_change();`);
+    let rowChangeRefused=false;
+    try { await sql(sourceOwnerPolicySql()); } catch(error) { rowChangeRefused=/owner_guard_rows_changed/.test(error.stderr??''); }
+    check(rowChangeRefused,'unexpected_transaction_row_write_refused');
+    check(await fingerprint()===originalRows,'unexpected_row_write_rolled_back');
+    check(await catalog()===originalCatalog,'unexpected_row_write_policy_changes_rolled_back');
+    await sql('DROP EVENT TRIGGER fixture_policy_row_change; DROP FUNCTION fixture_policy_row_change();');
     await sql(sourceOwnerPolicySql());const restrictedCatalog=await catalog();
     check(await fingerprint()===originalRows,'restriction_preserves_all_rows');
     for(const table of ownerTables){

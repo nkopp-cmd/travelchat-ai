@@ -76,3 +76,15 @@ Corrected policy proof passes95checks. The extended actual-handler proof passes9
 6. Record exact commit, required CI, merge, Worker/deployment, Source receipt and rollback limits in the canonical plan and release record. Remove owned worktrees/helpers only after evidence is retained.
 
 Production is still Worker19b90012/be8a200a, preview e08db2c5/7cdc7953. Affiliate435 is already applied and verified separately. No broader permissions or runtime changes are live yet.
+
+## Compatible runtime release and first permission attempt — October 17
+
+PR436 source589272d2 passed required CI38999330578 and merged81357250 with an equal tree. The public-only pinned build passed. Its first artifact scan refused normal generated symlinks; the corrected confined scan inspected7809files,9owned links and71private values with zero hits. No secret entered the release build environment.
+
+Worker2c328128-27cd-44dd-be51-e1d0dec9e91d passed the inactive upload's15checks, preserving all55bindings, Source48table fingerprints, Auth counts, both administrators and preview. Canary9b169dd8 at1% passed38real owner/login/save/reload/chat-storage/foreign-denial checks and exact cleanup. Rollback86c0e390 restored19b90012 at100%. The initial rollback health probe passed home200 then wrongly expected protected /explore200; corrected checks require its307login redirect. Four other current public routes return200. Defaultb5efe6f6 at100% passed the same38checks and exact cleanup. All eight desktop/mobile screenshots were inspected. The synthetic empty trip intentionally has no resolvable map stops; provider calls were blocked. This is not full generation/map/checkout acceptance.
+
+The rollback watchdog is disarmed and both its timer and service are inactive. The one-time permission request then failed with HTTP400. Fresh read-only reconciliation proves all ten target catalogs and all48table row fingerprints stayed identical. Supabase Postgres logs identify SQLSTATE57014, statement timeout at04:12:41UTC. No write was retried. A read-only replay of the precondition/hash portion passes; ownership, grants and historical links are valid, with no current target locks.
+
+Read-only EXPLAIN ANALYZE measures one original fingerprint at4824ms and the fixed-width digest form at1732ms against the current live rows. Two original full-JSON sorts exceeded the unchanged eight-second transaction budget. The follow-up changes only the two fingerprint expressions to sort32-character row digests. It keeps the two complete before/after comparisons, table locks, timeout and all permission/rollback guards. A disposable DDL trigger now attempts an unexpected row update; the proof must refuse and roll back both data and policies. The permission retry remains gated on this follow-up's review, exact green CI and merged source. The first failure receipt remains retained.
+
+Private receipts use source-owner-* under /home/dev/.local/state/localley. No actual customer rows were copied into those receipts; metadata, row fingerprints and controlled synthetic records are separate. Full D1 migration and historical incident assessment remain open.

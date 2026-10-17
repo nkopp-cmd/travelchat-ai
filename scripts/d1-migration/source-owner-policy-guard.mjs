@@ -54,12 +54,13 @@ BEGIN
     IF NOT (has_table_privilege('service_role','public.'||t,'SELECT') AND has_table_privilege('service_role','public.'||t,'INSERT') AND has_table_privilege('service_role','public.'||t,'UPDATE') AND has_table_privilege('service_role','public.'||t,'DELETE')) THEN RAISE EXCEPTION 'owner_guard_server_acl'; END IF;
   END LOOP;
   ${restore?'':`FOREACH t IN ARRAY ARRAY[${truncateTables.map(t=>`'${t}'`).join(',')}] LOOP IF NOT has_table_privilege('anon','public.'||t,'TRUNCATE') OR NOT has_table_privilege('authenticated','public.'||t,'TRUNCATE') THEN RAISE EXCEPTION 'owner_guard_initial_truncate_drift'; END IF; END LOOP;`}
-  SELECT md5(string_agg(v.h,'|' ORDER BY v.tab)) INTO before_rows FROM (${truncateTables.map(t=>`SELECT '${t}' AS tab,md5(COALESCE(string_agg(to_jsonb(x)::text,'' ORDER BY to_jsonb(x)::text),'')) AS h FROM public.${t} x`).join(' UNION ALL ')}) v;
+  -- Sort fixed-width row digests, not full photo/source JSON. Keep the eight-second lock window.
+  SELECT md5(string_agg(v.h,'|' ORDER BY v.tab)) INTO before_rows FROM (${truncateTables.map(t=>`SELECT '${t}' AS tab,md5(COALESCE(string_agg(md5(to_jsonb(x)::text),'' ORDER BY md5(to_jsonb(x)::text)),'')) AS h FROM public.${t} x`).join(' UNION ALL ')}) v;
   ${changes}
   ${restore?'':`FOREACH t IN ARRAY ARRAY[${truncateTables.map(t=>`'${t}'`).join(',')}] LOOP
     IF has_table_privilege('anon','public.'||t,'TRUNCATE') OR has_table_privilege('authenticated','public.'||t,'TRUNCATE') THEN RAISE EXCEPTION 'owner_guard_inherited_truncate'; END IF;
   END LOOP;`}
-  SELECT md5(string_agg(v.h,'|' ORDER BY v.tab)) INTO after_rows FROM (${truncateTables.map(t=>`SELECT '${t}' AS tab,md5(COALESCE(string_agg(to_jsonb(x)::text,'' ORDER BY to_jsonb(x)::text),'')) AS h FROM public.${t} x`).join(' UNION ALL ')}) v;
+  SELECT md5(string_agg(v.h,'|' ORDER BY v.tab)) INTO after_rows FROM (${truncateTables.map(t=>`SELECT '${t}' AS tab,md5(COALESCE(string_agg(md5(to_jsonb(x)::text),'' ORDER BY md5(to_jsonb(x)::text)),'')) AS h FROM public.${t} x`).join(' UNION ALL ')}) v;
   IF before_rows IS DISTINCT FROM after_rows THEN RAISE EXCEPTION 'owner_guard_rows_changed'; END IF;
 END $guard$;
 COMMIT;`;
