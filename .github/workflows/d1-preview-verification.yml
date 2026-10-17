@@ -40,6 +40,8 @@ on:
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
       - 'scripts/d1-migration/atomic-usage-proof.mjs'
+      - 'scripts/d1-migration/editor-proof-contract.mjs'
+      - 'scripts/d1-migration/editor-proof-contract.test.mjs'
       - '__tests__/fixtures/weighted-usage-source.json'
       - 'supabase/migrations/003_weighted_usage_increment.sql'
       - 'lib/usage-tracking.ts'
@@ -366,6 +368,7 @@ jobs:
             node --test scripts/d1-migration/notification-history-report.test.mjs
             node --check scripts/d1-migration/notification-history-report.test.mjs
             node --test scripts/d1-migration/runtime-inventory.test.mjs
+            node --test scripts/d1-migration/editor-proof-contract.test.mjs
             node --check scripts/d1-migration/runtime-inventory.mjs
             node --test scripts/d1-migration/source-availability.test.mjs scripts/cloudflare-source-snapshot.test.mjs scripts/d1-migration/core-import.test.mjs
             node --check scripts/d1-migration/source-availability.mjs
