@@ -82,3 +82,31 @@ The delivery PR and root blocker plan Attempts176–177 record final repository 
 ## Subsequent host monitor release
 
 PR447 source1fbcdd9e/CI39021868298SUCCESS17m45s/mergebaac9083 adds provider-only version evidence to the daily report. All56monitoring tests and20actual host guards pass. The stable service09:56:50UTC exits0; five sampled events/ABR10 retain counts and coverage limits. Production3132337f/6a17bf4b and previewe08db2c5/7cdc7953 stay unchanged. No Worker upload, data or paid-provider change occurred. Monitor rollback source0676c795 is separate from application rollback83366b0c. [Exact host release and limits](PRODUCTION_USER_HEALTH.md#worker-version-evidence--released2026-10-17). U1/U2 acceptance stays unchanged; U3 remains open.
+
+
+## Complete public response monitor release — 2026-10-17
+
+PR449 sourcee0598d96305c8ccd69c398c868a8b5bcad439d3f passed required self-hosted CI39025317573 in18m25s before readiness and merge.
+Merge659fb45ad7ea56b0eea94d9c06a7ef9644dbdef3 has the same tested tree.
+All63monitoring tests, syntax/diff checks and a focused independent no-P0/P1 review pass.
+The review did not run tests; builder and CI ran them. A broader scope consultation failed at its turn limit and is not a passed review.
+
+The old checker canceled page bodies after headers and could accept a truncated HTTP200.
+The same frozen broken-response fixture makes old2f10a327CLIexit0 and newe0598d96CLIexit1.
+Both retain HTTP200 and identical independent log counts. Native HTTP tests prove actual truncation and a body-time fetch deadline.
+The new checker drains/discards at most2MiB under the existing25second fetch deadline, retaining fixed reasons and capped byte counts only.
+It refuses empty, missing, oversized and failed bodies; it leaves complete streams uncanceled.
+A cleanly completed error shell remains outside this transfer-completion check.
+
+The actual stable service ran successfully at10:53UTC and exited0 at10:53:34UTC.
+Root117044bytes and sign-in33442bytes complete with HTTP200; catalog30cities/24visible/2574spots and read-only Source billing query pass.
+The report returns35events/ABR1 and explicit ingestion limits. This is not a decline from the earlier5event/ABR10sample.
+Seventeen live guards pass, including exact installed code hashes, preserved error/version totals and the U2 acceptance hash.
+Full production3132337f/6a17bf4b and previewe08db2c5/7cdc7953 deployment records are unchanged.
+Monitor rollback source2f10a327 remains separate from compatible application rollback83366b0c.
+No Worker upload, data, secret, authentication, external email, payment or paid-provider change occurred.
+
+Private page-completion-tests/review/candidate/differential/release-20261017 receipts retain actual proof.
+All14historical network URLs carry an RSC query, but their missing headers/status/causal stacks prevent a cancellation claim.
+This repairs a proven monitoring false-positive; it does not establish those historical application causes.
+U1 remains verified. U2 and its original conditional test-checkout skip remain unchanged. U3 remains open.
