@@ -112,3 +112,35 @@ Focused lint did not run after that process stopped. No successful final typeche
 Per the two-attempt rule, stop this item and retain PR467 as draft.
 The earlier production build at4716c6ef is superseded and must not be uploaded.
 No prepared permission SQL or Worker upload has run.
+
+## Compatibility release and stopped preview gate — 2026-10-17
+
+PR467 source4ce70c3d9a5e14596520d2c79ffcd93aee7d585f passed required CI39063107094.
+It merged as74cb4be30442946d18fdfe12002a4619d77d02a4 with the exact tested tree.
+This required gate includes TypeScript and lint; the earlier local heap failure is superseded by its successful result.
+Separate public-only production and preview builds pass71private-value scans with zero hits.
+Production037dee7f-555b-45f3-89cd-44174301f6d5 serves100% on deployment82e0a7f9-6ac9-4fab-b76c-545a807d86b1.
+Its25canary checks, actual rollback2c0581c2,25default checks, eight desktop/mobile checks and two inspected images pass.
+All57bindings/fourcrons/Source hashes/Auth counts/admin rows remain unchanged.
+The original retained rollback version is a70b4e30; Source permissions have not changed.
+
+The preview build uploaded05ef339d-a292-4d0b-b877-15f482f31d6b with all33bindings preserved.
+Its1% gate passes five public pages, then the normal public review projection returns503.
+The safety controller restores a397be3d at100% on deployment25df2385-c951-4978-9002-82b990d561ae.
+Both release timers are inactive. The Source permission operation has never run.
+Production returns200for the exact public review URL and query from this host.
+The cause of the preview HTTP failure remains unproved; global_fetch_strictly_public was present.
+The follow-up uses a preview-only HTTP service binding to the existing production public projection.
+It strips identity, pins the same URL, keeps bounded reads and refuses missing bindings without a network fallback.
+It additionally refuses the review selector data_candidate, alongside app_data, before the bridge.
+Candidate D1 processing still runs first. No production binding or Source secret is added.
+Only fixed failure labels and HTTP statuses may enter logs. Hosted acceptance is still required.
+
+The shared checker has fresh seven-run median values before/after production release:
+home916to214ms, spots293to273ms, pricing230to172ms. These are observations, not causal improvements.
+The50ms warm target and full Lighthouse budgets remain open.
+
+The service-binding correction passes24focused Vitest tests, scoped lint and TypeScript.
+Pinned Wrangler generates the service Fetcher type successfully after creating its ignored output directory.
+Its first focused gate catches a test-file URL assumption; the corrected second gate passes.
+Required exact-head CI and the single remaining hosted retry are pending.
