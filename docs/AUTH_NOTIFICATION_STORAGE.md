@@ -74,7 +74,13 @@ The full production Auth backup at2026-10-17 06:04UTC is encrypted for the host 
 A real decrypt and SQLite restore retained all9 original tables,17rows and both admin records.
 The additive migration rehearsal preserved old schema and data, with integrity `ok` and zero foreign-key violations.
 The plaintext stage was removed. The private receipt is `auth-notification-backup-20261017.json`.
-Read-only schema preflight passed9guards against the actual production database. No production schema application is claimed here.
+Pinned schema preflight passed11guards against the actual production database.
+The single production schema operation then passed24checks: three empty tables and indexes, plus one migration ledger row.
+All previous table definitions, existing Auth rows and both administrator records were preserved exactly within the operation window.
+The physical foreign keys passed their cascade checks. Production Worker2c328128/b5efe6f6 stayed unchanged at100%.
+The private receipt is `auth-notification-schema-apply-20261017.json`; this is schema preparation, not storage activation.
+The first strengthened read-only preflight selected an unavailable parser dependency and stopped before any write.
+The installed JSON5 parser and exact production binding plus four-file migration pins then passed before the sole apply.
 
 The routing proof passed140focused tests, TypeScript and ESLint. It includes actual Better Auth signup/verification/native session data on SQLite.
 The code review found no P0/P1 issues; its non-blocking pagination, stale-read and metadata concerns were fixed and tested.
