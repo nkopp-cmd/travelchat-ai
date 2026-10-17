@@ -1,6 +1,16 @@
 # Seoul Discovery Release
 
-## Current production — compatible Source privacy runtime, 2026-10-17
+## Current production — independent notification storage, 2026-10-17
+
+PR441 source333ae736/CI39007525997 SUCCESS/merge13f44792 and PR442 sourcea457b490/CI39009760822 SUCCESS/merge44eacd2a have equal tested/merged trees. Real SQLite/native-auth tests,140focused checks, final47affected tests/type/lint, pinned build, secret audit and independent reviews pass. Full encrypted Auth export/decrypt/real restore preserves9original tables/17rows/two admins. The sole additive schema operation passed24checks.
+
+Worker `83366b0c-6a7f-4173-b569-3e4ad6f24780` serves100%, deployment `baae783c-7d4c-4b80-929c-cd529c04187e`, with `AUTH_NOTIFICATION_STORAGE=active`. All55 previous complete bindings remain unchanged. Compatible read-only rollback `70a278a5-2e68-44dd-99c5-50be5f09ee68` was actually restored at `86bd8150-3acc-4490-9abf-dd5a6227d8bf`; newly written rows stayed readable and mutations returned503. Older Source-only readers are unsafe rollback targets after this release.
+
+The successful hosted receipt passes127checks across explicit1% canaries, actual rollback and normal active production. Two verified non-reserved controlled owners prove preferences/inbox/device storage, partial writes/reload, owner denials, fifteen concurrent registrations with a ten-device cap, desktop/mobile actions and exact cascade cleanup. Ten hosted upper-page/inbox screenshots were inspected; actual DOM/API assertions prove lower preferences changes. Twelve separate local component screenshots cover active/read-only/unavailable states. The first canary safely rolled back because its anonymous middleware cache assertion was too strict; its failed receipt remains retained.
+
+Final20read-only guards pass: current production/preview identities, all previous bindings, both admin hashes, all48Source table counts/full hashes, Auth counts, owned absence, inactive safety units, four public200 responses and anonymous401/no-store. Previewe08db2c5/7cdc7953 is unchanged. No paid provider, payment, external push/email delivery or Source data migration occurred. Supabase remains required; full parity/freeze/switch/retention gates remain open. [Exact storage, backup, tests, failures and rollback evidence](../AUTH_NOTIFICATION_STORAGE.md).
+
+## Historical production — compatible Source privacy runtime, 2026-10-17
 
 PR436 source `589272d2a3538bfbc4d17eccfb903a26e7020da1`, required CI38999330578 SUCCESS, merged `813572502a8bc7dc38be7f96fa118f73cce34519` with an equal tree.92focused tests/type/lint, actual PostgreSQL96checks/four real handlers, public-only pinned build, zero-secret artifact audit and scoped SQL/runtime/tier reviews pass. Worker `2c328128-27cd-44dd-be51-e1d0dec9e91d` serves100%, deployment `b5efe6f6-8fd4-41c1-aad6-766fd9279a08`.
 
