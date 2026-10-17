@@ -520,3 +520,34 @@ No sandbox, customer charge, trial repair, portal change or full data cutover is
 To roll back this monitoring change, first confirm the installed unit still matches this release.
 Restore its retained previous unit, reload the user daemon and keep the existing daily timer enabled.
 This unit rollback does not satisfy the separate production-data rollback gate.
+
+
+## Current U1/U3 audit and notification labels — 2026-10-17
+
+U1 remains complete from Nils's October3 Inbox confirmation and retained received-link journeys.
+Gmail-specific Authentication-Results remain optional under NEED481. No new email was sent.
+Keep U2's original acceptance and conditional test-checkout skip as historical evidence.
+The later live four-price unpaid hosted proof is separate; it does not claim a card charge.
+
+The stable daily service at07:47:47UTC passed: three public200 responses,30cities/24visible/2574spots,
+current logging enabled at sampling1 and a successful read-only Source billing query.
+It returned35log events, ABR1,35matches, no truncation, with explicit ingestion-delivery limits.
+The top five path/class/status groups were push HTTP503(6), push unclassified console errors(6),
+dashboard lost connections(5), root unclassified errors(4), and preferences503(3).
+These are log events, not distinct requests or affected users. Other returned groups remain in the private report.
+
+The current Auth D1 adapter emits exactly `[AUTH_NOTIFICATIONS] storage unavailable` for caught storage failures.
+The monitor previously hid its useful meaning behind an unclassified label and generic HTTP labels.
+The bounded repair recognizes that exact marker only on the four known notification route templates.
+Inbox/push HTTP503 and other5xx receive fixed storage labels; preference HTTP labels remain compatible.
+No raw error text, owner, endpoint, key or request payload enters the report.
+Console and invocation events remain separate, and all counts/statuses are preserved without deduplication.
+Neither a503 nor the marker proves a device cap, read-only refusal, external-delivery failure, or underlying cause.
+Do not suppress the events because controlled tests occurred within their time window.
+
+This host-only change improves diagnosis. It does not repair a new application outage or close U3.
+The127-check notification release covers actual device-cap/owner/rollback behavior separately.
+Network and root error diagnosis remain open. Their historical presence does not establish a current failed journey.
+No Worker, Source/Auth row, mail, provider, billing, external sender or production flag changes.
+Release by merging green reviewed code, updating the stable main checkout, and running the existing health service.
+The production Worker and compatible rollback remain83366b0c and70a278a5; do not restore a Source-only reader.
