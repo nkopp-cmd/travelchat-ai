@@ -404,6 +404,7 @@ jobs:
             node --check scripts/d1-migration/notification-history-report.test.mjs
             node --test scripts/d1-migration/anonymous-read-regression.test.mjs
             node --check scripts/d1-migration/anonymous-read-regression.mjs
+            node scripts/d1-migration/anonymous-read-postgres-proof.mjs --out "$RUNNER_TEMP/localley-anon-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
             node --test scripts/d1-migration/runtime-inventory.test.mjs
             node --test scripts/d1-migration/editor-proof-contract.test.mjs
             node --check scripts/d1-migration/runtime-inventory.mjs
@@ -458,7 +459,9 @@ jobs:
 
       - name: Clean only this job's Source owner proof container
         if: always()
-        run: node scripts/d1-migration/source-owner-policy-proof.mjs --cleanup-only
+        run: |
+          node scripts/d1-migration/source-owner-policy-proof.mjs --cleanup-only
+          node scripts/d1-migration/anonymous-read-postgres-proof.mjs --cleanup-only
       - name: Retain Source owner proof report
         if: always()
         uses: actions/upload-artifact@v4
