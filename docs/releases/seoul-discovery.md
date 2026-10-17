@@ -1,6 +1,14 @@
 # Seoul Discovery Release
 
-## Current production — atomic usage correction, 2026-10-17
+## Current production — compatible Source privacy runtime, 2026-10-17
+
+PR436 source `589272d2a3538bfbc4d17eccfb903a26e7020da1`, required CI38999330578 SUCCESS, merged `813572502a8bc7dc38be7f96fa118f73cce34519` with an equal tree.92focused tests/type/lint, actual PostgreSQL96checks/four real handlers, public-only pinned build, zero-secret artifact audit and scoped SQL/runtime/tier reviews pass. Worker `2c328128-27cd-44dd-be51-e1d0dec9e91d` serves100%, deployment `b5efe6f6-8fd4-41c1-aad6-766fd9279a08`.
+
+Canary9b169dd8 at1% and default release each pass38real login/owner-save/reload/chat-storage/foreign-denial checks with exact48table/Auth/admin cleanup. All eight desktop/mobile screenshots were inspected. All55complete binding definitions match the prior Worker; four production schedules remain unchanged and preview has none. Previewe08db2c5/7cdc7953 remains unchanged. No paid generation, provider, mail, partner or payment call occurred. Current cities recheck returns200three times at555/290/256ms.
+
+Rollback `19b90012-a85c-426c-a40e-9323ffaa5370` was actually restored at `86c0e390-2521-4ab8-a662-836c6060deb3` before returning to the compatible runtime. The old Worker is not an approved rollback after the Source permission repair: it lacks these privacy checks. The watchdog is disarmed, and its timer/service are inactive. An emergency metadata restore also reopens known exposure and must never run automatically. [Current permission operation, exact receipts, failure reconciliation and limits](../SOURCE_OWNER_SECURITY.md). This is a Source security repair, not a D1 data switch; Supabase retention and the common migration gates remain in force.
+
+## Historical production — atomic usage correction, 2026-10-17
 
 PR432 source `dbd09ad27037545314ce397b1da641f47656a3fe`, required self-hosted CI `38987106920` SUCCESS16m34s, merged `6d5b6c0f1c548479f365ce58166f506d390d6fe7` with the same tree. Thirty-seven focused tests, actual installed-SQL PostgreSQL20checks, full regressions/type/lint, pinned build, artifact audit and read-only code/release reviews pass.
 
