@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  PUBLIC_SPOT_SELECT,
   getPublicVisibleSpotRows,
   getScoreThresholdCount,
 } from "@/lib/spots/queries";
@@ -74,4 +75,13 @@ describe("public visible spot rows", () => {
     expect(getScoreThresholdCount(rows, 4)).toBe(3);
     expect(getScoreThresholdCount(rows, 3)).toBe(4);
   });
+});
+
+// This projection must stay usable after the owner identifier loses anonymous SELECT.
+it("public spot projection retains display fields and excludes private ownership", () => {
+  const columns = PUBLIC_SPOT_SELECT.split(",");
+  expect(columns).toEqual(expect.arrayContaining(["id","name","description","address","location","photos","google_place_id","localley_score","destination_id"]));
+  expect(columns).not.toContain("discovered_by");
+  expect(columns).not.toContain("*");
+  expect(new Set(columns).size).toBe(columns.length);
 });

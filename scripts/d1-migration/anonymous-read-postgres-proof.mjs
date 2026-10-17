@@ -19,7 +19,7 @@ async function owned() {
 async function cleanup(){const item=await owned();if(item)await docker(['rm','-f',item.Id]);assert.equal(await owned(),null);}
 if(process.argv.includes('--cleanup-only')){await cleanup();console.log('Anonymous proof container absent.');}
 else {
-  assert.equal(process.argv[2],'--out');assert.equal(process.argv.length,4);
+  assert.equal(process.argv[2],'--out');assert.equal(process.argv.length,process.argv.includes('--permissions')?5:4);
   const report={state:'pending',image,checks:[],productionWrites:false};
   await writeFile(process.argv[3],JSON.stringify(report),{mode:0o600,flag:'wx'});
   let admitted=false;
@@ -85,6 +85,45 @@ else {
     await sql('ALTER TABLE users OWNER TO postgres;');
     check((await sql("SELECT count(*) FROM users WHERE id=1 AND email='fixture@localley.test'")).trim()==='1','fixture_mutations_rolled_back');
     check((await sql("BEGIN;SET LOCAL ROLE service_role;UPDATE users SET email='server' WHERE id=1;ROLLBACK;")).includes('UPDATE 1'),'server_writes_preserved');
+    if(process.argv.includes('--permissions')) {
+      const {anonymousPermissionSql,anonymousPermissionCatalogSql}=await import('./source-owner-anon-permissions.mjs');
+      for(const [table,columns] of Object.entries(publicColumns)){
+        if(table==='spots'){
+          for(const column of columns.filter(c=>!['id','name'].includes(c)))await sql(`ALTER TABLE spots ADD COLUMN ${column} text`);
+        }else{
+          await sql(`CREATE TABLE ${table}(${columns.map(c=>c+' text').join(',')});ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;CREATE POLICY public_catalog ON ${table} FOR SELECT TO anon USING(true)`);
+        }
+        if(['geo_countries','geo_destinations','geo_local_areas','transfer_edges'].includes(table))await sql(`ALTER TABLE ${table} ADD COLUMN source_meta jsonb`);
+      }
+      await sql(`GRANT ALL ON ALL TABLES IN SCHEMA public TO anon,authenticated,service_role;DROP POLICY open_read ON users;
+        CREATE POLICY possible_insert ON users FOR INSERT TO anon WITH CHECK(true);
+        CREATE POLICY possible_update ON users FOR UPDATE TO anon USING(true);
+        CREATE POLICY possible_delete ON users FOR DELETE TO anon USING(true);`);
+      const fingerprint=async()=>JSON.parse(await sql(`SELECT row_to_json(q) FROM (${anonymousPermissionCatalogSql}) q`)).catalog_md5;
+      const original=await fingerprint();const operation=anonymousPermissionSql({expectedCatalogMd5:original,expectedRelations:10});
+      await sql(operation.replace(/COMMIT;$/,'ROLLBACK;'));
+      check(await fingerprint()===original,'permission_transaction_rollback_preserves_exact_catalog');
+      let drift=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:'0'.repeat(32),expectedRelations:10}));}catch(e){drift=/anon_guard_catalog_drift/.test(e.stderr??'');}
+      check(drift&&await fingerprint()===original,'permission_wrong_fingerprint_refused_atomically');
+      // A PUBLIC inherited grant cannot be removed by revoking only anon; the entire operation must roll back.
+      await sql('GRANT INSERT ON users TO PUBLIC');const inherited=await fingerprint();let refused=false;
+      try{await sql(anonymousPermissionSql({expectedCatalogMd5:inherited,expectedRelations:10}));}catch(e){refused=/anon_guard_inherited_mutation_grant/.test(e.stderr??'');}
+      check(refused&&await fingerprint()===inherited,'permission_inherited_grant_refused_atomically');await sql('REVOKE INSERT ON users FROM PUBLIC');
+      const exact=await fingerprint();await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:10}));
+      const restricted=await fingerprint();check(restricted!==exact,'permission_operation_changes_only_reviewed_metadata');
+      for(const table of ['users',...Object.keys(publicColumns)]){
+        const c=await catalog(table);check(c.anon_insert_blocked&&c.anon_update_blocked&&c.anon_delete_blocked,table+'_permission_dml_proof');
+        const column=table==='users'?'id':publicColumns[table][0];const literal=table==='users'||table==='spots'?'2':"'fixture'";
+        for(const [command,statement]of [['INSERT',`INSERT INTO ${table}(${column}) VALUES(${literal})`],['UPDATE',`UPDATE ${table} SET ${column}=${column}`],['DELETE',`DELETE FROM ${table}`],['TRUNCATE',`TRUNCATE ${table}`]])await denied(statement,table+'_permission_real_'+command+'_denial');
+        if(table!=='users')check(JSON.stringify(c.anon_select_columns)===JSON.stringify(publicColumns[table]),table+'_permission_public_projection');
+      }
+      await denied('SELECT discovered_by FROM spots','permission_live_shape_private_owner_column_denied');
+      const visible=await sql('BEGIN;SET LOCAL ROLE anon;SELECT count(id) FROM spots;SELECT count(*) FROM users;ROLLBACK;');check(visible.includes('1\n0'),'permission_public_catalog_private_zero_retained');
+      check((await sql("SELECT count(*) FROM users WHERE id=1 AND email='fixture@localley.test'")).trim()==='1','permission_all_fixture_rows_preserved');
+      check((await sql("BEGIN;SET LOCAL ROLE service_role;UPDATE users SET email='server' WHERE id=1;ROLLBACK;")).includes('UPDATE 1'),'permission_service_writes_retained');
+      let repeated=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:10}));}catch(e){repeated=/anon_guard_catalog_drift/.test(e.stderr??'');}
+      check(repeated&&await fingerprint()===restricted,'permission_stale_repeat_refused_without_changes');
+    }
     report.state='passed';
   } finally {
     if(admitted)await cleanup();report.containerRemoved=await owned()===null;

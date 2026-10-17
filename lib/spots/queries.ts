@@ -21,6 +21,9 @@ import {
   SCORE_LABELS,
 } from "./types";
 
+// Explicit projection keeps anonymous catalog reads compatible with private-column ACLs.
+export const PUBLIC_SPOT_SELECT = "id,name,description,location,address,category,subcategories,localley_score,local_percentage,best_times,photos,tips,verified,trending_score,created_at,review_count,average_rating,name_en_normalized,address_en_normalized,google_place_id,destination_id,local_area_id";
+
 const SPOTS_QUERY_PAGE_SIZE = 1000;
 const COMMUNITY_PROVENANCE_CACHE_VERSION = "community-provenance-v1";
 export const DEFAULT_SPOTS_QUERY_TIMEOUT_MS = 8000;
@@ -118,7 +121,7 @@ function applySpotSqlFilters(
   supabase: ReturnType<typeof createSupabaseClient>,
   filters: SpotsFilterState,
 ) {
-  let query = supabase.from("spots").select("*");
+  let query = supabase.from("spots").select(PUBLIC_SPOT_SELECT);
 
   query = applyPublicSpotVisibilityFilters(query);
 
@@ -218,7 +221,7 @@ async function fetchPublicCandidateRows(): Promise<{
   const rows: RawSpot[] = [];
 
   for (let from = 0; ; from += SPOTS_QUERY_PAGE_SIZE) {
-    let query = supabase.from("spots").select("*");
+    let query = supabase.from("spots").select(PUBLIC_SPOT_SELECT);
 
     query = applyPublicSpotVisibilityFilters(query).range(
       from,
