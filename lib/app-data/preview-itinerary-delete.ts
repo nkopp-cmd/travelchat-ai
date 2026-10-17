@@ -1,34 +1,34 @@
 import "server-only";
 import { previewAppDataReader } from "./preview-db";
 import { previewItineraryDetail } from "./preview-itinerary-detail";
+import { assertPreviewEditorOwner } from "./preview-itinerary-editor";
 
-const ownerSelect = `SELECT o.id FROM owners o LEFT JOIN legacy_owners l ON l.ownerId = o.id
-  WHERE (o.source = 'legacy-fixture' AND o.id = l.clerkUserId AND l.clerkUserId = ?)
-    OR (o.source = 'new' AND o.id = ? AND l.ownerId IS NULL)`;
+// Recheck identity provenance and media eligibility in every statement of the atomic batch.
+// Media-backed deletion needs its own accepted object cleanup; never orphan those references.
+const deletable = `SELECT i.id FROM itineraries i JOIN owners o ON o.id=i.ownerId
+  WHERE i.id=? AND i.ownerId=? AND o.source='new'
+    AND NOT EXISTS(SELECT 1 FROM legacy_owners l WHERE l.clerkUserId=? OR l.ownerId=i.ownerId)
+    AND NOT EXISTS(SELECT 1 FROM legacy_itinerary_media m WHERE m.itineraryId=i.id
+      AND (m.aiBackgrounds IS NOT NULL OR m.storySlides IS NOT NULL))`;
 
-/** Keep conversation history while removing its link, then remove metadata and the itinerary atomically. */
+/** Keep conversation history while removing its link, then remove empty metadata and the fresh trip atomically. */
 export async function deletePreviewItinerary(id: string, userId: string): Promise<"missing" | "forbidden" | "deleted"> {
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) return "missing";
+  const ownerId = await assertPreviewEditorOwner(userId);
   const before = await previewItineraryDetail(id, userId);
   if (before.state !== "found") return before.state;
   if (before.itinerary.clerk_user_id !== userId) return "forbidden";
 
   const db = previewAppDataReader();
-  const normalizedId = id.toLowerCase();
-  const ownerId = `auth:${userId}`;
+  const args = [id.toLowerCase(), ownerId, userId];
   const results = await db.batch([
     db.prepare(`UPDATE conversations SET linkedItineraryId = NULL
-      WHERE linkedItineraryId = ? AND EXISTS (SELECT 1 FROM itineraries i
-        WHERE i.id = conversations.linkedItineraryId AND i.ownerId IN (${ownerSelect}))`)
-      .bind(normalizedId, userId, ownerId),
-    db.prepare(`DELETE FROM legacy_itinerary_media WHERE itineraryId = ?
-      AND EXISTS (SELECT 1 FROM itineraries i WHERE i.id = legacy_itinerary_media.itineraryId
-        AND i.ownerId IN (${ownerSelect}))`)
-      .bind(normalizedId, userId, ownerId),
-    db.prepare(`DELETE FROM itineraries WHERE id = ? AND ownerId IN (${ownerSelect})`)
-      .bind(normalizedId, userId, ownerId),
+      WHERE linkedItineraryId IN (${deletable})`).bind(...args),
+    db.prepare(`DELETE FROM legacy_itinerary_media WHERE itineraryId IN (${deletable})`).bind(...args),
+    db.prepare(`DELETE FROM itineraries WHERE id IN (${deletable})`).bind(...args),
   ]);
-  if (!Array.isArray(results) || results.length !== 3 || results[2]?.meta?.changes !== 1) {
-    throw new Error("Preview itinerary delete failed");
-  }
+  if (!Array.isArray(results) || results.length !== 3) throw new Error("Preview itinerary delete failed");
+  if (results[2]?.meta?.changes === 0) return "forbidden";
+  if (results[2]?.meta?.changes !== 1) throw new Error("Preview itinerary delete failed");
   return "deleted";
 }
