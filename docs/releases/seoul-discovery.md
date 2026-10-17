@@ -6,6 +6,12 @@ PR432 source `dbd09ad27037545314ce397b1da641f47656a3fe`, required self-hosted CI
 
 Production Worker `19b90012-a85c-426c-a40e-9323ffaa5370` serves100%, deployment `be8a200a-16dc-42a7-9435-f5195356475d`. Rollback `ca4dfaf3-1d5d-4798-9957-257738fb7c01` was actually restored at `35e8ffd7-c0fa-4569-814e-f939bb7b84eb` after the1% canary. Canary25and default25checks pass: controlled free-owner login, real chat429atcap10 before provider, unchanged counter, public200including `/api/cities`, exact Source/Auth cleanup and both admins preserved. All55bindings remain equal; both watchdog timers stopped. Existing live Stripe four-price proof remains intact. No provider, price, schema, grant or D1 application-data switch occurs. [Exact quota evidence and limits](../ATOMIC_USAGE.md).
 
+## Current preview — owned candidate itinerary editor, 2026-10-17
+
+PR431 source `f587e2c5c8f0bf8c0b2694f1968fa6181ad9365d`, required CI38990695820 SUCCESS19m22s, merged `0f9a72965d54bf022e44f920185c21921356b698` with the same tree.38editor tests/5captured-contract tests/8full-schema fixture checks/lint/type/pinned build/artifact audit/reviews pass. Preview Worker `e08db2c5-5788-4fbb-94d8-3bd373f33420` serves100%, deployment `7cdc7953-3640-499f-93fb-1d6b8a90e3aa`. Prior version `6d621d4b-0747-4ace-afe9-14b987402037` remains rollback; actual restoration `f76bb5bc-a2f5-45a8-957a-42edd19e2874` passed after1% canary.
+
+Hosted60canary+60default checks prove real owned desktop/mobile save/reload/autosave/cancel, private denial contracts, no metadata loss and exact56table/Auth/outbox/verification cleanup. A further74checks prove all10rendered denial cases on both viewports. All12successful positive/denial screenshots were opened and inspected. Both timers are inactive;33preview bindings/import manifest/selected Source users8-subscriptions5hashes/both admins/production19b90012-be8a200a remain preserved. No Source write, paid provider, external delivery, SQL migration or production data switch. [Exact editor tests, failures, release and limits](../D1_ITINERARY_EDITOR.md).
+
 ## Historical production — bounded GLM correction, 2026-10-05
 
 Cloudflare OpenNext Worker `localley-next` serves www, apex and next.localley.io. Runtime source `ccf23a78dfea795a575a142402823cbf81dc0210` (PR295), tested head3a5f537, required self-hosted CI37299980586 SUCCESS10m12s and equal tree5b9b1383. Pinned production build and independent scoped release review passed. Worker `b42e8926-6b15-4875-85ec-44d39513832d` at100%, deployment `6f22f0cb-a8b8-4e8f-bf76-19965611b471`; rollback `a548f24e-1f17-4021-a830-219074baa337`.
@@ -14,7 +20,7 @@ One fresh received-email login and one actual live generation200 prove GLM5.2 pr
 
 Production application data remains on Supabase; Better Auth uses D1 AUTH_DB. Candidate D1/R2 development resumed under Nils's October3 direction; production data switch still requires full parity, rollback and canary gates. Production bindings remain unchanged, with no candidate application binding. The current preview release appears below. Notification SQL fallback PR283 remains draft; history/disposition and production cutover gates remain open. Native sync stays disabled/inactive because its legacy import is obsolete.
 
-## Current preview — fresh story background links, 2026-10-05
+## Historical preview — fresh story background links, 2026-10-05
 
 PR379 / runtime source `8e33fd00e3f669b0143fdce822a28fc9c2c467a8` passed required CI `37330608378`.
 Preview version `b3e8a3ef-10b3-45ce-a28a-23144d3b2ea8`, deployment `21cbffc9-e5e7-4ec5-b109-64c0bec59c66`, runs100%.
