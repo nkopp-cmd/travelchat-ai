@@ -77,3 +77,8 @@ root-method-live-attempt2-canary/rollback/promote-20261017.json,
 root-method-browser-attempt2/browser-inspected-attempt2-20261017.json,
 root-method-safety-proof-attempt2/flock-proof-20261017.json and the preserved first failed receipts.
 The delivery PR and root blocker plan Attempts176–177 record final repository cleanup and read-only reconciliation.
+
+
+## Subsequent host monitor release
+
+PR447 source1fbcdd9e/CI39021868298SUCCESS17m45s/mergebaac9083 adds provider-only version evidence to the daily report. All56monitoring tests and20actual host guards pass. The stable service09:56:50UTC exits0; five sampled events/ABR10 retain counts and coverage limits. Production3132337f/6a17bf4b and previewe08db2c5/7cdc7953 stay unchanged. No Worker upload, data or paid-provider change occurred. Monitor rollback source0676c795 is separate from application rollback83366b0c. [Exact host release and limits](PRODUCTION_USER_HEALTH.md#worker-version-evidence--released2026-10-17). U1/U2 acceptance stays unchanged; U3 remains open.
