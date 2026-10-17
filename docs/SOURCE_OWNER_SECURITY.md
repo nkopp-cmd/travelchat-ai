@@ -111,3 +111,19 @@ The dated full48table role audit also found three permissive PUBLIC saved_itiner
 Keep the compatible2c328128 runtime when handling unrelated incidents. The actually tested19b90012 rollback predates the privacy/permission change and is not an approved post-repair rollback. An exact-catalog emergency metadata restore is retained privately and was tested only on disposable Postgres; it reopens the known exposure. Never run it automatically. Full D1/data rollback, rehearsal, canary and production-switch gates remain separate and open. Supabase remains the live application data store and must not be cancelled or deleted.
 
 Private durable receipts under /home/dev/.local/state/localley include source-owner-metadata-operation-attempt2-20261017.json, source-owner-final-readonly-reconciliation-20261017.json, source-owner-live-{canary,default,token-preflight,post-policy}-20261017.json, source-owner-final-guard-20261017.json, exact-CI PostgreSQL proof, screenshot hashes and review verdicts. Row fingerprints and exact catalogs are retained; no actual customer row content or credentials were copied into these audit receipts. The compatible runtime delivery record is docs/releases/seoul-discovery.md. This evidence update changes documentation only and needs no Worker deployment.
+
+## Owner incident decision and anonymous regression — October17
+
+Nils confirmed the three readable email addresses belong to him.
+He confirmed no outside person was affected and no external notice is needed.
+APPROVALS records the decision; the same historical exposure NEED is closed.
+Keep all existing RLS containment. No policy or Source record was changed for this follow-up.
+
+Nils also confirmed: private tables must remain unreadable; retain public catalogs.
+The [catalog-wide regression](ANONYMOUS_READ_REGRESSION.md) now checks every current application relation without downloading records.
+PR464/d5207fdf passes required CI39054435856 and35focused tests.
+Its installed stable-main probe passes:39private tables protected, nine named public catalogs readable, unknown results0.
+Confirmed denials also require absent anonymous table and column SELECT privileges.
+All48application relations keep RLS; exact Source/Auth/admin and current Worker preservation checks pass.
+This is table-read coverage. The linked record states its RPC, extension, schema, Storage and empty-table limits.
+No incident notice, production-data import or Supabase retirement occurred.
