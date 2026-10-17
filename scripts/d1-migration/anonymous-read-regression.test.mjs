@@ -22,8 +22,9 @@ function fixture({ tables = [table('users'),table('messages')], counts = {}, sta
     if (url.endsWith('/auth/v1/settings')) return new Response(null,{ status: control });
     assert.equal(options.method,'HEAD');
     assert.equal(options.headers.Prefer,'count=exact');
-    assert.equal(new URL(url).search,'?select=*&limit=0');
     const name = new URL(url).pathname.split('/').at(-1);
+    assert.equal(new URL(url).searchParams.get('select'),publicColumns[name]?.join(',') ?? '*');
+    assert.equal(new URL(url).searchParams.get('limit'),'0');
     if (statuses[name] === 'throw') throw Error('private upstream error must not appear');
     return new Response(null,{ status: statuses[name] ?? 200,
       headers: { ...(counts[name] === null ? {} : { 'content-range': counts[name] ?? '*/0' }), ...(permissionCodes[name] ? { 'proxy-status': `PostgREST; error=${permissionCodes[name]}` } : {}) } });

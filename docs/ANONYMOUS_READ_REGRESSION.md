@@ -14,6 +14,7 @@ The stable server secret files supply the anonymous key and Management read-only
 The script pins the project, checks the JWT role/ref/expiry and verifies a key-authenticated control.
 It discovers every public application table/view from the physical catalog, excluding extension-owned relations only.
 It probes every relation with HEAD, limit=0 and count=exact; no row body is retrieved.
+Public probes select approved columns explicitly, so future column restrictions preserve catalog count checks.
 Permission denials require the PostgREST42501 Proxy-Status header and catalog proof of no anonymous table or column SELECT grant.
 This prevents a SELECT-star denial from hiding a readable individual column. JWT failures and absent proof remain unknown.
 The Auth settings control alone cannot prove PostgREST accepted its JWT; permission headers prevent that false pass.

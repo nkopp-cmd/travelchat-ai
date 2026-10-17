@@ -228,7 +228,7 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
       unexpectedPublicColumns: publicCatalogs.includes(table.name) ? table.anon_select_columns.filter(c => !publicColumns[table.name].includes(c)) : [],
       expectedAccess: publicCatalogs.includes(table.name) ? 'public_catalog' : 'private', status: null, count: null, state: 'unknown' };
     try {
-      const response = await request(`${origin}/rest/v1/${table.name}?select=*&limit=0`, {
+      const response = await request(`${origin}/rest/v1/${table.name}?select=${publicCatalogs.includes(table.name) ? publicColumns[table.name].join(',') : '*'}&limit=0`, {
         redirect: 'error', signal: AbortSignal.timeout(10000), method: 'HEAD', headers: { ...headers, Prefer: 'count=exact' },
       });
       row.status = response.status;
