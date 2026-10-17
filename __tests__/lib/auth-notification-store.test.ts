@@ -137,6 +137,10 @@ describe("additive canonical Auth notification storage; no delivery", () => {
   it("refuses corrupt stored content instead of dropping into another store", async () => {
     seed(ownerA, { createdAt: "not-a-date" }); await expect(store().inbox(page)).rejects.toThrow();
   });
+  it("maps corrupt stored JSON to the stable store error", async () => {
+    seed(); db.sqlite.exec("PRAGMA ignore_check_constraints=ON; UPDATE auth_notifications SET data='broken'; PRAGMA ignore_check_constraints=OFF");
+    await expect(store().inbox(page)).rejects.toThrow("Notification storage is unavailable.");
+  });
   it("stores, repeats and rotates a device without exposing a sender or producer", async () => {
     const input = push(); await store().savePush(input); await store().savePush(input);
     const rotated = push(input.endpoint); await store().savePush(rotated);

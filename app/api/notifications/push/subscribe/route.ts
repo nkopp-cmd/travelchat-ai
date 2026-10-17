@@ -1,3 +1,4 @@
+import { authNotificationResponse } from "@/lib/notifications/auth-http";
 import { auth } from "@/lib/auth/server";
 import { NextRequest, NextResponse } from "next/server";
 import { savePushSubscription, removePushSubscription } from "@/lib/notifications";
@@ -55,10 +56,16 @@ export async function POST(request: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         if (isPreviewNotificationCandidate(request)) return candidate(request, userId, false);
+
+        const stored = await authNotificationResponse(request, userId, "push");
+        if (stored) return stored;
 
         const body = await request.json();
 
@@ -91,10 +98,16 @@ export async function DELETE(request: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         if (isPreviewNotificationCandidate(request)) return candidate(request, userId, true);
+
+        const stored = await authNotificationResponse(request, userId, "push");
+        if (stored) return stored;
 
         const body = await request.json();
 

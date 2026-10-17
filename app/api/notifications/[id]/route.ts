@@ -1,3 +1,4 @@
+import { authNotificationResponse } from "@/lib/notifications/auth-http";
 import { auth } from "@/lib/auth/server";
 import { NextRequest, NextResponse } from "next/server";
 import { markNotificationRead, deleteNotification } from "@/lib/notifications";
@@ -17,7 +18,10 @@ export async function PATCH(
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         const { id } = await params;
@@ -33,6 +37,9 @@ export async function PATCH(
                 return NextResponse.json({ error: "Notifications unavailable" }, { status: 503, headers: candidateHeaders });
             }
         }
+        const stored = await authNotificationResponse(request, userId, "notification", id);
+        if (stored) return stored;
+
         const success = await markNotificationRead(userId, id);
 
         return NextResponse.json({ success });
@@ -50,7 +57,10 @@ export async function DELETE(
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         const { id } = await params;
@@ -66,6 +76,9 @@ export async function DELETE(
                 return NextResponse.json({ error: "Notifications unavailable" }, { status: 503, headers: candidateHeaders });
             }
         }
+        const stored = await authNotificationResponse(request, userId, "notification", id);
+        if (stored) return stored;
+
         const success = await deleteNotification(userId, id);
 
         return NextResponse.json({ success });

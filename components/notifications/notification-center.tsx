@@ -21,13 +21,13 @@ import { cn } from "@/lib/utils";
 
 function NotificationItem({
     notification,
-    isPreviewCandidate,
+    isWritable,
     onRead,
     onDelete,
     onClick,
 }: {
     notification: Notification;
-    isPreviewCandidate: boolean;
+    isWritable: boolean;
     onRead: () => void;
     onDelete: () => void;
     onClick: () => void;
@@ -64,13 +64,13 @@ function NotificationItem({
             </div>
 
             {/* Actions */}
-            <div className={cn("flex-shrink-0 transition-opacity flex gap-1",
-                isPreviewCandidate ? "opacity-100 sm:opacity-0 sm:group-hover:opacity-100" : "opacity-0 group-hover:opacity-100")}>
+            <div className="flex-shrink-0 transition-opacity flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                 {!notification.read && (
                     <Button
                         variant="ghost"
                         size="icon"
                         aria-label="Mark notification read"
+                        disabled={!isWritable}
                         className="h-7 w-7"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -84,6 +84,7 @@ function NotificationItem({
                     variant="ghost"
                     size="icon"
                     aria-label="Delete notification"
+                    disabled={!isWritable}
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={(e) => {
                         e.stopPropagation();
@@ -115,6 +116,7 @@ export function NotificationCenter() {
     const [isOpen, setIsOpen] = useState(false);
     const {
         isPreviewCandidate,
+        isWritable = true,
         error,
         notifications,
         unreadCount,
@@ -127,7 +129,7 @@ export function NotificationCenter() {
     } = useNotifications();
 
     const handleNotificationClick = async (notification: Notification) => {
-        if (!notification.read) {
+        if (!notification.read && isWritable) {
             await markAsRead(notification.id);
         }
         const url = getNotificationUrl(notification);
@@ -161,6 +163,7 @@ export function NotificationCenter() {
                                 size="sm"
                                 className="h-7 text-xs"
                                 onClick={markAllAsRead}
+                                disabled={!isWritable}
                             >
                                 <CheckCheck className="h-3 w-3 mr-1" />
                                 Mark all read
@@ -171,9 +174,9 @@ export function NotificationCenter() {
 
                 {/* Content */}
                 <ScrollArea className="h-[400px]">
-                    {isPreviewCandidate && error ? (
+                    {error ? (
                         <p role="status" className="p-4 text-sm text-muted-foreground">
-                            Preview notifications are currently unavailable.
+                            Notifications are currently unavailable.
                         </p>
                     ) : isLoading && notifications.length === 0 ? (
                         <div className="divide-y">
@@ -192,7 +195,7 @@ export function NotificationCenter() {
                                 <NotificationItem
                                     key={notification.id}
                                     notification={notification}
-                                    isPreviewCandidate={isPreviewCandidate}
+                                    isWritable={isWritable}
                                     onRead={() => markAsRead(notification.id)}
                                     onDelete={() => deleteNotification(notification.id)}
                                     onClick={() => handleNotificationClick(notification)}

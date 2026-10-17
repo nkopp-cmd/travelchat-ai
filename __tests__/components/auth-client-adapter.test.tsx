@@ -33,7 +33,7 @@ describe("client auth adapter", () => {
     const { result } = renderHook(() => ({ user: useUser(), auth: useAuth() }));
     await waitFor(() => expect(result.current.user.isLoaded).toBe(true));
     expect(result.current.user.isSignedIn).toBe(true);
-    expect(result.current.user.user).toMatchObject({ id: "user_38VR1", firstName: "Nils", lastName: "Kopp", imageUrl: "https://img/x", unsafeMetadata: { bio: "Hi" } });
+    expect(result.current.user.user).toMatchObject({ id: "user_38VR1", emailVerified: true, firstName: "Nils", lastName: "Kopp", imageUrl: "https://img/x", unsafeMetadata: { bio: "Hi" } });
     expect(result.current.auth).toMatchObject({ isLoaded: true, isSignedIn: true, userId: "user_38VR1" });
 
     await result.current.user.user!.update({ firstName: "N", lastName: "K", unsafeMetadata: { bio: "New" } });
