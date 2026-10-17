@@ -1,0 +1,83 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { anonymousKey, anonymousCatalogSql, checkAnonymousReads } from './anonymous-read-regression.mjs';
+
+const token = payload => ['e30',Buffer.from(JSON.stringify(payload)).toString('base64url'),'signature'].join('.');
+const anonKey = token({ role: 'anon', ref: 'llehrhqeolfprutcaopi' });
+const credentials = { anonKey, accessToken: 'not-a-real-management-token' };
+const table = name => ({ name, kind: 'r', rls: true });
+function fixture({ tables = [table('users'),table('messages')], counts = {}, statuses = {}, control = 200, catalogStatus = 200, catalogBody } = {}) {
+  const calls = [];
+  const request = async (url, options) => {
+    calls.push({ url, options });
+    assert.equal(options.redirect,'error');
+    if (url.includes('api.supabase.com')) {
+      assert.equal(options.method,'POST');
+      assert.equal(JSON.parse(options.body).query, anonymousCatalogSql);
+      return new Response(catalogBody ?? JSON.stringify(tables),{ status: catalogStatus });
+    }
+    assert.equal(options.headers.apikey,anonKey);
+    assert.equal(options.headers.Authorization,`Bearer ${anonKey}`);
+    if (url.endsWith('/auth/v1/settings')) return new Response(null,{ status: control });
+    assert.equal(options.method,'HEAD');
+    assert.equal(options.headers.Prefer,'count=exact');
+    assert.equal(new URL(url).search,'?select=*&limit=0');
+    const name = new URL(url).pathname.split('/').at(-1);
+    if (statuses[name] === 'throw') throw Error('private upstream error must not appear');
+    return new Response(null,{ status: statuses[name] ?? 200,
+      headers: counts[name] === null ? {} : { 'content-range': counts[name] ?? '*/0' } });
+  };
+  return { calls, request };
+}
+
+test('accepts only the pinned project anonymous JWT, never service-role or foreign keys', () => {
+  assert(anonymousKey(anonKey));
+  for (const key of [undefined,'', 'sb_secret_private', token({role:'service_role',ref:'llehrhqeolfprutcaopi'}),token({role:'anon',ref:'foreign'}),token({role:'anon'}),'not.a.key']) assert.equal(anonymousKey(key),false);
+});
+test('rejects unsafe credentials before any network request', async () => {
+  let calls = 0; await assert.rejects(checkAnonymousReads({ ...credentials, anonKey: token({role:'service_role'}) },async()=>{calls++;}),/invalid_credentials/);assert.equal(calls,0);
+});
+test('all physical relations are probed with the actual anonymous key and HEAD, never row retrieval', async () => {
+  const f=fixture({tables:[table('users'),table('messages'),table('new_private_table')]});
+  const r=await checkAnonymousReads(credentials,f.request);
+  assert.equal(r.state,'passed');assert.equal(r.relationCount,3);assert.equal(r.rowsRetrieved,0);assert.deepEqual(r.publicExceptions,[]);
+  assert.deepEqual(f.calls.filter(c=>c.options.method==='HEAD').map(c=>new URL(c.url).pathname),['/rest/v1/users','/rest/v1/messages','/rest/v1/new_private_table']);
+});
+test('one visible row fails the entire run, including an intended public catalog', async () => {
+  const f=fixture({tables:[table('users'),table('spots')],counts:{spots:'*/3295'},statuses:{spots:206}}),r=await checkAnonymousReads(credentials,f.request);
+  assert.equal(r.state,'failed');assert.deepEqual(r.results.map(t=>t.state),['zero_rows','exposed_rows']);assert.equal(r.results[1].count,3295);assert.equal(r.results[1].status,206);
+});
+test('permission denial is explicit and is never called a zero count', async () => {
+  const f=fixture({statuses:{users:403,messages:401}}),r=await checkAnonymousReads(credentials,f.request);
+  assert.equal(r.state,'passed');assert(r.results.every(t=>t.state==='access_denied'&&t.count===null));
+});
+for (const count of [null,'*/*','0-0/0','*/-1','*/01','*/9007199254740992','*/0 garbage']) {
+  test(`unknown or malformed count fails closed: ${String(count)}`,async()=>{
+    const f=fixture({counts:{users:count}}),r=await checkAnonymousReads(credentials,f.request);
+    assert.equal(r.state,'failed');assert.equal(r.results[0].state,'unknown');assert.equal(r.results[0].count,null);
+  });
+}
+for (const status of [404,429,500,'throw']) {
+  test(`unavailable relation remains a failure: ${status}`,async()=>{
+    const f=fixture({statuses:{users:status}}),r=await checkAnonymousReads(credentials,f.request);
+    assert.equal(r.state,'failed');assert.equal(r.results[0].count,null);assert(!JSON.stringify(r).includes('private upstream error'));
+    assert.equal(f.calls.filter(c=>c.options.method==='HEAD').length,2,'continues other tables without retrying a failed table');
+  });
+}
+test('a failed key control cannot turn blanket denials into a passing check',async()=>{
+  const f=fixture({control:401,statuses:{users:403,messages:403}});await assert.rejects(checkAnonymousReads(credentials,f.request),/anonymous_key_control_unavailable/);assert.equal(f.calls.filter(c=>c.options.method==='HEAD').length,0);
+});
+for (const tables of [[],[table('users'),table('users')],[table('../users')],[{name:'users',kind:'r',rls:null}],Array.from({length:201},(_,i)=>table('table_'+i))]) {
+  test('invalid or ambiguous physical catalog refuses incomplete coverage',async()=>{
+    const f=fixture({tables});await assert.rejects(checkAnonymousReads(credentials,f.request),/invalid_catalog/);assert.equal(f.calls.length,1);
+  });
+}
+test('catalog HTTP failure and malformed JSON never become zero tables',async()=>{
+  await assert.rejects(checkAnonymousReads(credentials,fixture({catalogStatus:403}).request),/catalog_unavailable/);
+  await assert.rejects(checkAnonymousReads(credentials,fixture({catalogBody:'malformed private diagnostics'}).request));
+});
+test('catalog includes ordinary, partitioned, foreign, view and materialized relations; only extension-owned relations are excluded',async()=>{
+  assert.match(anonymousCatalogSql,/pg_catalog\.pg_depend/);assert.match(anonymousCatalogSql,/d\.deptype='e'/);
+  const tables=['r','p','f','v','m'].map((kind,i)=>({...table('relation_'+i),kind}));
+  const r=await checkAnonymousReads(credentials,fixture({tables}).request);assert.equal(r.relationCount,5);assert.equal(r.state,'passed');
+});
