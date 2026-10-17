@@ -127,3 +127,65 @@ Private `d1-copy-fix-final`, `hosted-attempt2`, both fixture-cleanup receipts, `
 `build` and `default-version-audit` retain exact tests, source, deployment, cleanup and failure evidence.
 This closes only the isolated owned-trip duplicate API gate. Remaining routes, browser actions,
 full current-data/media parity, executed production rollback and the final switch remain separate gates.
+
+
+## Browser copy control accepted — 2026-10-17
+
+PR456 source `b3c3bcc960935f46633096b995f901ff1b0a36c3` adds the copy control to the admitted candidate detail branch.
+Merge `ead308442e9e0bf60f8aff9eba1cc89877b6c123` has the same tested tree.
+Required self-hosted [CI39041588461](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/39041588461) passes17m47s.
+The focused supplied-source review reports PASS and no P0/P1 finding; it performs no separate file inspection.
+
+### Scope and exact checks
+
+The server admits only the exact preview host, explicit `data_candidate=d1`, existing preview flags,
+and verified reserved fresh owners. The button sends the canonical admitted actor header to the existing API.
+A synchronous lock prevents duplicate rapid clicks. A25second timeout aborts stalled requests.
+An uncertain response offers the candidate trip list and never retries automatically.
+Success requires the D1 header, a different valid ID, the same owner, private draft defaults and a null share code.
+The saved result links to the owned copy with opt-in retained; prefetch remains disabled.
+Titles above193UTF-16code units have no copy action, preserving the API's200unit limit after the suffix.
+Normal preview and www Source controls remain unchanged.
+
+The exact focused test command is:
+
+```sh
+npx vitest run __tests__/components/preview-copy-button.test.tsx __tests__/lib/itinerary-copy-candidate-url.test.ts __tests__/app/itinerary-detail-candidate-page.test.tsx __tests__/api/itinerary-duplicate-candidate.test.ts __tests__/lib/app-data-preview-itinerary-duplicate.test.ts --maxWorkers=1
+```
+
+All59tests, focused ESLint, `tsc --noEmit` and `git diff --check` pass.
+The tests cover rapid clicks, timeout/no retry, actor/private response validation, title193/194limits,
+opt-in preservation, server admission and unchanged Source controls.
+A fresh public-only pinned `npm run cf:build` passes;71private values produce0artifact hits.
+All six direct cleanup safety cases pass. The inactive upload passes13guards with all33binding definitions preserved.
+
+### Actual browser release and rollback
+
+- Preview Worker: `66e84452-82e7-4702-9c5c-95cf87e6fdde`.
+- Initial1% deployment: `6b248add-7f39-4815-8250-9c0e38d8d7bf`.
+- Executed rollback: `347d749c-5286-4e26-8197-b5e488059ba7`, restoring `9354e5af-9824-419e-bed4-0e4e18a0af37` at100%.
+- Final default preview: `5be84ba8-49ce-4df4-b58a-d4db13263714`, serving the new version at100%.
+
+The guarded hosted controller passes43checks. Two reserved users complete real signup, outbox verification and session checks.
+Playwright performs one actual copy-button action on desktop1440x1000 under the explicit version override.
+After the real rollback and final preview promotion, it waits60seconds and performs one actual mobile390x844action without an override.
+Each browser run passes16checks. No write occurs before the click; each action sends exactly one POST with the admitted owner header.
+Each result shows a disabled saved button and the correct owned link. Actual link navigation and reload retain opt-in and the saved title.
+The native API reload matches the exact saved response. SQL proves one new private draft per action, preserved content and unchanged original.
+Foreign public-trip, actor-mismatch, anonymous and missing-ID API calls receive403/403/401/404.
+All denied calls preserve candidate rows and expose no private subtitle. These are native API denials, not browser denial screenshots.
+All six actual before/saved/copy screenshots were inspected. Both viewports have44pixel copy targets, no horizontal overflow and no page exceptions.
+The browser blocks unrelated writes and external provider requests; it never uses a native POST as a substitute for the UI action.
+
+Exact cleanup restores all55candidate and8preview Auth business-table hashes/counts, with0foreign-key errors.
+The lease closes and the independent timer/service stop. Shared rate counters and mailbox sequences remain monotonic.
+Fresh final verification passes26guards: exact deployments, all33preview bindings, all48Source row hashes,
+production Auth counts, both full admin rows, exact fixture snapshots, retained screenshots and inactive safety units.
+Production and preview root, sign-in and city API checks return200 with complete bodies; preview has0cron schedules.
+Production Worker `3132337f-a1bc-4ff5-a780-bdbe7a65e557` and deployment `6a17bf4b-e2c1-435b-999e-25614fadbaec` remain unchanged.
+No production data switch, media/provider call, external email or payment occurs.
+
+Private `d1-copy-ui-{ci,build,reviewed-checks,safety-test,upload,hosted,browser-desktop,browser-mobile,fixture-cleanup,final}` receipts,
+the inspected PNGs and the full-source helper archive retain acceptance proof.
+This closes only the reserved fresh-owner candidate browser-copy gate. Remaining routes, full current-data/media parity,
+production rollback/canary and the final switch remain separate open gates. Supabase is still required.
