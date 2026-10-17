@@ -13,6 +13,7 @@ import { recordEventTime, summarizeEventTime } from './production-health/event-t
 import { checkCityCatalog } from './production-health/city-catalog.mjs';
 import { errorRouteGroup } from './production-health/route-groups.mjs';
 import { summarizeWorkerVersions } from './production-health/worker-versions.mjs';
+import { checkPageBody } from './production-health/page-body.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -34,8 +35,8 @@ const health = await Promise.all(['/', '/sign-in', '/api/cities?noCache=true&inc
   try {
     const response = await fetch(`https://www.localley.io${path}`, { redirect: 'error', signal: AbortSignal.timeout(25000) });
     const catalog = path.startsWith('/api/cities?') ? await checkCityCatalog(response) : undefined;
-    if (!catalog) await response.body?.cancel();
-    return { path: path.split('?')[0], status: response.status, ...(catalog ? { catalog } : {}) };
+    const pageBody = catalog ? undefined : await checkPageBody(response);
+    return { path: path.split('?')[0], status: response.status, ...(catalog ? { catalog } : { pageBody }) };
   } catch { return { path: path.split('?')[0], status: null, error: 'request failed or timed out' }; }
 }));
 const query = {
@@ -101,4 +102,4 @@ const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, servic
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
 console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, ...(sourceDatabase ? { sourceDatabase } : {}), report: destination }));
-if (sourceDatabase?.usable === false || !logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false)) process.exitCode = 1;
+if (sourceDatabase?.usable === false || !logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false || check.pageBody?.usable === false)) process.exitCode = 1;
