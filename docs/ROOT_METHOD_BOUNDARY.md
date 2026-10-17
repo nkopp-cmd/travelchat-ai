@@ -195,3 +195,12 @@ Production3132337f/6a17bf4b remains unchanged. No browser delete control or prod
 The [October17 production response check](CURRENT_SIGNED_IN_RESPONSE_PROOF.md) passed76 bounded checks across five pages and two viewports.
 All ten document and ten RSC bodies completed; exact fixture cleanup and Source/Auth/Worker preservation passed.
 This does not explain historical RSC failures. Mobile screenshot findings remain open in that record.
+
+## Current compatibility release and stopped preview follow-up
+
+PR467 source4ce70c3d/CI39063107094/merge74cb4be3 releases production037dee7f at100% on82e0a7f9.
+Its25canary/25default/eightbrowser checks and actual rollback2c0581c2 pass; all existing bindings/data remain preserved.
+PR468 source8ed9919a/CI39073760378/merge3326b26c prepares a preview-only public-review service binding.
+Two hosted preview attempts return503; actual rollback61a63820 restoresa397be3d100%.
+No Source permission SQL runs. Exposure-review approval stays closed and all48Source tables retain RLS.
+[Exact builds, checks, rollback, failure limits and independent signed-in evidence](ANONYMOUS_PERMISSION_CONTAINMENT.md#second-preview-attempt-stopped--2026-10-17).

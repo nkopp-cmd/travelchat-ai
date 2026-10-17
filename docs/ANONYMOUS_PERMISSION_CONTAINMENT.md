@@ -144,3 +144,52 @@ The service-binding correction passes24focused Vitest tests, scoped lint and Typ
 Pinned Wrangler generates the service Fetcher type successfully after creating its ignored output directory.
 Its first focused gate catches a test-file URL assumption; the corrected second gate passes.
 Required exact-head CI and the single remaining hosted retry are pending.
+
+## Second preview attempt stopped — 2026-10-17
+
+PR468 source8ed9919aac599394a6a4ac6c2d3354d5f6b442be passes required CI39073760378.
+It merges as3326b26cde50770bf8ba3f49e5ee113fe3855446 with the exact tested tree.
+The24focused tests, lint, TypeScript, generated binding type and public-only build pass.
+The build scans71private values and finds zero hits.
+Inactive upload3cef59a4-88ab-4f6b-a9d0-82af5a4c3623 passes19guards.
+It retains all33previous preview bindings and adds only PUBLIC_REVIEW_SOURCE targeting localley-next.
+Production57bindings/fourcrons and preview0crons remain unchanged.
+
+The corrected1% hosted retry passes the same five public routes, then public reviews again return503.
+The bounded diagnostic label is upstream_exception; the underlying cause remains unproved.
+No raw error, response payload or credential is retained in that diagnostic.
+The actual safety rollback restores a397be3d-8798-4c72-9abd-4975f4e6d855 at100%.
+Its deployment is61a63820-48b3-4c87-9823-f12b8c343e90.
+The release stops after two hosted failures. No third canary or Source permission operation runs.
+The prepared application grant repair and full51relation regression remain open.
+The separate PostGIS owner-grant NEED remains open; the exposure-review NEED remains closed.
+
+Production remains037dee7f-555b-45f3-89cd-44174301f6d5 at100% on82e0a7f9-6ac9-4fab-b76c-545a807d86b1.
+All48Source row counts/full hashes, Auth counts and both administrator records remain preserved.
+All48application tables still have RLS. All four owned safety/fixture timers are inactive or collected.
+The initial final-state guard incorrectly requires exit3 for a collected transient timer.
+The corrected read-only guard checks ActiveState/SubState/LoadState without another feature attempt.
+
+Independent production proof passes76checks across dashboard, itineraries, profile, settings and chat.
+Ten document and ten RSC bodies finish across desktop/mobile; the owned Auth fixture is removed.
+All ten screenshots were opened. Existing mobile settings-bar and chat-title overlaps remain open findings.
+Observed API request attempts through networkidle are4on dashboard/itineraries/chat,3onprofile and6onsettings.
+The same-origin forwarding gate adds latency and blocks unallowed traffic.
+This proves bounded completed responses, not full journey acceptance, one database round trip or field INP.
+The performance parent remains open. Document-declared initial scripts alone total341928gzip bytes onhome,
+335958onpricing and364275onspots, using level9 recompression; dynamic chunks and wire transfer remain separate.
+
+Private durable receipts are anon-review-service-stopped-20261017.json,
+anon-review-service-final-stop-guards-20261017.json and anon-permission-pregrant-rsc-browser-20261017.json.
+Keep both failed hosted receipts and all rollback evidence.
+Continue from the upstream_exception diagnosis only under a renewed instruction for this stopped item.
+Do not apply Source grants before a compatible preview succeeds.
+
+The corrected final-state guard passes10checks; all four transient timer units are collected, inactive and dead.
+Independent Lighthouse13.5 after the production release also completes without failed requests.
+Mobile simulated4G LCP8591.862ms/TBT410.919ms compares with9386.228ms/1479.950ms before.
+Desktop LCP1753.224ms/TBT30.5ms compares with1833.445ms/58.5ms before; both CLS values remain0.
+These samples do not meet mobile1200ms/desktop600ms budgets or establish field INP.
+The script transfer sizes remain371371mobile/502273desktop bytes; gzip inventory is separate.
+Private reports are perf-after-lighthouse-summary-20261017.json and the complete mobile/desktop reports.
+No public cache, provider selection, pricing, paid generation or Source data switch changes.
