@@ -551,3 +551,14 @@ Network and root error diagnosis remain open. Their historical presence does not
 No Worker, Source/Auth row, mail, provider, billing, external sender or production flag changes.
 Release by merging green reviewed code, updating the stable main checkout, and running the existing health service.
 The production Worker and compatible rollback remain83366b0c and70a278a5; do not restore a Source-only reader.
+
+
+The exact candidate passes51monitoring tests, syntax/diff checks and an independent no-P0/P1 review.
+Its actual07:50:34UTC production read query retains all35events,14network events,4root unknown events,
+2HTTP500 events and3preference503 events; the twelve push console/HTTP events now share a fixed storage class.
+Their status split remains6HTTP503 and6unknown console statuses. Event timestamps and top-five route counts are unchanged.
+A console error and HTTP failure can describe the same request; their one-to-one pairing is not proven here.
+Preference console markers and HTTP503 retain separate labels. Do not add these groups as distinct failed requests.
+The query is ABR1 and nontruncated, with the same ingestion-delivery limits as the installed monitor.
+Private candidate evidence: `notification-health-candidate-20261017.json` and the frozen `users-first-u3-baseline-20261017.json`.
+Required exact-head CI, stable service release, final Worker readback and cleanup remain delivery gates.
