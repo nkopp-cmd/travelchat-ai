@@ -222,3 +222,5 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Current release evidence is in `docs/releases/seoul-discovery.md`.
 
 - For Next.js private-page denial tests, retain status and body before assertions. Verify the denial UI and absent private content; streamed notFound may return200. Check each API handler's actual forbidden/missing contract separately.
+
+- For root RSC checks, permit one same-origin root307 redirect with `_rsc`. Require200 after it and retain both responses.
