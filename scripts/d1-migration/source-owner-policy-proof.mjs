@@ -173,7 +173,7 @@ if (cleanupOnly) {
       ALTER TABLE itineraries ADD COLUMN subtitle text, ADD COLUMN city text, ADD COLUMN days integer, ADD COLUMN activities jsonb DEFAULT '[]',
         ADD COLUMN local_score numeric, ADD COLUMN highlights text[], ADD COLUMN estimated_cost text, ADD COLUMN status text DEFAULT 'draft', ADD COLUMN is_favorite boolean DEFAULT false;
       CREATE TABLE saved_itineraries(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,clerk_user_id text,itinerary_id uuid REFERENCES itineraries(id),UNIQUE(clerk_user_id,itinerary_id));
-      CREATE TABLE spot_reviews(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,spot_id uuid REFERENCES spots(id),clerk_user_id text,rating integer,comment text,visit_date date,updated_at timestamptz,created_at timestamptz DEFAULT now());
+      CREATE TABLE spot_reviews(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,spot_id uuid REFERENCES spots(id),clerk_user_id text,rating integer,comment text,visit_date date,helpful_count integer DEFAULT 0,updated_at timestamptz,created_at timestamptz DEFAULT now());
       ALTER TABLE saved_itineraries ENABLE ROW LEVEL SECURITY; ALTER TABLE spot_reviews ENABLE ROW LEVEL SECURITY;
       GRANT ALL ON saved_itineraries TO anon,authenticated,service_role; GRANT ALL ON spot_reviews TO authenticated,service_role;
       CREATE POLICY "Users can save itineraries" ON saved_itineraries FOR INSERT TO PUBLIC WITH CHECK(true);
@@ -222,7 +222,8 @@ if (cleanupOnly) {
       cwd: process.cwd(), encoding:'utf8',timeout:90000,maxBuffer:1024*1024,signal:childAbort.signal,
       env:{...process.env,LOCALLEY_SOURCE_OWNER_PROOF_KEY:key},
     });
-    check(/6 passed/.test(integration.stdout),'six_actual_handler_postgres_integration_tests');
+    report.integrationStdout=integration.stdout;
+    check(/7 passed/.test(integration.stdout),'seven_actual_handler_postgres_integration_tests');
     assert(!interrupted, 'proof_interrupted'); report.state = 'passed';
   } catch (error) {
     report.state = 'failed'; report.error = error.message;

@@ -45,6 +45,10 @@ on:
       - '__tests__/hooks/auth-notification-ownership.test.tsx'
       - 'components/seo/json-ld.tsx'
       - 'lib/source-itinerary-access.ts'
+      - 'lib/source-public-reviews.ts'
+      - '__tests__/lib/source-public-reviews.test.ts'
+      - 'lib/spots/queries.ts'
+      - '__tests__/lib/spots-query-public-rows.test.ts'
       - 'scripts/d1-migration/source-owner-*'
       - 'scripts/d1-migration/anonymous-read-*'
       - 'app/api/user/saved-itineraries/route.ts'
@@ -402,9 +406,10 @@ jobs:
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
             node --test scripts/d1-migration/notification-history-report.test.mjs
             node --check scripts/d1-migration/notification-history-report.test.mjs
-            node --test scripts/d1-migration/anonymous-read-regression.test.mjs
+            node --test scripts/d1-migration/anonymous-read-regression.test.mjs scripts/d1-migration/source-owner-anon-permissions.test.mjs
+            npx vitest run __tests__/lib/spots-query-public-rows.test.ts __tests__/lib/spots-query-timeout.test.ts __tests__/lib/source-public-reviews.test.ts --maxWorkers=1
             node --check scripts/d1-migration/anonymous-read-regression.mjs
-            node scripts/d1-migration/anonymous-read-postgres-proof.mjs --out "$RUNNER_TEMP/localley-anon-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+            node scripts/d1-migration/anonymous-read-postgres-proof.mjs --out "$RUNNER_TEMP/localley-anon-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json" --permissions
             node --test scripts/d1-migration/runtime-inventory.test.mjs
             node --test scripts/d1-migration/editor-proof-contract.test.mjs
             node --check scripts/d1-migration/runtime-inventory.mjs
@@ -462,6 +467,14 @@ jobs:
         run: |
           node scripts/d1-migration/source-owner-policy-proof.mjs --cleanup-only
           node scripts/d1-migration/anonymous-read-postgres-proof.mjs --cleanup-only
+      - name: Retain anonymous access proof report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: ignore
+
       - name: Retain Source owner proof report
         if: always()
         uses: actions/upload-artifact@v4

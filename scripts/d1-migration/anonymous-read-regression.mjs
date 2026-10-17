@@ -147,7 +147,7 @@ export const publicColumns = Object.freeze(Object.fromEntries(Object.entries({
     "updated_at"
   ]
 }).map(([name,columns]) => [name,Object.freeze(columns)])));
-// Conservative proof: no DML privilege OR RLS with no potentially allowing permissive policy.
+// Conservative read/write proof: no privilege OR RLS with no potentially allowing permissive policy.
 // Arbitrary SQL predicates/restrictive-policy combinations are not evaluated as "safe".
 const blockedWriteSql = (command, privilege) => `NOT (
  (pg_catalog.has_table_privilege('anon',c.oid,'${privilege}')${command === 'd' ? '' : ` OR pg_catalog.has_any_column_privilege('anon',c.oid,'${privilege}')`})
@@ -160,9 +160,15 @@ const blockedWriteSql = (command, privilege) => `NOT (
  AND ${command === 'a' ? "COALESCE(pg_catalog.pg_get_expr(p.polwithcheck,p.polrelid),pg_catalog.pg_get_expr(p.polqual,p.polrelid),'true') <> 'false'" : "COALESCE(pg_catalog.pg_get_expr(p.polqual,p.polrelid),'true') <> 'false'"}
  ${command === 'w' ? "AND COALESCE(pg_catalog.pg_get_expr(p.polwithcheck,p.polrelid),pg_catalog.pg_get_expr(p.polqual,p.polrelid),'true') <> 'false'" : ''}
  )) )`;
-export const anonymousCatalogSql = `SELECT c.relname AS name,c.relkind AS kind,c.relrowsecurity AS rls,
+const extensionMutationsSql = `(SELECT COALESCE(jsonb_agg(jsonb_build_object('table',c.relname,'kind',c.relkind,
+ 'insertBlocked',${blockedWriteSql('a','INSERT')},'updateBlocked',${blockedWriteSql('w','UPDATE')},'deleteBlocked',${blockedWriteSql('d','DELETE')}) ORDER BY c.relname),'[]'::jsonb)
+ FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+ WHERE n.nspname='public' AND c.relkind IN('r','p','v','m','f') AND EXISTS(SELECT 1 FROM pg_catalog.pg_depend d
+ WHERE d.classid='pg_catalog.pg_class'::regclass AND d.objid=c.oid AND d.deptype='e'))`;
+export const anonymousCatalogSql = `SELECT ${extensionMutationsSql} AS extension_mutations,c.relname AS name,c.relkind AS kind,c.relrowsecurity AS rls,
  pg_catalog.has_table_privilege('anon',c.oid,'SELECT') AS anon_table_select,
  pg_catalog.has_any_column_privilege('anon',c.oid,'SELECT') AS anon_column_select,
+ ${blockedWriteSql('r','SELECT')} AS anon_select_blocked,
  ${blockedWriteSql('a','INSERT')} AS anon_insert_blocked,
  ${blockedWriteSql('w','UPDATE')} AS anon_update_blocked,
  ${blockedWriteSql('d','DELETE')} AS anon_delete_blocked,
@@ -211,9 +217,13 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
   if (!Array.isArray(tables) || tables.length < 1 || tables.length > 200
     || tables.some(t => !/^[a-z][a-z0-9_]{0,62}$/.test(t.name) || !['r','p','v','m','f'].includes(t.kind)
       || typeof t.rls !== 'boolean' || typeof t.anon_table_select !== 'boolean' || typeof t.anon_column_select !== 'boolean'
-      || ['anon_insert_blocked','anon_update_blocked','anon_delete_blocked'].some(k => typeof t[k] !== 'boolean')
+      || ['anon_select_blocked','anon_insert_blocked','anon_update_blocked','anon_delete_blocked'].some(k => typeof t[k] !== 'boolean')
       || !Array.isArray(t.anon_select_columns) || t.anon_select_columns.some(c => typeof c !== 'string' || !/^[a-z][a-z0-9_]{0,62}$/.test(c))
       || new Set(t.anon_select_columns).size !== t.anon_select_columns.length) || new Set(tables.map(t => t.name)).size !== tables.length) throw Error('invalid_catalog');
+  const extensions=tables[0].extension_mutations;
+  if(!Array.isArray(extensions)||extensions.length>200||extensions.some(e=>!e||!/^[a-z][a-z0-9_]{0,62}$/.test(e.table)||!['r','p','v','m','f'].includes(e.kind)||['insertBlocked','updateBlocked','deleteBlocked'].some(k=>typeof e[k]!=='boolean'))
+    ||new Set(extensions.map(e=>e.table)).size!==extensions.length||tables.some(t=>JSON.stringify(t.extension_mutations)!==JSON.stringify(extensions)))throw Error('invalid_extension_mutation_catalog');
+  const extensionResults=extensions.map(e=>({...e,writesBlocked:e.insertBlocked&&e.updateBlocked&&e.deleteBlocked}));
   const headers = { apikey: anonKey, Authorization: `Bearer ${anonKey}` };
   // A successful key-authenticated control prevents a revoked/bad key from making all tables appear protected.
   const control = await request(`${origin}/auth/v1/settings`, { ...options, method: 'GET', headers });
@@ -223,6 +233,7 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
   for (const table of tables) {
     const row = { table: table.name, relationKind: table.kind, rls: table.rls,
       anon_table_select: table.anon_table_select, anon_column_select: table.anon_column_select,
+      privateReadBlocked:table.anon_select_blocked,
       writesBlocked: ['anon_insert_blocked','anon_update_blocked','anon_delete_blocked'].every(k => table[k]),
       possibleWrites: ['insert','update','delete'].filter(k => !table[`anon_${k}_blocked`]),
       unexpectedPublicColumns: publicCatalogs.includes(table.name) ? table.anon_select_columns.filter(c => !publicColumns[table.name].includes(c)) : [],
@@ -247,15 +258,18 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
     } catch { row.state = 'request_failed'; }
     results.push(row);
   }
-  return { at: new Date().toISOString(), project, state: results.every(r => r.writesBlocked && r.unexpectedPublicColumns.length === 0 && (r.expectedAccess === 'public_catalog' ? r.state === 'public_catalog' : ['zero_rows','access_denied'].includes(r.state))) ? 'passed' : 'failed',
-    relationCount: tables.length, results,
+  const applicationPassed=results.every(r => r.writesBlocked && r.unexpectedPublicColumns.length === 0 && (r.expectedAccess === 'public_catalog' ? r.state === 'public_catalog' : r.privateReadBlocked && ['zero_rows','access_denied'].includes(r.state)));
+  const extensionPassed=extensionResults.every(r=>r.writesBlocked);
+  return { at: new Date().toISOString(), project, state: extensionPassed && applicationPassed ? 'passed' : 'failed',
+    applicationState:applicationPassed?'passed':'failed',extensionMutationState:extensionPassed?'passed':'failed',
+    relationCount: tables.length, results, extensionResults, mutationRelationCount: tables.length+extensions.length,
     privateRelationCount: results.filter(r => r.expectedAccess === 'private').length,
     publicExceptions: results.filter(r => r.expectedAccess === 'public_catalog').map(r => r.table), rowsRetrieved: 0,
     limits: ['A zero count proves current visibility only; seeded policy tests are required for empty tables.',
       'Permission denial requires42501 and no anonymous table or column SELECT privilege; partial column access fails closed.',
       'Write proof uses effective grants and conservative applicable policy analysis; unknown predicates fail closed, not a live DML probe.',
       'Public column allowlists detect schema exposure, not private values nested inside otherwise approved public fields.',
-      'Coverage excludes extension-owned relations, RPC functions, other schemas and Storage buckets.',
+      'Read/column coverage excludes extension-owned relations; mutation checks include every public relation. RPC functions, other schemas and Storage are excluded.',
       'No policy, row, secret, mail, provider or Worker change occurred.'] };
 }
 
@@ -269,8 +283,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     const report = await checkAnonymousReads({ anonKey: local.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       accessToken: local.SUPABASE_ACCESS_TOKEN || shared.SUPABASE_ACCESS_TOKEN });
     await writeFile(output, JSON.stringify(report, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
-    console.log(JSON.stringify({ state: report.state, relations: report.relationCount, rowsRetrieved: 0,
-      publicCatalogs: report.publicExceptions, privateRelations: report.privateRelationCount, exposed: report.results.filter(r => r.state === 'exposed_rows').map(r => r.table), writeFailures: report.results.filter(r => !r.writesBlocked).map(r => ({table:r.table,commands:r.possibleWrites})),
+    console.log(JSON.stringify({ state: report.state, applicationState:report.applicationState,extensionMutationState:report.extensionMutationState, relations: report.relationCount, rowsRetrieved: 0,
+      publicCatalogs: report.publicExceptions, privateRelations: report.privateRelationCount, exposed: report.results.filter(r => r.state === 'exposed_rows').map(r => r.table), readPolicyFailures:report.results.filter(r=>r.expectedAccess==='private'&&!r.privateReadBlocked).map(r=>r.table), extensionWriteFailures: report.extensionResults.filter(r=>!r.writesBlocked), writeFailures: report.results.filter(r => !r.writesBlocked).map(r => ({table:r.table,commands:r.possibleWrites})),
       columnFailures: report.results.filter(r => r.unexpectedPublicColumns.length).map(r => ({table:r.table,columns:r.unexpectedPublicColumns})), unknown: report.results.filter(r => ['unknown','request_failed'].includes(r.state)).map(r => r.table) }));
     if (report.state !== 'passed') process.exitCode = 1;
   })().catch(() => { console.error('Anonymous regression incomplete; no row values or credentials recorded.'); process.exitCode = 1; });
