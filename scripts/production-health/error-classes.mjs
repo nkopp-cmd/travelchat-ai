@@ -20,6 +20,19 @@ export function classifyUserError(raw, path, status) {
       return { errorClass: 'generation_request_failed', message: 'Trip generation request failed' };
     }
   }
+  const notificationRoute = ['/api/notifications', '/api/notifications/:id',
+    '/api/notifications/preferences', '/api/notifications/push/subscribe'].includes(path);
+  // The Auth adapter emits this fixed, private-safe catch marker without a status.
+  // Neither this marker nor HTTP503 proves a device cap, read-only mode, or outage cause.
+  if (notificationRoute && text === '[AUTH_NOTIFICATIONS] storage unavailable') {
+    return { errorClass: 'notification_storage_unavailable', message: 'Notification storage unavailable; cause not recorded' };
+  }
+  if (['/api/notifications', '/api/notifications/:id', '/api/notifications/push/subscribe'].includes(path)
+      && Number.isInteger(status) && status >= 500 && status <= 599) {
+    return status === 503
+      ? { errorClass: 'notification_storage_unavailable', message: 'Notification storage unavailable; cause not recorded' }
+      : { errorClass: 'notification_storage_failed', message: 'Notification storage request failed' };
+  }
   if (path === '/api/notifications/preferences' && status === 503) {
     return { errorClass: 'notification_preferences_unavailable', message: 'Notification preferences unavailable' };
   }

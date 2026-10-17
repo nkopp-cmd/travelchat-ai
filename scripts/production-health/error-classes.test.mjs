@@ -64,3 +64,42 @@ test('captures final generation failures without inferring their provider or ret
   });
   assert.equal(classifyUserError('Error generating itinerary:', '/unrelated', null).errorClass, 'server_error_unclassified');
 });
+
+
+test('classifies the actual Auth catch marker only on known notification routes', () => {
+  for (const path of ['/api/notifications', '/api/notifications/:id', '/api/notifications/preferences', '/api/notifications/push/subscribe']) {
+    assert.deepEqual(classifyUserError('[AUTH_NOTIFICATIONS] storage unavailable', path, null), {
+      errorClass: 'notification_storage_unavailable', message: 'Notification storage unavailable; cause not recorded',
+    });
+  }
+  for (const path of ['/dashboard', '/api/notifications/unknown', ':unknown-route']) {
+    assert.equal(classifyUserError('[AUTH_NOTIFICATIONS] storage unavailable', path, null).errorClass, 'server_error_unclassified');
+  }
+  assert.equal(classifyUserError('[AUTH_NOTIFICATIONS] storage unavailable private@example.com', '/api/notifications', null).errorClass, 'server_error_unclassified');
+});
+
+test('separates notification HTTP failures without claiming a cap or read-only cause', () => {
+  for (const path of ['/api/notifications', '/api/notifications/:id', '/api/notifications/push/subscribe']) {
+    const unavailable = classifyUserError('POST private payload', path, 503);
+    assert.equal(unavailable.errorClass, 'notification_storage_unavailable');
+    assert.equal(unavailable.message, 'Notification storage unavailable; cause not recorded');
+    assert.equal(classifyUserError('GET private payload', path, 500).errorClass, 'notification_storage_failed');
+    for (const status of [200, 400, 429, 499, 600, '503', null]) {
+      assert.equal(classifyUserError('POST private payload', path, status).errorClass, 'http_request_failed');
+    }
+  }
+  assert.equal(classifyUserError('POST secret', '/api/notifications/unknown', 503).errorClass, 'http_request_failed');
+});
+
+test('keeps console and invocation events and unknown statuses after notification grouping', () => {
+  const path = '/api/notifications/push/subscribe';
+  const result = summarizeErrorClasses([
+    { ...classifyUserError('[AUTH_NOTIFICATIONS] storage unavailable', path, null), status: null, count: 6 },
+    { ...classifyUserError('POST private@example.com token=secret', path, 503), status: 503, count: 6 },
+  ]);
+  assert.deepEqual(result, [{
+    errorClass: 'notification_storage_unavailable', message: 'Notification storage unavailable; cause not recorded',
+    count: 12, statuses: { 503: 6, unknown: 6 },
+  }]);
+  assert.doesNotMatch(JSON.stringify(result), /private@example|token=|secret|cap|read-only/);
+});
