@@ -1,6 +1,12 @@
 # Seoul Discovery Release
 
-## Current production — bounded GLM correction, 2026-10-05
+## Current production — atomic usage correction, 2026-10-17
+
+PR432 source `dbd09ad27037545314ce397b1da641f47656a3fe`, required self-hosted CI `38987106920` SUCCESS16m34s, merged `6d5b6c0f1c548479f365ce58166f506d390d6fe7` with the same tree. Thirty-seven focused tests, actual installed-SQL PostgreSQL20checks, full regressions/type/lint, pinned build, artifact audit and read-only code/release reviews pass.
+
+Production Worker `19b90012-a85c-426c-a40e-9323ffaa5370` serves100%, deployment `be8a200a-16dc-42a7-9435-f5195356475d`. Rollback `ca4dfaf3-1d5d-4798-9957-257738fb7c01` was actually restored at `35e8ffd7-c0fa-4569-814e-f939bb7b84eb` after the1% canary. Canary25and default25checks pass: controlled free-owner login, real chat429atcap10 before provider, unchanged counter, public200including `/api/cities`, exact Source/Auth cleanup and both admins preserved. All55bindings remain equal; both watchdog timers stopped. Existing live Stripe four-price proof remains intact. No provider, price, schema, grant or D1 application-data switch occurs. [Exact quota evidence and limits](../ATOMIC_USAGE.md).
+
+## Historical production — bounded GLM correction, 2026-10-05
 
 Cloudflare OpenNext Worker `localley-next` serves www, apex and next.localley.io. Runtime source `ccf23a78dfea795a575a142402823cbf81dc0210` (PR295), tested head3a5f537, required self-hosted CI37299980586 SUCCESS10m12s and equal tree5b9b1383. Pinned production build and independent scoped release review passed. Worker `b42e8926-6b15-4875-85ec-44d39513832d` at100%, deployment `6f22f0cb-a8b8-4e8f-bf76-19965611b471`; rollback `a548f24e-1f17-4021-a830-219074baa337`.
 

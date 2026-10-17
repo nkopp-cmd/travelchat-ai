@@ -117,112 +117,45 @@ export async function checkUsageLimit(
     };
 }
 
-/**
- * Atomically check limit and increment usage in a single database transaction.
- * Uses advisory lock in the DB to prevent race conditions.
- *
- * This is the SAFE way to enforce usage limits - concurrent requests
- * cannot bypass limits because the check and increment happen atomically.
- *
- * Falls back to legacy check-then-increment if the RPC function is missing.
- */
+const deniedAtomicUsage = (): AtomicUsageResult => ({ allowed: false, newCount: 0, wasAtLimit: true });
+
+// PostgreSQL INTEGER arguments must never receive Infinity, fractions or negative credits.
+function validUsageInteger(value: number, minimum: number): boolean {
+    return Number.isSafeInteger(value) && value >= minimum && value <= 2_147_483_647;
+}
+
+function parseAtomicUsage(data: unknown, limit: number): AtomicUsageResult {
+    const row = Array.isArray(data) ? (data.length === 1 ? data[0] : null) : data;
+    if (!row || typeof row !== "object" || typeof row.allowed !== "boolean"
+        || !validUsageInteger(row.new_count, 0) || typeof row.was_at_limit !== "boolean"
+        || (row.allowed && (row.new_count > limit || row.was_at_limit))) {
+        console.error("[usage-tracking] Invalid atomic reservation response");
+        return deniedAtomicUsage();
+    }
+    return { allowed: row.allowed, newCount: row.new_count, wasAtLimit: row.was_at_limit };
+}
+
+/** Reserve exactly one unit using the installed weighted atomic RPC. Never retry as a separate write. */
 export async function atomicCheckAndIncrement(
     clerkUserId: string,
     usageType: UsageType,
     limit: number
 ): Promise<AtomicUsageResult> {
+    if (!validUsageInteger(limit, 0)) return deniedAtomicUsage();
     const config = usageTypeConfig[usageType];
     const supabase = createSupabaseAdmin();
-
-    const { data, error } = await supabase.rpc("check_and_increment_usage", {
+    const { data, error } = await supabase.rpc("check_and_increment_usage_weighted", {
         p_clerk_user_id: clerkUserId,
         p_usage_type: usageType,
         p_period_type: config.periodType,
         p_limit: limit,
+        p_amount: 1,
     });
-
     if (error) {
-        // PGRST202 = function not found - fall back to legacy behavior
-        if (error.code === "PGRST202") {
-            console.warn("[usage-tracking] RPC function missing, using fallback");
-            return legacyCheckAndIncrement(clerkUserId, usageType, limit, config.periodType);
-        }
-        console.error("[usage-tracking] Atomic increment failed:", error);
-        // On error, deny the request (fail safe)
-        return { allowed: false, newCount: 0, wasAtLimit: true };
+        console.error("[usage-tracking] Atomic unit reservation failed:", error);
+        return deniedAtomicUsage();
     }
-
-    // RPC returns array with single row
-    const result = Array.isArray(data) ? data[0] : data;
-
-    return {
-        allowed: result?.allowed ?? false,
-        newCount: result?.new_count ?? 0,
-        wasAtLimit: result?.was_at_limit ?? true,
-    };
-}
-
-/**
- * Fallback for when the atomic RPC function doesn't exist.
- * Uses separate check and increment - less safe but functional.
- */
-async function legacyCheckAndIncrement(
-    clerkUserId: string,
-    usageType: UsageType,
-    limit: number,
-    periodType: PeriodType
-): Promise<AtomicUsageResult> {
-    const supabase = createSupabaseAdmin();
-    const periodStart = getPeriodStart(periodType);
-
-    // Get current usage
-    const { data: current } = await supabase
-        .from("usage_tracking")
-        .select("count")
-        .eq("clerk_user_id", clerkUserId)
-        .eq("usage_type", usageType)
-        .eq("period_type", periodType)
-        .eq("period_start", periodStart)
-        .single();
-
-    const currentCount = current?.count || 0;
-
-    // Check limit
-    if (currentCount >= limit) {
-        return { allowed: false, newCount: currentCount, wasAtLimit: true };
-    }
-
-    // Increment using legacy RPC or direct upsert
-    const { data: newData, error: incError } = await supabase.rpc("increment_usage", {
-        p_clerk_user_id: clerkUserId,
-        p_usage_type: usageType,
-        p_period_type: periodType,
-    });
-
-    if (incError) {
-        // If increment_usage RPC also missing, do direct upsert
-        if (incError.code === "PGRST202") {
-            const { data: upsertData } = await supabase
-                .from("usage_tracking")
-                .upsert(
-                    {
-                        clerk_user_id: clerkUserId,
-                        usage_type: usageType,
-                        period_start: periodStart,
-                        period_type: periodType,
-                        count: currentCount + 1,
-                    },
-                    { onConflict: "clerk_user_id,usage_type,period_start,period_type" }
-                )
-                .select("count")
-                .single();
-            return { allowed: true, newCount: upsertData?.count || currentCount + 1, wasAtLimit: false };
-        }
-        console.error("[usage-tracking] Legacy increment failed:", incError);
-        return { allowed: false, newCount: currentCount, wasAtLimit: false };
-    }
-
-    return { allowed: true, newCount: newData || currentCount + 1, wasAtLimit: false };
+    return parseAtomicUsage(data, limit);
 }
 
 /**
@@ -387,7 +320,7 @@ export async function checkAndIncrementUsage(
  * Increments by `amount` credits instead of always 1.
  * Used for AI image generation where different models cost different credits.
  *
- * Falls back to the non-weighted RPC if the weighted version isn't deployed yet.
+ * Missing or failed atomic reservations deny the request without a downgraded write.
  */
 export async function checkAndIncrementUsageWeighted(
     clerkUserId: string,
@@ -402,34 +335,21 @@ export async function checkAndIncrementUsageWeighted(
     const config = usageTypeConfig[usageType];
     const limit = TIER_CONFIGS[tier].limits[config.limitKey];
 
-    const supabase = createSupabaseAdmin();
-
-    const { data, error } = await supabase.rpc("check_and_increment_usage_weighted", {
-        p_clerk_user_id: clerkUserId,
-        p_usage_type: usageType,
-        p_period_type: config.periodType,
-        p_limit: limit,
-        p_amount: amount,
-    });
-
-    let result: AtomicUsageResult;
-
-    if (error) {
-        // PGRST202 = function not found — fall back to non-weighted version
-        if (error.code === "PGRST202") {
-            console.warn("[usage-tracking] Weighted RPC missing, falling back to standard");
-            result = await atomicCheckAndIncrement(clerkUserId, usageType, limit);
+    let result = deniedAtomicUsage();
+    if (validUsageInteger(amount, 1) && validUsageInteger(limit, 0)) {
+        const supabase = createSupabaseAdmin();
+        const { data, error } = await supabase.rpc("check_and_increment_usage_weighted", {
+            p_clerk_user_id: clerkUserId,
+            p_usage_type: usageType,
+            p_period_type: config.periodType,
+            p_limit: limit,
+            p_amount: amount,
+        });
+        if (error) {
+            console.error("[usage-tracking] Weighted reservation failed:", error);
         } else {
-            console.error("[usage-tracking] Weighted increment failed:", error);
-            result = { allowed: false, newCount: 0, wasAtLimit: true };
+            result = parseAtomicUsage(data, limit);
         }
-    } else {
-        const row = Array.isArray(data) ? data[0] : data;
-        result = {
-            allowed: row?.allowed ?? false,
-            newCount: row?.new_count ?? 0,
-            wasAtLimit: row?.was_at_limit ?? true,
-        };
     }
 
     const usage: UsageCheckResult = {
