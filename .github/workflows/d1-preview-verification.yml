@@ -46,6 +46,7 @@ on:
       - 'components/seo/json-ld.tsx'
       - 'lib/source-itinerary-access.ts'
       - 'scripts/d1-migration/source-owner-*'
+      - 'scripts/d1-migration/anonymous-read-*'
       - 'app/api/user/saved-itineraries/route.ts'
       - '__tests__/api/source-owner-postgres.test.ts'
       - '__tests__/lib/source-lifetime-authority.test.ts'
@@ -401,6 +402,8 @@ jobs:
             npx eslint __tests__/api/admin-guide-reject-candidate-route.test.ts
             node --test scripts/d1-migration/notification-history-report.test.mjs
             node --check scripts/d1-migration/notification-history-report.test.mjs
+            node --test scripts/d1-migration/anonymous-read-regression.test.mjs
+            node --check scripts/d1-migration/anonymous-read-regression.mjs
             node --test scripts/d1-migration/runtime-inventory.test.mjs
             node --test scripts/d1-migration/editor-proof-contract.test.mjs
             node --check scripts/d1-migration/runtime-inventory.mjs
