@@ -14,6 +14,7 @@ The stable server secret files supply the anonymous key and Management read-only
 The script pins the project, checks the JWT role/ref/expiry and verifies a key-authenticated control.
 It discovers every public application table/view from the physical catalog, excluding extension-owned relations only.
 It probes every relation with HEAD, limit=0 and count=exact; no row body is retrieved.
+Public probes select approved columns explicitly, so future column restrictions preserve catalog count checks.
 Permission denials require the PostgREST42501 Proxy-Status header and catalog proof of no anonymous table or column SELECT grant.
 This prevents a SELECT-star denial from hiding a readable individual column. JWT failures and absent proof remain unknown.
 The Auth settings control alone cannot prove PostgREST accepted its JWT; permission headers prevent that false pass.
@@ -25,6 +26,7 @@ Nils confirmed the scope on2026-10-17: private tables must be unreadable; retain
 The immutable public list contains exactly the nine catalogs below. Every new relation defaults to private.
 The exit code is zero only when every private relation returns an exact zero or confirmed permission denial,
 and every approved public catalog remains readable with a valid exact count.
+It also requires proof against anonymous INSERT, UPDATE and DELETE and rejects unapproved public columns.
 The report lists every public exception explicitly. No environment flag can expand it.
 This is a current visibility check. Empty tables also need seeded policy tests to prove future-row isolation.
 Existing source-owner PostgreSQL policy tests retain that seeded coverage for their repaired tables.
@@ -122,3 +124,42 @@ Private evidence under `/home/dev/.local/state/localley`:
 
 The historical exposure NEED and public-catalog scope NEED are closed.
 This does not complete the Source-to-D1 migration or authorize Supabase deletion.
+
+## Extended write and public-column contract —2026-10-17
+
+The advisor clarified that every application table must deny anonymous writes, including public catalogs.
+The checker now inspects effective table and column grants, RLS, role ownership and applicable permissive policies.
+It accepts a write denial only when privileges are absent, or RLS has no potentially allowing permissive policy.
+Inherited roles and PUBLIC grants count. Missing protection metadata fails closed.
+Only literal false policy expressions prove denial; arbitrary expressions are conservatively treated as possible access.
+Restrictive policies can therefore cause conservative failures; this tool does not prove their arbitrary SQL predicates safe.
+Views and foreign tables with write grants fail closed. Owners and bypass roles cannot use policy denial as proof.
+No INSERT, PATCH or DELETE request is sent to production.
+
+Each public catalog has an immutable list of approved column names.
+New column exposure and column-only grants receive the same check as table grants.
+The list excludes `spots.discovered_by` and opaque `source_meta` fields pending separate review or projection repair.
+This is a column contract. It does not inspect JSON values or guarantee the absence of private values inside public content.
+
+The isolated PostgreSQL proof uses valid seeded rows and transaction rollback.
+It proves actual insert denial and zero affected rows for update/delete with closed policies.
+It reproduces successful writes through PUBLIC policies, then verifies real permission errors after ACL revocation.
+It covers column grants, inherited grants, disabled RLS, ownership, bypass roles and preserved server writes.
+The proof removes its isolated container in finally; CI also runs an always-cleanup step.
+
+Current live findings are failures, not successful security acceptance:
+
+- `follows`: possible anonymous INSERT and DELETE.
+- `review_helpful_votes`: possible anonymous INSERT and DELETE.
+- `spot_reviews`: possible anonymous INSERT, UPDATE and DELETE.
+- `spots`: readable `discovered_by` owner column.
+- `geo_countries`, `geo_destinations`, `geo_local_areas` and `transfer_edges`: unreviewed `source_meta` column exposure.
+
+All39private tables still return zero rows or proven denials; all nine public catalogs remain readable.
+The three write findings matter even though their current read counts are zero.
+Opaque metadata is unreviewed; this report does not assert that its contents contain personal data.
+No row contents were downloaded. No production policy, grant or row changed during these checks.
+
+Local evidence:58focused tests and29real PostgreSQL checks pass.
+Private receipts: `anon-access-postgres-proof-20261017.json` and `anon-access-current-production-20261017.json`.
+These receipts identify checker correctness and current failures; they do not close production permission remediation.

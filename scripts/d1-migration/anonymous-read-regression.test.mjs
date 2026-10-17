@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { anonymousKey, anonymousCatalogSql, checkAnonymousReads, publicCatalogs } from './anonymous-read-regression.mjs';
+import { anonymousKey, anonymousCatalogSql, checkAnonymousReads, publicCatalogs, publicColumns } from './anonymous-read-regression.mjs';
 
 const token = payload => ['e30',Buffer.from(JSON.stringify(payload)).toString('base64url'),'signature'].join('.');
 const anonKey = token({ role: 'anon', ref: 'llehrhqeolfprutcaopi', exp: 4102444800 });
 const credentials = { anonKey, accessToken: 'not-a-real-management-token' };
-const table = name => ({ name, kind: 'r', rls: true, anon_table_select: true, anon_column_select: true });
+const table = name => ({ name, kind: 'r', rls: true, anon_table_select: true, anon_column_select: true, anon_insert_blocked:true, anon_update_blocked:true, anon_delete_blocked:true, anon_select_columns: publicColumns[name] ?? ['id'] });
 const deniedTable = name => ({ ...table(name), anon_table_select: false, anon_column_select: false });
 function fixture({ tables = [table('users'),table('messages')], counts = {}, statuses = {}, control = 200, catalogStatus = 200, catalogBody, permissionCodes = {} } = {}) {
   const calls = [];
@@ -22,8 +22,9 @@ function fixture({ tables = [table('users'),table('messages')], counts = {}, sta
     if (url.endsWith('/auth/v1/settings')) return new Response(null,{ status: control });
     assert.equal(options.method,'HEAD');
     assert.equal(options.headers.Prefer,'count=exact');
-    assert.equal(new URL(url).search,'?select=*&limit=0');
     const name = new URL(url).pathname.split('/').at(-1);
+    assert.equal(new URL(url).searchParams.get('select'),publicColumns[name]?.join(',') ?? '*');
+    assert.equal(new URL(url).searchParams.get('limit'),'0');
     if (statuses[name] === 'throw') throw Error('private upstream error must not appear');
     return new Response(null,{ status: statuses[name] ?? 200,
       headers: { ...(counts[name] === null ? {} : { 'content-range': counts[name] ?? '*/0' }), ...(permissionCodes[name] ? { 'proxy-status': `PostgREST; error=${permissionCodes[name]}` } : {}) } });
@@ -128,3 +129,34 @@ for(const field of ['anon_table_select','anon_column_select']){
     }
   });
 }
+
+for (const command of ['insert','update','delete']) {
+  test(`possible anonymous ${command} fails even when the private table is empty`,async()=>{
+    const t={...table('follows'),[`anon_${command}_blocked`]:false};
+    const r=await checkAnonymousReads(credentials,fixture({tables:[t]}).request);
+    assert.equal(r.state,'failed');assert.equal(r.results[0].state,'zero_rows');assert.deepEqual(r.results[0].possibleWrites,[command]);
+  });
+  test(`public catalog anonymous ${command} also fails`,async()=>{
+    const r=await checkAnonymousReads(credentials,fixture({tables:[{...table('spots'),[`anon_${command}_blocked`]:false}]}).request);
+    assert.equal(r.state,'failed');assert.equal(r.results[0].state,'public_catalog');
+  });
+  test(`unknown ${command} protection refuses the catalog`,async()=>{
+    for(const v of [null,undefined,'true',1])await assert.rejects(checkAnonymousReads(credentials,fixture({tables:[{...table('users'),[`anon_${command}_blocked`]:v}]}).request),/invalid_catalog/);
+  });
+}
+for(const column of ['discovered_by','email','clerk_user_id','stripe_customer_id','source_meta','new_unreviewed_column']) {
+  test(`public column contract refuses ${column}`,async()=>{
+    const r=await checkAnonymousReads(credentials,fixture({tables:[{...table('spots'),anon_select_columns:[...publicColumns.spots,column]}]}).request);
+    assert.equal(r.state,'failed');assert.deepEqual(r.results[0].unexpectedPublicColumns,[column]);
+  });
+}
+test('partial public column grants are checked individually',async()=>{
+  const r=await checkAnonymousReads(credentials,fixture({tables:[{...table('spots'),anon_table_select:false,anon_select_columns:['email']}]}).request);
+  assert.equal(r.state,'failed');assert.deepEqual(r.results[0].unexpectedPublicColumns,['email']);
+});
+for(const columns of [undefined,null,{},['id','id'],['unsafe-column'],[1]])test('missing or malformed column metadata refuses incomplete proof',async()=>{
+  await assert.rejects(checkAnonymousReads(credentials,fixture({tables:[{...table('users'),anon_select_columns:columns}]}).request),/invalid_catalog/);
+});
+test('public column contract is immutable and excludes owner and opaque metadata fields',()=>{
+  assert(Object.isFrozen(publicColumns));for(const cols of Object.values(publicColumns)){assert(Object.isFrozen(cols));assert(!cols.includes('source_meta'));assert(!cols.includes('discovered_by'));}
+});
