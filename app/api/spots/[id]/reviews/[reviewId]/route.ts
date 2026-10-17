@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { assertPreviewReviewUser, deletePreviewSpotReview, isPreviewSpotReviewCandidate,
     parseReviewInput, updatePreviewSpotReview } from "@/lib/app-data/preview-spot-reviews";
 
@@ -56,6 +56,7 @@ export async function PUT(
             .from("spot_reviews")
             .select("clerk_user_id")
             .eq("id", reviewId)
+            .eq("spot_id", spotId)
             .single();
 
         if (!existing) {
@@ -76,6 +77,7 @@ export async function PUT(
             .from("spot_reviews")
             .update(updateData)
             .eq("id", reviewId)
+            .eq("spot_id", spotId)
             .select()
             .single();
 
@@ -85,7 +87,7 @@ export async function PUT(
         }
 
         // Update spot stats
-        await updateSpotStats(supabase, spotId);
+        await updateSpotStats(spotId);
 
         return NextResponse.json(review);
     } catch (error) {
@@ -126,6 +128,7 @@ export async function DELETE(
             .from("spot_reviews")
             .select("clerk_user_id")
             .eq("id", reviewId)
+            .eq("spot_id", spotId)
             .single();
 
         if (!existing) {
@@ -140,7 +143,8 @@ export async function DELETE(
         const { error } = await supabase
             .from("spot_reviews")
             .delete()
-            .eq("id", reviewId);
+            .eq("id", reviewId)
+            .eq("spot_id", spotId);
 
         if (error) {
             console.error("Error deleting review:", error);
@@ -148,7 +152,7 @@ export async function DELETE(
         }
 
         // Update spot stats
-        await updateSpotStats(supabase, spotId);
+        await updateSpotStats(spotId);
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -157,22 +161,27 @@ export async function DELETE(
 }
 
 // Helper function to update spot stats
-async function updateSpotStats(supabase: SupabaseClient, spotId: string) {
-    const { data: stats } = await supabase
+async function updateSpotStats(spotId: string) {
+    const supabase = createSupabaseAdmin();
+    const { data: stats, error: statsError } = await supabase
         .from("spot_reviews")
         .select("rating")
         .eq("spot_id", spotId);
+    if (statsError) throw new Error("Spot statistics read failed");
 
     const count = stats?.length || 0;
     const avg = count > 0
         ? stats!.reduce((sum, s) => sum + s.rating, 0) / count
         : 0;
 
-    await supabase
+    const { data: updated, error: updateError } = await supabase
         .from("spots")
         .update({
             review_count: count,
             average_rating: Math.round(avg * 10) / 10,
         })
-        .eq("id", spotId);
+        .eq("id", spotId)
+        .select("id")
+        .maybeSingle();
+    if (updateError || !updated) throw new Error("Spot statistics update failed");
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { getRankTitle } from "@/lib/gamification";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
 
             // Get user details for each follower
             const followerIds = follows?.map((f) => f.follower_id) || [];
-            const { data: users } = await supabase
+            const { data: users } = await createSupabaseAdmin()
                 .from("users")
                 .select("clerk_id, username, xp, level")
                 .in("clerk_id", followerIds.length > 0 ? followerIds : ["none"]);
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
 
             // Get user details
             const followingIds = follows?.map((f) => f.following_id) || [];
-            const { data: users } = await supabase
+            const { data: users } = await createSupabaseAdmin()
                 .from("users")
                 .select("clerk_id, username, xp, level")
                 .in("clerk_id", followingIds.length > 0 ? followingIds : ["none"]);

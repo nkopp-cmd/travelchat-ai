@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { trackEngagement } from "@/lib/engagement-tracking";
 import { addPreviewItineraryLike, assertPreviewLikeUser, isPreviewItineraryLikeCandidate,
@@ -39,6 +40,12 @@ export async function GET(
         if (isPreviewItineraryLikeCandidate(request)) return candidateLike(id, userId, "GET");
         const supabase = await createSupabaseServerClient();
 
+        const { data: target, error: targetError } = await createSupabaseAdmin()
+            .from("itineraries").select("clerk_user_id, shared, is_public").eq("id", id).maybeSingle();
+        if (targetError) return Errors.databaseError();
+        if (!target) return Errors.notFound("Itinerary");
+        if (target.clerk_user_id !== userId && !target.shared && !target.is_public) return Errors.forbidden();
+
         // Check if user has liked this itinerary
         const { data: saved } = await supabase
             .from("saved_itineraries")
@@ -48,10 +55,11 @@ export async function GET(
             .single();
 
         // Get total like count
-        const { count } = await supabase
+        const { count, error: countError } = await createSupabaseAdmin()
             .from("saved_itineraries")
             .select("*", { count: "exact", head: true })
             .eq("itinerary_id", id);
+        if (countError) return Errors.databaseError();
 
         return NextResponse.json({
             liked: !!saved,
@@ -79,7 +87,7 @@ export async function POST(
         const supabase = await createSupabaseServerClient();
 
         // Verify itinerary exists and is public/shared
-        const { data: itinerary, error: fetchError } = await supabase
+        const { data: itinerary, error: fetchError } = await createSupabaseAdmin()
             .from("itineraries")
             .select("id, clerk_user_id, shared, is_public")
             .eq("id", id)
@@ -117,15 +125,19 @@ export async function POST(
         }
 
         // Update cached like count
-        const { count } = await supabase
+        const { count, error: countError } = await createSupabaseAdmin()
             .from("saved_itineraries")
             .select("*", { count: "exact", head: true })
             .eq("itinerary_id", id);
+        if (countError) return Errors.databaseError();
 
-        await supabase
+        const { data: updated, error: updateError } = await createSupabaseAdmin()
             .from("itineraries")
             .update({ like_count: count || 0 })
-            .eq("id", id);
+            .eq("id", id)
+            .select("id")
+            .maybeSingle();
+        if (updateError || !updated) return Errors.databaseError();
 
         void trackEngagement(userId, "itinerary_save", id, itinerary.clerk_user_id);
 
@@ -150,6 +162,12 @@ export async function DELETE(
         if (isPreviewItineraryLikeCandidate(request)) return candidateLike(id, userId, "DELETE");
         const supabase = await createSupabaseServerClient();
 
+        const { data: target, error: targetError } = await createSupabaseAdmin()
+            .from("itineraries").select("clerk_user_id, shared, is_public").eq("id", id).maybeSingle();
+        if (targetError) return Errors.databaseError();
+        if (!target) return Errors.notFound("Itinerary");
+        const canSeeCount = target.clerk_user_id === userId || target.shared || target.is_public;
+
         // Remove the like
         const { error: deleteError } = await supabase
             .from("saved_itineraries")
@@ -163,17 +181,21 @@ export async function DELETE(
         }
 
         // Update cached like count
-        const { count } = await supabase
+        const { count, error: countError } = await createSupabaseAdmin()
             .from("saved_itineraries")
             .select("*", { count: "exact", head: true })
             .eq("itinerary_id", id);
+        if (countError) return Errors.databaseError();
 
-        await supabase
+        const { data: updated, error: updateError } = await createSupabaseAdmin()
             .from("itineraries")
             .update({ like_count: count || 0 })
-            .eq("id", id);
+            .eq("id", id)
+            .select("id")
+            .maybeSingle();
+        if (updateError || !updated) return Errors.databaseError();
 
-        return NextResponse.json({ liked: false, likeCount: count || 0 });
+        return NextResponse.json({ liked: false, likeCount: canSeeCount ? count || 0 : 0 });
     } catch (error) {
         return handleApiError(error, "itinerary-unlike");
     }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { isPreviewItineraryDetailCandidate } from "@/lib/app-data/preview-itinerary-detail";
 import { previewItineraryExport } from "@/lib/app-data/preview-itinerary-export";
@@ -56,7 +56,7 @@ export async function GET(
       }
       if (!itinerary) return withSource(Errors.notFound("Itinerary"));
     } else {
-      const supabase = await createSupabaseServerClient();
+      const supabase = createSupabaseAdmin();
       const { data, error } = await supabase.from("itineraries").select("*").eq("id", id).single();
       if (error || !data) return Errors.notFound("Itinerary");
       itinerary = data;

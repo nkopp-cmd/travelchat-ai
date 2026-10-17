@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { assertPreviewLikeUser, isPreviewItineraryLikeCandidate,
     previewSavedItineraries } from "@/lib/app-data/preview-itinerary-likes";
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
 
         // Get itinerary details
         const itineraryIds = saved.map((s) => s.itinerary_id);
-        const { data: itineraries, error: itinerariesError } = await supabase
+        const { data: itineraries, error: itinerariesError } = await createSupabaseAdmin()
             .from("itineraries")
             .select(`
                 id,
@@ -68,13 +69,13 @@ export async function GET(request: NextRequest) {
 
         // Get creator info
         const creatorIds = [...new Set((itineraries || []).map((i) => i.clerk_user_id))];
-        const { data: users } = await supabase
+        const { data: users } = await createSupabaseAdmin()
             .from("users")
-            .select("clerk_id, name, avatar_url")
+            .select("clerk_id, username")
             .in("clerk_id", creatorIds);
 
         const userMap = new Map(
-            (users || []).map((u) => [u.clerk_id, { name: u.name, avatarUrl: u.avatar_url }])
+            (users || []).map((u) => [u.clerk_id, { name: u.username, avatarUrl: null }])
         );
 
         // Map and return
