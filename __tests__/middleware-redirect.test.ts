@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import middleware from "@/middleware";
 
 const SECRET = "test-secret-for-middleware-0123456789abcdef";
@@ -77,5 +77,40 @@ describe("apex to www redirect", () => {
   it.each(["https://www.localley.io/", "https://next.localley.io/spots", "https://localley.internal/api/cron/cleanup-stories"])("leaves %s alone", async url => {
     const response = await middleware(new NextRequest(url));
     expect(response.status).not.toBe(301);
+  });
+});
+
+
+describe("landing page method boundary", () => {
+  it.each(["POST", "PUT", "PATCH", "DELETE", "OPTIONS"])("refuses root %s before reading an action body", async method => {
+    const req = new NextRequest("https://www.localley.io/?private=not-for-output", {
+      method, headers: { "next-action": "unregistered-controlled-action", "content-type": "multipart/form-data; boundary=controlled" },
+    });
+    const readBody = vi.spyOn(req, "formData");
+    const response = await middleware(req);
+    expect(response.status).toBe(405);
+    expect(response.headers.get("allow")).toBe("GET, HEAD");
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(await response.json()).toEqual({ error: "Method not allowed" });
+    expect(response.headers.get("x-middleware-next")).toBeNull();
+    expect(readBody).not.toHaveBeenCalled();
+  });
+
+  it.each(["GET", "HEAD"])("preserves public root %s with RSC query and headers", async method => {
+    const response = await middleware(new NextRequest("https://www.localley.io/?_rsc=controlled", {
+      method, headers: { RSC: "1", "x-http-method-override": "POST" },
+    }));
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
+  it.each(["/api/auth/sign-in/email", "/api/subscription/webhook", "/api/connect/webhook"])("preserves public POST handler %s", async path => {
+    const response = await middleware(request(path, { method: "POST" }));
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
+  it("preserves the apex redirect before the root method boundary", async () => {
+    const response = await middleware(new NextRequest("https://localley.io/?keep=1", { method: "POST" }));
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe("https://www.localley.io/?keep=1");
   });
 });

@@ -1,6 +1,10 @@
 # Seoul Discovery Release
 
-## Current production — independent notification storage, 2026-10-17
+## Production runtime record
+
+[Root request boundary and current runtime status](../ROOT_METHOD_BOUNDARY.md) records the bounded next release, exact activation status, compatible rollback and hosted proof. Prepared work does not change the verified runtime. The notification-storage release below remains the baseline until that record proves activation.
+
+## Prior verified production — independent notification storage, 2026-10-17
 
 PR441 source333ae736/CI39007525997 SUCCESS/merge13f44792 and PR442 sourcea457b490/CI39009760822 SUCCESS/merge44eacd2a have equal tested/merged trees. Real SQLite/native-auth tests,140focused checks, final47affected tests/type/lint, pinned build, secret audit and independent reviews pass. Full encrypted Auth export/decrypt/real restore preserves9original tables/17rows/two admins. The sole additive schema operation passed24checks.
 
