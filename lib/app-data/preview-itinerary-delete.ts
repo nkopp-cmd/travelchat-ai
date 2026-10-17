@@ -25,10 +25,13 @@ export async function deletePreviewItinerary(id: string, userId: string): Promis
     db.prepare(`UPDATE conversations SET linkedItineraryId = NULL
       WHERE linkedItineraryId IN (${deletable})`).bind(...args),
     db.prepare(`DELETE FROM legacy_itinerary_media WHERE itineraryId IN (${deletable})`).bind(...args),
-    db.prepare(`DELETE FROM itineraries WHERE id IN (${deletable})`).bind(...args),
+    db.prepare(`DELETE FROM itineraries WHERE id IN (${deletable}) RETURNING id`).bind(...args),
   ]);
   if (!Array.isArray(results) || results.length !== 3) throw new Error("Preview itinerary delete failed");
-  if (results[2]?.meta?.changes === 0) return "forbidden";
-  if (results[2]?.meta?.changes !== 1) throw new Error("Preview itinerary delete failed");
+  // D1 meta.changes includes cascaded likes. Validate the directly deleted primary key instead.
+  const deleted = results[2]?.results;
+  if (!Array.isArray(deleted)) throw new Error("Preview itinerary delete failed");
+  if (deleted.length === 0) return "forbidden";
+  if (deleted.length !== 1 || deleted[0]?.id !== id.toLowerCase()) throw new Error("Preview itinerary delete failed");
   return "deleted";
 }
