@@ -13,6 +13,7 @@ import { canReadSourceItinerary } from "@/lib/source-itinerary-access";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
+import { PreviewCopyButton } from "@/components/itineraries/preview-copy-button";
 import { OwnerEmailPreviewDialog } from "@/components/itineraries/owner-email-preview-dialog";
 import { EmailDialog } from "@/components/itineraries/email-dialog";
 import { StoryDialog } from "@/components/itineraries/story-dialog";
@@ -191,7 +192,7 @@ export default async function ItineraryViewPage({
     catch {
       return <div role="status" className="rounded-xl border p-6">Your itinerary is currently unavailable.</div>;
     }
-    if (!candidate) notFound();
+    if (!candidate || !userId) notFound();
     return <div className="mx-auto w-full max-w-5xl space-y-5 px-3 py-4 sm:px-4">
       <Link href="/itineraries?data_candidate=d1" className="inline-flex min-h-10 items-center text-violet-200">
         <ArrowLeft className="mr-2 h-4 w-4" />My trips
@@ -208,6 +209,7 @@ export default async function ItineraryViewPage({
               <Download className="mr-2 h-4 w-4" />Export trip
             </a>
           </Button>
+          <PreviewCopyButton key={candidate.id} itineraryId={candidate.id} actorId={userId} title={candidate.title} />
           <OwnerEmailPreviewDialog itineraryId={candidate.id} ownerEmail={candidate.ownerEmail} />
         </div>
       </div>
