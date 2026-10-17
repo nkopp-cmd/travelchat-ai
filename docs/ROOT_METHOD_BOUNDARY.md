@@ -147,3 +147,18 @@ All55candidate/8Auth business-table fixture snapshots restore exactly/FK0; all48
 Both cleanup timers stop and leases close. Production3132337f/6a17bf4b remains unchanged; root/sign-in/cities return200 complete bodies.
 [Exact accepted scope and rollback IDs](CANDIDATE_TRIP_DUPLICATION.md#hosted-repair-accepted--2026-10-17).
 This API-only release keeps browser-copy activation and full migration gates open.
+
+
+## Candidate browser copy accepted — 2026-10-17
+
+PR456b3c3bcc9/requiredCI39041588461SUCCESS17m47s/mergeead30844 adds the isolated admitted-owner copy button.
+All59focused tests/lint/type/pinned public-only build/private71value scan0hits, focused review and six cleanup safety cases pass.
+Preview66e84452 serves100% on deployment5be84ba8 after43hosted checks and actual desktop/mobile button actions.
+Both browser phases pass16checks, including one POST per action, owned result links and reload with retained opt-in.
+All six before/saved/copy PNGs are inspected; both viewports fit without horizontal overflow and use44pixel copy targets.
+Actual rollback347d749c restores9354e5af before final promotion; the default mobile action follows a60second propagation wait.
+All55candidate/8Auth business-table snapshots restore exactly/FK0; lease closes and safety timer/service stop.
+Fresh26finalguards preserve all48Source hashes, both admins, all33preview bindings and production3132337f/6a17bf4b.
+Production and preview root/sign-in/cities return200 with complete bodies; preview keeps0cron schedules.
+[Exact browser scope, tests and rollback IDs](CANDIDATE_TRIP_DUPLICATION.md#browser-copy-control-accepted--2026-10-17).
+Full migration gates remain open. No production data switch or provider/payment/external-mail action occurs.
