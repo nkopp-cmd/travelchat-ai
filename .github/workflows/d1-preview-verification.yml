@@ -39,6 +39,8 @@ on:
       - '__tests__/api/chat-candidate-route.test.ts'
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
+      - 'lib/notifications/**'
+      - '__tests__/lib/auth-notification-store.test.ts'
       - 'components/seo/json-ld.tsx'
       - 'lib/source-itinerary-access.ts'
       - 'scripts/d1-migration/source-owner-*'
@@ -284,6 +286,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/lib/auth-notification-store.test.ts --maxWorkers=1
+            npx eslint lib/notifications/auth-store.ts lib/notifications/validation.ts __tests__/lib/auth-notification-store.test.ts
             node scripts/d1-migration/source-owner-policy-proof.mjs --out "$RUNNER_TEMP/localley-source-owner-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
             npx vitest run __tests__/api/source-owner-readers.test.ts __tests__/lib/source-lifetime-authority.test.ts --maxWorkers=1
             npx eslint scripts/d1-migration/source-owner-policy-guard.mjs scripts/d1-migration/source-owner-policy-proof.mjs scripts/d1-migration/source-owner-saved-policy.mjs __tests__/api/source-owner-readers.test.ts __tests__/api/source-owner-postgres.test.ts lib/source-itinerary-access.ts
