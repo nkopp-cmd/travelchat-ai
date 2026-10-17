@@ -39,6 +39,11 @@ on:
       - '__tests__/api/chat-candidate-route.test.ts'
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
+      - 'scripts/d1-migration/atomic-usage-proof.mjs'
+      - '__tests__/fixtures/weighted-usage-source.json'
+      - 'supabase/migrations/003_weighted_usage_increment.sql'
+      - 'lib/usage-tracking.ts'
+      - '__tests__/lib/usage-tracking-atomic.test.ts'
       - 'lib/stripe.ts'
       - 'config/stripe-live-prices.json'
       - 'app/api/connect/webhook/route.ts'
@@ -260,6 +265,9 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            node scripts/d1-migration/atomic-usage-proof.mjs --out "$RUNNER_TEMP/localley-quota-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+            npx vitest run __tests__/lib/usage-tracking-atomic.test.ts --maxWorkers=1
+            npx eslint scripts/d1-migration/atomic-usage-proof.mjs lib/usage-tracking.ts __tests__/lib/usage-tracking-atomic.test.ts
             npx vitest run __tests__/lib/stripe-live-session.test.ts __tests__/api/subscription-checkout-live.test.ts __tests__/api/subscription-webhook-live.test.ts __tests__/lib/stripe-customer-ownership.test.ts __tests__/lib/stripe-webhook-crypto.test.ts __tests__/components/preview-save-spot-button.test.tsx __tests__/lib/saved-spot-candidate-url.test.ts __tests__/lib/preview-saved-spot-actor.test.ts __tests__/components/preview-chat-composer.test.tsx --maxWorkers=1
             npx eslint __tests__/lib/stripe-live-session.test.ts __tests__/api/subscription-webhook-live.test.ts lib/stripe.ts app/api/subscription/checkout/route.ts app/api/subscription/webhook/route.ts app/api/connect/webhook/route.ts __tests__/api/subscription-checkout-live.test.ts __tests__/lib/stripe-customer-ownership.test.ts __tests__/lib/stripe-webhook-crypto.test.ts
             npx eslint components/spots/preview-save-spot-button.tsx lib/app-data/preview-saved-spot-actor.ts lib/app-data/saved-spot-candidate-url.ts __tests__/components/preview-save-spot-button.test.tsx __tests__/lib/preview-saved-spot-actor.test.ts __tests__/lib/saved-spot-candidate-url.test.ts
@@ -377,3 +385,14 @@ jobs:
             npx tsc --noEmit
             npx eslint lib/app-data/preview-billing-settings.ts components/settings/preview-billing-summary.tsx __tests__/lib/app-data-preview-billing-settings.test.ts __tests__/components/preview-billing-summary.test.tsx lib/auth/mail.ts lib/auth/server.ts __tests__/lib/auth-mail.test.ts __tests__/app/itinerary-list-candidate-page.test.tsx app/itineraries/page.tsx lib/app-data/preview-itinerary-list.ts __tests__/lib/app-data-preview-itinerary-list.test.ts app/api/itineraries/save/route.ts lib/app-data/preview-itinerary-save.ts __tests__/api/itinerary-save-candidate.test.ts __tests__/lib/app-data-preview-itinerary-save.test.ts lib/app-data/preview-itinerary-delete.ts __tests__/api/itinerary-delete-candidate.test.ts __tests__/lib/app-data-preview-itinerary-delete.test.ts "app/api/itineraries/[id]/update/route.ts" lib/app-data/preview-itinerary-update.ts __tests__/api/itinerary-update-candidate.test.ts __tests__/lib/app-data-preview-itinerary-update.test.ts "app/api/itineraries/[id]/route.ts" lib/app-data/preview-itinerary-detail.ts __tests__/api/itinerary-detail-candidate.test.ts __tests__/lib/app-data-preview-itinerary-detail.test.ts app/api/spots/[id]/photos/route.ts lib/app-data/preview-spot-photos.ts __tests__/api/spot-photos.test.ts __tests__/api/spot-photos-candidate.test.ts __tests__/lib/app-data-preview-spot-photos.test.ts scripts/d1-migration/compare-cities.mjs lib/app-data/city-counts.ts scripts/d1-migration/compare-cities.test.mjs lib/app-data/preview-cities.ts app/api/cities/route.ts __tests__/lib/app-data-preview-cities.test.ts __tests__/api/cities-candidate-route.test.ts lib/app-data/preview-saved-spots.ts lib/app-data/preview-conversations.ts lib/app-data/preview-db.ts lib/app-data/preview-story-metadata.ts lib/app-data/preview-story-slides.ts lib/app-data/preview-story-media.ts lib/app-data/preview-story-cleanup.ts lib/app-data/preview-story-tier.ts lib/app-data/preview-billing-status.ts lib/app-data/preview-stripe-events.ts lib/app-data/preview-story-candidate.ts __tests__/lib/app-data-preview-saved-spots.test.ts __tests__/lib/app-data-preview-conversations.test.ts __tests__/lib/app-data-preview-db.test.ts __tests__/lib/app-data-preview-story-metadata.test.ts __tests__/lib/app-data-preview-story-slides.test.ts __tests__/lib/app-data-preview-story-media.test.ts __tests__/lib/app-data-preview-story-cleanup.test.ts __tests__/lib/app-data-preview-story-tier.test.ts __tests__/lib/app-data-preview-billing-status.test.ts __tests__/lib/app-data-preview-stripe-events.test.ts app/api/test-app-data/route.ts app/api/test-app-data/spots/route.ts "app/api/test-app-data/stories/[id]/route.ts" "app/api/itineraries/[id]/ai-backgrounds/route.ts" "app/api/itineraries/[id]/story/persist/route.ts" "app/api/itineraries/[id]/story/media/[generation]/[slide]/route.ts" app/api/cron/cleanup-stories/route.ts app/api/conversations/route.ts app/api/conversations/messages/route.ts app/api/spots/save/route.ts app/api/subscription/status/route.ts app/api/subscription/webhook/route.ts middleware.ts __tests__/api/test-app-data-route.test.ts __tests__/api/test-app-data-spots-route.test.ts __tests__/api/test-app-data-stories-route.test.ts __tests__/api/ai-backgrounds-candidate-route.test.ts __tests__/api/story-persist-candidate-route.test.ts __tests__/api/story-persist-source-access.test.ts __tests__/api/story-persist-source.test.ts __tests__/api/story-media-candidate-route.test.ts __tests__/api/cleanup-stories-candidate-route.test.ts __tests__/api/conversations-candidate-route.test.ts __tests__/api/conversation-messages-candidate-route.test.ts __tests__/api/conversation-patch-candidate-route.test.ts __tests__/api/saved-spots-candidate-route.test.ts __tests__/api/subscription-status-candidate-route.test.ts __tests__/api/subscription-webhook-candidate-route.test.ts
           '
+      - name: Clean only this job's quota proof container
+        if: always()
+        run: node scripts/d1-migration/atomic-usage-proof.mjs --cleanup-only
+      - name: Retain quota proof report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: warn
+          retention-days: 7
