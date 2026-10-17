@@ -12,6 +12,7 @@ import { auditIngestionSettings } from './production-health/ingestion-settings.m
 import { recordEventTime, summarizeEventTime } from './production-health/event-times.mjs';
 import { checkCityCatalog } from './production-health/city-catalog.mjs';
 import { errorRouteGroup } from './production-health/route-groups.mjs';
+import { summarizeWorkerVersions } from './production-health/worker-versions.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -84,6 +85,7 @@ try {
   }
   const classifiedGroups = [...groups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }));
   logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
+    workerVersions: summarizeWorkerVersions(events, query.timeframe),
     countingUnit: 'log_events_not_requests_or_users',
     eventTimes: totalEventTimes ? summarizeEventTime(totalEventTimes).eventTimes : { firstSeen: null, lastSeen: null, knownCount: 0, unknownCount: 0, scope: 'returned_events_only' },
     photoFailures: [...photoGroups].sort((a, b) => b[1].count - a[1].count).slice(0, 20).map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) })),
