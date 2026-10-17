@@ -135,3 +135,15 @@ Two release attempts stopped: an API400 before fixtures, then an owned copy500 a
 Actual preview rollback restorese08db2c5 at100%; both fixtures and all55candidate/8Auth business-table snapshots restore exactly.
 All48Source hashes and both production admins remain unchanged. No default preview promotion or hosted copy acceptance is claimed.
 [Exact scope and stopped release evidence](CANDIDATE_TRIP_DUPLICATION.md#release-attempt--2026-10-17).
+
+
+## Candidate duplicate API repaired and accepted — 2026-10-17
+
+PR45482d7ce18/requiredCI39037202818SUCCESS17m41s/merge10181b8b removes the failing request reconstruction.
+Native Workerd reproduces the old constructor error.52focused tests/type/lint/pinned build/private71value scan0hits and focused review pass.
+After one propagation-delay failure with proven old-version404, the second controlled preview run passes47hosted checks.
+Preview9354e5af now serves100% on deploymentf08a4f4a; actual rollbackcf7f201c restorese08db2c5 before final promotion.
+All55candidate/8Auth business-table fixture snapshots restore exactly/FK0; all48Source hashes and both production admins remain unchanged.
+Both cleanup timers stop and leases close. Production3132337f/6a17bf4b remains unchanged; root/sign-in/cities return200 complete bodies.
+[Exact accepted scope and rollback IDs](CANDIDATE_TRIP_DUPLICATION.md#hosted-repair-accepted--2026-10-17).
+This API-only release keeps browser-copy activation and full migration gates open.
