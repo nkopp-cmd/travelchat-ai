@@ -582,7 +582,7 @@ U1 and U2 acceptance remain unchanged; U3 stays open for other error classes and
 Required CI, pinned build, review, guarded1% release, compatible rollback and actual hosted proof remain gates.
 
 
-## Worker version evidence — prepared2026-10-17
+## Worker version evidence — released2026-10-17
 
 The daily report now includes `logs.workerVersions` beside its existing error groups.
 It counts only provider `$workers.scriptVersion.id` values with the UUID shape.
@@ -604,5 +604,26 @@ The earlier24hour sample returned5error events/ABR10 and remains separately reta
 
 This is a host-monitor release. It changes no Worker, data, secret, mail, paid provider, or production flag.
 Merge green reviewed code, update stable main and run the existing health service for release.
-Rollback restores the prior monitor code on a preserved host checkout; do not downgrade the application Worker.
+Rollback the monitor through a verified revert PR using prior commit0676c795; do not downgrade the application Worker.
 U1 remains verified, U2 retains its original conditional checkout skip, and U3 stays open for unresolved causes.
+
+
+PR447 source1fbcdd9e58259cadb236a010eeb9b3184c95b2b4 passed required CI39021868298 in17m45s.
+Mergebaac9083db1e675f306efa02ae57d91e01cca00d has the same tree.
+All56monitoring tests, syntax/diff checks and the independent no-P0/P1 review pass.
+The review did not run tests; the builder and required CI ran them.
+Its optional explicit total and stable ASCII sorting suggestions were applied before final tests and commit.
+
+Stable main ran the unchanged localley-user-health.service at09:56:50UTC; it exited0 with Resultsuccess at09:57:03UTC.
+Root/sign-in/cities return200; catalog30cities/24visible/2574spots and the read-only Source billing query are usable.
+The actual report returns5sampled events/ABR10, all attributed to three earlier Worker versions.
+Counts are83366b0c:3,2c328128:1,ca4dfaf3:1; omitted0/unknown0, with exact event times and coverage warnings.
+This is not evidence of a decline from the earlier35event/ABR1report, complete ingestion or zero current errors.
+All existing error-class counts remain present and total5; version counts plus omittedEvents also total5.
+
+Twenty live guards pass, including exact installed-file hashes, service/health/timer status and U2 acceptance hash.
+Production3132337f at100percent/deployment6a17bf4b and previewe08db2c5/deployment7cdc7953 are unchanged.
+The application rollback remains83366b0c; no Worker rollback or upload occurred for this host release.
+Private worker-version-release-20261017.json retains full identities and checks.
+The narrow network audit and earlier sampled audit remain separate receipts.
+U1 remains verified; U2 retains its original conditional checkout skip. U3 remains open for unresolved causes.
