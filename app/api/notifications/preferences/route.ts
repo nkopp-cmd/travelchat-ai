@@ -1,3 +1,4 @@
+import { authNotificationResponse } from "@/lib/notifications/auth-http";
 import { auth } from "@/lib/auth/server";
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -52,6 +53,9 @@ export async function GET(request?: NextRequest) {
             }
         }
 
+        const stored = await authNotificationResponse(request, userId, "preferences");
+        if (stored) return stored;
+
         const preferences = await getNotificationPreferences(userId);
 
         if (!preferences) {
@@ -95,6 +99,9 @@ export async function PATCH(request: NextRequest) {
                     message: "Preview notification settings are unavailable." }, { status: 503, headers: candidateHeaders });
             }
         }
+
+        const stored = await authNotificationResponse(request, userId, "preferences");
+        if (stored) return stored;
 
         const updates = await request.json();
         const preferences = await updateNotificationPreferences(userId, updates);

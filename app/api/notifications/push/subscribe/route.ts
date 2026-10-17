@@ -1,3 +1,4 @@
+import { authNotificationResponse } from "@/lib/notifications/auth-http";
 import { auth } from "@/lib/auth/server";
 import { NextRequest, NextResponse } from "next/server";
 import { savePushSubscription, removePushSubscription } from "@/lib/notifications";
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
 
         if (isPreviewNotificationCandidate(request)) return candidate(request, userId, false);
 
+        const stored = await authNotificationResponse(request, userId, "push");
+        if (stored) return stored;
+
         const body = await request.json();
 
         if (!body.subscription) {
@@ -95,6 +99,9 @@ export async function DELETE(request: NextRequest) {
         }
 
         if (isPreviewNotificationCandidate(request)) return candidate(request, userId, true);
+
+        const stored = await authNotificationResponse(request, userId, "push");
+        if (stored) return stored;
 
         const body = await request.json();
 

@@ -1,3 +1,4 @@
+import { authNotificationResponse } from "@/lib/notifications/auth-http";
 import { auth } from "@/lib/auth/server";
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -31,6 +32,9 @@ export async function GET(request: NextRequest) {
                 return NextResponse.json({ error: "Notifications unavailable" }, { status: 503, headers: candidateHeaders });
             }
         }
+
+        const stored = await authNotificationResponse(request, userId, "inbox");
+        if (stored) return stored;
 
         const searchParams = request.nextUrl.searchParams;
         const limit = parseInt(searchParams.get("limit") || "20", 10);
@@ -70,6 +74,9 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ error: "Notifications unavailable" }, { status: 503, headers: candidateHeaders });
             }
         }
+
+        const stored = await authNotificationResponse(request, userId, "inbox");
+        if (stored) return stored;
 
         const body = await request.json();
         if (body.action === "markAllRead") {
