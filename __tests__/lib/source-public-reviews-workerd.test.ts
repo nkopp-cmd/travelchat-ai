@@ -12,6 +12,7 @@ const id = "00000000-0000-4000-8000-000000000009";
 const body = { reviews: [], total: 0, averageRating: 0, ratingDistribution: [0, 0, 0, 0, 0] };
 let mf: Miniflare;
 let state: string;
+let outboundHits = 0;
 beforeAll(async () => {
   state = await mkdtemp(join(process.env.TMPDIR || tmpdir(), "localley-review-workerd-"));
   const source = ts.transpileModule((await readFile("lib/source-public-reviews.ts", "utf8"))
@@ -20,7 +21,7 @@ beforeAll(async () => {
   const worker = (name: string, contents: string, env = {}) => ({ config: {
     name, compatibilityDate: "2026-09-08", compatibilityFlags: ["nodejs_compat", "global_fetch_strictly_public"],
     manifest: { mainModule: "worker.mjs", modulesRoot: state, modules: { "worker.mjs": { type: "esm" as const, contents } } }, env,
-  }, dev: { outboundService: { type: "fetcher" as const, handler: () => new Response("Outbound forbidden", { status: 502 }) } } });
+  }, dev: { outboundService: { type: "fetcher" as const, handler: () => { outboundHits++; return Response.json(body); } } } });
   mf = new Miniflare({ workers: [worker("bridge", source + `
     export default { async fetch(request, env) {
       globalThis[Symbol.for("__cloudflare-context__")] = {env};
@@ -52,5 +53,6 @@ describe("public review bridge in Workerd", () => {
     const response = await mf.dispatchFetch(`https://localley-next-preview.nkopp.workers.dev/api/spots/${id}/reviews?offset=1`);
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({error: "Reviews unavailable"});
+    expect(outboundHits).toBe(0);
   });
 });
