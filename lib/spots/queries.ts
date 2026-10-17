@@ -393,6 +393,7 @@ export async function fetchFilteredSpots(
 ): Promise<SpotsResponse> {
   // Create a cache key from filters
   const cacheKey = JSON.stringify({
+    projection: PUBLIC_SPOT_SELECT,
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
     provenance: COMMUNITY_PROVENANCE_CACHE_VERSION,
     city: filters.city,
@@ -470,7 +471,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
 export async function fetchFilterOptions(): Promise<FilterOptions> {
   const cachedFetch = unstable_cache(
     fetchFilterOptionsInternal,
-    ["spots-filter-options", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
+    ["spots-filter-options", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, PUBLIC_SPOT_SELECT],
     {
       revalidate: 600, // 10 minutes
       tags: ["spots"],
