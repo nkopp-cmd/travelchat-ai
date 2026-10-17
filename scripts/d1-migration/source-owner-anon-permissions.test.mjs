@@ -7,7 +7,7 @@ test('permission operation requires an exact reviewed fingerprint and bounded re
 });
 test('operation has locks, drift checks, row preservation, effective privilege checks and server preservation',()=>{
  const s=anonymousPermissionSql({expectedCatalogMd5:'a'.repeat(32)});
- for(const label of ['anon_guard_catalog_drift','anon_guard_row_change','anon_guard_server_privilege_change','anon_guard_inherited_mutation_grant','anon_guard_inherited_select_grant','SHARE ROW EXCLUSIVE','TRUNCATE','has_any_column_privilege'])assert(s.includes(label));
+ for(const label of ['anon_guard_catalog_drift','anon_guard_row_change','anon_guard_server_privilege_change','anon_guard_residual_private_select','anon_guard_inherited_mutation_grant','anon_guard_inherited_select_grant','SHARE ROW EXCLUSIVE','TRUNCATE','has_any_column_privilege'])assert(s.includes(label));
  assert(s.startsWith('BEGIN;'));assert(s.endsWith('COMMIT;'));
  assert(!/\b(?:INSERT INTO|UPDATE public|DELETE FROM|TRUNCATE TABLE|DROP POLICY|ALTER POLICY|DISABLE ROW)\b/.test(s));
  assert(anonymousPermissionCatalogSql.includes('pg_auth_members'));

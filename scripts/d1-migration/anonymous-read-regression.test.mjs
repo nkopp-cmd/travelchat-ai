@@ -5,7 +5,7 @@ import { anonymousKey, anonymousCatalogSql, checkAnonymousReads, publicCatalogs,
 const token = payload => ['e30',Buffer.from(JSON.stringify(payload)).toString('base64url'),'signature'].join('.');
 const anonKey = token({ role: 'anon', ref: 'llehrhqeolfprutcaopi', exp: 4102444800 });
 const credentials = { anonKey, accessToken: 'not-a-real-management-token' };
-const table = name => ({ extension_mutations:[], name, kind: 'r', rls: true, anon_table_select: true, anon_column_select: true, anon_insert_blocked:true, anon_update_blocked:true, anon_delete_blocked:true, anon_select_columns: publicColumns[name] ?? ['id'] });
+const table = name => ({ extension_mutations:[], name, kind: 'r', rls: true, anon_table_select: true, anon_column_select: true, anon_select_blocked:!publicCatalogs.includes(name), anon_insert_blocked:true, anon_update_blocked:true, anon_delete_blocked:true, anon_select_columns: publicColumns[name] ?? ['id'] });
 const deniedTable = name => ({ ...table(name), anon_table_select: false, anon_column_select: false });
 function fixture({ tables = [table('users'),table('messages')], counts = {}, statuses = {}, control = 200, catalogStatus = 200, catalogBody, permissionCodes = {} } = {}) {
   const calls = [];
@@ -175,4 +175,12 @@ test('missing, malformed or inconsistent extension mutation coverage fails close
  const safe={table:'spatial_ref_sys',kind:'r',insertBlocked:true,updateBlocked:true,deleteBlocked:true};
  for(const extension_mutations of [undefined,null,{},[safe,safe],[{...safe,insertBlocked:null}],[{...safe,table:'../unsafe'}]])await assert.rejects(checkAnonymousReads(credentials,fixture({tables:[{...table('users'),extension_mutations}]}).request),/invalid_extension_mutation_catalog/);
  await assert.rejects(checkAnonymousReads(credentials,fixture({tables:[table('users'),{...table('messages'),extension_mutations:[safe]}]}).request),/invalid_extension_mutation_catalog/);
+});
+
+test('zero current rows cannot hide a potentially allowing private SELECT policy',async()=>{
+ const r=await checkAnonymousReads(credentials,fixture({tables:[{...table('spot_reviews'),anon_select_blocked:false}]}).request);
+ assert.equal(r.state,'failed');assert.equal(r.results[0].state,'zero_rows');assert.equal(r.results[0].privateReadBlocked,false);
+});
+test('missing private SELECT protection metadata refuses incomplete coverage',async()=>{
+ for(const v of [undefined,null,1,'true'])await assert.rejects(checkAnonymousReads(credentials,fixture({tables:[{...table('users'),anon_select_blocked:v}]}).request),/invalid_catalog/);
 });

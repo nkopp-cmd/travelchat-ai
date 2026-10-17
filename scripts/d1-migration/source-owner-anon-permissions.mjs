@@ -41,6 +41,11 @@ BEGIN
   EXECUTE format('REVOKE INSERT,UPDATE,DELETE ON public.%I FROM anon',r.relname);
   IF r.relkind IN('r','p') THEN EXECUTE format('REVOKE TRUNCATE ON public.%I FROM anon',r.relname);END IF;
   EXECUTE format('REVOKE INSERT(%s),UPDATE(%s) ON public.%I FROM anon',cols,cols,r.relname);
+  IF NOT r.extension_owned AND NOT r.relname=ANY(ARRAY[${publicCatalogs.map(t=>`'${t}'`).join(',')}]::text[]) THEN
+   EXECUTE format('REVOKE SELECT ON public.%I FROM anon',r.relname);
+   EXECUTE format('REVOKE SELECT(%s) ON public.%I FROM anon',cols,r.relname);
+   IF has_table_privilege('anon',r.oid,'SELECT') OR has_any_column_privilege('anon',r.oid,'SELECT') THEN RAISE EXCEPTION 'anon_guard_residual_private_select';END IF;
+  END IF;
   IF has_table_privilege('anon',r.oid,'INSERT') OR has_any_column_privilege('anon',r.oid,'INSERT') OR has_table_privilege('anon',r.oid,'UPDATE') OR has_any_column_privilege('anon',r.oid,'UPDATE') OR has_table_privilege('anon',r.oid,'DELETE') OR (r.relkind IN('r','p') AND has_table_privilege('anon',r.oid,'TRUNCATE')) THEN RAISE EXCEPTION 'anon_guard_inherited_mutation_grant';END IF;
  END LOOP;
  FOR proj IN SELECT * FROM(VALUES ${projections}) v(name,columns) LOOP

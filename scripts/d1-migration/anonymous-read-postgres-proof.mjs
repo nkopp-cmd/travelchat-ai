@@ -96,6 +96,7 @@ else {
         if(['geo_countries','geo_destinations','geo_local_areas','transfer_edges'].includes(table))await sql(`ALTER TABLE ${table} ADD COLUMN source_meta jsonb`);
       }
       await sql(`GRANT ALL ON ALL TABLES IN SCHEMA public TO anon,authenticated,service_role;DROP POLICY open_read ON users;
+        CREATE POLICY potentially_public_private_read ON users FOR SELECT TO anon USING(true);
         CREATE POLICY possible_insert ON users FOR INSERT TO anon WITH CHECK(true);
         CREATE POLICY possible_update ON users FOR UPDATE TO anon USING(true);
         CREATE POLICY possible_delete ON users FOR DELETE TO anon USING(true);`);
@@ -111,6 +112,7 @@ else {
       const appOutput=await sql(appOperation.replace(/COMMIT;$/,`SELECT row_to_json(q) FROM (${anonymousCatalogSql}) q WHERE name='users';ROLLBACK;`));
       const appState=JSON.parse(appOutput.split('\n').find(line=>line.startsWith('{')));
       check(appState.anon_insert_blocked&&appState.anon_update_blocked&&appState.anon_delete_blocked,'owned_application_scope_denies_app_writes');
+      check(appState.anon_select_blocked&&!appState.anon_table_select&&!appState.anon_column_select,'owned_scope_private_reads_denied_despite_permissive_policy');
       check(appState.extension_mutations.length===2&&appState.extension_mutations.every(e=>!e.insertBlocked&&!e.updateBlocked&&!e.deleteBlocked),'owned_scope_keeps_residual_reference_grants_visible');
       check(await fingerprint()===original,'owned_scope_rollback_exact_catalog');
 
@@ -137,7 +139,9 @@ else {
         check((await sql(`BEGIN;SET LOCAL ROLE anon;SELECT count(id) FROM ${table};ROLLBACK;`)).includes('1'),table+'_reference_reads_preserved');
       }
       await denied('SELECT discovered_by FROM spots' ,'permission_live_shape_private_owner_column_denied');
-      const visible=await sql('BEGIN;SET LOCAL ROLE anon;SELECT count(id) FROM spots;SELECT count(*) FROM users;ROLLBACK;');check(visible.includes('1\n0'),'permission_public_catalog_private_zero_retained');
+      const visible=await sql('BEGIN;SET LOCAL ROLE anon;SELECT count(id) FROM spots;ROLLBACK;');check(visible.includes('1'),'permission_public_catalog_retained');
+      await denied('SELECT count(*) FROM users','permission_private_count_denied_even_with_permissive_policy');
+      await denied('SELECT email FROM users','permission_private_column_denied_even_with_permissive_policy');
       check((await sql("SELECT count(*) FROM users WHERE id=1 AND email='fixture@localley.test'")).trim()==='1','permission_all_fixture_rows_preserved');
       check((await sql("BEGIN;SET LOCAL ROLE service_role;UPDATE users SET email='server' WHERE id=1;ROLLBACK;")).includes('UPDATE 1'),'permission_service_writes_retained');
       let repeated=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:12,includeExtensionOwned:true}));}catch(e){repeated=/anon_guard_catalog_drift/.test(e.stderr??'');}

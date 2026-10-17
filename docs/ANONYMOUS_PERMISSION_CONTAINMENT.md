@@ -46,7 +46,7 @@ The isolated PostgreSQL proof now passes110checks, including a real transaction 
 It proves refusal for a wrong fingerprint and inherited PUBLIC privileges without partial changes.
 Actual INSERT, UPDATE, DELETE and TRUNCATE commands fail after containment on every fixture table.
 Approved public columns remain selectable; the private owner field is denied.
-The fixture preserves private zero-row visibility, row contents and service writes.
+The fixture denies raw private SELECT, preserves row contents and retains service writes.
 These are disposable PostgreSQL checks. They are not production mutation probes.
 
 A SQL failure rolls back the complete operation. A lost HTTP response requires metadata reconciliation before any retry.
@@ -91,3 +91,24 @@ Sixty-five focused Node tests pass; seven spot tests, typecheck and focused lint
 One expanded attempt caught a scoped-query alias error before mutation. Its corrected second attempt passes110checks.
 The extended fixture tests default application scope without changing reference grants,
 and explicit owner scope with actual reference mutations denied after repair.
+
+## Prepared private-read and public-review compatibility follow-up
+
+Empty private tables no longer pass solely because their current count is zero.
+The catalog must also prove that anonymous SELECT cannot expose future rows.
+The guarded application repair revokes both table and column SELECT on all private relations.
+It preserves approved public catalog reads and reference SELECT.
+Normal public review GET uses its existing explicit server projection after raw review access is denied.
+Preview has no production database secret; its bounded bridge reads only that public production response.
+The bridge pins the exact preview host and rejects candidate flags, foreign hosts and invalid identifiers.
+It forwards no cookies, authorization or version override. Candidate D1 failures never use this bridge.
+
+Local evidence:67 Node tests and113 disposable permission checks pass.
+The real-handler follow-up passes131 PostgreSQL checks, including seven handler cases.
+All19 focused proxy/spot Vitest tests also pass.
+The first handler gate stopped on a stale six-test assertion after seven handler tests passed.
+The corrected second gate passed database and Vitest checks, then TypeScript exhausted its default2GiB heap.
+Focused lint did not run after that process stopped. No successful final typecheck or release is claimed.
+Per the two-attempt rule, stop this item and retain PR467 as draft.
+The earlier production build at4716c6ef is superseded and must not be uploaded.
+No prepared permission SQL or Worker upload has run.
