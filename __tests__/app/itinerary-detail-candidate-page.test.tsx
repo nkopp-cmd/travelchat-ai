@@ -13,6 +13,7 @@ vi.mock('@/components/itinerary/day-route-section',()=>({DayRouteSection:()=> <p
 vi.mock('@/components/itinerary/itinerary-insights-panel',()=>({ItineraryInsightsPanel:()=> <p>Owned trip notes</p>}));
 vi.mock('@/components/itineraries/share-dialog',()=>({ShareDialog:()=> <button>Share</button>}));
 vi.mock('@/components/itineraries/owner-email-preview-dialog',()=>({OwnerEmailPreviewDialog:({itineraryId,ownerEmail}:{itineraryId:string;ownerEmail:string})=> <button data-id={itineraryId} data-owner={ownerEmail}>Preview email link</button>}));
+vi.mock('@/components/itineraries/preview-copy-button',()=>({PreviewCopyButton:({actorId}:{actorId:string})=><button data-copy-owner={actorId}>Make a copy</button>}));
 vi.mock('@/components/itineraries/email-dialog',()=>({EmailDialog:()=> <button>Email</button>}));
 vi.mock('@/components/itineraries/story-dialog',()=>({StoryDialog:()=> <button>Generate story</button>}));
 vi.mock('@/components/itinerary/itinerary-map',()=>({ItineraryMap:()=> <p>Provider map</p>}));
@@ -36,7 +37,7 @@ afterEach(()=>{process.env=env;vi.clearAllMocks();});
 describe('candidate itinerary page and metadata',()=>{
   it('renders owned candidate content and explicit export without source, tier, mutation or provider controls',async()=>{
     const html=renderToStaticMarkup(await Page(input('d1')));
-    expect(html).toContain('Preview email link');expect(html).toContain('data-owner="a@preview.localley.test"');expect(html).toContain('Private trip');expect(html).toContain('Owned day schedule');
+    expect(html).toContain('Preview email link');expect(html).toContain('data-owner="a@preview.localley.test"');expect(html).toContain('Private trip');expect(html).toContain('Make a copy');expect(html).toContain('data-copy-owner="a"');expect(html).toContain('Owned day schedule');
     expect(html).toContain('/itineraries?data_candidate=d1');
     expect(html).toContain('/api/itineraries/owned/export?data_candidate=d1');
     expect(html).toContain('Export trip');expect(html).toContain('/itineraries/owned/edit?data_candidate=d1');expect(html).toContain('Edit itinerary');
@@ -63,10 +64,10 @@ describe('candidate itinerary page and metadata',()=>{
   });
   it('preserves normal preview and flagged www source reads and normal controls',async()=>{
     let html=renderToStaticMarkup(await Page(input()));
-    expect(html).toContain('Source trip');expect(html).toContain('Generate story');expect(html).not.toContain('Preview email link');
+    expect(html).toContain('Source trip');expect(html).toContain('Generate story');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
     mocks.headers.mockResolvedValue(new Headers({host:'www.localley.io'}));
     html=renderToStaticMarkup(await Page(input('d1')));
-    expect(html).toContain('Source trip');expect(html).toContain('Provider suggestions');expect(html).not.toContain('Preview email link');
+    expect(html).toContain('Source trip');expect(html).toContain('Provider suggestions');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
     expect(mocks.read).not.toHaveBeenCalled();expect(mocks.admin).toHaveBeenCalledTimes(2);
   });
 });
