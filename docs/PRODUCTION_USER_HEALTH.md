@@ -580,3 +580,29 @@ Authentication POSTs, billing webhooks, private-route authentication and candida
 This fences the observed unsupported-method path. It does not claim a general renderer or network-error repair.
 U1 and U2 acceptance remain unchanged; U3 stays open for other error classes and final acceptance.
 Required CI, pinned build, review, guarded1% release, compatible rollback and actual hosted proof remain gates.
+
+
+## Worker version evidence — prepared2026-10-17
+
+The daily report now includes `logs.workerVersions` beside its existing error groups.
+It counts only provider `$workers.scriptVersion.id` values with the UUID shape.
+Missing or malformed IDs stay null; messages, URLs, headers and application metadata cannot supply a version.
+Each version retains exact returned-event counts and validated timestamp bounds.
+At most20version groups are displayed; `omittedEvents` accounts for all remaining events.
+`unknownVersionEvents` counts unknown IDs even when their group falls outside that display bound.
+It overlaps the displayed or omitted counts; do not add it again.
+Displayed counts plus omittedEvents equal totalEvents and the original observedEvents count.
+All original class/status/top-five counts, sampling warnings and counting units stay unchanged.
+Version presence does not prove which version is currently deployed, the affected user count, or any error cause.
+An empty or sampled query does not establish a problem-free period or complete ingestion.
+
+A read-only04:00–05:40UTC query returned14exact network-error messages, ABR1 and no truncation.
+All14carry inactive Worker2c328128 and GET requests; none provides a response status or causal stack.
+Five concern dashboard, three itineraries, and one each profile/settings/chat/sign-in/edit/sign-up.
+No cancellation, provider outage or current Worker failure is established.
+The earlier24hour sample returned5error events/ABR10 and remains separately retained.
+
+This is a host-monitor release. It changes no Worker, data, secret, mail, paid provider, or production flag.
+Merge green reviewed code, update stable main and run the existing health service for release.
+Rollback restores the prior monitor code on a preserved host checkout; do not downgrade the application Worker.
+U1 remains verified, U2 retains its original conditional checkout skip, and U3 stays open for unresolved causes.
