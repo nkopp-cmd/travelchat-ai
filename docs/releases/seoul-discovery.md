@@ -4,6 +4,10 @@
 
 [Root request boundary and current runtime status](../ROOT_METHOD_BOUNDARY.md) records the bounded next release, exact activation status, compatible rollback and hosted proof. Prepared work does not change the verified runtime. The notification-storage release below remains the baseline until that record proves activation.
 
+## Host monitor release — 2026-10-17
+
+PR447 source1fbcdd9e/CI39021868298SUCCESS17m45s/mergebaac9083 adds provider-only version evidence to the daily health report. All56monitoring tests pass. The actual stable service09:56:50UTC exits0 and passes20live guards. Five sampled events/ABR10 retain exact counts, earlier version IDs and explicit coverage limits. Production3132337f/6a17bf4b and previewe08db2c5/7cdc7953 stay unchanged. No Worker, data, mail or paid-provider change occurred. Monitor rollback source0676c795 is separate from application rollback83366b0c. [Exact host release and limits](../PRODUCTION_USER_HEALTH.md#worker-version-evidence--released2026-10-17). U1/U2 acceptance stays unchanged; U3 remains open.
+
 ## Prior verified production — independent notification storage, 2026-10-17
 
 PR441 source333ae736/CI39007525997 SUCCESS/merge13f44792 and PR442 sourcea457b490/CI39009760822 SUCCESS/merge44eacd2a have equal tested/merged trees. Real SQLite/native-auth tests,140focused checks, final47affected tests/type/lint, pinned build, secret audit and independent reviews pass. Full encrypted Auth export/decrypt/real restore preserves9original tables/17rows/two admins. The sole additive schema operation passed24checks.
