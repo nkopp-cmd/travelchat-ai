@@ -193,3 +193,39 @@ These samples do not meet mobile1200ms/desktop600ms budgets or establish field I
 The script transfer sizes remain371371mobile/502273desktop bytes; gzip inventory is separate.
 Private reports are perf-after-lighthouse-summary-20261017.json and the complete mobile/desktop reports.
 No public cache, provider selection, pricing, paid generation or Source data switch changes.
+
+## Renewed runtime diagnosis and preview repair — 2026-10-17
+
+Nils approved private-table zero anonymous visibility and retained public catalogs.
+APPROVALS.md line19 and closed NEED661 record that scope; NEED645 is also closed.
+RLS containment remains active. No incident notice was sent.
+The fresh read-only report finds29zero-row private tables,10permission denials and9readable public catalogs.
+It retrieves no row bodies. Existing seven future-policy findings, three writable app tables,
+five public-column findings and three provider-owned PostGIS relations keep the full regression failed.
+The separate PostGIS owner-grant NEED665 remains open.
+
+A local pinned Workerd test reproduces the preview failure with identical service fetch options:
+redirect:error throws a TypeError before fetching; redirect:manual succeeds.
+PR470 changes only that runtime option and preserves the existing non-2xx refusal.
+New actual Workerd tests prove service projection success and zero outbound hits for a302redirect.
+All19focused tests/lint, TypeScript and exact-source public-only build pass;71private values yield0hits.
+The final build first refuses an existing owned public-env file; the corrected second build passes.
+Required CI39076947750 passes22m26s on76d9ee5c8d771e28d4bb0c4254bab0807f723e34.
+Mergee2c3ec05ef4e31d8c8243f2e44cf7b073a8d500e has the identical tested tree.
+The independent review finds noP0/P1 and its weaker redirect-test finding is repaired before final CI.
+
+Preview inactive upload03879c9f-26e4-4bb8-a955-a3798da12885 passes19guards.
+It retains all33prior bindings and adds only PUBLIC_REVIEW_SOURCE targeting production's public projection.
+The1% version-override canary passes16checks; actual browser proof passes18desktop/mobile checks.
+All four screenshots were opened; media requests were deliberately blocked, so this is not photo acceptance.
+Actual rollbackb626dc5a-1886-4cf2-8a5d-00200565159e restoresa397be3d before promotion.
+The new preview version is then active100% on deployment9b83b961-5475-4682-9a4b-ca2a9da00585.
+Default verification passes16checks, including public review200, no-store and terminal D1 candidate validation.
+The safety timer is disarmed; Source48full row hashes/Auth counts/both admins and schedules remain equal.
+Production037dee7f-555b-45f3-89cd-44174301f6d5 on82e0a7f9-6ac9-4fab-b76c-545a807d86b1 is unchanged.
+
+Lighthouse mobile baseline/after samples show LCP8910.086/8902.802ms,TBT1436.486/563ms and CLS0/0.
+These samples do not meet the existing performance budgets or establish field INP.
+No Source permission operation runs. Both compatible Workers are now verified;
+application grant repair, provider grants and the fullD1cutover remain separate open gates.
+Private receipts use review-redirect-* under the established private state directory.
