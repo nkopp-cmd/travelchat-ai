@@ -125,3 +125,13 @@ The corrected native audit and document coverage checks pass; two Source full-ro
 This is a documentation-only inventory release, with no Worker, data, credential, provider, email or payment change.
 Full candidate parity, media verification, rollback/canary, freeze/switch and retention gates remain open.
 [Exact table dispositions, write paths, SQL effects, host jobs and evidence](SUPABASE_CUTOVER_INVENTORY.md#current-production-inventory--2026-10-17).
+
+
+## Subsequent candidate trip API attempt — 2026-10-17
+
+PR452 sourceb93a8508/CI39032234018SUCCESS17m14s/mergece4f3c61 prepares isolated owned-trip duplication.
+The uploaded preview candidate15bdeaa5 passed artifact/binding guards; production3132337f/6a17bf4b remains unchanged.
+Two release attempts stopped: an API400 before fixtures, then an owned copy500 after14hosted checks.
+Actual preview rollback restorese08db2c5 at100%; both fixtures and all55candidate/8Auth business-table snapshots restore exactly.
+All48Source hashes and both production admins remain unchanged. No default preview promotion or hosted copy acceptance is claimed.
+[Exact scope and stopped release evidence](CANDIDATE_TRIP_DUPLICATION.md#release-attempt--2026-10-17).

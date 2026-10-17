@@ -32,5 +32,40 @@ legacy mapping conflicts, an ownership race inside the insert, fixed errors and 
 Focused ESLint, TypeScript and diff checks pass. The focused independent review finds no P0/P1 risk.
 The required workflow includes the new route and SQLite tests explicitly.
 
-The pinned public-only build, exact-head CI, merged preview release, hosted acceptance and cleanup remain pending until recorded below.
+## Release attempt — 2026-10-17
+
+PR452 source `b93a8508891b81684b20bd8d4cdad771731059be` passed required self-hosted CI39032234018 in17m14s.
+Merge `ce4f3c61fdc69b6d10895d6a4dc6a12e51b5c654` has the same tested tree.
+The fresh pinned public-only OpenNext build scanned71private values with zero hits.
+All six direct cleanup safety cases pass, including unknown-version, legacy-owner and foreign-row refusal.
+The earlier two optional operator reviews timed out without verdicts. The existing focused code review passed.
+Root rules require consultation before production release; this bounded release targets isolated preview only.
+No third identical advisor call was made.
+
+Uploaded candidate `15bdeaa5-a8cb-4d48-9ff2-1b071ac1f196` passed13inactive-upload guards.
+All33complete preview bindings match the prior preview version, including its absent notification-storage flag.
+The upload used a temporary config with the exact existing plain variables; it changed no secrets or schedules.
+
+The first canary API request returned400 before traffic or fixture creation.
+Its extra `workers/triggered_by=api` annotation differed from pinned Wrangler's payload; the response detail was not retained.
+The second request used Wrangler's message-only annotation and admitted the1% candidate.
+Both reserved test users completed preview signup, outbox verification and verified session checks.
+The owned duplicate POST then returned500 with no `X-Localley-Data-Source` header.
+Fourteen hosted checks passed before that failure. Copy persistence and denial acceptance did not run.
+The error's exact cause remains unproved; local tests do not establish hosted acceptance.
+
+The operator stopped after two failed release attempts. It restored preview version
+`e08db2c5-5788-4fbb-94d8-3bd373f33420` at100% and removed both owned fixtures.
+Both cleanup receipts prove all55candidate tables and8preview Auth business tables match their prior row hashes/counts.
+Foreign-key checks return0errors. Shared auth rate counters and the mailbox AUTOINCREMENT sequence advance normally and are never reset.
+Both fixture leases are closed; both cleanup timers are inactive.
+
+Production Worker `3132337f-a1bc-4ff5-a780-bdbe7a65e557` remains on deployment
+`6a17bf4b-e2c1-435b-999e-25614fadbaec` at100%.
+All48Source table hashes and production Auth counts/both administrator rows remain unchanged.
+No default preview promotion, production upload, payment, provider generation or external email occurred.
+Private `d1-duplicate-resume-upload`, `hosted`, `hosted-attempt2`, both fixture-cleanup receipts,
+and `final` retain the exact native results. The inactive candidate remains available for diagnosis.
+
+Remaining: diagnose the hosted500, prove the candidate copy/readback and denied cases, then complete the preview release.
 Production application data remains on Source. This increment does not authorize a full data switch or Source deletion.
