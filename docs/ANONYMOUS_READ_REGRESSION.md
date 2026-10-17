@@ -69,3 +69,56 @@ This tool changes no policies. The historical incident NEED remains closed.
 Private receipts: `anonymous-regression-production-strict-20261017.json` and
 `anonymous-regression-production-strict-v2-20261017.json` under `/home/dev/.local/state/localley`.
 Required CI, source/Worker preservation and final delivery identity follow in the root plan.
+
+## Delivered check and stable-host acceptance
+
+PR464 source `d5207fdf1802c1175ca510bf611c3139ec71bf20` passed required CI39054435856.
+The verify job passed in19m09s. All35focused regression tests pass locally and in required CI.
+The squash merge is `cdfc06d4cf6857a35d8676fbc063f52bce55857e`, with the same tested tree.
+Two concrete review findings were fixed: invalid-JWT denials and partial-column grants.
+The follow-up review cleared its remaining P1 condition after the column guard and tests.
+The live catalog confirms every denied private table has no anonymous table or column SELECT grant.
+No third independent review verdict is claimed.
+
+The command is installed through stable main. No Worker code release is required for this host-only check.
+Its stable-main live run passes on48relations:39private tables protected and nine explicit public catalogs readable.
+The private result consists of29exact zero counts and ten proven permission denials.
+All48tables retain RLS. Unknown results and downloaded record bodies both equal zero.
+Sixteen release checks pass, including exact CI/source identity, tree equality and preservation guards.
+All48Source row hashes/counts, eight Auth business-table counts and both full administrator rows match before and after.
+Production and preview deployments also match before and after.
+
+### Approved concurrent secret update
+
+Two earlier release attempts stopped before the actual command ran.
+They expected the previous production deployment and retained that failed evidence.
+The approved Scrapelet owner operation had added one encrypted secret at17:36UTC.
+It changed the Worker version without changing application code.
+
+Current production Worker: `a70b4e30-01d7-48b7-84c4-c31e110770c5` at100%.
+Current production deployment: `8db047ad-ec06-4e45-a478-b2f65d3dbd40`.
+The approved owner receipt proves all four code modules remain unchanged.
+An independent native-version comparison proves all56existing bindings remain identical.
+Only the encrypted `SCRAPELET_CLIENT_KEY_LOCALLEY` binding was added; production now has57bindings.
+The source remains the previously released `a38fe6495a20711086dce6a56a96545aa057c639`.
+
+After verifying APPROVALS and that receipt, the final proof used the corrected current baseline.
+The old failed guards were not treated as successful verification.
+Preview remains `a397be3d-8798-4c72-9abd-4975f4e6d855`, deployment `3268b368-4be2-43d6-a22d-fd4b976a46cf`.
+The compatible application rollback remains `83366b0c-6a7f-4173-b569-3e4ad6f24780`.
+Preserve the approved secret on later releases; its old value remains revoked.
+This regression delivery created no fixtures, changed no policies and sent no mail.
+
+Private evidence under `/home/dev/.local/state/localley`:
+
+- `anonymous-regression-final-ci-result-20261017.json`.
+- `anonymous-regression-column-guard-local-20261017.log`.
+- `anonymous-regression-production-column-guard-20261017.json`.
+- `anonymous-regression-reviewed-acceptance-20261017.json`.
+- `anonymous-regression-approved-rotation-baseline-20261017.json`.
+- `anonymous-regression-stable-approved-rotation-live-20261017.json`.
+- `anonymous-regression-host-release-20261017.json`.
+- `anonymous-regression-host-release-attempt1-20261017.json` and `attempt2` retain the superseded-baseline failures.
+
+The historical exposure NEED and public-catalog scope NEED are closed.
+This does not complete the Source-to-D1 migration or authorize Supabase deletion.
