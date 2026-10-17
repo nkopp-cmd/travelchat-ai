@@ -1,6 +1,7 @@
 // Policy-field fixture proof only; no Source or external requests. Full Source schema is checked separately.
 import assert from 'node:assert/strict';
 import { sourceOwnerPolicySql, ownerCatalogSql, ownerTables, truncateTables } from './source-owner-policy-guard.mjs';
+import { savedPolicySql, savedCatalogSql } from './source-owner-saved-policy.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
@@ -56,6 +57,7 @@ if (cleanupOnly) {
   await writeFile(output, JSON.stringify(report) + '\n', { mode: 0o600, flag: 'wx' });
   try {
     report.restrictionSha256 = createHash('sha256').update(sourceOwnerPolicySql()).digest('hex');
+    report.savedRestrictionSha256 = createHash('sha256').update(savedPolicySql()).digest('hex');
     const cached = JSON.parse(await docker(['image', 'inspect', image]))[0];
     check(cached.RepoDigests.includes(image), 'pinned_image_cached_no_pull');
     assert.equal(await findOwned(), null, 'proof_container_already_exists');
@@ -173,18 +175,58 @@ if (cleanupOnly) {
       CREATE TABLE saved_itineraries(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,clerk_user_id text,itinerary_id uuid REFERENCES itineraries(id),UNIQUE(clerk_user_id,itinerary_id));
       CREATE TABLE spot_reviews(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,spot_id uuid REFERENCES spots(id),clerk_user_id text,rating integer,comment text,visit_date date,updated_at timestamptz,created_at timestamptz DEFAULT now());
       ALTER TABLE saved_itineraries ENABLE ROW LEVEL SECURITY; ALTER TABLE spot_reviews ENABLE ROW LEVEL SECURITY;
-      GRANT ALL ON saved_itineraries,spot_reviews TO authenticated,service_role;
-      CREATE POLICY own_saved ON saved_itineraries FOR ALL TO authenticated USING(clerk_user_id=auth.jwt()->>'sub') WITH CHECK(clerk_user_id=auth.jwt()->>'sub');
+      GRANT ALL ON saved_itineraries TO anon,authenticated,service_role; GRANT ALL ON spot_reviews TO authenticated,service_role;
+      CREATE POLICY "Users can save itineraries" ON saved_itineraries FOR INSERT TO PUBLIC WITH CHECK(true);
+      CREATE POLICY "Users can unsave itineraries" ON saved_itineraries FOR DELETE TO PUBLIC USING(true);
+      CREATE POLICY "Users can view saved itineraries" ON saved_itineraries FOR SELECT TO PUBLIC USING(true);
       CREATE POLICY public_reviews ON spot_reviews FOR SELECT TO authenticated USING(true);
       CREATE POLICY own_review_insert ON spot_reviews FOR INSERT TO authenticated WITH CHECK(clerk_user_id=auth.jwt()->>'sub');`);
+    const savedRows=()=>sql("SELECT md5(COALESCE(string_agg(to_jsonb(s)::text,'' ORDER BY to_jsonb(s)::text),'')) FROM public.saved_itineraries s");
+    const savedCatalog=()=>sql(savedCatalogSql);
+    await sql(`INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('owner-a','${id(2)}'),('owner-b','${id(1)}')`);
+    const originalSavedRows=await savedRows(),originalSavedCatalog=await savedCatalog();
+    check(await count('anon','','saved_itineraries')==='2','saved_public_exposure_reproduced');
+    await sql(`CREATE FUNCTION fixture_saved_row_change() RETURNS event_trigger LANGUAGE plpgsql AS $fixture$
+      BEGIN UPDATE public.saved_itineraries SET clerk_user_id='tampered' WHERE clerk_user_id='owner-a'; END $fixture$;
+      CREATE EVENT TRIGGER fixture_saved_row_change ON ddl_command_end WHEN TAG IN ('ALTER POLICY') EXECUTE FUNCTION fixture_saved_row_change();`);
+    let savedTamper=false;try{await sql(savedPolicySql());}catch(error){savedTamper=/saved_guard_rows_changed/.test(error.stderr??'');}
+    check(savedTamper,'saved_unexpected_row_change_refused');
+    check(await savedRows()===originalSavedRows&&await savedCatalog()===originalSavedCatalog,'saved_tamper_data_and_policy_rollback');
+    await sql('DROP EVENT TRIGGER fixture_saved_row_change; DROP FUNCTION fixture_saved_row_change();');
+    await sql(savedPolicySql());const restrictedSavedCatalog=await savedCatalog();
+    check(await savedRows()===originalSavedRows,'saved_restriction_preserves_all_rows');
+    check(await count('anon','','saved_itineraries')==='0','saved_anonymous_read_denied');
+    for(const actor of['owner-a','owner-b'])check(await count('authenticated',actor,'saved_itineraries',`clerk_user_id='${actor}'`)==='1','saved_'+actor+'_own_read');
+    check(await count('authenticated','owner-a','saved_itineraries',"clerk_user_id='owner-b'")==='0','saved_foreign_read_ignores_forged_metadata');
+    check(await count('authenticated','unknown-owner','saved_itineraries')==='0','saved_unknown_and_forged_metadata_denied');
+    for(const role of['anon','authenticated']){
+      check(await sql(`SELECT has_table_privilege('${role}','public.saved_itineraries','TRUNCATE')::int`)==='0','saved_'+role+'_truncate_revoked');
+      let blocked=false;try{await roleQuery(role,'owner-a','TRUNCATE public.saved_itineraries');}catch(error){blocked=/permission denied/.test(error.stderr??'');}check(blocked,'saved_'+role+'_actual_truncate_denied');
+    }
+    let deniedInsert=false;try{await roleQuery('authenticated','owner-a',`INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('foreign-owner','${id(1)}')`);}catch(error){deniedInsert=/row-level security/.test(error.stderr??'');}check(deniedInsert,'saved_forged_owner_insert_denied');
+    let anonInsert=false;try{await roleQuery('anon','',`INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('anon','${id(1)}')`);}catch(error){anonInsert=/row-level security/.test(error.stderr??'');}check(anonInsert,'saved_anon_insert_denied');
+    check((await roleQuery('authenticated','owner-a',"WITH gone AS(DELETE FROM saved_itineraries WHERE clerk_user_id='owner-b' RETURNING id) SELECT count(*) FROM gone")).split('\n').includes('0'),'saved_foreign_delete_affects_zero');check(await savedRows()===originalSavedRows,'saved_foreign_delete_preserves_rows');
+    check((await roleQuery('authenticated','owner-a',"WITH moved AS(UPDATE saved_itineraries SET clerk_user_id='other-owner' RETURNING id) SELECT count(*) FROM moved")).split('\n').includes('0'),'saved_owner_reassignment_affects_zero');check(await savedRows()===originalSavedRows,'saved_update_has_no_policy');
+    check((await roleQuery('authenticated','owner-a',`WITH added AS(INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('owner-a','${id(1)}') RETURNING id) SELECT count(*) FROM added`)).split('\n').includes('1'),'saved_own_insert_affects_one');check(await savedRows()===originalSavedRows,'saved_own_insert_valid_rolled_back');
+    check((await roleQuery('authenticated','owner-a',"WITH gone AS(DELETE FROM saved_itineraries WHERE clerk_user_id='owner-a' RETURNING id) SELECT count(*) FROM gone")).split('\n').includes('1'),'saved_own_private_unlike_affects_one');check(await savedRows()===originalSavedRows,'saved_private_unlike_valid_rolled_back');
+    check(await count('service_role','','saved_itineraries')==='2','saved_server_complete_read');
+    check((await roleQuery('service_role','',`WITH added AS(INSERT INTO saved_itineraries(clerk_user_id,itinerary_id) VALUES('server-owner','${id(1)}') RETURNING id) SELECT count(*) FROM added`)).split('\n').includes('1'),'saved_server_insert');
+    check((await roleQuery('service_role','',"WITH moved AS(UPDATE saved_itineraries SET clerk_user_id='server-owner' WHERE clerk_user_id='owner-a' RETURNING id) SELECT count(*) FROM moved")).split('\n').includes('1'),'saved_server_update');
+    check((await roleQuery('service_role','',"WITH gone AS(DELETE FROM saved_itineraries WHERE clerk_user_id='owner-a' RETURNING id) SELECT count(*) FROM gone")).split('\n').includes('1'),'saved_server_delete');
+    check(await savedRows()===originalSavedRows,'saved_server_crud_rollback_preserves_rows');
+    let repeated=false;try{await sql(savedPolicySql());}catch{repeated=true;}check(repeated&&await savedCatalog()===restrictedSavedCatalog,'saved_repeat_refuses_without_change');
+    let drift=false;try{await sql(savedPolicySql({restoreCatalogMd5:'0'.repeat(32)}));}catch{drift=true;}check(drift&&await savedCatalog()===restrictedSavedCatalog,'saved_restore_drift_refused');
+    await sql(savedPolicySql({restoreCatalogMd5:restrictedSavedCatalog}));check(await savedCatalog()===originalSavedCatalog&&await savedRows()===originalSavedRows,'saved_exact_rollback_preserves_rows');
+    await sql(savedPolicySql());check(await savedCatalog()===restrictedSavedCatalog&&await savedRows()===originalSavedRows,'saved_reapply_after_exact_rollback');
     const integration = await run(resolve(process.cwd(),'node_modules/.bin/vitest'),['run','__tests__/api/source-owner-postgres.test.ts','--maxWorkers=1'],{
       cwd: process.cwd(), encoding:'utf8',timeout:90000,maxBuffer:1024*1024,signal:childAbort.signal,
       env:{...process.env,LOCALLEY_SOURCE_OWNER_PROOF_KEY:key},
     });
-    check(/4 passed/.test(integration.stdout),'four_actual_handler_postgres_integration_tests');
+    check(/6 passed/.test(integration.stdout),'six_actual_handler_postgres_integration_tests');
     assert(!interrupted, 'proof_interrupted'); report.state = 'passed';
   } catch (error) {
     report.state = 'failed'; report.error = error.message;
+    if(error.stdout) report.failureStdout=error.stdout;
   } finally {
     clearTimeout(timer);
     if (admitted) {

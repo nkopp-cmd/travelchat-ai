@@ -8,6 +8,8 @@ Canary9b169dd8 at1% and default release each pass38real login/owner-save/reload/
 
 Rollback `19b90012-a85c-426c-a40e-9323ffaa5370` was actually restored at `86c0e390-2521-4ab8-a662-836c6060deb3` before returning to the compatible runtime. The old Worker is not an approved rollback after the Source permission repair: it lacks these privacy checks. The watchdog is disarmed, and its timer/service are inactive. An emergency metadata restore also reopens known exposure and must never run automatically. [Current permission operation, exact receipts, failure reconciliation and limits](../SOURCE_OWNER_SECURITY.md). This is a Source security repair, not a D1 data switch; Supabase retention and the common migration gates remain in force.
 
+The related [saved trip permission repair](../SAVED_ITINERARY_SECURITY.md) records its own guarded metadata and acceptance status. It does not need a new Worker artifact.
+
 ## Historical production — atomic usage correction, 2026-10-17
 
 PR432 source `dbd09ad27037545314ce397b1da641f47656a3fe`, required self-hosted CI `38987106920` SUCCESS16m34s, merged `6d5b6c0f1c548479f365ce58166f506d390d6fe7` with the same tree. Thirty-seven focused tests, actual installed-SQL PostgreSQL20checks, full regressions/type/lint, pinned build, artifact audit and read-only code/release reviews pass.
