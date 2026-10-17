@@ -17,6 +17,8 @@ export function NotificationPreferencesSection() {
     const {
         preferences,
         isPreviewCandidate,
+        isWritable = true,
+        deliveryEnabled = true,
         isLoading: prefsLoading,
         error: preferencesError,
         updatePreferences,
@@ -34,7 +36,7 @@ export function NotificationPreferencesSection() {
     const [isSaving, setIsSaving] = useState(false);
 
     const handleToggle = async (key: string, value: boolean) => {
-        if (!preferences) return;
+        if (!preferences || !isWritable) return;
 
         setIsSaving(true);
         try {
@@ -55,7 +57,7 @@ export function NotificationPreferencesSection() {
     };
 
     const handlePushToggle = async () => {
-        if (isPreviewCandidate) return;
+        if (isPreviewCandidate || !deliveryEnabled || !isWritable) return;
         if (isSubscribed) {
             const success = await unsubscribe();
             if (success) {
@@ -109,7 +111,13 @@ export function NotificationPreferencesSection() {
             {isPreviewCandidate && <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
                 Your choices are saved. Notifications are not sent from this preview.
             </div>}
-            {!isPreviewCandidate && <>
+            {!isPreviewCandidate && !deliveryEnabled && <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+                Email and push delivery are not enabled yet.
+            </div>}
+            {!isWritable && <p role="status" className="text-sm text-muted-foreground">
+                Your saved choices are available. Changes are temporarily unavailable.
+            </p>}
+            {!isPreviewCandidate && deliveryEnabled && <>
             {/* Push Notification Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
                 <div className="flex items-center gap-3">
@@ -142,7 +150,7 @@ export function NotificationPreferencesSection() {
                     variant={isSubscribed ? "outline" : "default"}
                     size="sm"
                     onClick={handlePushToggle}
-                    disabled={!isSupported || pushLoading}
+                    disabled={!isSupported || pushLoading || !isWritable}
                     className={isSubscribed ? "" : "bg-violet-600 hover:bg-violet-700"}
                 >
                     {pushLoading ? (
@@ -179,7 +187,7 @@ export function NotificationPreferencesSection() {
                         id="achievements"
                         checked={preferences?.achievements ?? true}
                         onCheckedChange={(checked) => handleToggle("achievements", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
 
@@ -198,7 +206,7 @@ export function NotificationPreferencesSection() {
                         id="newSpots"
                         checked={preferences?.newSpots ?? true}
                         onCheckedChange={(checked) => handleToggle("newSpots", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
 
@@ -217,7 +225,7 @@ export function NotificationPreferencesSection() {
                         id="social"
                         checked={preferences?.social ?? true}
                         onCheckedChange={(checked) => handleToggle("social", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
 
@@ -236,7 +244,7 @@ export function NotificationPreferencesSection() {
                         id="challenges"
                         checked={preferences?.challenges ?? true}
                         onCheckedChange={(checked) => handleToggle("challenges", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
 
@@ -255,14 +263,14 @@ export function NotificationPreferencesSection() {
                         id="weeklyDigest"
                         checked={preferences?.weeklyDigest ?? true}
                         onCheckedChange={(checked) => handleToggle("weeklyDigest", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
             </div>
 
             <Separator />
 
-            {!isPreviewCandidate && <>
+            {!isPreviewCandidate && deliveryEnabled && <>
             {/* Delivery Methods */}
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -283,7 +291,7 @@ export function NotificationPreferencesSection() {
                         id="pushEnabled"
                         checked={preferences?.pushEnabled ?? true}
                         onCheckedChange={(checked) => handleToggle("pushEnabled", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
 
@@ -301,7 +309,7 @@ export function NotificationPreferencesSection() {
                         id="emailEnabled"
                         checked={preferences?.emailEnabled ?? true}
                         onCheckedChange={(checked) => handleToggle("emailEnabled", checked)}
-                        disabled={isSaving}
+                        disabled={isSaving || !isWritable}
                     />
                 </div>
             </div>

@@ -63,6 +63,8 @@
   // The preview points at production Supabase with the public anon key only.
   // SUPABASE_READ_ONLY blocks every non-GET Supabase request (lib/supabase-read-only.ts).
   "vars": {
+    // The existing explicit preview candidate retains its separate store.
+    "AUTH_NOTIFICATION_STORAGE": "off",
     "SUPABASE_READ_ONLY": "true",
     "NEXTJS_ENV": "production",
     // Auth emails go to the auth_mail_outbox table, never to a real inbox.
@@ -125,6 +127,9 @@
       // FROM_EMAIL remains the existing Worker secret: Localley <hello@localley.io>.
       // AUTH_EMAIL uses Cloudflare Email Sending. Auth no longer uses RESEND_API_KEY.
       "vars": {
+        // Release a compatible readonly version before this active variant.
+        // Rollback retains D1 rows and readability; never return to Source storage.
+        "AUTH_NOTIFICATION_STORAGE": "active",
         // Override any preview-only default embedded by an OpenNext build.
         "SUPABASE_READ_ONLY": "false",
         "NEXTJS_ENV": "production",

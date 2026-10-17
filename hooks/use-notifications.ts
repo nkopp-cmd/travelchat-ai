@@ -1,237 +1,140 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@/lib/auth/client";
-import { Notification, NotificationPreferences } from "@/types";
+import type { Notification, NotificationPreferences } from "@/types";
 import { isPreviewNotificationSettings, notificationPreferencesUrl, notificationInboxUrl } from "@/lib/app-data/notification-candidate-url";
 
-interface UseNotificationsReturn {
-    isPreviewCandidate: boolean;
-    notifications: Notification[];
-    unreadCount: number;
-    isLoading: boolean;
-    error: string | null;
-    hasMore: boolean;
-    loadMore: () => Promise<void>;
-    markAsRead: (id: string) => Promise<void>;
-    markAllAsRead: () => Promise<void>;
-    deleteNotification: (id: string) => Promise<void>;
-    refresh: () => Promise<void>;
-}
+const ownerHeaders = (id: string) => ({ "X-Localley-Notification-Owner": id });
+const unavailable = "Notifications are currently unavailable.";
+type InboxState = { owner: string | null; notifications: Notification[]; unreadCount: number; isLoading: boolean;
+    error: string | null; offset: number; hasMore: boolean; isWritable: boolean };
+const emptyInbox = (owner: string | null): InboxState => ({ owner, notifications: [], unreadCount: 0,
+    isLoading: !!owner, error: null, offset: 0, hasMore: false, isWritable: false });
 
-export function useNotifications(): UseNotificationsReturn {
-    const { isSignedIn } = useUser();
-    const isPreviewCandidate = isPreviewNotificationSettings();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [offset, setOffset] = useState(0);
-    const [hasMore, setHasMore] = useState(true);
-
+export function useNotifications() {
+    const { isSignedIn, user } = useUser();
+    const owner = isSignedIn && user?.id && user.emailVerified ? user.id : null;
+    const [state, setState] = useState<InboxState>(() => emptyInbox(owner));
+    const epoch = useRef(0), readSequence = useRef(0), controller = useRef<AbortController | null>(null);
+    // Hide old-owner content synchronously; effects and network cleanup follow after render.
+    const visible = state.owner === owner ? state : emptyInbox(owner);
     const limit = 20;
 
-    const fetchNotifications = useCallback(async (reset = false) => {
-        if (!isSignedIn) return;
-
+    const fetchPage = useCallback(async (offset: number, reset: boolean) => {
+        if (!owner) return;
+        const generation = epoch.current, sequence = ++readSequence.current;
+        controller.current?.abort();
+        const abort = new AbortController(); controller.current = abort;
+        const current = () => epoch.current === generation && readSequence.current === sequence;
+        setState(prev => prev.owner === owner ? { ...prev, isLoading: true, error: null } : emptyInbox(owner));
         try {
-            setIsLoading(true);
-            setError(null);
-
-            const currentOffset = reset ? 0 : offset;
-            const response = await fetch(
-                notificationInboxUrl(undefined, { limit, offset: currentOffset })
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch notifications");
-            }
-
+            const response = await fetch(notificationInboxUrl(undefined, { limit, offset }),
+                { signal: abort.signal, headers: ownerHeaders(owner) });
+            if (!response.ok) throw Error("Failed to fetch notifications");
             const data = await response.json();
-
-            if (reset) {
-                setNotifications(data.notifications);
-                setOffset(limit);
-            } else {
-                setNotifications((prev) => [...prev, ...data.notifications]);
-                setOffset((prev) => prev + limit);
-            }
-
-            setUnreadCount(data.unreadCount);
-            setHasMore(data.notifications.length === limit);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "An error occurred");
-        } finally {
-            setIsLoading(false);
+            if (!Array.isArray(data.notifications) || !Number.isSafeInteger(data.unreadCount) || data.unreadCount < 0) throw Error(unavailable);
+            if (!current()) return;
+            setState(prev => prev.owner !== owner ? prev : { ...prev,
+                notifications: reset ? data.notifications : [...prev.notifications, ...data.notifications],
+                unreadCount: data.unreadCount, offset: offset + limit,
+                hasMore: typeof data.hasMore === "boolean" ? data.hasMore : data.notifications.length === limit,
+                isWritable: data.storageWritable !== false, isLoading: false, error: null });
+        } catch (error) {
+            if (current() && !abort.signal.aborted) setState(prev => prev.owner !== owner ? prev : {
+                ...prev, error: error instanceof Error ? error.message : unavailable, isLoading: false });
         }
-    }, [isSignedIn, offset]);
-
-    // Initial fetch
-    useEffect(() => {
-        if (isSignedIn) {
-            fetchNotifications(true);
-        }
-    }, [isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const refresh = useCallback(async () => {
-        await fetchNotifications(true);
-    }, [fetchNotifications]);
-
-    const loadMore = useCallback(async () => {
-        if (!hasMore || isLoading) return;
-        await fetchNotifications(false);
-    }, [hasMore, isLoading, fetchNotifications]);
-
-    const markAsRead = useCallback(async (id: string) => {
-        try {
-            const response = await fetch(notificationInboxUrl(id), {
-                method: "PATCH",
-            });
-
-            if (!response.ok || (isPreviewCandidate && (await response.json()).success !== true)) {
-                throw new Error("Failed to mark notification as read");
-            }
-
-            setNotifications((prev) =>
-                prev.map((n) =>
-                    n.id === id ? { ...n, read: true, readAt: new Date().toISOString() } : n
-                )
-            );
-            setUnreadCount((prev) => Math.max(0, prev - 1));
-        } catch (err) {
-            console.error("Error marking notification as read:", err);
-            if (isPreviewCandidate) setError("Preview notifications are currently unavailable.");
-        }
-    }, [isPreviewCandidate]);
-
-    const markAllAsRead = useCallback(async () => {
-        try {
-            const response = await fetch(notificationInboxUrl(), {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "markAllRead" }),
-            });
-
-            if (!response.ok || (isPreviewCandidate && (await response.json()).success !== true)) {
-                throw new Error("Failed to mark all notifications as read");
-            }
-
-            setNotifications((prev) =>
-                prev.map((n) => ({ ...n, read: true, readAt: new Date().toISOString() }))
-            );
-            setUnreadCount(0);
-        } catch (err) {
-            console.error("Error marking all notifications as read:", err);
-            if (isPreviewCandidate) setError("Preview notifications are currently unavailable.");
-        }
-    }, [isPreviewCandidate]);
-
-    const deleteNotification = useCallback(async (id: string) => {
-        try {
-            const response = await fetch(notificationInboxUrl(id), {
-                method: "DELETE",
-            });
-
-            if (!response.ok || (isPreviewCandidate && (await response.json()).success !== true)) {
-                throw new Error("Failed to delete notification");
-            }
-
-            const notification = notifications.find((n) => n.id === id);
-            setNotifications((prev) => prev.filter((n) => n.id !== id));
-            if (notification && !notification.read) {
-                setUnreadCount((prev) => Math.max(0, prev - 1));
-            }
-        } catch (err) {
-            console.error("Error deleting notification:", err);
-            if (isPreviewCandidate) setError("Preview notifications are currently unavailable.");
-        }
-    }, [notifications, isPreviewCandidate]);
-
-    return {
-        isPreviewCandidate,
-        notifications,
-        unreadCount,
-        isLoading,
-        error,
-        hasMore,
-        loadMore,
-        markAsRead,
-        markAllAsRead,
-        deleteNotification,
-        refresh,
-    };
-}
-
-interface UseNotificationPreferencesReturn {
-    isPreviewCandidate: boolean;
-    preferences: NotificationPreferences | null;
-    isLoading: boolean;
-    error: string | null;
-    updatePreferences: (updates: Partial<NotificationPreferences>) => Promise<void>;
-}
-
-export function useNotificationPreferences(): UseNotificationPreferencesReturn {
-    const { isSignedIn } = useUser();
-    const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    }, [owner]);
 
     useEffect(() => {
-        async function fetchPreferences() {
-            if (!isSignedIn) return;
+        const generation = ++epoch.current; setState(emptyInbox(owner));
+        if (owner) void fetchPage(0, true);
+        return () => { epoch.current = generation + 1; readSequence.current = 0; controller.current?.abort(); };
+    }, [owner, fetchPage]);
 
+    const mutate = useCallback(async (id: string | undefined, method: "PATCH" | "POST" | "DELETE") => {
+        if (!owner || !visible.isWritable) return;
+        const generation = epoch.current;
+        try {
+            const response = await fetch(notificationInboxUrl(id), { method,
+                headers: { ...ownerHeaders(owner), ...(method === "POST" ? { "Content-Type": "application/json" } : {}) },
+                ...(method === "POST" ? { body: JSON.stringify({ action: "markAllRead" }) } : {}) });
+            if (!response.ok || (await response.json()).success !== true) throw Error(unavailable);
+            if (epoch.current !== generation) return;
+            // A read started before this write must not restore stale rows or counts.
+            readSequence.current++; controller.current?.abort();
+            setState(prev => {
+                if (prev.owner !== owner) return prev;
+                const row = prev.notifications.find(n => n.id === id);
+                return { ...prev, error: null, isLoading: false,
+                    offset: method === "DELETE" && row ? Math.max(0, prev.offset - 1) : prev.offset,
+                    notifications: method === "DELETE" ? prev.notifications.filter(n => n.id !== id)
+                        : prev.notifications.map(n => !id || n.id === id
+                            ? { ...n, read: true, readAt: n.readAt ?? new Date().toISOString() } : n),
+                    unreadCount: method === "POST" ? 0 : Math.max(0, prev.unreadCount - (row && !row.read ? 1 : 0)) };
+            });
+        } catch {
+            if (epoch.current === generation) setState(prev => prev.owner !== owner ? prev : { ...prev, error: unavailable });
+        }
+    }, [owner, visible.isWritable]);
+
+    return { isPreviewCandidate: isPreviewNotificationSettings(), notifications: visible.notifications,
+        unreadCount: visible.unreadCount, isLoading: visible.isLoading, error: visible.error,
+        hasMore: visible.hasMore, isWritable: visible.isWritable,
+        loadMore: async () => { if (!visible.isLoading && visible.hasMore) await fetchPage(visible.offset, false); },
+        refresh: async () => fetchPage(0, true), markAsRead: async (id: string) => mutate(id, "PATCH"),
+        markAllAsRead: async () => mutate(undefined, "POST"), deleteNotification: async (id: string) => mutate(id, "DELETE") };
+}
+
+type PreferenceState = { owner: string | null; preferences: NotificationPreferences | null; isLoading: boolean;
+    error: string | null; isWritable: boolean; deliveryEnabled: boolean };
+const emptyPreferences = (owner: string | null): PreferenceState => ({ owner, preferences: null,
+    isLoading: !!owner, error: null, isWritable: false, deliveryEnabled: false });
+function preferenceData(data: NotificationPreferences): NotificationPreferences {
+    const value = { ...data } as NotificationPreferences & { storageWritable?: boolean; deliveryEnabled?: boolean };
+    delete value.storageWritable; delete value.deliveryEnabled;
+    return value;
+}
+
+export function useNotificationPreferences() {
+    const { isSignedIn, user } = useUser();
+    const owner = isSignedIn && user?.id && user.emailVerified ? user.id : null;
+    const [state, setState] = useState<PreferenceState>(() => emptyPreferences(owner));
+    const epoch = useRef(0);
+    const visible = state.owner === owner ? state : emptyPreferences(owner);
+    useEffect(() => {
+        const generation = ++epoch.current, abort = new AbortController();
+        setState(emptyPreferences(owner));
+        if (owner) void (async () => {
             try {
-                setIsLoading(true);
-                setError(null);
-
-                const response = await fetch(notificationPreferencesUrl());
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch preferences");
-                }
-
+                const response = await fetch(notificationPreferencesUrl(), { signal: abort.signal, headers: ownerHeaders(owner) });
+                if (!response.ok) throw Error("Notification settings are currently unavailable.");
                 const data = await response.json();
-                if (data.available === false) {
-                    setPreferences(null);
-                    setError("Notification settings are currently unavailable.");
-                } else {
-                    setPreferences(data);
-                }
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "An error occurred");
-            } finally {
-                setIsLoading(false);
+                if (data.available === false) throw Error("Notification settings are currently unavailable.");
+                if (epoch.current !== generation) return;
+                setState(prev => prev.owner !== owner ? prev : { ...prev, preferences: preferenceData(data), isLoading: false,
+                    isWritable: data.storageWritable !== false, deliveryEnabled: data.deliveryEnabled !== false });
+            } catch {
+                if (epoch.current === generation && !abort.signal.aborted) setState(prev => prev.owner !== owner ? prev : {
+                    ...prev, isLoading: false, error: "Notification settings are currently unavailable." });
             }
-        }
-
-        fetchPreferences();
-    }, [isSignedIn]);
+        })();
+        return () => { epoch.current = generation + 1; abort.abort(); };
+    }, [owner]);
 
     const updatePreferences = useCallback(async (updates: Partial<NotificationPreferences>) => {
-        try {
-            const response = await fetch(notificationPreferencesUrl(), {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updates),
-            });
+        if (!owner || !visible.isWritable) throw Error("Notification settings are temporarily read-only.");
+        const generation = epoch.current;
+        const response = await fetch(notificationPreferencesUrl(), { method: "PATCH",
+            headers: { ...ownerHeaders(owner), "Content-Type": "application/json" }, body: JSON.stringify(updates) });
+        if (!response.ok) throw Error("Failed to update preferences");
+        const data = await response.json();
+        if (epoch.current !== generation) throw Error("Your account changed. Reload your settings.");
+        setState(prev => prev.owner !== owner ? prev : { ...prev, preferences: preferenceData(data),
+            isWritable: data.storageWritable !== false, deliveryEnabled: data.deliveryEnabled !== false });
+    }, [owner, visible.isWritable]);
 
-            if (!response.ok) {
-                throw new Error("Failed to update preferences");
-            }
-
-            const data = await response.json();
-            setPreferences(data);
-        } catch (err) {
-            console.error("Error updating preferences:", err);
-            throw err;
-        }
-    }, []);
-
-    return {
-        isPreviewCandidate: isPreviewNotificationSettings(),
-        preferences,
-        isLoading,
-        error,
-        updatePreferences,
-    };
+    return { isPreviewCandidate: isPreviewNotificationSettings(), preferences: visible.preferences,
+        isLoading: visible.isLoading, error: visible.error, isWritable: visible.isWritable,
+        deliveryEnabled: visible.deliveryEnabled, updatePreferences };
 }

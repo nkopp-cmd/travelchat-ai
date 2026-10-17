@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks=vi.hoisted(()=>({candidate:true,signed:true,subscribe:vi.fn(),unsubscribe:vi.fn(),toast:vi.fn()}));
-vi.mock("@/lib/auth/client",()=>({useUser:()=>({isSignedIn:mocks.signed})}));
+vi.mock("@/lib/auth/client",()=>({useUser:()=>({isSignedIn:mocks.signed,user:mocks.signed?{id:"fixture",emailVerified:true}:null})}));
 vi.mock("@/lib/app-data/notification-candidate-url",()=>({isPreviewNotificationSettings:()=>mocks.candidate,notificationPreferencesUrl:()=>`/api/notifications/preferences${mocks.candidate?'?data_candidate=d1':''}`}));
 vi.mock("@/hooks/use-push-notifications",()=>({usePushNotifications:()=>({isSupported:true,isSubscribed:false,isLoading:false,permission:'default',subscribe:mocks.subscribe,unsubscribe:mocks.unsubscribe})}));
 vi.mock("@/hooks/use-toast",()=>({useToast:()=>({toast:mocks.toast})}));

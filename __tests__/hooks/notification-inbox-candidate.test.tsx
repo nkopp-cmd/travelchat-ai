@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ candidate: true, signed: true }));
-vi.mock("@/lib/auth/client", () => ({ useUser: () => ({ isSignedIn: mocks.signed }) }));
+vi.mock("@/lib/auth/client", () => ({ useUser: () => ({ isSignedIn: mocks.signed, user: mocks.signed ? { id: "owner", emailVerified: true } : null }) }));
 vi.mock("@/lib/app-data/notification-candidate-url", async (original) => {
   const actual = await original<typeof import("@/lib/app-data/notification-candidate-url")>();
   return { ...actual, isPreviewNotificationSettings: () => mocks.candidate,

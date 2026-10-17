@@ -56,7 +56,10 @@ export async function POST(request: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         if (isPreviewNotificationCandidate(request)) return candidate(request, userId, false);
@@ -95,7 +98,10 @@ export async function DELETE(request: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         if (isPreviewNotificationCandidate(request)) return candidate(request, userId, true);

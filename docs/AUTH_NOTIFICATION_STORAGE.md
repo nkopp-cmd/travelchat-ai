@@ -17,9 +17,31 @@ Existing preview candidate storage and all other Source features retain their be
 
 ## Foundation and activation are separate gates
 
-The foundation adds a migration and an unused store. It has no runtime callers, binding changes, or activation flag.
-Merging the foundation does not apply the migration, activate normal production storage, or deploy a new Worker.
-It is safe to keep the existing Worker while the following delivery gate is prepared.
+PR441 added the migration and an unused store. Source333ae736 passed exact CI39007525997 and merged13f44792 with the same tree.
+Independent supplied-code review approved the inactive SQL/store with no P0/P1 findings.
+This merge did not apply the migration, activate production storage, or deploy a Worker.
+
+The routing follow-up introduces `AUTH_NOTIFICATION_STORAGE` on the actual Worker environment:
+
+| Mode | Read behavior | Write behavior |
+| --- | --- | --- |
+| Missing or `off` | Existing legacy path; preview candidate still runs first | Existing legacy path |
+| `readonly` | Canonical verified Auth D1 owner | Refused; saved data stays readable |
+| `active` | Canonical verified Auth D1 owner | Bounded, owner-scoped D1 writes |
+| Invalid value or unavailable selected store | Generic private503 | Generic private503 |
+
+The top-level preview configuration stays `off`. The production configuration declares the final `active` variant.
+The release must first upload and verify a `readonly` variant from the same artifact.
+That version becomes the compatible rollback floor before any active storage writes.
+Then use the active variant through an explicit version-override canary and a tested rollback to the read-only floor.
+Do not deploy the production configuration directly before these gates pass.
+The release record identifies the actual live variant and rollback version.
+
+The adapter accepts only allowed HTTPS hosts, matching verified sessions, and current physical verified users and unexpired sessions.
+It checks same-origin writes and an optional initiating-owner assertion. Stale account actions cannot act on a different signed-in owner.
+Selected-store responses are private and never cached. Selected-store errors never return to Source.
+The client hides old-owner state immediately, ignores stale responses, preserves paging after deletion, and clears data after logout.
+Read-only controls are disabled. The UI states that external delivery is inactive and does not request browser push permission.
 
 Before production activation:
 
@@ -44,4 +66,20 @@ It covers additive schema preservation, false defaults, owner isolation, partial
 verified-user races, bounded inbox reads, idempotent actions, unsafe link removal, push caps and ownership,
 overlapping registrations, canonical key and point validation, and account-delete cascade.
 Overlapping JavaScript calls share one real SQLite connection; this is not a remote D1 concurrency claim.
-Hosted concurrency and backup/restore proof remain activation gates.
+Hosted concurrency, compatible rollback, and production acceptance remain open. Backup/restore proof is recorded below.
+
+## Retained preparation evidence
+
+The full production Auth backup at2026-10-17 06:04UTC is encrypted for the host and Nils.
+A real decrypt and SQLite restore retained all9 original tables,17rows and both admin records.
+The additive migration rehearsal preserved old schema and data, with integrity `ok` and zero foreign-key violations.
+The plaintext stage was removed. The private receipt is `auth-notification-backup-20261017.json`.
+Read-only schema preflight passed9guards against the actual production database. No production schema application is claimed here.
+
+The routing proof passed140focused tests, TypeScript and ESLint. It includes actual Better Auth signup/verification/native session data on SQLite.
+The code review found no P0/P1 issues; its non-blocking pagination, stale-read and metadata concerns were fixed and tested.
+Twelve local desktop/mobile images were inspected across active, read-only and unavailable settings and inbox views.
+The existing theme, controls, and typography remain. Mobile inbox actions are visible; no horizontal overflow was observed.
+The local harness uses controlled API fixtures and proves component behavior only. It does not prove hosted D1 acceptance.
+The first harness run loaded Better Fetch before its fixture. A later exact-text locator rejected the correct nested error message.
+Both failed receipts remain; the saved DOM and remaining successful cases resolve the test defects without claiming an application fix.

@@ -47,7 +47,9 @@ function notification(row: InboxRow, userId: string): Notification {
     || ![0, 1].includes(row.isRead) || !Number.isFinite(Date.parse(row.createdAt))
     || (row.readAt !== null && !Number.isFinite(Date.parse(row.readAt)))
     || typeof row.data !== "string" || row.data.length > 8192) throw new NotificationStoreUnavailable();
-  const data: unknown = JSON.parse(row.data);
+  let data: unknown;
+  try { data = JSON.parse(row.data) as unknown; }
+  catch { throw new NotificationStoreUnavailable(); }
   if (!isObject(data)) throw new NotificationStoreUnavailable();
   // Notification links are content, never trusted navigation or image sources.
   if ("url" in data && !safeLink(data.url, true)) delete data.url;

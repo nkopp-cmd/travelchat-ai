@@ -31,6 +31,7 @@ type SessionData = NonNullable<ReturnType<typeof authClient.useSession>["data"]>
 
 export interface ClientUser {
   id: string;
+  emailVerified: boolean;
   firstName: string | null;
   lastName: string | null;
   fullName: string | null;
@@ -49,6 +50,7 @@ export function toClientUser(user: SessionData["user"]): ClientUser {
   const email = { emailAddress: user.email };
   return {
     id: user.id,
+    emailVerified: Boolean(user.emailVerified),
     firstName,
     lastName,
     fullName: [firstName, lastName].filter(Boolean).join(" ") || user.name || null,

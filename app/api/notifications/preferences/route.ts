@@ -40,7 +40,10 @@ export async function GET(request?: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         if (request && isPreviewNotificationCandidate(request)) {
@@ -78,7 +81,10 @@ export async function PATCH(request: NextRequest) {
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         if (isPreviewNotificationCandidate(request)) {

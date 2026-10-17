@@ -20,7 +20,13 @@ function response(value: unknown, mode?: Mode, status = 200) {
 }
 function expiry(value: unknown): number {
   if (typeof value === "number") return value < 1e12 ? value * 1000 : value;
-  if (typeof value === "string") return /^\d{10,13}$/.test(value) ? expiry(Number(value)) : Date.parse(value);
+  if (typeof value === "string") {
+    if (/^\d{10,13}$/.test(value)) return expiry(Number(value));
+    // SQLite datetime text has no suffix but represents UTC in the Auth store.
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?$/.test(value))
+      return Date.parse(value.replace(" ", "T") + "Z");
+    return Date.parse(value);
+  }
   return NaN;
 }
 
@@ -42,6 +48,10 @@ export async function authNotificationResponse(request: NextRequest | undefined,
     const session = await getSession(request.headers);
     if (!session || session.user.id !== userId || !session.user.emailVerified) {
       return response({ error: "A verified account is required." }, mode, 403);
+    }
+    const expectedOwner = request.headers.get("x-localley-notification-owner");
+    if (expectedOwner !== null && expectedOwner !== userId) {
+      return response({ error: "Your account changed. Reload this page." }, mode, 403);
     }
     // Cookie caching must not admit a revoked session or a newly unverified/deleted user.
     const actual = await db.prepare(`SELECT s.id, s.expiresAt FROM session s

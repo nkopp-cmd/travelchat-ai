@@ -18,7 +18,10 @@ export async function PATCH(
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         const { id } = await params;
@@ -54,7 +57,10 @@ export async function DELETE(
         const { userId } = await auth();
 
         if (!userId) {
-            return Errors.unauthorized();
+            const denied = Errors.unauthorized();
+            denied.headers.set("Cache-Control", "private, no-store");
+            denied.headers.set("Vary", "Cookie");
+            return denied;
         }
 
         const { id } = await params;

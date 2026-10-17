@@ -16,10 +16,10 @@ describe("candidate inbox honest state", () => {
     fireEvent.click(screen.getByRole("button", { name: "Notification settings" }));
     expect(mocks.push).toHaveBeenCalledWith("/settings?data_candidate=d1");
   });
-  it("preserves normal empty state and settings URL", () => {
+  it("reports normal storage failure and preserves the settings URL", () => {
     mocks.candidate = false; render(<NotificationCenter />);
     fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
-    expect(screen.getByText("No notifications yet")).not.toBeNull(); expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.queryByText("No notifications yet")).toBeNull(); expect(screen.getByRole("status").textContent).toContain("currently unavailable");
     fireEvent.click(screen.getByRole("button", { name: "Notification settings" })); expect(mocks.push).toHaveBeenCalledWith("/settings");
   });
 });
