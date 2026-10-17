@@ -189,3 +189,9 @@ Actual rollbackad9afeaf restores66e84452 before final promotion and60second defa
 All55APP/8Auth business-table snapshots restore/FK0/closedlease/inactiveunits; all48Source hashes/fulladmins/productionAuth/33bindings are preserved.
 Production3132337f/6a17bf4b remains unchanged. No browser delete control or production data switch is activated.
 [Exact repair, native contract reproduction and hosted evidence](CANDIDATE_TRIP_DELETION.md#returned-primary-key-repair--2026-10-17).
+
+## Resumed current signed-in proof
+
+The [October17 production response check](CURRENT_SIGNED_IN_RESPONSE_PROOF.md) passed76 bounded checks across five pages and two viewports.
+All ten document and ten RSC bodies completed; exact fixture cleanup and Source/Auth/Worker preservation passed.
+This does not explain historical RSC failures. Mobile screenshot findings remain open in that record.
