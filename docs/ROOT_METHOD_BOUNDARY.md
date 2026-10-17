@@ -204,3 +204,23 @@ PR468 source8ed9919a/CI39073760378/merge3326b26c prepares a preview-only public-
 Two hosted preview attempts return503; actual rollback61a63820 restoresa397be3d100%.
 No Source permission SQL runs. Exposure-review approval stays closed and all48Source tables retain RLS.
 [Exact builds, checks, rollback, failure limits and independent signed-in evidence](ANONYMOUS_PERMISSION_CONTAINMENT.md#second-preview-attempt-stopped--2026-10-17).
+
+## Installed host error rankings — 2026-10-17
+
+PR472 source09446afd506b8125a8e8e04ba1094fef26fafe2d passes required CI39079372470 in21m41s.
+Mergeab184253bc58ac3d48115446ce748c88b648f9e6 has the identical tested tree.
+All65monitor tests, syntax checks and seven read-only hosted candidate checks pass.
+The independent review finds noP0/P1. The future-only mismatch-label P2 remains fail-closed and documented in the plan.
+
+Stable main installs the host scripts. The actual daily service succeeds at23:54:09UTC with19release checks.
+The report has three complete public200 responses, usable Source/current logging checks and four sampled events/ABR10.
+Per-version rankings account for every returned event; global totals and sampling warnings remain present.
+This sample cannot prove a decline from29events/ABR1 or explain historical network failures.
+The two installed units, timer enabled/active state, U1/U2 acceptance and original journey evidence remain unchanged.
+Production037dee7f/82e0a7f9 and preview03879c9f/9b83b961 remain unchanged; no Worker deployment is needed.
+Host rollback: revert the isolated PR472 through a verified PR, update stable main, then rerun the daily service.
+Previous source823c23ef is retained in Git; no schema or record restoration is needed.
+
+Private u3-version-host-release-20261017.json retains exact file hashes, service result and preserved acceptance evidence.
+[Report behavior and limits](PRODUCTION_USER_HEALTH.md#error-rankings-by-worker-version) remain separate from application acceptance.
+U1 stays verified. U2 retains its conditional test-checkout skip. U3 remains open for unresolved historical causes.
