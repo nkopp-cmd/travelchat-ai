@@ -63,6 +63,13 @@ export const apexRedirect = (request: NextRequest) => {
 export default async function middleware(request: NextRequest) {
     const redirect = apexRedirect(request);
     if (redirect) return redirect;
+    // The landing page has no Server Actions or mutation contract. Refuse before
+    // Next.js can decode an unsolicited action/form body or enter its renderer.
+    if (request.nextUrl.pathname === '/' && !['GET', 'HEAD'].includes(request.method)) {
+        return NextResponse.json({ error: "Method not allowed" }, {
+            status: 405, headers: { Allow: 'GET, HEAD', 'Cache-Control': 'no-store' },
+        });
+    }
     if (isPublicRoute(request)) return NextResponse.next();
     if (await hasValidSessionCookie(request.headers, process.env.BETTER_AUTH_SECRET)) return NextResponse.next();
 

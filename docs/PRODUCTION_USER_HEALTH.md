@@ -562,3 +562,21 @@ Preference console markers and HTTP503 retain separate labels. Do not add these 
 The query is ABR1 and nontruncated, with the same ingestion-delivery limits as the installed monitor.
 Private candidate evidence: `notification-health-candidate-20261017.json` and the frozen `users-first-u3-baseline-20261017.json`.
 Required exact-head CI, stable service release, final Worker readback and cleanup remain delivery gates.
+
+
+## Root renderer boundary — prepared2026-10-17
+
+A narrower read-only window proves two historical POST500 invocations at23:16:07/23:16:19UTC onOctober16.
+Both used inactive Workerca4dfaf3. Four additional root error events are renderer stacks from those times.
+Six log events do not prove six requests or users. Raw payloads and headers were not retained, so their exact cause is unproved.
+The actual GET/HEAD/empty-JSON POST baseline on current Worker83366b0c returns200/200/405.
+This does not reproduce the old500 or prove which intervening release removed it.
+
+The landing page is client-rendered and the tracked app contains no Server Actions or root mutation contract.
+A narrow middleware boundary now allows only GET/HEAD on the exact root path, after the existing apex redirect.
+Other methods return fixed405 JSON, Allow GET/HEAD and no-store before any action body is decoded or rendering begins.
+Root RSC GET queries and all other paths keep their existing behavior.
+Authentication POSTs, billing webhooks, private-route authentication and candidate routing remain covered separately.
+This fences the observed unsupported-method path. It does not claim a general renderer or network-error repair.
+U1 and U2 acceptance remain unchanged; U3 stays open for other error classes and final acceptance.
+Required CI, pinned build, review, guarded1% release, compatible rollback and actual hosted proof remain gates.
