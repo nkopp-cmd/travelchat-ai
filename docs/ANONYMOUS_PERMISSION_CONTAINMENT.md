@@ -28,6 +28,8 @@ It locks tables in name order using SHARE ROW EXCLUSIVE, which permits ordinary 
 Lock acquisition is bounded to2seconds; the whole operation is bounded to15seconds.
 
 The operation revokes anonymous INSERT, UPDATE, DELETE and TRUNCATE on every application table.
+The default operation covers48owned application relations. Its fingerprint includes all51public relations.
+An explicit owner-authorized extension mode also handles Supabase-owned references. The current operator cannot use it.
 It also revokes individual-column INSERT/UPDATE grants.
 It replaces anonymous public-catalog SELECT with explicit approved column grants.
 Residual inherited/PUBLIC privileges refuse the entire transaction.
@@ -40,7 +42,7 @@ Raw permission metadata and full48table/6181row digests are retained privately b
 
 ## Verification and rollback limits
 
-The isolated PostgreSQL proof passes97checks, including a real transaction rollback that preserves the exact catalog.
+The isolated PostgreSQL proof now passes110checks, including a real transaction rollback that preserves the exact catalog.
 It proves refusal for a wrong fingerprint and inherited PUBLIC privileges without partial changes.
 Actual INSERT, UPDATE, DELETE and TRUNCATE commands fail after containment on every fixture table.
 Approved public columns remain selectable; the private owner field is denied.
@@ -66,3 +68,26 @@ Before this repair, seven shared-checker samples give home301/381ms, spots84/133
 All responses are200. These figures do not prove p75 or the50ms warm-cache target.
 The exact shared PR160/head124a56d script is retained because root installation remains pending.
 Do not publicly cache authenticated content or trigger paid photo/model calls for a benchmark.
+
+## Supabase-owned reference grants — blocked owner action
+
+Mutation coverage now includes all51public relations:48application relations plus three PostGIS references.
+Read/privacy and public-column checks continue to cover application relations; reference reads are retained.
+Unknown or inconsistent extension coverage fails closed. Full regression success requires both scopes to pass.
+Separate application/reference result fields never turn a reference failure into overall success.
+
+The actual Management write identity is `postgres`, without superuser status or `supabase_admin` membership.
+It has no INSERT/UPDATE/DELETE grant options on `spatial_ref_sys`, `geometry_columns` or `geography_columns`.
+Those objects and their grants belong to `supabase_admin`. The read-only endpoint uses a separate read-only role.
+A broader access token cannot change that database ownership boundary.
+One root NEED asks Nils to request the grant repair from Supabase Support, retaining SELECT.
+No failing production REVOKE probe was attempted. Application containment proceeds independently.
+The full51relation regression must remain failed until those residual reference grants are removed.
+View write grants are conservatively rejected; no successful mutation of those system views is claimed.
+
+Permission snapshots include reference metadata. Only ordinary tables are locked and hashed.
+The guard never locks system views or their underlying PostgreSQL catalogs.
+Sixty-five focused Node tests pass; seven spot tests, typecheck and focused lint also pass.
+One expanded attempt caught a scoped-query alias error before mutation. Its corrected second attempt passes110checks.
+The extended fixture tests default application scope without changing reference grants,
+and explicit owner scope with actual reference mutations denied after repair.

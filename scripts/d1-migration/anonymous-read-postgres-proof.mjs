@@ -99,17 +99,30 @@ else {
         CREATE POLICY possible_insert ON users FOR INSERT TO anon WITH CHECK(true);
         CREATE POLICY possible_update ON users FOR UPDATE TO anon USING(true);
         CREATE POLICY possible_delete ON users FOR DELETE TO anon USING(true);`);
+      await sql(`CREATE TABLE extension_reference(id integer PRIMARY KEY,note text);INSERT INTO extension_reference VALUES(1,'public reference');
+        CREATE VIEW extension_reference_view AS SELECT id,note FROM extension_reference;
+        GRANT ALL ON extension_reference,extension_reference_view TO anon,authenticated,service_role;
+        INSERT INTO pg_catalog.pg_depend(classid,objid,objsubid,refclassid,refobjid,refobjsubid,deptype)
+        SELECT 'pg_class'::regclass,c.oid,0,'pg_extension'::regclass,e.oid,0,'e' FROM pg_class c CROSS JOIN pg_extension e
+        WHERE c.relname IN('extension_reference','extension_reference_view') AND c.relnamespace='public'::regnamespace AND e.extname='plpgsql'`);
       const fingerprint=async()=>JSON.parse(await sql(`SELECT row_to_json(q) FROM (${anonymousPermissionCatalogSql}) q`)).catalog_md5;
-      const original=await fingerprint();const operation=anonymousPermissionSql({expectedCatalogMd5:original,expectedRelations:10});
+      const original=await fingerprint();const operation=anonymousPermissionSql({expectedCatalogMd5:original,expectedRelations:12,includeExtensionOwned:true});
+      const appOperation=anonymousPermissionSql({expectedCatalogMd5:original,expectedRelations:10});
+      const appOutput=await sql(appOperation.replace(/COMMIT;$/,`SELECT row_to_json(q) FROM (${anonymousCatalogSql}) q WHERE name='users';ROLLBACK;`));
+      const appState=JSON.parse(appOutput.split('\n').find(line=>line.startsWith('{')));
+      check(appState.anon_insert_blocked&&appState.anon_update_blocked&&appState.anon_delete_blocked,'owned_application_scope_denies_app_writes');
+      check(appState.extension_mutations.length===2&&appState.extension_mutations.every(e=>!e.insertBlocked&&!e.updateBlocked&&!e.deleteBlocked),'owned_scope_keeps_residual_reference_grants_visible');
+      check(await fingerprint()===original,'owned_scope_rollback_exact_catalog');
+
       await sql(operation.replace(/COMMIT;$/,'ROLLBACK;'));
       check(await fingerprint()===original,'permission_transaction_rollback_preserves_exact_catalog');
-      let drift=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:'0'.repeat(32),expectedRelations:10}));}catch(e){drift=/anon_guard_catalog_drift/.test(e.stderr??'');}
+      let drift=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:'0'.repeat(32),expectedRelations:12,includeExtensionOwned:true}));}catch(e){drift=/anon_guard_catalog_drift/.test(e.stderr??'');}
       check(drift&&await fingerprint()===original,'permission_wrong_fingerprint_refused_atomically');
       // A PUBLIC inherited grant cannot be removed by revoking only anon; the entire operation must roll back.
       await sql('GRANT INSERT ON users TO PUBLIC');const inherited=await fingerprint();let refused=false;
-      try{await sql(anonymousPermissionSql({expectedCatalogMd5:inherited,expectedRelations:10}));}catch(e){refused=/anon_guard_inherited_mutation_grant/.test(e.stderr??'');}
+      try{await sql(anonymousPermissionSql({expectedCatalogMd5:inherited,expectedRelations:12,includeExtensionOwned:true}));}catch(e){refused=/anon_guard_inherited_mutation_grant/.test(e.stderr??'');}
       check(refused&&await fingerprint()===inherited,'permission_inherited_grant_refused_atomically');await sql('REVOKE INSERT ON users FROM PUBLIC');
-      const exact=await fingerprint();await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:10}));
+      const exact=await fingerprint();await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:12,includeExtensionOwned:true}));
       const restricted=await fingerprint();check(restricted!==exact,'permission_operation_changes_only_reviewed_metadata');
       for(const table of ['users',...Object.keys(publicColumns)]){
         const c=await catalog(table);check(c.anon_insert_blocked&&c.anon_update_blocked&&c.anon_delete_blocked,table+'_permission_dml_proof');
@@ -117,11 +130,17 @@ else {
         for(const [command,statement]of [['INSERT',`INSERT INTO ${table}(${column}) VALUES(${literal})`],['UPDATE',`UPDATE ${table} SET ${column}=${column}`],['DELETE',`DELETE FROM ${table}`],['TRUNCATE',`TRUNCATE ${table}`]])await denied(statement,table+'_permission_real_'+command+'_denial');
         if(table!=='users')check(JSON.stringify(c.anon_select_columns)===JSON.stringify(publicColumns[table]),table+'_permission_public_projection');
       }
-      await denied('SELECT discovered_by FROM spots','permission_live_shape_private_owner_column_denied');
+      for(const table of ['extension_reference','extension_reference_view']){
+        const row=await catalog('users');const ext=row.extension_mutations.find(e=>e.table===table);
+        check(ext?.insertBlocked&&ext.updateBlocked&&ext.deleteBlocked,table+'_extension_mutation_coverage');
+        for(const [cmd,statement]of [['INSERT',`INSERT INTO ${table}(id) VALUES(2)`],['UPDATE',`UPDATE ${table} SET note='changed' WHERE id=1`],['DELETE',`DELETE FROM ${table} WHERE id=1`]])await denied(statement,table+'_actual_'+cmd+'_denial');
+        check((await sql(`BEGIN;SET LOCAL ROLE anon;SELECT count(id) FROM ${table};ROLLBACK;`)).includes('1'),table+'_reference_reads_preserved');
+      }
+      await denied('SELECT discovered_by FROM spots' ,'permission_live_shape_private_owner_column_denied');
       const visible=await sql('BEGIN;SET LOCAL ROLE anon;SELECT count(id) FROM spots;SELECT count(*) FROM users;ROLLBACK;');check(visible.includes('1\n0'),'permission_public_catalog_private_zero_retained');
       check((await sql("SELECT count(*) FROM users WHERE id=1 AND email='fixture@localley.test'")).trim()==='1','permission_all_fixture_rows_preserved');
       check((await sql("BEGIN;SET LOCAL ROLE service_role;UPDATE users SET email='server' WHERE id=1;ROLLBACK;")).includes('UPDATE 1'),'permission_service_writes_retained');
-      let repeated=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:10}));}catch(e){repeated=/anon_guard_catalog_drift/.test(e.stderr??'');}
+      let repeated=false;try{await sql(anonymousPermissionSql({expectedCatalogMd5:exact,expectedRelations:12,includeExtensionOwned:true}));}catch(e){repeated=/anon_guard_catalog_drift/.test(e.stderr??'');}
       check(repeated&&await fingerprint()===restricted,'permission_stale_repeat_refused_without_changes');
     }
     report.state='passed';

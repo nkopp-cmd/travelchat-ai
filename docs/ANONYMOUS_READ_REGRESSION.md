@@ -163,3 +163,12 @@ No row contents were downloaded. No production policy, grant or row changed duri
 Local evidence:58focused tests and29real PostgreSQL checks pass.
 Private receipts: `anon-access-postgres-proof-20261017.json` and `anon-access-current-production-20261017.json`.
 These receipts identify checker correctness and current failures; they do not close production permission remediation.
+
+## Full public-schema mutation coverage
+
+Read/column checks retain48application relations and nine approved public catalogs.
+Mutation checks additionally include every public extension-owned relation, currently three PostGIS references.
+Missing or contradictory extension metadata fails closed. Reference write failures fail the overall regression.
+The report shows application and reference state separately without weakening the overall exit code.
+RPC functions, other schemas and Storage remain outside this checker.
+See [the operator permission boundary](ANONYMOUS_PERMISSION_CONTAINMENT.md#supabase-owned-reference-grants--blocked-owner-action).

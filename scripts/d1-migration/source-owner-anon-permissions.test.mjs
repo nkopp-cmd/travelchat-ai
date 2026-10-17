@@ -20,3 +20,10 @@ test('all public projection lists are explicit and match the actual app spot que
  assert(!s.includes('from("spots").select("*")'));
  assert.equal(publicCatalogs.length,9);
 });
+
+test('extension writes stay in the regression even when operator repair is limited to owned application tables',()=>{
+ const owned=anonymousPermissionSql({expectedCatalogMd5:'a'.repeat(32)}),all=anonymousPermissionSql({expectedCatalogMd5:'a'.repeat(32),includeExtensionOwned:true});
+ assert(owned.includes(') c WHERE NOT extension_owned'));assert(owned.includes('<>48'));
+ assert(!all.includes(') c WHERE NOT extension_owned'));assert(all.includes('<>51'));
+ assert.throws(()=>anonymousPermissionSql({expectedCatalogMd5:'a'.repeat(32),includeExtensionOwned:'false'}));
+});
