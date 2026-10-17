@@ -1,5 +1,16 @@
 import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
 import { NextRequest } from "next/server";
+// Workerd can reject reconstruction of a framework-wrapped incoming Request.
+// Keep the incoming request intact; this reproduces the hosted constructor failure.
+vi.mock("next/server", async importOriginal => {
+  const actual = await importOriginal<typeof import("next/server")>();
+  return { ...actual, NextRequest: class extends actual.NextRequest {
+    constructor(input: string | URL | Request, init?: ConstructorParameters<typeof actual.NextRequest>[1]) {
+      if (input instanceof Request) throw new TypeError("Invalid URL: wrapped incoming Request");
+      super(input, init);
+    }
+  } };
+});
 const m=vi.hoisted(()=>({auth:vi.fn(),copy:vi.fn(),server:vi.fn(),admin:vi.fn()}));
 vi.mock("@/lib/auth/server",()=>({auth:m.auth}));
 vi.mock("@/lib/app-data/preview-itinerary-duplicate",()=>({duplicatePreviewItinerary:m.copy}));
