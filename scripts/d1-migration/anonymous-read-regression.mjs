@@ -6,6 +6,12 @@ import { pathToFileURL } from 'node:url';
 
 const project = 'llehrhqeolfprutcaopi';
 const origin = `https://${project}.supabase.co`;
+// Nils2026-10-17: private tables must remain unreadable; retain these public catalogs.
+// New relations are PRIVATE by default. Expanding this list requires a reviewed change.
+export const publicCatalogs = Object.freeze([
+  'challenges','geo_aliases','geo_countries','geo_destinations','geo_local_area_vibe_scores',
+  'geo_local_areas','geo_vibe_taxonomy','spots','transfer_edges',
+]);
 export const anonymousCatalogSql = `SELECT c.relname AS name,c.relkind AS kind,c.relrowsecurity AS rls
  FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
  WHERE n.nspname='public' AND c.relkind IN('r','p','v','m','f')
@@ -56,7 +62,8 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
   if (control.status !== 200) throw Error('anonymous_key_control_unavailable');
   const results = [];
   for (const table of tables) {
-    const row = { table: table.name, relationKind: table.kind, rls: table.rls, status: null, count: null, state: 'unknown' };
+    const row = { table: table.name, relationKind: table.kind, rls: table.rls,
+      expectedAccess: publicCatalogs.includes(table.name) ? 'public_catalog' : 'private', status: null, count: null, state: 'unknown' };
     try {
       const response = await request(`${origin}/rest/v1/${table.name}?select=*&limit=0`, {
         redirect: 'error', signal: AbortSignal.timeout(10000), method: 'HEAD', headers: { ...headers, Prefer: 'count=exact' },
@@ -71,13 +78,15 @@ export async function checkAnonymousReads({ anonKey, accessToken }, request = fe
       else if ([200,206].includes(response.status)) {
         const match = /^\*\/(0|[1-9][0-9]*)$/.exec(response.headers.get('content-range') ?? '');
         const count = match ? Number(match[1]) : NaN;
-        if (Number.isSafeInteger(count)) { row.count = count; row.state = count === 0 ? 'zero_rows' : 'exposed_rows'; }
+        if (Number.isSafeInteger(count)) { row.count = count; row.state = row.expectedAccess === 'public_catalog' ? 'public_catalog' : count === 0 ? 'zero_rows' : 'exposed_rows'; }
       }
     } catch { row.state = 'request_failed'; }
     results.push(row);
   }
-  return { at: new Date().toISOString(), project, state: results.every(r => ['zero_rows','access_denied'].includes(r.state)) ? 'passed' : 'failed',
-    relationCount: tables.length, results, publicExceptions: [], rowsRetrieved: 0,
+  return { at: new Date().toISOString(), project, state: results.every(r => r.expectedAccess === 'public_catalog' ? r.state === 'public_catalog' : ['zero_rows','access_denied'].includes(r.state)) ? 'passed' : 'failed',
+    relationCount: tables.length, results,
+    privateRelationCount: results.filter(r => r.expectedAccess === 'private').length,
+    publicExceptions: results.filter(r => r.expectedAccess === 'public_catalog').map(r => r.table), rowsRetrieved: 0,
     limits: ['A zero count proves current visibility only; seeded policy tests are required for empty tables.',
       'Permission denial is recorded separately from an exact zero count.',
       'No policy, row, secret, mail, provider or Worker change occurred.'] };
@@ -94,7 +103,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       accessToken: local.SUPABASE_ACCESS_TOKEN || shared.SUPABASE_ACCESS_TOKEN });
     await writeFile(output, JSON.stringify(report, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
     console.log(JSON.stringify({ state: report.state, relations: report.relationCount, rowsRetrieved: 0,
-      exposed: report.results.filter(r => r.state === 'exposed_rows').map(r => r.table), unknown: report.results.filter(r => ['unknown','request_failed'].includes(r.state)).map(r => r.table) }));
+      publicCatalogs: report.publicExceptions, privateRelations: report.privateRelationCount, exposed: report.results.filter(r => r.state === 'exposed_rows').map(r => r.table), unknown: report.results.filter(r => ['unknown','request_failed'].includes(r.state)).map(r => r.table) }));
     if (report.state !== 'passed') process.exitCode = 1;
   })().catch(() => { console.error('Anonymous regression incomplete; no row values or credentials recorded.'); process.exitCode = 1; });
 }

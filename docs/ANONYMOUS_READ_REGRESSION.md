@@ -20,8 +20,11 @@ Unknown counts, absent relations, HTTP errors and transport failures fail the re
 The script never retries a request or changes Source, policies, mail, credentials or a Worker.
 The report is created privately with mode600 and cannot overwrite an existing file.
 
-The strict default has no public-table exceptions.
-The exit code is zero only when every relation returns an exact zero or denies access.
+Nils confirmed the scope on2026-10-17: private tables must be unreadable; retain public catalogs.
+The immutable public list contains exactly the nine catalogs below. Every new relation defaults to private.
+The exit code is zero only when every private relation returns an exact zero or confirmed permission denial,
+and every approved public catalog remains readable with a valid exact count.
+The report lists every public exception explicitly. No environment flag can expand it.
 This is a current visibility check. Empty tables also need seeded policy tests to prove future-row isolation.
 Existing source-owner PostgreSQL policy tests retain that seeded coverage for their repaired tables.
 The sole required workflow runs the new adversarial offline suite and the existing policy proof.
@@ -45,7 +48,8 @@ Nine intentionally public catalogs returned visible counts:
 | transfer_edges |24 |
 
 Users, conversations, messages, itineraries, subscriptions and usage all returned exact zero.
-The strict all-table result is FAILED, with zero unknown relation results.
+The initial strict all-table result was FAILED, with zero unknown relation results.
+That result predates the owner clarification and remains retained unchanged.
 Do not report all48as private or claim that all anonymous table access is blocked.
 No record contents were downloaded.
 The first calibration conservatively classified PostgREST206as unknown.
@@ -56,9 +60,9 @@ A focused real denied-table HEAD returned401with `PostgREST; error=42501`; no bo
 The final release proof must use this stricter implementation.
 
 Current RLS intentionally permits public catalogs.
-The owner scope question asks whether to preserve that access or block all direct reads while retaining public application pages.
-This evidence-only tool does not change those policies or silently exempt them.
-The historical incident NEED remains closed; public-catalog scope is a separate design decision.
+Nils answered: "Private tables; retain public catalogs". The scope NEED is closed.
+The checker now requires privacy for all39other tables and explicitly accepts these nine public catalogs.
+This tool changes no policies. The historical incident NEED remains closed.
 
 Private receipts: `anonymous-regression-production-strict-20261017.json` and
 `anonymous-regression-production-strict-v2-20261017.json` under `/home/dev/.local/state/localley`.
