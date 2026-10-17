@@ -627,3 +627,29 @@ The application rollback remains83366b0c; no Worker rollback or upload occurred 
 Private worker-version-release-20261017.json retains full identities and checks.
 The narrow network audit and earlier sampled audit remain separate receipts.
 U1 remains verified; U2 retains its original conditional checkout skip. U3 remains open for unresolved causes.
+
+
+## Complete public response checks — 2026-10-17
+
+The previous public-page probe canceled the response body after receiving headers.
+An HTTP200 with a truncated or failing body could therefore be marked healthy.
+This is a proven monitoring gap; it is not proof that the probe caused the historical RSC network errors.
+
+The checker now drains and discards the entire public root/sign-in body under the existing25second fetch deadline.
+It retains HTTP status, fixed completion reason and byte count only.
+Missing, empty, failed, timed-out or over2MiB decompressed bodies are unhealthy, including HTTP200.
+The CLI exits1 for an unusable page body. Completed bodies are not canceled.
+The city-content checker, Source query, error ranking, version counts and coverage warnings retain their existing behavior.
+A complete error shell can still pass: this is transfer-completion proof, not full rendered-journey acceptance.
+
+All63monitoring tests pass, including actual native HTTP200 truncation and a stalled-body fetch deadline.
+The actual CLI fixture proves broken200fails while preserving statuses, independent log totals and private-data exclusion.
+Independent code review found no unresolved P0/P1; it did not run tests.
+The candidate's real public requests complete117044root bytes and33442sign-in bytes, well below2MiB.
+Catalog30cities/24visible/2574spots passes; the5event ABR10sample preserves its limits and cannot prove an error decline.
+Private page-completion-tests/review/candidate-20261017 receipts retain evidence.
+
+Release this host-only checker after exact green CI, then run the existing stable daily service.
+Record final installation and complete deployment readbacks in ROOT_METHOD_BOUNDARY.md and the root blocker plan.
+Monitor rollback source is2f10a327, through a verified revert PR; application rollback remains83366b0c.
+U1 remains verified. U2 retains its original conditional checkout skip. U3 stays open for unresolved application causes.
