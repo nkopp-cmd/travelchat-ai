@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), read: vi.fn(), server: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/app-data/preview-itinerary-export", () => ({ previewItineraryExport: mocks.read }));
-vi.mock("@/lib/supabase-server", () => ({ createSupabaseServerClient: mocks.server }));
+vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.server }));
 import { GET } from "@/app/api/itineraries/[id]/export/route";
 const id = "550e8400-e29b-41d4-a716-446655440000";
 const prior = process.env;
@@ -17,7 +17,7 @@ beforeEach(() => {
   process.env = {...prior,AUTH_MAIL_MODE:"outbox",SUPABASE_READ_ONLY:"true"};
   mocks.auth.mockResolvedValue({userId:"one"}); mocks.read.mockResolvedValue(fixture);
   const q = {select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),single:vi.fn().mockResolvedValue({data:fixture,error:null})};
-  mocks.server.mockResolvedValue({from:vi.fn().mockReturnValue(q)});
+  mocks.server.mockReturnValue({from:vi.fn().mockReturnValue(q)});
 });
 afterEach(() => { process.env = prior; vi.clearAllMocks(); });
 describe('private D1 export', () => {

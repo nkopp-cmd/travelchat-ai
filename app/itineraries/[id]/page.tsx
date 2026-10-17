@@ -9,6 +9,7 @@ import {
   Edit2,
 } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { canReadSourceItinerary } from "@/lib/source-itinerary-access";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ShareDialog } from "@/components/itineraries/share-dialog";
@@ -70,6 +71,7 @@ function resolveCity(itinerary: { city: string; title: string }): string {
 
 // Fetch itinerary from Supabase
 async function getItinerary(id: string) {
+  const { userId } = await auth();
   const supabase = createSupabaseAdmin();
 
   const { data: itinerary, error } = await supabase
@@ -79,9 +81,10 @@ async function getItinerary(id: string) {
     .single();
 
   if (error || !itinerary) {
-    console.error("Error fetching itinerary:", error);
+    if (error) console.error("Itinerary lookup failed");
     return null;
   }
+  if (!canReadSourceItinerary(itinerary, userId)) return null;
 
   return {
     id: itinerary.id,
@@ -94,6 +97,7 @@ async function getItinerary(id: string) {
     highlights: itinerary.highlights,
     estimatedCost: itinerary.estimated_cost,
     createdAt: itinerary.created_at,
+    isPublic: itinerary.is_public === true,
   };
 }
 
@@ -146,6 +150,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    robots: itinerary.isPublic ? undefined : { index: false, follow: false },
     keywords,
     openGraph: {
       title: itinerary.title,
@@ -254,7 +259,7 @@ export default async function ItineraryViewPage({
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       <div className="mx-auto w-full max-w-5xl space-y-5 px-3 pb-8 pt-3 sm:px-4 sm:pb-10 md:space-y-6 md:px-0 md:pt-0">

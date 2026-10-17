@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { assertPreviewReviewUser, createPreviewSpotReview, isPreviewSpotReviewCandidate,
     parseReviewInput, previewSpotReviews, type ReviewInput } from "@/lib/app-data/preview-spot-reviews";
 
@@ -99,7 +99,7 @@ export async function GET(
         // Reviews store Clerk IDs without a users FK; resolve public names separately.
         const authors = new Map<string, string | null>();
         if (reviews && reviews.length > 0) {
-            const { data: users, error: usersError } = await supabase
+            const { data: users, error: usersError } = await createSupabaseAdmin()
                 .from("users")
                 .select("clerk_id, username")
                 .in("clerk_id", [...new Set(reviews.map((r) => r.clerk_user_id))]);
@@ -263,7 +263,7 @@ export async function POST(
         }
 
         // Update spot stats
-        await updateSpotStats(supabase, spotId);
+        await updateSpotStats(spotId);
 
         return NextResponse.json(review, { status: 201 });
     } catch (error) {
@@ -272,22 +272,27 @@ export async function POST(
 }
 
 // Helper function to update spot stats
-async function updateSpotStats(supabase: SupabaseClient, spotId: string) {
-    const { data: stats } = await supabase
+async function updateSpotStats(spotId: string) {
+    const supabase = createSupabaseAdmin();
+    const { data: stats, error: statsError } = await supabase
         .from("spot_reviews")
         .select("rating")
         .eq("spot_id", spotId);
+    if (statsError) throw new Error("Spot statistics read failed");
 
     const count = stats?.length || 0;
     const avg = count > 0
         ? stats!.reduce((sum, s) => sum + s.rating, 0) / count
         : 0;
 
-    await supabase
+    const { data: updated, error: updateError } = await supabase
         .from("spots")
         .update({
             review_count: count,
             average_rating: Math.round(avg * 10) / 10,
         })
-        .eq("id", spotId);
+        .eq("id", spotId)
+        .select("id")
+        .maybeSingle();
+    if (updateError || !updated) throw new Error("Spot statistics update failed");
 }

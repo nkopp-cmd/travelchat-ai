@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { canReadSourceItinerary } from "@/lib/source-itinerary-access";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { parsePreviewStoryPatch, previewStoryBackgrounds, updatePreviewStoryBackgrounds } from "@/lib/app-data/preview-story-metadata";
 import { previewFreshStoryBackgrounds, updatePreviewFreshStoryBackgrounds, readPreviewFreshBackgroundPatch } from "@/lib/app-data/preview-fresh-story-backgrounds";
@@ -225,18 +226,19 @@ export async function GET(
 
         const { data: itinerary, error } = await supabase
             .from("itineraries")
-            .select("ai_backgrounds")
+            .select("ai_backgrounds, clerk_user_id, is_public")
             .eq("id", id)
             .single();
 
-        if (error || !itinerary) {
+        const { userId } = await auth();
+        if (error || !itinerary || !canReadSourceItinerary(itinerary, userId)) {
             return Errors.notFound("Itinerary");
         }
 
         return NextResponse.json({
             success: true,
             backgrounds: itinerary.ai_backgrounds || {},
-        });
+        }, { headers: { "Cache-Control": "private, no-store" } });
     } catch (error) {
         console.error("[AI_BACKGROUNDS_GET_ERROR]", error);
         return handleApiError(error, "ai-backgrounds-get");

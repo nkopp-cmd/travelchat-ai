@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
 export async function POST(
@@ -17,7 +18,7 @@ export async function POST(
         const supabase = await createSupabaseServerClient();
 
         // Fetch the original itinerary
-        const { data: original, error: fetchError } = await supabase
+        const { data: original, error: fetchError } = await createSupabaseAdmin()
             .from("itineraries")
             .select("*")
             .eq("id", id)
@@ -45,8 +46,6 @@ export async function POST(
                 city: original.city,
                 days: original.days,
                 activities: original.activities,
-                daily_plans: original.daily_plans,
-                preferences: original.preferences,
                 local_score: original.local_score,
                 highlights: original.highlights,
                 estimated_cost: original.estimated_cost,
