@@ -1,7 +1,7 @@
 import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { authHosts, getSession } from "@/lib/auth/server";
-import { AuthNotificationStore, type NotificationDatabase } from "./auth-store";
+import { AuthNotificationStore, PushRegistrationRefused, type NotificationDatabase } from "./auth-store";
 import { isObject, notificationId, parseNotificationPage, parsePreferencePatch,
   parsePushEndpoint, parsePushSubscription, readNotificationBody } from "./validation";
 
@@ -109,7 +109,11 @@ export async function authNotificationResponse(request: NextRequest | undefined,
       }
     }
     return response({ error: "Method not allowed." }, mode, 405);
-  } catch {
+  } catch (error) {
+    if (error instanceof PushRegistrationRefused) {
+      return response({ success: false, deliveryEnabled: false, error: "push_registration_refused",
+        message: "This push subscription could not be registered." }, mode, 409);
+    }
     // Never log bound private endpoint/key values or raw provider diagnostics.
     console.error("[AUTH_NOTIFICATIONS] storage unavailable");
     return response({ error: "notifications_unavailable", message: "Notification storage is currently unavailable." }, mode, 503);

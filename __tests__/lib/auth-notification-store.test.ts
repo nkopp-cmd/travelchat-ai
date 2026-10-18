@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { createECDH, randomBytes, randomUUID } from "node:crypto";
 import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
-import { AuthNotificationStore } from "@/lib/notifications/auth-store";
+import { AuthNotificationStore, NotificationStoreUnavailable, PushRegistrationRefused } from "@/lib/notifications/auth-store";
 import { parseNotificationPage, parsePreferencePatch, parsePushSubscription, preferenceFlags,
   readNotificationBody } from "@/lib/notifications/validation";
 
@@ -80,9 +80,10 @@ describe("additive canonical Auth notification storage; no delivery", () => {
     const input = push(), subject = store(id);
     for (const operation of [() => subject.getPreferences(), () => subject.updatePreferences({ system: true }),
       () => subject.inbox(page), () => subject.markRead(), () => subject.delete(randomUUID()),
-      () => subject.savePush(input), () => subject.removePush(input.endpoint)]) {
+      () => subject.removePush(input.endpoint)]) {
       await expect(operation()).rejects.toThrow("Notification storage is unavailable.");
     }
+    await expect(subject.savePush(input)).rejects.toThrow(PushRegistrationRefused);
     for (const table of ["auth_notifications", "auth_notification_preferences", "auth_push_subscriptions"]) expect(rows(table)).toEqual([]);
   });
   it("rechecks verification inside the preferences write", async () => {
@@ -150,7 +151,7 @@ describe("additive canonical Auth notification storage; no delivery", () => {
   });
   it("refuses foreign endpoint takeover or deletion, including when owner B has free slots", async () => {
     const input = push(); await store().savePush(input); const before = rows("auth_push_subscriptions");
-    await expect(store(ownerB).savePush(push(input.endpoint))).rejects.toThrow();
+    await expect(store(ownerB).savePush(push(input.endpoint))).rejects.toThrow(PushRegistrationRefused);
     await store(ownerB).removePush(input.endpoint); await store(ownerB).removePush("https://push.example.test/missing");
     expect(rows("auth_push_subscriptions")).toEqual(before);
     await store().removePush(input.endpoint); expect(rows("auth_push_subscriptions")).toEqual([]);
@@ -166,6 +167,19 @@ describe("additive canonical Auth notification storage; no delivery", () => {
     const input = push();
     const results = await Promise.all([store(), store(ownerB)].map(subject => subject.savePush(input).then(() => true, () => false)));
     expect(results.filter(Boolean)).toHaveLength(1); expect(rows("auth_push_subscriptions")).toHaveLength(1);
+  });
+  it("does not classify failed or malformed write results as a normal registration refusal", async () => {
+    const input = push(), prepare = db.prepare.bind(db);
+    for (const result of [{success: false, meta: {changes: 0}}, {meta: {changes: 0}},
+      {success: true, meta: {changes: 2}}, {success: true, meta: {changes: -1}}]) {
+      vi.spyOn(db, "prepare").mockImplementation(sql => {
+        if (!sql.startsWith("INSERT INTO auth_push_subscriptions")) return prepare(sql);
+        const statement = { bind: () => statement, run: async () => result };
+        return statement as unknown as ReturnType<typeof db.prepare>;
+      });
+      await expect(store().savePush(input)).rejects.toThrow(NotificationStoreUnavailable);
+      expect(rows("auth_push_subscriptions")).toEqual([]); vi.restoreAllMocks();
+    }
   });
   it("refuses push creation and rotation if verification changes before the write", async () => {
     const input = push(); await store().savePush(input); const before = rows("auth_push_subscriptions"), prepare = db.prepare.bind(db);

@@ -134,3 +134,14 @@ No Source records were migrated. Unknown deleted/external notification history r
 All nine preferences default false. Push/email senders, dormant producers, and external delivery remain inactive.
 This completes independent production notification storage, not the full Supabase migration or broad U3 closure.
 Supabase remains required. Common current-data parity, rollback, freeze, full switch and retention gates remain open.
+
+## Expected registration refusals
+
+A successful D1 push-registration statement with exactly zero changes is a refused registration.
+The API returns one generic private409 for capacity, endpoint ownership or verification-race refusals.
+It does not disclose which guard refused the request, return device keys or enable delivery.
+The unchanged atomic SQL still enforces those guards; successful writes and rotations retain their behavior.
+D1 must explicitly confirm success. Failed, missing or malformed result metadata remains a private503 and a storage-error log.
+Expected409 refusals do not emit the storage-outage marker. Existing historical503 events remain in the audit trail.
+This repairs one concrete error path; it does not establish the causes of all historical notification or network events.
+The [D1 result contract](https://developers.cloudflare.com/d1/worker-api/return-object/) defines success and change-count metadata.
