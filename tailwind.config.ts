@@ -11,6 +11,10 @@ export default {
         extend: {
             colors: {
                 background: "hsl(var(--background))",
+                surface: "rgb(var(--ll-surface) / <alpha-value>)",
+                raised: "rgb(var(--ll-raised) / <alpha-value>)",
+                overlay: "rgb(var(--ll-overlay) / <alpha-value>)",
+                field: { DEFAULT: "rgb(var(--ll-control) / <alpha-value>)", foreground: "rgb(var(--ll-control-ink) / <alpha-value>)" },
                 foreground: "hsl(var(--foreground))",
                 card: {
                     DEFAULT: "hsl(var(--card))",
@@ -50,6 +54,10 @@ export default {
                     "4": "hsl(var(--chart-4))",
                     "5": "hsl(var(--chart-5))",
                 },
+            },
+            boxShadow: {
+                surface: "var(--ll-shadow-raised)",
+                overlay: "var(--ll-shadow-overlay)",
             },
             borderRadius: {
                 lg: "var(--radius)",

@@ -212,7 +212,10 @@ Rebase onto the released urgent fix before preparing the full hosted design prev
 - Token contrast: the seven proposal pairs above are calculated, not visually accepted.
 - Local prototype R2: four viewport cases pass at 360/390/430/1440. Controls measure at least 44px; titles, metadata and actions have no overflow or ellipsis. More and keyboard carousel work.
 - R2 screenshot review: desktop action rows align. Fixed navigation obscured parts of full-document/element captures. R3 uses viewport captures; all four visible-action bounds and hit tests pass. Opened R3 360px card, 390px overview and 1440px card screenshots: full names, aligned actions and readable surfaces. This is not app route acceptance.
-- Draft application tokens and shared controls: adaptation in progress; compilation and browser acceptance are pending.
+- Shared Card, Badge, Button, Input, Textarea, Tabs, Dialog and Sheet: tokens integrated. TypeScript, changed-file ESLint and 23 focused tests pass. The eight-file class guard reports zero decorations.
+- Actual shared-control browser harness: four cases pass at 360/390/430/1440. It checks 44px controls, zero decorative borders, field background/ink, opaque overlays, tab keys, modal focus trapping/return, Escape, forced-color focus and zero external requests/browser errors.
+- Opened corrected 390/1440 overview and 390 dialog/sheet images. The first harness used the stable checkout’s Tailwind config and produced transparent overlays; that result is rejected. Corrected working directory and exact token assertions pass in borderless-foundation-r2-browser-20261018.json. This is local component acceptance, not app route acceptance.
+- CI now runs the guard for these eight components. Expand to all app/components files after the remaining codemod; the all-route guard is not complete.
 - Shared component integration and representative screen acceptance: pending.
 - Route screenshots at 390/1440 and cards at 360/390/430: pending.
 - Keyboard, focus, forced colors, reduced motion, zoom and contrast: pending.
@@ -231,4 +234,6 @@ Reviewed the [official source](https://github.com/phosphor-icons/react), [packag
 Use individual SSR modules to avoid React Context and a 9,000-module development barrel.
 The React peer range accepts the existing React version. Runtime bundle impact remains unmeasured.
 Keep the packaged license. No glyph source is copied in this step.
-Pinned installation passes. Replacement and final icon family acceptance are pending.
+Pinned installation passes. Five per-icon SSR exports resolve. Dialog and Sheet close icons use this family; replacing remaining icons and measuring route bundles are pending.
+
+The internal React harness is `docs/ui-foundation-preview.html` with `docs/ui-foundation-preview.tsx`. It uses the existing Vite toolchain from the locked test dependencies. It does not add a product route or change the app framework. System fonts in this harness are not production font-loading acceptance. The 80% field placeholder ink measures 4.85:1 on its exact filled background.

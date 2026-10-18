@@ -151,10 +151,7 @@
     @apply text-base sm:text-lg font-medium;
   }
 
-  /* Ensure minimum readable font size on mobile */
-  p, li, span {
-    @apply text-base;
-  }
+  /* Body text inherits the base size; nested metadata keeps its explicit role. */
 }
 
 @layer utilities {
