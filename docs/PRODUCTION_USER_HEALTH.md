@@ -723,3 +723,38 @@ Worker38d2d7e6-40ea-48df-9783-24a0a121ad10, GET200/outcomeok, exact URL and55sec
 Receipt: `u3-mapped-provider-proof-20261018.json`. Ten focused mapping/CLI tests pass.
 The first resumed lookup used unencoded separators and returned0; the canonical encoded lookup succeeded.
 Full suite, exact CI, host-service release and installed-service next-run proof remain release gates.
+
+### Controlled delivery released — 2026-10-18
+
+PR476 source `f999dc77900a5b333457674a26eccc12492c9614` passed required self-hosted
+[CI39086669217](https://github.com/nkopp-cmd/travelchat-ai/actions/runs/39086669217) in18m28s.
+Merge `b664858b9f907c9e1b1ba3d559cb8fe106e1c925` has the exact tested tree.
+All75local monitor tests, syntax and whitespace checks pass. Fifteen candidate checks pass.
+The earlier stopped attempts above remain historical evidence; the mapping gate is now resolved.
+
+The existing daily service ran from stable main at01:49:24UTC and01:50:15UTC.
+Both executions ended with Result=success/ExecMainStatus=0. Complete public bodies, catalog,
+Source reachability and log settings pass. The first run staged its private probe.
+The second matched exactly one real GET200/outcomeok invocation, with60seconds probe age.
+Its provider version is `38d2d7e6-40ea-48df-9783-24a0a121ad10`.
+Twenty-six installed-release guards pass, including private0600state, no marker in reports,
+unchanged coverage warnings, stable service path, enabled active timer and exact U1/U2 acceptance.
+
+This is a host-monitor release. No Worker, unit, schedule, schema, permission or billing setting changed.
+Production remains38d2d7e6/deployment25f36f3c-f591-4188-94f8-e2f2798758e0 at100%.
+Preview remains03879c9f/deployment9b83b961-5475-4682-9a4b-ca2a9da00585 at100%.
+Deployment readbacks match the pre-release baseline exactly. No application record was written.
+The merged source worktree and local/remote branch are removed. Candidate pending state was archived and removed.
+The installed daily service retains only its next private controlled probe.
+
+Rollback: revert PR476 through a reviewed PR, pull stable main, and start the same service.
+The prior host source is `ace0fff4b8344135a6617f966d33271f58c821df`; its01:04UTC daily run passed.
+The unchanged unit and Worker require no rollback operation for this host-only increment.
+The earlier code review found noP0/P1. The resumed mapping review hit the weekly subscription limit;
+no paid fallback ran. Exact real provider proof and green CI resolve its prior false-negative concern.
+
+Private receipts: `u3-mapped-provider-proof-20261018.json`, `u3-log-mapping-candidate-checks-20261018.json`,
+`u3-log-mapping-ci-result-20261018.json`, `u3-log-mapping-installed-prime-20261018.json`,
+`u3-log-mapping-installed-followup-20261018.json` and `u3-log-mapping-installed-checks-20261018.json`.
+The check proves one previous controlled request. It does not prove complete ingestion or solve historical errors.
+U3 remains open. U1/U2 and the conditional test-checkout skip remain accepted.
