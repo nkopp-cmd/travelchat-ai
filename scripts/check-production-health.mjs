@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-/** Daily read-only user health check. Never records request headers or URL queries. */
-import { mkdir, writeFile, readFile } from 'node:fs/promises';
+/** Daily read-only user health check. Never records customer request headers or URL queries. */
+import { mkdir, writeFile, readFile, rename, rm } from 'node:fs/promises';
 import { parseEnv } from 'node:util';
+import { randomUUID } from 'node:crypto';
+import { checkLogDelivery, validLogProbe } from './production-health/log-delivery.mjs';
 import { checkSourceDatabase } from './production-health/source-database.mjs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -25,17 +27,23 @@ const args = process.argv.slice(2);
 const reportIndex = args.indexOf('--report');
 const destination = reportIndex < 0 ? join(homedir(), '.local/state/localley/production-health.json') : args[reportIndex + 1];
 if (!destination) throw new Error('--report needs a path');
+const probeFile = destination + '.logging-probe.json';
+let previousProbe, currentProbe;
+try { previousProbe = JSON.parse(await readFile(probeFile, 'utf8')); } catch {}
 let sourceDatabase;
 if (args.includes('--source-check')) {
   let configuration;
   try { configuration = parseEnv(await readFile(join(process.cwd(), '.env.local'), 'utf8')); } catch {}
   sourceDatabase = await checkSourceDatabase(configuration);
 }
-const health = await Promise.all(['/', '/sign-in', '/api/cities?noCache=true&includeHidden=true'].map(async path => {
+const citiesPath = '/api/cities?noCache=true&includeHidden=true&healthCanary=' + randomUUID();
+const health = await Promise.all(['/', '/sign-in', citiesPath].map(async path => {
   try {
+    const startedAt = Date.now();
     const response = await fetch(`https://www.localley.io${path}`, { redirect: 'error', signal: AbortSignal.timeout(25000) });
     const catalog = path.startsWith('/api/cities?') ? await checkCityCatalog(response) : undefined;
     const pageBody = catalog ? undefined : await checkPageBody(response);
+    if (catalog?.usable && response.status === 200) currentProbe = { version: 1, startedAt, status: 200, url: `https://www.localley.io${path}` };
     return { path: path.split('?')[0], status: response.status, ...(catalog ? { catalog } : { pageBody }) };
   } catch { return { path: path.split('?')[0], status: null, error: 'request failed or timed out' }; }
 }));
@@ -102,8 +110,18 @@ try {
   logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)
     ? message : 'Query failed or timed out' };
 }
-const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings, ...(sourceDatabase ? { sourceDatabase } : {}) };
+const loggingCanary = await checkLogDelivery(token, previousProbe);
+const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings, loggingCanary, ...(sourceDatabase ? { sourceDatabase } : {}) };
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
+if (validLogProbe(currentProbe)) {
+  const temporary = probeFile + '.next-' + randomUUID();
+  try {
+    await writeFile(temporary, JSON.stringify(currentProbe) + '\n', { flag: 'wx', mode: 0o600 });
+    await rename(temporary, probeFile);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
-console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, ...(sourceDatabase ? { sourceDatabase } : {}), report: destination }));
+console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, loggingCanary, ...(sourceDatabase ? { sourceDatabase } : {}), report: destination }));
 if (sourceDatabase?.usable === false || !logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false || check.pageBody?.usable === false)) process.exitCode = 1;
