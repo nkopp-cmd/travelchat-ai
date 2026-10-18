@@ -16,6 +16,7 @@ import { checkCityCatalog } from './production-health/city-catalog.mjs';
 import { errorRouteGroup } from './production-health/route-groups.mjs';
 import { summarizeWorkerVersions, workerVersionId } from './production-health/worker-versions.mjs';
 import { checkPageBody } from './production-health/page-body.mjs';
+import { auditActiveDeployment } from './production-health/active-deployment.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -112,8 +113,10 @@ try {
   logs = { available: false, error: /^(HTTP \d{3}|query incomplete|missing events|unexpected service)$/.test(message)
     ? message : 'Query failed or timed out' };
 }
-const loggingCanary = await checkLogDelivery(token, previousProbe);
-const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, ingestionSettings, loggingCanary, ...(sourceDatabase ? { sourceDatabase } : {}) };
+const [loggingCanary, activeDeployment] = await Promise.all([
+  checkLogDelivery(token, previousProbe), auditActiveDeployment(token, logs.workerVersions),
+]);
+const report = { checkedAt: new Date(now).toISOString(), windowHours: 24, service, health, logs, activeDeployment, ingestionSettings, loggingCanary, ...(sourceDatabase ? { sourceDatabase } : {}) };
 await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
 if (validLogProbe(currentProbe)) {
   const temporary = probeFile + '.next-' + randomUUID();
@@ -125,5 +128,5 @@ if (validLogProbe(currentProbe)) {
   }
 }
 await writeFile(destination, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
-console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, ingestionSettings, loggingCanary, ...(sourceDatabase ? { sourceDatabase } : {}), report: destination }));
+console.log(JSON.stringify({ checkedAt: report.checkedAt, health, logs, activeDeployment, ingestionSettings, loggingCanary, ...(sourceDatabase ? { sourceDatabase } : {}), report: destination }));
 if (sourceDatabase?.usable === false || !logs.available || !ingestionSettings.usable || health.some(check => check.status !== 200 || check.catalog?.usable === false || check.pageBody?.usable === false)) process.exitCode = 1;
