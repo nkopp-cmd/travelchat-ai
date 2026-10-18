@@ -175,3 +175,50 @@ Mode600 receipts remain under `/home/dev/.local/state/localley`:
 - `u3-chat-scroll-perf-{before,after}-20261018.log`, paired timing, public script parity and both Lighthouse summaries.
 
 This evidence-only update changes no runtime artifact. Its sole document is outside the workflow path filter.
+
+## Retained RSC disconnect correlation — 2026-10-18
+
+The bounded diagnostic compared one completed reserved-owner dashboard RSC response with one deliberate disconnect.
+It used the existing production Worker `d0f508f5-770a-4dc2-87f6-579a18a43185`.
+The original transport run followed one same-origin307, then drained21827bytes with status200 and no RSC E frames.
+The second request reused its connection and disconnected after23ms, before response headers.
+Six native transport tests and the original15 preservation guards passed.
+The fixture was removed; Source48 full-row hashes, Auth business counts, both administrators and both Workers were preserved.
+The cleanup lease is closed and its timer and service are inactive.
+
+The original two provider queries missed the completed control and stopped.
+Local inspection found literal tildes in its redirect URL and encoded `%7E` in the canceled probe.
+The retained redirect also has a present empty `_rsc` value, which must remain valid.
+
+The new pure `scripts/production-health/rsc-probe-url.mjs` helper normalizes those reserved diagnostic URLs.
+It preserves the marker, query order and empty RSC token.
+It refuses foreign origins, other paths, credentials, fragments, duplicate/extra keys and malformed markers.
+Errors contain a fixed label and never echo the private URL.
+The helper is manual diagnostic support; the daily monitor does not import it.
+All89 native monitor tests pass, including six normalization regressions.
+
+After local validation, one bounded read-only lookup used the normalized retained URLs.
+It returned two exact-version invocations, ABR1 and no reported truncation:
+
+| Retained request | Invocation outcome | Reported status |
+| --- | --- | --- |
+| Completed control | `ok` |200 |
+| Controlled disconnect before headers | `canceled` |Unknown |
+
+The lookup returned no matching network-error console event.
+These results apply only to the two retained synthetic requests and returned provider records.
+They do not prove error absence, explain the fourteen historical RSC events, or exclude a different cancellation phase.
+The historical events were on an older Worker; no historical cause is assigned.
+U3 remains open. U1/U2 acceptance, including the conditional test-checkout skip, remains unchanged.
+
+Private mode600 evidence remains under `/home/dev/.local/state/localley`:
+
+- `u3-rsc-disconnect-stopped-archive-20261018.json`: original transport code, closed fixture lease and private generated probes.
+- `u3-rsc-disconnect-proof-20261018.json` and stopped-cleanup receipt: original failed correlation and20 cleanup guards.
+- `u3-rsc-normalize-final-tests-20261018.log`:89 native tests.
+- `u3-rsc-normalize-correlation-20261018.json`: initial local empty-token rejection, with no provider query.
+- `u3-rsc-normalize-correlation-resumed-20261018.json`:11 guards and the actual matched pair.
+
+The lookup created no new account or application request and changed no Worker or database configuration.
+Release this host helper after exact required CI and merge; verify the installed helper against retained input hashes.
+Record the exact source, CI, merge and cleanup in the root blocker plan.
