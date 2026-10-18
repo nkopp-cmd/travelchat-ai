@@ -758,3 +758,28 @@ Private receipts: `u3-mapped-provider-proof-20261018.json`, `u3-log-mapping-cand
 `u3-log-mapping-installed-followup-20261018.json` and `u3-log-mapping-installed-checks-20261018.json`.
 The check proves one previous controlled request. It does not prove complete ingestion or solve historical errors.
 U3 remains open. U1/U2 and the conditional test-checkout skip remain accepted.
+
+## Active deployment context — 2026-10-18
+
+The daily report now includes `activeDeployment` from the fixed production Worker deployment API.
+It records configured version IDs and traffic percentages at inspection time.
+Each version also shows its count in the returned error window.
+The original global and per-version rankings, sampling warnings and uptime exits remain unchanged.
+
+This snapshot does not identify which deployment served an older event.
+Returned events can predate the deployment or use explicit version overrides.
+Zero matching returned events does not establish error absence, complete ingestion or a falling error rate.
+An omitted version or unavailable query leaves its count unknown.
+Invalid deployment data or API failures produce an unavailable context with fixed privacy-safe warnings.
+The GET has an eight-second deadline, a64KiB body limit and no redirect following.
+It runs alongside the existing log-delivery check, without another probe or production mutation.
+
+All83 native monitor tests pass, including the actual CLI with sampled older-version errors.
+Tests retain those errors while adding a different active version with zero returned matches.
+They also prove canary traffic, missing/omitted query data, malformed percentages, bounded cancellation and private payload rejection.
+
+This is a host-only checker change. Release requires exact green CI, a merge and the actual installed daily service.
+No Worker upload, data migration, payment, email or auth fixture is needed.
+Record exact CI, commit, installed receipt and cleanup in `shared/plans/localley-blockers-supergoal.md`.
+Retain private receipts with prefix `u3-active-deployment-20261018` under the existing Localley state directory.
+U1/U2 acceptance and the conditional test-checkout skip remain unchanged. U3 stays open for unresolved causes.
