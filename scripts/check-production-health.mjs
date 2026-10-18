@@ -36,7 +36,9 @@ if (args.includes('--source-check')) {
   try { configuration = parseEnv(await readFile(join(process.cwd(), '.env.local'), 'utf8')); } catch {}
   sourceDatabase = await checkSourceDatabase(configuration);
 }
-const citiesPath = '/api/cities?noCache=true&includeHidden=true&healthCanary=' + randomUUID();
+// Short UUID groups avoid provider secret redaction; URLSearchParams matches provider encoding.
+const citiesPath = '/api/cities?' + new URLSearchParams({ noCache: 'true', includeHidden: 'true',
+  healthCanary: randomUUID().replaceAll('-', '~') });
 const health = await Promise.all(['/', '/sign-in', citiesPath].map(async path => {
   try {
     const startedAt = Date.now();

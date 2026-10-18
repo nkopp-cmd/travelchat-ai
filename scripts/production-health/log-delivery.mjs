@@ -1,6 +1,7 @@
 // Only a generated public catalog probe may be queried. Never persist telemetry payloads.
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
+const marker = /^[0-9a-f]{8}~[0-9a-f]{4}~[0-9a-f]{4}~[0-9a-f]{4}~[0-9a-f]{12}$/;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function validLogProbe(probe, now = Date.now()) {
   if (!probe || typeof probe !== 'object' || Array.isArray(probe)
@@ -12,7 +13,8 @@ export function validLogProbe(probe, now = Date.now()) {
     return url.origin === 'https://www.localley.io' && !url.username && !url.password && !url.hash
       && url.pathname === '/api/cities' && [...url.searchParams.keys()].sort().join(',') === 'healthCanary,includeHidden,noCache'
       && url.searchParams.get('noCache') === 'true' && url.searchParams.get('includeHidden') === 'true'
-      && uuid.test(url.searchParams.get('healthCanary') || '');
+      && marker.test(url.searchParams.get('healthCanary') || '')
+      && probe.url === url.origin + url.pathname + '?' + url.searchParams.toString();
   } catch { return false; }
 }
 
@@ -26,7 +28,7 @@ export async function checkLogDelivery(token, probe, { fetchImpl = fetch, now = 
     parameters: { filters: [
       { key: '$metadata.service', operation: 'eq', type: 'string', value: service },
       { key: '$metadata.type', operation: 'eq', type: 'string', value: 'cf-worker-event' },
-      { key: '$metadata.url', operation: 'eq', type: 'string', value: probe.url },
+      { key: '$workers.event.request.url', operation: 'eq', type: 'string', value: probe.url },
     ] } };
   try {
     const response = await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${account}/workers/observability/telemetry/query`, {
@@ -40,7 +42,7 @@ export async function checkLogDelivery(token, probe, { fetchImpl = fetch, now = 
     const matched = events.filter(event => {
       const m = event?.$metadata, w = event?.$workers;
       const statuses = [m?.statusCode, w?.event?.response?.status].filter(x => x !== undefined);
-      return m?.service === service && m.type === 'cf-worker-event' && m.url === probe.url
+      return m?.service === service && m.type === 'cf-worker-event' && w?.event?.request?.url === probe.url
         && w?.outcome === 'ok' && uuid.test(w?.scriptVersion?.id || '')
         && w?.event?.request?.method === 'GET' && statuses.length > 0 && statuses.every(x => x === 200)
         && Number.isInteger(event.timestamp) && event.timestamp >= query.timeframe.from && event.timestamp <= query.timeframe.to;

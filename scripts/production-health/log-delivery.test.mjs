@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { checkLogDelivery, validLogProbe } from './log-delivery.mjs';
 const now = Date.parse('2026-10-18T02:00:00Z');
-const nonce = '11111111-1111-4111-8111-111111111111';
+const nonce = '11111111~1111~4111~8111~111111111111';
 const version = '38d2d7e6-40ea-48df-9783-24a0a121ad10';
 const probe = { version: 1, startedAt: now - 60000, status: 200,
-  url: 'https://www.localley.io/api/cities?noCache=true&includeHidden=true&healthCanary=' + nonce };
+  url: 'https://www.localley.io/api/cities?noCache=true&includeHidden=true&healthCanary=' + encodeURIComponent(nonce).replaceAll('~', '%7E') };
 const event = () => ({ timestamp: probe.startedAt + 100, $metadata: { service: 'localley-next',
-  type: 'cf-worker-event', url: probe.url, statusCode: 200, requestId: 'PRIVATE_REQUEST_ID' },
-  $workers: { outcome: 'ok', scriptVersion: { id: version }, event: { request: { method: 'GET' } } },
+  type: 'cf-worker-event', statusCode: 200, requestId: 'PRIVATE_REQUEST_ID' },
+  $workers: { outcome: 'ok', scriptVersion: { id: version }, event: { request: { method: 'GET', url: probe.url } } },
   private: 'PRIVATE_PAYLOAD' });
 const envelope = events => ({ success: true, result: { run: { status: 'COMPLETED' }, events: { events } } });
 const run = (events, options = {}) => checkLogDelivery('PRIVATE_TOKEN', probe,
@@ -20,7 +20,7 @@ test('confirms the exact previous controlled invocation without exposing its URL
     calls++; assert.match(url, /^https:\/\/api.cloudflare.com\/client\/v4\/accounts\/664f242340bcec2f32daaeee15f58bde\/workers\/observability\/telemetry\/query$/);
     const query = JSON.parse(options.body);
     assert.equal(query.limit, 20); assert.equal(query.view, 'events');
-    assert.equal(query.parameters.filters.find(x => x.key === '$metadata.url').value, probe.url);
+    assert.equal(query.parameters.filters.find(x => x.key === '$workers.event.request.url').value, probe.url);
     assert.deepEqual(query.timeframe, { from: probe.startedAt - 1000, to: now });
     assert.ok(options.signal instanceof AbortSignal);
     return Response.json(envelope([event()]));
@@ -32,12 +32,19 @@ test('confirms the exact previous controlled invocation without exposing its URL
 });
 test('requires every provider identity, method, outcome, time and status boundary', async () => {
   const changes = [e => e.$metadata.service = 'other', e => e.$metadata.type = 'cf-worker',
-    e => e.$metadata.url = probe.url + '&secret=PRIVATE', e => e.$workers.scriptVersion.id = 'PRIVATE',
+    e => e.$workers.event.request.url = probe.url + '&secret=PRIVATE', e => e.$workers.scriptVersion.id = 'PRIVATE',
     e => e.$workers.outcome = 'exception', e => e.$workers.event.request.method = 'POST',
     e => e.$metadata.statusCode = 503, e => e.$workers.event.response = { status: 503 },
     e => e.timestamp = probe.startedAt - 1001, e => e.timestamp = now + 1,
     e => delete e.$metadata.statusCode, e => e.timestamp = 'PRIVATE'];
   for (const change of changes) { const row = event(); change(row); assert.equal((await run([row])).confirmed, false); }
+});
+test('refuses redacted, missing and differently encoded URLs despite otherwise matching metadata', async () => {
+  for (const url of [undefined, probe.url.replace(/healthCanary=.*/, 'healthCanary=REDACTED'),
+    probe.url.replaceAll('%7E', '~')]) {
+    const row = event(); row.$workers.event.request.url = url; row.$metadata.url = probe.url;
+    assert.equal((await run([row])).confirmed, false);
+  }
 });
 test('does not infer provider version from other metadata or accept conflicting invocation versions', async () => {
   const row = event(); delete row.$workers.scriptVersion; row.versionId = version; row.$metadata.version = version;
@@ -73,7 +80,7 @@ test('invalid, foreign, secret-bearing, future and expired probes make zero prov
   const invalid = [null, [], {}, { ...probe, startedAt: now + 1 }, { ...probe, startedAt: now - 48 * 3600000 - 1 },
     { ...probe, status: 503 }, { ...probe, secret: 'PRIVATE' }, { ...probe, url: probe.url.replace('www.localley.io', 'evil.test') },
     { ...probe, url: probe.url + '&token=PRIVATE' }, { ...probe, url: probe.url + '&noCache=true' },
-    { ...probe, url: probe.url.replace(nonce, 'PRIVATE') }, { ...probe, url: probe.url.replace('https:', 'http:') },
+    { ...probe, url: probe.url.replace('11111111%7E', 'PRIVATE%7E') }, { ...probe, url: probe.url.replace('https:', 'http:') },
     { ...probe, url: probe.url + '#PRIVATE' }, { ...probe, url: probe.url.replace('/api/cities', '/api/notifications') }];
   let calls = 0;
   for (const row of invalid) { const result = await checkLogDelivery('PRIVATE', row, { now,
@@ -93,8 +100,8 @@ test('actual CLI stages a private probe then confirms its next-run event without
       if(String(url).includes('/telemetry/query')){
         const q=JSON.parse(options.body);let events=[];
         if(q.queryId==='localley-controlled-log-delivery')events=[{timestamp:q.timeframe.from+1000,
-          $metadata:{service:'localley-next',type:'cf-worker-event',url:q.parameters.filters.find(x=>x.key==='$metadata.url').value,statusCode:200},
-          $workers:{outcome:'ok',scriptVersion:{id:'${version}'},event:{request:{method:'GET'}}},private:'PRIVATE_PAYLOAD'}];
+          $metadata:{service:'localley-next',type:'cf-worker-event',statusCode:200},
+          $workers:{outcome:'ok',scriptVersion:{id:'${version}'},event:{request:{method:'GET',url:q.parameters.filters.find(x=>x.key==='$workers.event.request.url').value}}},private:'PRIVATE_PAYLOAD'}];
         return Response.json({success:true,result:{run:{status:'COMPLETED'},statistics:{abr_level:1},events:{count:events.length,events}}});
       }
       if(String(url).includes('/api/cities?'))return Response.json({success:true,total:1,cities:[{slug:'seoul',spotCount:150,status:'recommended',name:'PRIVATE_CITY'}]});

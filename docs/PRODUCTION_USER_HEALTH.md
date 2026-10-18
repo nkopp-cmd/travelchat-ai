@@ -672,7 +672,7 @@ U1 remains verified. U2 retains its conditional test-checkout skip. U3 remains o
 
 ## Controlled log delivery check — prepared 2026-10-18
 
-The daily monitor adds a generated `healthCanary` UUID to its existing read-only cities request.
+The daily monitor adds a generated `healthCanary` marker (UUID groups separated by `~`) to its existing read-only cities request.
 A complete usable200catalog stages a private `<report>.logging-probe.json` containing only that public
 probe URL, start time, status200 and schema version. Atomic replacement uses mode0600; partial files are removed.
 No customer URL, cookie, header, account or provider payload enters this state.
@@ -709,3 +709,17 @@ production logging from these failed lookups. No Worker or host-service release 
 The code-only review found no blockingP0/P1 and explicitly required real next-run proof.
 Syntax/whitespace checks and all74local monitor tests pass. The suite completed before the queued-job cancellation attempt; no process was stopped.
 Keep this PR in draft until required CI and a real matching invocation pass. Do not close U3.
+
+Mapping repair2026-10-18: real provider events omit `$metadata.url` and use
+`$workers.event.request.url`. Contiguous UUIDs are redacted; short UUID groups separated by `~`
+survive. Both the request and exact query use URLSearchParams encoding (`%7E`).
+Observed shape audits confirm only that encoding differs. The matcher accepts no redacted,
+missing or differently encoded URL, including a misleading matching metadata URL.
+This changes only our generated public probe, with no provider privacy-setting change.
+Earlier failed receipts remain historical evidence; release still requires real matched proof and exact CI.
+
+The repaired helper matched one actual invocation on2026-10-18 at01:28:46UTC:
+Worker38d2d7e6-40ea-48df-9783-24a0a121ad10, GET200/outcomeok, exact URL and55second probe age.
+Receipt: `u3-mapped-provider-proof-20261018.json`. Ten focused mapping/CLI tests pass.
+The first resumed lookup used unencoded separators and returned0; the canonical encoded lookup succeeded.
+Full suite, exact CI, host-service release and installed-service next-run proof remain release gates.
