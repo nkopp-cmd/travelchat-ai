@@ -69,6 +69,7 @@ export function MarketingNavbar() {
                                 <div className="grid gap-2">
                                     {marketingLinks.map((item) => (
                                         <Link
+                        prefetch={false}
                                             key={item.href}
                                             href={item.href}
                                             className="group flex min-h-16 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-3 transition hover:border-violet-300/40 hover:bg-violet-400/10"
@@ -90,7 +91,7 @@ export function MarketingNavbar() {
                                         asChild
                                         className="h-12 w-full rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400"
                                     >
-                                        <Link href="/sign-up">
+                                        <Link prefetch={false} href="/sign-up">
                                             <Sparkles className="h-4 w-4" />
                                             Create account
                                         </Link>
@@ -100,7 +101,7 @@ export function MarketingNavbar() {
                                         variant="outline"
                                         className="h-11 w-full rounded-lg border-white/10 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
                                     >
-                                        <Link href="/sign-in">
+                                        <Link prefetch={false} href="/sign-in">
                                             Sign in
                                         </Link>
                                     </Button>
@@ -113,6 +114,7 @@ export function MarketingNavbar() {
 
                 <nav className="hidden md:flex items-center gap-1">
                     <Link
+                        prefetch={false}
                         href="/spots"
                         className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
                     >
@@ -120,6 +122,7 @@ export function MarketingNavbar() {
                         Explore
                     </Link>
                     <Link
+                        prefetch={false}
                         href="/pricing"
                         className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
                     >
@@ -135,7 +138,7 @@ export function MarketingNavbar() {
                         size="sm"
                         className="text-white/80 hover:bg-white/10 hover:text-white"
                     >
-                        <Link href="/sign-in">
+                        <Link prefetch={false} href="/sign-in">
                             Sign In
                         </Link>
                     </Button>
@@ -144,7 +147,7 @@ export function MarketingNavbar() {
                         size="sm"
                         className="rounded-full bg-violet-600 px-6 shadow-lg shadow-violet-500/20 transition-all hover:scale-105 hover:bg-violet-700"
                     >
-                        <Link href="/sign-up">
+                        <Link prefetch={false} href="/sign-up">
                             Get Started
                         </Link>
                     </Button>
