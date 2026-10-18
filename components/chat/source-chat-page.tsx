@@ -6,6 +6,9 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { AppBackground } from "@/components/layout/app-background";
 
+// Header:56px+1px; mobile navigation:64px+1px+safe area.
+const CHAT_VIEWPORT = "h-[calc(100dvh-7.5rem-2px-env(safe-area-inset-bottom,0px))] min-h-0 md:h-[calc(100dvh-4rem-1px)]";
+
 function ChatPageContent() {
   const searchParams = useSearchParams();
 
@@ -31,9 +34,8 @@ function ChatPageContent() {
     <AppBackground
       ambient
       fitParent
-      className="h-full min-h-0"
+      className={CHAT_VIEWPORT}
       contentClassName="flex h-full min-h-0 flex-col"
-      style={{ height: 'calc(100% - env(safe-area-inset-bottom, 0px))' }}
     >
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-white/[0.035] flex-shrink-0 backdrop-blur-xl">
@@ -65,8 +67,7 @@ export default function ChatPage() {
   return (
     <Suspense fallback={
       <div
-        className="flex h-full min-h-0 flex-col bg-[#0b0714] items-center justify-center"
-        style={{ height: 'calc(100% - env(safe-area-inset-bottom, 0px))' }}
+        className={`flex ${CHAT_VIEWPORT} flex-col bg-[#0b0714] items-center justify-center`}
       >
         <div className="animate-pulse text-muted-foreground">Loading chat...</div>
       </div>

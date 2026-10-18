@@ -3,12 +3,14 @@
 Ordinary pages use the document scrollport. The body has a dynamic minimum
 viewport height, but no fixed height or overflow lock. This allows browser
 chrome changes and long pricing, discovery, and account pages to grow naturally.
-The shared main reserves 64px plus the bottom safe-area inset wherever the
+The shared main reserves 65px (including its existing border) plus the bottom safe-area inset wherever the
 fixed mobile navigation is present. Desktop does not reserve mobile space.
 
-Chat is the bounded exception: the shared main subtracts the top navigation
-height from 100dvh and retains navigation clearance. Messages continue to scroll
-inside the chat interface while its composer stays visible.
+The interactive chat page owns its bounded viewport: it subtracts the top and
+bottom navigation, their existing borders, and the safe-area inset from 100dvh.
+The desktop dashboard also bounds its chat area. Messages continue to scroll
+inside the chat interface while its composer stays visible. Candidate history
+uses document scrolling; the shared main does not lock all chat route variants.
 
 Spots pagination uses native `scrollIntoView` with document scrolling. The
 existing explicit-scroll-host compatibility path remains available for bounded

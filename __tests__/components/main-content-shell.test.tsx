@@ -12,7 +12,7 @@ describe("mobile page scrolling", () => {
     render(<MainContentShell><button>Last action</button></MainContentShell>);
     const main = screen.getByRole("main");
     expect(main.className).not.toMatch(/overflow-|h-\[/);
-    expect(main.className).toContain("pb-[calc(4rem+env(safe-area-inset-bottom,0px))]");
+    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
     expect(main.hasAttribute("data-main-scroll-host")).toBe(false);
   });
   it.each(["/", "/sign-in", "/sign-up", "/itineraries/new"])("does not reserve space for absent navigation on %s", (pathname) => {
@@ -20,13 +20,11 @@ describe("mobile page scrolling", () => {
     render(<MainContentShell>Content</MainContentShell>);
     expect(screen.getByRole("main").className).not.toContain("pb-[");
   });
-  it("keeps chat messages inside a dynamic viewport with safe navigation clearance", () => {
+  it("leaves chat page variants free to select their own scroll model", () => {
     state.pathname = "/chat";
     render(<MainContentShell>Chat</MainContentShell>);
     const main = screen.getByRole("main");
-    expect(main.className).toContain("h-[calc(100dvh-3.5rem)]");
-    expect(main.className).toContain("overflow-hidden");
-    expect(main.className).toContain("md:h-[calc(100dvh-4rem)]");
-    expect(main.className).toContain("pb-[calc(4rem+env(safe-area-inset-bottom,0px))]");
+    expect(main.className).not.toMatch(/overflow-|h-\[/);
+    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
   });
 });

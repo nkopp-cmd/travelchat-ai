@@ -89,7 +89,7 @@ describe("spots scroll layout", () => {
     expect(main.id).toBe("main-content");
     expect(main.hasAttribute("data-main-scroll-host")).toBe(false);
     expect(main.className).not.toContain("overflow-y-auto");
-    expect(main.className).toContain("pb-[calc(4rem+env(safe-area-inset-bottom,0px))]");
+    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
     expect(screen.getByText("Spots content").parentElement?.className).not.toContain(
       "overflow-y-auto",
     );
