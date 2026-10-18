@@ -174,7 +174,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
                 </Button>
             </form>
             <p className="text-center text-sm text-gray-400">
-                Have an account? <Link href="/sign-in" className="text-violet-400 hover:text-violet-300">Sign in</Link>
+                Have an account? <Link href={`/sign-in${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-violet-400 hover:text-violet-300">Sign in</Link>
             </p>
         </div>
     );

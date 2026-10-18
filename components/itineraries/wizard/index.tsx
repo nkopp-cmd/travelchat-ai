@@ -300,20 +300,23 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
       const result = await response.json();
 
       if (!response.ok) {
+        const errorCode = typeof result.error === "string" ? result.error : result.error?.code;
+        const errorMessage = typeof result.message === "string" ? result.message
+          : typeof result.error?.message === "string" ? result.error.message : undefined;
         // Handle specific error types
-        if (result.error === "signup_required") {
+        if (errorCode === "signup_required" || errorCode === "unauthorized") {
           toast({
             title: "Sign up to continue",
-            description: result.message,
+            description: errorMessage,
           });
           router.push(`/sign-up?redirect_url=${encodeURIComponent(PLANNER_RESUME_PATH)}`);
           return;
         }
 
-        if (result.error === "limit_exceeded") {
+        if (errorCode === "limit_exceeded") {
           toast({
             title: "Limit reached",
-            description: result.message,
+            description: errorMessage,
           });
           if (result.upgrade) {
             router.push("/pricing");
@@ -321,7 +324,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
           return;
         }
 
-        throw new Error(result.message || result.error || "Failed to generate itinerary");
+        throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
       }
 
       // Handle anonymous user - show itinerary with signup prompt

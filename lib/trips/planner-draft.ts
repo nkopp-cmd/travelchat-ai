@@ -9,8 +9,13 @@ const MAX_BYTES = 16_384;
 // This is input recovery only. Never store sessions, entitlements or generated trips here.
 const fields = new Set([
   "city", "days", "budget", "interests", "localnessLevel", "pace", "groupType",
-  "templatePrompt", "templateName", "tripMode", "citySlugs", "cityNameBySlug", "startDate",
+  "templatePrompt", "templateName", "tripMode", "citySlugs", "cityNameBySlug", "startDate", "selectedSpotId",
 ]);
+/** A bounded input reference, never proof of public visibility or itinerary inclusion. */
+export function parsePlannerSpotId(value: unknown): string | undefined {
+  return typeof value === "string" && value.length === 36 && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value)
+    ? value.toLowerCase() : undefined;
+}
 const slug = /^[a-z0-9-]{1,80}$/;
 function record(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -40,6 +45,7 @@ function validInputs(value: unknown): value is WizardData {
   if (value.templatePrompt !== undefined && !text(value.templatePrompt, 4096)) return false;
   if (value.templateName !== undefined && !text(value.templateName, 160)) return false;
   if (value.startDate !== undefined && (!text(value.startDate, 10) || !tripEndDate(value.startDate, value.days))) return false;
+  if (value.selectedSpotId !== undefined && !parsePlannerSpotId(value.selectedSpotId)) return false;
   return value.tripMode === "multi" ? value.citySlugs.length >= 2
     : value.tripMode === "single" && value.city.trim().length > 0 && value.days <= 7;
 }

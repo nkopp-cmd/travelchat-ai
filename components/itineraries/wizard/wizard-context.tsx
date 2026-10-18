@@ -6,6 +6,7 @@ export interface WizardData {
   city: string;
   days: number;
   startDate?: string;
+  selectedSpotId?: string;
   budget: "cheap" | "moderate" | "splurge";
   interests: string[];
   localnessLevel: number;

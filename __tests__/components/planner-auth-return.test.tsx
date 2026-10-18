@@ -3,12 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ItineraryWizard } from "@/components/itineraries/wizard";
 import { parsePlannerDraft, PLANNER_DRAFT_KEY, PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
+import { apiError, ErrorCodes } from "@/lib/api-errors";
 
 const state = vi.hoisted(() => ({ push: vi.fn(), toast: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: state.toast }) }));
 const saved: WizardData = {
-  city: "Seoul", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
+  city: "Seoul", selectedSpotId: "0041a575-c6fd-4a7e-b9c3-56cc50e201d6", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
   localnessLevel: 4, pace: "relaxed", groupType: "friends", tripMode: "single",
   citySlugs: [], cityNameBySlug: {},
 };
@@ -32,10 +33,11 @@ describe("wizard authentication return", () => {
     await waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false));
     await act(async () => { fireEvent.click(button); });
   }
-  it("keeps inputs before the request and returns sign-up to explicit review", async () => {
+  it.each(["legacy", "current"])("keeps inputs before the request and returns sign-up to explicit review (%s)", async format => {
     const fetch = vi.fn().mockImplementation(async () => {
       expect(parsePlannerDraft(localStorage.getItem(PLANNER_DRAFT_KEY))?.data).toEqual(saved);
-      return { ok: false, json: async () => ({ error: "signup_required", message: "Sign up" }) };
+      return format === "current" ? apiError(ErrorCodes.UNAUTHORIZED, "Sign up")
+        : { ok: false, json: async () => ({ error: "signup_required", message: "Sign up" }) };
     });
     vi.stubGlobal("fetch", fetch);
     await generate();

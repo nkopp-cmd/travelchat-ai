@@ -12,7 +12,7 @@ vi.mock("@/components/itineraries/wizard", () => ({
 import NewItineraryPage from "@/app/itineraries/new/page";
 
 const saved: WizardData = {
-  city: "Seoul", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
+  city: "Seoul", selectedSpotId: "0041a575-c6fd-4a7e-b9c3-56cc50e201d6", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
   localnessLevel: 4, pace: "relaxed", groupType: "friends", tripMode: "single",
   citySlugs: [], cityNameBySlug: {},
 };
@@ -21,6 +21,16 @@ const props = () => JSON.parse(screen.getByTestId("wizard-inputs").textContent!)
 describe("explicit planner resume", () => {
   beforeEach(() => { state.query = ""; localStorage.clear(); });
   afterEach(() => { vi.restoreAllMocks(); localStorage.clear(); });
+  it("keeps a card's canonical spot reference when starting a new plan", () => {
+    state.query = "city=Seoul&spot=0041A575-C6FD-4A7E-B9C3-56CC50E201D6";
+    render(<NewItineraryPage />);
+    expect(props()).toEqual({ initialData: { city: "Seoul", selectedSpotId: saved.selectedSpotId }, initialStep: 1 });
+  });
+  it("ignores a malformed spot reference without importing it into inputs", () => {
+    state.query = "city=Seoul&spot=..%2Fprivate";
+    render(<NewItineraryPage />);
+    expect(props()).toEqual({ initialData: { city: "Seoul" }, initialStep: 1 });
+  });
   it("restores all saved inputs only on an explicit same-origin resume", () => {
     savePlannerDraft(localStorage, saved);
     state.query = "resume=1";
@@ -53,5 +63,6 @@ describe("explicit planner resume", () => {
     const html = renderToString(<NewItineraryPage />);
     expect(html).not.toContain("Food &amp; Dining");
     expect(html).not.toContain("Seoul");
+    expect(html).not.toContain(saved.selectedSpotId);
   });
 });

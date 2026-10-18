@@ -284,3 +284,11 @@ This is input collection and recovery. The current generation API still uses dur
 City pages currently mean the filtered catalog; there is no separate city-detail page. The server supplies its selected city to the weekly carousel. See all keeps that city, applies trending order and targets the results anchor. Query encoding prevents a city string from adding another query option. Empty weekly results stay empty.
 
 The R7 four-width component proof retains the exact shared card, transform and public-text fixture hashes. This increment changes the carousel link context, not its geometry. Unit checks use actual shared cards with photo/save fixtures; they do not prove real photos, saved-trip delivery or hosted route acceptance. Those gates and selected-spot persistence remain open.
+
+## Selected spot input reference (2026-10-18)
+
+The planner now accepts the card URL’s bounded UUID reference and keeps it through same-browser input recovery. Malformed references are ignored; legacy drafts without a spot remain compatible. A UUID does not prove public visibility, city membership, ownership or inclusion in a generated trip. The reference stays out of generation requests until server validation is implemented. No new public read endpoint or database permission is introduced.
+
+The existing generation API returns nested `unauthorized` errors. The wizard now accepts that actual contract and the older `signup_required` contract, returning sign-up to explicit input review. API authentication and entitlement enforcement remain unchanged. Full selected-stop lookup and generated inclusion remain open.
+
+Switching from sign-up to sign-in also keeps the validated return path. Navigation tests render both real forms and use the existing redirect guard. They make no auth request. This preserves review/legacy claim returns; it does not prove a delivered login email or a hosted authenticated session.
