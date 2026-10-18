@@ -9,11 +9,14 @@ export interface NotificationStatement {
   bind(...values: (string | number | null)[]): NotificationStatement;
   first<T>(): Promise<T | null>;
   all<T>(): Promise<{ results: T[] }>;
-  run(): Promise<{ meta: { changes: number } }>;
+  run(): Promise<{ success?: boolean; meta: { changes: number } }>;
 }
 export interface NotificationDatabase { prepare(sql: string): NotificationStatement }
 export class NotificationStoreUnavailable extends Error {
   constructor() { super("Notification storage is unavailable."); }
+}
+export class PushRegistrationRefused extends Error {
+  constructor() { super("Push registration refused."); }
 }
 type PreferenceRow = Record<typeof preferenceFlags[number], number> & {
   userId: string; quietHoursStart: string | null; quietHoursEnd: string | null; timezone: string;
@@ -145,6 +148,8 @@ export class AuthNotificationStore {
       WHERE auth_push_subscriptions.userId = excluded.userId AND auth_push_subscriptions.endpoint = excluded.endpoint
       AND ${verified}`).bind(hash, this.userId, checked.endpoint, checked.keys.p256dh, checked.keys.auth,
         this.userId, this.userId, this.userId, hash, this.userId).run();
+    if (result.success !== true) throw new NotificationStoreUnavailable();
+    if (result.meta.changes === 0) throw new PushRegistrationRefused();
     if (result.meta.changes !== 1) throw new NotificationStoreUnavailable();
   }
   async removePush(endpoint: string): Promise<void> {

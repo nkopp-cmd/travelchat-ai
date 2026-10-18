@@ -93,10 +93,24 @@ describe("normal verified canonical Auth notification routes", () => {
     const input = push(); const result = await subscribe(request("POST", { subscription: input }));
     expect(result.status).toBe(200); expect(await result.json()).toEqual({ success: true, deliveryEnabled: false });
     const before = snapshot(); owner(ownerB);
-    expect((await subscribe(request("POST", { subscription: push(input.endpoint) }))).status).toBe(503);
+    const refused = await subscribe(request("POST", { subscription: push(input.endpoint) }));
+    expect(refused.status).toBe(409); expect(await refused.json()).toEqual({ success: false, deliveryEnabled: false,
+      error: "push_registration_refused", message: "This push subscription could not be registered." });
+    expect(console.error).not.toHaveBeenCalled();
     expect((await unsubscribe(request("DELETE", { endpoint: input.endpoint }))).status).toBe(200); expect(snapshot()).toEqual(before);
     owner(); expect((await unsubscribe(request("DELETE", { endpoint: input.endpoint }))).status).toBe(200);
     expect(snapshot()[2]).toEqual([]); expect(m.source).not.toHaveBeenCalled();
+  });
+  it("returns the same private refusal for a full device list without logging an outage", async () => {
+    for (let i = 0; i < 10; i++) expect((await subscribe(request("POST", { subscription: push('https://push.example.test/' + i) }))).status).toBe(200);
+    const before = snapshot();
+    const refused = await subscribe(request("POST", { subscription: push('https://push.example.test/extra') }));
+    expect(refused.status).toBe(409);
+    expect(await refused.json()).toEqual({ success: false, deliveryEnabled: false, error: "push_registration_refused",
+      message: "This push subscription could not be registered." });
+    expect(refused.headers.get("cache-control")).toBe("private, no-store");
+    expect(refused.headers.get("vary")).toBe("Cookie");
+    expect(snapshot()).toEqual(before); expect(console.error).not.toHaveBeenCalled(); expect(m.source).not.toHaveBeenCalled();
   });
   it("keeps selected storage errors private and never falls back to Source", async () => {
     mode("active", { prepare: () => { throw Error("sensitive-bound-endpoint-and-key"); } });
