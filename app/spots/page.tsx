@@ -92,7 +92,7 @@ async function SpotsContent({
 
     return (
         <>
-            <WeeklyTrendingSpots items={weeklyTrending} />
+            <WeeklyTrendingSpots items={weeklyTrending} citySlug={filters.city} />
             <SpotsExplorer
                 initialSpots={spotsData.spots}
                 totalCount={spotsData.total}

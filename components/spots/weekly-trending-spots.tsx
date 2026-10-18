@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import type { WeeklyTrendingSpot } from "@/lib/spots/weekly-trending";
 
-export function WeeklyTrendingSpots({ items }: { items: WeeklyTrendingSpot[] }) {
+export function WeeklyTrendingSpots({ items, citySlug }: { items: WeeklyTrendingSpot[]; citySlug?: string | null }) {
   const track = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(0);
   const [visibleEnd, setVisibleEnd] = useState(0);
@@ -31,6 +31,8 @@ export function WeeklyTrendingSpots({ items }: { items: WeeklyTrendingSpot[] }) 
     return () => observer.disconnect();
   }, [items.length, updatePosition]);
   if (!items.length) return null;
+  const allParams = new URLSearchParams({ sort: "trending" });
+  if (citySlug) allParams.set("city", citySlug);
 
   function go(index: number) {
     const list = track.current;
@@ -51,7 +53,7 @@ export function WeeklyTrendingSpots({ items }: { items: WeeklyTrendingSpot[] }) 
       <div><p className="mb-1 text-[13px] font-medium text-primary">This week</p>
         <h2 id="weekly-spots-title" className="text-[22px] font-semibold tracking-tight">Places worth a detour</h2>
         <p className="mt-1 text-sm text-muted-foreground">From this week&apos;s public social activity.</p></div>
-      <Link prefetch={false} href="/spots?sort=trending#spot-results" className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-primary">See all</Link>
+      <Link prefetch={false} href={`/spots?${allParams}#spot-results`} className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-primary">See all</Link>
     </div>
     <div ref={track} tabIndex={0} aria-label="This week’s spots. Use left and right arrows to browse."
       onScroll={updatePosition} onKeyDown={onKeyDown}

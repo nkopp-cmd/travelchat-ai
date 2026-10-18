@@ -271,3 +271,16 @@ Sign-up uses the existing auth form’s `redirect_url` contract. Legacy `pending
 The landing Start planning action opens the anonymous planner. Trip details accept an optional start date and show the inclusive end date from the selected duration. Calendar arithmetic uses UTC to avoid timezone and daylight-saving shifts. The existing input-recovery envelope retains the start date and rejects invalid or overflowing calendar ranges. No date library or provider request is added.
 
 This is input collection and recovery. The current generation API still uses duration; date-aware output belongs to the unfinished complete planner flow. Full catalog preview, the server payment gate, checkout return, mobile browser acceptance and final preview approval remain open.
+
+## Shared cards in city catalogs (2026-10-18)
+
+| Existing view | Shared renderer |
+| --- | --- |
+| `/spots` grid and list | `SpotsExplorer` uses `SpotCard`, including compact list mode |
+| `/spots?city=seoul` and other city filters | The same `SpotsExplorer` and `SpotCard` |
+| Selected spot on the catalog map | `SpotsMap` uses `SpotCard` |
+| Weekly results in either catalog | `WeeklyTrendingSpots` uses `SpotCard` |
+
+City pages currently mean the filtered catalog; there is no separate city-detail page. The server supplies its selected city to the weekly carousel. See all keeps that city, applies trending order and targets the results anchor. Query encoding prevents a city string from adding another query option. Empty weekly results stay empty.
+
+The R7 four-width component proof retains the exact shared card, transform and public-text fixture hashes. This increment changes the carousel link context, not its geometry. Unit checks use actual shared cards with photo/save fixtures; they do not prove real photos, saved-trip delivery or hosted route acceptance. Those gates and selected-spot persistence remain open.
