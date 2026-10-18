@@ -17,6 +17,7 @@ import { errorRouteGroup } from './production-health/route-groups.mjs';
 import { summarizeWorkerVersions, workerVersionId } from './production-health/worker-versions.mjs';
 import { checkPageBody } from './production-health/page-body.mjs';
 import { auditActiveDeployment } from './production-health/active-deployment.mjs';
+import { summarizeNetworkExceptions } from './production-health/network-exceptions.mjs';
 
 const account = '664f242340bcec2f32daaeee15f58bde';
 const service = 'localley-next';
@@ -99,7 +100,7 @@ try {
     versionGroups.set(versionKey, recordEventTime(versionGroups.get(versionKey), event.timestamp, query.timeframe));
   }
   const classifiedGroups = [...groups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }));
-  logs = { available: true, observedEvents: events.length, ...summarizeQueryCoverage(data.result, events.length),
+  logs = { available: true, observedEvents: events.length, networkExceptions: summarizeNetworkExceptions(events), ...summarizeQueryCoverage(data.result, events.length),
     workerVersions: summarizeWorkerVersions(events, query.timeframe,
       [...versionGroups].map(([key, times]) => ({ ...JSON.parse(key), ...summarizeEventTime(times) }))),
     countingUnit: 'log_events_not_requests_or_users',
