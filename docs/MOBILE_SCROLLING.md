@@ -8,7 +8,8 @@ fixed mobile navigation is present. Desktop does not reserve mobile space.
 
 The interactive chat page owns its bounded viewport: it subtracts the top and
 bottom navigation, their existing borders, and the safe-area inset from 100dvh.
-The desktop dashboard also bounds its chat area. Messages continue to scroll
+The desktop dashboard also bounds its chat area and subtracts its layout’s
+64px vertical padding. Messages continue to scroll
 inside the chat interface while its composer stays visible. Candidate history
 uses document scrolling; the shared main does not lock all chat route variants.
 
