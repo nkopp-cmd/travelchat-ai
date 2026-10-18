@@ -237,3 +237,11 @@ Keep the packaged license. No glyph source is copied in this step.
 Pinned installation passes. Five per-icon SSR exports resolve. Dialog and Sheet close icons use this family; replacing remaining icons and measuring route bundles are pending.
 
 The internal React harness is `docs/ui-foundation-preview.html` with `docs/ui-foundation-preview.tsx`. It uses the existing Vite toolchain from the locked test dependencies. It does not add a product route or change the app framework. System fonts in this harness are not production font-loading acceptance. The 80% field placeholder ink measures 4.85:1 on its exact filled background.
+
+## Navigation and page shell pass (2026-10-18)
+
+Draft application navigation now uses the same 56/64px header token and 64px mobile clearance plus safe area. Chat subtracts those tokens; the desktop dashboard also keeps its parent padding. Bottom links have equal weight and filled selection; Explore opens the public spot catalog. The account area reserves space until the session settles. The drawer has an accessible title and description. Decorative background grids are removed from the shared wrapper.
+
+TypeScript, changed-file ESLint, 39 focused tests and the five-file navigation class guard pass. Eight new tests cover unresolved/settled accounts, the planner/catalog links, drawer dismissal, active paths and absent planner navigation. The jsdom link test reports unsupported document navigation; it proves drawer dismissal only. Actual hosted route screenshots, native gestures, navigation performance and signed-in data remain pending. CI now guards the thirteen adapted files; it does not yet cover all decorative classes.
+
+Dialog headers reserve room for their 44px close action. Sheets cap their scroll surface at the dynamic viewport height. These later refinements need a refreshed browser image review with the navigation pass.

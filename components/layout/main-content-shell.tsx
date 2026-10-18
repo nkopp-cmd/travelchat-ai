@@ -17,7 +17,7 @@ export function MainContentShell({ children }: MainContentShellProps) {
       id="main-content"
       className={cn(
         "flex-1 min-w-0",
-        reserveBottomNavSpace && "pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))] md:pb-0",
+        reserveBottomNavSpace && "pb-[var(--ll-nav-clearance)]",
       )}
       tabIndex={-1}
     >

@@ -6,8 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { AppBackground } from "@/components/layout/app-background";
 
-// Header:56px+1px; mobile navigation:64px+1px+safe area.
-const CHAT_VIEWPORT = "h-[calc(100dvh-7.5rem-2px-env(safe-area-inset-bottom,0px))] min-h-0 md:h-[calc(100dvh-4rem-1px)]";
+// Use the same borderless header and safe-area navigation tokens as the shell.
+const CHAT_VIEWPORT = "h-[calc(100dvh-var(--ll-topbar-height)-var(--ll-nav-clearance))] min-h-0";
 
 function ChatPageContent() {
   const searchParams = useSearchParams();
@@ -38,7 +38,7 @@ function ChatPageContent() {
       contentClassName="flex h-full min-h-0 flex-col"
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-white/[0.035] flex-shrink-0 backdrop-blur-xl">
+      <div className="flex items-center gap-3 px-4 py-3 bg-surface flex-shrink-0 backdrop-blur-xl">
         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
           <span className="text-white font-bold">A</span>
         </div>

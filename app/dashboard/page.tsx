@@ -47,7 +47,7 @@ export default async function DashboardPage({
         : undefined;
 
     return (
-        <AppBackground ambient fitParent className="lg:h-[calc(100dvh-8rem-1px)]" contentClassName="lg:h-full">
+        <AppBackground ambient fitParent className="lg:h-[calc(100dvh-var(--ll-topbar-height)-4rem)]" contentClassName="lg:h-full">
             <div className="flex flex-col h-full overflow-hidden">
                 {/* Top: Recent Itineraries Stories */}
                 {recentItineraries.length > 0 && (

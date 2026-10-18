@@ -36,3 +36,11 @@
     outline-offset: 3px;
   }
 }
+
+/* Keep the legacy shared wrapper name while replacing its decorative backdrop. */
+[data-localley-design="borderless"] .page-premium {
+  background: rgb(var(--ll-background));
+}
+[data-localley-design="borderless"] .grid-pattern {
+  background-image: none;
+}

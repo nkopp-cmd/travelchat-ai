@@ -1,6 +1,8 @@
-/* Draft tokens. The component preview opts in; application routes do not. */
+/* Shared draft theme. Production rollout requires approval of the final preview. */
 [data-localley-design="borderless"] {
   color-scheme: dark;
+  --ll-topbar-height: 3.5rem;
+  --ll-nav-clearance: calc(4rem + env(safe-area-inset-bottom, 0px));
   --ll-background: 13 15 22;
   --ll-surface: 24 27 38;
   --ll-raised: 36 40 56;
@@ -28,5 +30,12 @@
 @media (prefers-reduced-motion: reduce) {
   [data-localley-design="borderless"] {
     --ll-motion-short: 0ms;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-localley-design="borderless"] {
+    --ll-topbar-height: 4rem;
+    --ll-nav-clearance: 0px;
   }
 }
