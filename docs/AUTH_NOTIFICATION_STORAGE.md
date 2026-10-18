@@ -145,3 +145,66 @@ D1 must explicitly confirm success. Failed, missing or malformed result metadata
 Expected409 refusals do not emit the storage-outage marker. Existing historical503 events remain in the audit trail.
 This repairs one concrete error path; it does not establish the causes of all historical notification or network events.
 The [D1 result contract](https://developers.cloudflare.com/d1/worker-api/return-object/) defines success and change-count metadata.
+
+
+## Refusal repair production release — 2026-10-18
+
+PR474 source `a39c13946a1e81d142d649e92c294e4353064d96` passed self-hosted CI39081547136
+(`verify`, SUCCESS,20m35s),75focused SQLite/HTTP tests, scoped lint, TypeScript and the pinned public-only build.
+Merge `9908ffe34371986b65726de35638789308179548` has the identical tested tree.
+The build scanned71private values with zero matches. Its manifest is
+`fdad302fa8c6786c6e809c2c067c62a4644c0379ce499fad8d577febddb490be`, retained in
+`push-refusal-production-resume2-service-build-20261018.json`.
+Code review found no blockingP0/P1. Two bounded lifecycle reviews found no blocking flaw in supplied controls;
+they did not independently inspect helper implementations. Their timer concern was corrected: independent
+systemd units own both timers, and user linger is enabled. Prior broad reviews failed operationally;
+those failures remain recorded rather than treated as approval.
+
+Production Worker `38d2d7e6-40ea-48df-9783-24a0a121ad10` now serves100%,
+deployment `25f36f3c-f591-4188-94f8-e2f2798758e0`.
+The real compatible rollback restored `037dee7f-555b-45f3-89cd-44174301f6d5` at100%,
+deployment `5b1da14e-ecbd-4cff-a354-26c35723031c`, before final activation.
+Preview `03879c9f-26e4-4bb8-a955-a3798da12885` / `9b83b961-5475-4682-9a4b-ca2a9da00585` remains unchanged.
+
+The inactive upload passed17guards. Corrected canary/default controllers passed26checks each;
+actual rollback passed10. Each native phase passed34checks using two fresh controlled owners:
+
+- Fifteen overlapping registrations produce ten200 responses and five identical private409 refusals.
+- Identical registration and key rotation still return200 at capacity.
+- Foreign endpoint takeover returns the same409 without changing the owner's devices.
+- A second owner's free slot succeeds; switched-owner and anonymous requests return403/401.
+- Exact account/session/user/notification/device cleanup restores the full Source snapshot and Auth counts.
+
+Both native phases confirm `private, no-store`, the `Cookie` Vary token and `auth-d1` routing.
+Unexpected storage failures remain503 with the existing sanitized outage marker; local actual-handler tests
+prove that boundary. The hosted proof does not deliberately break the production database.
+No push or email is delivered. Existing capacity/ownership/verification SQL remains unchanged.
+
+The first canary verifier wrongly required Vary to equal only `Cookie`. Next.js appends its framework tokens.
+It safely restored the old Worker at `846aaade-0f02-4c01-a7bc-1318d9a8e46a` and removed both test owners.
+The corrected verifier preserves every409/body/privacy assertion and accepts Cookie within the token list.
+Its response metadata confirms the appended tokens; it reused the same inactive Worker with no new upload.
+
+Eight guest desktop/mobile browser checks passed and both PNGs were opened. These cover home rendering,
+overflow, page exceptions and the existing root method boundary; they are not new signed-in U2 acceptance.
+The final22guards preserve all48Source table counts/full row hashes, Auth counts, both full admin hashes,
+all57bindings, four production schedules, zero preview schedules and exact U1/U2 acceptance lines.
+All six old/retry timers and their services are inactive. No controlled user remains.
+
+Public performance medians (same shared five-run checker): home221to210ms, spots285to266ms,
+pricing207to168ms; all200. Existing speed budgets remain open; these samples do not prove a cache change.
+Matched Lighthouse13.5 runs use the same browser, throttling and provider-block settings.
+Mobile LCP8459to8302ms/TBT1271to1244ms; desktop LCP1932to1916ms/TBT79to52ms;
+CLS0 and zero failed requests in both samples. All24loaded same-origin script paths and decoded-byte
+SHA256 values are identical. No measured regression is observed; the existing LCP/JS/cache budgets remain open.
+Receipts: `push-refusal-resume-before-lighthouse-summary-20261018.json`,
+`push-refusal-resume2-after-lighthouse-summary-20261018.json`,
+`push-refusal-public-script-parity-20261018.json` and `push-refusal-resume2-perf-after-20261018.log`.
+
+Private receipts: `push-refusal-prod-upload-20261018.json`, `push-refusal-retry-baseline-20261018.json`,
+`push-refusal-retry-prod-live-resume2-canary-20261018.json`,
+`push-refusal-retry-prod-live-resume2-rollback-20261018.json`,
+`push-refusal-retry-prod-live-resume2-promote-20261018.json`,
+`push-refusal-retry-canary-native-20261018.json`, `push-refusal-retry-default-native-20261018.json`,
+`push-refusal-retry-prod-browser-20261018.json`, inspected PNG receipt and `push-refusal-final-guards-20261018.json`.
+This closes the scoped refusal repair. Historical U3 errors and full application-data migration remain open.
