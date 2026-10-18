@@ -101,9 +101,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     @apply bg-background text-foreground;
   }
@@ -129,7 +126,6 @@
 
   *::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, rgba(139, 92, 246, 0.9), rgba(99, 102, 241, 0.75));
-    border: 2px solid rgba(8, 10, 24, 0.78);
     border-radius: 999px;
   }
 
@@ -234,11 +230,11 @@
   }
 
   .liquid-panel {
-    @apply border border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl;
+    @apply bg-surface shadow-surface;
   }
 
   .liquid-panel-soft {
-    @apply border border-white/10 bg-white/[0.035] backdrop-blur-md;
+    @apply bg-surface/60;
   }
 
   .violet-focus {
@@ -260,29 +256,25 @@
 
   /* Glassmorphism utility */
   .glass {
-    @apply bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/20;
+    @apply bg-surface;
   }
 
   /* Premium card hover state */
   .card-premium {
     @apply transition-all duration-300 ease-out;
     @apply hover:shadow-2xl hover:shadow-violet-500/20;
-    @apply hover:border-violet-400/60 dark:hover:border-violet-500/60;
     @apply hover:-translate-y-2;
   }
 
   /* Premium glass card - matches landing page */
   .glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
+    background: rgb(var(--ll-surface));
     @apply rounded-2xl transition-all duration-300;
   }
 
   .glass-card-hover {
     @apply glass-card;
-    @apply hover:border-violet-500/30 hover:-translate-y-1;
+    @apply hover:bg-raised;
     box-shadow: var(--glow-sm);
   }
 
@@ -343,26 +335,6 @@
     @apply scale-[1.02];
   }
 
-  /* Gradient border effect */
-  .gradient-border {
-    position: relative;
-    background: transparent;
-  }
-
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(99, 102, 241, 0.3));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
   /* Premium page background */
   .page-premium {
     @apply relative;
@@ -381,19 +353,7 @@
     );
   }
 
-  /* Subtle grid pattern overlay */
-  .grid-pattern {
-    background-image:
-      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-  }
 
-  .dark .grid-pattern {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  }
 }
 
 /* Mobile touch interactions */

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, X, Check } from "lucide-react";
+import { Loader2, Save, X, Check } from "@/components/ui/icons";
 import {
     normalizeDailyPlansForDisplay,
     parseDailyPlans,
@@ -209,7 +209,7 @@ export function EditForm({ itinerary, dataCandidate, previewActor }: EditFormPro
     return (
         <fieldset disabled={dataCandidate === "d1" && isSaving} className="min-w-0 max-w-5xl mx-auto space-y-6">
             {/* Header with Save/Cancel */}
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 -mx-4">
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 -mx-4">
                 <div className="flex flex-wrap items-center justify-between gap-3 max-w-5xl mx-auto">
                     <div className="flex items-center gap-3">
                         <h1 className="text-xl sm:text-2xl font-bold">Edit Itinerary</h1>

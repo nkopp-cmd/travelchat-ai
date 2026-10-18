@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, MapPin, Sparkles } from "lucide-react";
+import { Plus, MapPin, Sparkles } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 
@@ -145,7 +145,7 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
                     "text-white text-[10px] font-bold",
                     "px-2 py-0.5 rounded-full",
                     "shadow-lg shadow-violet-500/30",
-                    "border border-white/20",
+                    " ",
                     "group-hover:scale-110 transition-transform duration-300"
                 )}>
                     {itinerary.days}d
@@ -180,7 +180,7 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                 <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
                     Recent Trips
                 </span>
-                <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
+                <div className="flex-1" aria-hidden="true" />
             </div>
 
             <div className="flex items-center gap-6 overflow-x-auto pb-4 scrollbar-hide">
@@ -205,8 +205,8 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
 
                         <div className={cn(
                             "relative w-[68px] h-[68px] rounded-full",
-                            "border-2 border-dashed",
-                            "border-muted-foreground/20 group-hover:border-violet-400",
+                            " ",
+                            " ",
                             "flex items-center justify-center",
                             "bg-muted/30 group-hover:bg-violet-50 dark:group-hover:bg-violet-950/30",
                             "transition-all duration-300",
@@ -252,7 +252,7 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                                 "relative w-[68px] h-[68px] rounded-full",
                                 "bg-muted/50 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/30",
                                 "flex items-center justify-center",
-                                "border border-border/50 group-hover:border-emerald-300/50",
+                                " ",
                                 "transition-all duration-300",
                                 "group-hover:scale-105"
                             )}>

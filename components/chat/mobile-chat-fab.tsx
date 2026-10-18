@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, X } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { ChatInterface } from "./chat-interface";
 
@@ -123,7 +123,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
         <MessageCircle className="h-6 w-6" />
         {/* Notification dot */}
         {hasUnread && (
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 border-2 border-white animate-pulse" />
+          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 animate-pulse" />
         )}
         {/* Pulse animation ring */}
         <span className="absolute inset-0 rounded-full bg-violet-500 animate-ping opacity-20" />
@@ -152,7 +152,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 pb-3 border-b border-border/40 flex-shrink-0">
+          <div className="flex items-center justify-between px-4 pb-3 flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
                 <span className="text-white font-bold">A</span>

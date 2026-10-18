@@ -19,8 +19,8 @@ import {
   Sparkles,
   UserRound,
   ExternalLink,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+} from "@/components/ui/icons";
+import type { LucideIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
@@ -75,7 +75,7 @@ import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
 
 const LIQUID_CARD =
-  "rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
+  "rounded-lg border bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
 
 interface RelatedSpot {
   id: string;
@@ -320,18 +320,18 @@ function getLocationToneClasses(
   tone: ReturnType<typeof getLocationConfidence>["tone"],
 ) {
   if (tone === "exact")
-    return "border-emerald-200/20 bg-emerald-400/10 text-emerald-100";
-  if (tone === "pinned") return "border-sky-200/20 bg-sky-400/10 text-sky-100";
-  return "border-amber-200/25 bg-amber-400/10 text-amber-100";
+    return " bg-emerald-400/10 text-emerald-100";
+  if (tone === "pinned") return " bg-sky-400/10 text-sky-100";
+  return " bg-amber-400/10 text-amber-100";
 }
 
 function getSignalToneClasses(tone: "emerald" | "sky" | "amber" | "violet") {
   if (tone === "emerald")
-    return "border-emerald-200/20 bg-emerald-400/10 text-emerald-100";
-  if (tone === "sky") return "border-sky-200/20 bg-sky-400/10 text-sky-100";
+    return " bg-emerald-400/10 text-emerald-100";
+  if (tone === "sky") return " bg-sky-400/10 text-sky-100";
   if (tone === "violet")
-    return "border-violet-200/20 bg-violet-400/10 text-violet-100";
-  return "border-amber-200/25 bg-amber-400/10 text-amber-100";
+    return " bg-violet-400/10 text-violet-100";
+  return " bg-amber-400/10 text-amber-100";
 }
 
 function DetailSignal({
@@ -348,17 +348,17 @@ function DetailSignal({
   tone?: "violet" | "emerald" | "sky" | "amber";
 }) {
   const toneClasses = {
-    violet: "border-violet-200/15 bg-violet-400/10 text-violet-100",
-    emerald: "border-emerald-200/15 bg-emerald-400/10 text-emerald-100",
-    sky: "border-sky-200/15 bg-sky-400/10 text-sky-100",
-    amber: "border-amber-200/20 bg-amber-400/10 text-amber-100",
+    violet: " bg-violet-400/10 text-violet-100",
+    emerald: " bg-emerald-400/10 text-emerald-100",
+    sky: " bg-sky-400/10 text-sky-100",
+    amber: " bg-amber-400/10 text-amber-100",
   }[tone];
 
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+    <div className="rounded-lg bg-white/[0.055] p-3">
       <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-violet-50/45">
         <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${toneClasses}`}
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${toneClasses}`}
         >
           <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
@@ -396,7 +396,7 @@ function PlanningSnapshot({
 
   return (
     <section className={`${LIQUID_CARD} overflow-hidden`} aria-label="Plan-ready snapshot">
-      <div className="border-b border-white/10 bg-white/[0.035] p-3 sm:p-4">
+      <div className=" bg-white/[0.035] p-3 sm:p-4">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">
@@ -447,9 +447,9 @@ function RecordConfidencePanel({
   confidence: ReturnType<typeof getSpotRecordConfidence>;
 }) {
   const toneClasses = {
-    emerald: "border-emerald-200/20 bg-emerald-400/10 text-emerald-100",
-    sky: "border-sky-200/20 bg-sky-400/10 text-sky-100",
-    amber: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+    emerald: " bg-emerald-400/10 text-emerald-100",
+    sky: " bg-sky-400/10 text-sky-100",
+    amber: " bg-amber-400/10 text-amber-100",
   }[confidence.tone];
 
   return (
@@ -459,14 +459,14 @@ function RecordConfidencePanel({
     >
       <div className="min-w-0">
         <span
-          className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${toneClasses}`}
+          className={`inline-flex rounded-md px-2 py-1 text-[11px] font-semibold ${toneClasses}`}
         >
           {confidence.label}
         </span>
         <p className="mt-2 text-sm leading-6 text-violet-50/65">
           {confidence.helper}
         </p>
-        <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.055] p-3">
+        <div className="mt-3 rounded-lg bg-white/[0.055] p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
             Next best action
           </p>
@@ -482,7 +482,7 @@ function RecordConfidencePanel({
         {confidence.checks.map((check) => (
           <div
             key={check.label}
-            className="min-w-0 rounded-lg border border-white/10 bg-white/[0.055] p-2.5"
+            className="min-w-0 rounded-lg bg-white/[0.055] p-2.5"
           >
             <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-violet-50/45">
               {check.ready ? (
@@ -594,7 +594,7 @@ function NavigationTargetPanel({
   return (
     <div
       data-testid="spot-detail-navigation-target"
-      className={`rounded-lg border border-white/10 bg-white/[0.055] ${
+      className={`rounded-lg bg-white/[0.055] ${
         compact ? "p-3" : "p-4"
       }`}
     >
@@ -603,7 +603,7 @@ function NavigationTargetPanel({
           {navigationMode.targetLabel}
         </span>
         <span
-          className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(
+          className={`inline-flex rounded-md px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(
             getSpotNavigationSignalTone({
               status: navigationMode.status,
               locationTone: locationConfidence.tone,
@@ -621,17 +621,17 @@ function NavigationTargetPanel({
         <span data-testid="spot-detail-address">{spot.location.address}</span>
       </p>
       {isSearchFirst && (
-        <p className="mt-2 rounded-md border border-amber-200/20 bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">
+        <p className="mt-2 rounded-md bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">
           {navigationMode.helper}
         </p>
       )}
       {hasMatchedGooglePlace && (
-        <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+        <p className="mt-2 rounded-md bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
           {navigationMode.helper}
         </p>
       )}
       {!isSearchFirst && !hasMatchedGooglePlace && (
-        <p className="mt-2 rounded-md border border-emerald-200/20 bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+        <p className="mt-2 rounded-md bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
           {navigationMode.helper}
         </p>
       )}
@@ -1033,7 +1033,7 @@ export default async function SpotPage({
       <div className="mx-auto max-w-6xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-8">
         <Link
           href="/spots"
-          className="inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
@@ -1049,13 +1049,13 @@ export default async function SpotPage({
           <div className="absolute inset-x-0 bottom-0 w-full p-4 sm:p-6 md:p-8">
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-2 sm:mb-3">
-                <Badge className="border-white/10 bg-white/10 text-white shadow-none hover:bg-white/10">
+                <Badge className=" bg-white/10 text-white shadow-none hover:bg-white/10">
                   {spot.category}
                 </Badge>
                 {spot.verified && (
                   <Badge
                     variant="outline"
-                    className="border-emerald-300/40 bg-emerald-400/10 text-emerald-200 backdrop-blur-sm"
+                    className=" bg-emerald-400/10 text-emerald-200 backdrop-blur-sm"
                   >
                     Curated record
                   </Badge>
@@ -1063,7 +1063,7 @@ export default async function SpotPage({
                 {spot.communitySubmission && (
                   <Badge
                     variant="outline"
-                    className="border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
+                    className=" bg-sky-400/10 text-sky-100 backdrop-blur-sm"
                   >
                     <UserRound className="mr-1 h-3.5 w-3.5" />
                     {spot.communitySubmission.status === "spot_reused"
@@ -1075,8 +1075,8 @@ export default async function SpotPage({
                   variant="outline"
                   className={
                     spot.hasRealPhoto
-                      ? "border-violet-200/30 bg-violet-400/10 text-violet-100 backdrop-blur-sm"
-                      : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                      ? " bg-violet-400/10 text-violet-100 backdrop-blur-sm"
+                      : " bg-amber-400/10 text-amber-100 backdrop-blur-sm"
                   }
                 >
                   <ImageIcon className="mr-1 h-3.5 w-3.5" />
@@ -1086,10 +1086,10 @@ export default async function SpotPage({
                   variant="outline"
                   className={
                     locationConfidence.tone === "exact"
-                      ? "border-emerald-200/35 bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
+                      ? " bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
                       : locationConfidence.tone === "pinned"
-                        ? "border-sky-200/35 bg-sky-400/10 text-sky-100 backdrop-blur-sm"
-                        : "border-amber-200/35 bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                        ? " bg-sky-400/10 text-sky-100 backdrop-blur-sm"
+                        : " bg-amber-400/10 text-amber-100 backdrop-blur-sm"
                   }
                 >
                   {locationConfidence.tone === "area" ? (
@@ -1143,7 +1143,7 @@ export default async function SpotPage({
             {getDirectionsHelperText(spot)}
           </p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2.5">
+            <div className="rounded-lg bg-white/[0.055] p-2.5">
               <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
                 <MapPin className="h-3.5 w-3.5 text-violet-300" />
                 {navigationMode.label}
@@ -1152,7 +1152,7 @@ export default async function SpotPage({
                 {primaryArea}
               </span>
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2.5">
+            <div className="rounded-lg bg-white/[0.055] p-2.5">
               <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
                 <Clock className="h-3.5 w-3.5 text-indigo-300" />
                 Best time
@@ -1181,7 +1181,7 @@ export default async function SpotPage({
         {spot.communitySubmission && (
           <section className={`${LIQUID_CARD} p-4 sm:p-5`} aria-label="Community submission credit">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-sky-200/20 bg-sky-400/10 text-sky-100">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-400/10 text-sky-100">
                 <UserRound className="h-5 w-5" />
               </span>
               <div>
@@ -1204,7 +1204,7 @@ export default async function SpotPage({
                   href={spot.communitySubmission.sourceUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-200/20 bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/15"
+                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/15"
                 >
                   View source post
                   <ExternalLink className="h-4 w-4" />
@@ -1223,7 +1223,7 @@ export default async function SpotPage({
                 <Badge
                   key={sub}
                   variant="secondary"
-                  className="border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm text-violet-100"
+                  className=" bg-violet-400/10 px-3 py-1 text-sm text-violet-100"
                 >
                   {sub}
                 </Badge>
@@ -1246,7 +1246,7 @@ export default async function SpotPage({
                     Know before you route it
                   </h2>
                 </div>
-                <span className="w-fit rounded-md border border-violet-200/20 bg-violet-400/10 px-2 py-1 text-[11px] font-semibold text-violet-100">
+                <span className="w-fit rounded-md bg-violet-400/10 px-2 py-1 text-[11px] font-semibold text-violet-100">
                   {primaryArea}
                 </span>
               </div>
@@ -1293,7 +1293,7 @@ export default async function SpotPage({
                   </h2>
                 </div>
                 <span
-                  className={`w-fit rounded-md border px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(locationSignalTone)}`}
+                  className={`w-fit rounded-md px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(locationSignalTone)}`}
                 >
                   {navigationMode.label}
                 </span>
@@ -1378,7 +1378,7 @@ export default async function SpotPage({
                   </div>
                 </div>
 
-                <div className="border-t border-white/10 bg-white/[0.035] p-4 sm:p-6 md:border-l md:border-t-0">
+                <div className=" bg-white/[0.035] p-4 sm:p-6 md:border-t-0">
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <h3 className="font-semibold text-white">
@@ -1395,7 +1395,7 @@ export default async function SpotPage({
                     )}
                   </div>
                   <div className="space-y-3">
-                    <div className="flex gap-3 rounded-lg border border-white/10 bg-black/10 p-3">
+                    <div className="flex gap-3 rounded-lg bg-black/10 p-3">
                       <Route className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
                       <div>
                         <p className="text-sm font-medium text-white">
@@ -1405,13 +1405,13 @@ export default async function SpotPage({
                           {spot.name}, {spot.location.address}
                         </p>
                         <p
-                          className={`mt-2 inline-flex rounded-md border px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
+                          className={`mt-2 inline-flex rounded-md px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
                         >
                           {locationConfidence.label}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-3 rounded-lg border border-white/10 bg-black/10 p-3">
+                    <div className="flex gap-3 rounded-lg bg-black/10 p-3">
                       <Compass className="mt-0.5 h-4 w-4 shrink-0 text-indigo-300" />
                       <div>
                         <p className="text-sm font-medium text-white">
@@ -1439,7 +1439,7 @@ export default async function SpotPage({
                     {spot.tips.map((tip: string, i: number) => (
                       <li
                         key={i}
-                        className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-3 text-sm leading-6 text-violet-50/75"
+                        className="flex items-start gap-3 rounded-lg bg-white/[0.055] p-3 text-sm leading-6 text-violet-50/75"
                       >
                         <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-violet-400/15 text-xs font-bold text-violet-200">
                           {i + 1}
@@ -1487,7 +1487,7 @@ export default async function SpotPage({
                 <GetDirectionsButton spot={spot} />
               </div>
 
-              <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.055]">
+              <div className="overflow-hidden rounded-lg bg-white/[0.055]">
                 <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name}
                   searchUrl={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(exactMapQuery)}`} />
                 <div className="p-4">
@@ -1533,7 +1533,7 @@ export default async function SpotPage({
                       tone={locationSignalTone}
                     />
                   </div>
-                  <p className="mt-2 rounded-md border border-violet-200/15 bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
+                  <p className="mt-2 rounded-md bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
                     {locationConfidence.description}{" "}
                     {getDirectionsHelperText(spot)}
                   </p>
@@ -1569,14 +1569,14 @@ export default async function SpotPage({
               {relatedSpots.map((related) => (
                 <div
                   key={related.id}
-                  className="group relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/35 hover:bg-white/[0.075]"
+                  className="group relative overflow-hidden rounded-lg bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.075]"
                 >
                   <div className="relative overflow-hidden bg-violet-950/50">
                     <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
-                    <span className="absolute left-2 top-2 rounded-full border border-white/15 bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
+                    <span className="absolute left-2 top-2 rounded-full bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
                       {related.category}
                     </span>
-                    <span className="absolute top-2 right-2 rounded-full border border-violet-200/25 bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
+                    <span className="absolute top-2 right-2 rounded-full bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
                       {related.localleyScore}/6
                     </span>
                   </div>
@@ -1590,7 +1590,7 @@ export default async function SpotPage({
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-1.5 text-[11px] font-medium">
-                      <span className="rounded-md border border-sky-200/20 bg-sky-400/10 px-2 py-1 text-sky-100">
+                      <span className="rounded-md bg-sky-400/10 px-2 py-1 text-sky-100">
                         {related.distanceLabel}
                       </span>
                     </div>

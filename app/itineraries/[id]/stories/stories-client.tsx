@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Copy, Check, Share2, Archive, X } from "lucide-react";
+import { Download, Copy, Check, Share2, Archive, X } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
@@ -170,7 +170,7 @@ export function StoriesClient({ slides, city, days, itineraryId, candidate = fal
                         {/* Thumbnail */}
                         <button
                             onClick={() => setPreviewSlide(slide)}
-                            className="block w-full aspect-[9/16] relative rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-lg transition-shadow cursor-pointer"
+                            className="block w-full aspect-[9/16] relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow cursor-pointer"
                         >
                             <Image
                                 src={slide.url}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, Settings, User } from "@/components/ui/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
@@ -24,15 +24,15 @@ export function UserMenu() {
         <DropdownMenu>
             <DropdownMenuTrigger
                 aria-label="Account menu"
-                className="rounded-full ring-1 ring-white/10 shadow-lg shadow-violet-500/10 transition-all hover:ring-2 hover:ring-violet-400/40 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                className="rounded-full shadow-lg shadow-violet-500/10 transition-all focus:outline-none focus:ring-2 focus:ring-violet-400/50"
             >
                 <Avatar className="h-8 w-8">
                     {user.imageUrl ? <AvatarImage src={user.imageUrl} alt="" /> : null}
                     <AvatarFallback className="bg-violet-600 text-xs text-white">{initials}</AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 rounded-2xl border border-white/12 bg-[#0f1020]/96 p-2 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
-                <DropdownMenuLabel className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3">
+            <DropdownMenuContent align="end" className="w-64 rounded-2xl bg-[#0f1020]/96 p-2 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
+                <DropdownMenuLabel className="rounded-xl bg-white/[0.03] px-3 py-3">
                     <div className="text-sm font-semibold text-white">{user.fullName || "Localley traveler"}</div>
                     <div className="truncate text-xs font-normal text-white/60">{user.primaryEmailAddress?.emailAddress}</div>
                 </DropdownMenuLabel>

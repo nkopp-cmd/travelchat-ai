@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ItineraryWizard, WizardData } from "@/components/itineraries/wizard";
 import { getTemplateById } from "@/lib/templates";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/ui/icons";
 
 const ALLOWED_INTERESTS = new Set([
   "Food & Dining",

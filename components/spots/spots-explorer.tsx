@@ -10,7 +10,7 @@ import { Spot } from "@/types";
 import { SpotsFilterState, FilterOptions } from "@/lib/spots/types";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Grid3X3, List, Map } from "lucide-react";
+import { Loader2, Search, Grid3X3, List, Map } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 const SpotsMap = dynamic(() => import("./spots-map"), {
@@ -190,7 +190,7 @@ export function SpotsExplorer({
 
                 {/* View Mode Toggle */}
                 <div
-                    className="flex shrink-0 overflow-hidden rounded-lg border border-black/5 bg-white/50 dark:border-white/10 dark:bg-white/5"
+                    className="flex shrink-0 overflow-hidden rounded-lg bg-white/50 dark:bg-white/5"
                     role="group"
                     aria-label="View mode"
                 >

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Map, ArrowRight, Lightbulb, Globe } from "lucide-react";
+import { Sparkles, Map, ArrowRight, Lightbulb, Globe } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { SUPPORTED_CITIES } from "@/lib/supported-cities";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -85,10 +85,10 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                 onClick={() => onPromptClick?.(prompt.text)}
                                 className={cn(
                                     "flex items-center gap-3 p-4 rounded-xl",
-                                    "border border-black/5 dark:border-white/10",
+                                    " ",
                                     "bg-white/60 dark:bg-white/5 backdrop-blur-md",
                                     "hover:shadow-lg hover:shadow-violet-500/10",
-                                    "hover:border-violet-400/50 hover:-translate-y-1",
+                                    " hover:-translate-y-1",
                                     "transition-all duration-300 text-left group",
                                     "relative overflow-hidden"
                                 )}
@@ -101,7 +101,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
 
                                 <CityImageAvatar
                                     city={prompt.text}
-                                    className="relative h-12 w-12 flex-shrink-0 rounded-lg ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-105"
+                                    className="relative h-12 w-12 flex-shrink-0 rounded-lg transition-transform duration-300 group-hover:scale-105"
                                     sizes="48px"
                                 />
                                 <span className="relative text-sm text-foreground/80 group-hover:text-foreground transition-colors">
@@ -118,7 +118,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                         <div className={cn(
                             "relative overflow-hidden rounded-2xl p-6",
                             "bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-indigo-500/10",
-                            "border border-violet-500/20 hover:border-violet-500/40",
+                            " ",
                             "shadow-lg hover:shadow-2xl hover:shadow-violet-500/20",
                             "transition-all duration-300",
                             "hover:-translate-y-1"
@@ -156,7 +156,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                         <div className={cn(
                             "relative overflow-hidden rounded-2xl p-6",
                             "bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-cyan-500/10",
-                            "border border-emerald-500/20 hover:border-emerald-500/40",
+                            " ",
                             "shadow-lg hover:shadow-2xl hover:shadow-emerald-500/20",
                             "transition-all duration-300",
                             "hover:-translate-y-1"
@@ -193,13 +193,13 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
 
                 {/* Available Cities with premium styling */}
                 <div className="text-center">
-                    <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-black/5 dark:border-white/10">
+                    <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-sm ">
                         <Globe className="h-4 w-4 text-violet-500" />
                         <span className="text-sm text-muted-foreground">
                             Available in <span className="font-semibold text-foreground">{SUPPORTED_CITIES.length}</span> cities
                         </span>
                     </div>
-                    <div className="rounded-3xl border border-black/5 bg-white/40 p-3 shadow-lg shadow-violet-500/5 dark:border-white/10 dark:bg-white/[0.03]">
+                    <div className="rounded-3xl bg-white/40 p-3 shadow-lg shadow-violet-500/5 dark:bg-white/[0.03]">
                         <div className="max-h-[16rem] overflow-y-auto pr-2 scrollbar-hide">
                             <div className="flex justify-center gap-2 flex-wrap">
                                 {SUPPORTED_CITIES.map((city, idx) => (
@@ -208,9 +208,9 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                         href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                                         className={cn(
                                             "inline-flex items-center gap-2 px-2 py-1.5 rounded-full",
-                                            "border border-black/5 dark:border-white/10",
+                                            " ",
                                             "bg-white/70 dark:bg-white/5 backdrop-blur-sm",
-                                            "hover:border-violet-400/50 hover:shadow-lg hover:shadow-violet-500/10",
+                                            " hover:shadow-lg hover:shadow-violet-500/10",
                                             "hover:-translate-y-0.5 hover:bg-violet-50 dark:hover:bg-violet-950/30",
                                             "transition-all duration-200 text-sm group"
                                         )}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ActivityCard, ActivityCardSkeleton } from '@/components/viator/activity-card';
 import { ViatorActivity } from '@/types/viator';
 import { Button } from '@/components/ui/button';
-import { Sparkles, ChevronRight } from 'lucide-react';
+import { Sparkles, ChevronRight } from '@/components/ui/icons';
 
 interface SpotActivitiesProps {
     spotId: string;
@@ -61,7 +61,7 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
 
     if (loading) {
         return (
-            <section className="py-12 border-t border-border/40">
+            <section className="py-12 ">
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
@@ -87,7 +87,7 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
     }
 
     return (
-        <section className="py-12 border-t border-border/40">
+        <section className="py-12 ">
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -142,7 +142,7 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
                 )}
 
                 {/* Powered by Viator */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-muted-foreground pt-6 border-t border-border/40 mt-6">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-muted-foreground pt-6 mt-6">
                     <div className="flex items-center gap-1.5">
                         <span>Activities powered by</span>
                         <span className="font-semibold text-foreground">Viator</span>

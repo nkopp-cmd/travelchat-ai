@@ -19,12 +19,12 @@ export default async function EditItineraryPage({
 }) {
     const host = (await headers()).get("host"), flag = (await searchParams)?.data_candidate;
     if (isPreviewEditorIntent(host, flag)) {
-        if (!isPreviewItineraryListCandidate(host, flag)) return <div role="status" className="rounded-xl border p-6">Your itinerary is currently unavailable.</div>;
+        if (!isPreviewItineraryListCandidate(host, flag)) return <div role="status" className="rounded-xl p-6">Your itinerary is currently unavailable.</div>;
         const { userId } = await auth();
         const { id } = await params;
         let itinerary;
         try { itinerary = await previewItineraryEditor(id, userId); }
-        catch { return <div role="status" className="rounded-xl border p-6">Your itinerary is currently unavailable.</div>; }
+        catch { return <div role="status" className="rounded-xl p-6">Your itinerary is currently unavailable.</div>; }
         if (!itinerary || !userId) notFound();
         return <div className="mx-auto w-full max-w-5xl px-3 py-4 sm:px-4">
             <EditForm key={`${userId}:${itinerary.id}:d1`} itinerary={itinerary} dataCandidate="d1" previewActor={userId} />

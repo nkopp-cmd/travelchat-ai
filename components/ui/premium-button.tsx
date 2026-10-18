@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/ui/icons";
 
 type ButtonProps = React.ComponentProps<typeof Button>;
 
@@ -98,9 +98,9 @@ export function GlassButton({
             className={cn(
                 "bg-white/10 dark:bg-white/5",
                 "backdrop-blur-md",
-                "border-white/20 dark:border-white/10",
+                " ",
                 "hover:bg-white/20 dark:hover:bg-white/10",
-                "hover:border-white/30 dark:hover:border-white/20",
+                " ",
                 "text-foreground",
                 "transition-all duration-300",
                 className

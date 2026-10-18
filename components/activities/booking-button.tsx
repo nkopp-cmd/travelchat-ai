@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Sparkles } from "lucide-react";
+import { ExternalLink, Sparkles } from "@/components/ui/icons";
 import { AffiliateLink, AFFILIATE_PARTNERS } from "@/lib/affiliates";
 import { cn } from "@/lib/utils";
 

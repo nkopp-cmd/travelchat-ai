@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/ui/icons";
 
 // Extend Window interface for Google Maps
 declare global {

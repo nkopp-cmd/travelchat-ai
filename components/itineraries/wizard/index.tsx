@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { WizardProgress } from "./wizard-progress";
 import { StepDestination } from "./step-destination";
@@ -148,7 +148,7 @@ function WizardContent({
       <WizardProgress />
 
       {templateApplied && !compactTemplateFooter && (
-        <div className="mx-3 mt-1.5 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
+        <div className="mx-3 mt-1.5 rounded-lg bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
             <span className="min-w-0 truncate">
@@ -167,10 +167,10 @@ function WizardContent({
         {steps[currentStep]}
       </div>
 
-      <div className="z-30 shrink-0 border-t border-white/10 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+      <div className="z-30 shrink-0 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
           {templateApplied && !compactTemplateFooter && (
-            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
+            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
               <span className="min-w-0 truncate">{data.templateName}</span>
               <span className="shrink-0 text-violet-200">
                 Step {currentStep + 1}/{totalSteps}
@@ -179,7 +179,7 @@ function WizardContent({
           )}
           <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>
             {compactTemplateFooter && (
-              <div className="min-w-0 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:flex-1 sm:px-3 sm:text-xs">
+              <div className="min-w-0 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:flex-1 sm:px-3 sm:text-xs">
                 <span className="block truncate">{data.templateName}</span>
                 <span className="block truncate text-violet-200/80">
                   {data.city ? getTemplateFooterCityLabel(data.city) : `Step ${currentStep + 1}/${totalSteps}`}
@@ -191,7 +191,7 @@ function WizardContent({
               <Button
                 variant="outline"
                 onClick={prevStep}
-                className="h-10 flex-1 border-white/20 text-white hover:bg-white/10 sm:h-11"
+                className="h-10 flex-1 text-white hover:bg-white/10 sm:h-11"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -202,7 +202,7 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleCustomizeTemplate}
-                className="hidden h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
+                className="hidden h-10 shrink-0 px-2 text-xs text-white hover:bg-white/10 sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
               >
                 <ArrowRight className="mr-1.5 h-4 w-4" />
                 Customize
@@ -239,7 +239,7 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleChangeTemplateCity}
-                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
+                className="h-10 shrink-0 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
               >
                 <MapPin className="mr-1 h-3.5 w-3.5" />
                 Change

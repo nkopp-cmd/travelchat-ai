@@ -43,19 +43,19 @@ export function PremiumCard({
                 "rounded-2xl",
                 "bg-white/70 dark:bg-white/5",
                 "backdrop-blur-md",
-                "border border-black/5 dark:border-white/10",
+                " ",
                 // Transitions
                 "transition-all duration-300 ease-out",
                 // Hover effects
                 hover && [
                     "hover:-translate-y-1",
-                    "hover:border-violet-500/30 dark:hover:border-violet-500/40",
+                    " ",
                     "hover:shadow-xl hover:shadow-violet-500/10 dark:hover:shadow-violet-500/20",
                 ],
                 // Glow effect
                 glow && "shadow-[0_0_20px_rgba(139,92,246,0.15)] dark:shadow-[0_0_25px_rgba(139,92,246,0.2)]",
-                // Gradient border
-                gradientBorder && "gradient-border",
+                // Legacy emphasis becomes surface depth instead of a stroke.
+                gradientBorder && "bg-raised dark:bg-raised shadow-surface",
                 // Padding
                 paddingClasses[padding],
                 className
@@ -87,7 +87,7 @@ export function PremiumCardHeader({
                     "text-white",
                     "rounded-t-2xl -m-px mb-0",
                 ],
-                !gradient && "border-b border-black/5 dark:border-white/10",
+                !gradient && " ",
                 className
             )}
             {...props}
@@ -117,7 +117,7 @@ export function PremiumCardFooter({
     return (
         <div
             className={cn(
-                "px-6 py-4 border-t border-black/5 dark:border-white/10",
+                "px-6 py-4 ",
                 className
             )}
             {...props}

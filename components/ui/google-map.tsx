@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Location } from "./map";
-import { AlertCircle, ChevronLeft, ChevronRight, X, Phone, MapPin } from "lucide-react";
+import { Loader2, AlertCircle, ChevronLeft, ChevronRight, X, Phone, MapPin } from "@/components/ui/icons";
 
 // ============================================================================
 // Google Maps Script Loading
@@ -330,7 +330,7 @@ export default function GoogleMap({
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted/30 rounded-xl z-10">
                     <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                        <Loader2 className="size-8 animate-spin" aria-hidden="true" />
                         <p className="text-muted-foreground text-sm">Loading Google Maps...</p>
                     </div>
                 </div>
@@ -424,7 +424,7 @@ export default function GoogleMap({
                             </div>
                         )}
                         {selectedMarker.marker.description && (
-                            <div className="rounded-lg p-3 space-y-1.5" style={{ backgroundColor: `${accentColor}08`, borderLeft: `3px solid ${accentColor}` }}>
+                            <div className="rounded-lg p-3 space-y-1.5" style={{ backgroundColor: `${accentColor}08` }}>
                                 <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">About this spot</p>
                                 <p className="text-sm text-gray-200 leading-relaxed">{selectedMarker.marker.description}</p>
                             </div>
@@ -518,7 +518,7 @@ export default function GoogleMap({
                             {selectedMarker.marker.description && (
                                 <div
                                     className="rounded-xl p-4 space-y-2"
-                                    style={{ backgroundColor: `${accentColor}08`, borderLeft: `3px solid ${accentColor}` }}
+                                    style={{ backgroundColor: `${accentColor}08` }}
                                 >
                                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">About this spot</p>
                                     <p className="text-sm text-gray-200 leading-relaxed">{selectedMarker.marker.description}</p>
@@ -534,7 +534,7 @@ export default function GoogleMap({
                     </div>
 
                     {/* Navigation footer */}
-                    <div className="flex items-center justify-between px-5 py-3 border-t border-white/10 flex-shrink-0 bg-black/20">
+                    <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 bg-black/20">
                         <button
                             onClick={() => navigateMarker("prev")}
                             aria-label="Previous place"

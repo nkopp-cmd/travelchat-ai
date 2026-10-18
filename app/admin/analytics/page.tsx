@@ -23,7 +23,7 @@ import {
     ExternalLink,
     Crown,
     Star,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { AppBackground } from "@/components/layout/app-background";
@@ -138,7 +138,7 @@ export default function AdminAnalyticsPage() {
         <AppBackground ambient className="min-h-screen">
         <div className="min-h-screen p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-lg border border-white/10 bg-white/[0.08] p-5 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-lg bg-white/[0.08] p-5 backdrop-blur-xl">
                 <div>
                     <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
                     <p className="text-muted-foreground">
@@ -148,7 +148,7 @@ export default function AdminAnalyticsPage() {
 
                 <div className="flex items-center gap-2">
                     {/* Period selector */}
-                    <div className="flex rounded-lg border bg-muted/30 p-1">
+                    <div className="flex rounded-lg bg-muted/30 p-1">
                         {[7, 30, 90].map((days) => (
                             <button
                                 key={days}
@@ -265,7 +265,7 @@ export default function AdminAnalyticsPage() {
                                 }))}
                             />
 
-                            <div className="mt-6 pt-4 border-t">
+                            <div className="mt-6 pt-4 ">
                                 <h3 className="text-sm font-medium text-muted-foreground mb-3">
                                     Partner Earnings
                                 </h3>
@@ -397,7 +397,7 @@ function UsageStatCard({
     value: number;
 }) {
     return (
-        <div className="p-4 rounded-lg bg-muted/30 border">
+        <div className="p-4 rounded-lg bg-muted/30 ">
             <div className="flex items-center gap-2 text-muted-foreground mb-2">
                 {icon}
                 <span className="text-sm">{label}</span>

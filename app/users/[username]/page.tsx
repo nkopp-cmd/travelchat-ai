@@ -12,7 +12,7 @@ import {
     Map,
     Award,
     Sparkles,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { LEVEL_THRESHOLDS } from "@/lib/gamification";
 import { AppBackground } from "@/components/layout/app-background";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -188,11 +188,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
         <AppBackground ambient className="min-h-screen">
             <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
                 {/* Profile Header */}
-                <Card className="liquid-panel overflow-hidden border-white/10">
+                <Card className="liquid-panel overflow-hidden ">
                     <div className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 h-32" />
                     <CardContent className="relative pt-0 pb-6">
                         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12 sm:-mt-8">
-                            <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                            <Avatar className="h-24 w-24 shadow-lg">
                                 <AvatarImage src={profile.avatarUrl || undefined} />
                                 <AvatarFallback className="text-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white">
                                     {initials}
@@ -235,21 +235,21 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4">
-                    <Card className="liquid-panel border-white/10">
+                    <Card className="liquid-panel ">
                         <CardContent className="pt-6 text-center">
                             <Map className="h-6 w-6 mx-auto mb-2 text-violet-500" />
                             <div className="text-2xl font-bold">{stats.totalItineraries}</div>
                             <div className="text-sm text-muted-foreground">Itineraries</div>
                         </CardContent>
                     </Card>
-                    <Card className="liquid-panel border-white/10">
+                    <Card className="liquid-panel ">
                         <CardContent className="pt-6 text-center">
                             <Sparkles className="h-6 w-6 mx-auto mb-2 text-indigo-500" />
                             <div className="text-2xl font-bold">{stats.sharedItineraries}</div>
                             <div className="text-sm text-muted-foreground">Shared</div>
                         </CardContent>
                     </Card>
-                    <Card className="liquid-panel border-white/10">
+                    <Card className="liquid-panel ">
                         <CardContent className="pt-6 text-center">
                             <Eye className="h-6 w-6 mx-auto mb-2 text-emerald-500" />
                             <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
@@ -259,7 +259,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
                 </div>
 
                 {/* Public Itineraries */}
-                <Card className="liquid-panel border-white/10">
+                <Card className="liquid-panel ">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Map className="h-5 w-5 text-violet-500" />
@@ -275,7 +275,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
                                         href={`/shared/${itinerary.shareCode}`}
                                         className="block"
                                     >
-                                        <Card className="h-full border-white/10 bg-white/70 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 dark:bg-white/5">
+                                        <Card className="h-full bg-white/70 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 dark:bg-white/5">
                                             <CardContent className="p-4">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <h3 className="font-semibold line-clamp-1 hover:underline">
@@ -318,7 +318,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
                 </Card>
 
                 {/* CTA for visitors */}
-                <Card className="overflow-hidden border-violet-300/20 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 backdrop-blur-xl">
+                <Card className="overflow-hidden bg-gradient-to-r from-violet-600/20 to-indigo-600/20 backdrop-blur-xl">
                     <CardContent className="p-6 text-center">
                         <h3 className="text-lg font-semibold mb-2">
                             Want to share your own adventures?

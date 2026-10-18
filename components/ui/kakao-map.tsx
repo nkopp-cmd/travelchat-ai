@@ -1,8 +1,10 @@
 "use client";
 
+import { Loader2 } from "@/components/ui/icons";
+
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { Location } from "./map";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle } from "@/components/ui/icons";
 
 // Declare kakao maps types
 declare global {
@@ -415,7 +417,7 @@ export default function KakaoMap({
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted/30 rounded-xl z-10">
                     <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                        <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" />
                         <p className="text-muted-foreground text-sm">Loading Kakao Maps...</p>
                     </div>
                 </div>

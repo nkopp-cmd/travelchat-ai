@@ -51,7 +51,7 @@ import {
     Sparkles,
     Plus,
     Clock,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 import Image from "next/image";
@@ -298,7 +298,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
 
     if (itineraries.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-sm border-black/10 dark:border-white/10">
+            <div className="flex flex-col items-center justify-center py-16 rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-sm ">
                 <div className="h-16 w-16 rounded-full bg-violet-100 dark:bg-violet-900/20 flex items-center justify-center mb-4">
                     <Sparkles className="h-8 w-8 text-violet-600" />
                 </div>
@@ -327,7 +327,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         placeholder="Search itineraries..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10"
+                        className="pl-10 bg-white/50 dark:bg-white/5 "
                     />
                 </div>
 
@@ -398,7 +398,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                     </DropdownMenu>
 
                     {/* View Mode Toggle */}
-                    <div className="flex border rounded-md" role="group" aria-label="View mode">
+                    <div className="flex rounded-md" role="group" aria-label="View mode">
                         <Button
                             variant={viewMode === "grid" ? "secondary" : "ghost"}
                             size="icon"
@@ -431,10 +431,10 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         <span className="text-sm font-medium text-muted-foreground">Continue where you left off</span>
                     </div>
                     <Link href={`/itineraries/${filteredItineraries[0].id}`}>
-                        <Card className="!py-0 !gap-0 overflow-hidden border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-300/50 dark:hover:border-violet-700/50 transition-all group">
+                        <Card className="!py-0 !gap-0 overflow-hidden bg-white/70 dark:bg-white/5 backdrop-blur-md hover:shadow-lg hover:shadow-violet-500/10 transition-all group">
                             <div className="flex items-center gap-4 p-4">
                                 {/* Mini thumbnail with city image */}
-                                <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-violet-200 dark:ring-violet-800 relative">
+                                <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 relative">
                                     {getCityImageUrl(filteredItineraries[0].city || "") ? (
                                         <Image
                                             src={getCityImageUrl(filteredItineraries[0].city || "")!}
@@ -497,10 +497,10 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 className={cn(
                                     "!py-0 !gap-0 group overflow-hidden relative",
                                     "bg-white/70 dark:bg-white/5 backdrop-blur-md",
-                                    "border border-black/5 dark:border-white/10",
+                                    " ",
                                     "transition-all duration-300 ease-out",
                                     "hover:shadow-xl hover:shadow-violet-500/10",
-                                    "hover:border-violet-400/50 dark:hover:border-violet-500/40",
+                                    " ",
                                     "hover:-translate-y-1",
                                     viewMode === "list" ? "flex flex-row" : "flex flex-col"
                                 )}
@@ -537,7 +537,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                         </div>
                                     </Link>
 
-                                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/30">
+                                    <div className="flex items-center justify-between mt-auto pt-3 ">
                                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
                                             {new Date(itinerary.created_at).toLocaleDateString("en-US", {
@@ -598,9 +598,9 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         <Link href="/itineraries/new">
                             <Card className={cn(
                                 "!py-0 !gap-0 min-h-[240px] relative overflow-hidden",
-                                "border-2 border-dashed border-violet-300/50 dark:border-violet-700/50",
+                                " ",
                                 "bg-white/50 dark:bg-white/5 backdrop-blur-md",
-                                "hover:border-violet-400/70 dark:hover:border-violet-500/70",
+                                " ",
                                 "hover:shadow-xl hover:shadow-violet-500/10",
                                 "transition-all duration-300 cursor-pointer",
                                 "flex items-center justify-center group"

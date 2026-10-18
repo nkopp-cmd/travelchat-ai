@@ -13,7 +13,7 @@ import {
     DollarSign,
     Users,
     TrendingUp,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -100,8 +100,8 @@ export default function GuideApplyPage() {
                 Back
             </Link>
 
-            <div className="mb-8 rounded-lg border border-white/10 bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl sm:p-8">
-                <Badge className="mb-4 border-violet-300/30 bg-violet-400/15 text-violet-100 hover:bg-violet-400/20">
+            <div className="mb-8 rounded-lg bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl sm:p-8">
+                <Badge className="mb-4 bg-violet-400/15 text-violet-100 hover:bg-violet-400/20">
                     Creator program
                 </Badge>
                 <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Become a Local Guide</h1>
@@ -112,7 +112,7 @@ export default function GuideApplyPage() {
 
             {/* Benefits */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <Card className="liquid-panel border-white/10">
+                <Card className="liquid-panel ">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <DollarSign className="h-5 w-5 text-green-500 mt-0.5" />
                         <div>
@@ -123,7 +123,7 @@ export default function GuideApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="liquid-panel border-white/10">
+                <Card className="liquid-panel ">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <Users className="h-5 w-5 text-blue-500 mt-0.5" />
                         <div>
@@ -134,7 +134,7 @@ export default function GuideApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="liquid-panel border-white/10">
+                <Card className="liquid-panel ">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <TrendingUp className="h-5 w-5 text-purple-500 mt-0.5" />
                         <div>
@@ -145,7 +145,7 @@ export default function GuideApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="liquid-panel border-white/10">
+                <Card className="liquid-panel ">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <MapPin className="h-5 w-5 text-red-500 mt-0.5" />
                         <div>
@@ -159,7 +159,7 @@ export default function GuideApplyPage() {
             </div>
 
             {/* Application Form */}
-            <Card className="liquid-panel border-white/10">
+            <Card className="liquid-panel ">
                 <CardHeader>
                     <CardTitle>Guide Application</CardTitle>
                     <CardDescription>
@@ -186,10 +186,10 @@ export default function GuideApplyPage() {
                                 <button
                                     key={city}
                                     type="button"
-                                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition ${
                                         selectedCities.includes(city)
-                                            ? "border-violet-300/60 bg-violet-500 text-white shadow-lg shadow-violet-500/20"
-                                            : "border-white/10 bg-white/5 text-white/75 hover:border-violet-300/40 hover:bg-violet-500/10"
+                                            ? " bg-violet-500 text-white shadow-lg shadow-violet-500/20"
+                                            : " bg-white/5 text-white/75 hover:bg-violet-500/10"
                                     }`}
                                     onClick={() => toggleCity(city)}
                                 >

@@ -17,7 +17,7 @@ export default function ItineraryDetailsLoading() {
             {/* Days Skeleton */}
             <div className="space-y-6">
                 {[1, 2, 3].map((day) => (
-                    <div key={day} className="border rounded-2xl p-6 space-y-4">
+                    <div key={day} className=" rounded-2xl p-6 space-y-4">
                         <div className="h-6 bg-muted rounded w-32"></div>
                         <div className="space-y-3">
                             {[1, 2, 3].map((activity) => (

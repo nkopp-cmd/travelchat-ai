@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { MapPin, Check, RefreshCw, Route } from "lucide-react";
+import { MapPin, Check, RefreshCw, Route } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
@@ -158,7 +158,7 @@ export function StepDestination() {
 
       {showModeToggle && (
         <div className="mb-3 flex justify-center sm:mb-4">
-          <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+          <div className="inline-flex rounded-full bg-white/5 p-1">
             <button
               type="button"
               onClick={() => handleModeChange("single")}
@@ -187,7 +187,7 @@ export function StepDestination() {
       )}
 
       {multiMode && data.citySlugs.length > 0 && (
-        <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
               <Route className="h-4 w-4" aria-hidden="true" />
@@ -215,7 +215,7 @@ export function StepDestination() {
       )}
 
       {data.city && !templateMode && !multiMode && (
-        <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
               <Check className="h-4 w-4" aria-hidden="true" />
@@ -280,7 +280,7 @@ export function StepDestination() {
           <p className="mb-3">No cities available. Please try again later.</p>
           <button
             onClick={loadCities}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-gray-400 text-sm transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-400 text-sm transition-colors"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh
@@ -313,7 +313,7 @@ function CityCard({
         "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
         compact ? "aspect-[2.9/1] sm:aspect-[2.6/1]" : "aspect-[2.18/1] sm:aspect-[2.35/1]",
         "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
-        isSelected && "ring-2 ring-violet-500",
+        isSelected && " ",
         isDisabled && "cursor-not-allowed opacity-35 saturate-50"
       )}
     >
@@ -354,7 +354,7 @@ function CityCard({
       )}
       {!compact && city.status === "beta" && (
         <div className={cn(
-          "absolute rounded-full border border-white/10 bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
+          "absolute rounded-full bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
           "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
         )}>
           Beta

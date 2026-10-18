@@ -11,7 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "@/components/ui/icons";
 import {
     Sheet,
     SheetContent,
@@ -95,7 +95,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                     placeholder="Search spots, neighborhoods, or vibes..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="pl-10 pr-4 h-12 rounded-full border-border/40 bg-background/60 backdrop-blur-sm"
+                    className="pl-10 pr-4 h-12 rounded-full bg-background/60 backdrop-blur-sm"
                 />
             </div>
 
@@ -103,7 +103,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
             <div className="flex items-center gap-3 overflow-x-auto pb-2">
                 {/* Quick Sort */}
                 <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange("sortBy", value)}>
-                    <SelectTrigger className="w-[160px] rounded-full border-border/40 bg-background/60 backdrop-blur-sm">
+                    <SelectTrigger className="w-[160px] rounded-full bg-background/60 backdrop-blur-sm">
                         <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
@@ -118,7 +118,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                 {/* Category Filter */}
                 {categories.length > 0 && (
                     <Select value={filters.category} onValueChange={(value) => handleFilterChange("category", value)}>
-                        <SelectTrigger className="w-[160px] rounded-full border-border/40 bg-background/60 backdrop-blur-sm">
+                        <SelectTrigger className="w-[160px] rounded-full bg-background/60 backdrop-blur-sm">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -145,7 +145,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                             )}
                         </Button>
                     </SheetTrigger>
-                    <SheetContent className="border-l border-violet-200/15 bg-[#0b0714]/96 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
+                    <SheetContent className=" bg-[#0b0714]/96 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
                         <SheetHeader>
                             <SheetTitle className="text-white">Filter Spots</SheetTitle>
                             <SheetDescription className="text-white/55">
@@ -158,7 +158,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                             <div className="space-y-3">
                                 <label className="text-sm font-medium text-white/85">Localley Score</label>
                                 <Select value={filters.localleyScore} onValueChange={(value) => handleFilterChange("localleyScore", value)}>
-                                    <SelectTrigger className="border-white/10 bg-white/[0.04] text-white">
+                                    <SelectTrigger className=" bg-white/[0.04] text-white">
                                         <SelectValue placeholder="Select score" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -176,7 +176,7 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
                                 <Button
                                     variant="outline"
                                     onClick={clearFilters}
-                                    className="w-full gap-2 border-white/10 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
+                                    className="w-full gap-2 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
                                 >
                                     <X className="h-4 w-4" />
                                     Clear All Filters

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Map, Award, Settings, MessageCircle } from "lucide-react";
+import { Compass, Map, Award, Settings, MessageCircle } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useConversations } from "@/hooks/use-queries";
@@ -60,7 +60,7 @@ export function Sidebar() {
     const planLabel = tier === "premium" ? "Premium" : tier === "pro" ? "Pro" : "Choose your plan";
 
     return (
-        <div className="hidden w-[240px] shrink-0 border-r border-white/10 bg-[#0b0714]/72 text-white shadow-2xl shadow-violet-950/10 backdrop-blur-xl md:block lg:w-[280px]">
+        <div className="hidden w-[240px] shrink-0 bg-[#0b0714]/72 text-white shadow-2xl shadow-violet-950/10 backdrop-blur-xl md:block lg:w-[280px]">
             <div className="flex h-full flex-col justify-between overflow-y-auto">
                 <div className="overflow-auto py-4">
                     <nav className="grid items-start px-2 text-sm font-medium lg:px-4 gap-1">
@@ -69,10 +69,10 @@ export function Sidebar() {
                                 key={route.href}
                                 href={route.href}
                                 className={cn(
-                                    "group flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-all",
+                                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all",
                                     pathname === route.href
-                                        ? "border-violet-300/35 bg-violet-500/15 text-white"
-                                        : "border-transparent text-white/58 hover:border-white/10 hover:bg-white/[0.055] hover:text-white"
+                                        ? " bg-violet-500/15 text-white"
+                                        : " text-white/58 hover:bg-white/[0.055] hover:text-white"
                                 )}
                             >
                                 <route.icon className={cn(
@@ -105,7 +105,7 @@ export function Sidebar() {
                                         key={chat.id}
                                         href={`/chat?conversation=${chat.id}`}
                                         className={cn(
-                                            "group flex items-start gap-2.5 rounded-lg border border-transparent px-3 py-2 text-sm transition-all hover:border-white/10 hover:bg-white/[0.055]",
+                                            "group flex items-start gap-2.5 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/[0.055]",
                                             pathname === `/chat` && new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("conversation") === chat.id
                                                 ? "bg-violet-500/10 text-violet-200"
                                                 : "text-white/55 hover:text-white"
@@ -130,7 +130,7 @@ export function Sidebar() {
                     )}
                 </div>
                 <div className="mt-auto p-4">
-                    <div className="rounded-xl border border-violet-300/20 bg-gradient-to-br from-violet-500/18 to-indigo-500/10 p-4 shadow-xl shadow-violet-950/20">
+                    <div className="rounded-xl bg-gradient-to-br from-violet-500/18 to-indigo-500/10 p-4 shadow-xl shadow-violet-950/20">
                         <h3 className="bg-gradient-to-r from-violet-100 to-indigo-100 bg-clip-text font-semibold text-transparent">
                             {isPaid ? `${planLabel} plan` : "Choose your plan"}
                         </h3>

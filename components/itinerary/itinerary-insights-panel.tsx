@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { ItineraryInsight } from "@/lib/itineraries/normalize-daily-plans";
-import { Bus, Lightbulb, Sparkles } from "lucide-react";
+import { Bus, Lightbulb, Sparkles } from "@/components/ui/icons";
 
 interface ItineraryInsightsPanelProps {
   insights: ItineraryInsight[];
@@ -16,7 +16,7 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
     return {
       Icon: Bus,
       itemClass:
-        "border-sky-300/18 bg-sky-400/8 text-sky-100",
+        " bg-sky-400/8 text-sky-100",
       iconClass: "text-sky-300",
     };
   }
@@ -25,7 +25,7 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
     return {
       Icon: Lightbulb,
       itemClass:
-        "border-amber-300/18 bg-amber-400/8 text-amber-100",
+        " bg-amber-400/8 text-amber-100",
       iconClass: "text-amber-300",
     };
   }
@@ -33,7 +33,7 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
   return {
     Icon: Sparkles,
     itemClass:
-      "border-violet-300/18 bg-violet-400/8 text-violet-100",
+      " bg-violet-400/8 text-violet-100",
     iconClass: "text-violet-300",
   };
 }
@@ -70,7 +70,7 @@ export function ItineraryInsightsPanel({
   return (
     <section
       className={cn(
-        "rounded-xl border border-white/10 bg-[#130b22]/76 shadow-xl shadow-violet-950/10 backdrop-blur-xl",
+        "rounded-xl bg-[#130b22]/76 shadow-xl shadow-violet-950/10 backdrop-blur-xl",
         compact ? "p-3" : "p-3 sm:p-4 md:p-5",
         className
       )}
@@ -92,7 +92,7 @@ export function ItineraryInsightsPanel({
         </div>
         <Badge
           variant="secondary"
-          className="h-7 w-fit shrink-0 rounded-full border border-violet-300/20 bg-violet-400/12 px-2.5 text-[11px] text-violet-100"
+          className="h-7 w-fit shrink-0 rounded-full bg-violet-400/12 px-2.5 text-[11px] text-violet-100"
         >
           {insights.length} {insights.length === 1 ? "tip" : "tips"}
         </Badge>
@@ -103,7 +103,7 @@ export function ItineraryInsightsPanel({
           {localCount > 0 && (
             <Badge
               variant="secondary"
-              className="h-6 rounded-full border border-amber-300/20 bg-amber-400/10 px-2 text-[10px] text-amber-100"
+              className="h-6 rounded-full bg-amber-400/10 px-2 text-[10px] text-amber-100"
             >
               {localCount} local
             </Badge>
@@ -111,7 +111,7 @@ export function ItineraryInsightsPanel({
           {transportCount > 0 && (
             <Badge
               variant="secondary"
-              className="h-6 rounded-full border border-sky-300/20 bg-sky-400/10 px-2 text-[10px] text-sky-100"
+              className="h-6 rounded-full bg-sky-400/10 px-2 text-[10px] text-sky-100"
             >
               {transportCount} transport
             </Badge>
@@ -132,7 +132,7 @@ export function ItineraryInsightsPanel({
               )}
               <div className={cn("grid grid-cols-1", compact ? "gap-2" : "gap-2 md:grid-cols-2 lg:grid-cols-1")}>
                 {group.items.map((insight) => (
-                  <article key={insight.id} className={cn("rounded-lg border p-2.5", !compact && "sm:p-3", itemClass)}>
+                  <article key={insight.id} className={cn("rounded-lg p-2.5", !compact && "sm:p-3", itemClass)}>
                     <div className="flex items-start gap-3">
                       <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", !compact && "h-5 w-5", iconClass)} aria-hidden="true" />
                       <div className="min-w-0">

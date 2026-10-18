@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Check, Sparkles, MapPin, Clock, Share2 } from "lucide-react";
+import { Check, Sparkles, MapPin, Clock, Share2 } from "@/components/ui/icons";
 
 interface SignupPromptSheetProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export function SignupPromptSheet({
       <SheetContent
         side="bottom"
         className={cn(
-          "rounded-t-3xl border-t border-white/10",
+          "rounded-t-3xl ",
           "bg-card/95 backdrop-blur-xl",
           "px-6 pb-8 pt-6",
           "max-h-[85vh]"

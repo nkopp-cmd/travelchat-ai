@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { Check } from "lucide-react";
+import { Check } from "@/components/ui/icons";
 
 const steps = [
   { label: "Destination" },
@@ -44,7 +44,7 @@ export function WizardProgress() {
               className={cn(
                 "flex items-center justify-center w-10 h-10 rounded-full transition-all",
                 "text-sm font-semibold",
-                index === currentStep && "bg-violet-600 text-white ring-4 ring-violet-600/20",
+                index === currentStep && "bg-violet-600 text-white ",
                 index < currentStep && "bg-violet-600 text-white cursor-pointer",
                 index > currentStep && "bg-white/10 text-white/40 cursor-not-allowed"
               )}

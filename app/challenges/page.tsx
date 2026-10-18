@@ -17,7 +17,7 @@ import {
     Flame,
     Map,
     Heart,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { AppBackground } from "@/components/layout/app-background";
@@ -169,7 +169,7 @@ export default function ChallengesPage() {
             </div>
 
             {/* Progress Summary */}
-            <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-violet-500/20">
+            <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 ">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
@@ -208,9 +208,9 @@ export default function ChallengesPage() {
                                 {inProgressChallenges.map((challenge) => (
                                     <Card
                                         key={challenge.id}
-                                        className={`border-border/40 bg-background/60 backdrop-blur-sm transition-all ${
+                                        className={` bg-background/60 backdrop-blur-sm transition-all ${
                                             challenge.canClaim
-                                                ? "ring-2 ring-violet-400/50 bg-violet-500/5"
+                                                ? " bg-violet-500/5"
                                                 : ""
                                         }`}
                                     >
@@ -281,7 +281,7 @@ export default function ChallengesPage() {
                                 {completedChallenges.map((challenge) => (
                                     <Card
                                         key={challenge.id}
-                                        className="border-border/40 bg-background/40 backdrop-blur-sm opacity-75"
+                                        className=" bg-background/40 backdrop-blur-sm opacity-75"
                                     >
                                         <CardContent className="p-6">
                                             <div className="flex items-start gap-4">
@@ -311,7 +311,7 @@ export default function ChallengesPage() {
                     )}
 
                     {challenges.length === 0 && (
-                        <Card className="border-border/40 bg-background/60">
+                        <Card className=" bg-background/60">
                             <CardContent className="pt-6">
                                 <div className="text-center py-12">
                                     <Target className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />

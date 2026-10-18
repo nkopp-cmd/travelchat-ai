@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +55,7 @@ export function PreviewGuideApplication({ state }: { state: PreviewGuideApplicat
       <header><Badge className="mb-3">Creator program preview</Badge><h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Share your local expertise</h1>
         <p className="mt-3 max-w-xl text-white/75">Tell us which cities you know and what you love to show travelers.</p>
       </header>
-      <Card className="liquid-panel border-white/10">
+      <Card className="liquid-panel ">
         <CardHeader><CardTitle>Guide application</CardTitle><CardDescription>Preview applications only. Payments, Stripe onboarding and email delivery are unavailable here.</CardDescription></CardHeader>
         <CardContent>
           {state.kind === "unavailable" ? <p role="status">Preview guide applications are unavailable for this account.</p>
@@ -71,8 +71,8 @@ export function PreviewGuideApplication({ state }: { state: PreviewGuideApplicat
               <div className="space-y-2"><Label htmlFor="preview-guide-bio">About you</Label><Textarea id="preview-guide-bio" value={bio} onChange={event => setBio(event.target.value)} maxLength={2000} rows={5} disabled={disabled} required placeholder="What makes your local experiences special?" />
                 <p className="text-sm text-white/65">Up to 2,000 characters.</p></div>
               <fieldset disabled={disabled} className="space-y-2"><legend className="mb-2 text-sm font-medium">Your cities</legend>
-                <p className="text-sm text-white/65">Select at least one city.</p><div className="flex flex-wrap gap-2">{cities.map(city => <Button key={city} type="button" variant="outline" aria-pressed={selectedCities.includes(city)} onClick={() => setCities(toggle(selectedCities, city))} className={`min-h-11 ${selectedCities.includes(city) ? "border-violet-300 bg-violet-500/30 text-white" : "border-white/20 text-white/80"}`}>{city}</Button>)}</div></fieldset>
-              <fieldset disabled={disabled} className="space-y-2"><legend className="mb-2 text-sm font-medium">Specialties</legend><div className="flex flex-wrap gap-2">{specialties.map(specialty => <Button key={specialty} type="button" variant="outline" aria-pressed={selectedSpecialties.includes(specialty)} onClick={() => setSpecialties(toggle(selectedSpecialties, specialty))} className={`min-h-11 ${selectedSpecialties.includes(specialty) ? "border-violet-300 bg-violet-500/30 text-white" : "border-white/20 text-white/80"}`}>{specialty}</Button>)}</div></fieldset>
+                <p className="text-sm text-white/65">Select at least one city.</p><div className="flex flex-wrap gap-2">{cities.map(city => <Button key={city} type="button" variant="outline" aria-pressed={selectedCities.includes(city)} onClick={() => setCities(toggle(selectedCities, city))} className={`min-h-11 ${selectedCities.includes(city) ? " bg-violet-500/30 text-white" : " text-white/80"}`}>{city}</Button>)}</div></fieldset>
+              <fieldset disabled={disabled} className="space-y-2"><legend className="mb-2 text-sm font-medium">Specialties</legend><div className="flex flex-wrap gap-2">{specialties.map(specialty => <Button key={specialty} type="button" variant="outline" aria-pressed={selectedSpecialties.includes(specialty)} onClick={() => setSpecialties(toggle(selectedSpecialties, specialty))} className={`min-h-11 ${selectedSpecialties.includes(specialty) ? " bg-violet-500/30 text-white" : " text-white/80"}`}>{specialty}</Button>)}</div></fieldset>
               <Button type="submit" size="lg" className="w-full min-h-11" disabled={disabled || !bio.trim() || !selectedCities.length}>{pending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" /> Saving...</> : "Submit preview application"}</Button>
               {message && <p role="status" className="text-sm">{message}</p>}
             </form>}

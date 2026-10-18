@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Trophy, Medal, Award, Crown, ArrowLeft, Flame } from "lucide-react";
+import { Trophy, Medal, Award, Crown, ArrowLeft, Flame } from "@/components/ui/icons";
 import { getRankTitle } from "@/lib/gamification";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { auth } from "@/lib/auth/server";
@@ -101,13 +101,13 @@ function getRankIcon(rank: number) {
 function getRankBg(rank: number) {
     switch (rank) {
         case 1:
-            return "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/15 border-violet-400/30";
+            return "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/15 ";
         case 2:
-            return "bg-gradient-to-r from-gray-400/20 to-slate-400/20 border-gray-400/30";
+            return "bg-gradient-to-r from-gray-400/20 to-slate-400/20 ";
         case 3:
-            return "bg-gradient-to-r from-indigo-500/20 to-violet-500/15 border-indigo-400/30";
+            return "bg-gradient-to-r from-indigo-500/20 to-violet-500/15 ";
         default:
-            return "bg-background/60 border-border/40";
+            return "bg-background/60 ";
     }
 }
 
@@ -117,8 +117,8 @@ function LeaderboardEntry({ user }: { user: LeaderboardUser }) {
 
     return (
         <div
-            className={`flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01] ${getRankBg(user.rank)} ${
-                user.isCurrentUser ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background" : ""
+            className={`flex items-center gap-4 p-4 rounded-xl transition-all hover:scale-[1.01] ${getRankBg(user.rank)} ${
+                user.isCurrentUser ? " ring-offset-2 ring-offset-background" : ""
             }`}
         >
             {/* Rank */}
@@ -127,7 +127,7 @@ function LeaderboardEntry({ user }: { user: LeaderboardUser }) {
             </div>
 
             {/* Avatar */}
-            <Avatar className="h-12 w-12 border-2 border-background">
+            <Avatar className="h-12 w-12 ">
                 <AvatarFallback className="bg-violet-500/20 text-violet-600 font-bold">
                     {displayName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
@@ -166,7 +166,7 @@ function LeaderboardSkeleton() {
             {[...Array(10)].map((_, i) => (
                 <div
                     key={i}
-                    className="flex items-center gap-4 p-4 rounded-xl border bg-background/60 animate-pulse"
+                    className="flex items-center gap-4 p-4 rounded-xl bg-background/60 animate-pulse"
                 >
                     <div className="w-10 h-6 bg-muted rounded" />
                     <div className="w-12 h-12 bg-muted rounded-full" />
@@ -189,7 +189,7 @@ async function LeaderboardContent() {
 
     if (leaderboard.length === 0) {
         return (
-            <Card className="border-border/40 bg-background/60 backdrop-blur-sm">
+            <Card className=" bg-background/60 backdrop-blur-sm">
                 <CardContent className="pt-6">
                     <div className="text-center py-12">
                         <Trophy className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -211,7 +211,7 @@ async function LeaderboardContent() {
                     {/* Second Place */}
                     <div className="flex flex-col items-center pt-8">
                         <div className="relative">
-                            <Avatar className="h-16 w-16 border-4 border-gray-400">
+                            <Avatar className="h-16 w-16 ">
                                 <AvatarFallback className="bg-gray-400/20 text-gray-600 font-bold text-xl">
                                     {(leaderboard[1]?.username || "E2").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
@@ -232,7 +232,7 @@ async function LeaderboardContent() {
                     <div className="flex flex-col items-center">
                         <Crown className="h-8 w-8 text-yellow-500 mb-2" />
                         <div className="relative">
-                            <Avatar className="h-20 w-20 border-4 border-yellow-500">
+                            <Avatar className="h-20 w-20 ">
                                 <AvatarFallback className="bg-yellow-500/20 text-yellow-600 font-bold text-2xl">
                                     {(leaderboard[0]?.username || "E1").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
@@ -252,7 +252,7 @@ async function LeaderboardContent() {
                     {/* Third Place */}
                     <div className="flex flex-col items-center pt-12">
                         <div className="relative">
-                            <Avatar className="h-14 w-14 border-4 border-indigo-400">
+                            <Avatar className="h-14 w-14 ">
                                 <AvatarFallback className="bg-indigo-500/20 text-indigo-200 font-bold text-lg">
                                     {(leaderboard[2]?.username || "E3").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
@@ -280,7 +280,7 @@ async function LeaderboardContent() {
 
             {/* Current user if not in top 50 */}
             {currentUserRank && (
-                <div className="mt-6 pt-6 border-t border-dashed">
+                <div className="mt-6 pt-6 ">
                     <p className="text-sm text-muted-foreground mb-3">Your Ranking</p>
                     <LeaderboardEntry user={currentUserRank} />
                 </div>
@@ -316,7 +316,7 @@ export default function LeaderboardPage() {
             </div>
 
             {/* Stats Banner */}
-            <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-violet-500/20">
+            <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 ">
                 <CardContent className="p-4">
                     <div className="flex items-center justify-center gap-2 text-sm">
                         <Flame className="h-4 w-4 text-orange-500" />

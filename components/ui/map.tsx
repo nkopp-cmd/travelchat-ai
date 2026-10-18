@@ -1,5 +1,7 @@
 "use client";
 
+import { Loader2 } from "@/components/ui/icons";
+
 import { useState, useSyncExternalStore, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useMapProvider, type MapProvider } from "@/hooks/use-map-provider";
@@ -45,7 +47,7 @@ interface MapComponentProps {
 const MapLoading = () => (
     <div className="w-full h-full rounded-xl overflow-hidden bg-muted/30 flex items-center justify-center">
         <div className="flex flex-col items-center gap-2">
-            <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" />
             <p className="text-muted-foreground text-sm">Loading map...</p>
         </div>
     </div>

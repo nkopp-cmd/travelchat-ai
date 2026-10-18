@@ -34,7 +34,7 @@ export default function SpotDetailsLoading() {
                         </div>
 
                         {/* Insights Card */}
-                        <div className="space-y-4 rounded-lg border p-4 sm:p-6">
+                        <div className="space-y-4 rounded-lg p-4 sm:p-6">
                             <div className="h-6 w-48 max-w-full rounded bg-muted" />
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                                 <div className="h-24 rounded-lg bg-muted" />
@@ -45,7 +45,7 @@ export default function SpotDetailsLoading() {
 
                     {/* Sidebar */}
                     <div className="min-w-0 space-y-6">
-                        <div className="space-y-6 rounded-lg border p-4 sm:p-6">
+                        <div className="space-y-6 rounded-lg p-4 sm:p-6">
                             <div className="h-32 rounded bg-muted" />
                             <div className="h-12 rounded-lg bg-muted" />
                         </div>

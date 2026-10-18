@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageCircle, RefreshCw } from "lucide-react";
+import { MessageCircle, RefreshCw } from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ export function PreviewChatHistory({ state }: { state: PreviewChatHistoryState }
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div><Badge className="mb-3">Chat preview</Badge><h1 className="text-3xl font-bold tracking-tight">Alley</h1>
           <p className="mt-2 text-sm text-muted-foreground">Your saved conversations with your local guide.</p></div>
-        <a className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+        <a className="inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
           href={selected ? `${base}&conversation=${selected.id}` : base}><RefreshCw className="h-4 w-4" /> Reload history</a>
       </header>
       <p className="text-sm text-muted-foreground">{state.kind === "history" && state.canSend
@@ -32,7 +32,7 @@ export function PreviewChatHistory({ state }: { state: PreviewChatHistoryState }
             <CardContent>{!selected ? <p className="text-sm text-muted-foreground">Saved conversations will appear here.</p>
               : !selected.messages.length ? <p role="status">This conversation has no saved messages.</p>
                 : <ol aria-label="Saved messages" className="space-y-4">{selected.messages.map(message => <li key={message.id}
-                  className={`rounded-2xl border border-white/10 p-4 ${message.role === "user" ? "ml-3 bg-violet-500/10 sm:ml-8" : "mr-3 bg-white/[0.035] sm:mr-8"}`}>
+                  className={`rounded-2xl p-4 ${message.role === "user" ? "ml-3 bg-violet-500/10 sm:ml-8" : "mr-3 bg-white/[0.035] sm:mr-8"}`}>
                   <p className="mb-2 text-xs font-medium text-muted-foreground">{message.role === "user" ? "You" : "Alley"}</p>
                   <p className="whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere]">{message.content}</p>
                 </li>)}</ol>}</CardContent></Card>

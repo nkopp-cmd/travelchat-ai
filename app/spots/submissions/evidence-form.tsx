@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { CheckCircle2, ExternalLink, Loader2, Sparkles } from "lucide-react";
+import { CheckCircle2, ExternalLink, Loader2, Sparkles } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,7 +88,7 @@ export function SubmissionEvidenceForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 rounded-lg border border-violet-200/15 bg-white/[0.045] p-3"
+      className="mt-4 rounded-lg bg-white/[0.045] p-3"
     >
       <div className="flex items-start gap-2">
         <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
@@ -110,7 +110,7 @@ export function SubmissionEvidenceForm({
             value={placeHint}
             onChange={(event) => setPlaceHint(event.target.value)}
             placeholder="Cafe Saeraul, Gyeongbokgung..."
-            className="border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/55"
+            className=" bg-black/20 text-white placeholder:text-violet-50/55"
           />
         </div>
         <div className="space-y-1.5">
@@ -122,7 +122,7 @@ export function SubmissionEvidenceForm({
             value={cityHint}
             onChange={(event) => setCityHint(event.target.value)}
             placeholder="Seoul"
-            className="border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/55"
+            className=" bg-black/20 text-white placeholder:text-violet-50/55"
           />
         </div>
       </div>
@@ -136,7 +136,7 @@ export function SubmissionEvidenceForm({
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           placeholder="Caption says the address, storefront sign, neighborhood, menu item..."
-          className="min-h-20 border-violet-200/15 bg-black/20 text-white placeholder:text-violet-50/55"
+          className="min-h-20 bg-black/20 text-white placeholder:text-violet-50/55"
         />
       </div>
 
@@ -144,7 +144,7 @@ export function SubmissionEvidenceForm({
         <p role="alert" className="mt-3 text-sm leading-6 text-rose-200">{error}</p>
       )}
       {result && (
-        <div role="status" className="mt-3 rounded-lg border border-emerald-200/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
+        <div role="status" className="mt-3 rounded-lg bg-emerald-400/10 p-3 text-sm text-emerald-100">
           <span className="flex items-center gap-2 font-semibold">
             <CheckCircle2 className="h-4 w-4" />
             Evidence saved

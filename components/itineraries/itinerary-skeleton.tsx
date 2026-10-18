@@ -10,7 +10,7 @@ interface ItinerarySkeletonProps {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl overflow-hidden bg-card/50 border border-white/5">
+    <div className="rounded-2xl overflow-hidden bg-card/50 ">
       {/* Image skeleton */}
       <div className="aspect-[16/9] bg-white/5 animate-pulse" />
 
@@ -37,7 +37,7 @@ function SkeletonCard() {
 
 function SkeletonListItem() {
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl bg-card/50 border border-white/5">
+    <div className="flex items-center gap-4 p-4 rounded-xl bg-card/50 ">
       {/* Image thumbnail */}
       <div className="w-16 h-16 rounded-xl bg-white/5 animate-pulse shrink-0" />
 

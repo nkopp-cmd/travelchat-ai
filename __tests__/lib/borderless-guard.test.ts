@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { classParts, isDecorativeClass, sourceViolations } from '../../scripts/check-borderless.mjs';
+import { classParts, isDecorativeClass, sourceViolations, cssViolations } from '../../scripts/check-borderless.mjs';
 
 describe('decorative border guard', () => {
-  it.each(['border', 'sm:hover:border-violet-200/20', 'ring-1', 'divide-y', 'outline-2', '[&>svg]:ring-1'])('rejects decoration: %s', token => {
+  it.each(['border', 'sm:hover:border-violet-200/20', 'ring-1', 'divide-y', 'outline-2', '[&>svg]:ring-1', 'h-px', 'w-[1px]', 'shadow-[0_0_0_1px_red]'])('rejects decoration: %s', token => {
     expect(isDecorativeClass(token)).toBe(true);
   });
-  it.each(['focus-visible:ring-2', 'dark:focus:ring-ring', 'aria-invalid:border-destructive', 'file:border-0', 'outline-none', 'ring-offset-background', 'border-collapse', 'border-spacing-2', 'rounded-xl', 'shadow-surface'])('keeps functional and non-border utilities: %s', token => {
+  it.each(['focus-visible:ring-2', 'dark:focus:ring-ring', 'aria-invalid:border-destructive', 'file:border-0', 'outline-none', 'ring-offset-background', 'border-box', 'border-box;', 'border-collapse', 'border-spacing-2', 'rounded-xl', 'shadow-surface'])('keeps functional and non-border utilities: %s', token => {
     expect(isDecorativeClass(token)).toBe(false);
+  });
+  it('does not rewrite product copy or prompt language', () => {
+    expect(sourceViolations('const prompt = \"Write an outline for this trip\";', 'prompt.ts')).toEqual([]);
+  });
+  it('leaves generated CSS sizing intact', () => {
+    expect(sourceViolations('const html = `body { box-sizing: border-box; }`;', 'export.ts')).toEqual([]);
   });
   it('does not split a colon inside an arbitrary selector', () => {
     expect(classParts('[&:focus-visible]:ring-2')).toEqual(['[&:focus-visible]', 'ring-2']);
@@ -16,5 +22,14 @@ describe('decorative border guard', () => {
   it('reads JSX expressions and template branches while retaining compatible variant names', () => {
     const source = 'type Mode = "outline"; const view = <Button variant="outline" className={`bg-card ${active ? "border" : "focus-visible:ring-2"}`} />;';
     expect(sourceViolations(source, 'example.tsx')).toEqual([{file:'example.tsx',line:1,token:'border'}]);
+  });
+});
+
+describe('borderless CSS rules', () => {
+  it('rejects borders, decorative apply utilities and hard outline shadows', () => {
+    expect(cssViolations('.panel { border: 1px solid red; box-shadow: 0 0 0 1px red; } .tabs { @apply divide-y; }', 'ui.css')).toHaveLength(3);
+  });
+  it('retains focus, forced-color affordances and non-painting sizing', () => {
+    expect(cssViolations('.field:focus-visible { outline:3px solid; } @media (forced-colors: active) { input { outline:1px solid CanvasText; } } .native { box-sizing:border-box; border-radius:16px; outline:none; border:0; }', 'ui.css')).toEqual([]);
   });
 });

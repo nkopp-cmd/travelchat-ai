@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   Sparkles,
   Video,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
 import {
   SubmissionMediaProgress,
@@ -146,28 +146,28 @@ function getStatusCopy(status: SubmissionRow["status"]) {
         label: "Spot created",
         helper: "Localley created a new spot from this post.",
         icon: CheckCircle2,
-        className: "border-emerald-200/25 bg-emerald-400/10 text-emerald-100",
+        className: " bg-emerald-400/10 text-emerald-100",
       };
     case "spot_reused":
       return {
         label: "Matched spot",
         helper: "This post matched an existing Localley spot.",
         icon: CheckCircle2,
-        className: "border-sky-200/25 bg-sky-400/10 text-sky-100",
+        className: " bg-sky-400/10 text-sky-100",
       };
     case "needs_review":
       return {
         label: "Needs review",
         helper: "The post is saved, but exact place evidence needs a human check.",
         icon: Search,
-        className: "border-amber-200/30 bg-amber-400/10 text-amber-100",
+        className: " bg-amber-400/10 text-amber-100",
       };
     default:
       return {
         label: "Needs source info",
         helper: "Saved, but Localley could not verify the exact place from the public post alone.",
         icon: Clock3,
-        className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+        className: " bg-violet-400/10 text-violet-100",
       };
   }
 }
@@ -283,7 +283,7 @@ function getSubmissionStatusCopy(submission: SubmissionRow) {
       label: `${createdCount} ready · ${pendingCount} needs review`,
       helper: "Some places are ready while other places from the same post still need evidence.",
       icon: Search,
-      className: "border-amber-200/30 bg-amber-400/10 text-amber-100",
+      className: " bg-amber-400/10 text-amber-100",
     };
   }
   if (createdCount > 1) {
@@ -291,7 +291,7 @@ function getSubmissionStatusCopy(submission: SubmissionRow) {
       label: `${createdCount} spots ready`,
       helper: "Every verified place from this post has its own community spot.",
       icon: CheckCircle2,
-      className: "border-emerald-200/25 bg-emerald-400/10 text-emerald-100",
+      className: " bg-emerald-400/10 text-emerald-100",
     };
   }
 
@@ -303,14 +303,14 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     return {
       label: "Awaiting full media check",
       icon: Clock3,
-      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+      className: " bg-violet-400/10 text-violet-100",
     };
   }
   if (["review_required", "dead_letter"].includes(submission.media_processing_state)) {
     return {
       label: "Full media check needs review",
       icon: Search,
-      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+      className: " bg-amber-400/10 text-amber-100",
     };
   }
   const analysisStatus = submission.research?.mediaAnalysis?.status;
@@ -320,7 +320,7 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     return {
       label: "Full video analyzed",
       icon: Video,
-      className: "border-cyan-200/25 bg-cyan-400/10 text-cyan-100",
+      className: " bg-cyan-400/10 text-cyan-100",
     };
   }
   if (analysisStatus === "video_partially_analyzed") {
@@ -330,7 +330,7 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     return {
       label: total > 0 ? `${analyzed} of ${total} videos analyzed` : "Video partially analyzed",
       icon: Video,
-      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+      className: " bg-amber-400/10 text-amber-100",
     };
   }
   if (analysisStatus === "media_partially_extracted") {
@@ -341,7 +341,7 @@ function getMediaStatusCopy(submission: SubmissionRow) {
         ? `${extracted} of ${total} media items available`
         : "Post media partially available",
       icon: Images,
-      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+      className: " bg-amber-400/10 text-amber-100",
     };
   }
   if (analysisStatus === "images_extracted") {
@@ -349,7 +349,7 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     return {
       label: imageCount > 1 ? `${imageCount} images analyzed` : "Post images analyzed",
       icon: Images,
-      className: "border-fuchsia-200/25 bg-fuchsia-400/10 text-fuchsia-100",
+      className: " bg-fuchsia-400/10 text-fuchsia-100",
     };
   }
   if (mediaStatus === "carousel_images") {
@@ -357,7 +357,7 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     return {
       label: imageCount > 1 ? `${imageCount} images available` : "Post images available",
       icon: Images,
-      className: "border-fuchsia-200/25 bg-fuchsia-400/10 text-fuchsia-100",
+      className: " bg-fuchsia-400/10 text-fuchsia-100",
     };
   }
   if (analysisStatus === "video_unavailable") {
@@ -367,42 +367,42 @@ function getMediaStatusCopy(submission: SubmissionRow) {
     return {
       label: coverChecked ? "Video unavailable · cover analyzed" : "Video unavailable",
       icon: Images,
-      className: "border-amber-200/25 bg-amber-400/10 text-amber-100",
+      className: " bg-amber-400/10 text-amber-100",
     };
   }
   if (analysisStatus === "cover_only") {
     return {
       label: "Cover image analyzed",
       icon: Images,
-      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+      className: " bg-violet-400/10 text-violet-100",
     };
   }
   if (mediaStatus === "cover_only") {
     return {
       label: "Cover image available",
       icon: Images,
-      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+      className: " bg-violet-400/10 text-violet-100",
     };
   }
   if (mediaStatus === "video_ready") {
     return {
       label: "Video ready for analysis",
       icon: Video,
-      className: "border-cyan-200/25 bg-cyan-400/10 text-cyan-100",
+      className: " bg-cyan-400/10 text-cyan-100",
     };
   }
   if (submission.metadata?.imageUrl || submission.metadata?.thumbnailUrl) {
     return {
       label: "Cover image available",
       icon: Images,
-      className: "border-violet-200/25 bg-violet-400/10 text-violet-100",
+      className: " bg-violet-400/10 text-violet-100",
     };
   }
 
   return {
     label: "Public media unavailable",
     icon: Search,
-    className: "border-white/15 bg-white/[0.05] text-violet-50/70",
+    className: " bg-white/[0.05] text-violet-50/70",
   };
 }
 
@@ -568,7 +568,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
     <AppBackground ambient fitParent>
       <div className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
         <div className="mb-5 flex flex-wrap items-center gap-2">
-          <Button asChild variant="outline" className="rounded-lg border-violet-200/20 bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+          <Button asChild variant="outline" className="rounded-lg bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white">
             <Link href="/spots">
               <ArrowLeft className="h-4 w-4" />
               Spots
@@ -581,7 +581,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
             </Link>
           </Button>
           {isAdminUser(userId) && (
-            <Button asChild variant="outline" className="rounded-lg border-emerald-200/20 bg-emerald-400/10 text-emerald-100 hover:bg-emerald-400/15 hover:text-white">
+            <Button asChild variant="outline" className="rounded-lg bg-emerald-400/10 text-emerald-100 hover:bg-emerald-400/15 hover:text-white">
               <Link href="/admin/spots/social-submissions">
                 <ShieldCheck className="h-4 w-4" />
                 Review recovery
@@ -590,8 +590,8 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
           )}
         </div>
 
-        <section className="mb-5 rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+        <section className="mb-5 rounded-lg bg-[#100b1c]/[0.86] p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
             <Images className="h-4 w-4" />
             Community submissions
           </div>
@@ -604,13 +604,13 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
         </section>
 
         {error ? (
-          <section className="rounded-lg border border-rose-200/20 bg-rose-500/10 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+          <section className="rounded-lg bg-rose-500/10 p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
             <Search className="mx-auto h-8 w-8 text-rose-100/70" />
             <h2 className="mt-3 text-xl font-bold text-white">Tracker unavailable</h2>
             <p className="mt-2 text-sm text-rose-50/70">{error}</p>
           </section>
         ) : submissions.length === 0 ? (
-          <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+          <section className="rounded-lg bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
             <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
             <h2 className="mt-3 text-xl font-bold text-white">No submitted posts yet</h2>
             <p className="mt-2 text-sm text-violet-50/60">
@@ -621,7 +621,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
           <>
             <nav
               aria-label="Submission status filters"
-              className="mb-4 flex gap-2 overflow-x-auto rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.76] p-2 shadow-lg shadow-violet-950/20 backdrop-blur-xl"
+              className="mb-4 flex gap-2 overflow-x-auto rounded-lg bg-[#100b1c]/[0.76] p-2 shadow-lg shadow-violet-950/20 backdrop-blur-xl"
             >
               {statusFilters.map((filter) => {
                 const active = filter.value === activeStatus;
@@ -635,7 +635,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                       "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors",
                       active
                         ? "bg-white text-violet-950"
-                        : "border border-violet-200/15 bg-white/[0.04] text-violet-50/70 hover:bg-violet-400/10 hover:text-white",
+                        : " bg-white/[0.04] text-violet-50/70 hover:bg-violet-400/10 hover:text-white",
                     )}
                   >
                     {filter.label}
@@ -653,13 +653,13 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
             </nav>
 
             {highlightedSubmissionMissing && (
-              <div role="status" className="mb-4 rounded-lg border border-amber-200/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+              <div role="status" className="mb-4 rounded-lg bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
                 That submission could not be found. It may have been removed or the link may be incomplete.
               </div>
             )}
 
             {filteredSubmissions.length === 0 ? (
-              <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
+              <section className="rounded-lg bg-[#100b1c]/[0.86] p-6 text-center shadow-xl shadow-violet-950/20 backdrop-blur-xl">
                 <Sparkles className="mx-auto h-8 w-8 text-violet-200/70" />
                 <h2 className="mt-3 text-xl font-bold text-white">No posts in this status</h2>
                 <p className="mt-2 text-sm text-violet-50/60">
@@ -694,10 +694,10 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                   id={`submission-${submission.id}`}
                   key={submission.id}
                   className={cn(
-                    "scroll-mt-24 overflow-hidden rounded-lg border bg-[#100b1c]/[0.86] shadow-xl shadow-violet-950/20 backdrop-blur-xl md:grid md:grid-cols-[220px_1fr]",
+                    "scroll-mt-24 overflow-hidden rounded-lg bg-[#100b1c]/[0.86] shadow-xl shadow-violet-950/20 backdrop-blur-xl md:grid md:grid-cols-[220px_1fr]",
                     isHighlighted
-                      ? "border-violet-200/50 ring-2 ring-violet-300/35"
-                      : "border-violet-200/15",
+                      ? " "
+                      : "",
                   )}
                 >
                   <div className="relative aspect-video bg-violet-950/60 md:aspect-auto md:min-h-full">
@@ -706,14 +706,14 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                       fallbackSrc={images.fallbackSrc}
                       title={title}
                     />
-                    <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-2 py-1 text-xs font-semibold uppercase text-white backdrop-blur">
+                    <div className="absolute left-3 top-3 rounded-full bg-black/60 px-2 py-1 text-xs font-semibold uppercase text-white backdrop-blur">
                       {submission.platform}
                     </div>
                     <a
                       href={submission.canonical_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-black/20 backdrop-blur transition-colors hover:bg-black/72 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-200 sm:hidden"
+                      className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg bg-black/60 px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-black/20 backdrop-blur transition-colors hover:bg-black/72 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-200 sm:hidden"
                     >
                       Open post
                       <ExternalLink className="h-3.5 w-3.5" />
@@ -724,11 +724,11 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold", status.className)}>
+                          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold", status.className)}>
                             <StatusIcon className="h-3.5 w-3.5" />
                             {status.label}
                           </span>
-                          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold", mediaStatus.className)}>
+                          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold", mediaStatus.className)}>
                             <MediaStatusIcon className="h-3.5 w-3.5" />
                             {mediaStatus.label}
                           </span>
@@ -744,7 +744,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                         </p>
                       </div>
 
-                      <Button asChild variant="outline" className="hidden shrink-0 rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white sm:inline-flex">
+                      <Button asChild variant="outline" className="hidden shrink-0 rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white sm:inline-flex">
                         <a href={submission.canonical_url} target="_blank" rel="noreferrer">
                           Open post
                           <ExternalLink className="h-4 w-4" />
@@ -761,7 +761,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                     {placeCoverage && !placeCoverage.complete ? (
                       <div
                         role="status"
-                        className="mt-3 border-l-2 border-amber-300/60 pl-3 text-sm text-amber-50/85"
+                        className="mt-3 pl-3 text-sm text-amber-50/85"
                       >
                         <p className="font-semibold text-amber-100">
                           Place coverage incomplete: {placeCoverage.accountedForCount || 0} of {placeCoverage.identifiedCount || 0} accounted for
@@ -779,7 +779,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                         submissionId={submission.id}
                         items={mediaProgress}
                         processing={initialMediaProcessing[submission.id]}
-                        className="mt-4 border-violet-200/15 bg-black/20"
+                        className="mt-4 bg-black/20"
                       />
                     ) : null}
 
@@ -789,7 +789,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                           <Link
                             key={candidate.spotId || `${candidate.spotName}-${candidate.address}`}
                             href={candidate.spotId ? `/spots/${candidate.spotId}` : "/spots/submissions"}
-                            className="rounded-lg border border-emerald-200/15 bg-emerald-400/10 p-3 text-sm transition-colors hover:border-emerald-200/35 hover:bg-emerald-400/15"
+                            className="rounded-lg bg-emerald-400/10 p-3 text-sm transition-colors hover:bg-emerald-400/15"
                           >
                             <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-emerald-100/70">
                               Community spot
@@ -808,7 +808,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                       </div>
                     )}
                     {pendingCandidates.length > 0 ? (
-                      <div className="mt-4 rounded-lg border border-amber-200/20 bg-amber-400/10 p-3">
+                      <div className="mt-4 rounded-lg bg-amber-400/10 p-3">
                         <p className="text-sm font-semibold text-amber-100">
                           {createdCandidates.length > 0
                             ? "Other places from this post still need review"
@@ -818,7 +818,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                           {pendingCandidates.map((candidate) => (
                             <div
                               key={`${candidate.spotName}-${candidate.address}`}
-                              className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/70"
+                              className="rounded-md bg-black/20 px-3 py-2 text-sm text-violet-50/70"
                             >
                               {candidate.spotName || "Unverified place"}
                               {candidate.city ? ` · ${candidate.city}` : ""}
@@ -830,7 +830,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                         </div>
                       </div>
                     ) : submission.status === "research_pending" ? (
-                      <div className="mt-4 rounded-lg border border-violet-200/20 bg-violet-400/10 p-3">
+                      <div className="mt-4 rounded-lg bg-violet-400/10 p-3">
                         <p className="text-sm font-semibold text-violet-100">
                           Needs more source info
                         </p>
@@ -858,7 +858,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
             {pageCount > 1 && (
               <nav aria-label="Submission pages" className="mt-5 flex items-center justify-center gap-2">
                 {activePage > 1 && (
-                  <Button asChild variant="outline" className="rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                  <Button asChild variant="outline" className="rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                     <Link href={getPageHref(activeStatus, activePage - 1)}>Previous</Link>
                   </Button>
                 )}
@@ -866,7 +866,7 @@ export default async function SubmittedPostsPage({ searchParams }: SubmittedPost
                   Page {activePage} of {pageCount}
                 </span>
                 {activePage < pageCount && (
-                  <Button asChild variant="outline" className="rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                  <Button asChild variant="outline" className="rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                     <Link href={getPageHref(activeStatus, activePage + 1)}>Next</Link>
                   </Button>
                 )}

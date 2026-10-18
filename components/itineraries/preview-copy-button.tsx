@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { Copy, Check, Loader2 } from "lucide-react";
+import { Copy, Check, Loader2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { itineraryCopyCandidateUrl } from "@/lib/app-data/itinerary-copy-candidate-url";
 

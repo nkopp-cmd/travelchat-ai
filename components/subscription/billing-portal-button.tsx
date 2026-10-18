@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import { CreditCard, ExternalLink, Loader2 } from "@/components/ui/icons";
 
 interface BillingPortalButtonProps {
     className?: string;

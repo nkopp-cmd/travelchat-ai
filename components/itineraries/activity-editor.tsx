@@ -6,7 +6,7 @@ import { PlaceAutocomplete } from "@/components/ui/place-autocomplete";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { GripVertical, Trash2, Copy, Edit2, Check, X } from "lucide-react";
+import { GripVertical, Trash2, Copy, Edit2, Check, X } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/badge";
 
 interface Activity {
@@ -144,7 +144,7 @@ export function ActivityEditor({
     }
 
     return (
-        <Card className="p-4 border-violet-200 bg-violet-50/50 dark:bg-violet-950/20">
+        <Card className="p-4 bg-violet-50/50 dark:bg-violet-950/20">
             <div className="flex items-start gap-3">
                 {/* Drag Handle (disabled when editing) */}
                 <div className="text-muted-foreground/30 mt-1">

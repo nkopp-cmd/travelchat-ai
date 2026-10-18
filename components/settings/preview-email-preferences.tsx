@@ -50,7 +50,7 @@ export function PreviewEmailPreferences() {
     <p className="text-sm text-muted-foreground">Preview choices only. Emails are not sent from this preview.</p>
     {loading ? <p role="status">Loading preview choices...</p> : stored ? Object.entries(fields).map(([key, label]) => {
       const field = key as keyof Preferences;
-      return <div key={key} className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.035] p-4">
+      return <div key={key} className="flex items-center justify-between gap-4 rounded-xl bg-white/[0.035] p-4">
         <Label htmlFor={`preview-email-${key}`}>{label}</Label>
         <Switch id={`preview-email-${key}`} checked={stored[field]} disabled={pending} onCheckedChange={checked => { void save(field, checked); }} />
       </div>;

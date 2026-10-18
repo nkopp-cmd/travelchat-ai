@@ -1,6 +1,6 @@
 "use client";
 
-import { Images } from "lucide-react";
+import { Images } from "@/components/ui/icons";
 import { useState } from "react";
 
 type SubmissionPreviewImageProps = {

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { Heart, Check } from "lucide-react";
+import { Heart, Check } from "@/components/ui/icons";
 
 const INTERESTS = [
   { id: "Food & Dining", emoji: "🍜", label: "Food & Dining" },
@@ -56,8 +56,8 @@ export function StepInterests() {
                 "relative flex min-h-[50px] items-center gap-2 rounded-xl p-2.5 text-left transition-all sm:min-h-[56px] sm:p-3",
                 "focus:outline-none focus:ring-2 focus:ring-violet-500",
                 isSelected
-                  ? "bg-violet-600/20 border-2 border-violet-500"
-                  : "bg-white/5 border-2 border-transparent hover:bg-white/10"
+                  ? "bg-violet-600/20 "
+                  : "bg-white/5 hover:bg-white/10"
               )}
             >
               <span className="text-lg sm:text-xl">{interest.emoji}</span>
@@ -79,7 +79,7 @@ export function StepInterests() {
         })}
       </div>
 
-      <div className="mt-3 border-t border-white/10 pt-3 sm:mt-4 sm:pt-4">
+      <div className="mt-3 pt-3 sm:mt-4 sm:pt-4">
         <p className="text-center text-sm text-gray-400">
           Selected:{" "}
           <span className="text-violet-400 font-medium">

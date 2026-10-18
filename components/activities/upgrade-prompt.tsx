@@ -10,7 +10,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Crown, Zap } from "lucide-react";
+import { Check, Sparkles, Crown, Zap } from "@/components/ui/icons";
 import {
     SubscriptionTier,
     SubscriptionFeatures,
@@ -157,7 +157,7 @@ export function InlineUpgradePrompt({ feature, className }: InlineUpgradePromptP
     return (
         <Link
             href="/pricing"
-            className={`flex items-center gap-2 p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30 rounded-lg border border-violet-200 dark:border-violet-800 hover:border-violet-400 transition-colors ${className}`}
+            className={`flex items-center gap-2 p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30 rounded-lg transition-colors ${className}`}
         >
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="h-4 w-4 text-white" />

@@ -13,7 +13,7 @@ import {
     Bookmark,
     ExternalLink,
     AlertCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -148,7 +148,7 @@ function GuideDashboardContent() {
         return (
             <AppBackground ambient className="min-h-screen">
             <div className="container max-w-3xl mx-auto py-8 px-4 text-center">
-                <div className="liquid-panel rounded-lg border border-white/10 p-8">
+                <div className="liquid-panel rounded-lg p-8">
                 <h1 className="text-2xl font-bold mb-4">Not a Guide Yet</h1>
                 <p className="text-muted-foreground mb-6">
                     Apply to become a local guide and start earning from your travel content.
@@ -173,7 +173,7 @@ function GuideDashboardContent() {
                 Back to Settings
             </Link>
 
-            <div className="mb-8 flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
+            <div className="mb-8 flex items-center justify-between rounded-lg bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
                 <div>
                     <h1 className="text-3xl font-black text-white">Guide Dashboard</h1>
                     <p className="text-white/60">Manage creator earnings, engagement, and payouts</p>
@@ -185,7 +185,7 @@ function GuideDashboardContent() {
 
             {/* Pending/Onboarding States */}
             {guideStatus.status === "pending" && (
-                <Card className="mb-6 border-yellow-300/30 bg-yellow-400/10 backdrop-blur-xl">
+                <Card className="mb-6 bg-yellow-400/10 backdrop-blur-xl">
                     <CardContent className="pt-6 flex items-start gap-3">
                         <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
                         <div>
@@ -199,7 +199,7 @@ function GuideDashboardContent() {
             )}
 
             {guideStatus.status === "approved" && !guideStatus.onboardingComplete && (
-                <Card className="mb-6 border-blue-300/30 bg-blue-400/10 backdrop-blur-xl">
+                <Card className="mb-6 bg-blue-400/10 backdrop-blur-xl">
                     <CardContent className="pt-6">
                         <div className="flex items-start gap-3 mb-4">
                             <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
@@ -225,7 +225,7 @@ function GuideDashboardContent() {
             {guideStatus.status === "approved" && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <Card className="liquid-panel border-white/10">
+                        <Card className="liquid-panel ">
                             <CardHeader className="pb-2">
                                 <CardDescription>Total Earned</CardDescription>
                             </CardHeader>
@@ -238,7 +238,7 @@ function GuideDashboardContent() {
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="liquid-panel border-white/10">
+                        <Card className="liquid-panel ">
                             <CardHeader className="pb-2">
                                 <CardDescription>Pending Balance</CardDescription>
                             </CardHeader>
@@ -251,7 +251,7 @@ function GuideDashboardContent() {
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="liquid-panel border-white/10">
+                        <Card className="liquid-panel ">
                             <CardHeader className="pb-2">
                                 <CardDescription>Paid Out</CardDescription>
                             </CardHeader>
@@ -268,7 +268,7 @@ function GuideDashboardContent() {
 
                     {/* Current Month Engagement */}
                     {earnings?.currentMonth && (
-                        <Card className="liquid-panel mb-6 border-white/10">
+                        <Card className="liquid-panel mb-6 ">
                             <CardHeader>
                                 <CardTitle className="text-lg">This Month&apos;s Engagement</CardTitle>
                                 <CardDescription>
@@ -306,7 +306,7 @@ function GuideDashboardContent() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-4 pt-4 border-t">
+                                <div className="mt-4 pt-4 ">
                                     <p className="text-sm text-muted-foreground">
                                         Total Engagement Points: <strong>{earnings.currentMonth.totalPoints}</strong>
                                     </p>
@@ -317,14 +317,14 @@ function GuideDashboardContent() {
 
                     {/* Earnings History */}
                     {earnings?.earnings && earnings.earnings.length > 0 && (
-                        <Card className="liquid-panel mb-6 border-white/10">
+                        <Card className="liquid-panel mb-6 ">
                             <CardHeader>
                                 <CardTitle className="text-lg">Earnings History</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3">
                                     {earnings.earnings.map((e) => (
-                                        <div key={e.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                                        <div key={e.id} className="flex items-center justify-between py-2 last:border-0">
                                             <div>
                                                 <p className="font-medium">
                                                     {new Date(e.earning_month).toLocaleDateString("en-US", {
@@ -351,7 +351,7 @@ function GuideDashboardContent() {
 
                     {/* Stripe Dashboard Link */}
                     {guideStatus.onboardingComplete && (
-                        <Card className="liquid-panel border-white/10">
+                        <Card className="liquid-panel ">
                             <CardContent className="pt-6">
                                 <Button variant="outline" onClick={handleStripeDashboard}>
                                     <ExternalLink className="mr-2 h-4 w-4" />

@@ -25,7 +25,7 @@ import {
   Store,
   Flame,
   Loader2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import {
   SpotsFilterState,
   FilterOptions,
@@ -89,7 +89,7 @@ const QUICK_FILTERS = [
 ];
 
 const FILTER_TRIGGER_CLASS =
-  "relative h-10 w-full min-w-0 max-w-full justify-start gap-1 overflow-hidden border-white/10 bg-white/[0.055] px-2 text-xs text-white data-[state=open]:z-30 sm:px-3 sm:text-sm [&>svg:last-child]:ml-auto [&>svg:last-child]:shrink-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
+  "relative h-10 w-full min-w-0 max-w-full justify-start gap-1 overflow-hidden bg-white/[0.055] px-2 text-xs text-white data-[state=open]:z-30 sm:px-3 sm:text-sm [&>svg:last-child]:ml-auto [&>svg:last-child]:shrink-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
 
 interface SpotsFilterBarProps {
   filterOptions: FilterOptions;
@@ -189,7 +189,7 @@ export function SpotsFilterBar({
       ?.label || currentFilters.sortBy;
 
   return (
-    <div className="mb-4 space-y-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-2.5 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
+    <div className="mb-4 space-y-3 rounded-lg bg-[#100b1c]/86 p-2.5 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
       {/* Search Bar */}
       <div className="relative flex-1">
         <Search
@@ -200,7 +200,7 @@ export function SpotsFilterBar({
           placeholder="Search spots, neighborhoods, or cuisines..."
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="h-10 min-w-0 border-white/10 bg-white/[0.06] pl-10 pr-10 text-sm text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400 sm:h-11 sm:text-base"
+          className="h-10 min-w-0 bg-white/[0.06] pl-10 pr-10 text-sm text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400 sm:h-11 sm:text-base"
           aria-label="Search spots"
         />
         {isPending && (
@@ -229,10 +229,10 @@ export function SpotsFilterBar({
               key={filter.id}
               onClick={() => handleQuickFilter(filter.id)}
               className={cn(
-                "flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium transition-all sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-sm",
+                "flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium transition-all sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-sm",
                 isActive
-                  ? "border-violet-300/50 bg-violet-500 text-white shadow-md shadow-violet-500/20"
-                  : "border-white/10 bg-white/[0.055] text-violet-50/70 hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white",
+                  ? " bg-violet-500 text-white shadow-md shadow-violet-500/20"
+                  : " bg-white/[0.055] text-violet-50/70 hover:bg-violet-400/10 hover:text-white",
               )}
               aria-pressed={isActive}
             >
@@ -257,7 +257,7 @@ export function SpotsFilterBar({
           variant="ghost"
           size="sm"
           onClick={() => setShowMobileFilters((value) => !value)}
-          className="h-9 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
+          className="h-9 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
           aria-expanded={showMobileFilters}
           aria-controls="spots-advanced-filters"
           data-testid="spots-mobile-filter-toggle"
@@ -279,7 +279,7 @@ export function SpotsFilterBar({
             type="button"
             variant="ghost"
             onClick={onClearFilters}
-            className="h-9 w-9 shrink-0 justify-self-end rounded-full border border-white/10 bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
+            className="h-9 w-9 shrink-0 justify-self-end rounded-full bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
             data-testid="spots-mobile-clear-filters"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -415,7 +415,7 @@ export function SpotsFilterBar({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="hidden h-10 w-full shrink-0 rounded-lg border border-white/10 bg-white/[0.035] text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 md:inline-flex xl:col-span-4"
+            className="hidden h-10 w-full shrink-0 rounded-lg bg-white/[0.035] text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 md:inline-flex xl:col-span-4"
           >
             <X className="mr-1 h-4 w-4" aria-hidden="true" />
             Clear

@@ -18,7 +18,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, ExternalLink, X } from "lucide-react";
+import { Camera, Download, Loader2, Instagram, CheckCircle, Sparkles, Archive, Share2, Cloud, ChevronDown, ExternalLink, X } from "@/components/ui/icons";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -768,7 +768,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         {/* AI Backgrounds Toggle (only show if AI is available) */}
                         {aiAvailable && city && (
                             <div className="flex flex-col items-center gap-2 mb-6">
-                                <div className="flex items-center gap-3 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 ">
                                     <Switch
                                         id="ai-backgrounds"
                                         checked={useAiBackgrounds}
@@ -838,10 +838,10 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     <button
                                         key={index}
                                         onClick={() => { setPreviewLoading(true); setSelectedSlide(index); }}
-                                        className={`relative w-20 h-36 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${
+                                        className={`relative w-20 h-36 rounded-lg overflow-hidden transition-all flex-shrink-0 ${
                                             selectedSlide === index
-                                                ? "border-violet-500 ring-2 ring-violet-500/20"
-                                                : "border-border hover:border-violet-300"
+                                                ? " "
+                                                : " "
                                         }`}
                                     >
                                         {brokenSlides.has(index) ? (
@@ -869,7 +869,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                             <div className="flex-1 flex flex-col items-center">
                                 <button
                                     onClick={() => setFullscreenSlide(selectedSlide)}
-                                    className="relative w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl border border-border cursor-pointer hover:ring-2 hover:ring-violet-500/30 transition-all"
+                                    className="relative w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl cursor-pointer transition-all"
                                 >
                                     {brokenSlides.has(selectedSlide) ? (
                                         <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center p-4">
@@ -906,7 +906,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-wrap gap-2 items-center justify-between border-t pt-4">
+                        <div className="flex flex-wrap gap-2 items-center justify-between pt-4">
                             {/* Cloud Save (primary) */}
                             <div className="flex items-center gap-2">
                                 <Button
@@ -1026,7 +1026,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     <Button
                         variant="outline"
                         size="sm"
-                        className="mt-2 text-white border-white/20 hover:bg-white/10"
+                        className="mt-2 text-white hover:bg-white/10"
                         onClick={(e) => { e.stopPropagation(); handleDownload(fullscreenSlide); }}
                         disabled={downloadingIndex !== null}
                     >

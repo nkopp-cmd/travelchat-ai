@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Clock, MapPin, Navigation } from "lucide-react";
+import { ChevronDown, Clock, MapPin, Navigation } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -43,7 +43,7 @@ export function DaySection({
   return (
     <div
       id={`day-${day}`}
-      className={cn("border-b border-white/10 last:border-0", className)}
+      className={cn(" last:border-0", className)}
     >
       {/* Day header - always visible */}
       <button
@@ -78,11 +78,11 @@ export function DaySection({
       {isExpanded && (
         <div className="pb-4 px-4">
           {/* Timeline of activities */}
-          <div className="relative pl-6 border-l-2 border-violet-600/30 space-y-4 ml-2">
+          <div className="relative pl-6 space-y-4 ml-2">
             {activities.map((activity, index) => (
               <div key={index} className="relative">
                 {/* Timeline dot */}
-                <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-violet-600/50 border-2 border-background" />
+                <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-violet-600/50 " />
 
                 {/* Activity card */}
                 <div className="bg-white/5 rounded-xl p-3">
@@ -106,7 +106,7 @@ export function DaySection({
                     {activity.category && (
                       <Badge
                         variant="outline"
-                        className="text-xs bg-transparent border-white/20 text-gray-400 shrink-0"
+                        className="text-xs bg-transparent text-gray-400 shrink-0"
                       >
                         {activity.category}
                       </Badge>
@@ -143,7 +143,7 @@ export function DaySection({
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-4 w-full border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+                className="mt-4 w-full text-violet-400 hover:bg-violet-500/10"
               >
                 <Navigation className="w-4 h-4 mr-2" />
                 Open Day {day} Route

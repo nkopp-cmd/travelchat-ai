@@ -7,7 +7,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { ExternalLink, Sparkles, Ticket } from "lucide-react";
+import { ExternalLink, Sparkles, Ticket } from "@/components/ui/icons";
 import type { AffiliateLink } from "@/lib/affiliates";
 import { AFFILIATE_PARTNERS } from "@/lib/affiliates";
 
@@ -64,7 +64,7 @@ export function BookingDealsPopover({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-72 p-0" align="start">
-                <div className="p-3 border-b">
+                <div className="p-3 ">
                     <p className="font-semibold text-sm">Book this activity</p>
                     <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{activityName}</p>
                 </div>
@@ -95,7 +95,7 @@ export function BookingDealsPopover({
                         );
                     })}
                     {hotelLinks.length > 0 && activityLinks.length > 0 && (
-                        <div className="border-t my-1" />
+                        <div className=" my-1" />
                     )}
                     {hotelLinks.map((link) => {
                         const partner = AFFILIATE_PARTNERS[link.partner];

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Star, MapPin, Flame, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "lucide-react";
+import { Trophy, Star, MapPin, Flame, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "@/components/ui/icons";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -19,9 +19,9 @@ import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 import { AppBackground } from "@/components/layout/app-background";
 import { CityImageAvatar } from "@/components/ui/city-image";
 
-const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
-const LIQUID_CARD_SOFT = "rounded-2xl border-white/10 bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const STAT_TILE = "rounded-xl border border-white/10 bg-white/[0.055] p-3 backdrop-blur-xl";
+const LIQUID_CARD = "rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
+const LIQUID_CARD_SOFT = "rounded-2xl bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
+const STAT_TILE = "rounded-xl border bg-white/[0.055] p-3 backdrop-blur-xl";
 
 function usagePercent(used: number, limit: number) {
     if (!limit || limit === 999) return used > 0 ? 10 : 0;
@@ -206,10 +206,10 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
     // Get tier-specific ring color for avatar
     const tierRingColor = subscription.tier === "premium"
-        ? "ring-amber-400"
+        ? ""
         : subscription.tier === "pro"
-        ? "ring-violet-400"
-        : "ring-violet-200 dark:ring-violet-800";
+        ? ""
+        : " ";
 
     return (
         <AppBackground ambient className="min-h-screen">
@@ -237,7 +237,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 <div className="px-4 sm:px-8 pb-6 sm:pb-8">
                     <div className="relative flex flex-col md:flex-row justify-between items-start md:items-end -mt-10 sm:-mt-12 mb-4 sm:mb-6 gap-4">
                         <div className="flex items-end gap-4 sm:gap-6">
-                            <Avatar className={`h-20 w-20 sm:h-24 sm:w-24 border-4 border-[#12091f] shadow-lg ring-2 ${tierRingColor} ring-offset-2 ring-offset-[#12091f]`}>
+                            <Avatar className={`h-20 w-20 sm:h-24 sm:w-24 shadow-lg ${tierRingColor} ring-offset-2 ring-offset-[#12091f]`}>
                                 <AvatarImage src={user.imageUrl} />
                                 <AvatarFallback className="text-xl sm:text-2xl bg-slate-200 dark:bg-slate-800">
                                     {user.firstName?.[0]}{user.lastName?.[0]}
@@ -312,15 +312,15 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                     </div>
 
                     {/* CTAs */}
-                    <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
+                    <div className="mt-4 flex gap-2 pt-4">
                         <Link href="/leaderboard" className="flex-1">
-                            <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 hover:bg-yellow-500/10 hover:border-yellow-500/50">
+                            <Button variant="outline" className="w-full gap-2 bg-white/10 hover:bg-yellow-500/10 ">
                                 <Trophy className="h-4 w-4 text-yellow-500" />
                                 Leaderboard
                             </Button>
                         </Link>
                         <Link href="/challenges" className="flex-1">
-                            <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 hover:bg-violet-500/10 hover:border-violet-500/50">
+                            <Button variant="outline" className="w-full gap-2 bg-white/10 hover:bg-violet-500/10 ">
                                 <Star className="h-4 w-4 text-violet-500" />
                                 Challenges
                             </Button>
@@ -334,9 +334,9 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 {/* Subscription Status */}
                 <Card className={`overflow-hidden ${LIQUID_CARD_SOFT} ${
                     subscription.tier === "premium"
-                        ? "border-amber-300/25"
+                        ? ""
                         : subscription.tier === "pro"
-                        ? "border-violet-300/25"
+                        ? ""
                         : ""
                 }`}>
                     <CardHeader className="pb-3">
@@ -406,7 +406,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     </div>
                                 )}
                                 {subscription.cancelAtPeriodEnd && (
-                                    <Badge variant="outline" className="text-amber-600 border-amber-300">
+                                    <Badge variant="outline" className="text-amber-600 ">
                                         Cancels at period end
                                     </Badge>
                                 )}
@@ -433,7 +433,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {subscription.tier === "free" ? (
-                            <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
+                            <div className="rounded-xl bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
                                 Choose Pro or Premium to start planning with Localley. Your saved trips, chats, images, and spot collection will appear here.
                             </div>
                         ) : (
@@ -535,7 +535,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
             {/* Content Tabs */}
             <Tabs defaultValue="achievements" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 border border-white/10 bg-white/[0.055] backdrop-blur-xl lg:w-[400px]">
+                <TabsList className="grid w-full grid-cols-3 bg-white/[0.055] backdrop-blur-xl lg:w-[400px]">
                     <TabsTrigger value="achievements">Achievements</TabsTrigger>
                     <TabsTrigger value="history">History</TabsTrigger>
                     <TabsTrigger value="saved">Saved</TabsTrigger>

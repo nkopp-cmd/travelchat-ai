@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PlaceAutocomplete } from "@/components/ui/place-autocomplete";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, ChevronDown, ChevronUp } from "@/components/ui/icons";
 import { useState } from "react";
 
 interface Activity {
@@ -119,7 +119,7 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                             value={dayPlan.theme || ""}
                             onChange={(e) => onUpdate({ ...dayPlan, theme: e.target.value })}
                             placeholder="Day theme (e.g., 'Food Exploration')"
-                            className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                            className="bg-white/10 text-white placeholder:text-white/60"
                         />
                     </div>
                     <Button
@@ -153,7 +153,7 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                         </div>
 
                         {isAddingActivity && (
-                            <Card className="p-4 mb-4 bg-green-50/50 dark:bg-green-950/20 border-green-200">
+                            <Card className="p-4 mb-4 bg-green-50/50 dark:bg-green-950/20 ">
                                 <div className="space-y-3">
                                     <h4 className="font-semibold">New Activity</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

@@ -11,7 +11,7 @@ import {
   Sparkles,
   TrendingUp,
   Users,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 
@@ -27,7 +27,7 @@ function CommunitySpotChip() {
     <span
       aria-label="Community submitted spot"
       title="Community submitted spot"
-      className="inline-flex h-6 items-center gap-1 rounded-md border border-fuchsia-200/25 bg-fuchsia-500/75 px-1.5 text-[10px] font-semibold text-white shadow-md shadow-black/20 backdrop-blur"
+      className="inline-flex h-6 items-center gap-1 rounded-md bg-fuchsia-500/75 px-1.5 text-[10px] font-semibold text-white shadow-md shadow-black/20 backdrop-blur"
     >
       <Users className="h-3 w-3" aria-hidden="true" />
       <span>Community</span>
@@ -37,12 +37,12 @@ function CommunitySpotChip() {
 
 function getScoreTone(score: number) {
   if (score >= 6)
-    return "border-fuchsia-300/25 bg-fuchsia-400/12 text-fuchsia-100";
+    return " bg-fuchsia-400/12 text-fuchsia-100";
   if (score >= 5)
-    return "border-violet-300/25 bg-violet-400/12 text-violet-100";
+    return " bg-violet-400/12 text-violet-100";
   if (score >= 4)
-    return "border-emerald-300/20 bg-emerald-400/10 text-emerald-100";
-  return "border-sky-300/20 bg-sky-400/10 text-sky-100";
+    return " bg-emerald-400/10 text-emerald-100";
+  return " bg-sky-400/10 text-sky-100";
 }
 
 function SpotScoreChip({
@@ -59,7 +59,7 @@ function SpotScoreChip({
       data-layout-chip
       data-testid="spot-score-chip"
       className={cn(
-        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
+        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         getScoreTone(score),
         className,
       )}
@@ -91,12 +91,12 @@ function LocationConfidenceChip({
       data-layout-chip
       data-testid="spot-location-confidence-chip"
       className={cn(
-        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md border px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
+        "inline-flex h-6 min-w-0 max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-md px-1.5 text-[10px] font-semibold leading-none sm:h-7 sm:rounded-full sm:px-2 sm:text-[11px]",
         hasPlaceMatch || confidence.tone === "exact"
-          ? "border-sky-200/20 bg-sky-400/10 text-sky-100"
+          ? " bg-sky-400/10 text-sky-100"
           : confidence.tone === "pinned"
-            ? "border-indigo-200/20 bg-indigo-400/10 text-indigo-100"
-            : "border-amber-200/25 bg-amber-400/10 text-amber-100",
+            ? " bg-indigo-400/10 text-indigo-100"
+            : " bg-amber-400/10 text-amber-100",
         className,
       )}
       title={
@@ -133,7 +133,7 @@ function TrendingChip({
       data-layout-chip
       data-testid="spot-trending-chip"
       className={cn(
-        "inline-flex h-5 min-w-0 max-w-full shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border border-rose-200/25 bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
+        "inline-flex h-5 min-w-0 max-w-full shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md bg-rose-400/10 px-1.5 text-[10px] font-semibold leading-none text-rose-100",
         className,
       )}
       title="Trending"
@@ -177,7 +177,7 @@ function CategoryTrendRow({
         data-layout-chip
         data-testid="spot-category-chip"
         className={cn(
-          "min-w-0 shrink truncate rounded-md border border-violet-200/20 bg-violet-400/10 font-medium leading-none text-violet-100",
+          "min-w-0 shrink truncate rounded-md bg-violet-400/10 font-medium leading-none text-violet-100",
           compact
             ? "max-w-[6.5rem] px-1.5 py-1 text-[9px] min-[390px]:max-w-[8rem] min-[390px]:px-2 min-[390px]:text-[10px]"
             : "px-1.5 py-1 text-[10px] sm:rounded-full sm:px-2.5 sm:text-[11px]",
@@ -214,10 +214,10 @@ export function SpotCard({
         className={cn(
           "group relative flex flex-col overflow-hidden rounded-2xl !gap-0 !py-0 sm:flex-row",
           "bg-[#100b1c]/92 text-white backdrop-blur-xl",
-          "border border-violet-200/15",
+          " ",
           "transition-all duration-300 ease-out",
           "hover:shadow-xl hover:shadow-violet-500/10",
-          "hover:border-violet-300/45",
+          "",
           "hover:-translate-y-0.5",
         )}
       >
@@ -247,7 +247,7 @@ export function SpotCard({
                 <span className="truncate">{spot.location.address}</span>
               </p>
             </div>
-            <div className="relative z-20 flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.06] p-0.5 backdrop-blur sm:p-1">
+            <div className="relative z-20 flex flex-shrink-0 items-center gap-1 rounded-full bg-white/[0.06] p-0.5 backdrop-blur sm:p-1">
               <SaveSpotButton
                 spotId={spot.id}
                 spotName={spot.name}
@@ -259,7 +259,7 @@ export function SpotCard({
           <p className="mt-1 line-clamp-2 text-xs leading-5 text-violet-50/60 min-[480px]:line-clamp-1 sm:mt-1.5 sm:text-sm">
             {spot.description}
           </p>
-          <div className="mt-auto min-w-0 border-t border-white/10 pt-1.5 text-xs text-violet-50/60 sm:pt-2">
+          <div className="mt-auto min-w-0 pt-1.5 text-xs text-violet-50/60 sm:pt-2">
             <div
               data-spot-card-meta
               className="grid min-w-0 grid-cols-1 gap-1 overflow-hidden min-[430px]:grid-cols-[minmax(0,1fr)_auto] sm:flex sm:flex-wrap sm:items-center sm:overflow-visible"
@@ -292,14 +292,14 @@ export function SpotCard({
     <Card
       data-testid="spot-card"
       data-spot-card="grid"
-      className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#15111f] text-white !gap-0 !py-0 shadow-sm transition-colors duration-200 hover:border-violet-300/35"
+      className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl bg-[#15111f] text-white !gap-0 !py-0 shadow-sm transition-colors duration-200 "
     >
       <div data-testid="spot-card-photo" className="relative w-full shrink-0 overflow-hidden bg-violet-950/40">
         <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority}
           directPhotos={spot.googlePlaceId ? [] : spot.photos} frameClassName="aspect-[16/10] w-full" />
         <div className="absolute right-3 top-3 z-20">
           <SaveSpotButton spotId={spot.id} spotName={spot.name}
-            className="h-11 w-11 rounded-full border border-white/20 bg-black/45 p-0 text-white shadow-sm backdrop-blur-md hover:bg-black/65 [&_svg]:h-5 [&_svg]:w-5" />
+            className="h-11 w-11 rounded-full bg-black/45 p-0 text-white shadow-sm backdrop-blur-md hover:bg-black/65 [&_svg]:h-5 [&_svg]:w-5" />
         </div>
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-4">
@@ -319,7 +319,7 @@ export function SpotCard({
           <span className="truncate">{spot.location.address}</span>
         </p>
         <p className="line-clamp-2 text-sm leading-relaxed text-violet-50/65">{spot.description}</p>
-        <div data-spot-card-meta className="mt-auto flex min-w-0 flex-wrap items-center gap-2 border-t border-white/8 pt-3">
+        <div data-spot-card-meta className="mt-auto flex min-w-0 flex-wrap items-center gap-2 pt-3">
           <LocationConfidenceChip spot={spot} className="max-w-full" />
           {spot.communitySubmitted && <CommunitySpotChip />}
         </div>

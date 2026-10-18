@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useWizard } from "./wizard-context";
-import { Loader2, Route, AlertTriangle, Train, Ship, Plane, Bus, Car } from "lucide-react";
+import { Loader2, Route, AlertTriangle, Train, Ship, Plane, Bus, Car } from "@/components/ui/icons";
 import { buildCorridorRequest, corridorSelectionError } from "@/lib/trips/wizard-corridor";
 
 type PreviewStop = {
@@ -103,7 +103,7 @@ export function RoutePreview() {
   if (data.citySlugs.length < 2) return null;
 
   return (
-    <div className="rounded-xl border border-violet-300/20 bg-violet-500/5 p-3 sm:p-4">
+    <div className="rounded-xl bg-violet-500/5 p-3 sm:p-4">
       <div className="mb-2 flex items-center gap-2">
         <Route className="h-4 w-4 text-violet-400" />
         <span className="text-sm font-semibold text-white">Your optimized route</span>

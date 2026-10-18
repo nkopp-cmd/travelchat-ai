@@ -23,7 +23,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Star, ThumbsUp, Loader2, Calendar, Pencil, Trash2 } from "lucide-react";
+import { Star, ThumbsUp, Loader2, Calendar, Pencil, Trash2 } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReviewForm } from "./review-form";
@@ -303,7 +303,7 @@ export function ReviewList({ spotId }: ReviewListProps) {
                         return (
                             <Card key={review.id} className={cn(
                                 "transition-colors",
-                                isOwnReview && "border-violet-200 dark:border-violet-800"
+                                isOwnReview && " "
                             )}>
                                 <CardContent className="pt-6">
                                     <div className="flex items-start gap-4">

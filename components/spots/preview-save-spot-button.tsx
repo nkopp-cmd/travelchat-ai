@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/auth/client";
 import { savedSpotCandidateUrl } from "@/lib/app-data/saved-spot-candidate-url";

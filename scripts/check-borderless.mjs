@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import ts from 'typescript';
+import postcss from 'postcss';
 
 /** Ignore separators inside arbitrary Tailwind values and selectors. */
 export function classParts(token) {
@@ -18,25 +19,58 @@ export function classParts(token) {
 export function isDecorativeClass(token) {
   const parts = classParts(token), utility = parts.pop().replace(/^!/, '');
   if (parts.some(part => /^(focus|focus-visible|focus-within|aria-invalid)$/.test(part) || part === "[&:focus-visible]")) return false;
-  if (/^(border(?:-[xytrblse])?-0|border-(collapse|separate|spacing-.+)|ring-0|ring-offset-.+|outline-(none|hidden|0))$/.test(utility)) return false;
-  return /^(border|ring|outline|divide)(?:$|-)/.test(utility);
+  if (/^(border(?:-[xytrblse])?-0|border-(box;?|collapse|separate|spacing-.+)|ring-0|ring-offset-.+|outline-(none|hidden|0))$/.test(utility)) return false;
+  return /^(border|ring|outline|divide)(?:$|-)/.test(utility) || /^(h|w)-(px|\[1px\])$/.test(utility) || /^shadow-\[(?:inset_)?0(?:px)?_0(?:px)?_0(?:px)?_[1-9]/.test(utility);
+}
+
+function hasClassContext(node) {
+  for (let parent = node.parent; parent; parent = parent.parent) {
+    if (ts.isJsxAttribute(parent) && ['className', 'class'].includes(parent.name.text)) return true;
+    if (ts.isPropertyAssignment(parent) && ['className', 'class'].includes(parent.name.getText())) return true;
+    if (ts.isCallExpression(parent) && /^(cn|cva|clsx|twMerge|classNames)$/.test(parent.expression.getText())) return true;
+    if ((ts.isVariableDeclaration(parent) || ts.isFunctionDeclaration(parent)) && parent.name && /(?:class(?:name|es)?|variants?|styles?|tone)$/i.test(parent.name.getText())) return true;
+  }
+  return false;
+}
+
+export function literalDecorations(node) {
+  if (!(ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node))) return [];
+  const parent = node.parent;
+  const variant = ts.isLiteralTypeNode(parent) || (ts.isJsxAttribute(parent) && parent.name.text === 'variant') ||
+    (ts.isPropertyAssignment(parent) && parent.name.getText() === 'variant');
+  if (variant) return [];
+  return node.text.split(/\s+/).filter(token => isDecorativeClass(token) &&
+    // Bare words also occur in product copy and prompts. Inspect them only in styling contexts.
+    (!/^(border|ring|outline|divide)$/.test(token) || hasClassContext(node)));
 }
 
 export function sourceViolations(source, filename) {
   const tree = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX), rows = [];
   function visit(node) {
-    if (ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node)) {
-      // The public variant name "outline" remains compatible; it now renders a filled surface.
-      const parent = node.parent;
-      const variant = ts.isLiteralTypeNode(parent) || (ts.isJsxAttribute(parent) && parent.name.text === 'variant') ||
-        (ts.isPropertyAssignment(parent) && parent.name.getText(tree) === 'variant');
-      if (!variant) for (const token of node.text.split(/\s+/)) {
-        if (isDecorativeClass(token)) rows.push({ file: filename, line: tree.getLineAndCharacterOfPosition(node.getStart(tree)).line + 1, token });
-      }
-    }
+    for (const token of literalDecorations(node)) rows.push({ file: filename, line: tree.getLineAndCharacterOfPosition(node.getStart(tree)).line + 1, token });
     ts.forEachChild(node, visit);
   }
   visit(tree); return rows;
+}
+
+export function cssViolations(source, filename) {
+  const tree = postcss.parse(source, {from:filename}), rows = [];
+  function functional(node) {
+    for (let parent = node.parent; parent; parent = parent.parent) {
+      if (parent.selector && /:focus|\[aria-invalid/.test(parent.selector)) return true;
+      if (parent.type === 'atrule' && parent.name === 'media' && /forced-colors\s*:\s*active/.test(parent.params)) return true;
+    }
+    return false;
+  }
+  function report(node, token) { rows.push({file:filename,line:node.source.start.line,token}); }
+  tree.walkDecls(node => {
+    if (functional(node)) return;
+    const sizing = /^(border-radius|border-collapse|border-spacing|outline-offset)$/.test(node.prop);
+    if (!sizing && /^(border|outline)(?:$|-)/.test(node.prop) && !/^(0(?:px|rem|em)?|none)(?:\s|$)/.test(node.value)) report(node,node.prop+': '+node.value);
+    if (node.prop === 'box-shadow' && /0(?:px)?\s+0(?:px)?\s+0(?:px)?\s+[1-9][0-9]*(?:\.\d+)?px/.test(node.value)) report(node,node.prop+': '+node.value);
+  });
+  tree.walkAtRules('apply',node => {if(!functional(node)) for(const token of node.params.split(/\s+/)) if(isDecorativeClass(token)) report(node,token);});
+  return rows;
 }
 
 async function filesIn(dir) {
@@ -46,8 +80,8 @@ async function filesIn(dir) {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  const targets = process.argv.slice(2), files = targets.length ? targets : (await Promise.all(['app', 'components'].map(filesIn))).flat();
-  const violations = (await Promise.all(files.map(async file => sourceViolations(await readFile(file, 'utf8'), file)))).flat();
+  const targets = process.argv.slice(2), files = targets.length ? targets : [...(await Promise.all(['app', 'components', 'hooks', 'providers', 'lib'].map(filesIn))).flat(), 'app/globals.css', ...(await readdir('styles')).filter(x=>x.endsWith('.css')).map(x=>'styles/'+x)];
+  const violations = (await Promise.all(files.map(async file => (file.endsWith('.css') ? cssViolations : sourceViolations)(await readFile(file, 'utf8'), file)))).flat();
   for (const row of violations) console.error(`${row.file}:${row.line}: decorative class ${row.token}`);
   console.log(`Borderless class guard: ${files.length} files, ${violations.length} violations.`);
   process.exitCode = violations.length ? 1 : 0;

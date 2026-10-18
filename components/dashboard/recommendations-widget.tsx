@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, TrendingUp, MapPin, ArrowRight } from 'lucide-react';
+import { Star, TrendingUp, MapPin, ArrowRight } from '@/components/ui/icons';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -123,7 +123,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
 
   if (loading) {
     return (
-      <Card className="rounded-2xl border-white/10 bg-white/[0.055] shadow-xl shadow-violet-950/10 backdrop-blur-xl">
+      <Card className="rounded-2xl bg-white/[0.055] shadow-xl shadow-violet-950/10 backdrop-blur-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-violet-600" />
@@ -182,7 +182,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
               <Link
                 key={spot.id}
                 href={`/spots/${spot.id}`}
-                className="group flex-shrink-0 w-48 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-all duration-300 hover:border-violet-300/60 hover:shadow-violet-500/10"
+                className="group flex-shrink-0 w-48 overflow-hidden rounded-2xl bg-white/[0.055] shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-all duration-300 hover:shadow-violet-500/10"
               >
                 {/* Image */}
                 <div className="relative aspect-video overflow-hidden bg-white/10">
@@ -195,7 +195,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {image.isFallback && (
-                    <span className="absolute bottom-1.5 left-1.5 rounded-full border border-amber-200/30 bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-amber-100 backdrop-blur">
+                    <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-amber-100 backdrop-blur">
                       Area image
                     </span>
                   )}
@@ -236,7 +236,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
 
   // Full card mode for regular display
   return (
-    <Card className="rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+    <Card className="rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -271,7 +271,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
               <Link
                 key={spot.id}
                 href={`/spots/${spot.id}`}
-                className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-all duration-300 hover:-translate-y-1 hover:border-violet-300/60 hover:shadow-lg hover:shadow-violet-500/10"
+                className="group block overflow-hidden rounded-2xl bg-white/[0.04] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/10"
               >
                 {/* Image */}
                 <div className="relative aspect-video overflow-hidden bg-white/10">
@@ -284,7 +284,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {image.isFallback && (
-                    <span className="absolute bottom-2 left-2 rounded-full border border-amber-200/30 bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-amber-100 backdrop-blur">
+                    <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-amber-100 backdrop-blur">
                       Area image
                     </span>
                   )}
@@ -334,7 +334,7 @@ export function RecommendationsWidget({ compact = false }: RecommendationsWidget
         {/* View more link */}
         <div className="mt-6 text-center">
           <Link href="/spots">
-            <Button variant="outline" className="gap-2 border-white/15 bg-white/10 hover:bg-white/15">
+            <Button variant="outline" className="gap-2 bg-white/10 hover:bg-white/15">
               Explore All Spots
               <ArrowRight className="h-4 w-4" />
             </Button>

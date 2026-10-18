@@ -20,7 +20,7 @@ import {
     Search,
     ShieldCheck,
     Sparkles,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -213,7 +213,7 @@ function SummaryTile({
     tone?: "good" | "warn" | "danger";
 }) {
     return (
-        <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+        <div className="rounded-lg bg-white/[0.055] p-3">
             <p className="text-xs font-medium text-violet-50/55">{label}</p>
             <p className={cn(
                 "mt-1 text-2xl font-semibold",
@@ -238,14 +238,14 @@ function IssueBadges({ issues }: { issues: SpotQualityIssue[] }) {
                 <Badge
                     key={issue}
                     className={cn(
-                        "rounded-md border px-1.5 py-0 text-[10px]",
+                        "rounded-md px-1.5 py-0 text-[10px]",
                         issue === "missing_real_photo"
-                            ? "border-rose-200/25 bg-rose-400/10 text-rose-100"
+                            ? " bg-rose-400/10 text-rose-100"
                             : issue === "inexact_location"
-                                ? "border-amber-200/25 bg-amber-400/10 text-amber-100"
+                                ? " bg-amber-400/10 text-amber-100"
                                 : issue === "mismatched_place_photo_identity"
-                                    ? "border-fuchsia-200/25 bg-fuchsia-400/10 text-fuchsia-100"
-                                : "border-violet-200/25 bg-violet-400/10 text-violet-100"
+                                    ? " bg-fuchsia-400/10 text-fuchsia-100"
+                                : " bg-violet-400/10 text-violet-100"
                     )}
                 >
                     {ISSUE_LABELS[issue]}
@@ -276,12 +276,12 @@ function OperatorStatusPill({
 
     return (
         <div className={cn(
-            "rounded-md border px-2 py-1",
+            "rounded-md px-2 py-1",
             good
-                ? "border-emerald-300/20 bg-emerald-400/10"
+                ? " bg-emerald-400/10"
                 : danger
-                    ? "border-rose-300/20 bg-rose-400/10"
-                    : "border-amber-300/20 bg-amber-400/10"
+                    ? " bg-rose-400/10"
+                    : " bg-amber-400/10"
         )}>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-50/45">{label}</p>
             <p className="mt-0.5 text-xs font-semibold text-white">{STATUS_LABELS[status] || status}</p>
@@ -655,9 +655,9 @@ export function SpotQualityWorkbench() {
 
     return (
         <div className="mx-auto max-w-7xl px-3 py-4 text-white sm:px-5 lg:px-6">
-            <div className="mb-4 flex flex-col gap-3 rounded-lg border border-violet-200/15 bg-[#100b1c]/88 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl lg:flex-row lg:items-end lg:justify-between">
+            <div className="mb-4 flex flex-col gap-3 rounded-lg bg-[#100b1c]/88 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/20 bg-violet-400/10 px-3 py-1 text-xs font-semibold text-violet-100">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-xs font-semibold text-violet-100">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Spot Quality
                     </div>
@@ -674,11 +674,11 @@ export function SpotQualityWorkbench() {
                             value={city}
                             onChange={(event) => setCity(event.target.value)}
                             placeholder="City"
-                            className="h-10 border-white/10 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/35"
+                            className="h-10 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/35"
                         />
                     </div>
                     <Select value={issue} onValueChange={(value) => setIssue(value as IssueFilter)}>
-                        <SelectTrigger className="h-10 border-white/10 bg-white/[0.06] text-white">
+                        <SelectTrigger className="h-10 bg-white/[0.06] text-white">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -711,7 +711,7 @@ export function SpotQualityWorkbench() {
                         <SummaryTile label="Mismatches" value={queue.summary.mismatchedPlacePhotoIdentity} tone={queue.summary.mismatchedPlacePhotoIdentity ? "danger" : undefined} />
                         <SummaryTile label="Names" value={queue.summary.broadPlaceName + queue.summary.missingName} />
                     </div>
-                    <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-3 py-2 text-xs text-violet-50/60 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-2 rounded-lg bg-white/[0.045] px-3 py-2 text-xs text-violet-50/60 sm:flex-row sm:items-center sm:justify-between">
                         <span>
                             Showing {visibleCount.toLocaleString()} of {filteredCount.toLocaleString()} {issueLabel.toLowerCase()} spots.
                         </span>
@@ -720,7 +720,7 @@ export function SpotQualityWorkbench() {
                             {queue.city ? ` in ${queue.city}` : ""}.
                         </span>
                     </div>
-                    <div className="grid gap-2 rounded-lg border border-violet-200/15 bg-violet-500/[0.07] p-3 text-xs text-violet-50/70 sm:grid-cols-3">
+                    <div className="grid gap-2 rounded-lg bg-violet-500/[0.07] p-3 text-xs text-violet-50/70 sm:grid-cols-3">
                         <div>
                             <p className="font-semibold text-white">Next data gate</p>
                             <p className="mt-1 leading-5">
@@ -746,7 +746,7 @@ export function SpotQualityWorkbench() {
             )}
 
             {queue && (
-                <div className="mb-4 rounded-lg border border-violet-200/15 bg-[#100b1c]/88 p-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                <div className="mb-4 rounded-lg bg-[#100b1c]/88 p-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -766,7 +766,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 onClick={previewBatchPhotoBackfill}
                                 disabled={previewingBatchPhotoBackfill}
-                                className="h-10 border-white/10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
+                                className="h-10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
                             >
                                 {previewingBatchPhotoBackfill ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -792,7 +792,7 @@ export function SpotQualityWorkbench() {
                     </div>
 
                     {batchPhotoBackfillPreview && (
-                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
+                        <div className="mt-3 rounded-md bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                                 <SummaryTile label="Candidates" value={batchPhotoBackfillPreview.candidates ?? 0} />
                                 <SummaryTile label="Processed" value={batchPhotoBackfillPreview.processed ?? 0} />
@@ -803,10 +803,10 @@ export function SpotQualityWorkbench() {
                             {batchPhotoBackfillPreview.results?.length ? (
                                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                                     {batchPhotoBackfillPreview.results.slice(0, 6).map((result) => (
-                                        <div key={result.id} className="rounded-md border border-white/10 bg-white/[0.045] p-2">
+                                        <div key={result.id} className="rounded-md bg-white/[0.045] p-2">
                                             <div className="flex items-start justify-between gap-2">
                                                 <p className="line-clamp-1 font-semibold text-white">{result.name}</p>
-                                                <span className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+                                                <span className="shrink-0 rounded-md bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
                                                     {result.status.replace("_", " ")}
                                                 </span>
                                             </div>
@@ -825,7 +825,7 @@ export function SpotQualityWorkbench() {
             )}
 
             {queue && (
-                <div className="mb-4 rounded-lg border border-sky-200/15 bg-[#0b1220]/88 p-3 shadow-lg shadow-sky-950/20 backdrop-blur-xl sm:p-4">
+                <div className="mb-4 rounded-lg bg-[#0b1220]/88 p-3 shadow-lg shadow-sky-950/20 backdrop-blur-xl sm:p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -845,7 +845,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 onClick={previewBatchLocationBackfill}
                                 disabled={previewingBatchLocationBackfill}
-                                className="h-10 border-white/10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
+                                className="h-10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
                             >
                                 {previewingBatchLocationBackfill ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -871,7 +871,7 @@ export function SpotQualityWorkbench() {
                     </div>
 
                     {batchLocationBackfillPreview && (
-                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
+                        <div className="mt-3 rounded-md bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                                 <SummaryTile label="Candidates" value={batchLocationBackfillPreview.candidates ?? 0} />
                                 <SummaryTile label="Processed" value={batchLocationBackfillPreview.processed ?? 0} />
@@ -882,10 +882,10 @@ export function SpotQualityWorkbench() {
                             {batchLocationBackfillPreview.results?.length ? (
                                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                                     {batchLocationBackfillPreview.results.slice(0, 6).map((result) => (
-                                        <div key={result.id} className="rounded-md border border-white/10 bg-white/[0.045] p-2">
+                                        <div key={result.id} className="rounded-md bg-white/[0.045] p-2">
                                             <div className="flex items-start justify-between gap-2">
                                                 <p className="line-clamp-1 font-semibold text-white">{result.name}</p>
-                                                <span className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+                                                <span className="shrink-0 rounded-md bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
                                                     {result.status.replace("_", " ")}
                                                 </span>
                                             </div>
@@ -905,7 +905,7 @@ export function SpotQualityWorkbench() {
             )}
 
             {schemaStatus?.migrationRequired && (
-                <div className="mb-4 rounded-lg border border-amber-300/25 bg-amber-500/10 p-3 text-sm text-amber-50">
+                <div className="mb-4 rounded-lg bg-amber-500/10 p-3 text-sm text-amber-50">
                     <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 font-semibold">
@@ -919,7 +919,7 @@ export function SpotQualityWorkbench() {
                                 {schemaStatus.blockedOperations.map((operation) => (
                                     <span
                                         key={operation}
-                                        className="rounded-md border border-amber-200/15 bg-black/10 px-2 py-1"
+                                        className="rounded-md bg-black/10 px-2 py-1"
                                     >
                                         {operation.replaceAll("_", " ")}
                                     </span>
@@ -932,7 +932,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyText(migrationCommand, "migration command")}
-                                className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                                className="h-9 shrink-0 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
                             >
                                 <Copy className="mr-2 h-3.5 w-3.5" />
                                 CLI
@@ -942,7 +942,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyText(migrationSql, "SQL fallback")}
-                                className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                                className="h-9 shrink-0 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
                             >
                                 <Copy className="mr-2 h-3.5 w-3.5" />
                                 SQL
@@ -952,7 +952,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyText(verifyCommand, "verification command")}
-                                className="h-9 shrink-0 border-amber-200/25 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                                className="h-9 shrink-0 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
                             >
                                 <Copy className="mr-2 h-3.5 w-3.5" />
                                 Verify
@@ -963,12 +963,12 @@ export function SpotQualityWorkbench() {
             )}
 
             {error && (
-                <div className="mb-4 rounded-lg border border-rose-300/25 bg-rose-500/10 p-3 text-sm text-rose-100">
+                <div className="mb-4 rounded-lg bg-rose-500/10 p-3 text-sm text-rose-100">
                     {error}
                 </div>
             )}
             {notice && (
-                <div className="mb-4 rounded-lg border border-emerald-300/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+                <div className="mb-4 rounded-lg bg-emerald-500/10 p-3 text-sm text-emerald-100">
                     {notice}
                 </div>
             )}
@@ -976,7 +976,7 @@ export function SpotQualityWorkbench() {
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_26rem]">
                 <section className="space-y-2">
                     {loading && !queue ? (
-                        <div className="rounded-lg border border-white/10 bg-white/[0.045] p-5 text-sm text-violet-50/70">
+                        <div className="rounded-lg bg-white/[0.045] p-5 text-sm text-violet-50/70">
                             <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
                             Loading queue
                         </div>
@@ -990,10 +990,10 @@ export function SpotQualityWorkbench() {
                                     type="button"
                                     onClick={() => setSelectedId(item.id)}
                                     className={cn(
-                                        "grid w-full grid-cols-[5.25rem_minmax(0,1fr)] gap-3 rounded-lg border p-2 text-left transition sm:grid-cols-[6.5rem_minmax(0,1fr)_auto]",
+                                        "grid w-full grid-cols-[5.25rem_minmax(0,1fr)] gap-3 rounded-lg p-2 text-left transition sm:grid-cols-[6.5rem_minmax(0,1fr)_auto]",
                                         selected
-                                            ? "border-violet-300/60 bg-violet-500/15"
-                                            : "border-white/10 bg-[#100b1c]/76 hover:border-violet-300/35 hover:bg-white/[0.055]"
+                                            ? " bg-violet-500/15"
+                                            : " bg-[#100b1c]/76 hover:bg-white/[0.055]"
                                     )}
                                 >
                                     <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-violet-950/70">
@@ -1030,14 +1030,14 @@ export function SpotQualityWorkbench() {
                             );
                         })
                     ) : (
-                        <div className="rounded-lg border border-white/10 bg-white/[0.045] p-5 text-sm text-violet-50/70">
+                        <div className="rounded-lg bg-white/[0.045] p-5 text-sm text-violet-50/70">
                             No spots match this queue filter.
                         </div>
                     )}
                 </section>
 
                 <aside className="lg:sticky lg:top-20 lg:self-start">
-                    <div className="rounded-lg border border-violet-200/15 bg-[#100b1c]/92 p-3 shadow-xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                    <div className="rounded-lg bg-[#100b1c]/92 p-3 shadow-xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
                         {selectedItem && editState ? (
                             <div className="space-y-3">
                                 <div className="flex items-start justify-between gap-3">
@@ -1045,7 +1045,7 @@ export function SpotQualityWorkbench() {
                                         <h2 className="line-clamp-2 text-lg font-semibold text-white">{selectedItem.name || "Unnamed spot"}</h2>
                                         <p className="mt-1 text-xs text-violet-50/55">{selectedItem.id}</p>
                                     </div>
-                                    <Link href={`/spots/${selectedItem.id}`} target="_blank" className="rounded-md border border-white/10 bg-white/[0.055] p-2 text-violet-100 hover:bg-white/10">
+                                    <Link href={`/spots/${selectedItem.id}`} target="_blank" className="rounded-md bg-white/[0.055] p-2 text-violet-100 hover:bg-white/10">
                                         <ExternalLink className="h-4 w-4" />
                                         <span className="sr-only">Open public spot</span>
                                     </Link>
@@ -1054,7 +1054,7 @@ export function SpotQualityWorkbench() {
                                 <IssueBadges issues={selectedItem.issues} />
 
                                 {selectedOperatorStatus && selectedImageGuidance && (
-                                    <div className="rounded-lg border border-violet-200/15 bg-violet-400/10 p-3">
+                                    <div className="rounded-lg bg-violet-400/10 p-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-50/45">
@@ -1067,7 +1067,7 @@ export function SpotQualityWorkbench() {
                                                     {selectedImageGuidance.reason}
                                                 </p>
                                             </div>
-                                            <Badge className="shrink-0 rounded-md border border-violet-200/20 bg-violet-300/10 text-[10px] text-violet-100">
+                                            <Badge className="shrink-0 rounded-md bg-violet-300/10 text-[10px] text-violet-100">
                                                 {IMAGE_LANE_LABELS[selectedImageGuidance.lane]}
                                             </Badge>
                                         </div>
@@ -1079,7 +1079,7 @@ export function SpotQualityWorkbench() {
                                             <OperatorStatusPill label="Public card" status={selectedOperatorStatus.publicCard} />
                                         </div>
 
-                                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-2">
+                                        <div className="mt-3 rounded-md bg-black/15 p-2">
                                             <p className="text-xs font-semibold text-white">Checklist</p>
                                             <ol className="mt-2 space-y-1.5 text-xs leading-5 text-violet-50/70">
                                                 {selectedChecklist.map((step) => (
@@ -1094,12 +1094,12 @@ export function SpotQualityWorkbench() {
                                 )}
 
                                 <div className={cn(
-                                    "rounded-lg border p-3",
+                                    "rounded-lg p-3",
                                     selectedItem.photoReadiness.tone === "good"
-                                        ? "border-emerald-300/20 bg-emerald-400/10"
+                                        ? " bg-emerald-400/10"
                                         : selectedItem.photoReadiness.tone === "warn"
-                                            ? "border-amber-300/20 bg-amber-400/10"
-                                            : "border-rose-300/20 bg-rose-400/10"
+                                            ? " bg-amber-400/10"
+                                            : " bg-rose-400/10"
                                 )}>
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -1130,7 +1130,7 @@ export function SpotQualityWorkbench() {
                                                             : "Needs own Google Place image"}
                                             </p>
                                         </div>
-                                        <Badge className="shrink-0 rounded-md border border-white/10 bg-white/[0.055] text-[10px] text-violet-100">
+                                        <Badge className="shrink-0 rounded-md bg-white/[0.055] text-[10px] text-violet-100">
                                             {selectedItem.photoSummary.primaryKind}
                                         </Badge>
                                     </div>
@@ -1142,7 +1142,7 @@ export function SpotQualityWorkbench() {
                                             size="sm"
                                             onClick={previewSelectedPhotoBackfill}
                                             disabled={previewingPhotoBackfill}
-                                            className="mt-3 h-9 w-full border-white/10 bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
+                                            className="mt-3 h-9 w-full bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
                                         >
                                             {previewingPhotoBackfill ? (
                                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1154,7 +1154,7 @@ export function SpotQualityWorkbench() {
                                     )}
 
                                     {photoBackfillPreview?.results?.[0] && (
-                                        <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                        <div className="mt-3 rounded-md bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
                                             <p className="font-semibold text-white">
                                                 {photoBackfillPreview.results[0].status.replace("_", " ")}
                                             </p>
@@ -1197,7 +1197,7 @@ export function SpotQualityWorkbench() {
                                 </div>
 
                                 {selectedResearch && (
-                                    <div className="rounded-lg border border-violet-200/15 bg-white/[0.045] p-3">
+                                    <div className="rounded-lg bg-white/[0.045] p-3">
                                         <div className="mb-3 flex items-start justify-between gap-3">
                                             <div>
                                                 <h3 className="text-sm font-semibold text-white">Research assist</h3>
@@ -1217,7 +1217,7 @@ export function SpotQualityWorkbench() {
                                             </Button>
                                         </div>
 
-                                        <div className="rounded-md border border-white/10 bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                        <div className="rounded-md bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
                                             {selectedResearch.query}
                                         </div>
 
@@ -1226,7 +1226,7 @@ export function SpotQualityWorkbench() {
                                                 href={selectedResearch.mapsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
                                             >
                                                 <MapPin className="h-3.5 w-3.5" />
                                                 Maps
@@ -1235,7 +1235,7 @@ export function SpotQualityWorkbench() {
                                                 href={selectedResearch.directionsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-2 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white/[0.055] px-2 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
                                             >
                                                 <Navigation className="h-3.5 w-3.5" />
                                                 Route
@@ -1244,7 +1244,7 @@ export function SpotQualityWorkbench() {
                                                 href={selectedResearch.imageSearchUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
                                             >
                                                 <Images className="h-3.5 w-3.5" />
                                                 Images
@@ -1256,7 +1256,7 @@ export function SpotQualityWorkbench() {
                                                 type="button"
                                                 variant="outline"
                                                 size="sm"
-                                                className="h-9 border-white/10 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white"
+                                                className="h-9 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white"
                                                 onClick={() => copyText(selectedResearch.query, "research query")}
                                             >
                                                 <Copy className="mr-2 h-3.5 w-3.5" />
@@ -1267,7 +1267,7 @@ export function SpotQualityWorkbench() {
                                                 variant="outline"
                                                 size="sm"
                                                 disabled={!selectedResearch.coordinateText}
-                                                className="h-9 border-white/10 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white disabled:opacity-45"
+                                                className="h-9 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white disabled:opacity-45"
                                                 onClick={() => selectedResearch.coordinateText && copyText(selectedResearch.coordinateText, "coordinates")}
                                             >
                                                 <Copy className="mr-2 h-3.5 w-3.5" />
@@ -1288,7 +1288,7 @@ export function SpotQualityWorkbench() {
                                 )}
 
                                 {selectedItem.issues.some((itemIssue) => itemIssue === "inexact_location" || itemIssue === "missing_place_id" || itemIssue === "missing_real_photo" || itemIssue === "mismatched_place_photo_identity") && (
-                                    <div className="rounded-lg border border-sky-200/15 bg-sky-400/10 p-3">
+                                    <div className="rounded-lg bg-sky-400/10 p-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -1299,7 +1299,7 @@ export function SpotQualityWorkbench() {
                                                     Preview a Google Places match that can update the exact address, map pin, Place ID, and eligible place photos together.
                                                 </p>
                                             </div>
-                                            <Badge className="shrink-0 rounded-md border border-sky-200/20 bg-sky-300/10 text-[10px] text-sky-100">
+                                            <Badge className="shrink-0 rounded-md bg-sky-300/10 text-[10px] text-sky-100">
                                                 Dry-run first
                                             </Badge>
                                         </div>
@@ -1310,7 +1310,7 @@ export function SpotQualityWorkbench() {
                                             size="sm"
                                             onClick={previewSelectedLocationBackfill}
                                             disabled={previewingLocationBackfill}
-                                            className="mt-3 h-9 w-full border-white/10 bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
+                                            className="mt-3 h-9 w-full bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
                                         >
                                             {previewingLocationBackfill ? (
                                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1321,7 +1321,7 @@ export function SpotQualityWorkbench() {
                                         </Button>
 
                                         {locationBackfillPreview?.result && (
-                                            <div className="mt-3 rounded-md border border-white/10 bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                            <div className="mt-3 rounded-md bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
                                                 <p className="font-semibold text-white">
                                                     {locationBackfillPreview.result.status.replace("_", " ")}
                                                 </p>
@@ -1375,7 +1375,7 @@ export function SpotQualityWorkbench() {
                                     <Textarea
                                         value={editState.address}
                                         onChange={(event) => setEditState({ ...editState, address: event.target.value })}
-                                        className="min-h-20 border-white/10 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                                        className="min-h-20 bg-white/[0.06] text-white placeholder:text-violet-50/35"
                                     />
                                 </label>
 
@@ -1385,7 +1385,7 @@ export function SpotQualityWorkbench() {
                                         <Input
                                             value={editState.lat}
                                             onChange={(event) => setEditState({ ...editState, lat: event.target.value })}
-                                            className="border-white/10 bg-white/[0.06] text-white"
+                                            className=" bg-white/[0.06] text-white"
                                         />
                                     </label>
                                     <label className="block space-y-1.5 text-sm">
@@ -1393,7 +1393,7 @@ export function SpotQualityWorkbench() {
                                         <Input
                                             value={editState.lng}
                                             onChange={(event) => setEditState({ ...editState, lng: event.target.value })}
-                                            className="border-white/10 bg-white/[0.06] text-white"
+                                            className=" bg-white/[0.06] text-white"
                                         />
                                     </label>
                                 </div>
@@ -1403,7 +1403,7 @@ export function SpotQualityWorkbench() {
                                     <Textarea
                                         value={editState.photos}
                                         onChange={(event) => setEditState({ ...editState, photos: event.target.value })}
-                                        className="min-h-28 border-white/10 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                                        className="min-h-28 bg-white/[0.06] text-white placeholder:text-violet-50/35"
                                     />
                                 </label>
 
@@ -1413,17 +1413,17 @@ export function SpotQualityWorkbench() {
                                         value={editState.googlePlaceId}
                                         onChange={(event) => setEditState({ ...editState, googlePlaceId: event.target.value })}
                                         disabled={queue?.hasGooglePlaceIdColumn === false}
-                                        className="border-white/10 bg-white/[0.06] text-white disabled:opacity-50"
+                                        className=" bg-white/[0.06] text-white disabled:opacity-50"
                                     />
                                 </label>
 
                                 {queue?.hasGooglePlaceIdColumn === false && (
-                                    <div className="rounded-lg border border-amber-300/25 bg-amber-500/10 p-2 text-xs leading-5 text-amber-100">
+                                    <div className="rounded-lg bg-amber-500/10 p-2 text-xs leading-5 text-amber-100">
                                         Apply `supabase/migrations/006_spots_google_place_id.sql` before saving Place IDs.
                                     </div>
                                 )}
 
-                                <div className="sticky bottom-0 -mx-3 -mb-3 border-t border-white/10 bg-[#100b1c]/96 p-3 backdrop-blur-xl sm:-mx-4 sm:-mb-4 sm:p-4 lg:static lg:m-0 lg:border-0 lg:bg-transparent lg:p-0">
+                                <div className="sticky bottom-0 -mx-3 -mb-3 bg-[#100b1c]/96 p-3 backdrop-blur-xl sm:-mx-4 sm:-mb-4 sm:p-4 lg:static lg:m-0 lg:border-0 lg:bg-transparent lg:p-0">
                                     <Button onClick={saveSelected} disabled={saving} className="h-11 w-full bg-violet-600 hover:bg-violet-700">
                                         {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                         Save spot
@@ -1431,7 +1431,7 @@ export function SpotQualityWorkbench() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-lg border border-white/10 bg-white/[0.045] p-5 text-sm text-violet-50/70">
+                            <div className="rounded-lg bg-white/[0.045] p-5 text-sm text-violet-50/70">
                                 Select a spot from the queue.
                             </div>
                         )}
