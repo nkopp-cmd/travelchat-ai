@@ -12,11 +12,22 @@ vi.mock("@/components/accessibility/live-region", () => ({ useLiveAnnouncer: () 
 vi.mock("@/components/chat/formatted-message", () => ({ FormattedMessage: ({ content }: { content: string }) => <span>{content}</span> }));
 import { ChatInterface } from "@/components/chat/chat-interface";
 beforeEach(() => {
- vi.clearAllMocks(); mocks.historyLoading = false; Element.prototype.scrollIntoView = vi.fn();
+ vi.clearAllMocks(); mocks.historyLoading = false; Element.prototype.scrollIntoView = vi.fn(); Element.prototype.scrollTo = vi.fn();
  mocks.create.mockResolvedValue({ id: "exchange-one" }); mocks.save.mockResolvedValue({}); mocks.send.mockResolvedValue({ message: "One real reply" });
 });
 function submit() { fireEvent.change(document.querySelector("#chat-input")!, { target: { value: "Hello Alley" } }); fireEvent.click(screen.getByRole("button", { name: "Send message" })); }
 describe("persisted chat exchange", () => {
+ it("scrolls only the message pane on initial load and reply, leaving parent navigation in place", async () => {
+ const scroll = vi.fn(); Element.prototype.scrollTo = scroll;
+ const { container } = render(<ChatInterface />);
+ const pane = container.querySelector(".overflow-y-auto")!;
+ expect(scroll.mock.contexts).toEqual([pane]);
+ Object.defineProperty(pane, "scrollHeight", { configurable: true, value: 1800 });
+ submit(); await waitFor(() => expect(screen.getByText("One real reply")).toBeTruthy());
+ expect(scroll.mock.contexts.every(instance => instance === pane)).toBe(true);
+ expect(scroll).toHaveBeenLastCalledWith({ top: 1800, behavior: "smooth" });
+ expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+ });
  it("creates one conversation and saves both roles in order despite fast model replies", async () => {
  let resolve!: (value: { id: string }) => void; mocks.create.mockImplementation(() => new Promise(r => { resolve = r; }));
  render(<ChatInterface />); submit(); expect(mocks.send).not.toHaveBeenCalled(); expect(mocks.save).not.toHaveBeenCalled();

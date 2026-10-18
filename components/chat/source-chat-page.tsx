@@ -31,9 +31,9 @@ function ChatPageContent() {
     <AppBackground
       ambient
       fitParent
-      className="h-full"
-      contentClassName="flex flex-col"
-      style={{ height: 'calc(100dvh - 64px - env(safe-area-inset-bottom, 0px))' }}
+      className="h-full min-h-0"
+      contentClassName="flex h-full min-h-0 flex-col"
+      style={{ height: 'calc(100% - env(safe-area-inset-bottom, 0px))' }}
     >
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-white/[0.035] flex-shrink-0 backdrop-blur-xl">
@@ -65,8 +65,8 @@ export default function ChatPage() {
   return (
     <Suspense fallback={
       <div
-        className="flex flex-col bg-[#0b0714] items-center justify-center"
-        style={{ height: 'calc(100dvh - 64px - env(safe-area-inset-bottom, 0px))' }}
+        className="flex h-full min-h-0 flex-col bg-[#0b0714] items-center justify-center"
+        style={{ height: 'calc(100% - env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="animate-pulse text-muted-foreground">Loading chat...</div>
       </div>
