@@ -64,6 +64,9 @@ Review that result before applying the system across routes.
 | Input fill | `#8c96b2` | Visible form controls |
 | Input text | `#0d0f16` | Text on the input fill |
 | Focus | `#d2c3ff` | Focus-visible indicator outside the control |
+| Success | `#9ce4c2` | Success text and semantic icons |
+| Warning | `#f4c882` | Warning text and semantic icons |
+| Error | `#ffb4bc` | Error text and semantic icons |
 
 Measured sRGB ratios:
 
@@ -84,7 +87,9 @@ The current product uses dark mode. Do not claim a verified light theme.
 Use 4, 8, 12, 16 and 24px spacing.
 Use 13px metadata, 15px body text, 17px card titles and 22px section headings.
 Use 1.4 body leading and a reading width near 65 characters.
-Use 16px card corners and filled rounded chips.
+Use weights 400 for body text, 600 for titles and 700 for display text.
+Use 16px card corners, 12px control corners and filled rounded chips.
+Use 16px mobile page padding, 24px desktop padding and a 1280px page maximum.
 Primary controls, save buttons and dialog close buttons have a minimum 44px touch target.
 
 Separate surfaces with space, tone and soft shadows.
