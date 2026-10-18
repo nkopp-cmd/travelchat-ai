@@ -89,7 +89,7 @@ describe("spots scroll layout", () => {
     expect(main.id).toBe("main-content");
     expect(main.hasAttribute("data-main-scroll-host")).toBe(false);
     expect(main.className).not.toContain("overflow-y-auto");
-    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
+    expect(main.className).toContain("pb-[var(--ll-nav-clearance)]");
     expect(screen.getByText("Spots content").parentElement?.className).not.toContain(
       "overflow-y-auto",
     );
@@ -122,8 +122,7 @@ describe("spots scroll layout", () => {
       { container },
     );
 
-    const resultsHeader = screen.getByText("Showing 1-24 of 48 spots").parentElement
-      ?.parentElement as HTMLElement;
+    const resultsHeader = screen.getByText("48 spots").closest("#spot-results") as HTMLElement;
     resultsHeader.getBoundingClientRect = () =>
       ({ top: 300, right: 500, bottom: 340, left: 0, width: 500, height: 40, x: 0, y: 300, toJSON: () => ({}) });
 
