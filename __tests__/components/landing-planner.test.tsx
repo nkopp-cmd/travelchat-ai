@@ -49,6 +49,11 @@ describe("landing preset photo delivery", () => {
       expect(doc.querySelector("link[rel=preload]")).toBeNull();
       expect(html).not.toMatch(/https?:|_next\/image/);
 
+      const headers = await readFile(resolve("public/_headers"), "utf8");
+      expect(headers).toContain(
+        `/images/landing/${city.toLowerCase()}-preset-v1-*\n  Cache-Control: public, max-age=31536000, immutable`,
+      );
+
       const variants = image.getAttribute("srcset")!.split(", ");
       expect(variants).toHaveLength(2);
       for (const variant of variants) {

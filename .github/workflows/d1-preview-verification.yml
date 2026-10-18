@@ -13,6 +13,7 @@ on:
       - 'components/landing/**'
       - 'public/images/landing/**'
       - 'public/_headers'
+      - 'public/_headers'
       - 'docs/LANDING_PERFORMANCE.md'
       - 'components/layout/marketing-navbar.tsx'
       - 'components/layout/conditional-navbar.tsx'
