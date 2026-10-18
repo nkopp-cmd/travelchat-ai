@@ -50,6 +50,13 @@ These values are measured proposals, not shipped styles.
 Implement them first on one representative screen and a component preview.
 Review that result before applying the system across routes.
 
+Draft definitions live in `styles/borderless-tokens.css`.
+Only `docs/design-preview.html` opts into them; application routes remain unchanged.
+The preview uses three public catalog text records from a read-only page capture.
+Its absent photographs are deliberate state fixtures, not live availability claims.
+Its action controls do not write app data or prove product behavior.
+The final application will retain the existing component foundation.
+
 | Role | Proposed value | Use |
 |---|---|---|
 | Background | `#0d0f16` | Page canvas |
@@ -203,7 +210,8 @@ Rebase onto the released urgent fix before preparing the full hosted design prev
 ## Verification status
 
 - Token contrast: the seven proposal pairs above are calculated, not visually accepted.
-- Design implementation, representative screen and component preview: pending.
+- Draft token definitions and local component preview: present, syntax-checked, not visually reviewed.
+- Shared component integration and representative screen acceptance: pending.
 - Route screenshots at 390/1440 and cards at 360/390/430: pending.
 - Keyboard, focus, forced colors, reduced motion, zoom and contrast: pending.
 - Functional and privacy gates for the planner: pending.
