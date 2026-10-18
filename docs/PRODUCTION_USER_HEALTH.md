@@ -783,3 +783,29 @@ No Worker upload, data migration, payment, email or auth fixture is needed.
 Record exact CI, commit, installed receipt and cleanup in `shared/plans/localley-blockers-supergoal.md`.
 Retain private receipts with prefix `u3-active-deployment-20261018` under the existing Localley state directory.
 U1/U2 acceptance and the conditional test-checkout skip remain unchanged. U3 stays open for unresolved causes.
+
+
+### Network exception evidence — 2026-10-18
+
+`logs.networkExceptions` counts returned network-error events with an exception object or a recognized nonempty
+stack field. It stores counts and fixed labels only. It preserves the existing route-specific error classification,
+rankings, uptime exits, sampling warnings and active-deployment attribution. It does not retain exception names,
+stacks, IDs, URL queries, headers or payloads. No additional provider query runs from the daily checker.
+
+`bodyCompletion: not_observed` and `cause: not_established` remain explicit even when a stack field exists.
+A provider `ok` invocation alone cannot prove response-body completion. Zero returned network events cannot prove absence.
+
+A read-only lookup of the complete retained historical window returned14 matching events on old version
+`2c328128-27cd-44dd-be51-e1d0dec9e91d`, atABR1/count14/not truncated. All14 source exception objects contain only
+name and timestamp; none has a stack field. The actual helper records14 exceptions, zero recognized stacks and unknown cause/body completion.
+The earlier four-request peer lookup returned `ok` invocations without response status or body-completion evidence.
+These facts do not establish a historical cause. Controlled before-headers and partial-body comparisons remain separate proofs.
+
+The actual installed daily service at05:11UTC passed public HTML bodies,30city catalog, Source billing read and one matched
+current-version log canary. Its returned ranking was sampled atABR10: three older notification events. It cannot close U3.
+U1 and U2 acceptance, including the conditional checkout skip, stays unchanged. U3 remains open until its repair outcomes have evidence.
+
+Private receipts: `u3-historical-all14-shape-20261018.json`, `u3-network-evidence-live-20261018.json`,
+`u3-network-evidence-status-tests-20261018.log` and the installed daily report under `/home/dev/.local/state/localley`.
+Release this host checker after exact green CI and merge; run the actual daily service and verify its new fixed-field report.
+No Worker upload, database mutation, generation or mail is required for this change.
