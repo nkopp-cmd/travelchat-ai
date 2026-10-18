@@ -669,3 +669,57 @@ Old-version errors remain visible; the monitor does not identify the active vers
 Global rankings, sampling warnings, timestamps, public checks and Source checks retain their existing contracts.
 The daily host service uses this report after release from stable main; no Worker deployment is required.
 U1 remains verified. U2 retains its conditional test-checkout skip. U3 remains open for unresolved historical causes.
+
+## Controlled log delivery check — prepared 2026-10-18
+
+The daily monitor adds a generated `healthCanary` marker (UUID groups separated by `~`) to its existing read-only cities request.
+A complete usable200catalog stages a private `<report>.logging-probe.json` containing only that public
+probe URL, start time, status200 and schema version. Atomic replacement uses mode0600; partial files are removed.
+No customer URL, cookie, header, account or provider payload enters this state.
+
+The next run makes one bounded telemetry query for that exact previous probe. It requires the exact
+service/URL, a provider invocation event, GET, outcome `ok`, consistent200status, a valid provider version ID
+and an event time within the bounded request window. The query has a three-second timeout and limit20.
+Foreign, malformed, expired (>48hours), future or secret-bearing probe records are rejected before any query.
+Conflicting versions, missing results and provider failures stay unconfirmed. There is no retry loop.
+
+`loggingCanary` excludes the URL/marker and records only the fixed result, age, version and matching invocation
+count. Its scope is one previous controlled catalog request. It does not prove complete ingestion, error
+absence, full response delivery for historical pages or a current global version across a rollout.
+Delayed indexing is why this check uses the previous run. The first run primes it; a later run verifies it.
+The existing uptime exit conditions and every sampling/coverage warning remain unchanged.
+
+Historical investigation on2026-10-18 found four network console events around04:11UTC onOctober17,
+on Worker2c328128. Exact provider request/version correlation finds one `ok` invocation for each,
+with175–201ms CPU and183–208ms wall time. Missing response/body/exception evidence prevents a cause or
+successful-delivery claim. The current daily01:04UTC report passes public bodies/cities/Source/log settings,
+but its four returned24-hour events use ABR10 and all belong to older versions. U1/U2 remain accepted;
+U3 and the historical network causes remain open. Controlled log delivery is a separate bounded proof.
+
+[Cloudflare telemetry query schema](https://developers.cloudflare.com/api/resources/workers/subresources/observability/subresources/telemetry/methods/query/)
+defines the provider invocation, URL, request, status and script-version fields used by this check.
+Private audit receipts: `u3-network-outcome-audit-20261018.json`, `u3-network-invocation-audit-20261018.json`,
+`u3-current-log-schema-20261018.json` and the staged candidate reports. No Worker release is required for this host-only change.
+
+Release status: STOP after two real matching attempts returned no events (first exact metadata URL,
+then metadata/request URL alternatives). The priming and follow-up candidate runs pass all public,
+Source and settings checks, but the follow-up canary remains unconfirmed. Broad read-only queries find
+current-version invocation records; exact provider URL mapping remains unproven. Do not infer missing
+production logging from these failed lookups. No Worker or host-service release occurred.
+The code-only review found no blockingP0/P1 and explicitly required real next-run proof.
+Syntax/whitespace checks and all74local monitor tests pass. The suite completed before the queued-job cancellation attempt; no process was stopped.
+Keep this PR in draft until required CI and a real matching invocation pass. Do not close U3.
+
+Mapping repair2026-10-18: real provider events omit `$metadata.url` and use
+`$workers.event.request.url`. Contiguous UUIDs are redacted; short UUID groups separated by `~`
+survive. Both the request and exact query use URLSearchParams encoding (`%7E`).
+Observed shape audits confirm only that encoding differs. The matcher accepts no redacted,
+missing or differently encoded URL, including a misleading matching metadata URL.
+This changes only our generated public probe, with no provider privacy-setting change.
+Earlier failed receipts remain historical evidence; release still requires real matched proof and exact CI.
+
+The repaired helper matched one actual invocation on2026-10-18 at01:28:46UTC:
+Worker38d2d7e6-40ea-48df-9783-24a0a121ad10, GET200/outcomeok, exact URL and55second probe age.
+Receipt: `u3-mapped-provider-proof-20261018.json`. Ten focused mapping/CLI tests pass.
+The first resumed lookup used unencoded separators and returned0; the canonical encoded lookup succeeded.
+Full suite, exact CI, host-service release and installed-service next-run proof remain release gates.
