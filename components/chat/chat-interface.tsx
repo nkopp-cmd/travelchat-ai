@@ -81,7 +81,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [isSavingConversation, setIsSavingConversation] = useState(false);
   const submissionPending = useRef(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const { announce, LiveRegionPortal } = useLiveAnnouncer();
@@ -121,8 +121,8 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
   const isLoading = isLoadingHistory || isSavingConversation || sendChatMutation.isPending || reviseItineraryMutation.isPending;
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    if (messagesRef.current) {
+      messagesRef.current.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [messages]);
 
@@ -316,7 +316,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
       </div>
 
       {/* Messages container - Native overflow for proper flex constraints (replaces Radix ScrollArea) */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
+      <div ref={messagesRef} className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
         <div className="space-y-6">
           {isLoadingHistory && (
             <div className="flex items-center justify-center py-8">
@@ -366,10 +366,9 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
             );
           })}
           {isLoading && <ChatMessageSkeleton />}
-          <div ref={scrollRef} />
 
           {/* Quick Action Buttons - Inside scroll area so they scroll with messages */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex flex-wrap items-center gap-2 pt-2">
             <Link href="/itineraries/new" className="flex-shrink-0">
               <Button
                 size="sm"
@@ -379,7 +378,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
                 Generate Itinerary
               </Button>
             </Link>
-            <div className="flex gap-1.5 overflow-x-auto">
+            <div className="flex flex-wrap gap-1.5">
               <Link href="/templates">
                 <Button
                   variant="ghost"
