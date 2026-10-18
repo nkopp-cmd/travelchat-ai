@@ -104,7 +104,7 @@ export default function RootLayout({
         <WebsiteJsonLd />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-dvh flex flex-col overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh flex flex-col`}
       >
         <SkipLink />
         <Providers>
