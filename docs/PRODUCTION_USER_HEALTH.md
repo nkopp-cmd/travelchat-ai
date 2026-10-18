@@ -707,5 +707,5 @@ Source and settings checks, but the follow-up canary remains unconfirmed. Broad 
 current-version invocation records; exact provider URL mapping remains unproven. Do not infer missing
 production logging from these failed lookups. No Worker or host-service release occurred.
 The code-only review found no blockingP0/P1 and explicitly required real next-run proof.
-Syntax/whitespace checks pass; the local full test suite was cancelled while queued under the heavy lock.
+Syntax/whitespace checks and all74local monitor tests pass. The suite completed before the queued-job cancellation attempt; no process was stopped.
 Keep this PR in draft until required CI and a real matching invocation pass. Do not close U3.
