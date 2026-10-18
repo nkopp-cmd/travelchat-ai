@@ -24,7 +24,7 @@ import { assertPreviewNotificationUser } from "@/lib/app-data/preview-notificati
 
 const LIQUID_CARD = "rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
 const LIQUID_CARD_SOFT = "rounded-2xl bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl border bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07] sm:flex-row sm:items-center sm:justify-between";
+const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07] sm:flex-row sm:items-center sm:justify-between";
 const LIQUID_INPUT = " bg-white/[0.05] backdrop-blur-xl";
 
 function usagePercent(used: number, limit: number) {

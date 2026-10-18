@@ -292,3 +292,38 @@ The planner now accepts the card URL’s bounded UUID reference and keeps it thr
 The existing generation API returns nested `unauthorized` errors. The wizard now accepts that actual contract and the older `signup_required` contract, returning sign-up to explicit input review. API authentication and entitlement enforcement remain unchanged. Full selected-stop lookup and generated inclusion remain open.
 
 Switching from sign-up to sign-in also keeps the validated return path. Navigation tests render both real forms and use the existing redirect guard. They make no auth request. This preserves review/legacy claim returns; it does not prove a delivered login email or a hosted authenticated session.
+
+## Assembled card route validator (2026-10-18)
+
+`scripts/verify-spot-card-routes.mjs` runs the actual Next.js catalog, city-filtered
+catalog and city list at 360, 390 and 430 px. Run it in tmux through `run-heavy.sh`:
+
+```sh
+node scripts/verify-spot-card-routes.mjs /private/public-fixture.json /private/new-output-directory
+```
+
+The fixture contains `{ "rows": [...] }`: three distinct, eligible public Seoul
+records from the existing public projection. Preserve source photo references for
+the real visibility filter; do not download image bytes. Keep the fixture private.
+The runner reads no environment file and passes an explicit environment allowlist
+to Next.js. Its loopback API permits only GET/HEAD, supplies synthetic weekly ranks
+and empty community provenance, and rejects unexpected endpoints or mutations.
+Browser authentication and photo responses are local fixtures. External browser
+requests are blocked. The runner stops its owned browser, server and Next process
+group, including after failures, and retains raw receipts, logs and screenshots.
+
+The checks cover shared rendering, full titles/geography/actions, 4:3 frames,
+44 px controls, carousel peek/keyboard, city retention and trusted native touch to
+the last Details link above fixed navigation. The tap is captured before routing;
+it proves intended action delivery, not completion of a detail-page navigation.
+Console messages remain in the receipt and need review. This validator does not
+prove photo delivery, source ranking truth, RLS, account actions, generated trip
+inclusion, hosted behavior or performance. These gates and final preview approval
+remain separate.
+
+The first two assembled-route attempts stopped at the Details accessible-name
+selector. Both retained a 360 px HTTP 200 page with six cards and passing frame,
+text, control and keyboard checks. Neither proved a final tap or the other widths.
+Their receipts also retain a development hydration warning about the Save button.
+No third route attempt is authorized by this step. The shared-card acceptance box
+stays open; these partial observations do not replace the final hosted preview.

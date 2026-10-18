@@ -11,6 +11,18 @@ describe('decorative border guard', () => {
   it('does not rewrite product copy or prompt language', () => {
     expect(sourceViolations('const prompt = \"Write an outline for this trip\";', 'prompt.ts')).toEqual([]);
   });
+  it('follows shared class constants and aliases without relying on their names', () => {
+    const source = 'const BASE = "rounded-lg border"; const PANEL = `${BASE} bg-surface`; const view = <section className={`${PANEL} p-4`} />;';
+    expect(sourceViolations(source, 'detail.tsx').map(row => row.token)).toEqual(['border']);
+  });
+  it('respects local shadowing and keeps unrelated copy', () => {
+    const source = 'const BASE = "Write an outline"; function Card() { const BASE = "rounded-lg border"; return <div className={BASE} />; }';
+    expect(sourceViolations(source, 'shadow.tsx').map(row => row.token)).toEqual(['border']);
+  });
+  it('retains focus affordances in reused constants and terminates cyclic aliases', () => {
+    const source = 'const A = B; const B = `${A} focus-visible:ring-2`; const view = <div className={A} />;';
+    expect(sourceViolations(source, 'focus.tsx')).toEqual([]);
+  });
   it('checks forwarded frame and credit class props', () => {
     expect(sourceViolations('<Photo frameClassName="border" creditClassName="ring" />', 'photo.tsx').map(row => row.token)).toEqual(['border', 'ring']);
   });

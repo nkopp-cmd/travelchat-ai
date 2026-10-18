@@ -75,7 +75,7 @@ import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
 
 const LIQUID_CARD =
-  "rounded-lg border bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
+  "rounded-lg bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
 
 interface RelatedSpot {
   id: string;

@@ -23,8 +23,10 @@ export function isDecorativeClass(token) {
   return /^(border|ring|outline|divide)(?:$|-)/.test(utility) || /^(h|w)-(px|\[1px\])$/.test(utility) || /^shadow-\[(?:inset_)?0(?:px)?_0(?:px)?_0(?:px)?_[1-9]/.test(utility);
 }
 
-function hasClassContext(node) {
+function hasClassContext(node, styleInitializers = new Set()) {
+  if (styleInitializers.has(node)) return true;
   for (let parent = node.parent; parent; parent = parent.parent) {
+    if (styleInitializers.has(parent)) return true;
     if (ts.isJsxAttribute(parent) && /^(?:class|className|[a-zA-Z]+ClassName)$/.test(parent.name.text)) return true;
     if (ts.isPropertyAssignment(parent) && /^(?:class|className|[a-zA-Z]+ClassName)$/.test(parent.name.getText())) return true;
     if (ts.isCallExpression(parent) && /^(cn|cva|clsx|twMerge|classNames)$/.test(parent.expression.getText())) return true;
@@ -33,7 +35,7 @@ function hasClassContext(node) {
   return false;
 }
 
-export function literalDecorations(node) {
+export function literalDecorations(node, styleInitializers) {
   if (!(ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node))) return [];
   const parent = node.parent;
   const variant = ts.isLiteralTypeNode(parent) || (ts.isJsxAttribute(parent) && parent.name.text === 'variant') ||
@@ -41,13 +43,40 @@ export function literalDecorations(node) {
   if (variant) return [];
   return node.text.split(/\s+/).filter(token => isDecorativeClass(token) &&
     // Bare words also occur in product copy and prompts. Inspect them only in styling contexts.
-    (!/^(border|ring|outline|divide)$/.test(token) || hasClassContext(node)));
+    (!/^(border|ring|outline|divide)$/.test(token) || hasClassContext(node, styleInitializers)));
 }
 
 export function sourceViolations(source, filename) {
   const tree = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX), rows = [];
+  // Resolve same-file constants by symbol, not spelling. A local shadow must not
+  // classify an unrelated module-level prompt as CSS. No imports are loaded.
+  const options = { noLib: true, noResolve: true };
+  const host = ts.createCompilerHost(options);
+  host.getSourceFile = file => file === filename ? tree : undefined;
+  const checker = ts.createProgram([filename], options, host).getTypeChecker();
+  const styleInitializers = new Set(), symbols = new Set();
+  function follow(node) {
+    if (ts.isIdentifier(node)) {
+      const symbol = checker.getSymbolAtLocation(node);
+      if (symbol && !symbols.has(symbol)) {
+        symbols.add(symbol);
+        for (const declaration of symbol.declarations || []) {
+          if (ts.isVariableDeclaration(declaration) && declaration.initializer && declaration.getSourceFile() === tree) {
+            styleInitializers.add(declaration.initializer);
+            follow(declaration.initializer);
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, follow);
+  }
+  function findReferences(node) {
+    if (ts.isIdentifier(node) && hasClassContext(node)) follow(node);
+    ts.forEachChild(node, findReferences);
+  }
+  findReferences(tree);
   function visit(node) {
-    for (const token of literalDecorations(node)) rows.push({ file: filename, line: tree.getLineAndCharacterOfPosition(node.getStart(tree)).line + 1, token });
+    for (const token of literalDecorations(node, styleInitializers)) rows.push({ file: filename, line: tree.getLineAndCharacterOfPosition(node.getStart(tree)).line + 1, token });
     ts.forEachChild(node, visit);
   }
   visit(tree); return rows;

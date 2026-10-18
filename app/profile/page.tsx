@@ -21,7 +21,7 @@ import { CityImageAvatar } from "@/components/ui/city-image";
 
 const LIQUID_CARD = "rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
 const LIQUID_CARD_SOFT = "rounded-2xl bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const STAT_TILE = "rounded-xl border bg-white/[0.055] p-3 backdrop-blur-xl";
+const STAT_TILE = "rounded-xl bg-white/[0.055] p-3 backdrop-blur-xl";
 
 function usagePercent(used: number, limit: number) {
     if (!limit || limit === 999) return used > 0 ? 10 : 0;

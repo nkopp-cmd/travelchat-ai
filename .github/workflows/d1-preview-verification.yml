@@ -13,6 +13,7 @@ on:
       - '__tests__/components/borderless-navigation.test.tsx'
       - 'docs/ui-foundation-preview.*'
       - 'scripts/check-borderless.mjs'
+      - 'scripts/verify-spot-card-routes.mjs'
       - 'scripts/generate-icons.mjs'
       - 'scripts/icon-aliases.json'
       - '__tests__/lib/borderless-guard.test.ts'
@@ -325,6 +326,8 @@ jobs:
             npm ci
             npx vitest run __tests__/lib/borderless-guard.test.ts __tests__/components/borderless-navigation.test.tsx --maxWorkers=1
             node scripts/check-borderless.mjs
+            node --check scripts/verify-spot-card-routes.mjs
+            npx eslint scripts/check-borderless.mjs scripts/verify-spot-card-routes.mjs
             node scripts/generate-icons.mjs --check
             npx vitest run __tests__/components/auth-form-return.test.tsx __tests__/lib/trip-date-range.test.ts __tests__/components/planner-dates.test.tsx __tests__/lib/planner-draft.test.ts __tests__/components/planner-resume.test.tsx __tests__/components/planner-auth-return.test.tsx --maxWorkers=1
             npx vitest run __tests__/components/weekly-shared-cards.test.tsx __tests__/components/icon-geometry.test.tsx __tests__/components/spot-card.test.tsx __tests__/components/route-preview.test.tsx __tests__/components/place-autocomplete.test.tsx __tests__/lib/places-readiness.test.ts __tests__/lib/spot-display-geography.test.ts __tests__/lib/weekly-trending-spots.test.ts --maxWorkers=1
