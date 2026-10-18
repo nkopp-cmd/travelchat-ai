@@ -73,7 +73,7 @@ const currentFilters: SpotsFilterState = {
 };
 
 describe("spots scroll layout", () => {
-  it("keeps the root shell as the only main landmark and scroll host", () => {
+  it("keeps one main landmark and lets the document scroll", () => {
     render(
       <MainContentShell>
         <SpotsLayout>
@@ -87,8 +87,9 @@ describe("spots scroll layout", () => {
 
     expect(mainLandmarks).toHaveLength(1);
     expect(main.id).toBe("main-content");
-    expect(main.hasAttribute("data-main-scroll-host")).toBe(true);
-    expect(main.className).toContain("overflow-y-auto");
+    expect(main.hasAttribute("data-main-scroll-host")).toBe(false);
+    expect(main.className).not.toContain("overflow-y-auto");
+    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
     expect(screen.getByText("Spots content").parentElement?.className).not.toContain(
       "overflow-y-auto",
     );

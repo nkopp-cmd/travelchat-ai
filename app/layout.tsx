@@ -7,11 +7,15 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  // Keep the variable available; the current theme uses system fonts.
+  preload: false,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  // Code views load this font when used; do not compete with the public first view.
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -104,7 +108,7 @@ export default function RootLayout({
         <WebsiteJsonLd />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-dvh flex flex-col overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh flex flex-col`}
       >
         <SkipLink />
         <Providers>

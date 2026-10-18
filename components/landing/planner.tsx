@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CityImageAvatar } from "@/components/ui/city-image";
+import { LandingPresetPhoto } from "@/components/landing/preset-photo";
 import { cn } from "@/lib/utils";
 
 type CityOption = { name: string; slug: string; vibe?: string };
@@ -248,14 +249,7 @@ export function LandingPresets() {
             className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] text-left transition hover:border-violet-300/45 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
           >
             <div className="relative h-24 overflow-hidden">
-              <CityImageAvatar
-                city={preset.city}
-                className="absolute inset-0 h-full w-full rounded-none"
-                imageClassName="transition duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 33vw"
-                imageWidth={900}
-                quality={90}
-              />
+              <LandingPresetPhoto city={preset.city} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <span className="absolute bottom-3 left-4 rounded-md bg-black/45 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm">
                 {preset.city}

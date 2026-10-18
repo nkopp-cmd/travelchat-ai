@@ -15,10 +15,9 @@ export function MainContentShell({ children }: MainContentShellProps) {
   return (
     <main
       id="main-content"
-      data-main-scroll-host
       className={cn(
-        "flex-1 min-h-0 overflow-y-auto",
-        reserveBottomNavSpace && "pb-16 md:pb-0",
+        "flex-1 min-w-0",
+        reserveBottomNavSpace && "pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))] md:pb-0",
       )}
       tabIndex={-1}
     >
