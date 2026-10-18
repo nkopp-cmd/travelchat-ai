@@ -7,6 +7,9 @@ import { Calendar, DollarSign } from "@/components/ui/icons";
 import { Slider } from "@/components/ui/slider";
 import { RoutePreview } from "./route-preview";
 import { MAX_CORRIDOR_DAYS, MIN_CORRIDOR_DAYS } from "@/lib/trips/wizard-corridor";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { formatTripDate, tripEndDate } from "@/lib/trips/date-range";
 
 const BUDGET_OPTIONS = [
   {
@@ -34,6 +37,7 @@ export function StepDuration() {
   const multiMode = data.tripMode === "multi";
   const minDays = multiMode ? MIN_CORRIDOR_DAYS : 1;
   const maxDays = multiMode ? MAX_CORRIDOR_DAYS : 7;
+  const endDate = data.startDate ? tripEndDate(data.startDate, data.days) : null;
 
   useEffect(() => {
     // Always can proceed since we have defaults
@@ -55,7 +59,19 @@ export function StepDuration() {
         </div>
         <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Trip details</h2>
         <p className="text-sm text-gray-400 sm:text-base">
-          How long and what&apos;s your budget?
+          When are you going, and what&apos;s your budget?
+        </p>
+      </div>
+
+      <div className="mb-6 space-y-2">
+        <Label htmlFor="trip-start-date">Start date (optional)</Label>
+        <Input id="trip-start-date" type="date" value={data.startDate ?? ""}
+          aria-describedby="trip-date-summary" max="9999-12-31"
+          onChange={event => setData({ startDate: event.target.value || undefined })} />
+        <p id="trip-date-summary" role="status" className="text-sm leading-6 text-muted-foreground">
+          {data.startDate && endDate
+            ? `${formatTripDate(data.startDate)} to ${formatTripDate(endDate)} · ${data.days} ${data.days === 1 ? "day" : "days"}`
+            : "Dates flexible? Leave this empty and choose your trip length below."}
         </p>
       </div>
 

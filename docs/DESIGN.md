@@ -265,3 +265,9 @@ Nested main elements and unbounded inner scroll containers are removed from the 
 The wizard saves validated inputs before a generation request. An explicit `/itineraries/new?resume=1` return restores them for review. Ordinary planner visits start fresh. Input storage has a strict version and schema, a 16 KiB UTF-8 ceiling and a 24-hour validity window. It contains preferences only; it grants no entitlement or account authority. Storage refusal stops the request with a readable error.
 
 Sign-up uses the existing auth form’s `redirect_url` contract. Legacy `pendingItinerary` recovery remains separate. This increment covers same-browser recovery only. Cross-device recovery, dates, a cheap real-catalog preview, server-enforced paid generation, payment return and funnel events remain open. The draft must not be released as the complete plan-first flow.
+
+## Calendar dates and planner entry (2026-10-18)
+
+The landing Start planning action opens the anonymous planner. Trip details accept an optional start date and show the inclusive end date from the selected duration. Calendar arithmetic uses UTC to avoid timezone and daylight-saving shifts. The existing input-recovery envelope retains the start date and rejects invalid or overflowing calendar ranges. No date library or provider request is added.
+
+This is input collection and recovery. The current generation API still uses duration; date-aware output belongs to the unfinished complete planner flow. Full catalog preview, the server payment gate, checkout return, mobile browser acceptance and final preview approval remain open.

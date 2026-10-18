@@ -12,7 +12,7 @@ vi.mock("@/components/itineraries/wizard", () => ({
 import NewItineraryPage from "@/app/itineraries/new/page";
 
 const saved: WizardData = {
-  city: "Seoul", days: 3, budget: "moderate", interests: ["Food & Dining"],
+  city: "Seoul", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
   localnessLevel: 4, pace: "relaxed", groupType: "friends", tripMode: "single",
   citySlugs: [], cityNameBySlug: {},
 };

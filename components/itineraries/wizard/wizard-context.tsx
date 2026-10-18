@@ -5,6 +5,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 export interface WizardData {
   city: string;
   days: number;
+  startDate?: string;
   budget: "cheap" | "moderate" | "splurge";
   interests: string[];
   localnessLevel: number;

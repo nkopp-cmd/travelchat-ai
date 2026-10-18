@@ -1,4 +1,5 @@
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
+import { tripEndDate } from "./date-range";
 
 export const PLANNER_DRAFT_KEY = "localley:planner-inputs:v1";
 export const PLANNER_RESUME_PATH = "/itineraries/new?resume=1";
@@ -8,7 +9,7 @@ const MAX_BYTES = 16_384;
 // This is input recovery only. Never store sessions, entitlements or generated trips here.
 const fields = new Set([
   "city", "days", "budget", "interests", "localnessLevel", "pace", "groupType",
-  "templatePrompt", "templateName", "tripMode", "citySlugs", "cityNameBySlug",
+  "templatePrompt", "templateName", "tripMode", "citySlugs", "cityNameBySlug", "startDate",
 ]);
 const slug = /^[a-z0-9-]{1,80}$/;
 function record(value: unknown): value is Record<string, unknown> {
@@ -38,6 +39,7 @@ function validInputs(value: unknown): value is WizardData {
     || !Object.entries(value.cityNameBySlug).every(([key, name]) => slug.test(key) && text(name, 120))) return false;
   if (value.templatePrompt !== undefined && !text(value.templatePrompt, 4096)) return false;
   if (value.templateName !== undefined && !text(value.templateName, 160)) return false;
+  if (value.startDate !== undefined && (!text(value.startDate, 10) || !tripEndDate(value.startDate, value.days))) return false;
   return value.tripMode === "multi" ? value.citySlugs.length >= 2
     : value.tripMode === "single" && value.city.trim().length > 0 && value.days <= 7;
 }

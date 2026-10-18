@@ -8,7 +8,7 @@ const state = vi.hoisted(() => ({ push: vi.fn(), toast: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: state.toast }) }));
 const saved: WizardData = {
-  city: "Seoul", days: 3, budget: "moderate", interests: ["Food & Dining"],
+  city: "Seoul", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
   localnessLevel: 4, pace: "relaxed", groupType: "friends", tripMode: "single",
   citySlugs: [], cityNameBySlug: {},
 };

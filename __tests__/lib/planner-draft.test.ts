@@ -3,7 +3,7 @@ import { parsePlannerDraft, savePlannerDraft, PLANNER_DRAFT_KEY, PLANNER_DRAFT_T
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
 
 const data: WizardData = {
-  city: "Seoul", days: 3, budget: "moderate", interests: ["Food & Dining"],
+  city: "Seoul", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
   localnessLevel: 4, pace: "relaxed", groupType: "friends", tripMode: "single",
   citySlugs: [], cityNameBySlug: {}, templateName: "Food route", templatePrompt: "Prefer local markets.",
 };
@@ -28,7 +28,7 @@ describe("planner input recovery", () => {
   it.each([null, "{", JSON.stringify({ version: 2, savedAt: now, data }), "한".repeat(6000)])("refuses malformed, unknown-version and oversized storage", raw => {
     expect(parsePlannerDraft(raw, now)).toBeNull();
   });
-  it.each([{ ...data, entitlement: "premium" }, { ...data, budget: ["moderate"] }, { ...data, days: 8 }, { ...data, groupType: "unknown" }, { ...data, interests: Array(11).fill("food") }, { ...data, cityNameBySlug: { "../private": "Seoul" } }])("refuses extra privilege fields and invalid inputs", invalid => {
+  it.each([{ ...data, entitlement: "premium" }, { ...data, startDate: "2026-02-29" }, { ...data, budget: ["moderate"] }, { ...data, days: 8 }, { ...data, groupType: "unknown" }, { ...data, interests: Array(11).fill("food") }, { ...data, cityNameBySlug: { "../private": "Seoul" } }])("refuses extra privilege fields and invalid inputs", invalid => {
     expect(parsePlannerDraft(encode(invalid), now)).toBeNull();
   });
   it("reports denied storage without exposing the underlying error", () => {

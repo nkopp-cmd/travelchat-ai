@@ -89,7 +89,7 @@ export default function LandingPage() {
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="h-12 rounded-lg bg-violet-500 px-6 text-base font-bold text-white shadow-lg shadow-violet-500/30 hover:bg-violet-400">
-                <Link prefetch={false} href="/pricing">
+                <Link prefetch={false} href="/itineraries/new">
                   Start planning
                   <ArrowRight className="h-4 w-4" />
                 </Link>
