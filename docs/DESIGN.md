@@ -259,3 +259,9 @@ Current TypeScript, 64 focused tests, changed-source ESLint, the 522-file border
 The three-icon module benchmark measured 2,751 gzip bytes for all-weight Phosphor against 1,199 for the old outline icons. The generated icon source now keeps only the requested duotone/fill geometry from pinned MIT Phosphor2.1.10. Keep the public license and deterministic generator. Three geometry tests pass against the pinned package. The corrected compiled three-icon benchmark measures 1,289 gzip bytes against 1,199 for the old icons. An earlier 22,986-byte generated bundle was rejected; pure argument annotations now permit tree shaking. Actual route bundle budgets remain open.
 
 Nested main elements and unbounded inner scroll containers are removed from the draft dashboard/trip layouts. City selection uses filled tiles with separate readable text instead of overlapping labels on cropped photos. Route-preview reads now reject stale responses. Places inputs use one bounded script subscription with manual entry available after failures. Their focused tests, current TypeScript and changed-source ESLint pass. Hosted app behavior remains unverified.
+
+## Bounded planner input recovery (2026-10-18)
+
+The wizard saves validated inputs before a generation request. An explicit `/itineraries/new?resume=1` return restores them for review. Ordinary planner visits start fresh. Input storage has a strict version and schema, a 16 KiB UTF-8 ceiling and a 24-hour validity window. It contains preferences only; it grants no entitlement or account authority. Storage refusal stops the request with a readable error.
+
+Sign-up uses the existing auth form’s `redirect_url` contract. Legacy `pendingItinerary` recovery remains separate. This increment covers same-browser recovery only. Cross-device recovery, dates, a cheap real-catalog preview, server-enforced paid generation, payment return and funnel events remain open. The draft must not be released as the complete plan-first flow.

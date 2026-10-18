@@ -13,6 +13,7 @@ import { StepDuration } from "./step-duration";
 import { StepInterests } from "./step-interests";
 import { StepPreferences } from "./step-preferences";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
 const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
@@ -264,6 +265,8 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   const handleGenerate = async (data: WizardData) => {
     try {
+      // Preserve inputs before any request or authentication redirect. This grants no paid access.
+      savePlannerDraft(localStorage, data);
       const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
       const response = await fetch("/api/itineraries/generate", {
         method: "POST",
@@ -303,7 +306,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
             title: "Sign up to continue",
             description: result.message,
           });
-          router.push("/sign-up?redirect=/itineraries/new");
+          router.push(`/sign-up?redirect_url=${encodeURIComponent(PLANNER_RESUME_PATH)}`);
           return;
         }
 
@@ -329,7 +332,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
         });
         // Store in localStorage for retrieval after signup
         localStorage.setItem("pendingItinerary", JSON.stringify(result.itinerary));
-        router.push("/sign-up?redirect=/itineraries/claim");
+        router.push("/sign-up?redirect_url=%2Fitineraries%2Fclaim");
       } else {
         // Authenticated user - redirect to saved itinerary
         toast({

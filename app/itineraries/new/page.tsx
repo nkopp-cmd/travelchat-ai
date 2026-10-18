@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useMemo, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { ItineraryWizard, WizardData } from "@/components/itineraries/wizard";
 import { getTemplateById } from "@/lib/templates";
 import { Loader2 } from "@/components/ui/icons";
+import { parsePlannerDraft, plannerDraftSnapshot, plannerDraftServerSnapshot, subscribePlannerDraft } from "@/lib/trips/planner-draft";
 
 const ALLOWED_INTERESTS = new Set([
   "Food & Dining",
@@ -41,6 +42,9 @@ function parseInterestsParam(value: string | null) {
 
 function NewItineraryContent() {
   const searchParams = useSearchParams();
+  const rawDraft = useSyncExternalStore(subscribePlannerDraft, plannerDraftSnapshot, plannerDraftServerSnapshot);
+  const resume = searchParams.get("resume") === "1";
+  const restored = useMemo(() => resume ? parsePlannerDraft(rawDraft) : null, [rawDraft, resume]);
   const templateId = searchParams.get("template");
   const cityParam = searchParams.get("city");
   const daysParam = parseNumberParam(searchParams.get("days"), 1, 7);
@@ -51,8 +55,8 @@ function NewItineraryContent() {
   const groupParam = searchParams.get("group");
 
   // Build initial data from template if provided
-  let initialData: Partial<WizardData> = {};
-  let initialStep = 0;
+  let initialData: Partial<WizardData> = { ...restored?.data };
+  let initialStep = restored ? 3 : 0;
   let templateApplied = false;
 
   if (templateId) {
@@ -123,7 +127,12 @@ function NewItineraryContent() {
     initialData.groupType = groupParam;
   }
 
-  return <ItineraryWizard initialData={initialData} initialStep={initialStep} />;
+  return <>
+    {resume && <p role="status" className="px-4 py-3 text-sm text-muted-foreground">
+      {restored ? "Your trip inputs are restored. Review them before continuing." : "No current saved inputs. Start a new plan."}
+    </p>}
+    <ItineraryWizard key={restored?.savedAt ?? "new"} initialData={initialData} initialStep={initialStep} />
+  </>;
 }
 
 export default function NewItineraryPage() {
