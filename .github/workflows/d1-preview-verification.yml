@@ -4,6 +4,15 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'app/page.tsx'
+      - 'components/landing/**'
+      - 'public/images/landing/**'
+      - 'public/_headers'
+      - 'docs/LANDING_PERFORMANCE.md'
+      - 'components/layout/marketing-navbar.tsx'
+      - 'components/layout/conditional-navbar.tsx'
+      - '__tests__/components/landing-planner.test.tsx'
+      - '__tests__/components/conditional-navbar.test.tsx'
       - 'docs/NAVER_LOCAL_REFERENCES.md'
       - 'docs/releases/seoul-discovery.md'
       - 'lib/supabase-read-only.ts'
@@ -297,6 +306,8 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx --maxWorkers=1
+            npx eslint app/page.tsx components/landing/ components/layout/marketing-navbar.tsx components/layout/conditional-navbar.tsx __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx
             npx vitest run __tests__/lib/auth-notification-store.test.ts --maxWorkers=1
             npx eslint lib/notifications/auth-store.ts lib/notifications/validation.ts __tests__/lib/auth-notification-store.test.ts
             npx vitest run __tests__/api/auth-notification-routes.test.ts __tests__/hooks/auth-notification-ownership.test.tsx --maxWorkers=1

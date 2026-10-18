@@ -1,7 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
+import dynamic from "next/dynamic";
+
+// The landing and auth routes do not render this navigation. Keep its user menu,
+// notifications and billing controls out of their initial client bundle.
+const Navbar = dynamic(() => import("@/components/layout/navbar").then((module) => module.Navbar));
 
 export function ConditionalNavbar() {
     const pathname = usePathname();
