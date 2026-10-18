@@ -222,3 +222,47 @@ Private mode600 evidence remains under `/home/dev/.local/state/localley`:
 The lookup created no new account or application request and changed no Worker or database configuration.
 Release this host helper after exact required CI and merge; verify the installed helper against retained input hashes.
 Record the exact source, CI, merge and cleanup in the root blocker plan.
+
+
+## Owned RSC response-body disconnect — 2026-10-18
+
+The manual transport in `scripts/production-health/rsc-body-transport.mjs` compares a completed response
+with a synchronous disconnect on the first body chunk. It records HTTP parser completion at disconnect.
+A fully parsed response cannot qualify as a proven incomplete HTTP message. The daily checker does not import this module.
+Unexpected request/body aborts, deadlines and oversized responses remain errors. Body, credentials, headers and probe URLs stay private.
+
+Seven native tests cover a delayed real stream and server-observed close, completed-message refusal,
+unexpected origin abort, deadline/byte bounds, split RSC error frames, private redirect handling and invalid bounds.
+The complete production-health native suite passes96 tests.
+
+One live comparison used a fresh verified reserved non-admin and a real credential session. No email was sent.
+The same keep-alive connection served the completed control and the deliberately disconnected request:
+
+| Request | Client evidence | Exact-version provider invocation |
+| --- | --- | --- |
+| Control | One same-origin dashboard307, then200 `text/x-component`; complete21,827 bytes in707ms; no RSC error frame | ok/200 |
+| Body disconnect | 200 `text/x-component`; headers and630 bytes in33ms; parser incomplete at synchronous disconnect; reused socket | canceled; provider status unavailable |
+
+A single normalized-only lookup correlated both invocation URLs and timestamps on current production version
+`d0f508f5-770a-4dc2-87f6-579a18a43185`. It returned two events atABR1, count2, not truncated.
+Neither selected event carried the recorded network-error classification. Ingestion coverage remains unaudited.
+This proves the outcome of this controlled body-phase comparison. It does not explain the14 historical network errors,
+prove error absence or justify suppressing any errors. Both before-headers and body-phase controlled disconnects
+now correlate to `canceled`; historical events require separate evidence.
+
+The fresh account, credentials and sessions were removed. Six owned-table absence checks, all48 Source full-table
+hashes/counts, eight Auth business-table counts and both complete admin rows passed preservation checks.
+Production deployment `6003f606-9242-4c0e-870d-039a20160922` remains100% on the version above.
+Preview deployment `9b83b961-5475-4682-9a4b-ca2a9da00585` remains unchanged. No Worker upload or routing change occurred.
+The cleanup timer stopped after verified cleanup. The transport is a manual host diagnostic, not an application change.
+
+Private mode600 receipts in `/home/dev/.local/state/localley`:
+
+- `u3-rsc-body-tests-20261018.log`:96 native tests.
+- `u3-rsc-body-proof-20261018.json`:13 live/preservation guards and transport counters.
+- `u3-rsc-body-correlation-20261018.json`:11 provider-correlation guards.
+- `u3-rsc-body-lease-20261018.json`: exact fresh ownership and clean state.
+
+Release this manual host helper only after green exact CI and merge. Verify installed source hashes and replay the
+local stream tests. Preserve the private inputs for correlation without repeating the live account or request writes.
+The root blocker plan records source, CI, merge, host verification and final owned cleanup.
