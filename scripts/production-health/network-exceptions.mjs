@@ -13,7 +13,9 @@ export function summarizeNetworkExceptions(events) {
     if (event?.$metadata?.service !== 'localley-next') continue;
     const raw = String(event.$metadata.error || event.$metadata.message || '');
     const path = errorRouteGroup(event.$metadata.url || event.$workers?.event?.request?.url);
-    if (classifyUserError(raw, path, null).errorClass !== 'network_connection_lost') continue;
+    const candidate = event.$workers?.event?.response?.status;
+    const status = Number.isInteger(candidate) && candidate >= 100 && candidate <= 599 ? candidate : null;
+    if (classifyUserError(raw, path, status).errorClass !== 'network_connection_lost') continue;
     result.events++;
     const exception = event.source?.exception;
     if (object(exception)) result.withExceptionObject++;

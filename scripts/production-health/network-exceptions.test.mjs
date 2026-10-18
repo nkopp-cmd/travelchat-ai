@@ -45,3 +45,12 @@ test('route-specific provider errors keep the existing classification priority',
   e.$metadata.error = '[generate] GLM primary failed; falling back to OpenAI: Network connection lost.';
   assert.equal(summarizeNetworkExceptions([e]).events, 0);
 });
+
+test('known notification storage statuses keep precedence over nested network text', () => {
+  for (const status of [500, 503]) {
+    const e = event({ stack: 'PRIVATE' });
+    e.$metadata.url = 'https://www.localley.io/api/notifications/push/subscribe';
+    e.$workers = { event: { response: { status } } };
+    assert.equal(summarizeNetworkExceptions([e]).events, 0);
+  }
+});

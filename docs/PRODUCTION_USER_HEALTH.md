@@ -806,6 +806,6 @@ current-version log canary. Its returned ranking was sampled atABR10: three olde
 U1 and U2 acceptance, including the conditional checkout skip, stays unchanged. U3 remains open until its repair outcomes have evidence.
 
 Private receipts: `u3-historical-all14-shape-20261018.json`, `u3-network-evidence-live-20261018.json`,
-`u3-network-evidence-final-tests-20261018.log` and the installed daily report under `/home/dev/.local/state/localley`.
+`u3-network-evidence-status-tests-20261018.log` and the installed daily report under `/home/dev/.local/state/localley`.
 Release this host checker after exact green CI and merge; run the actual daily service and verify its new fixed-field report.
 No Worker upload, database mutation, generation or mail is required for this change.
