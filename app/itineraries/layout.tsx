@@ -7,11 +7,11 @@ export default function ItinerariesLayout({
     children: React.ReactNode;
 }) {
     return (
-        <AppBackground ambient fitParent className="h-full" contentClassName="flex h-full">
+        <AppBackground ambient fitParent contentClassName="flex">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto bg-transparent p-2 pb-4 sm:p-4 md:rounded-tl-2xl md:p-8 md:pb-8">
+            <div className="min-w-0 flex-1 bg-transparent p-2 pb-4 sm:p-4 md:rounded-tl-2xl md:p-8 md:pb-8">
                 {children}
-            </main>
+            </div>
         </AppBackground>
     );
 }

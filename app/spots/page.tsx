@@ -154,6 +154,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-sm leading-6 text-violet-50/65 md:text-base">
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
+                            <Button asChild className="mt-4"><Link href="/itineraries/new">Start with a city</Link></Button>
                             {socialSpotSubmissionsEnabled && (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button

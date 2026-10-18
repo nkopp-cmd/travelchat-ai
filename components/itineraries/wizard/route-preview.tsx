@@ -50,8 +50,7 @@ function TransferIcon({ mode }: { mode: string }) {
 
 export function RoutePreview() {
   const { data } = useWizard();
-  const [result, setResult] = useState<PreviewResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [resolved, setResolved] = useState<{ key: string; response: PreviewResponse } | null>(null);
 
   const requestBody = useMemo(
     () =>
@@ -69,33 +68,31 @@ export function RoutePreview() {
 
   const selectionError = corridorSelectionError(data.citySlugs.length, data.days);
 
+  const result = !selectionError && resolved?.key === requestKey ? resolved.response : null;
+  const isLoading = !selectionError && result === null;
+
   useEffect(() => {
-    if (selectionError) {
-      setResult(null);
-      setIsLoading(false);
-      return;
-    }
+    if (selectionError) return;
     let cancelled = false;
-    setIsLoading(true);
+    const controller = new AbortController();
     const timer = setTimeout(() => {
       fetch("/api/v2/trips/preview", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: requestKey,
+        signal: controller.signal,
       })
         .then(async (response) => {
           const body = (await response.json()) as PreviewResponse;
-          if (!cancelled) setResult(body);
+          if (!cancelled) setResolved({ key: requestKey, response: body });
         })
         .catch(() => {
-          if (!cancelled) setResult({ ok: false, error: { message: "Could not load the route preview." } });
-        })
-        .finally(() => {
-          if (!cancelled) setIsLoading(false);
+          if (!cancelled) setResolved({ key: requestKey, response: { ok: false, error: { message: "Could not load the route preview." } } });
         });
     }, 400);
     return () => {
       cancelled = true;
+      controller.abort();
       clearTimeout(timer);
     };
   }, [requestKey, selectionError]);

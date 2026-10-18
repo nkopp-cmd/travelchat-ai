@@ -8,7 +8,7 @@ Nils must approve the exact final preview URL before that release.
 
 Localley helps travellers choose places and build useful days across Asia.
 The main task is discovery, followed by a route that the traveller can save.
-Preserve Localley's name, violet identity, Geist typography and existing city coverage.
+Preserve Localley's name, violet identity, native sans typography and existing city coverage.
 Preserve sourced local names and normal Korean, Japanese and Chinese text wrapping.
 
 The tone is calm, direct and helpful. Three visible traits define the direction:
@@ -104,7 +104,7 @@ Keep focus-visible rings or outlines. Add forced-colors exceptions where fills a
 Pair error colors with visible text and appropriate ARIA state.
 Do not remove functional route lines from maps or other data graphics.
 
-Retain Geist through the existing font setup.
+Use the existing native sans stack. The old Geist variables did not select the rendered body font. Keep variable compatibility and stop unused font preloads; do not add a new font request.
 Check the bundled font license before changing font assets.
 Retain system fallbacks for scripts outside the supplied subset.
 Review preload and font cost before adding weights or subsets.
@@ -245,3 +245,17 @@ Draft application navigation now uses the same 56/64px header token and 64px mob
 TypeScript, changed-file ESLint, 39 focused tests and the five-file navigation class guard pass. Eight new tests cover unresolved/settled accounts, the planner/catalog links, drawer dismissal, active paths and absent planner navigation. The jsdom link test reports unsupported document navigation; it proves drawer dismissal only. Actual hosted route screenshots, native gestures, navigation performance and signed-in data remain pending. CI now guards the thirteen adapted files; it does not yet cover all decorative classes.
 
 Dialog headers reserve room for their 44px close action. Sheets cap their scroll surface at the dynamic viewport height. These later refinements need a refreshed browser image review with the navigation pass.
+
+## Saved bulk pass and card implementation (2026-10-18)
+
+Commit eb8ae227 saves the bulk surface/icon conversion on draft PR487. The initial conversion passed TypeScript, 33 focused tests, the 518-file guard and API no-diff verification. Eight changed-file ESLint errors were reproduced against the previous source; they were not introduced by the conversion. Their repairs are now in progress.
+
+The actual SpotCard now uses a 4:3 image, filled category chip, save control, full title, source-backed geography, expandable original description, an explained verification label and Add to trip/Details actions. List and map reuse it. The weekly section uses the same component, native mandatory scroll snap, a next-card peek, real item count and keyboard/44px navigation controls. The server query limits the real weekly list to ten; it does not invent missing entries.
+
+A read-only anonymous Source request accepted both explicit geography joins with HTTP200. No current Source spot has a destination association. Address display therefore uses only named registry cities and areas actually present in the source address; country-only and ambiguous addresses stay unlabeled. The final screen must not invent a neighborhood to fill a design slot.
+
+Current TypeScript, 64 focused tests, changed-source ESLint, the 522-file border guard and deterministic icon generation passed. The actual shared-card harness passed at 360/390/430/1440 px, including native touch, range indicators, keyboard controls, full titles, 44px controls and the last Details action above navigation. Four screenshots were opened. The harness uses local text/auth/photo fixtures; it does not prove real app routes or photographs. These are not final route screenshots. Add to trip carries a spot ID into the planner URL; server-validated anchor persistence and the complete paid funnel remain unfinished.
+
+The three-icon module benchmark measured 2,751 gzip bytes for all-weight Phosphor against 1,199 for the old outline icons. The generated icon source now keeps only the requested duotone/fill geometry from pinned MIT Phosphor2.1.10. Keep the public license and deterministic generator. Three geometry tests pass against the pinned package. The corrected compiled three-icon benchmark measures 1,289 gzip bytes against 1,199 for the old icons. An earlier 22,986-byte generated bundle was rejected; pure argument annotations now permit tree shaking. Actual route bundle budgets remain open.
+
+Nested main elements and unbounded inner scroll containers are removed from the draft dashboard/trip layouts. City selection uses filled tiles with separate readable text instead of overlapping labels on cropped photos. Route-preview reads now reject stale responses. Places inputs use one bounded script subscription with manual entry available after failures. Their focused tests, current TypeScript and changed-source ESLint pass. Hosted app behavior remains unverified.

@@ -3,6 +3,7 @@
  * Converts raw Supabase data to application types
  */
 
+import { addressDisplayGeography } from "./display-geography";
 import { Spot, MultiLanguageField } from "@/types";
 import {
     normalizeStoredSpotPhotoUrls,
@@ -74,6 +75,8 @@ export function normalizeSpotPhotos(
 
 // Raw spot type from Supabase
 export interface RawSpot {
+    destination?: { name?: MultiLanguageField; slug?: string } | null;
+    localArea?: { name?: MultiLanguageField } | null;
     id: string;
     name: MultiLanguageField;
     description: MultiLanguageField;
@@ -117,16 +120,23 @@ export function transformSpot(spot: RawSpot): Spot {
         storedGooglePlaceId: spot.google_place_id,
     });
 
+    const address = getLocalizedText(spot.address);
+    const displayGeography = addressDisplayGeography(address);
+    const joinedCity = getLocalizedText(spot.destination?.name);
+
     return {
         id: spot.id,
         name: getLocalizedText(spot.name),
         description: getLocalizedText(spot.description),
+        cityName: joinedCity || displayGeography.cityName,
+        citySlug: spot.destination?.slug || (!joinedCity ? displayGeography.citySlug : undefined),
+        areaName: getLocalizedText(spot.localArea?.name) || ((!joinedCity || joinedCity === displayGeography.cityName) ? displayGeography.areaName : undefined),
         category: spot.category || "Uncategorized",
         subcategories: spot.subcategories || [],
         location: {
             lat,
             lng,
-            address: getLocalizedText(spot.address),
+            address,
         },
         localleyScore: normalizeLocalleyScore(spot.localley_score),
         localPercentage: normalizeLocalPercentage(spot.local_percentage),

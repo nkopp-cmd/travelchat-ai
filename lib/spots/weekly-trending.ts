@@ -1,9 +1,10 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createSupabaseAdmin, createSupabaseClient } from "@/lib/supabase";
 import type { Spot } from "@/types";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import { transformSpot, type RawSpot } from "@/lib/spots/transform";
+import { PUBLIC_SPOT_CARD_SELECT } from "./projection";
 import { getWeekStart } from "@/lib/weekly-social-trends";
 
 export type WeeklyTrendingSpot = {
@@ -25,7 +26,7 @@ async function fetchWeeklyTrendingSpotsInternal(
     .select("city_slug, spot_id, rank, score, post_count, platform_count")
     .eq("week_start", getWeekStart())
     .order(citySlug ? "rank" : "score", { ascending: Boolean(citySlug) })
-    .limit(5);
+    .limit(10);
   if (citySlug) rankingQuery = rankingQuery.eq("city_slug", citySlug);
 
   const { data: rankings, error: rankingError } = await rankingQuery;
@@ -39,9 +40,10 @@ async function fetchWeeklyTrendingSpotsInternal(
   }
   const spotIds = (rankings || []).map((ranking) => ranking.spot_id as string);
   if (spotIds.length === 0) return [];
-  const { data: spotRows, error: spotError } = await supabase
+  // Public display joins must retain catalog RLS, including hidden geography rows.
+  const { data: spotRows, error: spotError } = await createSupabaseClient()
     .from("spots")
-    .select("*")
+    .select(PUBLIC_SPOT_CARD_SELECT)
     .in("id", spotIds);
   if (spotError) {
     console.error("[weekly-trending] Spots unavailable:", spotError.message);
@@ -72,7 +74,7 @@ export async function fetchWeeklyTrendingSpots(
   if (process.env.WEEKLY_SOCIAL_TRENDS_ENABLED !== "true") return [];
   const cached = unstable_cache(
     () => fetchWeeklyTrendingSpotsInternal(citySlug),
-    [`weekly-social-trends-${getWeekStart()}-${citySlug || "all"}`],
+    [`weekly-social-trends-card-v2-${getWeekStart()}-${citySlug || "all"}`],
     { revalidate: 900, tags: ["weekly-social-trends"] },
   );
   return cached();

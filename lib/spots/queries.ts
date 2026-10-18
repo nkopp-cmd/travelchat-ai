@@ -21,8 +21,8 @@ import {
   SCORE_LABELS,
 } from "./types";
 
-// Explicit projection keeps anonymous catalog reads compatible with private-column ACLs.
-export const PUBLIC_SPOT_SELECT = "id,name,description,location,address,category,subcategories,localley_score,local_percentage,best_times,photos,tips,verified,trending_score,created_at,review_count,average_rating,name_en_normalized,address_en_normalized,google_place_id,destination_id,local_area_id";
+import { PUBLIC_SPOT_SELECT, PUBLIC_SPOT_CARD_SELECT } from "./projection";
+export { PUBLIC_SPOT_SELECT } from "./projection";
 
 const SPOTS_QUERY_PAGE_SIZE = 1000;
 const COMMUNITY_PROVENANCE_CACHE_VERSION = "community-provenance-v1";
@@ -121,7 +121,7 @@ function applySpotSqlFilters(
   supabase: ReturnType<typeof createSupabaseClient>,
   filters: SpotsFilterState,
 ) {
-  let query = supabase.from("spots").select(PUBLIC_SPOT_SELECT);
+  let query = supabase.from("spots").select(PUBLIC_SPOT_CARD_SELECT);
 
   query = applyPublicSpotVisibilityFilters(query);
 
@@ -393,7 +393,7 @@ export async function fetchFilteredSpots(
 ): Promise<SpotsResponse> {
   // Create a cache key from filters
   const cacheKey = JSON.stringify({
-    projection: PUBLIC_SPOT_SELECT,
+    projection: PUBLIC_SPOT_CARD_SELECT,
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
     provenance: COMMUNITY_PROVENANCE_CACHE_VERSION,
     city: filters.city,

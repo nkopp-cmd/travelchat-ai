@@ -197,7 +197,7 @@ export function SpotsFilterBar({
           aria-hidden="true"
         />
         <Input
-          placeholder="Search spots, neighborhoods, or cuisines..."
+          placeholder="Search spots or areas"
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="h-10 min-w-0 bg-white/[0.06] pl-10 pr-10 text-sm text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400 sm:h-11 sm:text-base"
@@ -317,7 +317,7 @@ export function SpotsFilterBar({
               className="mr-1 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
               aria-hidden="true"
             />
-            <SelectValue placeholder="All Cities" />
+            <SelectValue placeholder="Search spots or areas" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Cities</SelectItem>
@@ -352,7 +352,7 @@ export function SpotsFilterBar({
             className={FILTER_TRIGGER_CLASS}
             aria-label="Select category"
           >
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder="Search spots or areas" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
@@ -380,7 +380,7 @@ export function SpotsFilterBar({
               className="mr-1 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
               aria-hidden="true"
             />
-            <SelectValue placeholder="Score" />
+            <SelectValue placeholder="Search spots or areas" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Scores</SelectItem>
@@ -398,7 +398,7 @@ export function SpotsFilterBar({
           onValueChange={(v) => onFilterChange("sortBy", v)}
         >
           <SelectTrigger className={FILTER_TRIGGER_CLASS} aria-label="Sort by">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Search spots or areas" />
           </SelectTrigger>
           <SelectContent>
             {SORT_OPTIONS.map((option) => (

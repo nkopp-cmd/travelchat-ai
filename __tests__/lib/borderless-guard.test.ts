@@ -11,6 +11,9 @@ describe('decorative border guard', () => {
   it('does not rewrite product copy or prompt language', () => {
     expect(sourceViolations('const prompt = \"Write an outline for this trip\";', 'prompt.ts')).toEqual([]);
   });
+  it('checks forwarded frame and credit class props', () => {
+    expect(sourceViolations('<Photo frameClassName="border" creditClassName="ring" />', 'photo.tsx').map(row => row.token)).toEqual(['border', 'ring']);
+  });
   it('leaves generated CSS sizing intact', () => {
     expect(sourceViolations('const html = `body { box-sizing: border-box; }`;', 'export.ts')).toEqual([]);
   });

@@ -25,8 +25,8 @@ export function isDecorativeClass(token) {
 
 function hasClassContext(node) {
   for (let parent = node.parent; parent; parent = parent.parent) {
-    if (ts.isJsxAttribute(parent) && ['className', 'class'].includes(parent.name.text)) return true;
-    if (ts.isPropertyAssignment(parent) && ['className', 'class'].includes(parent.name.getText())) return true;
+    if (ts.isJsxAttribute(parent) && /^(?:class|className|[a-zA-Z]+ClassName)$/.test(parent.name.text)) return true;
+    if (ts.isPropertyAssignment(parent) && /^(?:class|className|[a-zA-Z]+ClassName)$/.test(parent.name.getText())) return true;
     if (ts.isCallExpression(parent) && /^(cn|cva|clsx|twMerge|classNames)$/.test(parent.expression.getText())) return true;
     if ((ts.isVariableDeclaration(parent) || ts.isFunctionDeclaration(parent)) && parent.name && /(?:class(?:name|es)?|variants?|styles?|tone)$/i.test(parent.name.getText())) return true;
   }

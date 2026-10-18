@@ -144,7 +144,7 @@ function WizardContent({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="flex min-w-0 flex-col">
       <WizardProgress />
 
       {templateApplied && !compactTemplateFooter && (
@@ -162,7 +162,7 @@ function WizardContent({
 
       <div
         ref={stepScrollRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-32"
+        className="min-w-0 scroll-mt-[var(--ll-topbar-height)]"
       >
         {steps[currentStep]}
       </div>
@@ -354,7 +354,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background sm:rounded-2xl md:max-h-none md:rounded-none">
+      <div className="flex min-w-0 flex-col bg-background sm:rounded-2xl md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>
