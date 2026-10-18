@@ -10,6 +10,10 @@ import {
   LandingTripBuilder,
 } from "@/components/landing/planner";
 import { LandingHero } from "@/components/landing/hero";
+import { LandingPresetPhoto } from "@/components/landing/preset-photo";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import sharp from "sharp";
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
@@ -31,6 +35,43 @@ const cities = [
   { name: "Tokyo", slug: "tokyo", vibe: "Small streets" },
   { name: "Bangkok", slug: "bangkok", vibe: "Markets" },
 ];
+
+describe("landing preset photo delivery", () => {
+  it.each(["Seoul", "Tokyo", "Bangkok"])(
+    "ships both real CDN variants for %s without an optimization proxy",
+    async (city) => {
+      const html = renderToStaticMarkup(<LandingPresetPhoto city={city} />);
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const image = doc.querySelector("img")!;
+      expect(image.getAttribute("loading")).toBe("lazy");
+      expect(image.getAttribute("decoding")).toBe("async");
+      expect(image.getAttribute("alt")).toBe("");
+      expect(doc.querySelector("link[rel=preload]")).toBeNull();
+      expect(html).not.toMatch(/https?:|_next\/image/);
+
+      const variants = image.getAttribute("srcset")!.split(", ");
+      expect(variants).toHaveLength(2);
+      for (const variant of variants) {
+        const [url, size] = variant.split(" ");
+        const width = Number(size.slice(0, -1));
+        expect([480, 960]).toContain(width);
+        expect(url).toBe(`/images/landing/${city.toLowerCase()}-preset-v1-${width}.webp`);
+        const bytes = await readFile(resolve("public", url.slice(1)));
+        expect(bytes.length).toBeLessThan(100_000);
+        expect(bytes.length).toBeGreaterThan(1_000);
+        const metadata = await sharp(bytes).metadata();
+        expect(metadata).toMatchObject({ format: "webp", width, height: width / 3 });
+      }
+    },
+  );
+
+  it("does not invent photos for unknown or inherited object names", () => {
+    for (const city of ["Unknown city", "toString", "__proto__"]) {
+      expect(renderToStaticMarkup(<LandingPresetPhoto city={city} />)).toBe("");
+    }
+  });
+});
+
 function mount() {
   return render(
     <LandingPlanner cities={cities}>
