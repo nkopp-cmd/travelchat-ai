@@ -51,7 +51,7 @@ Implement them first on one representative screen and a component preview.
 Review that result before applying the system across routes.
 
 Draft definitions live in `styles/borderless-tokens.css`.
-Only `docs/design-preview.html` opts into them; application routes remain unchanged.
+The local prototype uses these tokens. The draft application now opts into the same tokens through `app/layout.tsx`; hosted acceptance is pending. `styles/borderless-theme.css` maps existing shadcn roles to these values. No second UI foundation is introduced.
 The preview uses three public catalog text records from a read-only page capture.
 Its absent photographs are deliberate state fixtures, not live availability claims.
 Its action controls do not write app data or prove product behavior.
@@ -203,14 +203,16 @@ Use Cloudflare assets/R2 and versioned responsive photographs.
 Preserve safe media attribution and suppression rules.
 
 The urgent repair remains in PR486.
-This draft branch starts from its tested source and contains design preparation only.
+This draft branch starts from its tested source. Token integration and shared component adaptation are in progress; none is released.
 Keep design PRs draft until they may merge.
 Rebase onto the released urgent fix before preparing the full hosted design preview.
 
 ## Verification status
 
 - Token contrast: the seven proposal pairs above are calculated, not visually accepted.
-- Draft token definitions and local component preview: present, syntax-checked, not visually reviewed.
+- Local prototype R2: four viewport cases pass at 360/390/430/1440. Controls measure at least 44px; titles, metadata and actions have no overflow or ellipsis. More and keyboard carousel work.
+- R2 screenshot review: desktop action rows align. Fixed navigation obscured parts of full-document/element captures. R3 uses viewport captures; all four visible-action bounds and hit tests pass. Opened R3 360px card, 390px overview and 1440px card screenshots: full names, aligned actions and readable surfaces. This is not app route acceptance.
+- Draft application tokens and shared controls: adaptation in progress; compilation and browser acceptance are pending.
 - Shared component integration and representative screen acceptance: pending.
 - Route screenshots at 390/1440 and cards at 360/390/430: pending.
 - Keyboard, focus, forced colors, reduced motion, zoom and contrast: pending.
@@ -221,3 +223,12 @@ Rebase onto the released urgent fix before preparing the full hosted design prev
 
 Record exact test results, screenshot paths and defects as implementation proceeds.
 Do not close these items from this design document alone.
+
+## Icon source selection (2026-10-18)
+
+Select Phosphor Icons 2.1.10, MIT, for consistent solid/duotone controls.
+Reviewed the [official source](https://github.com/phosphor-icons/react), [package exports](https://github.com/phosphor-icons/react/blob/master/package.json), SSR Heart source and MIT license.
+Use individual SSR modules to avoid React Context and a 9,000-module development barrel.
+The React peer range accepts the existing React version. Runtime bundle impact remains unmeasured.
+Keep the packaged license. No glyph source is copied in this step.
+Pinned installation passes. Replacement and final icon family acceptance are pending.
