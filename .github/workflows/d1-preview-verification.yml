@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'lib/trips/public-catalog-preview.mjs'
+      - 'scripts/public-catalog-preview.checks.mjs'
       - 'scripts/check-route-review*.mjs'
       - 'scripts/check-embedded-borders.checks.mjs'
       - 'app/layout.tsx'
@@ -338,6 +340,8 @@ jobs:
         run: node --test scripts/check-route-review.test.mjs
       - name: Check embedded border regressions
         run: node --test scripts/check-embedded-borders.checks.mjs
+      - name: Check public planner sample projection
+        run: node --test scripts/public-catalog-preview.checks.mjs
       - run: |
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e

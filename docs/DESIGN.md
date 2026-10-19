@@ -9,6 +9,15 @@ Wholly dynamic styles and stylesheet blocks inside HTML strings still require
 source and screenshot review. The guard does not prove all-page visual acceptance.
 Nils must approve the exact final preview URL before that release.
 
+## Anonymous catalog preview preparation
+
+The prepared `projectPublicCatalogPreview` helper accepts one already filtered
+public catalog page. It keeps at most three unique places with an exact city
+association and source-backed area names. It emits only IDs, names, categories,
+areas and local detail links. It does not authorize rows or read the database.
+Anonymous catalog reading and the wizard preview are not connected yet; test
+visibility, rate limits and unavailable states before adding that public surface.
+
 ## Route screenshot evidence contract
 
 `node scripts/check-route-review.mjs <private-receipt.json> <source-sha>` checks
