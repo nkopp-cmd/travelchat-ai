@@ -257,11 +257,11 @@ function MobileSignupBar() {
       <div className="mx-auto flex max-w-md items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold text-white">Plan a local-first trip</p>
-          <p className="truncate text-xs text-violet-100/70">Paid access from $9/month</p>
+          <p className="truncate text-xs text-violet-100/70">Choose your city and travel style</p>
         </div>
         <Button asChild size="sm" className="h-11 shrink-0 rounded-lg bg-violet-500 px-4 font-bold text-white shadow-lg shadow-violet-500/30 hover:bg-violet-400">
-          <Link prefetch={false} href="/pricing">
-            Sign up
+          <Link prefetch={false} href="/itineraries/new">
+            Start planning
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>

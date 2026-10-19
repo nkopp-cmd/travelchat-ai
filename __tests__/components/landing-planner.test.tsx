@@ -42,7 +42,7 @@ describe("plan-first landing entry", () => {
     const html = renderToStaticMarkup(<LandingPage />);
     const doc = new DOMParser().parseFromString(html, "text/html");
     const links = Array.from(doc.querySelectorAll("a")).filter(link => link.textContent?.trim() === "Start planning");
-    expect(links.length).toBeGreaterThan(0);
+    expect(links.length).toBeGreaterThanOrEqual(2);
     for (const link of links) expect(link.getAttribute("href")).toBe("/itineraries/new");
   });
 });
@@ -100,7 +100,7 @@ function mount() {
 }
 function tripParams() {
   return new URL(
-    screen.getByRole("link", { name: "Build trip" }).getAttribute("href")!,
+    screen.getByRole("link", { name: "Start planning" }).getAttribute("href")!,
     "https://localley.io",
   ).searchParams;
 }

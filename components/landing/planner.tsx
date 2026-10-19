@@ -436,7 +436,7 @@ function TripBuilder({
             className="h-12 rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400"
           >
             <Link prefetch={false} href={itineraryHref}>
-              Build trip
+              Start planning
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
