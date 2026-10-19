@@ -40,7 +40,6 @@ const createMarkerIcon = (day?: number, index?: number) => {
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-                border: 2px solid white;
             ">
                 <span style="
                     transform: rotate(45deg);

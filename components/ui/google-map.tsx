@@ -252,7 +252,7 @@ export default function GoogleMap({
                 pinEl.innerHTML = `
                     <div style="
                         width: 48px; height: 48px; border-radius: 8px; overflow: hidden;
-                        border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4); position: relative;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.4); position: relative;
                     ">
                         <img src="${marker.image}" style="width:100%;height:100%;object-fit:cover;" alt="" />
                         <div style="
@@ -260,7 +260,7 @@ export default function GoogleMap({
                             width: 20px; height: 20px; background: ${color}; border-radius: 50%;
                             display: flex; align-items: center; justify-content: center;
                             color: white; font-size: 11px; font-weight: 700;
-                            border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
                         ">${index + 1}</div>
                     </div>
                     <div style="width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid white;margin:0 auto;"></div>
@@ -271,7 +271,7 @@ export default function GoogleMap({
                         width: 36px; height: 36px; background: ${color};
                         border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
                         display: flex; align-items: center; justify-content: center;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 3px solid white;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
                     ">
                         <span style="transform:rotate(45deg);color:white;font-weight:bold;font-size:13px;">${index + 1}</span>
                     </div>

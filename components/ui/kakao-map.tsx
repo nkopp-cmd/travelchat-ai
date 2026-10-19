@@ -221,7 +221,6 @@ function createMarkerContent(day?: number, index?: number): string {
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-            border: 2px solid white;
             cursor: pointer;
         ">
             <span style="

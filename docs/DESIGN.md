@@ -367,3 +367,14 @@ receives the event if present; no SDK, provider, cookie or storage is installed.
 Provider failures cannot block the action. No configured aggregate collector was
 found during this inspection; event emission does not prove durable collection.
 Exact tests, sink proof and final preview approval remain required.
+
+## Embedded map marker frames (2026-10-19)
+
+The shared map components also create HTML strings. The class guard does not
+inspect their embedded CSS. Removed five decorative white frames across Google,
+Kakao and Leaflet markers. Filled day colors, numbers, rounded shapes, shadows and
+pointer geometry remain. The Google photo marker uses CSS border triangles to
+form its pointer; this is a filled shape, not a decorative frame.
+Both no-wait validation admissions were refused. Existing map text-safety tests
+now have explicit CI coverage. Map screenshots and exact tests remain pending;
+the all-page borderless item is not accepted by the earlier zero-class result.
