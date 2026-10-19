@@ -2,6 +2,11 @@
 
 Status: draft preparation. The urgent mobile scroll repair must ship first.
 This document does not approve a production design release.
+The border guard checks static HTML style attributes as well as utility classes
+and CSS. Template values are not executed. The map pin's zero-size CSS triangle
+is a drawing exception; it cannot exempt an image frame, outline or inset stroke.
+Wholly dynamic styles and stylesheet blocks inside HTML strings still require
+source and screenshot review. The guard does not prove all-page visual acceptance.
 Nils must approve the exact final preview URL before that release.
 
 ## Route screenshot evidence contract

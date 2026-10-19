@@ -77,6 +77,13 @@ export function sourceViolations(source, filename) {
   findReferences(tree);
   function visit(node) {
     for (const token of literalDecorations(node, styleInitializers)) rows.push({ file: filename, line: tree.getLineAndCharacterOfPosition(node.getStart(tree)).line + 1, token });
+    // Interpolations are values, never evaluated. Inspect complete HTML attributes,
+    // including attributes split across a template expression.
+    const html = ts.isTemplateExpression(node)
+      ? node.head.text + node.templateSpans.map(span => 'var(--dynamic-value)' + span.literal.text).join('')
+      : ts.isStringLiteralLike(node) ? node.text : '';
+    if (/\bstyle\s*=/i.test(html)) rows.push(...embeddedHtmlViolations(html, filename,
+      tree.getLineAndCharacterOfPosition(node.getStart(tree)).line + 1));
     ts.forEachChild(node, visit);
   }
   visit(tree); return rows;
@@ -99,6 +106,31 @@ export function cssViolations(source, filename) {
     if (node.prop === 'box-shadow' && /0(?:px)?\s+0(?:px)?\s+0(?:px)?\s+[1-9][0-9]*(?:\.\d+)?px/.test(node.value)) report(node,node.prop+': '+node.value);
   });
   tree.walkAtRules('apply',node => {if(!functional(node)) for(const token of node.params.split(/\s+/)) if(isDecorativeClass(token)) report(node,token);});
+  return rows;
+}
+
+/** Static HTML styles only; this does not evaluate dynamically constructed HTML. */
+export function embeddedHtmlViolations(html, filename, firstLine = 1) {
+  const rows = [];
+  for (const match of html.matchAll(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/gi)) {
+    // A wholly dynamic style has no static declarations to classify.
+    if (!match[2].includes(':')) continue;
+    const style = postcss.parse(`.embedded {${match[2]}}`, { from: filename });
+    const values = new Map();
+    style.walkDecls(node => values.set(node.prop, node.value));
+    const zero = value => /^0(?:px)?$/.test(value || '');
+    const sides = [...values].filter(([prop]) => /^border-(left|right|top|bottom)$/.test(prop));
+    // Preserve a CSS triangle, not a frame around an image or panel. Only side
+    // declarations on a zero-size box with transparent sides qualify.
+    const triangle = zero(values.get('width')) && zero(values.get('height')) && sides.length >= 3 &&
+      sides.filter(([, value]) => /\btransparent\s*$/.test(value)).length === sides.length - 1 &&
+      sides.every(([, value]) => /^\d+(?:\.\d+)?px\s+solid\s+\S+$/.test(value));
+    if (triangle) style.walkDecls(node => {
+      if (/^border-(left|right|top|bottom)$/.test(node.prop)) node.remove();
+    });
+    const line = firstLine + html.slice(0, match.index).split('\n').length - 1;
+    rows.push(...cssViolations(style.toString(), filename).map(row => ({ ...row, line: line + row.line - 1 })));
+  }
   return rows;
 }
 
