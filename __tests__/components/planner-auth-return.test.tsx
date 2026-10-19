@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ItineraryWizard } from "@/components/itineraries/wizard";
 import { parsePlannerDraft, PLANNER_DRAFT_KEY, PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
+import { GENERATED_PREVIEW_KEY, GENERATED_PREVIEW_PATH, parseGeneratedPreview } from "@/lib/trips/generated-preview";
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
 import { apiError, ErrorCodes } from "@/lib/api-errors";
 
@@ -54,12 +55,13 @@ describe("wizard authentication return", () => {
     await waitFor(() => expect(state.toast).toHaveBeenCalledWith(expect.objectContaining({ description: expect.stringContaining("could not keep your trip inputs") })));
     expect(fetch).not.toHaveBeenCalled(); expect(state.push).not.toHaveBeenCalled();
   });
-  it("preserves the legacy pending itinerary and its claim return", async () => {
-    const itinerary = { title: "Owned mock trip", days: [] };
+  it("opens the complete anonymous preview without signup and retains the generated itinerary", async () => {
+    const itinerary = { title: "Owned mock trip", dailyPlans: [{ day: 1, activities: [{ name: "A source-backed stop", time: "10:00" }] }] };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ isAnonymous: true, itinerary }) }));
     await generate();
     await waitFor(() => expect(state.push).toHaveBeenCalled());
-    expect(JSON.parse(localStorage.getItem("pendingItinerary")!)).toEqual(itinerary);
-    expect(new URL(state.push.mock.calls[0][0], "https://www.localley.io").searchParams.get("redirect_url")).toBe("/itineraries/claim");
+    expect(parseGeneratedPreview(localStorage.getItem(GENERATED_PREVIEW_KEY))?.itinerary).toMatchObject({ ...itinerary, city: saved.city, days: saved.days });
+    expect(state.push).toHaveBeenCalledWith(GENERATED_PREVIEW_PATH);
+    expect(localStorage.getItem("pendingItinerary")).toBeNull();
   });
 });
