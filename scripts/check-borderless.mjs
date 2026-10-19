@@ -17,7 +17,7 @@ export function classParts(token) {
 }
 
 export function isDecorativeClass(token) {
-  const parts = classParts(token), utility = parts.pop().replace(/^!/, '');
+  const parts = classParts(token), utility = parts.pop().replace(/^!|!$/g, '');
   if (parts.some(part => /^(focus|focus-visible|focus-within|aria-invalid)$/.test(part) || part === "[&:focus-visible]")) return false;
   if (/^(border(?:-[xytrblse])?-0|border-(box;?|collapse|separate|spacing-.+)|ring-0|ring-offset-.+|outline-(none|hidden|0))$/.test(utility)) return false;
   return /^(border|ring|outline|divide)(?:$|-)/.test(utility) || /^(h|w)-(px|\[1px\])$/.test(utility) || /^shadow-\[(?:inset_)?0(?:px)?_0(?:px)?_0(?:px)?_[1-9]/.test(utility);
@@ -43,7 +43,7 @@ export function literalDecorations(node, styleInitializers) {
   if (variant) return [];
   return node.text.split(/\s+/).filter(token => isDecorativeClass(token) &&
     // Bare words also occur in product copy and prompts. Inspect them only in styling contexts.
-    (!/^(border|ring|outline|divide)$/.test(token) || hasClassContext(node, styleInitializers)));
+    (!/^(border|ring|outline|divide)$/.test(token.replace(/^!|!$/g, '')) || hasClassContext(node, styleInitializers)));
 }
 
 export function sourceViolations(source, filename) {
