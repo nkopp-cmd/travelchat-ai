@@ -12,8 +12,8 @@ export function TripUnavailableView({ candidate = false, pending = false }: {
   const focus = "h-auto min-h-11 whitespace-normal px-4 py-3 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring";
   return <section aria-labelledby="trip-unavailable-title" aria-busy={pending || undefined}
     className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-16">
-    <div className="rounded-2xl border border-border bg-card p-6 sm:p-10">
-      <div aria-hidden="true" className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-background text-foreground">
+    <div className="rounded-2xl bg-card p-6 shadow-xl shadow-black/10 sm:p-10">
+      <div aria-hidden="true" className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-foreground">
         <Compass className="h-6 w-6" />
       </div>
       <p className="mb-3 text-sm font-medium text-muted-foreground">Let’s find your next stop</p>
@@ -26,12 +26,12 @@ export function TripUnavailableView({ candidate = false, pending = false }: {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {pending ? <>
           <Button disabled className={focus}><ArrowLeft aria-hidden="true" />My trips</Button>
-          <Button disabled variant="outline" className={focus}>Explore places</Button>
+          <Button disabled variant="secondary" className={focus}>Explore places</Button>
         </> : <>
           <Button asChild className={focus}>
             <Link prefetch={false} href={`/itineraries${suffix}`}><ArrowLeft aria-hidden="true" />My trips</Link>
           </Button>
-          <Button asChild variant="outline" className={focus}>
+          <Button asChild variant="secondary" className={focus}>
             <Link prefetch={false} href={`/spots${suffix}`}>Explore places</Link>
           </Button>
         </>}
