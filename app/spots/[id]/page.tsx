@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { SpotEventLink } from "@/components/spots/spot-event-link";
 import { headers } from "next/headers";
 import { LocalleyScale } from "@/types";
 import { LocalleyScaleIndicator } from "@/components/spots/localley-scale";
@@ -539,7 +540,9 @@ function GetDirectionsButton({
       className={`w-full shadow-lg ${directionToneClass} ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
       size="lg"
     >
-      <Link
+      <SpotEventLink
+        spotId={spot.id}
+        event="directions"
         data-testid="spot-directions-link"
         href={directionsUrl}
         target="_blank"
@@ -553,7 +556,7 @@ function GetDirectionsButton({
           hasMatchedGooglePlace,
           locationConfidence.usableCoordinates,
         )}
-      </Link>
+      </SpotEventLink>
     </Button>
   );
 }

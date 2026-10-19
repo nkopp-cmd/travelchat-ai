@@ -1,7 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpotCard } from "@/components/spots/spot-card";
 import { LocalleyScale, type Spot } from "@/types";
+import { trackSpotEvent } from "@/lib/spot-analytics";
+import { SpotEventLink } from "@/components/spots/spot-event-link";
+
+vi.mock("@/lib/spot-analytics", () => ({ trackSpotEvent: vi.fn() }));
 
 vi.mock("@/components/spots/save-spot-button", () => ({ SaveSpotButton: () => <button type="button">Save spot</button> }));
 
@@ -15,7 +19,10 @@ const baseSpot: Spot = {
 };
 
 describe("SpotCard", () => {
-  beforeEach(() => vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "unavailable", photos: [] }) })));
+  beforeEach(() => {
+    vi.mocked(trackSpotEvent).mockClear();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "unavailable", photos: [] }) }));
+  });
   afterEach(() => vi.unstubAllGlobals());
   it.each([false, true])("keeps full names and source-backed geography in both layouts (compact %s)", compact => {
     render(<SpotCard spot={baseSpot} compact={compact} />);
@@ -51,5 +58,36 @@ describe("SpotCard", () => {
     render(<SpotCard spot={{...baseSpot, verified:false, communitySubmitted:true}} />);
     expect(screen.getByLabelText("Community submitted spot")).toBeTruthy();
     expect(screen.queryByText("Verified place")).toBeNull();
+  });
+  it("reports a card view only once after at least half enters view", () => {
+    let notify: IntersectionObserverCallback;
+    const disconnect = vi.fn();
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(callback: IntersectionObserverCallback) { notify = callback; }
+      observe() {} disconnect = disconnect;
+    });
+    const { unmount } = render(<SpotCard spot={baseSpot} />);
+    const target = screen.getByTestId("spot-card");
+    const intersect = (ratio: number) => act(() => notify([{ target, isIntersecting: true, intersectionRatio: ratio } as IntersectionObserverEntry], {} as IntersectionObserver));
+    intersect(0.49); expect(trackSpotEvent).not.toHaveBeenCalled();
+    intersect(0.5); intersect(1);
+    expect(trackSpotEvent).toHaveBeenCalledExactlyOnceWith("card_view", baseSpot.id);
+    unmount(); expect(disconnect).toHaveBeenCalled();
+  });
+  it("does not count a late view after the card unmounts", () => {
+    let notify: IntersectionObserverCallback;
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(callback: IntersectionObserverCallback) { notify = callback; }
+      observe() {} disconnect() {}
+    });
+    const { unmount } = render(<SpotCard spot={baseSpot} />);
+    const target = screen.getByTestId("spot-card"); unmount();
+    act(() => notify([{ target, isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry], {} as IntersectionObserver));
+    expect(trackSpotEvent).not.toHaveBeenCalled();
+  });
+  it.each(["add_to_trip", "open_detail", "directions"] as const)("reports a real %s link action", event => {
+    render(<div onClick={click => click.preventDefault()}><SpotEventLink spotId={baseSpot.id} event={event} href="/spots/example">Open fixture</SpotEventLink></div>);
+    fireEvent.click(screen.getByRole("link", { name: "Open fixture" }));
+    expect(trackSpotEvent).toHaveBeenCalledExactlyOnceWith(event, baseSpot.id);
   });
 });

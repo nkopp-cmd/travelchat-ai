@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SaveSpotButton } from "@/components/spots/save-spot-button";
+import { trackSpotEvent } from "@/lib/spot-analytics";
+
+vi.mock("@/lib/spot-analytics", () => ({ trackSpotEvent: vi.fn() }));
 
 const mockPush = vi.fn();
 const mockToast = vi.fn();
@@ -24,6 +27,7 @@ describe("SaveSpotButton", () => {
     mockPush.mockReset();
     mockToast.mockReset();
     mockUseUser.mockReturnValue({ isLoaded: true, isSignedIn: false });
+    vi.mocked(trackSpotEvent).mockClear();
   });
 
   it("gives repeated controls distinct names using each spot name", () => {
@@ -58,12 +62,14 @@ describe("SaveSpotButton", () => {
     expect(button.getAttribute("aria-busy")).toBe("false");
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(trackSpotEvent).not.toHaveBeenCalled();
     button.focus();
     fireEvent.click(button, { detail: 0 });
 
     expect(document.activeElement).toBe(button);
     expect(button.getAttribute("aria-busy")).toBe("true");
     expect(button.hasAttribute("disabled")).toBe(true);
+    expect(trackSpotEvent).not.toHaveBeenCalled();
 
     resolveSave?.(new Response(JSON.stringify({ saved: true }), { status: 200 }));
 
@@ -73,6 +79,20 @@ describe("SaveSpotButton", () => {
       }).getAttribute("aria-pressed")).toBe("true");
     });
     expect(button.getAttribute("aria-busy")).toBe("false");
+    expect(trackSpotEvent).toHaveBeenCalledExactlyOnceWith("save", "spot-ladrio");
+  });
+
+  it("does not report a save when loading an already saved spot or removing it", async () => {
+    mockUseUser.mockReturnValue({ isLoaded: true, isSignedIn: true });
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ saved: true }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ saved: false }), { status: 200 }));
+    render(<SaveSpotButton spotId="spot-ladrio" spotName="LADRIO" />);
+    const remove = await screen.findByRole("button", { name: "Remove LADRIO from saved spots" });
+    expect(trackSpotEvent).not.toHaveBeenCalled();
+    fireEvent.click(remove);
+    await screen.findByRole("button", { name: "Save LADRIO" });
+    expect(trackSpotEvent).not.toHaveBeenCalled();
   });
 
   it("provides a 44px mobile hit area without changing its layout dimensions", () => {

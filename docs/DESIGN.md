@@ -350,3 +350,20 @@ The existing Playwright layout spec now includes 360 px, full title/meta/count/C
 checks, and 44 px card/city targets. These browser assertions remain unrun.
 Nine carousel tests pass. Three city tests exposed joined accessible names;
 the label correction awaits a free heavy slot. No visual acceptance is claimed.
+
+## Spot event contract (2026-10-19)
+
+Shared cards emit `card_view` after at least half enters the viewport, once per
+mounted card. Unmounted cards stop observation. Planning and detail links emit
+`add_to_trip` and `open_detail`; the existing detail directions link emits
+`directions`. `save` requires a successful response with `saved: true`; loading an
+existing save, removal and failed requests do not count as saves. Link events
+measure action intent, not a completed trip or navigation.
+
+Events contain only the event name and public spot ID. Browser Do Not Track and
+Global Privacy Control suppress events. A first-party `localley:spot-event`
+CustomEvent supports local verification. The existing optional `gtag` function
+receives the event if present; no SDK, provider, cookie or storage is installed.
+Provider failures cannot block the action. No configured aggregate collector was
+found during this inspection; event emission does not prove durable collection.
+Exact tests, sink proof and final preview approval remain required.
