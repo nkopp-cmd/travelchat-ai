@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getFreshUserTier } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { buildItineraryPlanPayload, normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 import { isPreviewItineraryDetailCandidate } from "@/lib/app-data/preview-itinerary-detail";
@@ -81,6 +82,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         if (existingItinerary.clerk_user_id !== userId) {
             return Errors.forbidden("You don't own this itinerary.");
         }
+
+        if (!['pro', 'premium'].includes(await getFreshUserTier(userId))) return NextResponse.json({ error: { code: "payment_required", message: "Choose a plan to edit your itinerary." } }, { status: 402, headers: { "Cache-Control": "private, no-store" } });
 
         const normalizedPlan = normalizeDailyPlansForDisplay(days, insights);
         const activitiesPayload = buildItineraryPlanPayload(

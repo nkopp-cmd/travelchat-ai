@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
 
         // Parse request body
         const body = await req.json();
-        const { tier, billingCycle = "monthly" } = body;
+        const { tier, billingCycle = "monthly", returnTo } = body;
+        if (returnTo !== undefined && returnTo !== "itinerary-preview") return Errors.validationError("Invalid checkout return destination");
 
         // Validate tier
         if (!tier || !["pro", "premium"].includes(tier)) {
@@ -100,8 +101,8 @@ export async function POST(req: NextRequest) {
 
         // Build success and cancel URLs
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
-        const successUrl = `${baseUrl}/settings?subscription=success`;
-        const cancelUrl = `${baseUrl}/pricing?canceled=true`;
+        const successUrl = returnTo === "itinerary-preview" ? `${baseUrl}/itineraries/preview?payment=success` : `${baseUrl}/settings?subscription=success`;
+        const cancelUrl = returnTo === "itinerary-preview" ? `${baseUrl}/itineraries/preview?payment=canceled` : `${baseUrl}/pricing?canceled=true`;
 
         // Create checkout session
         const session = await createCheckoutSession({

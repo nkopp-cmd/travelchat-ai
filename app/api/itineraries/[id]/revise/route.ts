@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import OpenAI from "openai";
 import { TEXT_MODEL } from "@/lib/llm/env";
 import { addThumbnailsToItinerary } from "@/lib/activity-images";
+import { getFreshUserTier } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import {
   buildItineraryPlanPayload,
@@ -147,6 +148,8 @@ export async function POST(
     if (fetchError || !itinerary) {
       return Errors.notFound("Itinerary");
     }
+
+        if (!['pro', 'premium'].includes(await getFreshUserTier(userId))) return NextResponse.json({ error: { code: "payment_required", message: "Choose a plan to edit your itinerary." } }, { status: 402, headers: { "Cache-Control": "private, no-store" } });
 
     // Parse existing activities
     const existingActivities =

@@ -444,3 +444,15 @@ The compact builder passes the selected city, duration and interests into that s
 The mobile landing bar also opens planning; paid-plan comparison remains a separate pricing link.
 This design release preserves existing generation quotas and billing entitlements.
 The catalog preview and payment-return changes remain separate unfinished product work.
+
+## Generate first; pay to save or edit — Nils2026-10-19
+
+Free single-city generation opens the full browser itinerary view without signup.
+A bounded24-hour draft retains its stable UUID, all stops and inputs through signup and checkout in the same browser.
+Saving requires a fresh server-side paid/lifetime entitlement; a checkout return query grants nothing.
+The fixed checkout return uses the existing Pro monthly price; no prices or secrets change.
+Paid generation keeps its existing autosave; normal free save/edit/revision endpoints refuse before writes/provider calls.
+Candidate D1 admission and owner checks remain unchanged. Free previews are not account saves.
+Existing anonymous cookie limit remains, account allowance is one per month, and generation also uses the existing five-per-minute IP limiter.
+This is not a per-person abuse-proof limit; cookie deletion and multiple accounts remain a risk.
+No real paid model generation or Stripe charge is needed for regression tests.

@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'lib/trips/generated-preview.ts'
+      - 'app/itineraries/preview/**'
+      - '__tests__/lib/generated-preview.test.ts'
+      - '__tests__/components/generated-preview.test.tsx'
       - 'lib/trips/public-catalog-preview.mjs'
       - 'scripts/public-catalog-preview.checks.mjs'
       - 'scripts/check-route-review*.mjs'
@@ -355,6 +359,7 @@ jobs:
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            npx vitest run __tests__/components/generated-preview.test.tsx __tests__/lib/generated-preview.test.ts __tests__/api/itinerary-save-candidate.test.ts __tests__/api/itinerary-update-candidate.test.ts __tests__/api/subscription-checkout-live.test.ts --maxWorkers=1
             node --test scripts/check-embedded-borders.checks.mjs
             npx vitest run __tests__/lib/borderless-guard.test.ts __tests__/components/borderless-navigation.test.tsx --maxWorkers=1
             node scripts/check-borderless.mjs

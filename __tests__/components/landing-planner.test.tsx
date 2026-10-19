@@ -43,7 +43,7 @@ describe("plan-first landing entry", () => {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const links = Array.from(doc.querySelectorAll("a")).filter(link => link.textContent?.trim() === "Start planning");
     expect(links.length).toBeGreaterThanOrEqual(2);
-    for (const link of links) expect(link.getAttribute("href")).toBe("/itineraries/new");
+    for (const link of links) expect(new URL(link.getAttribute("href")!, "https://localley.io").pathname).toBe("/itineraries/new");
   });
 });
 

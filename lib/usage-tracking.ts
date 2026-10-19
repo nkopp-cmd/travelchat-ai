@@ -244,6 +244,9 @@ async function fetchUserTier(clerkUserId: string): Promise<SubscriptionTier> {
  * - Early adopter status changes
  * - TTL expires
  */
+/** Fresh server authority for paid mutations; no browser or checkout query grants access. */
+export async function getFreshUserTier(clerkUserId: string): Promise<SubscriptionTier> { return fetchUserTier(clerkUserId); }
+
 export async function getUserTier(clerkUserId: string): Promise<SubscriptionTier> {
     const cachedFetch = unstable_cache(
         () => fetchUserTier(clerkUserId),

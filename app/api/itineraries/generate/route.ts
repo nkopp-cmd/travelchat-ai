@@ -1,3 +1,4 @@
+import { rateLimiters } from "@/lib/rate-limit";
 import { logItineraryFormatFailure, logItineraryRequestFailure } from "./diagnostics";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
@@ -47,6 +48,8 @@ async function getAnonymousUsage(): Promise<number> {
 
 export async function POST(req: NextRequest) {
   try {
+    const limited = await rateLimiters.strict(req);
+    if (limited) return limited;
     const { userId } = await auth();
     const isAnonymous = !userId;
     let tier: SubscriptionTier = "free";
@@ -288,7 +291,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     let savedItinerary = null;
 
     // Only save to database for authenticated users
-    if (!isAnonymous && userId) {
+    if (!isAnonymous && userId && tier !== "free") {
       const userDbId = await getOrCreateUserDbId(supabase, userId);
 
       // Only try to save if we have a valid user ID
@@ -345,9 +348,11 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     const response = NextResponse.json({
       success: true,
       isAnonymous,
+      requiresSaveUpgrade: tier === "free",
       itinerary: {
         id: savedItinerary?.id,
         ...itineraryData,
+        city: normalizedCity, days,
       },
       meta: {
         provider: aiProvider,

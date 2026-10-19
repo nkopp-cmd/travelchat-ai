@@ -1,3 +1,4 @@
+import { getFreshUserTier } from "@/lib/usage-tracking";
 import { auth } from "@/lib/auth/server";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -54,6 +55,8 @@ export default async function EditItineraryPage({
     if (itinerary.clerk_user_id !== userId) {
         redirect("/itineraries");
     }
+
+    if (!["pro", "premium"].includes(await getFreshUserTier(userId))) redirect("/pricing");
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-violet-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

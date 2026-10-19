@@ -15,6 +15,8 @@ import { StepPreferences } from "./step-preferences";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
+import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
+
 const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
   "Discovering local favorites...",
@@ -327,15 +329,10 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
         throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
       }
 
-      // Handle anonymous user - show itinerary with signup prompt
-      if (result.isAnonymous) {
-        toast({
-          title: "Itinerary created!",
-          description: "Sign up to save it and create more",
-        });
-        // Store in localStorage for retrieval after signup
-        localStorage.setItem("pendingItinerary", JSON.stringify(result.itinerary));
-        router.push("/sign-up?redirect_url=%2Fitineraries%2Fclaim");
+      // Free generation is a full readable browser preview. Saving is a separate paid action.
+      if (result.isAnonymous || result.requiresSaveUpgrade) {
+        storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days });
+        router.push(GENERATED_PREVIEW_PATH);
       } else {
         // Authenticated user - redirect to saved itinerary
         toast({
