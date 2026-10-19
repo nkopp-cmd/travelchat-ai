@@ -308,6 +308,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Verify single-table count preflight
+        run: node --test scripts/d1-migration/count-preflight.checks.mjs
       - run: |
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
