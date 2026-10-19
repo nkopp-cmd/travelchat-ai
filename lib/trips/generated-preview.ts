@@ -20,3 +20,12 @@ export function storeGeneratedPreview(storage: Pick<Storage, "setItem">, itinera
   const raw = JSON.stringify(value); if (new TextEncoder().encode(raw).length > MAX_BYTES) throw new Error("The itinerary is too large to keep in this browser.");
   storage.setItem(GENERATED_PREVIEW_KEY, raw); return value;
 }
+
+export function generatedPreviewSnapshot(): string | null {
+  try { return localStorage.getItem(GENERATED_PREVIEW_KEY); } catch { return null; }
+}
+export function generatedPreviewServerSnapshot(): null { return null; }
+export function subscribeGeneratedPreview(listener: () => void) {
+  window.addEventListener("storage", listener);
+  return () => window.removeEventListener("storage", listener);
+}

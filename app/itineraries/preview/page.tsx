@@ -1,17 +1,17 @@
 "use client";
 import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { GENERATED_PREVIEW_KEY, GENERATED_PREVIEW_PATH, parseGeneratedPreview, type GeneratedPreview } from "@/lib/trips/generated-preview";
+import { GENERATED_PREVIEW_KEY, GENERATED_PREVIEW_PATH, parseGeneratedPreview, generatedPreviewSnapshot, generatedPreviewServerSnapshot, subscribeGeneratedPreview } from "@/lib/trips/generated-preview";
 
 function Preview() {
   const router = useRouter(), search = useSearchParams(), { isLoaded, isSignedIn } = useUser();
-  const [draft, setDraft] = useState<GeneratedPreview | null>(null), [loaded, setLoaded] = useState(false);
+  const raw = useSyncExternalStore(subscribeGeneratedPreview, generatedPreviewSnapshot, generatedPreviewServerSnapshot);
+  const draft = useMemo(() => parseGeneratedPreview(raw), [raw]);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   const returned = useRef(false);
-  useEffect(() => { try { setDraft(parseGeneratedPreview(localStorage.getItem(GENERATED_PREVIEW_KEY))); } catch { setError("Browser storage is unavailable."); } finally { setLoaded(true); } }, []);
   async function save() {
     if (!draft || busy) return;
     if (!isSignedIn) { router.push(`/sign-up?redirect_url=${encodeURIComponent(GENERATED_PREVIEW_PATH)}`); return; }
@@ -49,7 +49,6 @@ function Preview() {
     // The return is deliberately consumed once for this loaded draft.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft, isLoaded, isSignedIn, search]);
-  if (!loaded) return <p role="status" className="p-6">Opening your itinerary…</p>;
   if (!draft) return <section className="mx-auto max-w-xl space-y-5 p-6"><h1 className="text-2xl font-semibold">Start with a trip idea</h1><p>This browser has no current itinerary preview. Unsaved previews last 24 hours.</p><Button asChild><Link href="/itineraries/new">Start planning</Link></Button></section>;
   return <main className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8 sm:px-6">
     <header className="space-y-4"><p className="text-sm text-muted-foreground">Your trip, ready to explore</p><h1 className="break-words text-3xl font-semibold tracking-tight sm:text-5xl">{draft.itinerary.title}</h1><p className="text-muted-foreground">{draft.itinerary.city} · {draft.itinerary.days} days</p><p>View your full itinerary free. Pro saves it to your account and unlocks editing, from $9/month. Existing paid members can save now.</p><p className="text-sm text-muted-foreground">Kept on this browser for 24 hours. Use the same browser to sign up and complete checkout.</p></header>
