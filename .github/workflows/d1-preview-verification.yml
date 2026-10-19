@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'scripts/public-cache-proof.py'
+      - 'scripts/test_public_cache_proof.py'
       - 'app/layout.tsx'
       - 'components/layout/main-content-shell.tsx'
       - '__tests__/components/main-content-shell.test.tsx'
@@ -304,6 +306,8 @@ jobs:
       HEAVY_LOCK_WAIT_SECONDS: '1200'
     steps:
       - uses: actions/checkout@v4
+      - name: Verify public cache evidence acceptance
+        run: python3 -B scripts/test_public_cache_proof.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
