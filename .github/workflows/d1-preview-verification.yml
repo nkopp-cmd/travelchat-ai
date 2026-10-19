@@ -338,14 +338,13 @@ jobs:
           cache: npm
       - name: Check route review evidence contract
         run: node --test scripts/check-route-review.test.mjs
-      - name: Check embedded border regressions
-        run: node --test scripts/check-embedded-borders.checks.mjs
       - name: Check public planner sample projection
         run: node --test scripts/public-catalog-preview.checks.mjs
       - run: |
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci
+            node --test scripts/check-embedded-borders.checks.mjs
             npx vitest run __tests__/lib/borderless-guard.test.ts __tests__/components/borderless-navigation.test.tsx --maxWorkers=1
             node scripts/check-borderless.mjs
             node --check scripts/verify-spot-card-routes.mjs
