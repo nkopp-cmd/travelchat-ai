@@ -37,7 +37,7 @@ describe("local sign-in continuation", () => {
     expect(await response.json()).toEqual({ error: "Unauthorized" });
   });
 
-  it.each(["/spots", "/sign-in", "/sign-in/factor-one", "/api/spots/spot-1/reviews", "/api/auth/get-session", "/forgot-password", "/reset-password", "/itineraries/abc/stories"])("does not protect public GET %s", async path => {
+  it.each(["/itineraries/new", "/itineraries/new?city=Seoul&days=3&group=couple", "/spots", "/sign-in", "/sign-in/factor-one", "/api/spots/spot-1/reviews", "/api/auth/get-session", "/forgot-password", "/reset-password", "/itineraries/abc/stories"])("does not protect public GET %s", async path => {
     const response = await middleware(request(path));
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
