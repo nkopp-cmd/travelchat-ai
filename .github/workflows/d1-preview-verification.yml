@@ -52,6 +52,8 @@ on:
       - 'components/activities/itinerary-activity-card.tsx'
       - '__tests__/components/itinerary-activity-card.test.tsx'
       - 'components/spots/spot-card.tsx'
+      - 'components/spots/weekly-trending-spots.tsx'
+      - '__tests__/components/weekly-shared-cards.test.tsx'
       - 'components/spots/spot-photo-image.tsx'
       - 'components/spots/spots-explorer.tsx'
       - '__tests__/components/spot-card.test.tsx'

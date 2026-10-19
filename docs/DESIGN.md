@@ -327,3 +327,15 @@ text, control and keyboard checks. Neither proved a final tap or the other width
 Their receipts also retain a development hydration warning about the Save button.
 No third route attempt is authorized by this step. The shared-card acceptance box
 stays open; these partial observations do not replace the final hosted preview.
+
+## Carousel accessibility refinement (2026-10-19)
+
+Each weekly carousel now has stable instance-specific heading and track IDs.
+The scroll track has an explicit group role and keyboard instructions. Previous
+and next buttons identify their controlled track. The compact visible position
+stays unchanged; the live status supplies words such as “Showing spot 1 of 3”.
+This avoids duplicate IDs and unclear announcements when two carousels coexist.
+No layout class, data query, ranking, swipe handler or payment behavior changes.
+Regression checks cover separate instances, control associations, readable status
+and keyboard events from nested card actions. The prior R7 native gesture proof
+remains historical evidence only; this change needs its exact CI and preview review.
