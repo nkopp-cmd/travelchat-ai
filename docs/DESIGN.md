@@ -4,6 +4,17 @@ Status: draft preparation. The urgent mobile scroll repair must ship first.
 This document does not approve a production design release.
 Nils must approve the exact final preview URL before that release.
 
+## Route screenshot evidence contract
+
+`node scripts/check-route-review.mjs <private-receipt.json> <source-sha>` checks
+every current page at 390 and 1440 pixels. Optional auth catch-all paths resolve
+to their entry pages. Each case requires a distinct PNG with the expected width
+and an explicit inspected flag. Receipts identify their source and HTTPS preview.
+This checks structural evidence only. A person must inspect the screenshots;
+passing this checker does not prove the route loaded correctly or approve release.
+Dynamic pages still require owned fixtures and denied-state reviews. Never use
+production user data or record credentials in the receipt or preview URL.
+
 ## Product and direction
 
 Localley helps travellers choose places and build useful days across Asia.
