@@ -339,3 +339,14 @@ No layout class, data query, ranking, swipe handler or payment behavior changes.
 Regression checks cover separate instances, control associations, readable status
 and keyboard events from nested card actions. The prior R7 native gesture proof
 remains historical evidence only; this change needs its exact CI and preview review.
+
+## Mobile count and city controls (2026-10-19)
+
+The total count now occupies its own wrapping line below the city controls.
+City choices wrap instead of hiding the total in a horizontal strip. City controls
+have a 44 px minimum and explicit names separating the city from its count.
+Filtering still preserves category/layout and resets pagination.
+The existing Playwright layout spec now includes 360 px, full title/meta/count/CTA
+checks, and 44 px card/city targets. These browser assertions remain unrun.
+Nine carousel tests pass. Three city tests exposed joined accessible names;
+the label correction awaits a free heavy slot. No visual acceptance is claimed.

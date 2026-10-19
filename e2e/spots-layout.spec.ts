@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const VIEWPORTS = [
+  { name: "mobile-360", width: 360, height: 800 },
   { name: "mobile-390", width: 390, height: 844 },
   { name: "mobile-430", width: 430, height: 932 },
   { name: "tablet", width: 768, height: 1024 },
@@ -67,6 +68,27 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
 }
 
+async function expectFullText(locator: Locator) {
+  const metrics = await locator.evaluate(el => {
+    const style = getComputedStyle(el);
+    return {
+      text: el.textContent,
+      width: el.clientWidth,
+      scrollWidth: el.scrollWidth,
+      height: el.clientHeight,
+      scrollHeight: el.scrollHeight,
+      ellipsis: style.textOverflow === "ellipsis",
+      clamp: style.webkitLineClamp,
+    };
+  });
+  expect(metrics.text?.trim()).toBeTruthy();
+  expect(metrics.width).toBeGreaterThan(0);
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.width + 1);
+  expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.height + 1);
+  expect(metrics.ellipsis).toBe(false);
+  expect(["none", ""].includes(metrics.clamp)).toBe(true);
+}
+
 async function expectInside(parent: Locator, child: Locator) {
   const [parentBox, childBox] = await Promise.all([
     parent.boundingBox(),
@@ -121,6 +143,18 @@ test.describe("spots responsive layout", () => {
           .first(),
       ).toBeVisible();
       await expectNoHorizontalOverflow(page);
+      const catalogCount = page.getByRole("status").filter({ hasText: /total curated spots/ });
+      await expect(catalogCount).toBeVisible();
+      await expectFullText(catalogCount.locator("span"));
+      const countBounds = await catalogCount.boundingBox();
+      expect(countBounds!.x).toBeGreaterThanOrEqual(0);
+      expect(countBounds!.x + countBounds!.width).toBeLessThanOrEqual(viewport.width + 1);
+      for (const city of await page.getByRole("button", { name: /[\d,]+ spots$/ }).all()) {
+        await expectFullText(city);
+        const bounds = await city.boundingBox();
+        expect(bounds!.width).toBeGreaterThanOrEqual(44);
+        expect(bounds!.height).toBeGreaterThanOrEqual(44);
+      }
 
       if (viewport.width < 768) {
         const mobileFilterRow = page.getByTestId("spots-mobile-filter-row");
@@ -149,6 +183,14 @@ test.describe("spots responsive layout", () => {
         const card = cards.nth(index);
         await expect(card.getByTestId("spot-card-title")).toBeVisible();
         await expect(card.getByTestId("spot-card-photo")).toBeVisible();
+        for (const text of await card.locator('[data-testid="spot-card-title"], [data-spot-card-meta], a[data-slot="button"]').all()) {
+          await expectFullText(text);
+        }
+        for (const action of await card.locator("button,a").all()) {
+          const bounds = await action.boundingBox();
+          expect(bounds!.width).toBeGreaterThanOrEqual(44);
+          expect(bounds!.height).toBeGreaterThanOrEqual(44);
+        }
 
         const chips = card.locator("[data-layout-chip]").filter({
           visible: true,
