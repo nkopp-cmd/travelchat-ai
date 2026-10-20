@@ -483,3 +483,25 @@
     @apply bg-violet-600 text-white px-4 py-2 rounded-lg z-50;
   }
 }
+
+/* Leaflet's stylesheet gives the zoom control 2px and 1px borders. The design is
+   borderless: the buttons separate by a gap. `.leaflet-container` outranks
+   leaflet.css, which loads after this file with the map. */
+.leaflet-container .leaflet-bar {
+    border: 0;
+    background: transparent;
+}
+
+.leaflet-container .leaflet-bar a,
+.leaflet-container .leaflet-bar a:last-child {
+    border: 0;
+    border-radius: 8px;
+    /* Leaflet's 30px buttons are below the 44px tap-target minimum. */
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+}
+
+.leaflet-container .leaflet-bar a + a {
+    margin-top: 4px;
+}
