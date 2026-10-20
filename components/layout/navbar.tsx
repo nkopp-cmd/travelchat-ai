@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { UserMenu } from "@/components/auth/user-menu";
-import { ArrowRight, Map, Menu, Compass, Award, Settings, CreditCard, Sparkles, Search } from "@/components/ui/icons";
+import { ArrowRight, Map, Menu, Compass, Award, Settings, CreditCard, Sparkles } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -16,12 +16,12 @@ import { useScrollDirection } from "@/hooks/use-scroll-direction";
 const routes = [
   { href: "/spots", label: "Explore", icon: Compass },
   { href: "/itineraries", label: "My trips", icon: Map },
+  { href: "/pricing", label: "Pricing", icon: CreditCard },
   { href: "/profile", label: "Profile", icon: Award },
 ];
 const mobileRoutes = [
-  { href: "/spots", label: "Spots", icon: Search },
+  ...routes,
   { href: "/templates", label: "Templates", icon: Sparkles },
-  { href: "/pricing", label: "Plans", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

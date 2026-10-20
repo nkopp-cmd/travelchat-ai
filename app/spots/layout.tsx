@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Sidebar } from "@/components/layout/sidebar";
 import { AppBackground } from "@/components/layout/app-background";
 
 export const metadata: Metadata = {
@@ -25,8 +24,7 @@ export default function SpotsLayout({
 }) {
     return (
         <AppBackground ambient fitParent className="min-h-full" contentClassName="flex min-h-full">
-            <Sidebar />
-            <div className="min-w-0 flex-1 bg-transparent p-3 pb-24 sm:p-4 md:rounded-tl-2xl md:p-8 md:pb-8">
+            <div className="min-w-0 flex-1 bg-transparent p-3 pb-24 sm:p-4 md:p-8 md:pb-8">
                 {children}
             </div>
         </AppBackground>

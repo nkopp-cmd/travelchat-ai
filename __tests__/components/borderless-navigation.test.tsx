@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 const state = vi.hoisted(() => ({ pathname:'/spots', loaded:false, signedIn:false }));
 vi.mock('next/navigation', () => ({usePathname:()=>state.pathname}));
 vi.mock('next/link', () => ({default:({href,...props}:ComponentProps<'a'>)=><a href={href} {...props}/>}));
@@ -24,8 +24,13 @@ describe('borderless navigation state',()=>{
  it('lets a signed-out visitor open the planner and the public catalog',()=>{
   state.loaded=true;render(<Navbar/>);expect(screen.getByRole('link',{name:'Start planning'}).getAttribute('href')).toBe('/itineraries/new');expect(screen.getByRole('link',{name:'Explore'}).getAttribute('href')).toBe('/spots');
  });
+ it.each(['/','/spots','/pricing','/itineraries/new'])('uses the same main links on %s',path=>{
+  state.pathname=path;state.loaded=true;render(<Navbar/>);const nav=screen.getByRole('navigation',{name:'Main pages'});
+  expect(within(nav).getAllByRole('link').map(link=>[link.textContent,link.getAttribute('href')])).toEqual([['Explore','/spots'],['My trips','/itineraries'],['Pricing','/pricing'],['Profile','/profile']]);
+ });
  it('gives the drawer a readable title and closes after navigation',async()=>{
-  render(<Navbar/>);fireEvent.click(screen.getByRole('button',{name:'Open menu'}));expect(await screen.findByRole('dialog',{name:'Explore Localley'})).not.toBeNull();
+  render(<Navbar/>);fireEvent.click(screen.getByRole('button',{name:'Open menu'}));const drawer=await screen.findByRole('dialog',{name:'Explore Localley'});expect(drawer).not.toBeNull();
+  for(const label of ['Explore','My trips','Pricing','Profile'])expect(within(drawer).getByRole('link',{name:label})).not.toBeNull();
   fireEvent.click(screen.getByRole('link',{name:'Templates'}));expect(screen.queryByRole('dialog')).toBeNull();
  });
  it.each(['/spots','/spots/place-id','/dashboard'])('marks public Explore active for %s',path=>{
