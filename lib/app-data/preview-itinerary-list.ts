@@ -48,3 +48,11 @@ export async function previewItineraryList(userId: string): Promise<PreviewItine
     };
   });
 }
+
+/** Dashboard "recent" strip: the owner's newest rows from the same exact-owner list. */
+export async function previewRecentItineraries(userId: string, limit = 6): Promise<Array<
+  Pick<PreviewItineraryListItem, "id" | "title" | "city" | "days" | "created_at">
+>> {
+  const rows = await previewItineraryList(userId);
+  return rows.slice(0, limit).map(({ id, title, city, days, created_at }) => ({ id, title, city, days, created_at }));
+}

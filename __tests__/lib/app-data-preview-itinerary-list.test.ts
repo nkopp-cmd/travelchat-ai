@@ -4,7 +4,7 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 
 const mocks = vi.hoisted(() => ({ reader: vi.fn() }));
 vi.mock("@/lib/app-data/preview-db", () => ({ previewAppDataReader: mocks.reader }));
-import { isPreviewItineraryListCandidate, previewItineraryList } from "@/lib/app-data/preview-itinerary-list";
+import { isPreviewItineraryListCandidate, previewItineraryList, previewRecentItineraries } from "@/lib/app-data/preview-itinerary-list";
 
 const environment = process.env;
 const one = "550e8400-e29b-41d4-a716-446655440000";
@@ -52,6 +52,13 @@ describe("preview itinerary list", () => {
       ]);
       expect((await previewItineraryList("user_two")).map(row => row.id)).toEqual([other]);
       expect(await previewItineraryList("unknown_user")).toEqual([]);
+      expect(await previewRecentItineraries("user_one", 1)).toEqual([
+        { id: two, title: "Fresh", city: "Tokyo", days: 1, created_at: "2026-09-30T00:00:00Z" },
+      ]);
+      expect((await previewRecentItineraries("user_one")).map(row => row.id)).toEqual([two, one]);
+      expect(await previewRecentItineraries("user_two")).toEqual([
+        { id: other, title: "Foreign", city: "Busan", days: 1, created_at: "2026-09-30T00:00:00Z" },
+      ]);
     } finally {
       db.sqlite.close();
     }
