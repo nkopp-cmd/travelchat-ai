@@ -3,7 +3,9 @@
  *
  * "/" and "/pricing" are static prerenders; "/spots" and its enabled-city
  * variants ("/spots?city=seoul") render per request but only from anonymous
- * catalog reads. The HTML is the same for every visitor
+ * catalog reads. The auth pages render the same form for every visitor (the
+ * form reads its query on the client, and middleware never redirects them
+ * by session), so they cache like prerenders. The HTML is the same for every visitor
  * (account controls render on the client). Without this, every visit runs the
  * full OpenNext handler. The key carries the Worker version id, so a deploy
  * never serves HTML that points at removed hashed assets.
@@ -12,7 +14,14 @@ import { ENABLED_CITIES } from "../../lib/cities";
 
 // Seconds each path stays at the edge. Prerenders change only on deploy; the
 // spots catalog is live data, so it refreshes every few minutes.
-export const EDGE_HTML_TTL_SECONDS: Record<string, number> = { "/": 86400, "/pricing": 86400, "/spots": 300 };
+export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
+  "/": 86400,
+  "/pricing": 86400,
+  "/sign-in": 86400,
+  "/sign-up": 86400,
+  "/forgot-password": 86400,
+  "/spots": 300,
+};
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
 const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
 export const EDGE_CACHE_HEADER = "x-localley-edge-cache";

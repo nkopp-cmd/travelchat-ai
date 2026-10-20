@@ -68,6 +68,11 @@ describe("public HTML edge cache", () => {
   it("bypasses the cache for other routes, queries, methods, RSC requests and missing versions", async () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/abc"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(true);
+    for (const path of ["/sign-in", "/sign-up", "/forgot-password"]) {
+      expect(isEdgeCacheable(new Request(`https://www.localley.io${path}`))).toBe(true);
+      expect(isEdgeCacheable(new Request(`https://www.localley.io${path}?redirect_url=%2Fdashboard`))).toBe(false);
+    }
+    expect(isEdgeCacheable(new Request("https://www.localley.io/reset-password"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&category=Food"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=Seoul"))).toBe(false);
