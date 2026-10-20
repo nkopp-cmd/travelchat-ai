@@ -5,8 +5,8 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 
 const mocks = vi.hoisted(() => ({ reader: vi.fn() }));
 vi.mock("@/lib/app-data/preview-db", () => ({ previewAppDataReader: mocks.reader }));
-import { isPreviewLeaderboardCandidate, parseLeaderboardLimit,
-  previewLeaderboard } from "@/lib/app-data/preview-leaderboard";
+import { isPreviewLeaderboardCandidate, isPreviewLeaderboardPageCandidate, parseLeaderboardLimit,
+  previewLeaderboard, previewLeaderboardPage } from "@/lib/app-data/preview-leaderboard";
 
 const environment = process.env;
 afterEach(() => { process.env = environment; vi.clearAllMocks(); });
@@ -72,5 +72,32 @@ describe("historical leaderboard", () => {
     await expect(previewLeaderboard(null, 2)).rejects.toThrow("count mismatch");
     db.sqlite.prepare("INSERT INTO legacy_profile_stats VALUES (?, 'Explorer', -1, 1)").run(ids[2]);
     await expect(previewLeaderboard(null, 3)).rejects.toThrow("Invalid leaderboard profile");
+  });
+
+  it("gates the page by exact host, opt-in flag and preview mode", () => {
+    process.env = { ...environment, AUTH_MAIL_MODE: "outbox", SUPABASE_READ_ONLY: "true" };
+    expect(isPreviewLeaderboardPageCandidate("localley-next-preview.nkopp.workers.dev", "d1")).toBe(true);
+    expect(isPreviewLeaderboardPageCandidate("www.localley.io", "d1")).toBe(false);
+    expect(isPreviewLeaderboardPageCandidate("localley-next-preview.nkopp.workers.dev", undefined)).toBe(false);
+    expect(isPreviewLeaderboardPageCandidate("localley-next-preview.nkopp.workers.dev", ["d1"])).toBe(false);
+    process.env.SUPABASE_READ_ONLY = "false";
+    expect(isPreviewLeaderboardPageCandidate("localley-next-preview.nkopp.workers.dev", "d1")).toBe(false);
+  });
+
+  it("maps the D1 archive to the page shape with the signed-in rank", async () => {
+    database();
+    const { leaderboard, currentUserRank } = await previewLeaderboardPage("user-2");
+    expect(leaderboard.map(row => [row.rank, row.clerk_id, row.xp, row.isCurrentUser]))
+      .toEqual([[1, "user-1", 40, false], [2, "user-2", 20, true], [3, "user-3", 10, false]]);
+    expect(currentUserRank).toBeNull();
+  });
+
+  it("keeps the page's candidate path off Supabase", async () => {
+    const { readFileSync } = await import("node:fs");
+    const page = readFileSync("app/leaderboard/page.tsx", "utf8");
+    const candidate = page.slice(page.indexOf("async function getCandidateLeaderboard"), page.indexOf("async function getLeaderboard"));
+    expect(candidate).toContain("previewLeaderboardPage(");
+    expect(candidate).not.toMatch(/supabase/i);
+    expect(page).toMatch(/candidate \? await getCandidateLeaderboard\(\) : await getLeaderboard\(\)/);
   });
 });

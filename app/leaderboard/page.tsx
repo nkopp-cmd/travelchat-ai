@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Trophy, Medal, Award, Crown, ArrowLeft, Flame } from "@/components/ui/icons";
 import { getRankTitle } from "@/lib/gamification";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { isPreviewLeaderboardPageCandidate, previewLeaderboardPage } from "@/lib/app-data/preview-leaderboard";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth/server";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -26,10 +28,15 @@ interface LeaderboardUser {
     isCurrentUser: boolean;
 }
 
-async function getLeaderboard(): Promise<{
-    leaderboard: LeaderboardUser[];
-    currentUserRank: LeaderboardUser | null;
-}> {
+type LeaderboardData = { leaderboard: LeaderboardUser[]; currentUserRank: LeaderboardUser | null };
+
+// Candidate reads come only from the D1 archive; never fall back to Supabase on failure.
+async function getCandidateLeaderboard(): Promise<LeaderboardData> {
+    const { userId } = await auth();
+    return previewLeaderboardPage(userId ?? null);
+}
+
+async function getLeaderboard(): Promise<LeaderboardData> {
     const { userId } = await auth();
     const supabase = createSupabaseAdmin();
 
@@ -184,8 +191,8 @@ function LeaderboardSkeleton() {
     );
 }
 
-async function LeaderboardContent() {
-    const { leaderboard, currentUserRank } = await getLeaderboard();
+async function LeaderboardContent({ candidate }: { candidate: boolean }) {
+    const { leaderboard, currentUserRank } = candidate ? await getCandidateLeaderboard() : await getLeaderboard();
 
     if (leaderboard.length === 0) {
         return (
@@ -289,7 +296,12 @@ async function LeaderboardContent() {
     );
 }
 
-export default function LeaderboardPage() {
+export default async function LeaderboardPage({ searchParams }: {
+    searchParams: Promise<{ data_candidate?: string }>;
+}) {
+    const host = (await headers()).get("host");
+    const { data_candidate } = await searchParams;
+    const candidate = isPreviewLeaderboardPageCandidate(host, data_candidate);
     return (
         <AppBackground ambient className="min-h-screen">
             <div className="max-w-3xl mx-auto p-4 pb-24 space-y-6 animate-in fade-in duration-500 md:pb-8">
@@ -329,7 +341,7 @@ export default function LeaderboardPage() {
 
             {/* Leaderboard */}
             <Suspense fallback={<LeaderboardSkeleton />}>
-                <LeaderboardContent />
+                <LeaderboardContent candidate={candidate} />
             </Suspense>
             </div>
         </AppBackground>
