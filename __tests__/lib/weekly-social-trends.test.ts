@@ -22,6 +22,7 @@ import {
   normalizeSocialTrendItem,
   refreshWeeklySocialTrends,
   shouldRebuildCity,
+  signalWeeks,
   SOCIAL_SCOUT_CITIES,
   TREND_LINKER_RELEASED_AT,
 } from "@/lib/weekly-social-trends";
@@ -379,5 +380,17 @@ describe("weekly social trend normalization", () => {
     expect(shouldRebuildCity({ state: "running", attempt_count: 1, completed_at: null })).toBe(false);
     expect(shouldRebuildCity({ state: "failed", attempt_count: 2, completed_at: after })).toBe(true);
     expect(shouldRebuildCity({ state: "failed", attempt_count: 3, completed_at: after })).toBe(false);
+  });
+
+  it("matches a spot by any localized name and keeps short names specific", () => {
+    const spot = { name: { en: "Gwangjang Market", ko: "광장시장" } };
+    expect(mentionsSpot("오늘은 광장시장에서 빈대떡!", spot)).toBe(true);
+    expect(mentionsSpot("Best bites at gwangjang market", spot)).toBe(true);
+    expect(mentionsSpot("A market day", { name: { en: "Mark", ko: "시장" } })).toBe(false);
+    expect(mentionsSpot("시장 구경", { name: { en: "Mark", ko: "시장" } })).toBe(false);
+  });
+
+  it("reads the current and the previous week of signals", () => {
+    expect(signalWeeks("2026-10-19")).toEqual(["2026-10-19", "2026-10-12"]);
   });
 });

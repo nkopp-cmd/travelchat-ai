@@ -57,15 +57,19 @@ const APIFY_DATASET_LIMIT = 1_000;
 const SOCIAL_RESULT_LIMIT_PER_CITY = 12;
 const MAX_ACTOR_CHARGE_USD = "2";
 const MAX_CONTENT_TEXT_LENGTH = 4_000;
-const MAX_LINKER_SIGNALS_PER_CITY = 16;
+const MAX_LINKER_SIGNALS_PER_CITY = 32;
+// Collection yields about a dozen posts per city and week, too few to name a
+// strong catalog spot on their own, so rankings read the last two weeks.
+const TREND_SIGNAL_WEEKS = 2;
 const MAX_LINKER_SPOTS_PER_CITY = 160;
 const MAX_NEW_RUNS_PER_INVOCATION = 3;
 const MAX_RUN_ATTEMPTS = 3;
 const MAX_CITY_BUILD_ATTEMPTS = 3;
-// Builds that succeeded before the linker accepted unverified catalog spots
-// published empty rankings. Each such build reruns once; its new completed_at
-// is later than this mark, so it never reruns again.
-export const TREND_LINKER_RELEASED_AT = "2026-10-20T14:30:00.000Z";
+// Builds that succeeded before the current linker (public catalog spots, all
+// name languages, two-week window) published sparse rankings. Each such build
+// reruns once; its new completed_at is later than this mark, so it never
+// reruns again.
+export const TREND_LINKER_RELEASED_AT = "2026-10-20T15:30:00.000Z";
 // PostgREST returns at most 1000 rows; the per-city query stays under it.
 const MAX_TREND_CANDIDATE_SPOTS = 1_000;
 const DERIVED_DATA_RETENTION_DAYS = 16 * 7;
@@ -542,10 +546,21 @@ function spotCitySlug(spot: RawSpot): string | null {
   return inferCityFromAddress(getLocalizedText(spot.address))?.slug || null;
 }
 
+function spotNames(spot: Pick<RawSpot, "name">): string[] {
+  const names = typeof spot.name === "object" && spot.name !== null
+    ? Object.values(spot.name)
+    : [getLocalizedText(spot.name)];
+  return [...new Set(names
+    .filter((name): name is string => typeof name === "string")
+    .map(normalizeSearchText)
+    // Latin names need 5+ characters; Hangul, kana, kanji and Thai names carry
+    // more per character, so 3+ is already specific.
+    .filter((name) => name.length >= (/[^\p{Script=Latin}\p{N}\s]/u.test(name) ? 3 : 5)))];
+}
+
 export function mentionsSpot(content: string, spot: Pick<RawSpot, "name">): boolean {
-  const name = normalizeSearchText(getLocalizedText(spot.name));
-  if (name.length < 5) return false;
-  return normalizeSearchText(content).includes(name);
+  const text = normalizeSearchText(content);
+  return spotNames(spot).some((name) => text.includes(name));
 }
 
 function engagementValue(item: NormalizedSocialTrendItem): number {
@@ -673,6 +688,12 @@ export function linkSignalsToSpots(input: {
   }));
 }
 
+export function signalWeeks(weekStart: string): string[] {
+  const start = Date.parse(`${weekStart}T00:00:00Z`);
+  return Array.from({ length: TREND_SIGNAL_WEEKS }, (_, index) =>
+    new Date(start - index * 7 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10));
+}
+
 async function rebuildCityRankings(weekStart: string, citySlug: string): Promise<number> {
   const supabase = createSupabaseAdmin();
   const city = SOCIAL_SCOUT_CITIES.find((candidate) => candidate.slug === citySlug);
@@ -680,7 +701,7 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
   // Candidates are public catalog spots with a strong local score. Manual
   // verification left about ten spots per city, so posts almost never matched.
   const [{ data: contentRows, error: contentError }, { data: spotRows, error: spotError }] = await Promise.all([
-    supabase.from("weekly_social_content").select("*").eq("week_start", weekStart),
+    supabase.from("weekly_social_content").select("*").in("week_start", signalWeeks(weekStart)),
     supabase
       .from("spots")
       .select("*")
@@ -714,9 +735,15 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
     );
   });
 
-    const cityContent = content.filter(
-      (item) => item.citySlug === city.slug && engagementValue(item) > 0,
-    );
+    const cityContent = [...content
+      .filter((item) => item.citySlug === city.slug && engagementValue(item) > 0)
+      .reduce((byKey, item) => {
+        // A post seen in both weeks counts once, with its stronger engagement.
+        const existing = byKey.get(signalKey(item));
+        if (!existing || engagementValue(item) > engagementValue(existing)) byKey.set(signalKey(item), item);
+        return byKey;
+      }, new Map<string, NormalizedSocialTrendItem>())
+      .values()];
     const citySpots = spots.filter((spot) => spotCitySlug(spot) === city.slug);
     const links = linkSignalsToSpots({
       signals: cityContent,
@@ -765,7 +792,7 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
     post_count: candidate.signals.length,
     platform_count: candidate.platforms.size,
     signal_summary: {
-      label: "Trending on social this week",
+      label: "Trending on social in the last two weeks",
       recentPublicPosts: candidate.signals.length,
       socialChannels: candidate.platforms.size,
     },
