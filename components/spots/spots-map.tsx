@@ -1,11 +1,17 @@
 "use client";
 
 import { useCallback, useId, useMemo, useState } from "react";
-import MapComponent, { type Location } from "@/components/ui/map";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { SpotCard } from "@/components/spots/spot-card";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import type { Spot } from "@/types";
+
+// Leaflet and the pin layer load with the map view, not with the spots page.
+const SpotPinMap = dynamic(() => import("./spot-pin-map"), {
+    ssr: false,
+    loading: () => <p role="status" className="grid h-full place-items-center text-muted-foreground">Loading map...</p>,
+});
 
 interface SpotsMapProps {
     spots: Spot[];
@@ -13,7 +19,7 @@ interface SpotsMapProps {
     currentPage: number;
 }
 
-export default function SpotsMap({ spots, city, currentPage }: SpotsMapProps) {
+export default function SpotsMap({ spots, currentPage }: SpotsMapProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const detailId = useId();
     const scopeId = useId();
@@ -21,15 +27,7 @@ export default function SpotsMap({ spots, city, currentPage }: SpotsMapProps) {
         () => spots.filter((spot) => getSpotLocationConfidence(spot.location).usableCoordinates),
         [spots]
     );
-    // Keep source text in React, not in the shared provider's HTML popups.
-    const markers = useMemo(() => pinnedSpots.map((spot) => ({
-        lat: spot.location.lat,
-        lng: spot.location.lng,
-    })), [pinnedSpots]);
-    const selectMarker = useCallback((_marker: Location, index: number) => {
-        const spot = pinnedSpots[index];
-        if (spot) setSelectedId(spot.id);
-    }, [pinnedSpots]);
+    const selectPin = useCallback((id: string | null) => setSelectedId(id), []);
     const selectedSpot = spots.find((spot) => spot.id === selectedId) ?? pinnedSpots[0] ?? spots[0];
     const missingCount = spots.length - pinnedSpots.length;
 
@@ -40,16 +38,10 @@ export default function SpotsMap({ spots, city, currentPage }: SpotsMapProps) {
                 <p>{missingCount} spots have missing or invalid coordinates and are not shown on the map.</p>
                 <p>Moving the map does not load more spots. Use filters or pagination to change results.</p>
             </div>
-            {markers.length > 0 ? (
-                <div className="relative isolate h-[320px] overflow-hidden rounded-xl sm:h-[440px]"
+            {pinnedSpots.length > 0 ? (
+                <div className="relative isolate h-[440px] overflow-hidden rounded-xl sm:h-[480px]"
                     role="region" aria-label="Map of this page's spots" aria-describedby={scopeId}>
-                    <MapComponent
-                        city={city}
-                        userTier="free"
-                        markers={markers}
-                        initialViewState={{ latitude: markers[0].lat, longitude: markers[0].lng, zoom: 13 }}
-                        onMarkerClick={selectMarker}
-                    />
+                    <SpotPinMap spots={pinnedSpots} selectedId={selectedId} onSelect={selectPin} />
                 </div>
             ) : (
                 <p role="status" className="rounded-xl bg-muted/30 p-6 text-muted-foreground">

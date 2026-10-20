@@ -506,3 +506,210 @@
 .leaflet-container .leaflet-bar.leaflet-control a + a {
     margin-top: 4px;
 }
+
+/* Map photo pins (shared/plans/map-photo-pins.md). Depth and tone separate pins from the
+   map, never a stroke. The tail is a clip-path shape. */
+.ll-pin-map .ll-map-tiles {
+    filter: invert(1) hue-rotate(200deg) brightness(0.8) contrast(0.85) saturate(0.55);
+}
+
+.ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"] { --ll-pin-tone: 244 200 130; }
+.ll-pin-map [data-tone="cafe"], .ll-pin-card[data-tone="cafe"] { --ll-pin-tone: 230 190 150; }
+.ll-pin-map [data-tone="nightlife"], .ll-pin-card[data-tone="nightlife"] { --ll-pin-tone: 185 161 255; }
+.ll-pin-map [data-tone="shopping"], .ll-pin-card[data-tone="shopping"] { --ll-pin-tone: 255 180 188; }
+.ll-pin-map [data-tone="market"], .ll-pin-card[data-tone="market"] { --ll-pin-tone: 250 176 128; }
+.ll-pin-map [data-tone="outdoor"], .ll-pin-card[data-tone="outdoor"] { --ll-pin-tone: 156 228 194; }
+.ll-pin-map [data-tone="culture"], .ll-pin-card[data-tone="culture"] { --ll-pin-tone: 160 205 255; }
+.ll-pin-map [data-tone="entertainment"], .ll-pin-card[data-tone="entertainment"] { --ll-pin-tone: 250 170 225; }
+.ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
+.ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"] { --ll-pin-tone: 210 195 255; }
+
+.leaflet-marker-icon.ll-pin-icon {
+    background: transparent;
+    border: 0;
+}
+
+/* 44px hit area; the visible face is smaller when zoomed out. */
+.ll-pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -100%);
+    display: grid;
+    place-items: center;
+    background: transparent;
+    cursor: pointer;
+    transition: transform var(--ll-motion-short) var(--ll-motion-ease);
+}
+
+.ll-pin-face {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    overflow: visible;
+    background: rgb(var(--ll-pin-tone));
+    color: rgb(var(--ll-control-ink));
+    box-shadow: 0 8px 18px rgb(0 0 0 / 0.5), 0 0 16px 2px rgb(var(--ll-pin-tone) / 0.35);
+    transition: width var(--ll-motion-short) var(--ll-motion-ease), height var(--ll-motion-short) var(--ll-motion-ease);
+}
+
+.ll-pin-face img {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
+.ll-pin-face::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 12px;
+    height: 8px;
+    transform: translateX(-50%);
+    background: rgb(var(--ll-pin-tone));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.ll-pin-map[data-zoom-band="near"] .ll-pin-face {
+    width: 40px;
+    height: 40px;
+}
+
+.ll-pin-chip {
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    display: none;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgb(var(--ll-surface));
+    color: rgb(var(--ll-text));
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    white-space: nowrap;
+    box-shadow: var(--ll-shadow-raised);
+    transform: translateX(-50%) rotate(-6deg);
+    pointer-events: none;
+}
+
+.ll-pin-map[data-zoom-band="near"] .ll-pin-chip {
+    display: block;
+}
+
+.ll-pin[data-selected] {
+    transform: translate(-50%, -100%) scale(1.15);
+    z-index: 2;
+}
+
+.ll-pin:focus-visible,
+.ll-pin-cluster:focus-visible {
+    outline: 3px solid rgb(var(--ll-focus));
+    outline-offset: 2px;
+    border-radius: 999px;
+}
+
+.ll-pin-cluster {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    height: 44px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgb(var(--ll-action));
+    color: rgb(var(--ll-action-ink));
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.5), 0 0 18px 3px rgb(var(--ll-action) / 0.4);
+    cursor: pointer;
+}
+
+.ll-pin-card {
+    position: absolute;
+    z-index: 600;
+    width: min(280px, calc(100% - 24px));
+    transform: translate(-50%, -100%);
+    transform-origin: 50% 100%;
+    border-radius: var(--ll-radius-card);
+    background: rgb(var(--ll-surface));
+    color: rgb(var(--ll-text));
+    box-shadow: var(--ll-shadow-overlay);
+    animation: ll-pin-pop 320ms cubic-bezier(0.2, 1.35, 0.4, 1);
+}
+
+.ll-pin-card:focus-visible {
+    outline: 3px solid rgb(var(--ll-focus));
+    outline-offset: 2px;
+}
+
+.ll-pin-card::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -9px;
+    width: 18px;
+    height: 10px;
+    transform: translateX(-50%);
+    background: rgb(var(--ll-surface));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.ll-pin-card-media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 104px;
+    overflow: hidden;
+    border-radius: var(--ll-radius-card) var(--ll-radius-card) 0 0;
+    background: rgb(var(--ll-pin-tone) / 0.9);
+    color: rgb(var(--ll-control-ink));
+}
+
+.ll-pin-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ll-pin-card-chip {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgb(var(--ll-overlay));
+    color: rgb(var(--ll-text));
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ll-pin-map .leaflet-bar.leaflet-control a {
+    background: rgb(var(--ll-surface));
+    color: rgb(var(--ll-text));
+    box-shadow: var(--ll-shadow-raised);
+}
+
+@media (min-width: 640px) {
+    .ll-pin-card-media { height: 132px; }
+}
+
+@keyframes ll-pin-pop {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -100%) scale(0.2);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ll-pin, .ll-pin-face { transition: none; }
+    .ll-pin-card { animation: none; }
+}
