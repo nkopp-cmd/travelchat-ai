@@ -255,6 +255,8 @@ on:
       - '__tests__/api/geocode-batch-stored-candidate-route.test.ts'
       - '__tests__/api/leaderboard-candidate-route.test.ts'
       - '__tests__/lib/app-data-preview-leaderboard.test.ts'
+      - 'app/leaderboard/page.tsx'
+      - 'lib/app-data/preview-leaderboard.ts'
       - '__tests__/api/email-preferences-candidate-route.test.ts'
       - '__tests__/api/notifications-candidate-route.test.ts'
       - '__tests__/lib/app-data-preview-email-preferences.test.ts'
@@ -500,7 +502,7 @@ jobs:
             npx eslint app/api/connect/earnings/route.ts lib/app-data/preview-guide-earnings.ts __tests__/api/connect-earnings-candidate-route.test.ts __tests__/lib/app-data-preview-guide-earnings.test.ts
             npx eslint app/api/geocode/route.ts lib/app-data/preview-stored-geocode.ts __tests__/api/geocode-stored-candidate-route.test.ts __tests__/lib/app-data-preview-stored-geocode.test.ts
             npx eslint app/api/geocode/batch/route.ts __tests__/api/geocode-batch-stored-candidate-route.test.ts
-            npx eslint app/api/leaderboard/route.ts lib/app-data/preview-leaderboard.ts __tests__/api/leaderboard-candidate-route.test.ts __tests__/lib/app-data-preview-leaderboard.test.ts
+            npx eslint app/api/leaderboard/route.ts app/leaderboard/page.tsx lib/app-data/preview-leaderboard.ts __tests__/api/leaderboard-candidate-route.test.ts __tests__/lib/app-data-preview-leaderboard.test.ts
             npx eslint app/api/user/email-preferences/route.ts lib/app-data/preview-email-preferences.ts __tests__/api/email-preferences-candidate-route.test.ts __tests__/lib/app-data-preview-email-preferences.test.ts
             npx eslint app/api/notifications/route.ts 'app/api/notifications/[id]/route.ts' lib/app-data/preview-notifications.ts __tests__/api/notifications-candidate-route.test.ts
             npx eslint app/api/admin/payouts/approve/route.ts lib/app-data/preview-payout-approval.ts __tests__/api/admin-payout-approval-candidate-route.test.ts __tests__/lib/app-data-preview-payout-approval.test.ts

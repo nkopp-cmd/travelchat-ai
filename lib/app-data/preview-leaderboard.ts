@@ -13,6 +13,13 @@ export function isPreviewLeaderboardCandidate(request: NextRequest): boolean {
     && process.env.SUPABASE_READ_ONLY === "true";
 }
 
+/** Server pages have no NextRequest: the same exact host + opt-in + preview gates, from headers. */
+export function isPreviewLeaderboardPageCandidate(host: string | null, flag: unknown): boolean {
+  return host === "localley-next-preview.nkopp.workers.dev" && flag === "d1"
+    && process.env.AUTH_MAIL_MODE === "outbox"
+    && process.env.SUPABASE_READ_ONLY === "true";
+}
+
 export function parseLeaderboardLimit(value: string | null): number | null {
   if (value === null) return 50;
   if (!/^[1-9][0-9]{0,2}$/.test(value)) return null;
@@ -87,4 +94,21 @@ export async function previewLeaderboard(userId: string | null, limit: number) {
     }
   }
   return { leaderboard, currentUserRank };
+}
+
+export interface LeaderboardPageUser {
+  rank: number; id: string; clerk_id: string; username: string | null;
+  xp: number; level: number; isCurrentUser: boolean;
+}
+
+/** The /leaderboard page shape (top 50) from the same D1 archive reader as the API. */
+export async function previewLeaderboardPage(userId: string | null): Promise<{
+  leaderboard: LeaderboardPageUser[]; currentUserRank: LeaderboardPageUser | null;
+}> {
+  const { leaderboard, currentUserRank } = await previewLeaderboard(userId, 50);
+  const toUser = (row: (typeof leaderboard)[number]): LeaderboardPageUser => ({
+    rank: row.rank, id: row.id, clerk_id: row.clerkId, username: row.username,
+    xp: row.xp, level: row.level, isCurrentUser: row.isCurrentUser,
+  });
+  return { leaderboard: leaderboard.map(toUser), currentUserRank: currentUserRank ? toUser(currentUserRank) : null };
 }
