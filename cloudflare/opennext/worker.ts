@@ -9,14 +9,27 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { default as handler } from "../../.open-next/worker.js";
+import { serveWithEdgeCache } from "./edge-html-cache";
 import { runScheduledRoute, type ScheduledController, type ScheduledEnv } from "./cron-routes";
 
 interface WorkerExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
 }
 
+interface FetchEnv {
+  CF_VERSION_METADATA?: { id: string };
+}
+
 const worker = {
-  fetch: handler.fetch,
+  fetch(request: Request, env: FetchEnv, ctx: WorkerExecutionContext) {
+    return serveWithEdgeCache(
+      request,
+      env.CF_VERSION_METADATA?.id,
+      (caches as unknown as { default: Cache }).default,
+      (promise) => ctx.waitUntil(promise),
+      (forwarded) => handler.fetch(forwarded, env, ctx),
+    );
+  },
   async scheduled(controller: ScheduledController, env: ScheduledEnv, ctx: WorkerExecutionContext) {
     ctx.waitUntil(runScheduledRoute(controller, env));
   },
