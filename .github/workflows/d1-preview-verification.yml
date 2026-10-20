@@ -247,6 +247,8 @@ on:
       - '__tests__/api/itinerary-save-candidate.test.ts'
       - '__tests__/api/itinerary-duplicate-candidate.test.ts'
       - '__tests__/app/itinerary-list-candidate-page.test.tsx'
+      - '__tests__/app/dashboard-candidate-page.test.tsx'
+      - 'app/dashboard/page.tsx'
       - '__tests__/api/spot-photos-candidate.test.ts'
       - '__tests__/lib/app-data-preview-spot-photos.test.ts'
       - '__tests__/lib/app-data-preview-cities.test.ts'

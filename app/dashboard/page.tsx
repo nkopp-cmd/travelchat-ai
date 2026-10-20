@@ -8,11 +8,14 @@ import { RecentStories } from "@/components/dashboard/recent-stories";
 import { MobileDashboardContent } from "@/components/dashboard/mobile-dashboard-content";
 import { OnboardingPanel } from "@/components/dashboard/onboarding-panel";
 import { AppBackground } from "@/components/layout/app-background";
+import { isPreviewItineraryListCandidate, previewRecentItineraries } from "@/lib/app-data/preview-itinerary-list";
+import { headers } from "next/headers";
 
-// Fetch user's recent itineraries
-async function getRecentItineraries() {
+// Fetch user's recent itineraries. Candidate requests read only D1 (no Supabase fallback).
+async function getRecentItineraries(candidate: boolean) {
     const { userId } = await auth();
     if (!userId) return [];
+    if (candidate) return previewRecentItineraries(userId);
 
     const supabase = createSupabaseAdmin();
     const { data } = await supabase
@@ -28,10 +31,11 @@ async function getRecentItineraries() {
 export default async function DashboardPage({
     searchParams,
 }: {
-    searchParams: Promise<{ itinerary?: string; title?: string; city?: string; days?: string; template?: string }>;
+    searchParams: Promise<{ itinerary?: string; title?: string; city?: string; days?: string; template?: string; data_candidate?: string }>;
 }) {
-    const recentItineraries = await getRecentItineraries();
     const params = await searchParams;
+    const candidate = isPreviewItineraryListCandidate((await headers()).get("host"), params.data_candidate);
+    const recentItineraries = await getRecentItineraries(candidate);
 
     // Check if a template was selected
     const selectedTemplate = params.template ? getTemplateById(params.template) : undefined;
