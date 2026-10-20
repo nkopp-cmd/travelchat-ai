@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Menu } from "@/components/ui/icons";
 import { routes } from "@/components/layout/navbar-routes";
 import { Button } from "@/components/ui/button";
@@ -30,11 +30,14 @@ export function Navbar() {
   const isLanding = pathname === "/";
   const isHidden = !isLanding && scrollDirection === "down";
   const [menuOpen, setMenuOpen] = useState(false);
+  // Stays mounted after the first open so Radix can animate the close and restore focus.
+  const [drawerMounted, setDrawerMounted] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
   return <header className={cn("sticky top-0 z-50 w-full bg-background/95 shadow-surface backdrop-blur-xl transition-transform duration-[var(--ll-motion-short)] motion-reduce:transition-none", isHidden && "-translate-y-full md:translate-y-0")}>
     <div className="container flex h-[var(--ll-topbar-height)] items-center justify-between gap-3 px-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={menuOpen} onPointerEnter={preloadDrawer} onFocus={preloadDrawer} onTouchStart={preloadDrawer} onClick={() => setMenuOpen(true)}><Menu className="size-5" /></Button>
-        {menuOpen && <NavbarDrawer open onOpenChange={setMenuOpen} pathname={pathname} isLanding={isLanding} />}
+        <Button ref={menuButton} variant="ghost" size="icon" className="md:hidden" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={menuOpen} onPointerEnter={preloadDrawer} onFocus={preloadDrawer} onTouchStart={preloadDrawer} onClick={() => { setDrawerMounted(true); setMenuOpen(true); }}><Menu className="size-5" /></Button>
+        {drawerMounted && <NavbarDrawer open={menuOpen} onOpenChange={setMenuOpen} returnFocusTo={menuButton} pathname={pathname} isLanding={isLanding} />}
         <Logo size="md" isLanding={isLanding} />
       </div>
       <nav aria-label="Main pages" className="hidden items-center gap-1 md:flex">{routes.map(route => {
