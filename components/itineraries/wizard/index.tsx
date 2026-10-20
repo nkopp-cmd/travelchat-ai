@@ -30,6 +30,9 @@ export function getTemplateFooterCityLabel(city: string): string {
   return city ? `Confirm city: ${city}` : "Pick a city";
 }
 
+// Short enough to fit next to Back at 360 px without truncation.
+export const WIZARD_GENERATE_LABEL = "Generate trip";
+
 export function getTemplateGenerateLabel(city: string): string {
   return city ? `Generate for ${city}` : "Generate";
 }
@@ -110,7 +113,7 @@ function WizardContent({
 
   const primaryActionLabel =
     isLastStep
-      ? "Generate Itinerary"
+      ? WIZARD_GENERATE_LABEL
       : canGenerateFromTemplate
         ? getTemplateGenerateLabel(data.city)
         : currentStep === 0 && templateApplied && !data.city
@@ -215,7 +218,7 @@ function WizardContent({
               onClick={handleNext}
               disabled={!canProceed}
               className={cn(
-                "h-10 min-w-0 flex-1 sm:h-11",
+                "h-10 min-w-0 flex-1 text-white sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
                 compactTemplateFooter && "w-full px-3 sm:w-auto sm:min-w-[8.5rem] sm:shrink-0",
                 canGenerateFromTemplate && "sm:min-w-[9.25rem] sm:max-w-[9.75rem]",
