@@ -21,6 +21,8 @@
   "limits": { "cpu_ms": 30000 },
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "images": { "binding": "IMAGES" },
+  // Worker version id keys the public HTML edge cache (cloudflare/opennext/edge-html-cache.ts).
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "services": [
     { "binding": "WORKER_SELF_REFERENCE", "service": "localley-next-preview" },
     // Normal preview reads only the existing public review projection. No Source secret.
@@ -99,6 +101,7 @@
       "preview_urls": false,
       "limits": { "cpu_ms": 30000 },
       "images": { "binding": "IMAGES" },
+      "version_metadata": { "binding": "CF_VERSION_METADATA" },
       "send_email": [{ "name": "AUTH_EMAIL", "allowed_sender_addresses": ["hello@localley.io"] }],
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
       // Created 2026-09-23 (step P2, approved by Nils).
