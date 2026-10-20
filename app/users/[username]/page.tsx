@@ -1,4 +1,7 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { isPreviewItineraryListCandidate } from "@/lib/app-data/preview-itinerary-list";
+import { previewUserProfile } from "@/lib/app-data/preview-user-profile";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -141,9 +144,19 @@ async function getUserStats(clerkId: string) {
     };
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ username: string }> }) {
+type PageProps = { params: Promise<{ username: string }>; searchParams?: Promise<{ data_candidate?: string }> };
+
+// Candidate requests (exact preview host + data_candidate=d1) read only D1 and fail closed.
+async function isCandidate(searchParams: PageProps["searchParams"]) {
+    const flag = (await searchParams)?.data_candidate;
+    return isPreviewItineraryListCandidate((await headers()).get("host"), flag);
+}
+
+export async function generateMetadata({ params, searchParams }: PageProps) {
     const { username } = await params;
-    const profile = await getUserProfile(username);
+    const profile = await isCandidate(searchParams)
+        ? (await previewUserProfile(username))?.profile ?? null
+        : await getUserProfile(username);
 
     if (!profile) {
         return {
@@ -159,18 +172,21 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     };
 }
 
-export default async function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function UserProfilePage({ params, searchParams }: PageProps) {
     const { username } = await params;
-    const profile = await getUserProfile(username);
+    const candidate = await isCandidate(searchParams) ? await previewUserProfile(username) : undefined;
+    const profile = candidate !== undefined ? candidate?.profile ?? null : await getUserProfile(username);
 
     if (!profile) {
         notFound();
     }
 
-    const [itineraries, stats] = await Promise.all([
-        getUserItineraries(profile.clerkId),
-        getUserStats(profile.clerkId),
-    ]);
+    const [itineraries, stats] = candidate
+        ? [candidate.itineraries, candidate.stats]
+        : await Promise.all([
+            getUserItineraries(profile.clerkId),
+            getUserStats(profile.clerkId),
+        ]);
 
     const displayName = profile.name || profile.username || "Anonymous Traveler";
     const initials = displayName.slice(0, 2).toUpperCase();

@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ admin: vi.fn(), notFound: vi.fn(() => { throw new Error("NEXT_NOT_FOUND"); }) }));
+const mocks = vi.hoisted(() => ({ admin: vi.fn(), preview: vi.fn(), notFound: vi.fn(() => { throw new Error("NEXT_NOT_FOUND"); }) }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
 vi.mock("next/navigation", () => ({ notFound: mocks.notFound }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers({ host: "www.localley.io" }) }));
+vi.mock("@/lib/app-data/preview-user-profile", () => ({ previewUserProfile: mocks.preview }));
 import { generateMetadata } from "@/app/users/[username]/page";
 
 type Row = Record<string, unknown>;
@@ -59,5 +61,20 @@ describe("public profile lookup", () => {
 
   it("never builds a filter string from the URL", () => {
     expect(readFileSync("app/users/[username]/page.tsx", "utf8")).not.toMatch(/\.or\(`/);
+  });
+
+  it("reads only D1 on the exact preview host with data_candidate=d1", async () => {
+    vi.stubEnv("AUTH_MAIL_MODE", "outbox");
+    vi.stubEnv("SUPABASE_READ_ONLY", "true");
+    mocks.preview.mockResolvedValue({ profile: { username: "d1user", name: null, bio: null }, itineraries: [], stats: {} });
+    vi.doMock("next/headers", () => ({ headers: async () => new Headers({ host: "localley-next-preview.nkopp.workers.dev" }) }));
+    vi.resetModules();
+    const page = await import("@/app/users/[username]/page");
+    const meta = await page.generateMetadata({ params: Promise.resolve({ username: "d1user" }), searchParams: Promise.resolve({ data_candidate: "d1" }) });
+    expect(meta.title).toContain("d1user");
+    expect(mocks.preview).toHaveBeenCalledWith("d1user");
+    expect(calls).toEqual([]);
+    vi.doUnmock("next/headers");
+    vi.unstubAllEnvs();
   });
 });
