@@ -12,12 +12,17 @@ function rule(selector: string): string {
 
 describe("Leaflet zoom control", () => {
   it("drops Leaflet's default borders with a selector that outranks leaflet.css", () => {
-    expect(rule(".leaflet-container .leaflet-bar")).toMatch(/border: 0;/);
-    expect(rule(".leaflet-container .leaflet-bar a,\n.leaflet-container .leaflet-bar a:last-child")).toMatch(/border: 0;/);
+    expect(rule(".leaflet-container .leaflet-bar.leaflet-control")).toMatch(/border: 0;/);
+    expect(rule(".leaflet-container .leaflet-bar.leaflet-control a,\n.leaflet-container .leaflet-bar.leaflet-control a:last-child")).toMatch(/border: 0;/);
+  });
+
+  it("outranks leaflet.css `.leaflet-touch .leaflet-bar a` (two classes) by selector, not load order", () => {
+    expect(css).toMatch(/\.leaflet-container \.leaflet-bar\.leaflet-control a,/);
+    expect(css).not.toMatch(/^\.leaflet-container \.leaflet-bar a,/m);
   });
 
   it("keeps zoom buttons at the 44px tap-target minimum", () => {
-    const button = rule(".leaflet-container .leaflet-bar a,\n.leaflet-container .leaflet-bar a:last-child");
+    const button = rule(".leaflet-container .leaflet-bar.leaflet-control a,\n.leaflet-container .leaflet-bar.leaflet-control a:last-child");
     expect(button).toMatch(/width: 44px;/);
     expect(button).toMatch(/height: 44px;/);
   });
