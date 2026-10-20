@@ -4,12 +4,18 @@ import {
   getTemplateFooterControlsClass,
   getTemplateFooterLayoutClass,
   getTemplateGenerateLabel,
+  WIZARD_GENERATE_LABEL,
 } from "@/components/itineraries/wizard";
 
 describe("template wizard footer copy", () => {
   it("makes sample-city confirmation explicit before one-tap generation", () => {
     expect(getTemplateFooterCityLabel("Seoul")).toBe("Confirm city: Seoul");
     expect(getTemplateGenerateLabel("Seoul")).toBe("Generate for Seoul");
+  });
+
+  it("keeps the last-step generate label short enough for 360 px", () => {
+    expect(WIZARD_GENERATE_LABEL).toBe("Generate trip");
+    expect(WIZARD_GENERATE_LABEL.length).toBeLessThanOrEqual(13);
   });
 
   it("falls back to city-picking copy when no city is selected", () => {
