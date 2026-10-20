@@ -27,6 +27,8 @@ for(const name of names){
  files.push([`components/ui/icon-glyphs/${name}.tsx`,`${license}import * as React from 'react';\nimport { defineIcon } from './define-icon';\n\nexport const ${name} = /* #__PURE__ */ defineIcon('${name}', /* #__PURE__ */ ${expression('duotone')}, /* #__PURE__ */ ${expression('fill')});\n`]);
 }
 const main=`// Compatibility aliases for Localley's single solid/duotone icon family.\nimport type { ComponentType } from 'react';\nimport type { IconProps } from './icon-glyphs/define-icon';\nexport type LucideIcon = ComponentType<IconProps>;\nexport type { IconProps } from './icon-glyphs/define-icon';\n`+Object.entries(aliases).map(([alias,glyph])=>`export { ${glyph} as ${alias} } from './icon-glyphs/${glyph}';`).join('\n')+'\n';
+// sideEffects:false lets the bundler drop glyph modules that icons.tsx re-exports but no route uses.
+files.push(['components/ui/icon-glyphs/package.json',JSON.stringify({name:'localley-icon-glyphs',private:true,sideEffects:false},null,2)+'\n']);
 files.push(['components/ui/icons.tsx',main]);
 const check=process.argv.includes('--check'),glyphFiles=new Set(files.map(([file])=>file.split('/').pop()));
 if(!check)await mkdir('components/ui/icon-glyphs',{recursive:true});
