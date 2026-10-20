@@ -41,17 +41,20 @@ interface PublicItinerary {
     createdAt: string;
 }
 
+// A profile segment is a username or a user id. Anything else (commas, parentheses,
+// dots used as PostgREST operators) never reaches the query.
+const PROFILE_SEGMENT = /^[A-Za-z0-9_-]{1,64}$/;
+
 async function getUserProfile(username: string): Promise<UserProfile | null> {
+    if (!PROFILE_SEGMENT.test(username)) return null;
     const supabase = createSupabaseAdmin();
 
-    // Try to find user by username or clerk_id
-    const { data: user, error } = await supabase
-        .from("users")
-        .select("*")
-        .or(`username.eq.${username},clerk_id.eq.${username}`)
-        .single();
+    // Exact username first, then exact user id; no hand-built filter string.
+    const byUsername = await supabase.from("users").select("*").eq("username", username).maybeSingle();
+    const user = byUsername.data
+        ?? (byUsername.error ? null : (await supabase.from("users").select("*").eq("clerk_id", username).maybeSingle()).data);
 
-    if (error || !user) {
+    if (!user) {
         return null;
     }
 
