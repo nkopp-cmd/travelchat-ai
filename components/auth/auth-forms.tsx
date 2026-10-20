@@ -7,7 +7,8 @@ import { Loader2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient, safeRedirect } from "@/lib/auth/client";
+import { authClient } from "@/lib/auth/auth-client";
+import { safeRedirect } from "@/lib/auth/client";
 
 const inputClass = "bg-white/10 text-white placeholder:text-gray-500";
 const primaryClass = "w-full bg-violet-600 hover:bg-violet-700 text-white";

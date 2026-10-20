@@ -3,10 +3,9 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), navigate: vi.fn(), query: "" }));
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(mocks.query) }));
-vi.mock("@/lib/auth/client", async () => {
+vi.mock("@/lib/auth/auth-client", async () => {
  const { createAuthClient } = await import("better-auth/react");
- const original = await vi.importActual<typeof import("@/lib/auth/client")>("@/lib/auth/client");
- return { ...original, authClient: createAuthClient({ baseURL: "https://www.localley.io", basePath: "/api/auth", fetchOptions: { customFetchImpl: mocks.fetch } }) };
+ return { authClient: createAuthClient({ baseURL: "https://www.localley.io", basePath: "/api/auth", fetchOptions: { customFetchImpl: mocks.fetch } }) };
 });
 import { SignInForm } from "@/components/auth/auth-forms";
 beforeEach(() => {

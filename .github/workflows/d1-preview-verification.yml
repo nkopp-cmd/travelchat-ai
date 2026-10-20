@@ -310,6 +310,10 @@ on:
       - 'app/api/notifications/push/subscribe/route.ts'
       - 'components/auth/auth-forms.tsx'
       - '__tests__/components/auth-password-redirect.test.tsx'
+      - 'lib/auth/client.ts'
+      - 'lib/auth/auth-client.ts'
+      - 'lib/auth/session-store.ts'
+      - '__tests__/components/auth-client-adapter.test.tsx'
       - 'lib/auth/user-sync.ts'
       - '__tests__/lib/auth-user-sync.test.ts'
       - 'lib/auth/mail.ts'
@@ -436,7 +440,7 @@ jobs:
             npx eslint hooks/use-place-photo.ts __tests__/hooks/use-place-photo.test.tsx
             npx vitest run __tests__/app/chat-history-pair.test.tsx --maxWorkers=1
             npx eslint components/chat/chat-interface.tsx __tests__/app/chat-history-pair.test.tsx
-            npx vitest run __tests__/components/auth-password-redirect.test.tsx --maxWorkers=1
+            npx vitest run __tests__/components/auth-password-redirect.test.tsx __tests__/components/auth-client-adapter.test.tsx --maxWorkers=1
             npx eslint components/auth/auth-forms.tsx __tests__/components/auth-password-redirect.test.tsx
             npx vitest run __tests__/components/itinerary-activity-card.test.tsx __tests__/api/backfill-photo-coordinate-guard.test.ts --maxWorkers=1
             npx eslint components/activities/itinerary-activity-card.tsx __tests__/components/itinerary-activity-card.test.tsx app/api/admin/spots/backfill-photos/route.ts lib/place-images.ts __tests__/api/backfill-photo-coordinate-guard.test.ts

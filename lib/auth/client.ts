@@ -5,29 +5,16 @@
  *
  * - `useUser()` -> { isLoaded, isSignedIn, user }   (drop-in for Clerk's useUser)
  * - `useAuth()` -> { isLoaded, isSignedIn, userId, signOut }   (drop-in for Clerk's useAuth)
- * - `authClient` for sign-in / sign-up / reset pages.
+ * - `authClient` lives in `@/lib/auth/auth-client` for sign-in / sign-up / reset pages.
+ *
+ * The hooks read the session through a small fetch store, so public pages do not
+ * ship the Better Auth client. Profile updates and sign-out load it on demand.
  */
-import { useMemo } from "react";
-import { createAuthClient } from "better-auth/react";
-import { inferAdditionalFields, magicLinkClient } from "better-auth/client/plugins";
+import { useMemo, useSyncExternalStore } from "react";
+import type { authClient as AuthClient } from "@/lib/auth/auth-client";
+import { getSessionServerSnapshot, getSessionSnapshot, refreshSession, subscribeSession } from "@/lib/auth/session-store";
 
-export const authClient = createAuthClient({
-  // The browser uses its own origin (www, apex, staging, preview). The SSR value is never fetched.
-  baseURL: typeof window === "undefined" ? "https://localley.io" : window.location.origin,
-  basePath: "/api/auth",
-  plugins: [
-    magicLinkClient(),
-    inferAdditionalFields({
-      user: {
-        firstName: { type: "string", required: false },
-        lastName: { type: "string", required: false },
-        bio: { type: "string", required: false },
-      },
-    }),
-  ],
-});
-
-type SessionData = NonNullable<ReturnType<typeof authClient.useSession>["data"]>;
+type SessionData = NonNullable<ReturnType<typeof AuthClient.useSession>["data"]>;
 
 export interface ClientUser {
   id: string;
@@ -62,6 +49,7 @@ export function toClientUser(user: SessionData["user"]): ClientUser {
       const nextFirst = input.firstName ?? firstName ?? "";
       const nextLast = input.lastName ?? lastName ?? "";
       const bio = input.unsafeMetadata && typeof input.unsafeMetadata.bio === "string" ? input.unsafeMetadata.bio : undefined;
+      const { authClient } = await import("@/lib/auth/auth-client");
       const { error } = await authClient.updateUser({
         firstName: nextFirst,
         lastName: nextLast,
@@ -69,12 +57,17 @@ export function toClientUser(user: SessionData["user"]): ClientUser {
         ...(bio !== undefined ? { bio } : {}),
       });
       if (error) throw new Error(error.message || "Profile update failed");
+      await refreshSession();
     },
   };
 }
 
+function useSession(): { data: SessionData | null; isPending: boolean } {
+  return useSyncExternalStore(subscribeSession, getSessionSnapshot, getSessionServerSnapshot) as { data: SessionData | null; isPending: boolean };
+}
+
 export function useUser(): { isLoaded: boolean; isSignedIn: boolean; user: ClientUser | null } {
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending } = useSession();
   const sessionUser = data?.user;
   const user = useMemo(() => (sessionUser ? toClientUser(sessionUser) : null), [sessionUser]);
   return { isLoaded: !isPending, isSignedIn: Boolean(user), user };
@@ -86,7 +79,7 @@ export function useAuth(): {
   userId: string | null;
   signOut: (redirectTo?: string) => Promise<void>;
 } {
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending } = useSession();
   return {
     isLoaded: !isPending,
     isSignedIn: Boolean(data?.user),
@@ -96,6 +89,7 @@ export function useAuth(): {
 }
 
 export async function signOut(redirectTo = "/"): Promise<void> {
+  const { authClient } = await import("@/lib/auth/auth-client");
   await authClient.signOut();
   window.location.assign(safeRedirect(redirectTo));
 }
