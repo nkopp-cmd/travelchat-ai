@@ -67,7 +67,11 @@ describe("public HTML edge cache", () => {
 
   it("bypasses the cache for other routes, queries, methods, RSC requests and missing versions", async () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/abc"))).toBe(false);
-    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&category=Food"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=Seoul"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/pricing?city=seoul"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/?utm=x"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/", { method: "POST" }))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/", { method: "HEAD" }))).toBe(false);
@@ -77,5 +81,23 @@ describe("public HTML edge cache", () => {
     const response = await serveWithEdgeCache(new Request("https://www.localley.io/"), undefined, cache, () => undefined, async () => html());
     expect(response.headers.has(EDGE_CACHE_HEADER)).toBe(false);
     expect(cache.match).not.toHaveBeenCalled();
+  });
+
+  it("keeps one entry per enabled city on /spots", async () => {
+    const cache = memoryCache();
+    const handler = vi.fn(async (request: Request) => new Response(`<html>${new URL(request.url).search}</html>`, {
+      status: 200,
+      headers: { "content-type": "text/html" },
+    }));
+    await serve(new Request("https://www.localley.io/spots?city=seoul"), cache, handler);
+    await serve(new Request("https://www.localley.io/spots?city=tokyo"), cache, handler);
+    const seoul = await serve(new Request("https://www.localley.io/spots?city=seoul"), cache, handler);
+    expect(seoul.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(await seoul.text()).toBe("<html>?city=seoul</html>");
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect([...cache.store.keys()]).toEqual([
+      "https://www.localley.io/spots?__edge=v1&city=seoul",
+      "https://www.localley.io/spots?__edge=v1&city=tokyo",
+    ]);
   });
 });
