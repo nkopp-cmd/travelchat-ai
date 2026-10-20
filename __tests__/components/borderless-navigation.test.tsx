@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 const state = vi.hoisted(() => ({ pathname:'/spots', loaded:false, signedIn:false }));
 vi.mock('next/navigation', () => ({usePathname:()=>state.pathname}));
@@ -18,8 +19,8 @@ describe('borderless navigation state',()=>{
   render(<Navbar/>);expect(screen.getByRole('status',{name:'Checking account'})).not.toBeNull();
   expect(screen.queryByRole('link',{name:'Sign in'})).toBeNull();expect(screen.queryByRole('button',{name:'Account menu'})).toBeNull();
  });
- it('shows the settled account and notification controls',()=>{
-  state.loaded=true;state.signedIn=true;render(<Navbar/>);expect(screen.getByRole('button',{name:'Account menu'})).not.toBeNull();expect(screen.queryByRole('link',{name:'Sign in'})).toBeNull();
+ it('shows the settled account and notification controls',async()=>{
+  state.loaded=true;state.signedIn=true;render(<Navbar/>);expect(await screen.findByRole('button',{name:'Account menu'})).not.toBeNull();expect(screen.queryByRole('link',{name:'Sign in'})).toBeNull();
  });
  it('lets a signed-out visitor open the planner and the public catalog',()=>{
   state.loaded=true;render(<Navbar/>);expect(screen.getByRole('link',{name:'Start planning'}).getAttribute('href')).toBe('/itineraries/new');expect(screen.getByRole('link',{name:'Explore'}).getAttribute('href')).toBe('/spots');
@@ -38,5 +39,9 @@ describe('borderless navigation state',()=>{
  });
  it('keeps the planner free of bottom navigation',()=>{
   state.pathname='/itineraries/new';render(<MobileBottomNav/>);expect(screen.queryByRole('navigation')).toBeNull();
+ });
+ it('keeps signed-in account controls out of the shared navbar chunk',()=>{
+  const source=readFileSync('components/layout/navbar.tsx','utf8');
+  expect(source).not.toMatch(/@\/components\/(auth\/user-menu|subscription|notifications)/);expect(source).toMatch(/dynamic\(\(\) => import\("@\/components\/layout\/navbar-account"\)/);
  });
 });
