@@ -21,6 +21,7 @@ import {
   mentionsSpot,
   normalizeSocialTrendItem,
   refreshWeeklySocialTrends,
+  nextBuildAttempt,
   shouldRebuildCity,
   signalWeeks,
   uniqueByPlaceName,
@@ -402,5 +403,17 @@ describe("weekly social trend normalization", () => {
       { id: "c", spot: { name: { en: "Gwangjang Market" } } },
     ]);
     expect(ranked.map((candidate) => candidate.id)).toEqual(["a", "c"]);
+  });
+
+  it("keeps rebuild claims inside the database attempt_count check (1..3)", () => {
+    expect(nextBuildAttempt(null)).toBe(1);
+    expect(nextBuildAttempt({ state: "failed", attempt_count: 2 })).toBe(3);
+    expect(nextBuildAttempt({ state: "succeeded", attempt_count: 3 })).toBe(3);
+    for (const state of ["succeeded", "failed"]) {
+      for (const attempts of [1, 2, 3]) {
+        const build = { state, attempt_count: attempts, completed_at: "2026-10-20T15:58:00Z" };
+        if (shouldRebuildCity(build)) expect(nextBuildAttempt(build)).toBeLessThanOrEqual(3);
+      }
+    }
   });
 });

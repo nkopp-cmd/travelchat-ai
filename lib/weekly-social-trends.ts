@@ -989,6 +989,14 @@ async function runsReadyForBuild(weekStart: string): Promise<boolean> {
   return areTrendRunsReadyForBuild(data || []);
 }
 
+// attempt_count is CHECK (1..3) in the database and counts failed builds only. A
+// one-time rebuild of a succeeded build keeps the count; otherwise a city already at
+// 3 would violate the check and fail the whole daily refresh.
+export function nextBuildAttempt(existing?: { state: string; attempt_count: number } | null): number {
+  if (!existing) return 1;
+  return existing.state === "failed" ? existing.attempt_count + 1 : existing.attempt_count;
+}
+
 export function shouldRebuildCity(build: {
   state: string;
   attempt_count: number;
@@ -1020,7 +1028,7 @@ async function claimNextCityBuild(weekStart: string): Promise<string | null> {
       week_start: weekStart,
       city_slug: city.slug,
       state: "running",
-      attempt_count: existing ? existing.attempt_count + 1 : 1,
+      attempt_count: nextBuildAttempt(existing),
       error_message: null,
       lease_expires_at: new Date(timestamp.getTime() + 10 * 60 * 1_000).toISOString(),
       completed_at: null,
@@ -1034,6 +1042,8 @@ async function claimNextCityBuild(weekStart: string): Promise<string | null> {
         .eq("city_slug", city.slug)
         .eq("state", existing.state)
         .eq("attempt_count", existing.attempt_count)
+        // A succeeded row keeps its attempt count, so completed_at is the claim's version.
+        .match(existing.state === "succeeded" && existing.completed_at ? { completed_at: existing.completed_at } : {})
     : supabase.from("weekly_social_trend_city_builds").insert(claim);
   const { data: claimed, error: claimError } = await query.select("city_slug").maybeSingle();
   if (claimError?.code === "23505") return null;
