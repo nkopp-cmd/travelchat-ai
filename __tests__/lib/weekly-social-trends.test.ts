@@ -23,6 +23,7 @@ import {
   refreshWeeklySocialTrends,
   shouldRebuildCity,
   signalWeeks,
+  uniqueByPlaceName,
   SOCIAL_SCOUT_CITIES,
   TREND_LINKER_RELEASED_AT,
 } from "@/lib/weekly-social-trends";
@@ -392,5 +393,14 @@ describe("weekly social trend normalization", () => {
 
   it("reads the current and the previous week of signals", () => {
     expect(signalWeeks("2026-10-19")).toEqual(["2026-10-19", "2026-10-12"]);
+  });
+
+  it("ranks one catalog place once even when it has two rows", () => {
+    const ranked = uniqueByPlaceName([
+      { id: "a", spot: { name: { en: "Dongmyo Flea Market" } } },
+      { id: "b", spot: { name: { en: "Dongmyo  flea market!" } } },
+      { id: "c", spot: { name: { en: "Gwangjang Market" } } },
+    ]);
+    expect(ranked.map((candidate) => candidate.id)).toEqual(["a", "c"]);
   });
 });

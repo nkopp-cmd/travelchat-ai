@@ -66,10 +66,11 @@ const MAX_NEW_RUNS_PER_INVOCATION = 3;
 const MAX_RUN_ATTEMPTS = 3;
 const MAX_CITY_BUILD_ATTEMPTS = 3;
 // Builds that succeeded before the current linker (public catalog spots, all
-// name languages, two-week window) published sparse rankings. Each such build
+// name languages, two-week window, one entry per place name) published sparse
+// or duplicate rankings. Each such build
 // reruns once; its new completed_at is later than this mark, so it never
 // reruns again.
-export const TREND_LINKER_RELEASED_AT = "2026-10-20T15:30:00.000Z";
+export const TREND_LINKER_RELEASED_AT = "2026-10-20T16:30:00.000Z";
 // PostgREST returns at most 1000 rows; the per-city query stays under it.
 const MAX_TREND_CANDIDATE_SPOTS = 1_000;
 const DERIVED_DATA_RETENTION_DAYS = 16 * 7;
@@ -688,6 +689,18 @@ export function linkSignalsToSpots(input: {
   }));
 }
 
+// The catalog can hold one place twice (e.g. a verified and an imported row);
+// rankings show it once, keeping the first (strongest) entry.
+export function uniqueByPlaceName<T extends { spot: Pick<RawSpot, "name"> }>(candidates: T[]): T[] {
+  const seen = new Set<string>();
+  return candidates.filter((candidate) => {
+    const name = normalizeSearchText(getLocalizedText(candidate.spot.name));
+    if (seen.has(name)) return false;
+    seen.add(name);
+    return true;
+  });
+}
+
 export function signalWeeks(weekStart: string): string[] {
   const start = Date.parse(`${weekStart}T00:00:00Z`);
   return Array.from({ length: TREND_SIGNAL_WEEKS }, (_, index) =>
@@ -782,10 +795,10 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
         return { spot, signals, platforms, score };
       })
       .filter((value): value is NonNullable<typeof value> => Boolean(value))
-      .sort((left, right) => right.score - left.score)
-      .slice(0, 5);
+      .sort((left, right) => right.score - left.score);
+    const ranked = uniqueByPlaceName(candidates).slice(0, 5);
 
-  const rankingRows = candidates.map((candidate, index) => ({
+  const rankingRows = ranked.map((candidate, index) => ({
     spot_id: candidate.spot.id,
     rank: index + 1,
     score: candidate.score.toFixed(3),
