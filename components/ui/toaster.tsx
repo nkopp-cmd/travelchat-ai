@@ -1,35 +1,15 @@
 "use client";
 
-import {
-    Toast,
-    ToastClose,
-    ToastDescription,
-    ToastProvider,
-    ToastTitle,
-    ToastViewport,
-} from "@/components/ui/toast";
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useToast } from "@/hooks/use-toast";
+
+// Radix Toast loads with the first toast, not with every page.
+const RadixToaster = dynamic(() => import("@/components/ui/radix-toaster").then((module) => module.RadixToaster), { ssr: false });
 
 export function Toaster() {
     const { toasts } = useToast();
-
-    return (
-        <ToastProvider>
-            {toasts.map(function ({ id, title, description, action, ...props }) {
-                return (
-                    <Toast key={id} {...props}>
-                        <div className="grid gap-1">
-                            {title && <ToastTitle>{title}</ToastTitle>}
-                            {description && (
-                                <ToastDescription>{description}</ToastDescription>
-                            )}
-                        </div>
-                        {action}
-                        <ToastClose />
-                    </Toast>
-                );
-            })}
-            <ToastViewport />
-        </ToastProvider>
-    );
+    const [needed, setNeeded] = useState(false);
+    if (!needed && toasts.length > 0) setNeeded(true);
+    return needed ? <RadixToaster /> : null;
 }
