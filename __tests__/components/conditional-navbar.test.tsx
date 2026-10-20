@@ -14,7 +14,7 @@ vi.mock("next/dynamic", () => ({
 
 beforeEach(() => state.rendered.mockClear());
 describe("conditional app navigation", () => {
-  it.each(["/", "/sign-in", "/sign-up/verify"])(
+  it.each(["/sign-in", "/sign-up/verify"])(
     "does not mount app controls on %s",
     (pathname) => {
       state.pathname = pathname;
@@ -23,14 +23,15 @@ describe("conditional app navigation", () => {
       expect(state.rendered).not.toHaveBeenCalled();
     },
   );
-  it("retains app navigation when leaving the landing route", () => {
+  it("uses one shared navigation on home and after route changes", () => {
     state.pathname = "/";
     const view = render(<ConditionalNavbar />);
+    expect(screen.getAllByRole("navigation")).toHaveLength(1);
     state.pathname = "/spots";
     view.rerender(<ConditionalNavbar />);
     expect(
       screen.getByRole("navigation", { name: "App navigation" }),
     ).toBeTruthy();
-    expect(state.rendered).toHaveBeenCalledOnce();
+    expect(state.rendered).toHaveBeenCalledTimes(2);
   });
 });

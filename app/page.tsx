@@ -9,7 +9,6 @@ import {
   Search,
   Star,
 } from "@/components/ui/icons";
-import { MarketingNavbar } from "@/components/layout/marketing-navbar";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -64,7 +63,6 @@ function highQualityUnsplashUrl(imageUrl: string | undefined, width = 1200, qual
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0b0714] text-white selection:bg-violet-300/30 mobile-sticky-safe-space md:pb-0">
-      <MarketingNavbar />
       <LandingPlanner cities={CITY_OPTIONS.map(({ name, slug, vibe }) => ({ name, slug, vibe }))}>
 
       <section className="relative overflow-hidden ">
@@ -73,7 +71,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(124,58,237,0.2),rgba(255,255,255,0)_42%,rgba(79,70,229,0.16))]" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0b0714] to-transparent" />
 
-        <div className="container relative z-10 mx-auto grid min-h-[calc(100svh-1rem)] max-w-7xl items-center gap-8 px-4 pb-10 pt-24 md:grid-cols-[1fr_420px] md:px-6 lg:pb-16">
+        <div className="container relative z-10 mx-auto grid min-h-[calc(100svh-1rem)] max-w-7xl items-center gap-8 px-4 pb-10 pt-8 md:grid-cols-[1fr_420px] md:px-6 lg:pb-16">
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-violet-400/12 px-3 py-2 text-sm font-semibold text-violet-100 shadow-lg shadow-violet-500/10">
               <MapPin className="h-4 w-4" />

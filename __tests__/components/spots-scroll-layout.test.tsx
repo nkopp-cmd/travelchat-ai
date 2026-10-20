@@ -85,6 +85,7 @@ describe("spots scroll layout", () => {
     const mainLandmarks = screen.getAllByRole("main");
     const main = mainLandmarks[0];
 
+    expect(screen.queryByRole("complementary")).toBeNull();
     expect(mainLandmarks).toHaveLength(1);
     expect(main.id).toBe("main-content");
     expect(main.hasAttribute("data-main-scroll-host")).toBe(false);

@@ -3,16 +3,14 @@
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 
-// The landing and auth routes do not render this navigation. Keep its user menu,
-// notifications and billing controls out of their initial client bundle.
+// Use one navigation across public and app pages. Auth forms keep their focused shell.
 const Navbar = dynamic(() => import("@/components/layout/navbar").then((module) => module.Navbar));
 
 export function ConditionalNavbar() {
     const pathname = usePathname();
 
-    // Don't show navbar on auth pages or landing page (which has its own marketing navbar)
+    // Auth forms keep their focused shell.
     const hideNavbar =
-        pathname === "/" ||
         pathname?.startsWith("/sign-in") ||
         pathname?.startsWith("/sign-up");
 
