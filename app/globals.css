@@ -702,6 +702,12 @@
     .ll-pin-card-media { height: 132px; }
 }
 
+/* On phones the open card can sit under Leaflet's zoom buttons (z-index 800); the
+   card's Close button and Escape replace them while it is open. */
+@media (max-width: 639px) {
+    .ll-pin-map[data-card-open] .leaflet-control-zoom { visibility: hidden; }
+}
+
 @keyframes ll-pin-pop {
     from {
         opacity: 0;

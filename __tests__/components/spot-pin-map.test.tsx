@@ -47,5 +47,7 @@ describe("map pin card", () => {
     const pinCss = css.slice(css.indexOf("/* Map photo pins"));
     expect(pinCss).not.toMatch(/border:\s*[1-9]|0 0 0 [1-9]px/);
     expect(pinCss).toMatch(/prefers-reduced-motion: reduce[\s\S]*\.ll-pin-card \{ animation: none; \}/);
+    expect(pinCss).toMatch(/max-width: 639px\)[\s\S]*\.ll-pin-map\[data-card-open\] \.leaflet-control-zoom \{ visibility: hidden; \}/);
+    expect(source).toMatch(/data-card-open=\{selected \? "" : undefined\}/);
   });
 });

@@ -160,7 +160,8 @@ export default function SpotPinMap({ spots, selectedId, onSelect }: {
 
     return (
         <div className="relative h-full w-full">
-            <div ref={container} className="ll-pin-map h-full w-full" data-zoom-band={near ? "near" : "far"} style={{ minHeight: "300px" }} />
+            <div ref={container} className="ll-pin-map h-full w-full" data-zoom-band={near ? "near" : "far"}
+                data-card-open={selected ? "" : undefined} style={{ minHeight: "300px" }} />
             {slots.map((slot) => {
                 if (slot.ids.length > 1) {
                     return createPortal(
