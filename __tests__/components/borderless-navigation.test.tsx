@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 const state = vi.hoisted(() => ({ pathname:'/spots', loaded:false, signedIn:false }));
 vi.mock('next/navigation', () => ({usePathname:()=>state.pathname}));
 vi.mock('next/link', () => ({default:({href,...props}:ComponentProps<'a'>)=><a href={href} {...props}/>}));
@@ -43,6 +43,12 @@ describe('borderless navigation state',()=>{
  it('keeps signed-in account controls out of the shared navbar chunk',()=>{
   const source=readFileSync('components/layout/navbar.tsx','utf8');
   expect(source).not.toMatch(/@\/components\/(auth\/user-menu|subscription|notifications)/);expect(source).toMatch(/dynamic\(\(\) => import\("@\/components\/layout\/navbar-account"\)/);
+ });
+ it('returns focus to the menu button when the drawer closes',async()=>{
+  render(<Navbar/>);const button=screen.getByRole('button',{name:'Open menu'});button.focus();fireEvent.click(button);
+  const drawer=await screen.findByRole('dialog',{name:'Explore Localley'});expect(button.getAttribute('aria-expanded')).toBe('true');
+  fireEvent.keyDown(drawer,{key:'Escape'});
+  await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());await waitFor(()=>expect(document.activeElement).toBe(button));expect(button.getAttribute('aria-expanded')).toBe('false');
  });
  it('loads the mobile drawer (Radix Dialog) only on demand',()=>{
   const source=readFileSync('components/layout/navbar.tsx','utf8');
