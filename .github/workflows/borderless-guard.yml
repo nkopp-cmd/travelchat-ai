@@ -1,0 +1,52 @@
+name: Borderless guard
+
+# d1-preview-verification.yml runs only for its listed paths, so a new
+# decorative border in any other UI file never met the guard. This job runs
+# the two border guards for every UI change.
+on:
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'hooks/**'
+      - 'providers/**'
+      - 'lib/**/*.tsx'
+      - 'styles/**'
+      - 'tailwind.config.ts'
+      - 'scripts/check-borderless.mjs'
+      - 'scripts/check-embedded-borders.checks.mjs'
+      - '.github/workflows/borderless-guard.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'hooks/**'
+      - 'providers/**'
+      - 'lib/**/*.tsx'
+      - 'styles/**'
+      - 'tailwind.config.ts'
+      - 'scripts/check-borderless.mjs'
+      - 'scripts/check-embedded-borders.checks.mjs'
+      - '.github/workflows/borderless-guard.yml'
+
+jobs:
+  borderless:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    env:
+      HEAVY_LOCK_WAIT_SECONDS: '1200'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Reject new decorative borders
+        run: |
+          /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
+            set -e
+            npm ci --ignore-scripts
+            node scripts/check-borderless.mjs
+            node --test scripts/check-embedded-borders.checks.mjs
+          '
