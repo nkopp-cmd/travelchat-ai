@@ -46,6 +46,17 @@ describe("public HTML edge cache", () => {
     expect(handler).toHaveBeenCalledTimes(2);
   });
 
+  it("keeps the live spots catalog for five minutes and prerenders for a day", async () => {
+    const cache = memoryCache();
+    await serve(new Request("https://www.localley.io/spots"), cache, async () => html({ "cache-control": "private, no-store" }));
+    await serve(new Request("https://www.localley.io/"), cache, async () => html());
+    const stored = [...cache.store.entries()];
+    expect(stored.find(([url]) => url.includes("/spots?"))?.[1].headers.get("cache-control")).toBe("public, s-maxage=300");
+    expect(stored.find(([url]) => url.startsWith("https://www.localley.io/?"))?.[1].headers.get("cache-control")).toBe("public, s-maxage=86400");
+    const hit = await serve(new Request("https://www.localley.io/spots"), cache, async () => html());
+    expect(hit.headers.get("cache-control")).toBe("private, no-store");
+  });
+
   it("never stores responses that set cookies, fail, or are not HTML", async () => {
     for (const response of [html({ "set-cookie": "a=1" }), new Response("x", { status: 500, headers: { "content-type": "text/html" } }), new Response("{}", { headers: { "content-type": "application/json" } })]) {
       const cache = memoryCache();
@@ -55,7 +66,8 @@ describe("public HTML edge cache", () => {
   });
 
   it("bypasses the cache for other routes, queries, methods, RSC requests and missing versions", async () => {
-    expect(isEdgeCacheable(new Request("https://www.localley.io/spots"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/abc"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/?utm=x"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/", { method: "POST" }))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/", { method: "HEAD" }))).toBe(false);
