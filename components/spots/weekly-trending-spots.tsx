@@ -52,12 +52,12 @@ export function WeeklyTrendingSpots({ items, citySlug }: { items: WeeklyTrending
 
   return <section aria-labelledby={headingId} aria-roledescription="carousel" className="mb-8 min-w-0">
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <div><p className="mb-1 text-[13px] font-medium text-primary">This week</p>
+      <div><p className="mb-1 text-[13px] font-medium text-primary">Trending now</p>
         <h2 id={headingId} className="text-[22px] font-semibold tracking-tight">Places worth a detour</h2>
-        <p className="mt-1 text-sm text-muted-foreground">From this week&apos;s public social activity.</p></div>
+        <p className="mt-1 text-sm text-muted-foreground">From the last two weeks of public social posts.</p></div>
       <Link prefetch={false} href={`/spots?${allParams}#spot-results`} className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-primary">See all</Link>
     </div>
-    <div ref={track} id={trackId} role="group" tabIndex={0} aria-label="This week’s spots. Use left and right arrows to browse."
+    <div ref={track} id={trackId} role="group" tabIndex={0} aria-label="Trending spots. Use left and right arrows to browse."
       onScroll={updatePosition} onKeyDown={onKeyDown}
       className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain rounded-2xl pb-4 [scrollbar-width:thin] after:w-[15%] after:shrink-0 after:content-[''] sm:after:w-0">
       {items.map((item, index) => <div key={`${item.citySlug}-${item.spot.id}`}

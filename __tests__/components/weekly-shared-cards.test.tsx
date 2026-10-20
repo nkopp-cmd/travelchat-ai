@@ -53,7 +53,7 @@ describe("weekly shared cards in city catalogs", () => {
     render(<><WeeklyTrendingSpots items={items} citySlug="seoul" /><WeeklyTrendingSpots items={items} citySlug="tokyo" /></>);
     const regions = screen.getAllByRole("region", { name: "Places worth a detour" });
     const ids = regions.map(region => {
-      const track = within(region).getByRole("group", { name: "This week’s spots. Use left and right arrows to browse." });
+      const track = within(region).getByRole("group", { name: "Trending spots. Use left and right arrows to browse." });
       expect(track.tabIndex).toBe(0);
       for (const name of ["Previous spot", "Next spot"]) {
         expect(within(region).getByRole("button", { name }).getAttribute("aria-controls")).toBe(track.id);
@@ -73,7 +73,7 @@ describe("weekly shared cards in city catalogs", () => {
   });
   it("does not intercept keyboard events from a card action", () => {
     render(<WeeklyTrendingSpots items={items} />);
-    const track = screen.getByRole("group", { name: "This week’s spots. Use left and right arrows to browse." });
+    const track = screen.getByRole("group", { name: "Trending spots. Use left and right arrows to browse." });
     const scrollTo = vi.fn(); track.scrollTo = scrollTo;
     const action = within(track).getAllByRole("link", { name: /^Add to trip:/ })[0];
     action.focus();
